@@ -1,0 +1,141 @@
+include "TriggerLibs/NativeLib"
+include "Lib67C0F0E7"
+
+include "Lib0940FFB7_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Nova
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib0940FFB7_InitLibraries () {
+    libNtve_InitVariables();
+    lib67C0F0E7_InitVariables();
+}
+
+// Functions
+void lib0940FFB7_gf_NovaCaster () {
+    // Automatic Variable Declarations
+    // Implementation
+    lib67C0F0E7_gf_SOAStickyLine(1, "NovaGriffinBombingRun");
+    lib67C0F0E7_gf_SOAStickyPoint(1, "NovaGriffinTransport");
+}
+
+void lib0940FFB7_gf_InitlizeNova (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "NovaCoop", c_unitCreateIgnoreBirth, lp_player, PlayerStartLocation(lp_player));
+    DataTableSetUnit(true, ("NovaHero" + IntToString(lp_player)), UnitLastCreated());
+    TriggerAddEventUnitDied(lib0940FFB7_gt_NovaRevive,UnitRefFromUnit(UnitLastCreated()));
+    TriggerEnable(lib0940FFB7_gt_NovaReviveInstantBuyback,true);
+    TriggerEnable(lib0940FFB7_gt_NovaRevive,true);
+}
+
+void lib0940FFB7_gf_NovaTrigger (unit lp_u) {
+    // Automatic Variable Declarations
+    // Implementation
+    DataTableSetUnit(true, ("NovaHero" + IntToString(1)), lp_u);
+    TriggerAddEventUnitDied(lib0940FFB7_gt_NovaRevive,UnitRefFromUnit(lp_u));
+    TriggerEnable(lib0940FFB7_gt_NovaReviveInstantBuyback,true);
+    TriggerEnable(lib0940FFB7_gt_NovaRevive,true);
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: NovaReviveInstantBuyback
+//--------------------------------------------------------------------------------------------------
+bool lib0940FFB7_gt_NovaReviveInstantBuyback_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_u;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_u = DataTableGetUnit(true, ("NovaHero" + IntToString(EventPlayer())));
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CatalogReferenceModify("Abil,NovaReviveInstantBuyback,Cost[0].Resource[Minerals]", EventPlayer(), "450", c_upgradeOperationSet);
+    UnitSetPosition(lv_u, EventUnitTargetPoint(), false);
+    UnitRevive(lv_u);
+    UnitSetPropertyFixed(lv_u, c_unitPropLifePercent, 100.0);
+    libNtve_gf_SendActorMessageToUnit(lv_u, "Create NovaReviveGriffinDropOff");
+    libNtve_gf_SendActorMessageToUnit(lv_u, "SetVisibility");
+    Wait(0.5, c_timeGame);
+    libNtve_gf_SendActorMessageToUnit(lv_u, "SetVisibility 1");
+    libNtve_gf_SendActorMessageToUnit(lv_u, "AnimPlay Buyback Unload,End,Cover 0 0.000000");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib0940FFB7_gt_NovaReviveInstantBuyback_Init () {
+    lib0940FFB7_gt_NovaReviveInstantBuyback = TriggerCreate("lib0940FFB7_gt_NovaReviveInstantBuyback_Func");
+    TriggerEnable(lib0940FFB7_gt_NovaReviveInstantBuyback, false);
+    TriggerAddEventUnitAbility(lib0940FFB7_gt_NovaReviveInstantBuyback, null, AbilityCommand("NovaReviveInstantBuyback", 0), c_unitAbilStageExecute, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: NovaRevive
+//--------------------------------------------------------------------------------------------------
+bool lib0940FFB7_gt_NovaRevive_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_i = 90;
+    for ( ; ( lv_i >= 2 ) ; lv_i -= 1 ) {
+        Wait(1.0, c_timeGame);
+        if ((UnitIsAlive(EventUnit()) == true)) {
+            return true;
+        }
+        else {
+            CatalogReferenceModify("Abil,NovaReviveInstantBuyback,Cost[0].Resource[Minerals]", EventPlayer(), "5", c_upgradeOperationSubtract);
+        }
+    }
+    Wait(1.0, c_timeGame);
+    if ((UnitIsAlive(EventUnit()) == true)) {
+    }
+    else {
+        CatalogReferenceModify("Abil,NovaReviveInstantBuyback,Cost[0].Resource[Minerals]", EventPlayer(), "450", c_upgradeOperationSet);
+        UnitSetPosition(EventUnit(), UnitTypePlacementTestsFromPoint(UnitGetType(EventUnit()), EventPlayer(), PlayerStartLocation(EventPlayer()), 5.0, c_placementTestPowerMask | c_placementTestFogMask | c_placementTestZoneMask | c_placementTestCliffMask | c_placementTestDensityMask), false);
+        UnitRevive(EventUnit());
+        UnitSetPropertyFixed(EventUnit(), c_unitPropLifePercent, 100.0);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib0940FFB7_gt_NovaRevive_Init () {
+    lib0940FFB7_gt_NovaRevive = TriggerCreate("lib0940FFB7_gt_NovaRevive_Func");
+    TriggerEnable(lib0940FFB7_gt_NovaRevive, false);
+}
+
+void lib0940FFB7_InitTriggers () {
+    lib0940FFB7_gt_NovaReviveInstantBuyback_Init();
+    lib0940FFB7_gt_NovaRevive_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib0940FFB7_InitLib_completed = false;
+
+void lib0940FFB7_InitLib () {
+    if (lib0940FFB7_InitLib_completed) {
+        return;
+    }
+
+    lib0940FFB7_InitLib_completed = true;
+
+    lib0940FFB7_InitLibraries();
+    lib0940FFB7_InitTriggers();
+}
+

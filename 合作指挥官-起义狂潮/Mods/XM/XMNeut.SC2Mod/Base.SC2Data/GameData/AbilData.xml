@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CAbilMorphPlacement default="1" id="SIBuildingRoot" parent="TerranBuildingLand">
+        <ActorKey value="Root"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SIRoot"/>
+        <Flags index="ShowProgress" value="1"/>
+        <Name value="Abil/Name/##id##"/>
+        <InfoArray index="0" Unit="##unit##" CollideRange="0">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="2"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorphPlacement>
+    <CAbilMorph default="1" id="SIBuildingUproot" parent="TerranBuildingLiftOff">
+        <CmdButtonArray index="Execute" DefaultButtonFace="PrimalBuildingUproot"/>
+        <ActorKey value="Uproot"/>
+        <Name value="Abil/Name/##id##"/>
+    </CAbilMorph>
+    <CAbilEffectTarget id="BlinkMultipleNeut">
+        <AbilSetId value="Blnk"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Flags index="BestUnit" value="0"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Cost>
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="3"/>
+                <CountUse value="1"/>
+                <TimeStart value="4"/>
+                <TimeUse value="15"/>
+            </Charge>
+            <Cooldown Link="Blink"/>
+        </Cost>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="BlinkMultipleNeut">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="DiscountCardsPickUpNeut">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="DiscountCardsSetNeut"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Range value="1"/>
+        <Arc value="360"/>
+        <AutoCastFilters value="Visible;User1,Missile"/>
+        <AutoCastRange value="1"/>
+        <AutoCastValidatorArray value="PickupCheck"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ItemGrenades"/>
+    </CAbilEffectTarget>
+    <CAbilSpecialize id="ExchangeNeut">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoArray index="Specialize1" Effect="NullNeut">
+            <Resource index="Minerals" value="-100"/>
+            <Resource index="Vespene" value="25"/>
+            <Charge>
+                <CountMax value="10"/>
+                <CountStart value="10"/>
+                <CountUse value="1"/>
+                <TimeStart value="240"/>
+                <TimeUse value="240"/>
+            </Charge>
+            <Button DefaultButtonFace="ExchangeM100Neut"/>
+        </InfoArray>
+        <InfoArray index="Specialize2" Effect="NullNeut">
+            <Resource index="Minerals" value="-300"/>
+            <Resource index="Vespene" value="75"/>
+            <Charge>
+                <CountMax value="5"/>
+                <CountStart value="5"/>
+                <CountUse value="1"/>
+                <Link value="Abil/ExchangeM300"/>
+            </Charge>
+            <Button DefaultButtonFace="ExchangeM300Neut"/>
+        </InfoArray>
+        <InfoArray index="Specialize3" Effect="NullNeut">
+            <Resource index="Minerals" value="-500"/>
+            <Resource index="Vespene" value="125"/>
+            <Charge>
+                <CountMax value="5"/>
+                <CountStart value="5"/>
+                <CountUse value="1"/>
+                <Link value="Abil/ExchangeM500"/>
+            </Charge>
+            <Button DefaultButtonFace="ExchangeM500Neut"/>
+        </InfoArray>
+        <InfoArray index="Specialize4" Effect="NullNeut">
+            <Resource index="Minerals" value="-1000"/>
+            <Resource index="Vespene" value="250"/>
+            <Charge>
+                <CountMax value="1"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <Link value="Abil/ExchangeM1000"/>
+            </Charge>
+            <Button DefaultButtonFace="ExchangeM1000Neut"/>
+        </InfoArray>
+        <InfoArray index="Specialize10" Effect="NullNeut">
+            <Resource index="Minerals" value="400"/>
+            <Resource index="Vespene" value="-100"/>
+            <Charge>
+                <CountMax value="10"/>
+                <CountStart value="10"/>
+                <CountUse value="1"/>
+                <TimeStart value="240"/>
+                <TimeUse value="240"/>
+            </Charge>
+            <Button DefaultButtonFace="ExchangeG100Neut"/>
+        </InfoArray>
+        <InfoArray index="Specialize11" Effect="NullNeut">
+            <Resource index="Minerals" value="1200"/>
+            <Resource index="Vespene" value="-300"/>
+            <Charge>
+                <CountMax value="5"/>
+                <CountStart value="5"/>
+                <CountUse value="1"/>
+                <Link value="Abil/ExchangeG300"/>
+            </Charge>
+            <Button DefaultButtonFace="ExchangeG300Neut"/>
+        </InfoArray>
+        <InfoArray index="Specialize12" Effect="NullNeut">
+            <Resource index="Minerals" value="2000"/>
+            <Resource index="Vespene" value="-500"/>
+            <Charge>
+                <CountMax value="5"/>
+                <CountStart value="5"/>
+                <CountUse value="1"/>
+                <Link value="Abil/ExchangeG500"/>
+            </Charge>
+            <Button DefaultButtonFace="ExchangeG500Neut"/>
+        </InfoArray>
+        <InfoArray index="Specialize13" Effect="NullNeut">
+            <Resource index="Minerals" value="4000"/>
+            <Resource index="Vespene" value="-1000"/>
+            <Charge>
+                <CountMax value="1"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <Link value="Abil/ExchangeG1000"/>
+            </Charge>
+            <Button DefaultButtonFace="ExchangeG1000Neut"/>
+        </InfoArray>
+    </CAbilSpecialize>
+    <CAbilMorph id="MengskSiegeTankNeutSiege">
+        <AbilSetId value="SiegeMode"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SiegeMode">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <Flags index="SuppressMovement" value="1"/>
+        <InfoArray Unit="MengskSiegeTankNeutSieged" RandomDelayMax="0.5">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="0.5"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Delay" value="0.5"/>
+                <DurationArray index="Duration" value="3.5417"/>
+            </SectionArray>
+            <SectionArray index="Facing">
+                <DurationArray index="Duration" value="0.5"/>
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Delay" value="0.5"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="0.5"/>
+                <DurationArray index="Duration" value="3.5417"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="MengskSiegeTankNeutUnsiege">
+        <AbilSetId value="Unsieged"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="Unsiege">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <Flags index="SuppressMovement" value="1"/>
+        <InfoArray Unit="MengskSiegeTankNeut" RandomDelayMax="0.5">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="3.5417"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="3.5417"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorphPlacement id="SpineCrawlerRootNeut">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:MorphsandBurrows"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SpineCrawlerRoot"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <ActorKey value="Root"/>
+        <Flags index="DisableAbils" value="1"/>
+        <Flags index="FastBuild" value="1"/>
+        <Flags index="Interruptible" value="1"/>
+        <Flags index="IgnorePlacement" value="0"/>
+        <Flags index="ShowProgress" value="1"/>
+        <InfoArray Unit="SpineCrawlerNeut" CollideRange="0">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="3"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="3"/>
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Delay" value="3"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="3"/>
+            </SectionArray>
+        </InfoArray>
+        <ProgressButton value="SpineCrawlerRootCancel"/>
+    </CAbilMorphPlacement>
+    <CAbilMorph id="SpineCrawlerUprootNeut">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:MorphsandBurrows"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SpineCrawlerUproot"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <ActorKey value="Uproot"/>
+        <Flags index="FastBuild" value="1"/>
+        <InfoArray Unit="SpineCrawlerNeutUprooted">
+            <SectionArray index="Abils">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="1"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="BurrowOmegaliskDownNeut">
+        <AbilSetId value="BrwD"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:MorphsandBurrows"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="BurrowDown">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <ActorKey value="BurrowDown"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="SuppressMovement" value="1"/>
+        <InfoArray Unit="OmegaliskNeutBurrowed" RandomDelayMax="0.25">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="2"/>
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Delay" value="0.5556"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="0.5556"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="BurrowOmegaliskUpNeut">
+        <AbilSetId value="BrwU"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:MorphsandBurrows"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="BurrowUp">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <ActorKey value="BurrowUp"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="SuppressMovement" value="1"/>
+        <InfoArray Unit="OmegaliskNeut" RandomDelayMax="0.5">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="2"/>
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Delay" value="0.0556"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilTransport id="NeutralVehiclesDNeut">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Load" DefaultButtonFace="HerculesLoad"/>
+        <CmdButtonArray index="UnloadAll" DefaultButtonFace="Unload"/>
+        <MaxCargoCount value="1"/>
+        <MaxCargoSize value="8"/>
+        <TotalCargoSpace value="8"/>
+        <LoadCargoEffect value="NeutralVehiclesSetNeut"/>
+        <UnloadTransportEffect value="NeutralVehiclesRBNeut"/>
+        <TargetFilters value="Visible;Enemy,Buried,Dead,Hidden"/>
+        <StateBehavior value="NoDriverNeut"/>
+    </CAbilTransport>
+    <CAbilInteract id="NeutralVehiclesINeut">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Designate" DefaultButtonFace="NeutralVehiclesINeut"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="ShareControl" value="1"/>
+        <Flags index="AlwaysShowCommandCard" value="1"/>
+        <Range value="5"/>
+        <AutoCastRange value="5"/>
+        <AutoCastFilters value="-;Missile,Stasis,Dead,Hidden"/>
+        <AutoCastValidatorArray value="PickupPlayerCheck"/>
+    </CAbilInteract>
+    <CAbilEffectTarget id="WarpConATNeut">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="WarpConATCPNeut"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <AINotifyEffect value="WarpConATCPNeut"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="WarpConATNeut"/>
+        <StateBehavior value="WarpConNeut"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="WarpConIONeut">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <TargetMessage value="Abil/TargetMessage/DefaultWarpConIONeutargetMessage"/>
+        <Effect index="0" value="WarpConSetNeut"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <AutoCastFilters value="Visible;-"/>
+        <AutoCastRange value="2"/>
+        <AutoCastValidatorArray value="TunnelNeut"/>
+        <AutoCastValidatorArray value="WarpConHTNeut"/>
+        <AINotifyEffect value="WarpConSetNeut"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="WarpConIONeut"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="WarpConRTNeut">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="WarpConRTATNeut"/>
+        <AINotifyEffect value="WarpConRTATNeut"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="WarpConRTNeut"/>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="WarpConTNeut">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <TargetMessage value="Abil/TargetMessage/DefaultWarpConTNeutargetMessage"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="WarpConTNeut"/>
+    </CAbilEffectTarget>
+    <CAbilTransport id="InfestedBunkerTransportNeut">
+        <AbilSetId value="ULdS"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures"/>
+        <CmdButtonArray index="Load" DefaultButtonFace="BunkerLoad"/>
+        <CmdButtonArray index="UnloadAll" DefaultButtonFace="BunkerUnloadAll">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadAt">
+            <Flags index="Hidden" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadUnit">
+            <Flags index="Hidden" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="LoadAll">
+            <Flags index="Hidden" value="1"/>
+        </CmdButtonArray>
+        <Range value="0"/>
+        <MaxCargoCount value="8"/>
+        <MaxCargoSize value="8"/>
+        <TotalCargoSpace value="8"/>
+        <LoadCargoEffect value="NeutralVehiclesSetNeut"/>
+        <UnloadTransportEffect value="NeutralVehiclesRBNeut"/>
+        <StateBehavior value="NoDriverNeut"/>
+        <TargetFilters value="Visible;Enemy,Dead,Hidden"/>
+    </CAbilTransport>
+    <CAbilMorphPlacement id="InfestedBunkerRootNeut" parent="SIBuildingRoot" unit="SIInfestedBunker">
+        <EditorCategories value="Race:InfestedTerran,AbilityorEffectType:MorphsandBurrows"/>
+        <InfoTooltipPriority value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="InfestedBunkerRootNeut"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="RallyReset" value="0"/>
+        <InfoArray index="0" Unit="InfestedBunkerNeut" CollideRange="0" RandomDelayMax="0.5">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="0.5"/>
+                <DurationArray index="Duration" value="3"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="3"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorphPlacement>
+    <CAbilMorph id="InfestedBunkerNeutUproot" parent="SIBuildingUproot" unit="SIInfestedBunkerUprooted">
+        <AbilSetId value="Unsieged"/>
+        <EditorCategories value="Race:InfestedTerran,AbilityorEffectType:MorphsandBurrows"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="InfestedBunkerUprootNeut"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="RallyReset" value="0"/>
+        <InfoArray index="0" Unit="InfestedBunkerNeutUprooted">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="3.5"/>
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Duration" value="0"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="3.5"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+</Catalog>

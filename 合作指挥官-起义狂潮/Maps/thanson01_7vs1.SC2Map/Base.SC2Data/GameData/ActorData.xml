@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CActorBeamSimple id="CODFlatbedTruckBeamthanson01" parent="BeamSimpleAnimationStyleContinuous">
+        <On Terms="Effect.CODFlatbedTruckthanson01.Start; At Target" Send="Create"/>
+        <On Terms="Behavior.CODFlatbedTruckthanson01.Off" Send="Destroy"/>
+        <Model value="CODConstructDisableBeam"/>
+        <Scale value="0.500000"/>
+        <HostLaunch Subject="_Selectable" Scope="Caster" Actor="Find"/>
+        <HostLaunchSiteOps Ops="SOpAttachOverhead"/>
+        <HostImpact Subject="_Unit" Actor="Find"/>
+        <HostImpactSiteOps Ops="SOpAttachHead"/>
+    </CActorBeamSimple>
+    <CActorSound id="CODFlatbedTruckBeam_Impact_ASthanson01" parent="SoundOneShot">
+        <On Terms="Behavior.CODFlatbedTruckthanson01.Off" Send="Create"/>
+        <Sound value="CODConstructDisableBeam_Impact"/>
+    </CActorSound>
+    <CActorSound id="CODFlatbedTruckBeam_Launch_ASthanson01" parent="SoundOneShot">
+        <On Terms="Effect.CODFlatbedTruckthanson01.Start; At Caster" Send="Create"/>
+        <Sound value="CODConstructDisableBeam_Launch"/>
+        <Layers Sound="CODConstructDisableBeam_Impact">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+    </CActorSound>
+    <CActorUnit id="CODFlatbedTruckthanson01" parent="GenericUnitStandardNoAutoSoundLinks" unitName="CODFlatbedTruckthanson01">
+        <Aliases value="_UnitLarge"/>
+        <On Terms="Signal.*.ArtifactLoaded" Send="Create SoundEmitter COD_ArtifactLoaded_Loop"/>
+        <On Terms="AbilMorph.MorphToCODFlatbedTruckSiSCV.Start" Send="AnimBracketStart Morph Stand,Morph,Start Stand,Morph Stand,Morph,End 0 2.000000"/>
+        <On Terms="AbilMorph.MorphToCODFlatbedTruckSCV.Start" Send="AnimBracketStop Morph"/>
+        <On Terms="UnitBirth.CODFlatbedTruckFlying" Send="Create"/>
+        <On Terms="UnitRevive.CODFlatbedTruckFlying" Send="Create"/>
+        <On Terms="UnitBirth.CODFlatbedTruckSiegeSCV" Send="Create"/>
+        <On Terms="UnitBirth.CODFlatbedTruckSiegeSCV" Send="AnimBracketStart Morph Stand,Morph,Start Stand,Morph Stand,Morph,End 0 2.000000"/>
+        <Model value="CODFlatbedTruck"/>
+        <Scale value="0.750000"/>
+        <ModelFlags index="AutomateGlobalLoops" value="0"/>
+        <ModelFlags index="NeedsVolumeMonitoring" value="0"/>
+        <ModelFlags index="UseSyncSeed" value="0"/>
+        <BuildModel value="CODFlatbedTruck"/>
+        <DeathArray index="Normal" ModelLink="CODFlatbedTruckDeath" SoundLink="COD_Nuke_Payload_Explode"/>
+        <PlacementModel value="CODFlatbedTruck"/>
+        <PortraitModel value="Truck_XelNagaCore_Portrait"/>
+        <StandAnimTurnTime value="3.33"/>
+        <WalkAnimMoveSpeed value="1"/>
+        <BarWidth value="102"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-cradleofdeath-truck.dds"/>
+        </GroupIcon>
+        <GroupSoundArray index="Birth" value="COD_Flatbed_Birth"/>
+        <GroupSoundArray index="Help" value="COD_Flatbed_Birth"/>
+        <GroupSoundArray index="What" value="COD_Flatbed_What"/>
+        <GroupSoundArray index="Yes" value="COD_Flatbed_Yes"/>
+        <GroupSoundArray index="Attack" value="COD_Flatbed_Attack"/>
+        <GroupSoundArray index="Pissed" value="COD_Flatbed_Pissed"/>
+        <HeroIcon value="Assets\Textures\btn-unit-artifacttruck.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
+        <SoundArray index="Birth" value="COD_Flatbed_Birth"/>
+        <SoundArray index="Ready" value="COD_Flatbed_Ready"/>
+        <SoundArray index="Help" value="COD_Flatbed_Birth"/>
+        <SoundArray index="What" value="COD_Flatbed_What"/>
+        <SoundArray index="Yes" value="COD_Flatbed_Yes"/>
+        <SoundArray index="Attack" value="COD_Flatbed_Attack"/>
+        <SoundArray index="Pissed" value="COD_Flatbed_Pissed"/>
+        <SoundArray index="Movement" value="COD_Flatbed_MoveStart"/>
+        <UnitIcon value="Assets\Textures\btn-unit-artifacttruck.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-cradleofdeath-truck.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorUnit id="ZergTowerArtillery">
+        <DeathArray index="Normal" ModelLink="EvolutionChamberDeath"/>
+        <!--MinimapIcon value="Assets\Textures\ui_minimap_icon_scourgecannon.dds"/-->
+    </CActorUnit>
+</Catalog>

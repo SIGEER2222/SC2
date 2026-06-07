@@ -1,0 +1,2304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CAbilTrain id="ProbeMorphPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Flags index="KillOnFinish" value="1"/>
+        <Flags index="Select" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Range value="0"/>
+        <InfoArray index="Train1">
+            <Button DefaultButtonFace="ButtonPr1"/>
+            <Unit value="ProbePr1"/>
+        </InfoArray>
+        <InfoArray index="Train2">
+            <Button DefaultButtonFace="ButtonPr2"/>
+            <Unit value="ProbePr2"/>
+        </InfoArray>
+        <InfoArray index="Train3">
+            <Button DefaultButtonFace="ButtonPr3"/>
+            <Unit value="ProbePr3"/>
+        </InfoArray>
+        <InfoArray index="Train4">
+            <Button DefaultButtonFace="ButtonPr4"/>
+            <Unit value="ProbePr4"/>
+        </InfoArray>
+        <InfoArray index="Train5">
+            <Button DefaultButtonFace="ButtonPr5"/>
+            <Unit value="ProbePr5"/>
+        </InfoArray>
+        <InfoArray index="Train6">
+            <Button DefaultButtonFace="ButtonPr6"/>
+            <Unit value="ProbePr6"/>
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilEffectTarget id="PsiStormPr">
+        <Alignment value="Negative"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="PsiStormPersistentPr"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="10"/>
+        </Cost>
+        <Range value="500"/>
+        <CursorEffect value="PsiStormSearchPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PsiStormPr" Requirements="PsiStormOrderPr"/>
+        <Arc value="360"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="RecyclingPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+            <Cooldown TimeStart="60" TimeUse="60"/>
+        </Cost>
+        <TargetFilters value="Visible;Self,Ally,Neutral,Heroic,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable,HeroUnit,PowerupOrItem"/>
+        <Range value="3"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="RecyclingPr"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="BlowUpPr">
+        <Alignment value="Negative"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <InfoTooltipPriority value="1"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+            <Charge Link="Abil/HunterBlowUpPr"/>
+            <Cooldown Link="Abil/HunterBlowUpPr"/>
+        </Cost>
+        <TargetFilters value="Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="8"/>
+        <Arc value="29.9926"/>
+        <ArcSlop value="0"/>
+        <Marker Link="Abil/HunterBlowUpPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="BlowUpPr"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="SuperShieldPr">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Effect index="0" value="SuperShieldSPr"/>
+        <Cost>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+        <TargetFilters value="-;Ally,Neutral,Enemy,Missile,Stasis,Dead,Hidden"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CursorEffect value="SuperShieldSPr"/>
+        <AINotifyEffect value="ChronoBoost"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SuperShieldPr" Requirements="SuperShieldOrderPr"/>
+    </CAbilEffectTarget>
+    <CAbilTrain id="TrainPHPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoArray index="Train1" Time="10"/>
+        <InfoArray index="Train2" Time="25">
+            <Button DefaultButtonFace="SentryAiurPr" State="Restricted"/>
+            <Unit value="SentryAiurPr"/>
+        </InfoArray>
+        <InfoArray index="Train3" Time="25">
+            <Button DefaultButtonFace="MonitorPr" State="Restricted"/>
+            <Unit value="SentryMonitorPr"/>
+        </InfoArray>
+        <InfoArray index="Train4" Time="25">
+            <Button DefaultButtonFace="SentryPurifierPr" State="Restricted"/>
+            <Unit value="SentryPurifierPr"/>
+        </InfoArray>
+        <InfoArray index="Train5" Time="25">
+            <Button DefaultButtonFace="SentryProtectorPr" State="Restricted"/>
+            <Unit value="SentryProtectorPr"/>
+        </InfoArray>
+        <InfoArray index="Train6" Time="10">
+            <Button DefaultButtonFace="Probe"/>
+            <Unit value="ProbePr"/>
+        </InfoArray>
+        <InfoArray index="Train7" Time="30">
+            <Button DefaultButtonFace="DragoonPr" State="Restricted"/>
+            <Unit value="WidowMinePr"/>
+        </InfoArray>
+        <InfoArray index="Train10" Time="15">
+            <Button DefaultButtonFace="ButtonPr3" State="Restricted"/>
+            <Unit value="ProbePr3"/>
+        </InfoArray>
+        <InfoArray index="Train11" Time="15">
+            <Button DefaultButtonFace="ButtonPr1" State="Restricted"/>
+            <Unit value="ProbePr1"/>
+        </InfoArray>
+        <InfoArray index="Train12" Time="15">
+            <Button DefaultButtonFace="ButtonPr2" State="Restricted"/>
+            <Unit value="ProbePr2"/>
+        </InfoArray>
+        <InfoArray index="Train13" Time="50">
+            <Button DefaultButtonFace="WarpPrismPr" State="Restricted"/>
+            <Unit value="WarpPrismPr"/>
+        </InfoArray>
+        <InfoArray index="Train17" Time="60">
+            <Button DefaultButtonFace="StoneZealotPr" State="Restricted" Requirements="HaveRoboticsBayPr"/>
+            <Unit value="StoneZealotPr"/>
+        </InfoArray>
+        <InfoArray index="Train18" Time="30">
+            <Button DefaultButtonFace="ObMobilePr" State="Restricted"/>
+            <Unit value="ObserverPr"/>
+        </InfoArray>
+        <InfoArray index="Train19" Time="60">
+            <Button DefaultButtonFace="MothershipCureAlphaPr" State="Restricted"/>
+            <Unit value="MothershipCoreAlphaPr"/>
+        </InfoArray>
+        <InfoArray index="Train20" Time="60">
+            <Button DefaultButtonFace="MothershipPr" State="Restricted" Requirements="BuildMothershipPr"/>
+            <Unit value="SOAMothershipv4Pr"/>
+        </InfoArray>
+        <InfoArray index="Train21" Time="35">
+            <Button DefaultButtonFace="ReplicantPr" State="Restricted"/>
+            <Unit value="ReplicantPr"/>
+        </InfoArray>
+        <InfoArray index="Train22" Time="60">
+            <Button DefaultButtonFace="MothershipCoreBetaPr" State="Restricted"/>
+            <Unit value="MothershipCoreBetaPr"/>
+        </InfoArray>
+        <InfoArray index="Train24" Time="15">
+            <Button DefaultButtonFace="ButtonPr4" State="Restricted"/>
+            <Unit value="ProbePr4"/>
+        </InfoArray>
+        <InfoArray index="Train25" Time="15">
+            <Button DefaultButtonFace="ButtonPr5" State="Restricted"/>
+            <Unit value="ProbePr5"/>
+        </InfoArray>
+        <InfoArray index="Train26" Time="15">
+            <Button DefaultButtonFace="ButtonPr6" State="Restricted"/>
+            <Unit value="ProbePr6"/>
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilResearch id="UpgradeUnitPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoArray index="Research1" Time="60" Upgrade="Probe1Pr">
+            <Resource index="Minerals" value="100"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="ButtonPr1U"/>
+        </InfoArray>
+        <InfoArray index="Research2" Time="100" Upgrade="Probe2Pr">
+            <Resource index="Minerals" value="100"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="ButtonPr2U"/>
+        </InfoArray>
+        <InfoArray index="Research3" Time="120" Upgrade="Probe3Pr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="ButtonPr3U"/>
+        </InfoArray>
+        <InfoArray index="Research4" Time="100" Upgrade="Probe4Pr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="Pr4U"/>
+        </InfoArray>
+        <InfoArray index="Research5" Time="100" Upgrade="Probe5Pr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="180"/>
+            <Button DefaultButtonFace="Pr5U"/>
+        </InfoArray>
+        <InfoArray index="Research6" Time="120" Upgrade="Probe6Pr">
+            <Resource index="Minerals" value="200"/>
+            <Resource index="Vespene" value="200"/>
+            <Button DefaultButtonFace="Pr6U"/>
+        </InfoArray>
+        <InfoArray index="Research7" Time="120" Upgrade="SentryMonitorPr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="180"/>
+            <Button DefaultButtonFace="MonitorPrU"/>
+        </InfoArray>
+        <InfoArray index="Research8" Time="100" Upgrade="SentryAiurPr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="SentryAiurPrU"/>
+        </InfoArray>
+        <InfoArray index="Research9" Time="80" Upgrade="SentryPurifierPr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="SentryPurifierPrU"/>
+        </InfoArray>
+        <InfoArray index="Research10" Time="130" Upgrade="SentryProtectorPr">
+            <Resource index="Minerals" value="200"/>
+            <Resource index="Vespene" value="200"/>
+            <Button DefaultButtonFace="SentryProtectorPrU"/>
+        </InfoArray>
+        <InfoArray index="Research11" Time="100" Upgrade="ReplicantBonusPr">
+            <Resource index="Minerals" value="180"/>
+            <Resource index="Vespene" value="180"/>
+            <Button DefaultButtonFace="ReplicantBonusPr"/>
+        </InfoArray>
+        <InfoArray index="Research12" Time="150" Upgrade="ReplicantDurationPr">
+            <Resource index="Minerals" value="250"/>
+            <Resource index="Vespene" value="250"/>
+            <Button DefaultButtonFace="ReplicantDurationPr"/>
+        </InfoArray>
+        <InfoArray index="Research13" Time="60" Upgrade="WidowMinePr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="DragoonPrU"/>
+        </InfoArray>
+        <InfoArray index="Research14" Time="60" Upgrade="ObserverPr">
+            <Resource index="Minerals" value="120"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="ObMobilePrU"/>
+        </InfoArray>
+        <InfoArray index="Research15" Time="100" Upgrade="MothershipCorePr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="MothershipCorePrU"/>
+        </InfoArray>
+        <InfoArray index="Research16" Time="60" Upgrade="SOAMothershipv4Pr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="MothershipPrU"/>
+        </InfoArray>
+        <InfoArray index="Research17" Time="100" Upgrade="DisruptorPr">
+            <Resource index="Minerals" value="180"/>
+            <Resource index="Vespene" value="200"/>
+            <Button DefaultButtonFace="DisruptorPrU"/>
+        </InfoArray>
+        <InfoArray index="Research18" Time="40" Upgrade="Probe1BPr">
+            <Resource index="Minerals" value="120"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="ButtonPr1UB"/>
+        </InfoArray>
+        <InfoArray index="Research19" Time="50" Upgrade="Probe2BPr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="ButtonPr2UB"/>
+        </InfoArray>
+        <InfoArray index="Research20" Time="60" Upgrade="Probe3BPr">
+            <Resource index="Minerals" value="180"/>
+            <Resource index="Vespene" value="120"/>
+            <Button DefaultButtonFace="ButtonPr3UB"/>
+        </InfoArray>
+        <InfoArray index="Research21" Time="120" Upgrade="Probe4BPr">
+            <Resource index="Minerals" value="200"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="Pr4UB"/>
+        </InfoArray>
+        <InfoArray index="Research22" Time="120" Upgrade="Probe5BPr">
+            <Resource index="Minerals" value="200"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="Pr5UB"/>
+        </InfoArray>
+        <InfoArray index="Research23" Time="120" Upgrade="Probe6BPr">
+            <Resource index="Minerals" value="200"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="Pr6UB"/>
+        </InfoArray>
+        <Flags index="SmartRequirement" value="1"/>
+    </CAbilResearch>
+    <CAbilEffectInstant id="ZeratulStructureBarrierPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="TransientPreferred" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="60"/>
+        </Cost>
+        <AutoCastRange value="5"/>
+        <AutoCastValidatorArray value="CasterInCombat"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ZeratulStructureBarrierPr"/>
+    </CAbilEffectInstant>
+    <CAbilRedirectTarget id="AttackRedirectPr">
+        <Alignment value="Negative"/>
+        <Abil value="attack"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="AttackRedirect">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilRedirectTarget>
+    <CAbilEffectTarget id="BlinkPr">
+        <AbilSetId value="Blnk"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Flags index="BestUnit" value="0"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Cost>
+            <Cooldown Link="BlinkBlink2BlinkBlinkPr" TimeUse="8"/>
+        </Cost>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="Blink">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+    <CAbilBehavior id="ChargeBeamBouncePr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="On" DefaultButtonFace="ChargeBeamBouncePr"/>
+        <CmdButtonArray index="Off" DefaultButtonFace="Cancel"/>
+        <Flags index="Toggle" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <BehaviorArray value="ChargeBeamBouncePr"/>
+    </CAbilBehavior>
+    <CAbilEffectInstant id="CleanDragoonJumpPr">
+        <OrderArray index="0" Model="Assets\UI\Cursors\WayPointConfirm_Void\WayPointConfirm_Void.m3"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="DragoonJumpRBPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="BurrowUpPr" Requirements="HaveDragoonJumpPr"/>
+    </CAbilEffectInstant>
+    <CAbilBehavior id="CloakFieldPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="On" DefaultButtonFace="CloakFieldPr"/>
+        <CmdButtonArray index="Off" DefaultButtonFace="CloakFieldClosedPr"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="Toggle" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+        <BehaviorArray value="ArtanisCloakFieldPr"/>
+    </CAbilBehavior>
+    <CAbilEffectTarget id="DragoonJumpPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Flags index="BestUnit" value="0"/>
+        <Range value="6"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="DragoonJumpPr" Requirements="NoDragoonJumpPr"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="FenixPurificationNovaPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="FenixPurificationNovaCPPr"/>
+        <Flags index="TransientPreferred" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="20"/>
+        </Cost>
+        <Range value="10"/>
+        <Arc value="360"/>
+        <CursorEffect value="FenixPurificationNovaSearchPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="purificationPr"/>
+    </CAbilEffectTarget>
+    <CAbilTransport id="LoadMegalithCutterPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="UnloadAll" DefaultButtonFace="HerculesUnloadAll"/>
+        <CmdButtonArray index="LoadAll" DefaultButtonFace="HerculesLoad"/>
+        <MaxCargoCount value="40"/>
+        <MaxCargoSize value="8"/>
+        <TotalCargoSpace value="40"/>
+        <SearchRadius value="6"/>
+        <TargetFilters value="Visible;Self,Ally,Neutral,Enemy,RawResource,HarvestableResource,Buried,Stasis,Dead,Hidden"/>
+    </CAbilTransport>
+    <CAbilEffectTarget id="MakeMagminePr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Cost>
+            <Vital index="Energy" value="5"/>
+            <Charge CountMax="8" CountUse="1" TimeUse="20"/>
+        </Cost>
+        <Range value="2"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="MakeMagminePr"/>
+        <PlaceUnit value="CloakedMinePr"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="MassRecallPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="MassRecallSearchPr"/>
+        <Cost>
+            <Vital index="Energy" value="100"/>
+            <Charge Link=""/>
+            <Cooldown Link=""/>
+        </Cost>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CursorEffect value="MassRecallSearchPr"/>
+        <AINotifyEffect value=""/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="MassRecallPr"/>
+    </CAbilEffectTarget>
+    <CAbilResearch id="MothershipPurifyWeaponUPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoArray index="Research1" Time="60" Upgrade="MothershipPurifyWeaponUPr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="NexusOverloadPr"/>
+        </InfoArray>
+        <Flags index="SmartRequirement" value="1"/>
+    </CAbilResearch>
+    <CAbilEffectTarget id="OracleRevelationPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="OracleRevelationSearchPr"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="25"/>
+            <Cooldown TimeUse="2.5"/>
+        </Cost>
+        <Range value="9"/>
+        <Arc value="360"/>
+        <CastOutroTime value="0.5"/>
+        <CursorEffect value="OracleRevelationSearchPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="OracleRevelationPr"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="PitAlarakPsiOrbPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="PitAlarakPsiOrbLaunchMissilePr"/>
+        <Range value="13"/>
+        <Arc value="360"/>
+        <CastIntroTime value="0.3"/>
+        <CursorEffect value="PitAlarakPsiOrbSearchPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="AlarakPsiOrbPr"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+        </Cost>
+    </CAbilEffectTarget>
+    <CAbilMorph id="Pr4">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ButtonPr4" State="Restricted"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <InfoArray Unit="ProbePr4">
+            <SectionArray index="Abils">
+                <DurationArray index="Duration" value="1"/>
+                <EffectArray index="Start" value="RepairLSPr"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="1"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="Pr5">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ButtonPr5" State="Restricted"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <InfoArray Unit="ProbePr5">
+            <SectionArray index="Abils">
+                <DurationArray index="Duration" value="1"/>
+                <EffectArray index="Start" value="RepairLSPr"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="1"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="Pr6">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ButtonPr6" State="Restricted"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <InfoArray Unit="ProbePr6">
+            <SectionArray index="Abils">
+                <DurationArray index="Duration" value="1"/>
+                <EffectArray index="Start" value="RepairLSPr"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="1"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="ProbiusEPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ProbiusEPr" Requirements="HaveSuperProbiusPr"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <InfoArray Unit="ProbiusEPr">
+            <SectionArray index="Abils">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+        </InfoArray>
+        <Cost>
+            <Cooldown Link="Abil/ProbiusNPr" TimeUse="5"/>
+        </Cost>
+    </CAbilMorph>
+    <CAbilMorph id="ProbiusPPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ProbiusPPr" Requirements="HaveSuperProbiusPr"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <InfoArray Unit="ProbiusPPr">
+            <SectionArray index="Abils">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+        </InfoArray>
+        <Cost>
+            <Cooldown Link="Abil/ProbiusNPr" TimeUse="5"/>
+        </Cost>
+    </CAbilMorph>
+    <CAbilMorph id="ProbiusNPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ProbiusNPr" Requirements="HaveSuperProbiusPr"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <InfoArray Unit="ProbiusPr">
+            <SectionArray index="Abils">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+        </InfoArray>
+        <Cost>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+    </CAbilMorph>
+    <CAbilEffectTarget id="JumpAttackPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+        <TargetFilters value="Ground,Visible;Missile,Item,Stasis,Dead,Hidden,Invulnerable,PowerupOrItem"/>
+        <Range value="5"/>
+        <TrackingArc value="360"/>
+        <AutoCastFilters value="Ground,Visible;Player,Ally,Neutral,Structure,Stasis,Dead,Hidden,Benign"/>
+        <AutoCastRange value="5"/>
+        <PrepTime value="0.125"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PrimalSlash2Pr"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="PrologueVoidArmorPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="PrologueVoidArmorSearchPr"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Charge Link="Abil/PrologueZeratulVoidArmor"/>
+            <Cooldown Link="Abil/PrologueZeratulVoidArmor" TimeUse="20"/>
+        </Cost>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PrologueVoidArmor"/>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="ChargeMothershipPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Cost>
+            <Vital index="Energy" value="30"/>
+            <Cooldown TimeUse="15"/>
+        </Cost>
+        <TargetFilters value="Air,Visible;Player,Ally,RawResource,HarvestableResource,Item,Stasis,Dead,Hidden,Invulnerable,PowerupOrItem"/>
+        <Range value="8"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="Charge"/>
+    </CAbilEffectTarget>
+    <CAbilArmMagazine id="DroneLibraryGPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Launch value="ReleaseAtSource"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <Flags index="Retarget" value="1"/>
+        <Leash value="4"/>
+        <InfoArray index="Ammo1" Time="3" Distance="3" Manage="Recall" Unit="ProbePr1CU">
+            <Charge Link="Abil/##id##"/>
+            <Cooldown Link="Abil/##id##"/>
+            <Button DefaultButtonFace="RepairSupportDroneA"/>
+            <Flags index="AutoBuild" value="1"/>
+            <Flags index="AutoBuildOn" value="1"/>
+            <Flags index="External" value="1"/>
+        </InfoArray>
+        <ExternalAngle value="59.9963"/>
+        <ExternalAngle value="29.9926"/>
+        <ExternalAngle value="329.9963"/>
+        <ExternalAngle value="299.9926"/>
+        <ExternalAngle value="0"/>
+        <MaxCount value="5"/>
+        <EffectArray index="Create" value="DroneLibraryGSetPr"/>
+    </CAbilArmMagazine>
+    <CAbilArmMagazine id="DroneLibraryAPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Launch value="ReleaseAtSource"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <Flags index="Retarget" value="1"/>
+        <Leash value="2"/>
+        <InfoArray index="Ammo1" Time="3" Distance="1" Manage="Recall" Unit="ProbePr3CU">
+            <Charge Link="Abil/##id##"/>
+            <Cooldown Link="Abil/##id##"/>
+            <Button DefaultButtonFace="RepairSupportDroneB"/>
+            <Flags index="AutoBuild" value="1"/>
+            <Flags index="AutoBuildOn" value="1"/>
+            <Flags index="External" value="1"/>
+        </InfoArray>
+        <ExternalAngle value="45"/>
+        <ExternalAngle value="315"/>
+        <MaxCount value="2"/>
+        <EffectArray index="Create" value="DroneLibraryASetPr"/>
+    </CAbilArmMagazine>
+    <CAbilEffectTarget id="CloakedMineAttackPr">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Effect index="0" value="SJCloakedMineAttackPr"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="2.5"/>
+        </Cost>
+        <Range value="200"/>
+        <Arc value="0.9997"/>
+        <AutoCastFilters value="-;Self,Player,Ally,Neutral,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable"/>
+        <AutoCastRange value="6"/>
+        <AINotifyEffect value="SJCloakedMineAttackPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="Attack">
+            <Flags index="ShowInGlossary" value="0"/>
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="TimeWarpTaPr">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Effect index="0" value="TimeWarpCPUPr"/>
+        <Cost>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+        <TargetFilters value="-;Ally,Neutral,Enemy,Missile,Stasis,Dead,Hidden"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <AINotifyEffect value="ChronoBoost"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="TimeWarpPr" Requirements="HaveLetsFuryPr"/>
+    </CAbilEffectTarget>
+    <CAbilAugment id="VoidInvisiblePr">
+        <Alignment value="Negative"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="VoidInvisiblePr"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <AbilCmd value="attack,Execute"/>
+        <Cost>
+            <Vital index="Energy" value="10"/>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+        <AutoCastFilters value="Visible;Self,Player,Ally,RawResource,HarvestableResource,Item,Stasis,Dead,Hidden,Invulnerable,PowerupOrItem"/>
+        <AutoCastValidatorArray value="CasterNotHoldingPosition"/>
+    </CAbilAugment>
+    <CAbilEffectTarget id="VoidSeekerPhaseMineBlastPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="VoidSeekerPhaseMineBlastLaunchMissilePr"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="30"/>
+        </Cost>
+        <TargetFilters value="Ground,Visible;Player,Ally,Neutral,Missile,Stasis,Invulnerable"/>
+        <Range value="7"/>
+        <FinishTime value="1.5"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PhaseMineBlastPr"/>
+        <Arc value="9.9975"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="ZeratulShadowCleavePr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="ZeratulShadowCleaveSetPr"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="6"/>
+        </Cost>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ZeratulShadowCleavePr"/>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="ArbiterMPStasisFieldPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="ArbiterMPStasisFieldSearchPr"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+        </Cost>
+        <Range value="9"/>
+        <CursorEffect value="ArbiterMPStasisFieldSearchPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ArbiterMPStasisField"/>
+        <Arc value="360"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="AutoPespawnPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="RespawnOrderPr"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="BestUnit" value="1"/>
+        <AutoCastFilters value="Visible;Ally,Neutral,Enemy"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ProbiusPr" Requirements="ProbiusIsDeadPr"/>
+    </CAbilEffectInstant>
+    <CAbilAugment id="ChargePr">
+        <Alignment value="Negative"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="Charge"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <AbilCmd value="attack,Execute"/>
+        <Cost>
+            <Cooldown Link="ChargeCharge2ChargeChargePr" Location="Unit" TimeUse="10"/>
+        </Cost>
+        <AutoCastValidatorArray value="CasterNotHoldingPosition"/>
+    </CAbilAugment>
+    <CAbilEffectTarget id="CtrlCVPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="CtrlCVSearchPr"/>
+        <Flags index="AllowTurningSuppressed" value="1"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CursorEffect value="CtrlCVSearchPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ReplicantReplicatePr" Requirements="CtrlCVOrderPr"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+        </Cost>
+    </CAbilEffectTarget>
+    <CAbilResearch id="CyberneticsCoreResearchPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Structures"/>
+        <InfoArray index="Research1" Time="160" Upgrade="ProtossAirWeaponsLevel1Pr">
+            <Resource index="Minerals" value="100"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="ProtossAirWeaponsLevel1" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research2" Time="190" Upgrade="ProtossAirWeaponsLevel2Pr">
+            <Resource index="Minerals" value="160"/>
+            <Resource index="Vespene" value="160"/>
+            <Button DefaultButtonFace="ProtossAirWeaponsLevel2" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research3" Time="220" Upgrade="ProtossAirWeaponsLevel3Pr">
+            <Resource index="Minerals" value="200"/>
+            <Resource index="Vespene" value="200"/>
+            <Button DefaultButtonFace="ProtossAirWeaponsLevel3" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research4" Time="160" Upgrade="ProtossAirArmorsLevel1Pr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="ProtossAirArmorLevel1" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research5" Time="190" Upgrade="ProtossAirArmorsLevel2Pr">
+            <Resource index="Minerals" value="225"/>
+            <Resource index="Vespene" value="225"/>
+            <Button DefaultButtonFace="ProtossAirArmorLevel2" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research6" Time="220" Upgrade="ProtossAirArmorsLevel3Pr">
+            <Resource index="Minerals" value="300"/>
+            <Resource index="Vespene" value="300"/>
+            <Button DefaultButtonFace="ProtossAirArmorLevel3" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research7" Time="220" Upgrade="ProtossAirWeaponsLevel4Pr">
+            <Resource index="Minerals" value="240"/>
+            <Resource index="Vespene" value="240"/>
+            <Button DefaultButtonFace="ProtossAirWeaponsLevel4Pr" Requirements="HavePowerIsPowerPr"/>
+        </InfoArray>
+        <InfoArray index="Research8" Time="220" Upgrade="ProtossAirArmorsLevel4Pr">
+            <Resource index="Minerals" value="240"/>
+            <Resource index="Vespene" value="240"/>
+            <Button DefaultButtonFace="ProtossAirArmorLevel4Pr" Requirements="HavePowerIsPowerPr"/>
+        </InfoArray>
+        <Flags index="SmartRequirement" value="1"/>
+    </CAbilResearch>
+    <CAbilEffectTarget id="DeathGripPr">
+        <OrderArray index="0" Model="Assets\UI\Cursors\WayPointConfirm_Void\WayPointConfirm_Void.m3"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Range value="8"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="GravitonBeamPr"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Cost>
+            <Vital index="Energy" value="60"/>
+        </Cost>
+        <TargetFilters value="-;Self,Player,Ally,Heroic,RawResource,HarvestableResource,Item,Stasis,Hidden,Invulnerable"/>
+        <Arc value="360"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="DefensiveMatrixPr">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <DataCollection value="VoidSentryChronoBeam"/>
+        <Effect index="0" value="DefensiveMatrixSetPr"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="30"/>
+            <Cooldown TimeUse="2"/>
+        </Cost>
+        <TargetFilters value="Visible;Neutral,Enemy,Missile,Item,Uncommandable,Stasis,Dead,Hidden"/>
+        <Range value="8"/>
+        <Arc value="4.9987"/>
+        <AutoCastFilters value="Visible;Neutral,Enemy,Missile,Item,Uncommandable,Stasis,Dead,Hidden"/>
+        <AutoCastRange value="8"/>
+        <AutoCastValidatorArray value="TargetInCombat"/>
+        <AutoCastValidatorArray value="noShields"/>
+        <AINotifyEffect value="VoidSentryChronoBeam"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="DefensiveMatrixPr"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Alignment value="Positive"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="DodgePr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="Chase" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Flags index="TransientPreferred" value="1"/>
+        <Flags index="UpdateChargesOnLevelChange" value="0"/>
+        <Cost>
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="3"/>
+                <CountUse value="1"/>
+                <TimeUse value="30"/>
+                <Flags index="EnableChargeTimeQueuing" value="1"/>
+            </Charge>
+            <Cooldown TimeUse="10"/>
+        </Cost>
+        <TargetFilters value="Self;Ally,Neutral,Enemy"/>
+        <SmartPriority value="6"/>
+        <AutoCastValidatorArray value="CasterInCombat"/>
+        <ValidatedArray index="Wait" value="1"/>
+        <ValidatedArray index="Bail" value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="DodgePr">
+            <Flags index="AllowSelfCast" value="1"/>
+        </CmdButtonArray>
+        <AutoCastFilters value="Self;Ally,Neutral,Enemy"/>
+    </CAbilEffectInstant>
+    <CAbilTransport id="DriverPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Load" DefaultButtonFace="HerculesLoad"/>
+        <CmdButtonArray index="UnloadAll" DefaultButtonFace="HerculesUnloadAll">
+            <Flags index="ShowInGlossary" value="1"/>
+        </CmdButtonArray>
+        <TotalCargoSpace value="1"/>
+        <LoadCargoEffect value="DriverBuff"/>
+        <UnloadTransportEffect value="NoDriverPr"/>
+        <Flags index="ShowCargoSize" value="0"/>
+        <Flags index="ShowStatus" value="0"/>
+        <UnloadCargoEffect value="CleanBuffPr"/>
+    </CAbilTransport>
+    <CAbilResearch id="ForgePr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoArray index="Research1" Time="160" Upgrade="ProtossGroundArmorsLevel1Pr">
+            <Resource index="Minerals" value="100"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="ProtossGroundArmorLevel1" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research2" Time="190" Upgrade="ProtossGroundArmorsLevel2Pr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="ProtossGroundArmorLevel2" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research3" Time="220" Upgrade="ProtossGroundArmorsLevel3Pr">
+            <Resource index="Minerals" value="200"/>
+            <Resource index="Vespene" value="200"/>
+            <Button DefaultButtonFace="ProtossGroundArmorLevel3" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research4" Time="160" Upgrade="ProtossGroundWeaponsLevel1Pr">
+            <Resource index="Minerals" value="100"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="ProtossGroundWeaponsLevel1" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research5" Time="190" Upgrade="ProtossGroundWeaponsLevel2Pr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="ProtossGroundWeaponsLevel2" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research6" Time="220" Upgrade="ProtossGroundWeaponsLevel3Pr">
+            <Resource index="Minerals" value="200"/>
+            <Resource index="Vespene" value="200"/>
+            <Button DefaultButtonFace="ProtossGroundWeaponsLevel3" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research7" Time="160" Upgrade="ProtossShieldsLevel1Pr">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="ProtossShieldsLevel1" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research8" Time="190" Upgrade="ProtossShieldsLevel2Pr">
+            <Resource index="Minerals" value="225"/>
+            <Resource index="Vespene" value="225"/>
+            <Button DefaultButtonFace="ProtossShieldsLevel2" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research9" Time="220" Upgrade="ProtossShieldsLevel3Pr">
+            <Resource index="Minerals" value="300"/>
+            <Resource index="Vespene" value="300"/>
+            <Button DefaultButtonFace="ProtossShieldsLevel3" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Research10" Time="220" Upgrade="ProtossGroundWeaponsLevel4Pr">
+            <Resource index="Minerals" value="240"/>
+            <Resource index="Vespene" value="240"/>
+            <Button DefaultButtonFace="ProtossGroundWeaponsLevel4Pr" Requirements="HavePowerIsPowerPr"/>
+        </InfoArray>
+        <InfoArray index="Research11" Time="220" Upgrade="ProtossGroundArmorsLevel4Pr">
+            <Resource index="Minerals" value="240"/>
+            <Resource index="Vespene" value="240"/>
+            <Button DefaultButtonFace="ProtossGroundArmorLevel4Pr" Requirements="HavePowerIsPowerPr"/>
+        </InfoArray>
+        <InfoArray index="Research12" Time="250" Upgrade="ProtossShieldsLevel4Pr">
+            <Resource index="Minerals" value="300"/>
+            <Resource index="Vespene" value="300"/>
+            <Button DefaultButtonFace="ProtossShieldsLevel4Pr" Requirements="HavePowerIsPowerPr"/>
+        </InfoArray>
+        <Flags index="SmartRequirement" value="1"/>
+    </CAbilResearch>
+    <CAbilBehavior id="FreezeBeamPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="On" DefaultButtonFace="FreezeBeamPr"/>
+        <CmdButtonArray index="Off" DefaultButtonFace="Cancel"/>
+        <Flags index="Toggle" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <BehaviorArray value="FreezeBeamWeaponPr"/>
+    </CAbilBehavior>
+    <CAbilEffectTarget id="GravityBombsPr">
+        <OrderArray index="0" Model="Assets\UI\Cursors\WayPointConfirm_Void\WayPointConfirm_Void.m3"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Cost>
+            <Vital index="Energy" value="10"/>
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="3"/>
+                <CountUse value="1"/>
+                <TimeUse value="10"/>
+            </Charge>
+        </Cost>
+        <TargetFilters value="-;Self,Player,Ally,Ground,Structure,Heroic,RawResource,HarvestableResource,Item,Stasis,Hidden,Invulnerable"/>
+        <Range value="8"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="GravityBombsPr"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+    </CAbilEffectTarget>
+    <CAbilTransport id="GreaterNydusWormTransportPr">
+        <AbilSetId value="ULdS"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Load" DefaultButtonFace="NydusCanalLoad"/>
+        <CmdButtonArray index="UnloadAll" DefaultButtonFace="NydusCanalUnloadAll">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadAt">
+            <Flags index="Hidden" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadUnit">
+            <Flags index="Hidden" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="LoadAll">
+            <Flags index="Hidden" value="1"/>
+        </CmdButtonArray>
+        <Flags index="IgnoreBlockers" value="1"/>
+        <Flags index="PlayerHold" value="1"/>
+        <Flags index="ShowCargoSize" value="0"/>
+        <Range value="0.5"/>
+        <MaxUnloadRange value="10"/>
+        <MaxCargoCount value="500"/>
+        <MaxCargoSize value="8"/>
+        <TotalCargoSpace value="500"/>
+        <InitialUnloadDelay value="0.5"/>
+        <LoadPeriod value="0.05"/>
+        <UnloadPeriod value="0.05"/>
+        <LoadValidatorArray value="NotSpawnling"/>
+    </CAbilTransport>
+    <CAbilEffectInstant id="GuardianShieldVoidPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="GuardianShieldPersistentPr"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+            <Cooldown Link="GuardianShield" TimeUse="15"/>
+        </Cost>
+        <AutoCastFilters value="Visible;Neutral,Enemy"/>
+        <AutoCastValidatorArray value="VoidSentryNearbyFriendlyUnitInCombat"/>
+        <AINotifyEffect value=""/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="GuardianShield"/>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="HeighLightBeamPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+        <TargetFilters value="Visible;Player,Ally,Missile,Item,Stasis,Dead,Invulnerable"/>
+        <Range value="2.5"/>
+        <AutoCastRange value="3"/>
+        <PrepTime value="0.3"/>
+        <AutoCastFilters value="Visible;Player,Ally,Neutral,Air,Item,Stasis,Dead,Invulnerable"/>
+        <Effect index="0" value="HeighLightBeamTarget"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="HeighLightBeamPr"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ImmortalOverloadPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Cost>
+            <Cooldown TimeUse="40"/>
+        </Cost>
+        <TargetFilters value="Structure;Neutral,Enemy,Item,Stasis,UnderConstruction,Dead,Invulnerable"/>
+        <Range value="5"/>
+        <AutoCastRange value="5"/>
+        <AutoCastValidatorArray value="TargetInCombat"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ImmortalOverload"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Arc value="360"/>
+        <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastFilters value="Visible;Neutral,Enemy"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="MegalithPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="MegalithPr" Requirements="MegalithOrderPr"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+            <Cooldown TimeUse="180"/>
+        </Cost>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="MengskBCMissilePodsPr">
+        <Alignment value="Negative"/>
+        <AbilSetId value="missilepods"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Effect index="0" value="HurricaneMissilePr"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+            <Cooldown TimeUse="0.8332"/>
+        </Cost>
+        <Range value="8"/>
+        <Marker Link="Abil/MissilePods"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <CursorEffect value="HurricaneMissileDamagePr"/>
+        <AINotifyEffect value="MissilePods"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="BCMissilePodsPr">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <Arc value="360"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="PrimalSlashPr">
+        <Alignment value="Negative"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Effect index="0" value="PrimalSlashUpgradedPr"/>
+        <Flags index="AbortOnAllianceChange" value="0"/>
+        <Cost>
+            <Vital index="Energy" value="10"/>
+            <Cooldown TimeUse="0.125"/>
+        </Cost>
+        <Range value="7"/>
+        <TrackingArc value="360"/>
+        <PrepTime value="0.125"/>
+        <IgnoreFilters value="Ground;Self"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PrimalSlashPr"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="RoguePurifierPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="RoguePurifierPr" Requirements="RoguePurifierOrderPr"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+            <Cooldown TimeUse="180"/>
+        </Cost>
+    </CAbilEffectTarget>
+    <CAbilMorph id="MorphBackToGatewayPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:MorphsandBurrows"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="MorphBackToGateway"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="Birth" value="1"/>
+        <Flags index="DisableAbils" value="1"/>
+        <Flags index="FastBuild" value="1"/>
+        <Flags index="ShowProgress" value="1"/>
+        <Cost>
+            <Cooldown Link="WarpGateTrain" Location="Unit"/>
+        </Cost>
+        <InfoArray Unit="GatewayPr">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="10"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="10"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="10"/>
+            </SectionArray>
+        </InfoArray>
+        <Alert value="MorphComplete"/>
+    </CAbilMorph>
+    <CAbilEffectInstant id="OracleStasisTrapActivatePr">
+        <Effect index="0" value="OracleStasisTrapActivateSetPr"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="ReExecutable" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="0.5"/>
+        </Cost>
+        <Arc value="360"/>
+        <AutoCastRange value="3"/>
+        <AutoCastValidatorArray value="ActivateStasisWardTargetInRange"/>
+        <PrepTime value="0"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ActivateStasisWard"/>
+    </CAbilEffectInstant>
+    <CAbilBuild id="OracleStasisTrapBuildPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <FlagArray index="RequireFacing" value="1"/>
+        <InfoArray index="Build1" Unit="BombTrapPr" Time="3">
+            <Resource index="Minerals" value="30"/>
+            <Button DefaultButtonFace="OracleBuildStasisTrap">
+                <Flags index="ShowInGlossary" value="1"/>
+            </Button>
+        </InfoArray>
+        <InfoArray index="Build2" Unit="ImpactTrapPr" Time="3">
+            <Resource index="Minerals" value="30"/>
+            <Button DefaultButtonFace="ImpactWardPr"/>
+        </InfoArray>
+        <Range value="7"/>
+        <EffectArray index="Start" value="OracleStasisTrapBuildBeamOnPr"/>
+        <EffectArray index="Finish" value="OracleStasisTrapBuildBeamOff"/>
+        <EffectArray index="Cancel" value="OracleStasisTrapBuildBeamOff"/>
+    </CAbilBuild>
+    <CAbilMorph id="PhasingModePr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:MorphsandBurrows"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PhasingMode"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <InfoArray Unit="WarpPrismPhasingPr">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1.5"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="1.5"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilBuild id="ProbeKhaydarinMonolithPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <FlagArray index="PeonMaintained" value="0"/>
+        <FlagArray index="RequireFacing" value="1"/>
+        <InfoArray index="Build1" Unit="KhaydarinMonolithPr" Time="5">
+            <Vital index="Energy" value="10"/>
+            <Charge>
+                <CountMax value="5"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="50"/>
+            </Charge>
+            <Cooldown Location="Unit"/>
+            <Button DefaultButtonFace="ProbeKhaydarinmonolithPr"/>
+        </InfoArray>
+        <InfoArray index="Build2" Unit="PylonPr" Time="5">
+            <Vital index="Energy" value="10"/>
+            <Charge>
+                <CountMax value="5"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="30"/>
+            </Charge>
+            <Cooldown Location="Unit"/>
+            <Button DefaultButtonFace="Pylon"/>
+        </InfoArray>
+        <InfoArray index="Build3" Unit="PhotonCannonPr" Time="5">
+            <Vital index="Energy" value="10"/>
+            <Charge>
+                <CountMax value="5"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="40"/>
+            </Charge>
+            <Cooldown Location="Unit"/>
+            <Button DefaultButtonFace="PhotonCannon"/>
+        </InfoArray>
+        <InfoArray index="Build4" Unit="ZeratulKhaydarinMonolithPr" Time="5">
+            <Charge>
+                <CountMax value="5"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="120"/>
+            </Charge>
+            <Cooldown Location="Unit"/>
+            <Button DefaultButtonFace="zeratulmonolithPr"/>
+        </InfoArray>
+        <InfoArray index="Build5" Unit="ShieldBatteryPr" Time="5">
+            <Charge>
+                <CountMax value="5"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="40"/>
+            </Charge>
+            <Cooldown Location="Unit"/>
+            <Button DefaultButtonFace="ShieldBattery"/>
+        </InfoArray>
+        <InfoArray index="Build6" Unit="AutomatedAssimilatorPr" Time="30">
+            <Button DefaultButtonFace="AutomatedAssimilator"/>
+        </InfoArray>
+        <Range value="2"/>
+        <EffectArray index="Start" value="SOAProxyPylonVisualAB"/>
+    </CAbilBuild>
+    <CAbilArmMagazine id="ProbePr3Pr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Launch value="ReleaseAtSource"/>
+        <Flags index="AutoCastOffOwnerLeave" value="0"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <Flags index="Retarget" value="1"/>
+        <Flags index="ShowStatus" value="0"/>
+        <Flags index="WaitForFood" value="0"/>
+        <Leash value="4"/>
+        <InfoArray index="Ammo1" CountStart="1" Distance="1" Manage="Recall" Unit="ProbePr3CU">
+            <Charge Link="Abil/##id##"/>
+            <Cooldown Link="Abil/##id##" TimeUse="10"/>
+            <Button DefaultButtonFace="ButtonPr3">
+                <Flags index="AllowSelfCast" value="1"/>
+                <Flags index="ToSelection" value="1"/>
+            </Button>
+            <Flags index="AutoBuild" value="1"/>
+            <Flags index="AutoBuildOn" value="1"/>
+            <Flags index="External" value="1"/>
+        </InfoArray>
+        <ExternalAngle value="341.9934"/>
+        <ExternalAngle value="17.9956"/>
+        <ExternalAngle value="53.9978"/>
+        <ExternalAngle value="305.9912"/>
+        <MaxCount value="4"/>
+    </CAbilArmMagazine>
+    <CAbilEffectTarget id="RepairBeamPr">
+        <Alignment value="Positive"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="SOARepairBeamHealStructurePr"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="ReExecutable" value="1"/>
+        <Flags index="PassengerAcquirePassengers" value="1"/>
+        <TargetFilters value="Mechanical,Visible;Self,Neutral,Enemy,RawResource,HarvestableResource,Missile,Stasis,UnderConstruction,Dead,Hidden"/>
+        <TargetSorts RequestCount="1">
+            <SortArray value="TSLifeFraction"/>
+        </TargetSorts>
+        <Range value="6.5"/>
+        <Arc value="360"/>
+        <AutoCastFilters value="Visible;Neutral,Enemy"/>
+        <AutoCastRange value="6.5"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="RepairBeamPr"/>
+        <PrepTime value="0.3"/>
+        <AutoCastValidatorArray value="NotWarpingIn"/>
+        <AutoCastValidatorArray value="healCasterMinEnergy"/>
+    </CAbilEffectTarget>
+    <CAbilArmMagazine id="RobotProbePr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Launch value="ReleaseAtSource"/>
+        <Flags index="AutoCastOffOwnerLeave" value="0"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <Flags index="Retarget" value="1"/>
+        <Flags index="ShowStatus" value="0"/>
+        <Flags index="WaitForFood" value="0"/>
+        <Leash value="4"/>
+        <InfoArray index="Ammo1" CountStart="1" Distance="1" Manage="Recall" Unit="SMX2RobotPr">
+            <Charge HideCount="1" Link="CarrierRepairDrone"/>
+            <Cooldown Link="Abil/##id##" TimeStart="10" TimeUse="10"/>
+            <Button DefaultButtonFace="RepairDrones">
+                <Flags index="AllowSelfCast" value="1"/>
+                <Flags index="ToSelection" value="1"/>
+            </Button>
+            <Flags index="AutoBuild" value="1"/>
+            <Flags index="AutoBuildOn" value="1"/>
+            <Flags index="External" value="1"/>
+        </InfoArray>
+        <ExternalAngle value="90"/>
+        <ExternalAngle value="270"/>
+        <MaxCount value="2"/>
+    </CAbilArmMagazine>
+    <CAbilBuild id="ProbeDeployPylonPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <FlagArray index="IgnoreUnitCost" value="1"/>
+        <FlagArray index="PeonMaintained" value="0"/>
+        <InfoArray index="Build1" Unit="PylonPr" Time="3">
+            <Vital index="Energy" value="20"/>
+            <Charge CountMax="5" CountUse="1" TimeUse="40"/>
+            <Button DefaultButtonFace="SOAProxyPylon" Requirements="PylonOrderPr"/>
+            <ValidatorArray value="HasVisionOfTarget"/>
+        </InfoArray>
+        <Range value="500"/>
+        <EffectArray index="Start" value="SOAProxyPylonVisualAB"/>
+    </CAbilBuild>
+    <CAbilArmMagazine id="RoguePurifierAssaultDroneHangarPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Launch value="ReleaseAtSource"/>
+        <Flags index="Retarget" value="1"/>
+        <Leash value="2"/>
+        <InfoArray index="Ammo1" Time="5" CountStart="2" Distance="2" Manage="Recall" Unit="RoguePurifierSupportDroneAPr">
+            <Charge Link="Abil/##id##"/>
+            <Cooldown Link="Abil/##id##"/>
+            <Button DefaultButtonFace="RepairSupportDroneA"/>
+            <Flags index="AutoBuild" value="1"/>
+            <Flags index="AutoBuildOn" value="1"/>
+            <Flags index="External" value="1"/>
+        </InfoArray>
+        <ExternalAngle value="90"/>
+        <ExternalAngle value="270"/>
+        <MaxCount value="2"/>
+    </CAbilArmMagazine>
+    <CAbilArmMagazine id="RoguePurifierShieldDroneHangarPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Launch value="ReleaseAtSource"/>
+        <Flags index="Retarget" value="1"/>
+        <Leash value="2"/>
+        <InfoArray index="Ammo1" Time="5" CountStart="2" Distance="1" Manage="Recall" Unit="RoguePurifierSupportDroneBPr">
+            <Charge Link="Abil/##id##"/>
+            <Cooldown Link="Abil/##id##"/>
+            <Button DefaultButtonFace="RepairSupportDroneB"/>
+            <Flags index="AutoBuild" value="1"/>
+            <Flags index="AutoBuildOn" value="1"/>
+            <Flags index="External" value="1"/>
+        </InfoArray>
+        <ExternalAngle value="90"/>
+        <ExternalAngle value="270"/>
+        <MaxCount value="2"/>
+    </CAbilArmMagazine>
+    <CAbilEffectTarget id="RoguePurifierSupportDroneBShieldRepairPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="ReExecutable" value="1"/>
+        <Flags index="Smart" value="1"/>
+        <TargetFilters value="Visible;Self,Enemy,Structure,Missile,Uncommandable,UnderConstruction,Dead,Hidden,Invulnerable"/>
+        <TargetSorts RequestCount="1">
+            <SortArray value="TSAlliancePassive"/>
+            <SortArray value="TSShieldsFraction"/>
+            <SortArray value="TSDistance"/>
+        </TargetSorts>
+        <Range value="3"/>
+        <Arc value="4.9987"/>
+        <SmartValidatorArray value="NotWarpingIn"/>
+        <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastFilters value="Visible;Neutral,Enemy,Missile,Stasis,Dead,Hallucination,Invulnerable"/>
+        <AutoCastRange value="6"/>
+        <AutoCastValidatorArray value="NotWarpingIn"/>
+        <AutoCastValidatorArray value="UnitOrAttackingStructure"/>
+        <AutoCastValidatorArray value="CasterHas10Energy"/>
+        <UseMarkerArray index="Approach" value="0"/>
+        <UseMarkerArray index="Prep" value="0"/>
+        <DefaultError value="RequiresHealTarget"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="VoidSentryShieldRepair"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="SOAMothershipBlinkPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="SOAMothershipBlinkCPPr"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="8"/>
+        </Cost>
+        <Range value="10"/>
+        <Arc value="360"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SOAMothershipBlink">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="SOAMothershipLineAttackPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="SOAMothershipLineAttackInitialCPPr"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+        </Cost>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SOAMothershipLineAttack"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="SOAOrbitalStrikeExecutePr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="SOAOrbitalStrikeCPPr"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Cost>
+            <Vital index="Energy" value="10"/>
+        </Cost>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CursorEffect value="SOAOrbitalStrikeImpactSearchPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SOAOrbitalStrike" Requirements="OrbitalStrikeExecuteOrderPr"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="SOAPurifierBeamPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="SOAPurifierBeamCUPr"/>
+        <Flags index="TransientPreferred" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="100"/>
+            <Cooldown TimeStart="300" TimeUse="300"/>
+        </Cost>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CursorEffect value="SOAPurifierBeamSearchPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SOAPurifierBeam" Requirements="PurifierBeamOrderPr"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="SOARepairBeamPr">
+        <Alignment value="Positive"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="SOARepairBeamHealPr"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="ReExecutable" value="1"/>
+        <Flags index="PassengerAcquirePassengers" value="1"/>
+        <TargetFilters value="Visible;Self,Neutral,Enemy,Missile,Uncommandable,UnderConstruction,Dead,Hidden"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <AutoCastFilters value="Visible;Neutral,Enemy,Stasis,Dead,Hidden,Invulnerable"/>
+        <AutoCastRange value="500"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SOARepairBeam"/>
+        <AutoCastValidatorArray value="NotWarpingIn"/>
+        <AutoCastValidatorArray value="TargetLifeNotFull"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="SOATimeFreezePr">
+        <Cost>
+            <Vital index="Energy" value="100"/>
+            <Cooldown TimeUse="300"/>
+        </Cost>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SOATimeFreeze" Requirements="TimeStopOrderPr"/>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="SOAVortexPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="SOAVortexCreatePersistentPr"/>
+        <Cost>
+            <Vital index="Energy" value="60"/>
+            <Charge Link="Abil/ArtanisVortex"/>
+            <Cooldown TimeUse="60"/>
+        </Cost>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CursorEffect value="SOAVortexSearchPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="VortexPr" Requirements="VortexOrderPr"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ShieldBatteryRechargeChanneledPr">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="BestUnit" value="0"/>
+        <Flags index="ReExecutable" value="1"/>
+        <Flags index="Smart" value="1"/>
+        <TargetFilters value="Visible;Self,Enemy,Missile,UnderConstruction,Dead,Hidden"/>
+        <Range value="4"/>
+        <Arc value="360"/>
+        <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastFilters value="Visible;Self,Neutral,Enemy,Missile,UnderConstruction,Dead,Hidden"/>
+        <AutoCastRange value="4"/>
+        <AutoCastValidatorArray value="ShieldBatteryHasEnergy"/>
+        <AutoCastValidatorArray value="ShieldRechargeTargetPr"/>
+        <UseMarkerArray index="Approach" value="0"/>
+        <UseMarkerArray index="Prep" value="0"/>
+        <DefaultError value="RequiresHealTarget"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ShieldBatteryRecharge"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ShrinkLightPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Cost>
+            <Vital index="Energy" value="20"/>
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="3"/>
+                <CountUse value="1"/>
+                <TimeUse value="20"/>
+            </Charge>
+        </Cost>
+        <TargetFilters value="-;Self,Structure,Heroic,Item,Stasis,UnderConstruction,Dead,Invulnerable,MapBoss"/>
+        <Range value="8"/>
+        <PrepTime value="0"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ShrinkLightPr"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="Soa1Pr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="CommanderKaraxUnlockSOAChronoPassive" State="Restricted"/>
+    </CAbilEffectInstant>
+    <CAbilEffectInstant id="Soa2Pr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="CommanderKaraxUnlockRepairBeam" State="Restricted"/>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="TemporalFieldPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="TemporalFieldCreatePersistentPr"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+        </Cost>
+        <Range value="9"/>
+        <Arc value="360"/>
+        <CursorEffect value="TemporalFieldSearchAreaPr"/>
+        <AINotifyEffect value="TemporalFieldCreatePersistent"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="TemporalFieldPr"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="TimeWarpPr">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Effect index="0" value="TimeWarpCPPr"/>
+        <Cost>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+        <TargetFilters value="Structure;Ally,Neutral,Enemy,Missile,Stasis,Dead,Hidden"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <AINotifyEffect value="ChronoBoost"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="TimeWarpPr"/>
+    </CAbilEffectTarget>
+    <CAbilTrain id="TrainPPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoArray index="Train1" Time="10"/>
+        <InfoArray index="Train2" Time="25">
+            <Button DefaultButtonFace="SentryAiurPr" State="Restricted"/>
+            <Unit value="SentryAiurPr"/>
+        </InfoArray>
+        <InfoArray index="Train3" Time="25">
+            <Button DefaultButtonFace="MonitorPr" State="Restricted"/>
+            <Unit value="SentryMonitorPr"/>
+        </InfoArray>
+        <InfoArray index="Train4" Time="25">
+            <Button DefaultButtonFace="SentryPurifierPr" State="Restricted"/>
+            <Unit value="SentryPurifierPr"/>
+        </InfoArray>
+        <InfoArray index="Train5" Time="25">
+            <Button DefaultButtonFace="SentryProtectorPr" State="Restricted"/>
+            <Unit value="SentryProtectorPr"/>
+        </InfoArray>
+        <InfoArray index="Train6" Time="17">
+            <Button DefaultButtonFace="Probe"/>
+            <Unit value="ProbePr"/>
+        </InfoArray>
+        <InfoArray index="Train7" Time="30">
+            <Button DefaultButtonFace="DragoonPr" State="Restricted"/>
+            <Unit value="WidowMinePr"/>
+        </InfoArray>
+        <InfoArray index="Train10" Time="15">
+            <Button DefaultButtonFace="ButtonPr3" State="Restricted"/>
+            <Unit value="ProbePr3"/>
+        </InfoArray>
+        <InfoArray index="Train11" Time="15">
+            <Button DefaultButtonFace="ButtonPr1" State="Restricted"/>
+            <Unit value="ProbePr1"/>
+        </InfoArray>
+        <InfoArray index="Train12" Time="15">
+            <Button DefaultButtonFace="ButtonPr2" State="Restricted"/>
+            <Unit value="ProbePr2"/>
+        </InfoArray>
+        <InfoArray index="Train13" Time="50">
+            <Button DefaultButtonFace="WarpPrismPr" State="Restricted"/>
+            <Unit value="WarpPrismPr"/>
+        </InfoArray>
+        <InfoArray index="Train17" Time="60">
+            <Button DefaultButtonFace="StoneZealotPr" State="Restricted" Requirements="HaveRoboticsBayPr"/>
+            <Unit value="StoneZealotPr"/>
+        </InfoArray>
+        <InfoArray index="Train18" Time="30">
+            <Button DefaultButtonFace="ObMobilePr" State="Restricted"/>
+            <Unit value="ObserverPr"/>
+        </InfoArray>
+        <InfoArray index="Train19" Time="60">
+            <Button DefaultButtonFace="MothershipCureAlphaPr" State="Restricted"/>
+            <Unit value="MothershipCoreAlphaPr"/>
+        </InfoArray>
+        <InfoArray index="Train20" Time="60">
+            <Button DefaultButtonFace="MothershipPr" State="Restricted" Requirements="BuildMothershipPr"/>
+            <Unit value="SOAMothershipv4Pr"/>
+        </InfoArray>
+        <InfoArray index="Train21" Time="35">
+            <Button DefaultButtonFace="ReplicantPr" State="Restricted"/>
+            <Unit value="ReplicantPr"/>
+        </InfoArray>
+        <InfoArray index="Train22" Time="60">
+            <Button DefaultButtonFace="MothershipCoreBetaPr" State="Restricted"/>
+            <Unit value="MothershipCoreBetaPr"/>
+        </InfoArray>
+        <InfoArray index="Train24" Time="15">
+            <Button DefaultButtonFace="ButtonPr4" State="Restricted"/>
+            <Unit value="ProbePr4"/>
+        </InfoArray>
+        <InfoArray index="Train25" Time="15">
+            <Button DefaultButtonFace="ButtonPr5" State="Restricted"/>
+            <Unit value="ProbePr5"/>
+        </InfoArray>
+        <InfoArray index="Train26" Time="15">
+            <Button DefaultButtonFace="ButtonPr6" State="Restricted"/>
+            <Unit value="ProbePr6"/>
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilEffectTarget id="NexusOverloadPr">
+        <Alignment value="Positive"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <TargetFilters value="Structure;Ally,Neutral,Enemy"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="NexusOverloadPr" State="Restricted"/>
+        <DefaultError value="MustTargetYourOwnUnits"/>
+        <Effect index="0" value="NexusOverloadChangePr"/>
+        <Cost>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+    </CAbilEffectTarget>
+    <CAbilMorph id="ObMobileModePr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ObMobilePr"/>
+        <InfoArray Unit="ObserverPr">
+            <SectionArray index="Abils">
+                <EffectArray index="Start" value="ObMobileHeightPr"/>
+            </SectionArray>
+        </InfoArray>
+        <Flags index="IgnoreFacing" value="1"/>
+    </CAbilMorph>
+    <CAbilMorph id="ObSiegeModePr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ObSiegePr"/>
+        <InfoArray Unit="ObserversiegePr">
+            <SectionArray index="Abils">
+                <EffectArray index="Start" value="ObSiegeHeightPr"/>
+            </SectionArray>
+        </InfoArray>
+        <Flags index="IgnoreFacing" value="1"/>
+    </CAbilMorph>
+    <CAbilBuild id="ProtossBuildPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <FlagArray index="PeonDisableCollision" value="1"/>
+        <FlagArray index="PeonMaintained" value="0"/>
+        <InfoArray index="Build1" Unit="NexusPr" Time="60">
+            <Button DefaultButtonFace="Nexus"/>
+        </InfoArray>
+        <InfoArray index="Build2" Unit="PylonPr" Time="25">
+            <Button DefaultButtonFace="Pylon"/>
+        </InfoArray>
+        <InfoArray index="Build3" Unit="AssimilatorPr" Time="30">
+            <Button DefaultButtonFace="Assimilator"/>
+            <ValidatorArray value="HasVespene"/>
+        </InfoArray>
+        <InfoArray index="Build4" Unit="GatewayPr" Time="60">
+            <Button DefaultButtonFace="Gateway" State="Suppressed" Requirements="HaveNexusPr"/>
+        </InfoArray>
+        <InfoArray index="Build5" Unit="ForgePr" Time="45">
+            <Button DefaultButtonFace="Forge" State="Suppressed" Requirements="HaveNexusPr"/>
+        </InfoArray>
+        <InfoArray index="Build6" Unit="FleetBeaconPr" Time="60">
+            <Button DefaultButtonFace="FleetBeacon" State="Suppressed" Requirements="HaveStargatePr"/>
+        </InfoArray>
+        <InfoArray index="Build7" Unit="TwilightCouncilPr" Time="50">
+            <Button DefaultButtonFace="TwilightCouncil" State="Suppressed" Requirements="HaveCyberneticsCore"/>
+        </InfoArray>
+        <InfoArray index="Build8" Unit="PhotonCannonPr" Time="40">
+            <Button DefaultButtonFace="PhotonCannon" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Build9" Time="25"/>
+        <InfoArray index="Build10" Unit="StargatePr" Time="60">
+            <Button DefaultButtonFace="Stargate" State="Suppressed" Requirements="HaveGatewayPr"/>
+        </InfoArray>
+        <InfoArray index="Build11" Unit="TemplarArchivePr" Time="50">
+            <Button DefaultButtonFace="TemplarArchive" State="Suppressed" Requirements="HaveGateway"/>
+        </InfoArray>
+        <InfoArray index="Build12" Unit="DarkShrinePr" Time="50">
+            <Button DefaultButtonFace="DarkShrine" State="Suppressed" Requirements="HaveGateway"/>
+        </InfoArray>
+        <InfoArray index="Build13" Unit="RoboticsBayPr" Time="60">
+            <Button DefaultButtonFace="RoboticsBay" State="Suppressed" Requirements="HaveRoboticsFacilityPr"/>
+        </InfoArray>
+        <InfoArray index="Build14" Unit="RoboticsFacilityPr" Time="60">
+            <Button DefaultButtonFace="RoboticsFacility" State="Suppressed" Requirements="HaveGatewayPr"/>
+        </InfoArray>
+        <InfoArray index="Build15" Unit="CyberneticsCorePr" Time="50">
+            <Button DefaultButtonFace="CyberneticsCore" State="Suppressed" Requirements="HaveGatewayPr"/>
+        </InfoArray>
+        <InfoArray index="Build20" Unit="PsionicAmplifierPr" Time="40">
+            <Button DefaultButtonFace="PsionicAmplifier" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build21" Unit="VoidPylonPr" Time="60">
+            <Button DefaultButtonFace="VoidPylon"/>
+        </InfoArray>
+        <InfoArray index="Build22" Unit="ShieldBatteryPr" Time="30">
+            <Button DefaultButtonFace="ShieldBattery" State="Restricted" Requirements="HaveForgePr"/>
+        </InfoArray>
+        <InfoArray index="Build23" Unit="SoACasterPr" Time="40">
+            <Button DefaultButtonFace="WarpinSoACaster" Requirements="NoSoACaster"/>
+        </InfoArray>
+        <InfoArray index="Build24" Unit="AutomatedAssimilatorPr" Time="30">
+            <Button DefaultButtonFace="AutomatedAssimilator" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Build25" Unit="KhaydarinMonolithPr" Time="50">
+            <Button DefaultButtonFace="KhaydarinMonolith" State="Restricted" Requirements="HaveForgePr"/>
+        </InfoArray>
+        <InfoArray index="Build26" Unit="WarpGatePr" Time="60">
+            <Button DefaultButtonFace="WarpInWarpGate" Requirements="HaveNexusPr"/>
+        </InfoArray>
+        <InfoArray index="Build27" Unit="StargateWarpPr" Time="60">
+            <Button DefaultButtonFace="WarpInStarWarpGate" State="Suppressed" Requirements="HaveGatewayPr"/>
+        </InfoArray>
+        <InfoArray index="Build28" Unit="RoboticsFacilityWarpPr" Time="60">
+            <Button DefaultButtonFace="WarpInRoboticsWarpFacility" State="Suppressed" Requirements="HaveGatewayPr"/>
+        </InfoArray>
+        <ConstructionMover value="Construction"/>
+    </CAbilBuild>
+    <CAbilRevive id="RespawnPr" parent="ReviveSelf">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <SharedFlags index="DisableWhileDead" value="1"/>
+        <CmdButtonArray index="Revive1" DefaultButtonFace="ProbiusPr">
+            <Flags index="AllowSelfCast" value="1"/>
+            <ValidatorArray value="DriverProbiusPr"/>
+        </CmdButtonArray>
+        <BaseInfo>
+            <Cooldown TimeUse="0.1"/>
+        </BaseInfo>
+        <Range value="5"/>
+        <VitalArray index="Life" value="Maximum"/>
+        <VitalArray index="Shields" value="Maximum"/>
+        <SelfReviveCmd value="Unknown"/>
+    </CAbilRevive>
+    <CAbilArmMagazine id="RobotProbeInvinciblePr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Launch value="ReleaseAtSource"/>
+        <Flags index="AutoCastOffOwnerLeave" value="0"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <Flags index="Retarget" value="1"/>
+        <Flags index="ShowStatus" value="0"/>
+        <Flags index="WaitForFood" value="0"/>
+        <Leash value="4"/>
+        <InfoArray index="Ammo1" Time="10" CountStart="2" Distance="1" Manage="Recall" Unit="SMX2RobotPr">
+            <Charge HideCount="1" Link="CarrierRepairDrone" Location="Unit"/>
+            <Cooldown Link="Abil/##id##"/>
+            <Button DefaultButtonFace="RepairDrones">
+                <Flags index="ToSelection" value="1"/>
+            </Button>
+            <Flags index="AutoBuild" value="1"/>
+            <Flags index="AutoBuildOn" value="1"/>
+            <Flags index="External" value="1"/>
+        </InfoArray>
+        <MaxCount value="2"/>
+        <ExternalAngle value="0"/>
+        <ExternalAngle value="180"/>
+    </CAbilArmMagazine>
+    <CAbilMorph id="Pr1">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ButtonPr1"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <InfoArray Unit="ProbePr1">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="1"/>
+                <EffectArray index="Start" value="RepairLSPr"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="Pr2">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ButtonPr2" State="Restricted"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <InfoArray Unit="ProbePr2">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="1"/>
+                <EffectArray index="Start" value="RepairLSPr"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="Pr3">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ButtonPr3" State="Restricted"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <InfoArray Unit="ProbePr3">
+            <SectionArray index="Abils">
+                <DurationArray index="Duration" value="1"/>
+                <EffectArray index="Start" value="RepairLSPr"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="1"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilBehavior id="StoneZealotWeponPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="On" DefaultButtonFace="StoneZealotEyeBeamPr"/>
+        <CmdButtonArray index="Off" DefaultButtonFace="StoneZealotMeleePr"/>
+        <Flags index="Toggle" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="3"/>
+        </Cost>
+        <OffCost>
+            <Cooldown TimeUse="3"/>
+        </OffCost>
+        <BehaviorArray value="StoneZealotEyeBeamWeaponPr"/>
+    </CAbilBehavior>
+    <CAbilMorph id="TransportModePr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:MorphsandBurrows"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="TransportMode"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <InfoArray Unit="WarpPrismPr">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1.5"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="1.5"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="UpgradeToRoboticsFacilityWarpPr">
+        <CmdButtonArray index="Execute" DefaultButtonFace="UpgradeToRoboticsFacilityWarp" State="Restricted"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="Automatic" value="1"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="Birth" value="1"/>
+        <Flags index="DisableAbils" value="1"/>
+        <Flags index="FastBuild" value="1"/>
+        <Flags index="Produce" value="1"/>
+        <Flags index="ShowProgress" value="1"/>
+        <InfoArray Unit="RoboticsFacilityWarpPr">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="10"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="10"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="10"/>
+            </SectionArray>
+        </InfoArray>
+        <Alert value="TransformationComplete"/>
+        <Activity value="UI/Transforming"/>
+        <ProgressButton value="UpgradeToRoboticsFacilityWarp"/>
+    </CAbilMorph>
+    <CAbilMorph id="UpgradeToStargateWarpInstantPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:MorphsandBurrows"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="UpgradeToStargateWarp" State="Restricted"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="Automatic" value="1"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="Birth" value="1"/>
+        <Flags index="DisableAbils" value="1"/>
+        <Flags index="FastBuild" value="1"/>
+        <Flags index="Produce" value="1"/>
+        <Flags index="ShowProgress" value="1"/>
+        <InfoArray Unit="StargateWarpPr">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="10"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="10"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="10"/>
+            </SectionArray>
+        </InfoArray>
+        <Alert value="TransformationComplete"/>
+        <Activity value="UI/Transforming"/>
+        <ProgressButton value="UpgradeToStargateWarp"/>
+    </CAbilMorph>
+    <CAbilMorph id="UpgradeToWarpGatePr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:MorphsandBurrows"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="UpgradeToWarpGate" State="Restricted"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="Automatic" value="1"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="Birth" value="1"/>
+        <Flags index="DisableAbils" value="1"/>
+        <Flags index="FastBuild" value="1"/>
+        <Flags index="Produce" value="1"/>
+        <Flags index="ShowProgress" value="1"/>
+        <InfoArray Unit="WarpGatePr">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="10"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="10"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="10"/>
+            </SectionArray>
+        </InfoArray>
+        <Alert value="TransformationComplete"/>
+        <Activity value="UI/Transforming"/>
+    </CAbilMorph>
+    <CAbilEffectTarget id="VoidSentryBlackHolePr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="VoidSentryBlackHolePersistentPr"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+        </Cost>
+        <Range value="10"/>
+        <Arc value="360"/>
+        <CursorEffect value="VoidSentryBlackHoleSearchPr"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="VoidSentryBlackHole"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="VoidSentryChronoBeamPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="VoidSentryChronoBeamCPPr"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="Smart" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="5"/>
+        </Cost>
+        <TargetFilters value="Visible;Self,Neutral,Enemy,Heroic,Missile,Item,Uncommandable,Stasis,Dead,Hidden"/>
+        <TargetSorts RequestCount="1">
+            <SortArray value="TSVoidSentryChronoBeam"/>
+        </TargetSorts>
+        <Range value="7"/>
+        <Arc value="4.9987"/>
+        <AutoCastFilters value="Visible;Self,Neutral,Enemy,Missile,Item,Uncommandable,Stasis,Dead,Hidden"/>
+        <AutoCastRange value="8"/>
+        <AutoCastValidatorArray value="TargetIsFiringWeapon"/>
+        <AutoCastValidatorArray value="NotDriverPr4"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="VoidSentryChronoBeam"/>
+    </CAbilEffectTarget>
+    <CAbilMorph id="VoidSentryMobileModePr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="VoidSentryMobileMode"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <InfoArray Unit="SentryPurifierPr">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1.5"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="1.5"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="VoidSentryPhasingModePr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="VoidSentryPhasingMode"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <InfoArray Unit="SentryPhasingPr">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1.5"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="1.5"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilEffectTarget id="VoidSentryShieldRepairDoublePr">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="ReExecutable" value="1"/>
+        <Flags index="Smart" value="1"/>
+        <TargetFilters value="Visible;Self,Enemy,Missile,Uncommandable,UnderConstruction,Dead,Hidden,Invulnerable"/>
+        <TargetSorts RequestCount="1">
+            <SortArray value="TSAlliancePassive"/>
+            <SortArray value="TSShieldsFraction"/>
+            <SortArray value="TSDistance"/>
+        </TargetSorts>
+        <Range value="5"/>
+        <Arc value="4.9987"/>
+        <SmartValidatorArray value="NotWarpingIn"/>
+        <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastFilters value="Visible;Neutral,Enemy,Missile,Stasis,Dead,Hallucination,Invulnerable"/>
+        <AutoCastRange value="7"/>
+        <AutoCastValidatorArray value="NotWarpingIn"/>
+        <AutoCastValidatorArray value="CasterHas10Energy"/>
+        <AutoCastValidatorArray value="ShieldRechargeTargetPr"/>
+        <UseMarkerArray index="Approach" value="0"/>
+        <UseMarkerArray index="Prep" value="0"/>
+        <DefaultError value="RequiresHealTarget"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="VoidSentryShieldRepairDouble"/>
+    </CAbilEffectTarget>
+    <CAbilWarpTrain id="WarpGateTrainPr">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoArray index="Train1" Time="1" Unit="ObserverPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="20"/>
+            </Charge>
+            <Button DefaultButtonFace="ObMobilePr" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train2" Time="1" Unit="StoneZealotPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="40"/>
+            </Charge>
+            <Button DefaultButtonFace="StoneZealotPr" State="Restricted" Requirements="HaveRoboticsBayPr"/>
+        </InfoArray>
+        <InfoArray index="Train3" Time="1" Unit="MegalithCutterPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="30"/>
+            </Charge>
+            <Button DefaultButtonFace="MegalithPr" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train4" Time="1" Unit="MothershipCoreAlphaPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="40"/>
+            </Charge>
+            <Button DefaultButtonFace="MothershipCureAlphaPr" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train5" Time="1" Unit="SOAMothershipv4Pr">
+            <Charge>
+                <CountMax value="1"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="90"/>
+            </Charge>
+            <Cooldown Location="Player"/>
+            <Button DefaultButtonFace="MothershipPr" State="Restricted" Requirements="BuildMothershipPr"/>
+        </InfoArray>
+        <InfoArray index="Train6" Time="1" Unit="ReplicantPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="20"/>
+            </Charge>
+            <Button DefaultButtonFace="ReplicantPr" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train7" Time="1" Unit="MothershipCoreBetaPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="40"/>
+            </Charge>
+            <Button DefaultButtonFace="MothershipCoreBetaPr" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train8" Time="1" Unit="WidowMinePr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="30"/>
+            </Charge>
+            <Button DefaultButtonFace="DragoonPr" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train9" Time="1" Unit="ProbePr4">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="15"/>
+            </Charge>
+            <Cooldown Location="Unit"/>
+            <Button DefaultButtonFace="ButtonPr4" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train10" Time="1" Unit="ProbePr1">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="15"/>
+            </Charge>
+            <Cooldown Location="Unit"/>
+            <Button DefaultButtonFace="ButtonPr1" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train11" Time="1" Unit="ProbePr2">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="15"/>
+            </Charge>
+            <Cooldown Location="Global"/>
+            <Button DefaultButtonFace="ButtonPr2" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train12" Time="1" Unit="ProbePr3">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="15"/>
+            </Charge>
+            <Cooldown Location="Unit"/>
+            <Button DefaultButtonFace="ButtonPr3" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train13" Time="1" Unit="DarkTemplarShuttlePr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="3"/>
+                <CountUse value="1"/>
+                <TimeUse value="30"/>
+            </Charge>
+            <Button DefaultButtonFace="DarkTemplarShuttlePr"/>
+        </InfoArray>
+        <InfoArray index="Train14" Time="1" Unit="ProbePr5">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="15"/>
+            </Charge>
+            <Cooldown Location="Unit"/>
+            <Button DefaultButtonFace="ButtonPr5" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train15" Time="1" Unit="ProbePr6">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+                <TimeUse value="15"/>
+            </Charge>
+            <Cooldown Location="Unit"/>
+            <Button DefaultButtonFace="ButtonPr6" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train16" Time="1" Unit="WarpPrismPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="40"/>
+            </Charge>
+            <Button DefaultButtonFace="WarpPrismPr" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train17" Time="1" Unit="SentryProtectorPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="20"/>
+            </Charge>
+            <Button DefaultButtonFace="SentryProtectorPr" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train18" Time="1" Unit="SentryMonitorPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="20"/>
+            </Charge>
+            <Button DefaultButtonFace="MonitorPr" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train19" Time="1" Unit="SentryAiurPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="20"/>
+            </Charge>
+            <Button DefaultButtonFace="SentryAiurPr" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Train20" Time="1" Unit="SentryPurifierPr">
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="20"/>
+            </Charge>
+            <Button DefaultButtonFace="SentryPurifierPr" State="Restricted"/>
+        </InfoArray>
+    </CAbilWarpTrain>
+    <CAbilTransport id="WarpPrismTransportAllPr">
+        <AbilSetId value="ULdM"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Load" DefaultButtonFace="MedivacLoad"/>
+        <CmdButtonArray index="UnloadAll" DefaultButtonFace="BunkerUnloadAll">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadAt" DefaultButtonFace="MedivacUnloadAll"/>
+        <CmdButtonArray index="UnloadUnit">
+            <Flags index="Hidden" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="LoadAll">
+            <Flags index="Hidden" value="1"/>
+        </CmdButtonArray>
+        <Flags index="IgnoreBlockers" value="1"/>
+        <Flags index="PlayerHold" value="1"/>
+        <Range value="3"/>
+        <MaxCargoCount value="8"/>
+        <MaxCargoSize value="8"/>
+        <TotalCargoSpace value="8"/>
+        <UnloadPeriod value="0.5"/>
+        <TargetFilters value="Visible;Ally,Neutral,Enemy,Buried,UnderConstruction,Dead,Hidden"/>
+        <LoadValidatorArray value="NotWidowMineTarget"/>
+    </CAbilTransport>
+    <CAbilEffectTarget id="WidowMineAttackPr">
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="ReExecutable" value="1"/>
+        <Flags index="Smart" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="20"/>
+        </Cost>
+        <TargetFilters value="Visible;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="8"/>
+        <RangeSlop value="2"/>
+        <Arc value="360"/>
+        <AutoCastFilters value="Visible;Player,Ally,Neutral,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign"/>
+        <AutoCastRange value="7"/>
+        <AutoCastValidatorArray value="IsNotDisguisedChangeling"/>
+        <AutoCastValidatorArray value="NotHallucinationOrNotDetected"/>
+        <AutoCastValidatorArray value="noMarkers"/>
+        <PrepTime value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="WidowMineAttack" Requirements="HaveDragoonJumpPr">
+            <Flags index="ShowInGlossary" value="0"/>
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+    <CAbilMorph id="WidowMineBurrowPr">
+        <AbilSetId value="BrwD"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="WidowMineBurrow">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <ActorKey value="BurrowDown"/>
+        <Flags index="Interruptible" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="IgnorePlacement" value="0"/>
+        <Flags index="SuppressMovement" value="1"/>
+        <InfoArray Unit="WidowMineBurrowedPr" RandomDelayMax="0.5">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="1"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="WidowMineUnburrowPr">
+        <AbilSetId value="BrwU"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="WidowMineUnburrow">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <ActorKey value="BurrowUp"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="SuppressMovement" value="1"/>
+        <InfoArray Unit="WidowMinePr" RandomDelayMax="0.5">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilEffectTarget id="ZaGaraDeepTunnelPr">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Effect index="0" value="ZaGaraDeepTunnelCreatePersistent"/>
+        <Cost>
+            <Cooldown TimeUse="15"/>
+        </Cost>
+        <Range value="500"/>
+        <CastIntroTime value="1"/>
+        <CastOutroTime value="1"/>
+        <UninterruptibleArray index="Cast" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="DeepTunnel"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ZeratulBlinkPr">
+        <AbilSetId value="Blnk"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Flags index="BestUnit" value="0"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Cost>
+            <Cooldown TimeUse="8"/>
+        </Cost>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ZeratulBlink">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ZeratulStunPr">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="ZeratulStunApplyBehaviorPr"/>
+        <Cost>
+            <Cooldown TimeUse="22"/>
+        </Cost>
+        <TargetFilters value="Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="6"/>
+        <AINotifyEffect value=""/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ZeratulStun"/>
+    </CAbilEffectTarget>
+</Catalog>

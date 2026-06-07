@@ -1,0 +1,13 @@
+void libE0EAE146_gf_VorazunRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    unit lv_caster;
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "SoACasterVorazun", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+    lv_caster = UnitLastCreated();
+    lib67C0F0E7_gf_CU_GPInit(lp_player, "Vorazun", lv_caster, null);
+    lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+    lib67C0F0E7_gf_ShowChooseButton();
+
+    if (lp_createHero == true) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "VorazunChampion", 0, lp_player, lp_heroPoint);
+    }
+}

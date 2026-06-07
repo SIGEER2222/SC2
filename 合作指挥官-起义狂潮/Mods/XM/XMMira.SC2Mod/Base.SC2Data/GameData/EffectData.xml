@@ -1,0 +1,2327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectDamage id="ArcliteShockCannonDMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Amount value="100"/>
+        <Death value="Blast"/>
+        <AreaArray Radius="0.4687" Fraction="1"/>
+        <AreaArray Radius="0.7812" Fraction="0.5"/>
+        <AreaArray Radius="1.25" Fraction="0.25"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="OffsetByUnitRadius" value="0"/>
+    </CEffectDamage>
+    <CEffectDamage id="AutocannonsDMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="12"/>
+    </CEffectDamage>
+    <CEffectSet id="BomberAreaBombEscSetMira">
+        <EditorCategories value=""/>
+        <EffectArray value="BomberAreaBombMUMira"/>
+        <EffectArray value="BomberAreaBombMUDMira"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="BomberAreaBombMUMira">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="BomberPlatformAreaBombOrderMira,Execute" ChargeCountUse="-1"/>
+    </CEffectModifyUnit>
+    <CEffectDamage id="C10CanisterRifleDMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="20"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="CallBansheeCPMira">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="CallBansheeMuMira"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="CallBansheeLMMira"/>
+        <PeriodicPeriodArray value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="CallBansheeCUMira">
+        <EditorCategories value=""/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="NormalizeSpawnOffset" value="0"/>
+        <SpawnEffect value="CallBansheeCPMira"/>
+        <SpawnUnit value="CallDownMira"/>
+    </CEffectCreateUnit>
+    <CEffectDamage id="CallBansheeDMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value=""/>
+        <Amount value="400"/>
+        <AttributeBonus index="Structure" value="200"/>
+        <AreaArray Radius="1.5" Fraction="0.5"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Stasis,Dead,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="CallBansheeLMMira">
+        <EditorCategories value=""/>
+        <ImpactEffect value="CallBansheeDMira"/>
+        <AmmoUnit value="HHBomberAreaBombMissile"/>
+        <LaunchLocation Effect="CallBansheeCPMira" Value="TargetUnit"/>
+        <ImpactLocation Effect="CallBansheeSetMira"/>
+    </CEffectLaunchMissile>
+    <CEffectModifyUnit id="CallBansheeMuMira">
+        <ValidatorArray value="CallBansheeFMira"/>
+        <EditorCategories value=""/>
+        <Height value="3"/>
+    </CEffectModifyUnit>
+    <CEffectSet id="CallBansheeSetMira">
+        <EditorCategories value=""/>
+        <EffectArray value="CallBansheeCUMira"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="CallDownT">
+        <EditorCategories value=""/>
+        <WhichLocation Value="CasterUnit"/>
+        <InitialDelay value="2"/>
+        <InitialEffect value="SuicideRemove"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="CycloneAttackCPMira">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="CycloneAttackLMLMira"/>
+        <PeriodicEffectArray value="CycloneAttackLMRMira"/>
+        <PeriodicPeriodArray value="0.2"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="CycloneAttackDMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value=""/>
+        <Amount value="20"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="CycloneAttackLMLMira">
+        <EditorCategories value=""/>
+        <ImpactEffect value="CycloneAttackDMira"/>
+        <AmmoUnit value="CycloneMissileLarge"/>
+        <Movers Link="CycloneMissileLeft"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="CycloneAttackLMRMira">
+        <EditorCategories value=""/>
+        <ImpactEffect value="CycloneAttackDMira"/>
+        <AmmoUnit value="CycloneMissileLarge"/>
+        <Movers Link="CycloneMissileRight"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="CycloneStormCPMira">
+        <EditorCategories value=""/>
+        <FinalEffect value="CycloneStormMUFMira"/>
+        <PeriodCount value="10"/>
+        <PeriodicEffectArray value="CycloneStormRPMira"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <PeriodicValidator value="CasterNotDead"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="CycloneStormDMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <KindSplash value="Ranged"/>
+        <Amount value="20"/>
+        <AreaArray Radius="0.5" Fraction="1"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable,MapBoss"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="CycloneStormLMMira">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="CycloneStormDMira"/>
+        <AmmoUnit value="CycloneMissileLarge"/>
+        <Movers Link="MissileDefault"/>
+    </CEffectLaunchMissile>
+    <CEffectModifyUnit id="CycloneStormMUMira">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <ModifyTurret Turret="CycloneWeaponTurret" AimCompleteEffect="CycloneStormCPMira">
+            <Target Value="TargetUnit"/>
+            <Flags index="Tracking" value="1"/>
+        </ModifyTurret>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="CycloneStormMUFMira">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <ModifyTurret Action="ClearTarget" Turret="CycloneWeaponTurret">
+            <Target Value="TargetUnit"/>
+        </ModifyTurret>
+    </CEffectModifyUnit>
+    <CEffectSet id="CycloneStormSetMira">
+        <EditorCategories value=""/>
+        <EffectArray value="CycloneStormMUMira"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSet>
+    <CEffectDamage id="GuassRifleDMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="8"/>
+    </CEffectDamage>
+    <CEffectSet id="HellionTankDeathFearSetUpgradeMira">
+        <EffectArray value="HellionTankDeathFearSearchUpgradeMira"/>
+        <EffectArray value="Suicide"/>
+    </CEffectSet>
+    <CEffectEnumArea id="HornerAirFleetYamatoS">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="10" Effect="HornerAirFleetYamato"/>
+        <MinCount value="1"/>
+        <TargetSorts>
+            <SortArray value="TSLifeLargestFirst"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="IncendiaryBompsABMira">
+        <EditorCategories value=""/>
+        <Behavior value="IncendiaryBompsMira"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="IncendiaryBompsBDMira">
+        <EditorCategories value=""/>
+        <Amount value="5"/>
+    </CEffectDamage>
+    <CEffectDamage id="IncendiaryBompsDMira">
+        <EditorCategories value=""/>
+        <Amount value="50"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="IncendiaryBompsLMMira">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="IncendiaryBompsSMira"/>
+        <AmmoUnit value="HellionRocketMira"/>
+        <Movers Link="EMP2Weapon"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="IncendiaryBompsSMira">
+        <EditorCategories value=""/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Structure,Hover,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="IncendiaryBompsSetMira"/>
+    </CEffectEnumArea>
+    <CEffectSet id="IncendiaryBompsSetMira">
+        <EditorCategories value=""/>
+        <EffectArray value="IncendiaryBompsDMira"/>
+        <EffectArray value="IncendiaryBompsABMira"/>
+    </CEffectSet>
+    <CEffectDamage id="LiberatorAGWDMira" parent="DU_WEAP">
+        <EditorCategories value=""/>
+        <ArmorReduction value="0"/>
+        <Kind value="Spell"/>
+        <Amount value="40"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="LiberatorAAWLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="LiberatorAAWDMira"/>
+        <AmmoUnit value="LiberatorDamageMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="LiberatorAAWCPMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="LiberatorAAWLMMira"/>
+        <PeriodicEffectArray value="LiberatorAAWLMMira"/>
+        <PeriodicPeriodArray value="0.05"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="LiberatorAAWDMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="SourceUnitOrPoint"/>
+        <Visibility value="Visible"/>
+        <Amount value="12"/>
+        <Death value="Fire"/>
+        <AreaArray Radius="1.5" Fraction="1"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Air;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="LiberatorAGWLMMira">
+        <ValidatorArray value="LiberatorAGWSMira"/>
+        <EditorCategories value=""/>
+        <ImpactEffect value="LiberatorAGWDMira"/>
+        <AmmoUnit value="LiberatorAGWMissile"/>
+        <Movers Link="LiberatorAGMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="LongboltMissileCP">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="LongboltMissileLMMira"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.1"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="LongboltMissileLMMira">
+        <ValidatorArray value="RangeCheckLE15"/>
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="LongboltMissileDMira"/>
+        <AmmoUnit value="LongboltMissileWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="LongboltMissileDMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="14"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="MagneticMinesCPMira">
+        <EditorCategories value=""/>
+        <PeriodCount value="5"/>
+        <PeriodicEffectArray value="MagneticMinesCUMira"/>
+        <PeriodicOffsetArray value="2,0,0"/>
+        <PeriodicOffsetArray value="0.6,1.9,0"/>
+        <PeriodicOffsetArray value="0.6,-1.9,0"/>
+        <PeriodicOffsetArray value="-1.6,1.16,0"/>
+        <PeriodicOffsetArray value="-1.6,-1.16,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="MagneticMinesCUMira">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <SpawnUnit value="MagneticMineMiraPrep"/>
+    </CEffectCreateUnit>
+    <CEffectEnumArea id="MagneticMinesSMira">
+        <EditorCategories value=""/>
+        <AreaArray Radius="2"/>
+    </CEffectEnumArea>
+    <CEffectCreateHealer id="MedivacHealMira">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="SourceNotHidden"/>
+        <ValidatorArray value="NotMinorGoal"/>
+        <EditorCategories value="Race:Terran"/>
+        <DrainVital value="Energy"/>
+        <DrainVitalCostFactor value="0.33"/>
+        <RechargeVitalRate value="9"/>
+    </CEffectCreateHealer>
+    <CEffectAddTrackedUnit id="MercStarportHangarATMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="MercStarportHangarMira"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectIssueOrder id="MercStarportHangarAutoMira">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="MercStarportHangarMira"/>
+        <CmdFlags index="Preempt" value="1"/>
+    </CEffectIssueOrder>
+    <CEffectEnumArea id="PunisherGrenadesSMira">
+        <ValidatorArray value="PunisherGrenadesResearched"/>
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1" Effect="PunisherGrenadesABMira"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="MercStarportHangarBayMira">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="MercStarportCargoInstalledMira"/>
+        <Flags index="SetAttributePoints" value="1"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="MiraStarportAttackWeaponDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="20"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="MiraStarportAttackWeaponLaunchMissile">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="MiraStarportAttackWeaponDamage"/>
+        <AmmoUnit value="MiraStarportMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectModifyUnit id="BomberAreaBombMUDMira">
+        <EditorCategories value=""/>
+        <Height value="-3"/>
+        <HeightTime value="0.5"/>
+    </CEffectModifyUnit>
+    <CEffectSet id="BomberAreaBombSetMira">
+        <EditorCategories value=""/>
+        <EffectArray value="BomberAreaBombMUUMira"/>
+        <EffectArray value="BomberPlatformAreaBombOrderIOMira"/>
+    </CEffectSet>
+    <CEffectAddTrackedUnit id="BomberPlatformHangarMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="BomberPlatformHangarMira"/>
+        <TrackerUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectEnumMagazine id="BomberPlatformAreaBombOrderEUMira">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <EffectExternal value="BomberAreaBombSetMira"/>
+    </CEffectEnumMagazine>
+    <CEffectModifyUnit id="BomberAreaBombMUUMira">
+        <EditorCategories value=""/>
+        <Height value="3"/>
+        <HeightTime value="0.5"/>
+    </CEffectModifyUnit>
+    <CEffectLaunchMissile id="PunisherGrenadesLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="PunisherGrenadesSetMira"/>
+        <AmmoUnit value="PunisherGrenadesLMWeapon"/>
+        <Movers Link="PunisherGrenadesWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="PunisherGrenadesSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="PunisherGrenadesDMira"/>
+        <EffectArray value="PunisherGrenadesSMira"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="PunisherGrenadesABMira">
+        <ValidatorArray index="0" value="PunisherGrenadesSlowTargetFilters"/>
+        <ValidatorArray value="NotStructure"/>
+        <ValidatorArray value="NotFrenzied"/>
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="PunisherGrenadesMira"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="PunisherGrenadesDMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Armored" value="10"/>
+        <Kind value="Ranged"/>
+        <Amount value="10"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectAddTrackedUnit id="RavenAnalyzeATMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="RavenAnalyzeTMira"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectEnumTrackedUnits id="RavenAnalyzeDTTMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="RavenAnalyzeTMira"/>
+        <Effect value="RavenAnalyzeRBMira"/>
+    </CEffectEnumTrackedUnits>
+    <CEffectRemoveBehavior id="RavenAnalyzeRBMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="RavenAnalyzeMira"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveTrackedUnit id="RavenAnalyzeRTMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="RavenAnalyzeTMira"/>
+        <TrackedUnit Value="Source"/>
+        <ValidatorArray value="RavenAnalyzeITMira"/>
+    </CEffectRemoveTrackedUnit>
+    <CEffectApplyBehavior id="ReaperClusterBombAB">
+        <EditorCategories value=""/>
+        <Behavior value="ReaperClusterBombS"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="ReaperClusterBombD" parent="DU_WEAP_MISSILE">
+        <EditorCategories value=""/>
+        <Amount value="10"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="ReaperClusterBombLM">
+        <EditorCategories value=""/>
+        <ImpactEffect value="ReaperClusterBombAB"/>
+        <AmmoUnit value="ReaperD8ChargeWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="ReaperFlyingABMira">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="ReaperFlyingMira"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="ReaperLandMira">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="ReaperLandMira"/>
+        <CmdFlags index="Preempt" value="1"/>
+    </CEffectIssueOrder>
+    <CEffectModifyUnit id="SalvageSharedMira">
+        <EditorCategories value="Race:Terran"/>
+        <ModifyFlags index="Salvage" value="1"/>
+        <SalvageFactor>
+            <Resource index="Minerals" value="-1"/>
+            <Resource index="Vespene" value="-1"/>
+            <Resource index="Terrazine" value="-1"/>
+            <Resource index="Custom" value="-1"/>
+        </SalvageFactor>
+    </CEffectModifyUnit>
+    <CEffectDamage id="SiegeBreakerDMira">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <AttributeBonus index="Armored" value="10"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Ranged"/>
+        <Amount value="25"/>
+        <Death value="Blast"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="OffsetByUnitRadius" value="1"/>
+    </CEffectDamage>
+    <CEffectDamage id="SnipeDMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <ArmorReduction value="0"/>
+        <Kind value="Spell"/>
+        <Amount value="120"/>
+        <Death value="Silentkill"/>
+    </CEffectDamage>
+    <CEffectRandomPointInCircle id="CycloneStormRPMira">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <Effect value="CycloneStormLMMira"/>
+        <Radius value="1.3"/>
+    </CEffectRandomPointInCircle>
+    <CEffectApplyBehavior id="StimPackABMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="StimpackMira"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="VampireCPMira">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicValidator value="TargetInWeaponRange"/>
+        <PeriodicEffectArray value="VampireDMira"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="VampireDMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value=""/>
+        <ArmorReduction value="0"/>
+        <Kind value="Spell"/>
+        <Amount value="4"/>
+        <LeechFraction index="Energy" value="0.5"/>
+    </CEffectDamage>
+    <CEffectIssueOrder id="VikingInstantMorphOrderMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="FighterModeMira"/>
+        <CmdFlags index="Preempt" value="1"/>
+        <Player Value="Caster"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="VikingInstantMorphSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="VikingInstantMorphOrderMira"/>
+    </CEffectSet>
+    <CEffectEnumArea id="HellionSlowAOEMira">
+        <ValidatorArray value="HellionPunisherGrenadesResearchedMira"/>
+        <EditorCategories value="Race:Terran"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1" Effect="HellionPunisherGrenadesSlowMira"/>
+    </CEffectEnumArea>
+    <CEffectLaunchMissile id="HellionPunisherGrenadesLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="HellionPunisherGrenadesSetMira"/>
+        <AmmoUnit value="HellionPunisherGrenadesLMWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="HellionPunisherGrenadesSetMira">
+        <EffectArray value="HellionPunisherGrenadesUMira"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="HellionPunisherGrenadesSlowMira">
+        <!--ValidatorArray index="0" value="HellionPunisherGrenadesResearchedMira"/>
+        <ValidatorArray value="HellionPunisherGrenadesSlowTargetFiltersMira"/-->
+        <ValidatorArray value="NotStructure"/>
+        <ValidatorArray value="NotFrenzied"/>
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="HellionSlowMira"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="HellionPunisherGrenadesUMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Armored" value="25"/>
+        <Kind value="Ranged"/>
+        <Amount value="15"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectSet id="RavenTargetLockCPOrderValidate">
+        <ValidatorArray value="NotHaveRavenAnalyze"/>
+        <ValidatorArray value="MonitorTargetLockChecks"/>
+        <Marker Link="Effect/ObserverTargetLockCPOrderValidate"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="RavenAnalyzeABMira">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="RavenAnalyzeMira"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="RavenAnalyzeSetMira">
+        <ValidatorArray value="NoRavenAnalyzeMira"/>
+        <EffectArray value="RavenAnalyzeABMira"/>
+        <EffectArray value="RavenAnalyzeATMira"/>
+    </CEffectSet>
+    <CEffectSet id="RavenFakeWeaponMira"/>
+    <CEffectModifyPlayer id="MattUnitStatUpMira">
+        <EditorCategories value="Race:Terran"/>
+        <Upgrades Upgrade="MattUnitStatMira" Count="1"/>
+    </CEffectModifyPlayer>
+    <CEffectModifyPlayer id="MattUnitStatDownMira">
+        <EditorCategories value="Race:Terran"/>
+        <Upgrades Upgrade="MattUnitStatMira" Count="-1"/>
+    </CEffectModifyPlayer>
+    <CEffectModifyPlayer id="MiraUnitStatUpMira">
+        <EditorCategories value="Race:Terran"/>
+        <Upgrades Upgrade="MiraUnitStatMira" Count="1"/>
+    </CEffectModifyPlayer>
+    <CEffectModifyPlayer id="MiraUnitStatDownMira">
+        <EditorCategories value="Race:Terran"/>
+        <Upgrades Upgrade="MiraUnitStatMira" Count="-1"/>
+    </CEffectModifyPlayer>
+    <CEffectApplyBehavior id="SOAMapWideChronoStarportABMira">
+        <ValidatorArray index="0" value="IsStarportMira"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="SOAMapWideChronoStarportMira"/>
+    </CEffectApplyBehavior>
+    <CEffectModifyUnit id="SOAMapWideChronoStarportCooldownsMira">
+        <Cost Abil="StarportTrainHornerMira,Train1" ChargeTimeUse="-0.5">
+            <Player Value="Target"/>
+        </Cost>
+        <Cost Abil="StarportTrainHornerMira,Train2" ChargeTimeUse="-0.5">
+            <Player Value="Target"/>
+        </Cost>
+        <Cost Abil="StarportTrainHornerMira,Train3" ChargeTimeUse="-0.5">
+            <Player Value="Target"/>
+        </Cost>
+        <Cost Abil="StarportTrainHornerMira,Train4" ChargeTimeUse="-0.5">
+            <Player Value="Target"/>
+        </Cost>
+    </CEffectModifyUnit>
+    <CEffectCreatePersistent id="GunTowerMira">
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodCount value="4"/>
+        <PeriodicEffectArray value="GunTowerDamageMira"/>
+        <PeriodicEffectArray value="GunTowerBSearchMira"/>
+        <PeriodicEffectArray value="GunTowerCSearchMira"/>
+        <PeriodicEffectArray value="GunTowerDSearchMira"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="GunTowerBSearchMira">
+        <SearchFilters value="Visible;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="3" Effect="GunTowerBDamageMira"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <MaxCount value="1"/>
+        <TargetSorts>
+            <SortArray value="TSRandom"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="GunTowerCSearchMira">
+        <SearchFilters value="Visible;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="3" Effect="GunTowerCDamageMira"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <MaxCount value="1"/>
+        <TargetSorts>
+            <SortArray value="TSRandom"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="GunTowerDSearchMira">
+        <SearchFilters value="Visible;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="3" Effect="GunTowerDDamageMira"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <MaxCount value="1"/>
+        <TargetSorts>
+            <SortArray value="TSRandom"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectLaunchMissile id="GunTowerLMMira">
+        <Movers Link="GunTowerWeapon"/>
+        <ImpactEffect value="GunTowerDamageMira"/>
+        <AmmoUnit value="GunTowerWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="GunTowerBLMMira">
+        <Movers Link="GunTowerWeapon"/>
+        <ImpactEffect value="GunTowerBDamageMira"/>
+        <AmmoUnit value="GunTowerBWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="GunTowerCLMMira">
+        <Movers Link="GunTowerWeapon"/>
+        <ImpactEffect value="GunTowerCDamageMira"/>
+        <AmmoUnit value="GunTowerCWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="GunTowerDLMMira">
+        <Movers Link="GunTowerWeapon"/>
+        <ImpactEffect value="GunTowerDDamageMira"/>
+        <AmmoUnit value="GunTowerDWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="GunTowerDamageMira">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="10"/>
+        <Flags index="Notification" value="1"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <Kind value="Ranged"/>
+        <Death value="Blast"/>
+        <SearchFilters value="-;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <ImpactLocation Value="TargetUnit"/>
+    </CEffectDamage>
+    <CEffectDamage id="GunTowerBDamageMira" parent="GunTowerDamageMira"/>
+    <CEffectDamage id="GunTowerCDamageMira" parent="GunTowerDamageMira"/>
+    <CEffectDamage id="GunTowerDDamageMira" parent="GunTowerDamageMira"/>
+    <CEffectLaunchMissile id="OrdnanceTowerLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="OrdnanceTowerDamageMira"/>
+        <AmmoUnit value="OrdnanceTowerWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="OrdnanceTowerDamageMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="75"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="ReaperD8ChargeLaunchMissileMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="ReaperD8ChargeDamageMira"/>
+        <AmmoUnit value="ReaperD8ChargeWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="ReaperD8ChargeDamageMira">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="20"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Notification" value="1"/>
+        <ArmorReduction value="1"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="ReaperP38ScytheGuassPistolBurstMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="2"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodicEffectArray value="ReaperP38ScytheGuassPistolMira"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.122"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="ReaperP38ScytheGuassPistolMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="5"/>
+        <AttributeBonus index="Light" value="2"/>
+    </CEffectDamage>
+    <CEffectSet id="WidowMineAttackMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="WidowMineLMSwitchMira"/>
+        <EffectArray value="WidowMineApplyAnimationMira"/>
+        <Marker Link="WidowMineAttackMira"/>
+        <ValidatorArray value="NoMineDroneCountdown"/>
+        <ValidatorArray value="NotLarva"/>
+    </CEffectSet>
+    <CEffectSwitch id="WidowMineLMSwitchMira">
+        <EditorCategories value="Race:Zerg"/>
+        <CaseArray Validator="TargetIsAir" Effect="WidowMineLMAirMira"/>
+        <CaseDefault value="WidowMineLMMira"/>
+    </CEffectSwitch>
+    <CEffectApplyBehavior id="WidowMineDelayRemoveABMira">
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="WidowMineLMMira">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="WidowMineExplodeSetMira"/>
+        <AmmoUnit value="WidowMineWeaponMira"/>
+        <Marker Link="WidowMineAttackMira"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="WidowMineLMAirMira">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="WidowMineExplodeSetMira"/>
+        <AmmoUnit value="WidowMineAirWeaponMira"/>
+        <Marker Link="WidowMineAttackMira"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="WidowMineExplodeSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="WidowMineExplodeDirectMira"/>
+        <EffectArray value="WidowMineExplodeSplashSearchMira"/>
+        <Marker>
+            <MatchFlags index="Id" value="1"/>
+        </Marker>
+    </CEffectSet>
+    <CEffectDamage id="WidowMineExplodeDirectMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Spell"/>
+        <KindSplash value="Splash"/>
+        <Amount value="125"/>
+        <Death value="Blast"/>
+        <SearchFilters value="-;Self,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <ArmorReduction value="0"/>
+        <ShieldBonus value="35"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="WidowMineExplodeSplashSearchMira">
+        <EditorCategories value="Race:Terran"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="-;Player,Ally,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2.625" Effect="WidowMineExplodeSplashMira"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="WidowMineExplodeSplashMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Spell"/>
+        <KindSplash value="Splash"/>
+        <Amount value="40"/>
+        <Death value="Blast"/>
+        <ArmorReduction value="0"/>
+        <ShieldBonus value="40"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="WidowMineApplyAnimationMira">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="WidowMineAnimationControllerMira"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="TornadoMissileCPAugmentMira">
+        <EditorCategories value="Race:Terran"/>
+        <TimeScaleSource Value="Caster"/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodicEffectArray value="TornadoMissileLMSetMira"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodCount value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="TornadoMissileCPMira">
+        <EditorCategories value="Race:Terran"/>
+        <TimeScaleSource Value="Caster"/>
+        <PeriodicEffectArray value="TornadoMissileCPSearchMira"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodCount value="8"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="TornadoMissileCPSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TornadoMissileLMMinusChargeMira"/>
+        <EffectArray value="TornadoMissileCPSearchMira"/>
+    </CEffectSet>
+    <CEffectEnumArea id="TornadoMissileCPSearchMira">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Air;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="7" Effect="TornadoMissileLMMira"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <TargetSorts>
+            <SortArray value="TSRandom"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectSet id="TornadoMissileLMSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TornadoMissileLMMira"/>
+        <EffectArray value="TornadoMissileLMDummyMira"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="TornadoMissileLMMinusChargeMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TornadoMissileMira,Execute" ChargeCountUse="1"/>
+    </CEffectModifyUnit>
+    <CEffectLaunchMissile id="TornadoMissileLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="TornadoMissileDamageMira"/>
+        <AmmoUnit value="TornadoMissileWeaponMira"/>
+        <ValidatorArray value="NotHidden"/>
+        <Movers Link="TornadoMissileWeaponClose" IfRangeLTE="6"/>
+        <Movers Link="TornadoMissileWeapon" IfRangeLTE="20"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="TornadoMissileDamageMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="100"/>
+        <ValidatorArray value="NotHidden"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="TornadoMissileLMDummyMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="TornadoMissileDamageDummyMira"/>
+        <AmmoUnit value="TornadoMissileDummyWeaponMira"/>
+        <ValidatorArray value="IsHidden"/>
+        <ImpactLocation Value="TargetPoint"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="TornadoMissileDamageDummyMira">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="ValkyrieLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="ValkyrieDamageMira"/>
+        <AmmoUnit value="ValkyrieWeaponMira"/>
+        <Movers Link="FenixClolarionBomber"/>
+        <ImpactLocation Value="TargetPoint"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="ValkyrieDamageMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <KindSplash value="Splash"/>
+        <Amount value="12"/>
+        <Death value="Blast"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.5" Fraction="1"/>
+        <ExcludeArray Value="Target"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="ValkyrieCPMira">
+        <WhichLocation Value="CasterUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <PeriodCount value="4"/>
+        <PeriodicValidator value="CasterNotDead"/>
+        <PeriodicEffectArray value="ValkyrieSwitchMira"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicOffsetArray value="0,-0.1,-3"/>
+    </CEffectCreatePersistent>
+    <CEffectSwitch id="ValkyrieSwitchMira">
+        <EditorCategories value="Race:Terran"/>
+        <CaseArray Validator="MercStarportValkyrieStructureSearchMira" Effect="ValkyrieStructureSearchMira"/>
+        <CaseDefault value="ValkyrieLMMira"/>
+    </CEffectSwitch>
+    <CEffectDamage id="ValkyrieStructureDamageMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="12"/>
+        <Death value="Blast"/>
+        <SearchFilters value="Ground,Structure;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.5" Fraction="1"/>
+        <ExcludeArray Value="Target"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="ValkyrieStructureSearchMira">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Ground,Structure;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.5" Effect="ValkyrieStructureLMMira"/>
+        <MaxCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectLaunchMissile id="ValkyrieStructureLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="ValkyrieStructureDamageMira"/>
+        <AmmoUnit value="ValkyrieStructureWeaponMira"/>
+        <Movers Link="FenixClolarionBomber"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="GriffonLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="GriffonDamageMira"/>
+        <AmmoUnit value="GriffonWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="GriffonDamageMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="5"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectSet id="BomberAreaBombInitialSetMira">
+        <EffectArray value="BomberAreaBombLMMira"/>
+        <EditorCategories value="Race:Terran"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="BomberAreaBombLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <AmmoUnit value="HHBomberAreaBombMissile"/>
+        <Movers Link="BacklashRocketsLMWeapon"/>
+        <ImpactEffect value="BomberAreaBombImpactSetMira"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <LaunchEffect value="BomberAreaBombMUDMira"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="BomberAreaBombImpactSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="BomberAreaBombSearchAreaMira"/>
+        <EffectArray value="BomberAreaBombFireInitialCPMira"/>
+        <EffectArray value="BomberAreaBombRevealMira"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectEnumArea id="BomberAreaBombSearchAreaMira">
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="BomberAreaBombDamageSwitchMira"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <AINotifyFlags index="MinorDanger" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="BomberAreaBombDamageSwitchMira">
+        <EditorCategories value="Race:Terran"/>
+        <CaseArray Validator="NotHeroic" Effect="BomberAreaBombDamageMira"/>
+        <CaseDefault value="BomberAreaBombDamageBossOrHeroicMira"/>
+    </CEffectSwitch>
+    <CEffectCreatePersistent id="BomberAreaBombRevealMira">
+        <EditorCategories value="Race:Terran"/>
+        <ExpireDelay value="5"/>
+        <RevealRadius value="7"/>
+        <RevealFlags index="Unfog" value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="BomberAreaBombDamageMira" parent="DU_WEAP_SPLASH">
+        <ValidatorArray value="IsNotPhasedUnit"/>
+        <EditorCategories value="Race:Terran"/>
+        <ArmorReduction value="0"/>
+        <Kind value="Spell"/>
+        <Amount value="175"/>
+        <Death value="Blast"/>
+        <AttributeBonus index="Structure" value="225"/>
+    </CEffectDamage>
+    <CEffectDamage id="BomberAreaBombDamageBossOrHeroicMira" parent="DU_WEAP_SPLASH">
+        <ValidatorArray value="IsNotPhasedUnit"/>
+        <EditorCategories value="Race:Terran"/>
+        <ArmorReduction value="0"/>
+        <Kind value="Spell"/>
+        <Amount value="175"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <!-- newer bomber platform setup, all run through triggers, this is a dummy effect to start it off-->
+    <CEffectSet id="BomberPlatformAreaBombOrderSetMira">
+        <EffectArray value="BomberPlatformAreaBombOrderEUMira"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="BomberPlatformAreaBombOrderIOMira">
+        <EditorCategories value="Race:Terran"/>
+        <Abil value="BomberAreaBombMira"/>
+        <Target Effect="BomberPlatformAreaBombOrderSetMira" Value="TargetUnitOrPoint"/>
+    </CEffectIssueOrder>
+    <CEffectCreatePersistent id="GriffonDamagePersistentMira">
+        <EditorCategories value="Race:Protoss"/>
+        <InitialEffect value="GriffonLMMira"/>
+        <PeriodCount value="1"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicEffectArray value="GriffonLMMira"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="MagneticMineAttackMira">
+        <WhichLocation Value="SourcePoint"/>
+        <EditorCategories value="Race:Terran"/>
+        <InitialDelay value="1.5"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="MagneticMineAttackSetMira"/>
+        <PeriodicOffsetArray value="0,-25,0"/>
+        <PeriodicValidator value="CasterNotDeadAndCasterNotStunned"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="MagneticMineAttackSetMira">
+        <EffectArray value="MagneticMineAttackLMMira"/>
+        <EffectArray value="MagneticMineDieMira"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="MagneticMineAttackLMMira">
+        <EditorCategories value="Race:Zerg"/>
+        <Movers Link="HHMagneticMineWeapon"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="MagneticMineAttackImpactDummyMira"/>
+        <AmmoUnit value="MagneticMineWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="MagneticMineAttackImpactDummyMira">
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectDamage id="MagneticMineDieMira">
+        <ImpactLocation Value="SourceUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <Death value="Timeout"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="MagneticMineWeaponSearchMira">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <TargetSorts>
+            <SortArray value="TSDistanceToTarget"/>
+        </TargetSorts>
+        <AreaArray MaxCount="1" Radius="0.5" Effect="MagneticMineWeaponSearchSetMira"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="MagneticMineWeaponSearchForDamageMira">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <TargetSorts>
+            <SortArray value="TSDistanceToTarget"/>
+        </TargetSorts>
+        <AreaArray Radius="2" Effect="MagneticMineWeaponSearchDamageMira"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="MagneticMineWeaponSearchDamageMira" parent="DU_WEAP_SPLASH">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="50"/>
+        <Death value="Blast"/>
+        <Kind value="Spell"/>
+        <ArmorReduction value="0"/>
+    </CEffectDamage>
+    <CEffectSet id="MagneticMineWeaponSearchSetMira">
+        <EffectArray value="MagneticMineWeaponSearchForDamageMira"/>
+        <EffectArray value="Suicide"/>
+    </CEffectSet>
+    <CEffectSet id="MagneticMineAttackTargetDummyMira">
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="StarportLiftOffIssueOrderMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="StarportLiftOffMira"/>
+        <Target Value="CasterUnit"/>
+    </CEffectIssueOrder>
+    <CEffectApplyBehavior id="WraithFuryABMira">
+        <ValidatorArray index="0" value="HaveWraithFuryMira"/>
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="WraithFuryMira"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="WraithFuryABPMira">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="WraithFuryPMira"/>
+        <Flags index="SetAttributePoints" value="1"/>
+        <Flags index="SetAttributePointsDelta" value="1"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="WraithFuryRBPMira">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="WraithFuryPMira"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="WraithSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="WraithFuryABMira"/>
+        <EffectArray value="WraithLMMira"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="WraithLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="WraithDMira"/>
+        <AmmoUnit value="WraithWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="WraithDMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Kind value="Ranged"/>
+        <Amount value="20"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="MercStarportLaunchPersistentMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <PeriodCount value="6"/>
+        <PeriodicValidator value="CasterNotDead"/>
+        <PeriodicEffectArray value="MercStarportMinionsMira"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectUseMagazine id="MercStarportMinionsMira">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectUseMagazine>
+    <CEffectSet id="D8ChargeExplodeMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="D8ChargeExplodeDamageMira"/>
+        <EffectArray value="ReaperKnockbackSearchMira"/>
+        <EffectArray value="Suicide"/>
+    </CEffectSet>
+    <CEffectDamage id="D8ChargeExplodeDamageMira" parent="DU_WEAP_SPLASH">
+        <ValidatorArray value="NotHallucination"/>
+        <EditorCategories value="Race:Terran"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ImpactUnitValidator value="D8ChargeUnitLinkMira"/>
+        <Kind value="Spell"/>
+        <Amount value="10"/>
+        <Death value="Blast"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Fraction="1" Validator="D8ChargeUnitLinkMira"/>
+        <ExcludeArray Value="Outer"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <ArmorReduction value="0"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="D8ClusterBombCreatePersistantMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="SourcePoint"/>
+        <OffsetVectorStartLocation Value="SourcePoint"/>
+        <PeriodCount value="7"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicOffsetArray value="-0.4,-0.75,0"/>
+        <PeriodicOffsetArray value="0,0.9,0"/>
+        <PeriodicOffsetArray value="0.4,-0.75,0"/>
+        <PeriodicOffsetArray value="-0.6,0.5,0"/>
+        <PeriodicOffsetArray value="0.8,-0.2,0"/>
+        <PeriodicOffsetArray value="-0.8,-0.2,0"/>
+        <PeriodicOffsetArray value="0.6,0.5,0"/>
+        <PeriodicPeriodArray value="1.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="D8ClusterBombCreateUnitMira">
+        <EditorCategories value="Race:Terran"/>
+        <SpawnEffect value="D8ClusterBombLaunchMira"/>
+        <SpawnUnit value="D8ClusterBombMira"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <SpawnRange value="1.5"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="D8ClusterBombLaunchMira">
+        <EffectArray value="D8ClusterBombLMMira"/>
+        <EffectArray value="MakePrecursor"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="D8ClusterBombLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <FinishEffect value="RemovePrecursor"/>
+        <AmmoUnit value="D8ClusterBombWeaponMira"/>
+        <LaunchLocation Value="CasterUnit"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="D8ClusterBombExplodeMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="D8ClusterBombExplodeDamageMira"/>
+        <EffectArray value="ReaperKnockbackSearchMira"/>
+        <EffectArray value="Suicide"/>
+    </CEffectSet>
+    <CEffectDamage id="D8ClusterBombExplodeDamageMira" parent="DU_WEAP_SPLASH">
+        <ValidatorArray value="NotHallucination"/>
+        <EditorCategories value="Race:Terran"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ImpactUnitValidator value="D8ChargeUnitLinkMira"/>
+        <Kind value="Spell"/>
+        <Amount value="5"/>
+        <Death value="Blast"/>
+        <AreaArray Radius="1.5" Fraction="1" Validator="D8ChargeUnitLinkMira"/>
+        <ExcludeArray Value="Outer"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <ArmorReduction value="0"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="D8SingleClusterMira">
+        <EditorCategories value="Race:Terran"/>
+        <SpawnEffect value="D8SingleLaunchMira"/>
+        <SpawnUnit value="D8SingleClusterMira"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <SpawnRange value="1.5"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="D8ClusterDeathSetMira">
+        <EffectArray value="D8ClusterMira"/>
+        <EditorCategories value="Race:Terran"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="D8ClusterMira">
+        <EditorCategories value="Race:Terran"/>
+        <SpawnEffect value="D8ClusterLaunchMira"/>
+        <SpawnUnit value="D8CenterClusterMira"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <SpawnRange value="1.5"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="D8ClusterLaunchMira">
+        <EffectArray value="D8ClusterLMMira"/>
+        <EffectArray value="MakePrecursor"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="D8ClusterLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <FinishEffect value="RemovePrecursor"/>
+        <AmmoUnit value="D8CenterClusterWeaponMira"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <Movers Link="D8ChargeWeaponCloseRange" IfRangeLTE="1"/>
+        <Movers Link="D8ChargeWeapon" IfRangeLTE="500"/>
+        <ImpactEffect value="D8SuicideMira"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="D8SuicideMira">
+        <ImpactLocation Value="CasterUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+    </CEffectDamage>
+    <CEffectSet id="D8SingleLaunchMira">
+        <EffectArray value="D8SingleLMMira"/>
+        <EffectArray value="MakePrecursor"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="D8SingleLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <FinishEffect value="RemovePrecursor"/>
+        <AmmoUnit value="D8SingleClusterWeaponMira"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <Movers Link="D8ChargeWeaponCloseRange" IfRangeLTE="1"/>
+        <Movers Link="D8ChargeWeapon" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="WidowMineBlossomCPMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="5"/>
+        <PeriodicEffectArray value="WidowMineBlossomCP1Mira"/>
+        <PeriodicEffectArray value="WidowMineBlossomCP2Mira"/>
+        <PeriodicEffectArray value="WidowMineBlossomCP3Mira"/>
+        <PeriodicEffectArray value="WidowMineBlossomCP4Mira"/>
+        <PeriodicEffectArray value="WidowMineBlossomCP5Mira"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="WidowMineBlossomCP1Mira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicOffsetArray value="5.5,0,0"/>
+        <PeriodicOffsetArray value="-5.5,0,0"/>
+        <PeriodicOffsetArray value="2.5,0,0"/>
+        <PeriodCount value="1"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodicEffectArray value="WidowMineBlossomLMMira"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="WidowMineBlossomCP2Mira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicOffsetArray value="4.354,-3.0266,0"/>
+        <PeriodicOffsetArray value="1,-2.0981,0"/>
+        <PeriodicOffsetArray value="1.354,-5.2062,0"/>
+        <PeriodCount value="1"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodicEffectArray value="WidowMineBlossomLMMira"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="WidowMineBlossomCP3Mira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicOffsetArray value="4.354,3.0266,0"/>
+        <PeriodicOffsetArray value="1,2.0981,0"/>
+        <PeriodicOffsetArray value="1.354,5.2062,0"/>
+        <PeriodCount value="1"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodicEffectArray value="WidowMineBlossomLMMira"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="WidowMineBlossomCP4Mira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicOffsetArray value="-4.354,-3.0266,0"/>
+        <PeriodicOffsetArray value="-1.354,-5.2062,0"/>
+        <PeriodicOffsetArray value="-1,-2.0981,0"/>
+        <PeriodCount value="1"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodicEffectArray value="WidowMineBlossomLMMira"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="WidowMineBlossomCP5Mira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicOffsetArray value="-4.354,3.0266,0"/>
+        <PeriodicOffsetArray value="-1.354,5.2062,0"/>
+        <PeriodicOffsetArray value="-1,2.0981,0"/>
+        <PeriodCount value="1"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodicEffectArray value="WidowMineBlossomLMMira"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="WidowMineBlossomLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="WidowMineBlossomExplodeSplashSearchMira"/>
+        <AmmoUnit value="WidowMineBlossomWeaponMira"/>
+        <ImpactLocation Value="TargetPoint"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="WidowMineBlossomExplodeSplashSearchMira">
+        <EditorCategories value="Race:Terran"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Ground;Player,Ally,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2.625" Effect="WidowMineBlossomExplodeSplashMira"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="WidowMineBlossomExplodeSplashMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Spell"/>
+        <KindSplash value="Splash"/>
+        <Amount value="10"/>
+        <Death value="Blast"/>
+        <ArmorReduction value="0"/>
+        <ShieldBonus value="10"/>
+    </CEffectDamage>
+    <CEffectSet id="WidowMineBlossomIssueOrderSetMira">
+        <EffectArray value="WidowMineBlossomCPMira"/>
+        <EffectArray value="Suicide"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="WidowMineBlossomIssueOrderMira">
+        <Abil value="WidowMineBlossomMira"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectIssueOrder>
+    <CEffectEnumArea id="ReaperKnockbackSearchMira">
+        <SearchFilters value="Ground;Player,Ally,Neutral,Massive,Structure,Heroic,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1" Effect="ReaperClusterMira"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+    </CEffectEnumArea>
+    <CEffectCreateUnit id="ReaperClusterMira">
+        <ValidatorArray value="NotFrenzied"/>
+        <ValidatorArray value="IsNotBurrowedUnit"/>
+        <ValidatorArray value="IsNotLarva"/>
+        <ValidatorArray value="IsNotEgg"/>
+        <ValidatorArray value="IsNotPhasedUnit"/>
+        <ValidatorArray value="IsNotWarpingIn"/>
+        <ValidatorArray value="IsNotEggUnit"/>
+        <ValidatorArray value="NotAbducted"/>
+        <ValidatorArray value="NoGravitonBeamInProgress"/>
+        <ValidatorArray value="NoPreventKnockback"/>
+        <EditorCategories value="Race:Zerg"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <CreateFlags index="NormalizeSpawnOffset" value="0"/>
+        <SpawnOwner Value="Neutral"/>
+        <SpawnEffect value="ReaperKnockbackCreatePHSetMira"/>
+        <SpawnRange value="4"/>
+        <SpawnOffset value="0,4"/>
+        <TypeFallbackUnit Value="Target"/>
+        <Origin Value="SourceUnit"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="ReaperKnockbackCreatePHSetMira">
+        <EffectArray value="ReaperPrecursorUnitKnockbackABMira"/>
+        <EffectArray value="ReaperKnockbackABMira"/>
+        <EffectArray value="ReaperKnockbackPHLMMira"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="ReaperPrecursorUnitKnockbackABMira">
+        <Behavior value="ReaperPrecursorUnitKnockbackMira"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ReaperKnockbackABMira">
+        <WhichUnit Effect="ReaperClusterMira"/>
+        <Behavior value="UnitKnockback"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="ReaperKnockbackPHLMMira">
+        <LaunchLocation Effect="ReaperClusterMira" Value="TargetUnit"/>
+        <ImpactEffect value="ReaperKnockbackImpactCPMira"/>
+        <Flags index="2D" value="1"/>
+        <Flags index="TravelValidation" value="1"/>
+        <Flags index="ValidateAbil" value="0"/>
+        <Flags index="ValidateBenign" value="0"/>
+        <Flags index="ValidateTeleport" value="0"/>
+        <Flags index="ValidateWeapon" value="0"/>
+        <Movers Link="UnitKnockbackMover3"/>
+        <DeathType value="Unknown"/>
+        <!--ValidatorArray index="0" value="ReaperKnockbackRangeMira"/-->
+        <ValidatorArray value="ReaperKnockbackTargetNotDeadMira"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="ReaperKnockbackImpactCPMira">
+        <WhichLocation Effect="ReaperClusterMira" Value="TargetUnit"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="ReaperKnockbackRBMira"/>
+        <PeriodicPeriodArray value="0.0625"/>
+    </CEffectCreatePersistent>
+    <CEffectRemoveBehavior id="ReaperKnockbackRBMira">
+        <WhichUnit Effect="ReaperClusterMira"/>
+        <BehaviorLink value="UnitKnockback"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreateUnit id="SummonMercenarySpaceStationCreateUnitMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="MercenarySpaceStationSpawnSetMira"/>
+        <SpawnUnit value="MercenarySpaceStationMira"/>
+        <SpawnRange value="8"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="MercenarySpaceStationSpawnSetMira">
+        <EffectArray value="MercenarySpaceStationSpawnABMira"/>
+        <EffectArray value="MercenarySpaceStationSpawnSearchMira"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="MercenarySpaceStationSpawnABMira">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="MercenarySpaceStationSpawnMira"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="MercenarySpaceStationSpawnTimedLifeABMira">
+        <Behavior value="MercenarySpaceStationTimedLifeMira"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="MercenarySpaceStationSpawnSearchMira">
+        <AreaArray Radius="3.8"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Structure,Heroic,Missile,Item,Stasis,Dead,Hidden,Invulnerable,MapBoss"/>
+    </CEffectEnumArea>
+    <CEffectSet id="MercenarySpaceStationSpawnImpactSetMira">
+        <EffectArray value="MercenarySpaceStationSpawnTimedLifeABMira"/>
+        <!--EffectArray value="MercenarySpaceStationSpawnHERCPersistentMira"/-->
+        <!--EffectArray value="MercenarySpaceStationSpawnHERCABMira"/-->
+        <EffectArray value="MercenarySpaceStationSpawnImpactSearchMira"/>
+    </CEffectSet>
+    <CEffectEnumArea id="MercenarySpaceStationSpawnImpactSearchMira">
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="3.8" Effect="MercenarySpaceStationSpawnImpactSwitchMira"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="MercenarySpaceStationSpawnImpactSwitchMira">
+        <CaseArray Validator="MercSpaceStationTeleportKillTargets" Effect="MercenarySpaceStationSpawnKillMira"/>
+        <CaseDefault value="MercenarySpaceStationSpawnImpactDamageMira"/>
+    </CEffectSwitch>
+    <CEffectDamage id="MercenarySpaceStationSpawnKillMira">
+        <Death value="Blast"/>
+        <!--Flags index="Kill" value="1"/-->
+        <ValidatorArray value="TargetIsEnemy"/>
+        <Amount value="5000"/>
+    </CEffectDamage>
+    <CEffectDamage id="MercenarySpaceStationSpawnImpactDamageMira">
+        <Amount value="500"/>
+        <Death value="Blast"/>
+        <ValidatorArray value="TargetIsEnemy"/>
+    </CEffectDamage>
+    <CEffectSet id="MercenarySpaceStationSuicideSetMira">
+        <EffectArray value="MercenarySpaceStationSuicideRBMira"/>
+        <EffectArray value="MercenarySpaceStationSuicideNukeSetMira"/>
+        <EffectArray value="SuicideDelay"/>
+    </CEffectSet>
+    <CEffectSet id="MercenarySpaceStationSuicideNukeSetMira">
+        <EffectArray value="MercenarySpaceStationNukeDamageMira"/>
+        <ValidatorArray value="HaveSpaceStationNukeMira"/>
+    </CEffectSet>
+    <CEffectDamage id="MercenarySpaceStationNukeDamageMira">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="300"/>
+        <SearchFilters value="-;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="8" Fraction="1"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <AINotifyFlags index="MajorDanger" value="1"/>
+        <AttributeBonus index="Structure" value="200"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="SameCliff" value="0"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Death value="Fire"/>
+        <ImpactLocation Value="SourcePoint"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="StarportUnitOrderQueueMira">
+        <EditorCategories value="Race:Terran"/>
+        <CopyOrderCount value="32"/>
+        <CopyRallyCount value="32"/>
+    </CEffectModifyUnit>
+    <CEffectSwitch id="StarportUnitOrderQueueSwitchMira">
+        <EditorCategories value="Race:Protoss"/>
+        <CaseArray Validator="CasterIsAttacking" Effect="StarportUnitOrderQueueMira"/>
+        <CaseDefault value="StarportUnitOrderQueueMoveABMira"/>
+    </CEffectSwitch>
+    <CEffectApplyBehavior id="StarportUnitOrderQueueMoveABMira">
+        <Behavior value="StarportUnitOrderQueueMoveMira"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="StarportUnitOrderQueueMoveMira">
+        <Abil value="move"/>
+        <WhichUnit Value="Source"/>
+        <Target Value="CasterUnit"/>
+        <Player Value="Origin"/>
+    </CEffectIssueOrder>
+    <CEffectDamage id="TwinGatlingCannonsMira" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="18"/>
+        <Death value="Silentkill"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="LanzerTorpedoesMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="2"/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodicEffectArray value="LanzerTorpedoesLMMira"/>
+        <PeriodicPeriodArray value="0.3"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="LanzerTorpedoesLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="LanzerTorpedoesDamageMira"/>
+        <AmmoUnit value="VikingFighterWeaponMira"/>
+        <ValidatorArray value="RangeCheckLE15"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="LanzerTorpedoesDamageMira" parent="DU_WEAP_SPLASH">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Kind value="Ranged"/>
+        <Amount value="20"/>
+        <AttributeBonus index="Armored" value="15"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="LaserBatteryLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="LaserBatteryUMira"/>
+        <AmmoUnit value="LaserBatteryLMWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="LaserBatteryUMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="200"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="ATALaserBatteryLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="ATALaserBatteryUMira"/>
+        <AmmoUnit value="ATALaserBatteryLMWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="ATALaserBatteryUMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="18"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="ATSLaserBatteryLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="ATSLaserBatteryUMira"/>
+        <AmmoUnit value="ATSLaserBatteryLMWeaponMira"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="ATSLaserBatteryUMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="18"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectSet id="VikingShootSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="VikingACCPMira"/>
+        <EffectArray value="TwinGatlingCannonsMira"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="VikingACCPMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="1"/>
+        <WhichLocation Value="SourcePoint"/>
+        <PeriodicEffectArray value="VikingShootSearchMira"/>
+        <PeriodicOffsetArray value="0,-4,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="VikingShootSearchMira">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray RectangleWidth="1.5" RectangleHeight="7" Effect="TwinGatlingCannonsMira"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <ImpactLocation Value="TargetPoint"/>
+    </CEffectEnumArea>
+    <CEffectSet id="RavenHealPodMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="RavenHealPodLMMira"/>
+        <EffectArray value="RavenHealPodIncomingABMira"/>
+        <ValidatorArray value="LifeNotFull"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NotUncommandable"/>
+        <ValidatorArray value="SourceNotHidden"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="RavenHealPodLMMira">
+        <EditorCategories value="Race:PrimalZerg"/>
+        <AmmoUnit value="RavenHealPodWeaponMira"/>
+        <ImpactEffect value="RavenHealPodImpactSetMira"/>
+        <ValidatorArray value="LifeNotFull"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NotUncommandable"/>
+        <ValidatorArray value="SourceNotHidden"/>
+        <Marker>
+            <MatchFlags index="Id" value="1"/>
+        </Marker>
+    </CEffectLaunchMissile>
+    <CEffectSet id="RavenHealPodImpactSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="RavenHealPodTargetABMira"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="RavenHealPodTargetABMira">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="RavenHealPodTargetMira"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="RavenHealPodIncomingABMira">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="RavenHealPodIncomingMira"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateHealer id="RavenHealPodTargetHealMira">
+        <ValidatorArray value="LifeNotFull"/>
+        <Flags index="Channeled" value="0"/>
+        <PeriodCount value="16"/>
+        <RechargeVitalRate value="5"/>
+    </CEffectCreateHealer>
+    <CEffectIssueOrder id="YamatoShotsUpgradeActivateIssueOrderMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <CmdFlags index="Preempt" value="1"/>
+        <ValidatorArray value="BattlecruiserUpgradedMira"/>
+        <Abil value="YamatoShotsMira"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="ScrapPickupMira">
+        <EditorCategories value=""/>
+        <EffectArray value="ScrapPickupMPMira"/>
+        <EffectArray value="PickupKill"/>
+    </CEffectSet>
+    <CEffectModifyPlayer id="ScrapPickupMPMira">
+        <Resources index="Minerals" value="20"/>
+        <Resources index="Vespene" value="5"/>
+    </CEffectModifyPlayer>
+    <CEffectCreatePersistent id="ReleaseEscortsInitialCPMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="12"/>
+        <PeriodicEffectArray value="ReleaseEscortsIterateMagazineMira"/>
+        <PeriodicPeriodArray value="1"/>
+        <OffsetVectorStartLocation Value="SourcePoint"/>
+        <WhichLocation Value="SourcePoint"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumMagazine id="ReleaseEscortsIterateMagazineMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Source"/>
+        <EffectInternal value="ReleaseEscortsLaunchMira"/>
+        <EffectExternal value="ReleaseEscortsReleaseSetMira"/>
+        <MaxCount value="1"/>
+    </CEffectEnumMagazine>
+    <CEffectUseMagazine id="ReleaseEscortsLaunchMira">
+        <EditorCategories value="Race:Terran"/>
+        <TargetLocation Effect="ReleaseEscortsInitialCPMira" Value="SourcePoint"/>
+        <AmmoEffect value="ReleaseEscortsReleaseSetMira"/>
+    </CEffectUseMagazine>
+    <CEffectSet id="ReleaseEscortsReleaseSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="ReleaseEscortsMira"/>
+        <EffectArray value="ReleaseEscortsApplyWanderDelayMira"/>
+        <EffectArray value="ReleaseEscortsApplySourceIsAliveMira"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="ReleaseEscortsApplySourceIsAliveMira">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ReleaseEscortsApplyWanderDelayMira">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="ReleaseEscortsWanderDelayMira"/>
+    </CEffectApplyBehavior>
+    <CEffectReleaseMagazine id="ReleaseEscortsMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Source"/>
+    </CEffectReleaseMagazine>
+    <CEffectCreatePersistent id="ReleaseEscortsPatrolCPMira">
+        <WhichLocation Effect="ReleaseEscortsReleaseSetMira"/>
+        <EditorCategories value="Race:Terran"/>
+        <Flags index="RandomEffect" value="1"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="ReleaseEscortsPatrolLeftTurnCPMira"/>
+        <PeriodicEffectArray value="ReleaseEscortsPatrolRightTurnCPMira"/>
+        <PeriodicOffsetArray value="2.5,0,0"/>
+        <PeriodicOffsetArray value="2.165,1.25,0"/>
+        <PeriodicOffsetArray value="1.25,2.165,0"/>
+        <PeriodicOffsetArray value="0,2.5,0"/>
+        <PeriodicOffsetArray value="-1.25,2.165,0"/>
+        <PeriodicOffsetArray value="-2.165,1.25,0"/>
+        <PeriodicOffsetArray value="-2.5,0,0"/>
+        <PeriodicOffsetArray value="-2.165,-1.25,0"/>
+        <PeriodicOffsetArray value="-1.25,-2.165,0"/>
+        <PeriodicOffsetArray value="0,-2.5,0"/>
+        <PeriodicOffsetArray value="1.25,-2.165,0"/>
+        <PeriodicOffsetArray value="2.165,-1.25,0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="ReleaseEscortsPatrolLeftTurnCPMira">
+        <EditorCategories value="Race:Terran"/>
+        <OffsetVectorStartLocation Effect="ReleaseEscortsReleaseSetMira" Value="TargetPoint"/>
+        <PeriodCount value="7"/>
+        <PeriodicEffectArray value="ReleaseEscortsPatrolRandomizerCPMira"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="-1.768,0.732,0"/>
+        <PeriodicOffsetArray value="-2.5,2.5,0"/>
+        <PeriodicOffsetArray value="2.5,2.5,0"/>
+        <PeriodicOffsetArray value="1.768,4.268,0"/>
+        <PeriodicOffsetArray value="0,5,0"/>
+        <PeriodicOffsetArray value="0,2.5,0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="ReleaseEscortsPatrolRightTurnCPMira">
+        <EditorCategories value="Race:Terran"/>
+        <OffsetVectorStartLocation Effect="ReleaseEscortsReleaseSetMira" Value="TargetPoint"/>
+        <PeriodCount value="7"/>
+        <PeriodicEffectArray value="ReleaseEscortsPatrolRandomizerCPMira"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="1.768,0.732,0"/>
+        <PeriodicOffsetArray value="2.5,2.5,0"/>
+        <PeriodicOffsetArray value="-2.5,2.5,0"/>
+        <PeriodicOffsetArray value="-1.768,4.268,0"/>
+        <PeriodicOffsetArray value="0,5,0"/>
+        <PeriodicOffsetArray value="0,2.5,0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="ReleaseEscortsPatrolRandomizerCPMira">
+        <EditorCategories value="Race:Terran"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="ReleaseEscortsPatrolIssueOrderMira"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="0.25,0,0"/>
+        <PeriodicOffsetArray value="0.125,0.2165,0"/>
+        <PeriodicOffsetArray value="-0.125,0.2165,0"/>
+        <PeriodicOffsetArray value="-0.25,0,0"/>
+        <PeriodicOffsetArray value="-0.125,-0.2165,0"/>
+        <PeriodicOffsetArray value="0.125,-0.2165,0"/>
+        <PeriodicOffsetArray value="0.5,0,0"/>
+        <PeriodicOffsetArray value="0.433,0.25,0"/>
+        <PeriodicOffsetArray value="0.25,0.433,0"/>
+        <PeriodicOffsetArray value="0,0.5,0"/>
+        <PeriodicOffsetArray value="-0.25,0.433,0"/>
+        <PeriodicOffsetArray value="-0.433,0.25,0"/>
+        <PeriodicOffsetArray value="-0.5,0,0"/>
+        <PeriodicOffsetArray value="-0.433,-0.25,0"/>
+        <PeriodicOffsetArray value="-0.25,-0.433,0"/>
+        <PeriodicOffsetArray value="0,-0.5,0"/>
+        <PeriodicOffsetArray value="0.25,-0.433,0"/>
+        <PeriodicOffsetArray value="0.433,-0.25,0"/>
+    </CEffectCreatePersistent>
+    <CEffectIssueOrder id="ReleaseEscortsPatrolIssueOrderMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Source"/>
+        <Abil value="move"/>
+        <Player Value="Source"/>
+        <Target Value="TargetPoint"/>
+        <AbilCmdIndex value="1"/>
+        <CmdFlags index="Queued" value="1"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="HellionTankMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="HellionTankApplyBehavior"/>
+        <EffectArray value="HellionTankDamageSetMira"/>
+        <EffectArray value="HellionTankSearchMira"/>
+    </CEffectSet>
+    <CEffectDamage id="HellionTankDamageMira">
+        <ValidatorArray value="WeaponInRange"/>
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <AttributeBonus index="Light" value="12"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Ranged"/>
+        <Amount value="18"/>
+        <Death value="Fire"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="HellionTankSearchMira">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <ExcludeArray Effect="HellionTankMira" Value="Target"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Missile,Dead,Hidden,Invulnerable"/>
+        <AreaArray Arc="45" Radius="10" Effect="HellionTankDamageSetMira"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFlags index="OffsetByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="HellionTankDamageSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="HellionTankDamageMira"/>
+        <EffectArray value="HellionDoTABMira"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="HellionDoTABMira">
+        <Behavior value="HellionDoTMira"/>
+        <ValidatorArray value="HaveHellionAttackDoTMira"/>
+        <ValidatorArray value="WeaponInRange"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="HellionStimSetMira">
+        <EffectArray value="HellionStimSMira"/>
+    </CEffectSet>
+    <CEffectEnumArea id="HellionStimSMira">
+        <ImpactLocation Value="SourceUnit"/>
+        <ExcludeArray Value="Source"/>
+        <SearchFilters value="-;Neutral,Enemy,Structure,Missile,Item,Uncommandable,Stasis,Dead,Hidden"/>
+        <AreaArray Radius="3.5" Effect="HellionStimABMira"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="HellionStimABMira">
+        <Behavior value="HellionStimMira"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="HellionTankDeathFearSetMira">
+        <EffectArray value="HellionTankDeathFearSearchMira"/>
+    </CEffectSet>
+    <CEffectEnumArea id="HellionTankDeathFearSearchMira">
+        <SearchFilters value="-;Player,Ally,Air,Structure,Heroic,Missile,Item,Uncommandable,Stasis,Dead,Hidden,MapBoss"/>
+        <AreaArray Radius="4" Effect="HellionTankDeathFearABMira"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="HellionTankDeathFearABMira">
+        <Behavior value="HellionTankFearMira"/>
+        <ValidatorArray index="0" value="NotFrenzied"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="HellionDoTDamageMira">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="10"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="HellionRocketCPAugmentMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodicEffectArray value="HellionRocketCPSearchMira"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <PeriodCount value="4"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="HellionRocketCPSearchMira">
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="2" Effect="HellionRocketLaunchMissileMira"/>
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <TargetSorts>
+            <SortArray value="TSRandom"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectLaunchMissile id="HellionRocketLaunchMissileMira">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="HellionRocketDamageMira"/>
+        <AmmoUnit value="HellionRocketMira"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="HellionRocketDamageMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="8"/>
+        <Death value="Blast"/>
+        <ArmorReduction value="0"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="HellionBombLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="HellionBombImpactSetMira"/>
+        <AmmoUnit value="HellionRocketMira"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="HellionBombImpactSetMira">
+        <EffectArray value="HellionBombDamageMira"/>
+        <EffectArray value="HellionBombSearchMira"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectDamage id="HellionBombDamageMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="20"/>
+        <Death value="Blast"/>
+        <ArmorReduction value="0"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="HellionBombSearchMira">
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="HellionBombSlowABMira"/>
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="TargetPoint"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="HellionBombSlowABMira">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="HellionBombSlowMira"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="VikingRocketsBurstPersistentMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="5"/>
+        <PeriodicEffectArray value="VikingRocketsALMMira"/>
+        <PeriodicEffectArray value="VikingRocketsBLMMira"/>
+        <PeriodicEffectArray value="VikingRocketsCLMMira"/>
+        <PeriodicEffectArray value="VikingRocketsDLMMira"/>
+        <PeriodicEffectArray value="VikingRocketsELMMira"/>
+        <PeriodicPeriodArray value="0.3125"/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodicValidator value="CasterNotDead"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="VikingRocketsDamageMira" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="25"/>
+        <Death value="Fire"/>
+        <AttributeBonus index="Armored" value="15"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="VikingRocketsALMMira">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="VikingRocketsDamageMira"/>
+        <AmmoUnit value="VikingRocketsMissileMira"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="VikingRocketsBLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="VikingRocketsDamageMira"/>
+        <AmmoUnit value="VikingRocketsMissileMira"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="VikingRocketsCLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="VikingRocketsDamageMira"/>
+        <AmmoUnit value="VikingRocketsMissileMira"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="VikingRocketsDLMMira">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="VikingRocketsDamageMira"/>
+        <AmmoUnit value="VikingRocketsMissileMira"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="VikingRocketsELMMira">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="VikingRocketsDamageMira"/>
+        <AmmoUnit value="VikingRocketsMissileMira"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="BomberAreaBombFireInitialCPMira">
+        <EditorCategories value="Race:Terran"/>
+        <TimeScaleSource Value="Caster"/>
+        <PeriodCount value="19"/>
+        <InitialEffect value="BomberAreaBombFireSearchMira"/>
+        <PeriodicEffectArray value="BomberAreaBombFireSearchMira"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <ValidatorArray value="HaveBomberNapalmMira"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="BomberAreaBombFireSearchMira">
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="BomberAreaBombFireABMira"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="BomberAreaBombFireABMira">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="BomberAreaBombFireMira"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="BomberAreaBombFireDamageMira">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Visibility value="Hidden"/>
+        <Amount value="5"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectSet id="WidowMineBlossomIssueOrderSetTriggerMira">
+        <EffectArray value="GrantKillCreditDummy"/>
+        <EffectArray value="OnDeathControllerDeathPreventRB"/>
+    </CEffectSet>
+    <CEffectSet id="D8ClusterDeathSetUpgradeMira">
+        <EffectArray value="D8ClusterUpgradeMira"/>
+        <EditorCategories value="Race:Terran"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="D8ClusterUpgradeMira">
+        <EditorCategories value="Race:Terran"/>
+        <SpawnEffect value="D8ClusterLaunchMira"/>
+        <SpawnUnit value="D8CenterClusterUpgradeMira"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <SpawnRange value="1.5"/>
+    </CEffectCreateUnit>
+    <CEffectCreatePersistent id="D8ClusterBombCreatePersistantUpgradeMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="SourcePoint"/>
+        <OffsetVectorStartLocation Value="SourcePoint"/>
+        <PeriodCount value="14"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicEffectArray value="D8ClusterBombCreateUnitMira"/>
+        <PeriodicOffsetArray value="-0.4,-0.75,0"/>
+        <PeriodicOffsetArray value="0,0.9,0"/>
+        <PeriodicOffsetArray value="0.4,-0.75,0"/>
+        <PeriodicOffsetArray value="-0.6,0.5,0"/>
+        <PeriodicOffsetArray value="0.8,-0.2,0"/>
+        <PeriodicOffsetArray value="-0.8,-0.2,0"/>
+        <PeriodicOffsetArray value="0.6,0.5,0"/>
+        <PeriodicOffsetArray value="1.87,2.35,0"/>
+        <PeriodicOffsetArray value="-0.67,2.92,0"/>
+        <PeriodicOffsetArray value="-2.7,1.3,0"/>
+        <PeriodicOffsetArray value="-2.7,-1.3,0"/>
+        <PeriodicOffsetArray value="-0.67,-2.92,0"/>
+        <PeriodicOffsetArray value="1.87,-2.35,0"/>
+        <PeriodicOffsetArray value="3,0,0"/>
+        <PeriodicPeriodArray value="1.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="WidowMineBlossomIssueOrderSetUpgradeMira">
+        <EffectArray value="WidowMineBlossomCPUpgradeMira"/>
+        <EffectArray value="Suicide"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="WidowMineBlossomCPUpgradeMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="5"/>
+        <PeriodicEffectArray value="WidowMineBlossomCP1UpgradeMira"/>
+        <PeriodicEffectArray value="WidowMineBlossomCP2UpgradeMira"/>
+        <PeriodicEffectArray value="WidowMineBlossomCP3UpgradeMira"/>
+        <PeriodicEffectArray value="WidowMineBlossomCP4UpgradeMira"/>
+        <PeriodicEffectArray value="WidowMineBlossomCP5UpgradeMira"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="WidowMineBlossomCP1UpgradeMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicOffsetArray value="5.5,0,0"/>
+        <PeriodicOffsetArray value="-5.5,0,0"/>
+        <PeriodicOffsetArray value="2.5,0,0"/>
+        <PeriodCount value="2"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodicEffectArray value="WidowMineBlossomLMMira"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="WidowMineBlossomCP2UpgradeMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicOffsetArray value="4.354,-3.0266,0"/>
+        <PeriodicOffsetArray value="1,-2.0981,0"/>
+        <PeriodicOffsetArray value="1.354,-5.2062,0"/>
+        <PeriodCount value="2"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodicEffectArray value="WidowMineBlossomLMMira"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="WidowMineBlossomCP3UpgradeMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicOffsetArray value="4.354,3.0266,0"/>
+        <PeriodicOffsetArray value="1,2.0981,0"/>
+        <PeriodicOffsetArray value="1.354,5.2062,0"/>
+        <PeriodCount value="2"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodicEffectArray value="WidowMineBlossomLMMira"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="WidowMineBlossomCP4UpgradeMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicOffsetArray value="-4.354,-3.0266,0"/>
+        <PeriodicOffsetArray value="-1.354,-5.2062,0"/>
+        <PeriodicOffsetArray value="-1,-2.0981,0"/>
+        <PeriodCount value="2"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodicEffectArray value="WidowMineBlossomLMMira"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="WidowMineBlossomCP5UpgradeMira">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicOffsetArray value="-4.354,3.0266,0"/>
+        <PeriodicOffsetArray value="-1.354,5.2062,0"/>
+        <PeriodicOffsetArray value="-1,2.0981,0"/>
+        <PeriodCount value="2"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodicEffectArray value="WidowMineBlossomLMMira"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="HellionTankDeathFearSearchUpgradeMira">
+        <SearchFilters value="-;Player,Ally,Air,Structure,Heroic,Missile,Item,Uncommandable,Stasis,Dead,Hidden,MapBoss"/>
+        <AreaArray Radius="5.66" Effect="HellionTankDeathFearABMira"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectModifyUnit id="HellionPunisherGrenadesLookAtMira"/>
+    <CEffectApplyBehavior id="RavenCloakABMira">
+        <Behavior value="RavenCloakMira"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="RavenCloakRBMira">
+        <BehaviorLink value="RavenCloakMira"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="MercStarportLaunchDummyMira"/>
+    <CEffectRemoveBehavior id="MercenarySpaceStationSuicideRBMira">
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="MercenarySpaceStationSuicideMira"/>
+    </CEffectRemoveBehavior>
+    <CEffectModifyUnit id="WidowMineTargetingBeamDummyMira"/>
+    <CEffectCreateUnit id="HyperjumpCUMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="HyperjumpOutSetMira"/>
+        <SpawnRange value="3"/>
+    </CEffectCreateUnit>
+    <CEffectTeleport id="HyperjumpTMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <ClearQueuedOrders value="0"/>
+        <PlacementAround Effect="HyperjumpCUMira"/>
+        <PlacementRange value="15"/>
+        <TargetLocation Effect="HyperjumpCUMira" Value="TargetPoint"/>
+        <TeleportFlags index="TestFog" value="0"/>
+    </CEffectTeleport>
+    <CEffectApplyBehavior id="HyperjumpABCMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="HyperjumpMira"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="HyperjumpInABMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="HyperjumpInMira"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="HyperjumpOutABMira">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="HyperjumpOutMira"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="HyperjumpSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="HyperjumpTMira"/>
+        <EffectArray value="HyperjumpABCMira"/>
+    </CEffectSet>
+    <CEffectSet id="HyperjumpOutSetMira">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="HyperjumpOutABMira"/>
+        <EffectArray value="HyperjumpOutABTMira"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="HyperjumpOutABTMira">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="HyperjumpTeleportOutTargetSuppressCollision"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="LiberatorAGAreaMira">
+        <EditorCategories value=""/>
+        <SearchFilters value="Ground,Visible;Player,Ally,Neutral,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable,PowerupOrItem"/>
+        <AreaArray Radius="5"/>
+        <ImpactLocation Value="TargetPoint"/>
+    </CEffectEnumArea>
+    <CEffectEnumTrackedUnits id="LiberatorAGDeaMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="LiberatorTMira"/>
+        <Effect value="KillT"/>
+    </CEffectEnumTrackedUnits>
+    <CEffectIssueOrder id="LiberatorAGTIOMira">
+        <EditorCategories value=""/>
+        <Abil value="move"/>
+        <Target Effect="LiberatorAGTSetMira" Value="TargetPoint"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="LiberatorAGTSetMira">
+        <EditorCategories value=""/>
+        <EffectArray value="LiberatorAGTTTMira"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectEnumTrackedUnits id="LiberatorAGTTTMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="LiberatorTMira"/>
+        <Effect value="LiberatorAGTIOMira"/>
+    </CEffectEnumTrackedUnits>
+    <CEffectIssueOrder id="LiberatorMAAIOMira">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="LiberatorAAMira"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="LiberatorMAASetMira">
+        <EditorCategories value=""/>
+        <EffectArray value="LiberatorMAATTMira"/>
+        <EffectArray value="LiberatorMAAIOMira"/>
+    </CEffectSet>
+    <CEffectEnumTrackedUnits id="LiberatorMAATTMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="LiberatorTMira"/>
+        <Effect value="KillT"/>
+    </CEffectEnumTrackedUnits>
+    <CEffectAddTrackedUnit id="LiberatorMAGATCMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="LiberatorTMira"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectIssueOrder id="LiberatorMAGIOMira">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Source"/>
+        <Abil value="LiberatorAGMira"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="LiberatorMAGSetMira">
+        <EditorCategories value=""/>
+        <EffectArray value="LiberatorMAGATCMira"/>
+        <EffectArray value="LiberatorMAGIOMira"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="LiberatorMAGCUMira">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="LiberatorMAGSetMira"/>
+        <SpawnUnit value="LiberatorAGUnitMira"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="AirFleetABMira">
+        <EditorCategories value=""/>
+        <Behavior value="TimedLifeG"/>
+        <Flags index="UseDuration" value="1"/>
+        <Duration value="30"/>
+    </CEffectApplyBehavior>
+    <CEffectAddTrackedUnit id="AirFleetATMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="AirFleetTMira"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectCreateUnit id="AirFleetCUMira">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <SpawnEffect value="AirFleetSetMira"/>
+        <SpawnUnit value="AirFleetStraferMira"/>
+    </CEffectCreateUnit>
+    <CEffectIssueOrder id="AirFleetIOIOMira">
+        <EditorCategories value=""/>
+        <Abil value="move"/>
+        <CmdFlags index="Preempt" value="1"/>
+        <Target Effect="AirFleetIOSetMira" Value="TargetPoint"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="AirFleetIOSetMira">
+        <EditorCategories value=""/>
+        <EffectArray value="AirFleetIOTTMira"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectEnumTrackedUnits id="AirFleetIOTTMira">
+        <EditorCategories value=""/>
+        <BehaviorLink value="AirFleetTMira"/>
+        <Effect value="AirFleetIOIOMira"/>
+    </CEffectEnumTrackedUnits>
+    <CEffectEnumArea id="AirFleetSMira">
+        <EditorCategories value=""/>
+        <AreaArray Radius="10"/>
+    </CEffectEnumArea>
+    <CEffectSet id="AirFleetSetMira">
+        <EditorCategories value=""/>
+        <EffectArray value="AirFleetATMira"/>
+        <EffectArray value="AirFleetABMira"/>
+    </CEffectSet>
+    <CEffectDamage id="HornerAirFleetLaserDamage">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="50"/>
+        <Death value="Blast"/>
+        <SearchFilters value="-;Self,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="SameCliff" value="0"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="HornerAirFleetLaserLM">
+        <ValidatorArray value="SourceNotDead"/>
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="HornerAirFleetLaserDamage"/>
+        <AmmoUnit value="HornerAirFleetLaserWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="HornerAirFleetLaserSearch">
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <TargetSorts>
+            <SortArray value="TSRandom"/>
+        </TargetSorts>
+        <AreaArray MaxCount="8" Radius="10" Effect="HornerAirFleetLaserShot"/>
+        <RecycleCount value="8"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="HornerAirFleetLaserShot">
+        <ValidatorArray value="SourceNotDead"/>
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="RandomPeriod" value="1"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="HornerAirFleetLaserLM"/>
+        <PeriodicPeriodArray value="1.8"/>
+        <PeriodicPeriodArray value="2"/>
+        <PeriodicPeriodArray value="2.2"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="HornerAirFleetMissileDamage">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="50"/>
+        <Death value="Blast"/>
+        <SearchFilters value="-;Self,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="SameCliff" value="0"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="HornerAirFleetMissileLM">
+        <ValidatorArray value="SourceNotDead"/>
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="HornerAirFleetMissileDamage"/>
+        <AmmoUnit value="HornerAirFleetMissileWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="HornerAirFleetMissileShot">
+        <ValidatorArray value="SourceNotDead"/>
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="RandomPeriod" value="1"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="HornerAirFleetMissileLM"/>
+        <PeriodicPeriodArray value="1.8"/>
+        <PeriodicPeriodArray value="2"/>
+        <PeriodicPeriodArray value="2.2"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="HornerAirFleetSearch">
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <TargetSorts>
+            <SortArray value="TSRandom"/>
+        </TargetSorts>
+        <AreaArray MaxCount="8" Radius="10" Effect="HornerAirFleetMissileShot"/>
+        <RecycleCount value="8"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="HornerAirFleetSearchYamato">
+        <ImpactLocation Value="TargetUnit"/>
+        <SearchFilters value="Visible;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <TargetSorts>
+            <SortArray value="TSLifeLargestFirst"/>
+        </TargetSorts>
+        <AreaArray MaxCount="1" Radius="10" Effect="HornerAirFleetYamato"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="HornerAirFleetCP">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="SourceUnit"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="HornerAirFleetSearch"/>
+        <PeriodicEffectArray value="HornerAirFleetLaserSearch"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="HornerAirFleetYamato">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="HornerAirFleetYamatoU"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="HornerAirFleetYamatoU">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Visibility value="Visible"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="300"/>
+        <Death value="Blast"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectCreateHealer id="healMira">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="NotMinorGoal"/>
+        <DrainVital value="Energy"/>
+        <DrainVitalCostFactor value="0.33"/>
+        <RechargeVitalRate value="12"/>
+    </CEffectCreateHealer>
+    <CEffectCreatePersistent id="RavenAnalyzeDeMira">
+        <ValidatorArray value="SourceNotDead"/>
+        <EditorCategories value=""/>
+        <WhichLocation Value="SourceUnit"/>
+        <InitialDelay value="0.5"/>
+        <InitialEffect value="RavenAnalyzeRTMira"/>
+    </CEffectCreatePersistent>
+</Catalog>

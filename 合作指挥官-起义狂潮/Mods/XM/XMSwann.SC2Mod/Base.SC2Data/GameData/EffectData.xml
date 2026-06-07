@@ -1,0 +1,776 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectApplyBehavior id="330mmBarrageCannonsABSwann">
+        <ValidatorArray index="0" value="NotHeroic"/>
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="330mmBarrageCannonsSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="330mmBarrageCannonsDSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Amount value="20"/>
+        <Death value="Blast"/>
+        <AreaArray Radius="0.5" Fraction="1"/>
+        <AreaArray Radius="1" Fraction="0.5"/>
+        <AreaArray Radius="2" Fraction="0.25"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="SameCliff" value="0"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="330mmBarrageCannonsCPSwann">
+        <ValidatorArray value="CliffLevelGE1"/>
+        <EditorCategories value="Race:Terran"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="25"/>
+        <PeriodicEffectArray value="330mmBarrageCannonsSetSwann"/>
+        <PeriodicPeriodArray value="0.24"/>
+        <RevealRadius value="4"/>
+        <RevealFlags index="Unfog" value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="330mmBarrageCannonsSSwann">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.5" Effect="330mmBarrageCannonsABSwann"/>
+    </CEffectEnumArea>
+    <CEffectSet id="330mmBarrageCannonsSetSwann">
+        <EditorCategories value=""/>
+        <EffectArray value="330mmBarrageCannonsDSwann"/>
+        <EffectArray value="330mmBarrageCannonsSSwann"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="BrokenDrakkenLaserDrillIssueOrder">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="BrokenDrakkenLaserDrill"/>
+    </CEffectIssueOrder>
+    <CEffectApplyBehavior id="CombatDropABHSwann">
+        <EditorCategories value=""/>
+        <Behavior value="CombatDropHSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="CombatDropABSwann">
+        <EditorCategories value=""/>
+        <Behavior value="CombatDropSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="CombatDropCPSwann">
+        <ValidatorArray value="Pathable"/>
+        <EditorCategories value=""/>
+        <ExpireEffect value="CombatDropSSwann"/>
+        <FinalEffect value="CombatDropCUSwann"/>
+        <PeriodCount value="1"/>
+        <PeriodicPeriodArray value="2.5"/>
+        <InitialEffect value="TDropPodModelG"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="CombatDropCUSwann">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="CombatDropTLSwann"/>
+        <SpawnUnit value="WarbotSwann"/>
+        <SpawnCount value="4"/>
+    </CEffectCreateUnit>
+    <CEffectEnumArea id="CombatDropSSwann">
+        <EditorCategories value=""/>
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="3" Effect="CombatDropSWSwann"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="CombatDropSWSwann">
+        <EditorCategories value=""/>
+        <CaseArray Validator="IsHeroic" Effect="CombatDropABHSwann"/>
+        <CaseDefault value="CombatDropABSwann"/>
+    </CEffectSwitch>
+    <CEffectApplyBehavior id="CombatDropTLSwann">
+        <EditorCategories value=""/>
+        <Behavior value="TimedLifeG"/>
+        <Flags index="UseDuration" value="1"/>
+        <Duration value="60"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="CreatePredatorABSwann">
+        <EditorCategories value=""/>
+        <Behavior value="TimedLifeG"/>
+        <Flags index="UseDuration" value="1"/>
+        <Duration value="30"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="CreatePredatorSwann">
+        <EditorCategories value=""/>
+        <WhichLocation Value="CasterUnit"/>
+        <SpawnEffect value="CreatePredatorABSwann"/>
+        <SpawnUnit value="PredatorSwann"/>
+        <SpawnCount value="2"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="DrakkenLaserDrillIO">
+        <EditorCategories value=""/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectDamage id="DutchConcussiveGrenadeDSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Ranged"/>
+        <Amount value="25"/>
+        <Death value="Blast"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="OffsetByUnitRadius" value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="DutchConcussiveGrenadeLMSwann">
+        <ValidatorArray value="DutchConcussiveGrenadeLaunchMissileTargetFilters"/>
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="DutchConcussiveGrenadeDSwann"/>
+        <AmmoUnit value="SwannWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectCreateUnit id="DutchPlaceTurretCUSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="DutchPlaceTurretABSwann"/>
+        <SpawnUnit value="PerditionTurretSwann"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="DutchPlaceTurretABSwann">
+        <EditorCategories value=""/>
+        <Behavior value="DutchPlaceTurretSwann"/>
+        <Flags index="UseDuration" value="1"/>
+        <Duration value="45"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="GoliathAACPSwann">
+        <ValidatorArray value="CasterIsNotHidden"/>
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="GoliathAALMSwann"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.21"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="GoliathAALMSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="GoliathAADSwann"/>
+        <AmmoUnit value="GoliathAWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="GoliathAADSwann" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Armored" value="8"/>
+        <Amount value="8"/>
+    </CEffectDamage>
+    <CEffectDamage id="GoliathAGDSwann" parent="DU_WEAP">
+        <ValidatorArray value="CasterIsNotHidden"/>
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="18"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="GrenadeTurretABSwann">
+        <ValidatorArray index="0" value="NotStructureTarget"/>
+        <ValidatorArray value="NotMassive"/>
+        <EditorCategories value=""/>
+        <Behavior value="GrenadeTurretSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="HellstormMissilePodsDSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Ranged"/>
+        <Amount value="2"/>
+        <AreaArray Radius="1.5" Fraction="1"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Invulnerable,Benign,Passive"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="HellstormMissilePodsLMSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="HellstormMissilePodsDSwann"/>
+        <AmmoUnit value="HailstormMissilesWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="JavelinMissileLaunchersDSwann" parent="DU_WEAP_SPLASH">
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Light" value="6"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="6"/>
+        <Death value="Blast"/>
+        <AreaArray Radius="0.5" Fraction="1"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Air;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="OffsetByUnitRadius" value="0"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="JavelinMissileLaunchersLMSwann">
+        <ValidatorArray value="RangeCheckLE15"/>
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="JavelinMissileLaunchersDSwann"/>
+        <AmmoUnit value="ThorAAWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="JavelinMissileLaunchersCPSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="4"/>
+        <PeriodicEffectArray value="JavelinMissileLaunchersLMSwann"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.25"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="LaserDrillTripodAB">
+        <EditorCategories value=""/>
+        <Behavior value="LaserDrillTripod"/>
+        <Chance value="0"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="LaserDrillTripodS">
+        <EditorCategories value=""/>
+        <Chance value="0"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable,MapBoss"/>
+        <AreaArray Radius="1.5" Effect="LaserDrillTripodSet"/>
+    </CEffectEnumArea>
+    <CEffectSet id="LaserDrillTripodSet">
+        <EditorCategories value=""/>
+        <EffectArray value="LaserDrillTripodDamageCoop"/>
+        <EffectArray value="LaserDrillTripodAB"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="LongboltMissileCPSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="6"/>
+        <PeriodicEffectArray value="LongboltMissileLMSwann"/>
+        <PeriodicEffectArray value="LongboltMissileLMSwann"/>
+        <PeriodicEffectArray value="HellstormMissilePodsLMSwann"/>
+        <PeriodicEffectArray value="HellstormMissilePodsLMSwann"/>
+        <PeriodicEffectArray value="HellstormMissilePodsLMSwann"/>
+        <PeriodicEffectArray value="HellstormMissilePodsLMSwann"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.1"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <PeriodicPeriodArray value="0.0625"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="LongboltMissileLMSwann">
+        <ValidatorArray value="RangeCheckLE15"/>
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="LongboltMissileDSwann"/>
+        <AmmoUnit value="LongboltMissileWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="LongboltMissileDSwann" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="12"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="PredatorBlinkABSwann">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="PredatorBlinkSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectTeleport id="PredatorBlinkSwann">
+        <ValidatorArray value="RangeCheckLE7"/>
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <ClearQueuedOrders value="0"/>
+        <PlacementAround Value="CasterUnit"/>
+        <PlacementRange value="8"/>
+        <Range value="8"/>
+        <TargetLocation Value="TargetUnitOrPoint"/>
+        <TeleportEffect value="PredatorBlinkABSwann"/>
+    </CEffectTeleport>
+    <CEffectDamage id="RetributionFieldDSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Melee"/>
+        <Amount value="15"/>
+        <Death value="Eviscerate"/>
+    </CEffectDamage>
+    <CEffectCreateHealer id="RepairSwann">
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NotStasis"/>
+        <ValidatorArray value="NotMinorGoal"/>
+        <EditorCategories value="Race:Terran"/>
+        <RechargeVitalRate value="1"/>
+        <TimeFactor value="1"/>
+    </CEffectCreateHealer>
+    <CEffectDamage id="RetributionFieldSDSwann">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="20"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="RetributionFieldSSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.5" Effect="RetributionFieldSDSwann"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="RetributionFieldSetSwann">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="RetributionFieldDSwann"/>
+        <EffectArray value="RetributionFieldSSwann"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="SalvageSharedSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ModifyFlags index="Salvage" value="1"/>
+        <SalvageFactor>
+            <Resource index="Minerals" value="-0.75"/>
+            <Resource index="Vespene" value="-0.75"/>
+            <Resource index="Terrazine" value="-0.75"/>
+            <Resource index="Custom" value="-0.75"/>
+        </SalvageFactor>
+    </CEffectModifyUnit>
+    <CEffectApplyBehavior id="SupplyDropABSwann">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="SupplyDropSwann"/>
+        <Flags index="SetAttributePoints" value="1"/>
+        <Flags index="SetAttributePointsDelta" value="1"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="SupplyDropABISwann">
+        <ValidatorArray index="0" value="NoSupplyDropSwann"/>
+        <ValidatorArray value="noMarkers"/>
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="SupplyDropEnRouteSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectModifyUnit id="LaserDrillTripodCoopPointTurretMU">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <ModifyTurret Turret="LaserDrillTripodSwann">
+            <Target Value="TargetUnit"/>
+            <Flags index="Tracking" value="1"/>
+        </ModifyTurret>
+    </CEffectModifyUnit>
+    <CEffectCreatePersistent id="LaserDrillTripodCreatePersistentCoop">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <ExpireEffect value="LaserDrillTripodCoopFinalPersistent"/>
+        <PeriodCount value="4"/>
+        <PeriodicEffectArray value="LaserDrillTripodCoopInitialDamage"/>
+        <PeriodicPeriodArray value="0.25"/>
+        <Flags index="Channeled" value="1"/>
+        <InitialEffect value="LaserDrillTripodCoopPointTurretMU"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="LaserDrillTripodCoopInitialDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="0"/>
+        <ResponseFlags index="Flee" value="0"/>
+        <ArmorReduction value="0"/>
+        <Flags index="NoBehaviorResponse" value="1"/>
+        <Kind value="Ranged"/>
+        <Death value="Blast"/>
+        <SearchFlags index="CallForHelp" value="0"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="LaserDrillTripodCoopFinalPersistent">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicEffectArray value="LaserDrillTripodCoopImpactSet"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="LaserDrillTripodCoopFinalPersistentEnd"/>
+    <CEffectSet id="LaserDrillTripodCoopImpactSet">
+        <EffectArray value="LaserDrillTripodDamageCoop"/>
+        <EffectArray value="LaserDrillTripodS"/>
+        <EffectArray value="LaserDrillTripodAB"/>
+        <!--EffectArray value="LaserDrillTripodOverloadAB"/-->
+    </CEffectSet>
+    <CEffectDamage id="LaserDrillTripodDamageCoop" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="0"/>
+        <ArmorReduction value="0"/>
+        <Kind value="Ranged"/>
+        <Amount value="10"/>
+        <Death value="Blast"/>
+        <SearchFlags index="CallForHelp" value="0"/>
+        <SearchFlags index="OffsetByUnitRadius" value="0"/>
+    </CEffectDamage>
+    <!--Mini Drakken Laser Drill Weapon Display UI-->
+    <CEffectDamage id="LaserDrillTripodCoopFakeDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="0"/>
+        <ArmorReduction value="0"/>
+        <Kind value="Ranged"/>
+        <Amount value="20"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="DrakkenLaserDrillBFGDelayCP">
+        <EditorCategories value="Race:Terran"/>
+        <Flags index="Channeled" value="1"/>
+        <InitialEffect value="DrakkenLaserDrillBFGPointTurretMU"/>
+        <!--ExpireEffect value="DrakkenLaserDrillBFGCP"/-->
+        <PeriodCount value="1"/>
+        <PeriodicPeriodArray value="0.625"/>
+        <InitialDelay value="0.0625"/>
+    </CEffectCreatePersistent>
+    <CEffectModifyUnit id="DrakkenLaserDrillBFGPointTurretMU">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <ModifyTurret Turret="LaserDrillTripodSwann">
+            <Target Value="TargetPoint"/>
+            <Flags index="Tracking" value="1"/>
+        </ModifyTurret>
+    </CEffectModifyUnit>
+    <CEffectSet id="DrakkenLaserDrillBFGSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="DrakkenLaserDrillBFGDummyCP"/>
+        <EffectArray value="DrakkenLaserDrillBFGCP"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="DrakkenLaserDrillBFGDummyCP">
+        <WhichLocation Value="CasterUnit"/>
+        <ExpireDelay value="1.5"/>
+        <PeriodCount value="1"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="DrakkenLaserDrillBFGCP">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="CasterUnit"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="DrakkenLaserDrillBFGSearch"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicPeriodArray value="0"/>
+        <InitialDelay value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="DrakkenLaserDrillBFGSearch">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray RectangleWidth="4" RectangleHeight="1" Effect="DrakkenLaserDrillBFGDamage"/>
+        <RevealerParams Duration="3" ShapeExpansion="2">
+            <RevealFlags index="Unfog" value="1"/>
+        </RevealerParams>
+    </CEffectEnumArea>
+    <CEffectDamage id="DrakkenLaserDrillBFGDamage">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="400"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectSet id="DrakkenLaserDrillNukeInitialSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="DrakkenLaserDrillNukeDelayCP"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="DrakkenLaserDrillNukeDelayCP">
+        <EditorCategories value="Race:Terran"/>
+        <Flags index="Channeled" value="1"/>
+        <InitialDelay value="0.0625"/>
+        <InitialEffect value="DrakkenLaserDrillNukePointTurretMU"/>
+        <ExpireEffect value="DrakkenLaserDrillNukeCP"/>
+        <!--ExpireEffect value="DrakkenLaserDrillNukeLM"/-->
+        <PeriodCount value="3"/>
+        <PeriodicPeriodArray value="0.75"/>
+    </CEffectCreatePersistent>
+    <CEffectModifyUnit id="DrakkenLaserDrillNukePointTurretMU">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <ModifyTurret Turret="LaserDrillTripodSwann" AimCompleteEffect="DrakkenLaserDrillNukeAimCompleteDummyMU">
+            <Target Value="TargetPoint"/>
+            <Flags index="Tracking" value="1"/>
+        </ModifyTurret>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="DrakkenLaserDrillNukeAimCompleteDummyMU">
+        <ImpactUnit Value="Caster"/>
+    </CEffectModifyUnit>
+    <CEffectLaunchMissile id="DrakkenLaserDrillNukeLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="DrakkenLaserDrillNukeCP"/>
+        <AmmoUnit value="DrakkenLaserDrillNukeAttackMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="DrakkenLaserDrillNukeCP">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="6"/>
+        <PeriodicEffectArray value="DrakkenLaserDrillNukeSearch"/>
+        <PeriodicPeriodArray value="0.0625"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="DrakkenLaserDrillNukeSearch">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="8" Effect="DrakkenLaserDrillNukeDamage"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="DrakkenLaserDrillNukeDamage">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="100"/>
+        <Kind value="Ranged"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectDamage id="MicrobotSwann" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="10"/>
+    </CEffectDamage>
+    <CEffectDamage id="SwannMeleeDSwann">
+        <Name value="Effect/Name/DutchConcussiveGrenadeDamage"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/DutchConcussiveGrenadeDamage"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Melee"/>
+        <Amount value="25"/>
+        <Death value="Blast"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="OffsetByUnitRadius" value="1"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="ThorsHammerSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="ThorsHammerDSwann"/>
+        <PeriodicEffectArray value="ThorsHammerDSwann"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.375"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="ThorsHammerDSwann" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="30"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectSet id="WarbotSetSwann">
+        <EditorCategories value=""/>
+        <EffectArray value="WarbotSwann"/>
+        <EffectArray value="WarbotSwann"/>
+    </CEffectSet>
+    <CEffectDamage id="WarbotSwann" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="15"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="PerditionTurretFlameThrowerCPSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="SourcePoint"/>
+        <OffsetVectorStartLocation Value="SourcePoint"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="14"/>
+        <PeriodicEffectArray value="PerditionTurretFlameThrowerSSwann"/>
+        <PeriodicOffsetArray value="0.5,-0.5,0"/>
+        <PeriodicOffsetArray value="-0.5,-0.5,0"/>
+        <PeriodicOffsetArray value="0.5,-1,0"/>
+        <PeriodicOffsetArray value="-0.5,-1,0"/>
+        <PeriodicOffsetArray value="0.5,-1.5,0"/>
+        <PeriodicOffsetArray value="-0.5,-1.5,0"/>
+        <PeriodicOffsetArray value="0.5,-2,0"/>
+        <PeriodicOffsetArray value="-0.5,-2,0"/>
+        <PeriodicOffsetArray value="0.5,-2.5,0"/>
+        <PeriodicOffsetArray value="-0.5,-2.5,0"/>
+        <PeriodicOffsetArray value="0.5,-3,0"/>
+        <PeriodicOffsetArray value="-0.5,-3,0"/>
+        <PeriodicOffsetArray value="0.5,-3.5,0"/>
+        <PeriodicOffsetArray value="-0.5,-3.5,0"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+        <PeriodicPeriodArray value="0.022"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="PerditionTurretFlameThrowerDSwann" parent="DU_WEAP_SPLASH">
+        <ValidatorArray value="noMarkers"/>
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Light" value="4"/>
+        <Amount value="16"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="PerditionTurretFlameThrowerSSwann" parent="EA_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.6" Effect="PerditionTurretFlameThrowerDSwann"/>
+    </CEffectEnumArea>
+    <CEffectSet id="PerditionTurretFlameThrowerSetSwann">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="PerditionTurretFlameThrowerCPSwann"/>
+        <EffectArray value="PerditionTurretFlameThrowerDSwann"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="GrenadeTurretLMSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="GrenadeTurretSetSwann"/>
+        <AmmoUnit value="KelMorianGrenadeTurretWeapon"/>
+        <Movers Link="KelMorianGrenadeWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="GrenadeTurretDSwann" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Armored" value="25"/>
+        <Kind value="Ranged"/>
+        <Amount value="25"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectSet id="GrenadeTurretSetSwann">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="GrenadeTurretDSwann"/>
+        <EffectArray value="GrenadeTurretABSwann"/>
+    </CEffectSet>
+    <CEffectDamage id="90mmCannonsDSwann" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Armored" value="10"/>
+        <Kind value="Ranged"/>
+        <Amount value="40"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectDamage id="CrucioShockCannonDSwann" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Armored" value="20"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="40"/>
+        <Death value="Blast"/>
+        <AreaArray Radius="0.4687" Fraction="1"/>
+        <AreaArray Radius="0.7812" Fraction="0.6"/>
+        <AreaArray Radius="1.25" Fraction="0.4"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="OffsetByUnitRadius" value="0"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="DefensiveMatrixMUSwann">
+        <EditorCategories value=""/>
+        <VitalArray index="Shields">
+            <Change value="200"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectApplyBehavior id="IrradiateABSwann">
+        <EditorCategories value=""/>
+        <Behavior value="IrradiateSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="IrradiateSSwann">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Biological;Structure,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="IrradiateDSwann"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="IrradiateDSwann">
+        <EditorCategories value=""/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Amount value="10"/>
+        <SearchFilters value="Biological;Player,Ally,Neutral,Structure,RawResource,HarvestableResource,Item,Dead,Hidden"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="SameCliff" value="0"/>
+    </CEffectDamage>
+    <CEffectCreateHealer id="NanoRepairSwann">
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NoSOATimeFreeze"/>
+        <ValidatorArray value="NotMinorGoal"/>
+        <EditorCategories value="Race:Terran"/>
+        <DrainVital value="Energy"/>
+        <DrainVitalCostFactor value="0.33"/>
+        <RechargeVitalRate value="9"/>
+    </CEffectCreateHealer>
+    <CEffectSet id="CrucioShockCannonSetSwann">
+        <EffectArray value="CrucioShockCannonDSwann"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="WraithALMLSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="WraithADSwann"/>
+        <AmmoUnit value="WraithAirWeaponLeft"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="WraithACPSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="WraithALMLSwann"/>
+        <PeriodicEffectArray value="WraithALMRSwann"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="WraithALMRSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="WraithADSwann"/>
+        <AmmoUnit value="WraithAirWeaponRight"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="WraithADSwann" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Armored" value="5"/>
+        <Visibility value="Visible"/>
+        <Amount value="10"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="WraithGLMSwann">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="WraithGDSwann"/>
+        <AmmoUnit value="WraithGroundWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="WraithGDSwann" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Kind value="Ranged"/>
+        <Amount value="15"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="DefensiveMatrixABSwann">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="DefensiveMatrixSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="HyperjumpCUSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="HyperjumpOutSetSwann"/>
+        <SpawnRange value="3"/>
+        <SpawnOwner Value="Neutral"/>
+    </CEffectCreateUnit>
+    <CEffectTeleport id="HyperjumpTSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <ClearQueuedOrders value="0"/>
+        <PlacementAround Effect="HyperjumpCUSwann"/>
+        <PlacementRange value="15"/>
+        <TargetLocation Effect="HyperjumpCUSwann" Value="TargetPoint"/>
+        <TeleportFlags index="TestFog" value="0"/>
+    </CEffectTeleport>
+    <CEffectApplyBehavior id="HyperjumpABCSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="HyperjumpSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="HyperjumpInABSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="HyperjumpInSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="HyperjumpOutABSwann">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="HyperjumpOutSwann"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="HyperjumpSetSwann">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="HyperjumpTSwann"/>
+        <EffectArray value="HyperjumpABCSwann"/>
+    </CEffectSet>
+    <CEffectSet id="HyperjumpOutSetSwann">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="HyperjumpOutABSwann"/>
+        <EffectArray value="HyperjumpOutABTSwann"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="HyperjumpOutABTSwann">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="HyperjumpTeleportOutTargetSuppressCollision"/>
+    </CEffectApplyBehavior>
+    <CEffectModifyPlayer id="VespeneDroneMPSwann">
+        <WhichPlayer Value="Caster"/>
+        <Resources index="Vespene" value="2"/>
+    </CEffectModifyPlayer>
+    <CEffectApplyBehavior id="VespeneDroneABSwann">
+        <Behavior value="VespeneDroneSwann"/>
+        <ValidatorArray index="0" value="NoVespeneDroneSwann"/>
+        <ValidatorArray value="NotUnderConstruction"/>
+        <ValidatorArray value="IsAnyGasStation"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="DoubleBuildSwann">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+</Catalog>

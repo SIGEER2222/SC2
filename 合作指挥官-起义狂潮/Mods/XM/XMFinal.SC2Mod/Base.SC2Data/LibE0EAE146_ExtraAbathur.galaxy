@@ -1,0 +1,309 @@
+// XMFinal split module: custom Abathur smoke profiles from crys_the_swarm_reborn.SC2Mod.
+// Current scope is metadata/profile smoke until the custom catalog is imported into XMFinal.
+
+bool libE0EAE146_gf_XMTestBench_CatalogEntryPresent (int lp_player, string lp_scenarioKind, string lp_kind, int lp_catalog, string lp_entry, string lp_source) {
+    if (lp_entry == "") {
+        libE0EAE146_gv_xmTestBenchMissing[lp_player] += 1;
+        libE0EAE146_gf_XMTestBench_AddWarning(lp_player);
+        libE0EAE146_gf_XMDbgLog("WARN", "EXTRA_ABATHUR_CATALOG_MISSING", "commander=" + libE0EAE146_gv_xmTestBenchCommander[lp_player] + " scenario=" + lp_scenarioKind + " kind=" + lp_kind + " entry=blank source=" + lp_source);
+        return false;
+    }
+    if (CatalogEntryIsValid(lp_catalog, lp_entry)) {
+        libE0EAE146_gf_XMDbgLog("INFO", "EXTRA_ABATHUR_CATALOG_PRESENT", "commander=" + libE0EAE146_gv_xmTestBenchCommander[lp_player] + " scenario=" + lp_scenarioKind + " kind=" + lp_kind + " entry=" + lp_entry + " source=" + lp_source);
+        return true;
+    }
+    libE0EAE146_gv_xmTestBenchMissing[lp_player] += 1;
+    libE0EAE146_gf_XMTestBench_AddWarning(lp_player);
+    libE0EAE146_gf_XMDbgLog("WARN", "EXTRA_ABATHUR_CATALOG_MISSING", "commander=" + libE0EAE146_gv_xmTestBenchCommander[lp_player] + " scenario=" + lp_scenarioKind + " kind=" + lp_kind + " entry=" + lp_entry + " source=" + lp_source + " reason=not_imported_to_XMFinal");
+    return false;
+}
+
+bool libE0EAE146_gf_XMTestBench_IsAbathurCustom (int lp_player) {
+    if (!libE0EAE146_gf_XMTestBench_PlayerValid(lp_player)) {
+        return false;
+    }
+    return (libE0EAE146_gf_NormalizeCommanderId(libE0EAE146_gv_xmTestBenchCommander[lp_player]) == "AbathurCustom");
+}
+
+bool libE0EAE146_gf_XMTestBench_RequireAbathurCustom (int lp_player, string lp_scenarioKind) {
+    if (libE0EAE146_gf_XMTestBench_IsAbathurCustom(lp_player)) {
+        return true;
+    }
+    libE0EAE146_gf_XMTestBench_AddWarning(lp_player);
+    libE0EAE146_gf_XMTestBench_SetLastEvent(lp_player, "EXTRA_ABATHUR_SKIPPED");
+    libE0EAE146_gf_XMDbgLog("WARN", "EXTRA_ABATHUR_SKIPPED", "commander=" + libE0EAE146_gv_xmTestBenchCommander[lp_player] + " scenario=" + lp_scenarioKind + " reason=select_AbathurCustom_first");
+    return false;
+}
+
+bool libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit (int lp_player, string lp_unitType, int lp_index, fixed lp_radius, fixed lp_spacing, string lp_scenarioKind, string lp_source) {
+    int lv_createdBefore;
+
+    if (!libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, lp_scenarioKind, "unit", c_gameCatalogUnit, lp_unitType, lp_source)) {
+        return false;
+    }
+    lv_createdBefore = libE0EAE146_gv_xmTestBenchCreated[lp_player];
+    libE0EAE146_gf_XMTestBench_CreateProfileUnit(lp_player, lp_unitType, libE0EAE146_gf_XMTestBench_SpawnPoint(lp_player, lp_index, lp_radius, lp_spacing), lp_scenarioKind);
+    return (libE0EAE146_gv_xmTestBenchCreated[lp_player] > lv_createdBefore);
+}
+
+void libE0EAE146_gf_XMTestBench_AbathurCustomSeed (int lp_player, string lp_scenarioKind) {
+    libE0EAE146_gf_XMTestBench_SeedCommanderBank(lp_player, "AbathurCustom");
+    PlayerModifyPropertyInt(lp_player, c_playerPropMinerals, c_playerPropOperSetTo, 100000);
+    PlayerModifyPropertyInt(lp_player, c_playerPropVespene, c_playerPropOperSetTo, 100000);
+    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 300);
+    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesMade, c_playerPropOperSetTo, 0);
+    PlayerSetState(lp_player, c_playerStateFoodIgnored, true);
+    if (libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, lp_scenarioKind, "runtime_upgrade", c_gameCatalogUpgrade, "Abathur", "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/Lib48DF4533.galaxy")) {
+        TechTreeUpgradeAddLevel(lp_player, "Abathur", 1);
+        libE0EAE146_gf_XMDbgLog("INFO", "EXTRA_COMMANDER_INIT", "commander=AbathurCustom runtimeUpgrade=Abathur scenario=" + lp_scenarioKind + " result=applied");
+    }
+    else {
+        libE0EAE146_gf_XMDbgLog("WARN", "EXTRA_COMMANDER_INIT", "commander=AbathurCustom runtimeUpgrade=Abathur scenario=" + lp_scenarioKind + " result=metadata_only reason=runtime_upgrade_missing_in_XMFinal");
+    }
+    libE0EAE146_gf_XMTestBench_SetLastEvent(lp_player, "EXTRA_ABATHUR_SEEDED");
+}
+
+void libE0EAE146_gf_XMTestBench_AbathurCustomLogPurchase (int lp_player, string lp_unitType, string lp_ability, string lp_button, string lp_requirement, int lp_minerals, int lp_vespene, string lp_scenarioKind) {
+    bool lv_abilityPresent;
+    bool lv_buttonPresent;
+
+    lv_abilityPresent = libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, lp_scenarioKind, "purchase_ability", c_gameCatalogAbil, lp_ability, "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/AbilData.xml");
+    lv_buttonPresent = libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, lp_scenarioKind, "button", c_gameCatalogButton, lp_button, "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/ButtonData.xml");
+    if ((lv_abilityPresent == true) && (lv_buttonPresent == true)) {
+        libE0EAE146_gf_XMDbgLog("INFO", "UNIT_PURCHASE", "commander=AbathurCustom unit=" + lp_unitType + " ability=" + lp_ability + " button=" + lp_button + " requirement=" + lp_requirement + " cost=" + IntToString(lp_minerals) + "/" + IntToString(lp_vespene) + " result=catalog_present");
+    }
+    else {
+        libE0EAE146_gf_XMDbgLog("WARN", "UNIT_PURCHASE", "commander=AbathurCustom unit=" + lp_unitType + " ability=" + lp_ability + " button=" + lp_button + " requirement=" + lp_requirement + " cost=" + IntToString(lp_minerals) + "/" + IntToString(lp_vespene) + " result=metadata_only reason=catalog_not_imported_to_XMFinal");
+    }
+}
+
+void libE0EAE146_gf_XMTestBench_AbathurCustomLogCrawlerAbility (int lp_player, string lp_building, string lp_ability, string lp_button, int lp_minerals, int lp_vespene, string lp_scenarioKind) {
+    bool lv_abilityPresent;
+    bool lv_buttonPresent;
+
+    lv_abilityPresent = libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, lp_scenarioKind, "crawler_ability", c_gameCatalogAbil, lp_ability, "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/AbilData.xml");
+    lv_buttonPresent = libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, lp_scenarioKind, "button", c_gameCatalogButton, lp_button, "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/ButtonData.xml");
+    if ((lv_abilityPresent == true) && (lv_buttonPresent == true)) {
+        libE0EAE146_gf_XMDbgLog("INFO", "CRAWLER_UPGRADE", "commander=AbathurCustom building=" + lp_building + " ability=" + lp_ability + " button=" + lp_button + " upgrade=unit_purchase cost=" + IntToString(lp_minerals) + "/" + IntToString(lp_vespene) + " result=catalog_present");
+    }
+    else {
+        libE0EAE146_gf_XMDbgLog("WARN", "CRAWLER_UPGRADE", "commander=AbathurCustom building=" + lp_building + " ability=" + lp_ability + " button=" + lp_button + " upgrade=unit_purchase cost=" + IntToString(lp_minerals) + "/" + IntToString(lp_vespene) + " result=metadata_only reason=catalog_not_imported_to_XMFinal");
+    }
+}
+
+void libE0EAE146_gf_XMTestBench_AbathurCustomLogCrawlerResearch (int lp_player, string lp_upgrade, string lp_button, int lp_minerals, int lp_vespene, int lp_time, string lp_scenarioKind) {
+    bool lv_upgradePresent;
+    bool lv_buttonPresent;
+
+    lv_upgradePresent = libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, lp_scenarioKind, "crawler_research_upgrade", c_gameCatalogUpgrade, lp_upgrade, "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/UpgradeData.xml");
+    lv_buttonPresent = libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, lp_scenarioKind, "button", c_gameCatalogButton, lp_button, "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/ButtonData.xml");
+    if ((lv_upgradePresent == true) && (lv_buttonPresent == true)) {
+        libE0EAE146_gf_XMDbgLog("INFO", "CRAWLER_RESEARCH", "commander=AbathurCustom building=EvolutionChamber upgrade=" + lp_upgrade + " button=" + lp_button + " cost=" + IntToString(lp_minerals) + "/" + IntToString(lp_vespene) + " time=" + IntToString(lp_time) + " result=catalog_present");
+    }
+    else {
+        libE0EAE146_gf_XMDbgLog("WARN", "CRAWLER_RESEARCH", "commander=AbathurCustom building=EvolutionChamber upgrade=" + lp_upgrade + " button=" + lp_button + " cost=" + IntToString(lp_minerals) + "/" + IntToString(lp_vespene) + " time=" + IntToString(lp_time) + " result=metadata_only reason=catalog_not_imported_to_XMFinal");
+    }
+}
+
+void libE0EAE146_gf_XMTestBench_AbathurCustomInit (int lp_player) {
+    if (!libE0EAE146_gf_XMTestBench_RequireAbathurCustom(lp_player, "extra_abathur_init")) {
+        return;
+    }
+    libE0EAE146_gf_XMTestBench_AbathurCustomSeed(lp_player, "extra_abathur_init");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "HatcheryAbathur", 1, 18.0, 5.0, "extra_abathur_init", "abathur base scaffold");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "DroneAbathur", 2, 18.0, 5.0, "extra_abathur_init", "abathur worker scaffold");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "OverlordAbathur", 3, 18.0, 5.0, "extra_abathur_init", "abathur supply scaffold");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "SpawningPool", 4, 18.0, 5.0, "extra_abathur_init", "Pygalisk requirement scaffold");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "EvolutionChamber", 5, 18.0, 5.0, "extra_abathur_init", "crawler research scaffold");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Zergling", 6, 18.0, 5.0, "extra_abathur_init", "zergling family source unit");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Pygalisk", 7, 18.0, 5.0, "extra_abathur_init", "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/UnitData.xml");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "HydraliskImpaler", 8, 18.0, 5.0, "extra_abathur_init", "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/UnitData.xml");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "SpineCrawler", 9, 18.0, 5.0, "extra_abathur_init", "crawler unit purchase scaffold");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "SporeCrawler", 10, 18.0, 5.0, "extra_abathur_init", "crawler unit purchase scaffold");
+    libE0EAE146_gf_XMDbgLog("INFO", "EXTRA_ABATHUR_UNIT_FAMILY", "commander=AbathurCustom family=Zergling variants=Zergling,Pygalisk,HotSRaptor,HotSSwarmling,ZerglingToxic initAbilities=ArmoredCarapace,KetamineInfusion,Kleptomania,Moonrage,Stealthling source=Lib48DF4533.galaxy");
+    libE0EAE146_gf_XMTestBench_SetLastEvent(lp_player, "EXTRA_ABATHUR_INIT");
+    libE0EAE146_gf_XMDbgLog("INFO", "EXTRA_ABATHUR_INIT_DONE", "commander=AbathurCustom created=" + IntToString(libE0EAE146_gv_xmTestBenchCreated[lp_player]) + " missing=" + IntToString(libE0EAE146_gv_xmTestBenchMissing[lp_player]) + " warnings=" + IntToString(libE0EAE146_gv_xmTestBenchWarnings[lp_player]));
+}
+
+bool libE0EAE146_gf_XMTestBench_AbathurCustomRoster (int lp_player, string lp_rosterKind) {
+    if (!libE0EAE146_gf_XMTestBench_IsAbathurCustom(lp_player)) {
+        return false;
+    }
+    libE0EAE146_gf_XMTestBench_AbathurCustomSeed(lp_player, lp_rosterKind);
+    if (lp_rosterKind == "initial_units") {
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "DroneAbathur", 1, 14.0, 4.0, lp_rosterKind, "initial abathur worker");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "OverlordAbathur", 2, 14.0, 4.0, lp_rosterKind, "initial abathur supply");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Zergling", 3, 14.0, 4.0, lp_rosterKind, "initial zergling family");
+        libE0EAE146_gf_XMTestBench_LogRosterDone(lp_player, "AbathurCustom", lp_rosterKind, 3);
+        return true;
+    }
+    if ((libE0EAE146_gf_XMTestBench_UnitRosterKindSupported(lp_rosterKind)) || (lp_rosterKind == "extra_abathur_roster")) {
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Zergling", 1, 14.0, 4.0, lp_rosterKind, "zergling family base");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Pygalisk", 2, 14.0, 4.0, lp_rosterKind, "zergling family elite variant");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Baneling", 3, 14.0, 4.0, lp_rosterKind, "baneling family base");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Roach", 4, 14.0, 4.0, lp_rosterKind, "roach family base");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "HydraliskImpaler", 5, 14.0, 4.0, lp_rosterKind, "hydralisk impaler purchase owner");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "HydraliskLurker", 6, 14.0, 4.0, lp_rosterKind, "hydralisk lurker purchase owner");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Mutalisk", 7, 14.0, 4.0, lp_rosterKind, "mutalisk family base");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "SwarmHost", 8, 14.0, 4.0, lp_rosterKind, "swarm host family base");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Ultralisk", 9, 14.0, 4.0, lp_rosterKind, "ultralisk family base");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "BroodLord", 10, 14.0, 4.0, lp_rosterKind, "monstrous flier family");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Infestor", 11, 14.0, 4.0, lp_rosterKind, "caster family");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Viper", 12, 14.0, 4.0, lp_rosterKind, "caster family");
+        libE0EAE146_gf_XMTestBench_LogRosterDone(lp_player, "AbathurCustom", lp_rosterKind, 12);
+        return true;
+    }
+    if (lp_rosterKind == "full_buildings") {
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "HatcheryAbathur", 1, 20.0, 6.0, lp_rosterKind, "standard zerg building");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Lair", 2, 20.0, 6.0, lp_rosterKind, "standard zerg building");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Hive", 3, 20.0, 6.0, lp_rosterKind, "standard zerg building");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Extractor", 4, 20.0, 6.0, lp_rosterKind, "standard zerg building");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "SpawningPool", 5, 20.0, 6.0, lp_rosterKind, "Pygalisk requirement");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "BanelingNest", 6, 20.0, 6.0, lp_rosterKind, "baneling family tech");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "RoachWarren", 7, 20.0, 6.0, lp_rosterKind, "roach family tech");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "HydraliskDen", 8, 20.0, 6.0, lp_rosterKind, "hydralisk family tech");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "InfestationPit", 9, 20.0, 6.0, lp_rosterKind, "caster and host tech");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Spire", 10, 20.0, 6.0, lp_rosterKind, "air family tech");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "GreaterSpire", 11, 20.0, 6.0, lp_rosterKind, "monstrous flier tech");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "UltraliskCavern", 12, 20.0, 6.0, lp_rosterKind, "ultralisk family tech");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "EvolutionChamber", 13, 20.0, 6.0, lp_rosterKind, "crawler research owner");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "SpineCrawler", 14, 20.0, 6.0, lp_rosterKind, "crawler purchase owner");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "SporeCrawler", 15, 20.0, 6.0, lp_rosterKind, "crawler purchase owner");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "InfestedBarracks2", 16, 20.0, 6.0, lp_rosterKind, "custom Abathur source building");
+        libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "PrimalSunkenColony", 17, 20.0, 6.0, lp_rosterKind, "custom Abathur source building");
+        libE0EAE146_gf_XMTestBench_LogRosterDone(lp_player, "AbathurCustom", lp_rosterKind, 17);
+        return true;
+    }
+    return false;
+}
+
+bool libE0EAE146_gf_XMTestBench_IsAbathurReborn (int lp_player) {
+    if (!libE0EAE146_gf_XMTestBench_PlayerValid(lp_player)) {
+        return false;
+    }
+    return (libE0EAE146_gf_NormalizeCommanderId(libE0EAE146_gv_xmTestBenchCommander[lp_player]) == "AbathurReborn");
+}
+
+bool libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit (int lp_player, string lp_unitType, int lp_index, fixed lp_radius, fixed lp_spacing, string lp_scenarioKind, string lp_source) {
+    int lv_createdBefore;
+
+    if (!libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, lp_scenarioKind, "unit", c_gameCatalogUnit, lp_unitType, lp_source)) {
+        return false;
+    }
+    lv_createdBefore = libE0EAE146_gv_xmTestBenchCreated[lp_player];
+    libE0EAE146_gf_XMTestBench_CreateProfileUnit(lp_player, lp_unitType, libE0EAE146_gf_XMTestBench_SpawnPoint(lp_player, lp_index, lp_radius, lp_spacing), lp_scenarioKind);
+    return (libE0EAE146_gv_xmTestBenchCreated[lp_player] > lv_createdBefore);
+}
+
+void libE0EAE146_gf_XMTestBench_AbathurRebornSeed (int lp_player, string lp_scenarioKind) {
+    libE0EAE146_gf_XMTestBench_SeedCommanderBank(lp_player, "AbathurReborn");
+    PlayerModifyPropertyInt(lp_player, c_playerPropMinerals, c_playerPropOperSetTo, 100000);
+    PlayerModifyPropertyInt(lp_player, c_playerPropVespene, c_playerPropOperSetTo, 100000);
+    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 300);
+    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesMade, c_playerPropOperSetTo, 0);
+    PlayerSetState(lp_player, c_playerStateFoodIgnored, true);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "CommanderLevel", 16);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "AbathurRebornCommander", 1);
+    libE0EAE146_gf_AbathurRebornApplyTechWhitelist(lp_player);
+    libE0EAE146_gf_XMTestBench_SetLastEvent(lp_player, "ABATHUR_REBORN_SEEDED");
+    libE0EAE146_gf_XMDbgLog("INFO", "ABATHUR_REBORN_SEEDED", "commander=AbathurReborn scenario=" + lp_scenarioKind + " result=ok");
+}
+
+bool libE0EAE146_gf_XMTestBench_AbathurRebornRoster (int lp_player, string lp_rosterKind) {
+    if (!libE0EAE146_gf_XMTestBench_IsAbathurReborn(lp_player)) {
+        return false;
+    }
+    libE0EAE146_gf_XMTestBench_AbathurRebornSeed(lp_player, lp_rosterKind);
+    if (lp_rosterKind == "initial_units") {
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "DroneAbathurReborn", 1, 14.0, 4.0, lp_rosterKind, "XMAbathurReborn initial worker");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "OverlordAbathurReborn", 2, 14.0, 4.0, lp_rosterKind, "XMAbathurReborn initial supply");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "ZerglingAbathurReborn", 3, 14.0, 4.0, lp_rosterKind, "XMAbathurReborn initial army");
+        libE0EAE146_gf_XMTestBench_LogRosterDone(lp_player, "AbathurReborn", lp_rosterKind, 3);
+        return true;
+    }
+    if (libE0EAE146_gf_XMTestBench_UnitRosterKindSupported(lp_rosterKind)) {
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "DroneAbathurReborn", 1, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train1");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "OverlordAbathurReborn", 2, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train2");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "ZerglingAbathurReborn", 3, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train3");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "BanelingAbathurReborn", 4, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train4");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "RoachAbathurReborn", 5, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train5");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "HydraliskAbathurReborn", 6, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train6");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "MutaliskAbathurReborn", 7, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train7");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "SwarmHostAbathurReborn", 8, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train8");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "UltraliskAbathurReborn", 9, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train9");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "InfestorAbathurReborn", 10, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train10");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "BroodLordAbathurReborn", 11, 14.0, 4.0, lp_rosterKind, "LarvaTrainAbathurReborn Train11");
+        libE0EAE146_gf_XMTestBench_LogRosterDone(lp_player, "AbathurReborn", lp_rosterKind, 11);
+        return true;
+    }
+    if (lp_rosterKind == "full_buildings") {
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "HatcheryAbathurReborn", 1, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build1");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "LairAbathurReborn", 2, 20.0, 6.0, lp_rosterKind, "UpgradeToLairAbathurReborn");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "HiveAbathurReborn", 3, 20.0, 6.0, lp_rosterKind, "UpgradeToHiveAbathurReborn");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "ExtractorAbathurReborn", 4, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build2");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "SpawningPoolAbathurReborn", 5, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build3");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "EvolutionChamberAbathurReborn", 6, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build4");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "BanelingNestAbathurReborn", 7, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build5");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "RoachWarrenAbathurReborn", 8, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build6");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "HydraliskDenAbathurReborn", 9, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build7");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "InfestationPitAbathurReborn", 10, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build8");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "SpireAbathurReborn", 11, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build9");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "UltraliskCavernAbathurReborn", 12, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build10");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "GreaterSpireAbathurReborn", 13, 20.0, 6.0, lp_rosterKind, "UpgradeToGreaterSpireBroodlord");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "SpineCrawlerAbathurReborn", 14, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build11");
+        libE0EAE146_gf_XMTestBench_AbathurRebornTryCreateUnit(lp_player, "SporeCrawlerAbathurReborn", 15, 20.0, 6.0, lp_rosterKind, "ZergBuildAbathurReborn Build12");
+        libE0EAE146_gf_XMTestBench_LogRosterDone(lp_player, "AbathurReborn", lp_rosterKind, 15);
+        return true;
+    }
+    return false;
+}
+
+void libE0EAE146_gf_XMTestBench_AbathurCustomZerglingToPygalisk (int lp_player) {
+    if (!libE0EAE146_gf_XMTestBench_RequireAbathurCustom(lp_player, "extra_abathur_zergling_to_pygalisk")) {
+        return;
+    }
+    libE0EAE146_gf_XMTestBench_AbathurCustomSeed(lp_player, "extra_abathur_zergling_to_pygalisk");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "SpawningPool", 1, 16.0, 5.0, "extra_abathur_zergling_to_pygalisk", "Requirement=HaveSpawningPool");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Zergling", 2, 16.0, 5.0, "extra_abathur_zergling_to_pygalisk", "SourceUnit=Zergling");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Larva", 3, 16.0, 5.0, "extra_abathur_zergling_to_pygalisk", "SourceUnit=Larva");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "Pygalisk", 4, 16.0, 5.0, "extra_abathur_zergling_to_pygalisk", "TargetUnit=Pygalisk source=UnitData.xml");
+    libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, "extra_abathur_zergling_to_pygalisk", "train_ability", c_gameCatalogAbil, "LarvaTrainSwarm2", "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/AbilData.xml");
+    libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, "extra_abathur_zergling_to_pygalisk", "train_ability", c_gameCatalogAbil, "NaktulZerglingTrain", "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/AbilData.xml");
+    libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, "extra_abathur_zergling_to_pygalisk", "button", c_gameCatalogButton, "MorphtoPygalisk", "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/ButtonData.xml");
+    libE0EAE146_gf_XMDbgLog("WARN", "EXTRA_ABATHUR_PYGALISK", "commander=AbathurCustom sourceUnit=Zergling/Larva targetUnit=Pygalisk ability=LarvaTrainSwarm2 command=Train1 sharedAbility=NaktulZerglingTrain sharedCommand=Train5 button=MorphtoPygalisk cost=75/25 requirement=HaveSpawningPool result=metadata_only reason=actual_order_not_issued_until_custom_catalog_imported");
+    libE0EAE146_gf_XMTestBench_SetLastEvent(lp_player, "EXTRA_ABATHUR_PYGALISK");
+}
+
+void libE0EAE146_gf_XMTestBench_AbathurCustomPurchaseSmoke (int lp_player) {
+    if (!libE0EAE146_gf_XMTestBench_RequireAbathurCustom(lp_player, "extra_abathur_purchase")) {
+        return;
+    }
+    libE0EAE146_gf_XMTestBench_AbathurCustomSeed(lp_player, "extra_abathur_purchase");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "HydraliskImpaler", 1, 16.0, 5.0, "extra_abathur_purchase", "UnitPurchaseUpgradeProfile owner");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogPurchase(lp_player, "HydraliskImpaler", "AbathurImpalerArmorPiercingSpinesPurchase", "AbathurImpalerArmorPiercingSpines", "NotAbathurImpalerArmorPiercingSpinesPurchased", 50, 50, "extra_abathur_purchase");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogPurchase(lp_player, "HydraliskImpaler", "AbathurImpalerEarthveinGlidePurchase", "AbathurImpalerEarthveinGlide", "NotAbathurImpalerEarthveinGlidePurchased", 50, 50, "extra_abathur_purchase");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogPurchase(lp_player, "HydraliskImpaler", "AbathurImpalerAftershockImpalePurchase", "AbathurImpalerAftershockImpale", "NotAbathurImpalerAftershockImpalePurchased", 50, 50, "extra_abathur_purchase");
+    libE0EAE146_gf_XMTestBench_SetLastEvent(lp_player, "EXTRA_ABATHUR_PURCHASE");
+    libE0EAE146_gf_XMDbgLog("INFO", "EXTRA_ABATHUR_PURCHASE_DONE", "commander=AbathurCustom representativeUnit=HydraliskImpaler purchaseCount=3 created=" + IntToString(libE0EAE146_gv_xmTestBenchCreated[lp_player]) + " missing=" + IntToString(libE0EAE146_gv_xmTestBenchMissing[lp_player]) + " warnings=" + IntToString(libE0EAE146_gv_xmTestBenchWarnings[lp_player]));
+}
+
+void libE0EAE146_gf_XMTestBench_AbathurCustomCrawlerSmoke (int lp_player) {
+    if (!libE0EAE146_gf_XMTestBench_RequireAbathurCustom(lp_player, "extra_abathur_crawler")) {
+        return;
+    }
+    libE0EAE146_gf_XMTestBench_AbathurCustomSeed(lp_player, "extra_abathur_crawler");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "SpineCrawler", 1, 16.0, 5.0, "extra_abathur_crawler", "DefenseBuildingUpgradeProfile owner");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "SporeCrawler", 2, 16.0, 5.0, "extra_abathur_crawler", "DefenseBuildingUpgradeProfile owner");
+    libE0EAE146_gf_XMTestBench_AbathurCustomTryCreateUnit(lp_player, "EvolutionChamber", 3, 16.0, 5.0, "extra_abathur_crawler", "DefenseBuildingResearchProfile owner");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogCrawlerAbility(lp_player, "SpineCrawler", "RagingTentacle", "RagingTentacle", 50, 25, "extra_abathur_crawler");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogCrawlerAbility(lp_player, "SpineCrawler,SporeCrawler", "CloudofFlies", "CloudofFlies", 25, 25, "extra_abathur_crawler");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogCrawlerAbility(lp_player, "SpineCrawler,SporeCrawler", "BroodlingInfestation", "BroodlingInfestation", 25, 25, "extra_abathur_crawler");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogCrawlerAbility(lp_player, "SpineCrawler,SporeCrawler", "Range", "Range", 25, 25, "extra_abathur_crawler");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogCrawlerAbility(lp_player, "SporeCrawler", "AcidMortar", "AcidMortar", 50, 25, "extra_abathur_crawler");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogCrawlerResearch(lp_player, "CrawlerDefense", "EvolveCrawlerPlating", 200, 200, 90, "extra_abathur_crawler");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogCrawlerResearch(lp_player, "CrawlerSpeed", "EvolveCrawlerAdaptivity", 200, 200, 90, "extra_abathur_crawler");
+    libE0EAE146_gf_XMTestBench_AbathurCustomLogCrawlerResearch(lp_player, "CrawlerCombatRegen", "EvolveCrawlerRegeneration", 200, 200, 90, "extra_abathur_crawler");
+    libE0EAE146_gf_XMTestBench_CatalogEntryPresent(lp_player, "extra_abathur_crawler", "crawler_mutation_upgrade", c_gameCatalogUpgrade, "CrawlersSpawnBroodlings", "crys_the_swarm_reborn.SC2Mod/Base.SC2Data/GameData/UpgradeData.xml");
+    libE0EAE146_gf_XMTestBench_SetLastEvent(lp_player, "EXTRA_ABATHUR_CRAWLER");
+    libE0EAE146_gf_XMDbgLog("INFO", "EXTRA_ABATHUR_CRAWLER_DONE", "commander=AbathurCustom crawlerAbilities=5 research=3 created=" + IntToString(libE0EAE146_gv_xmTestBenchCreated[lp_player]) + " missing=" + IntToString(libE0EAE146_gv_xmTestBenchMissing[lp_player]) + " warnings=" + IntToString(libE0EAE146_gv_xmTestBenchWarnings[lp_player]));
+}

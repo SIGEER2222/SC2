@@ -1,0 +1,235 @@
+// XMFinal split module: long-term achievement, challenge, and blessing rewards.
+
+string libE0EAE146_gf_XMProgression_BankString (int lp_player, string lp_section, string lp_key) {
+    BankLoad("CampaignXCore", lp_player);
+    return BankValueGetAsString(BankLastCreated(), lp_section, lp_key);
+}
+
+int libE0EAE146_gf_XMProgression_BankInt (int lp_player, string lp_section, string lp_key) {
+    BankLoad("CampaignXCore", lp_player);
+    return BankValueGetAsInt(BankLastCreated(), lp_section, lp_key);
+}
+
+void libE0EAE146_gf_XMProgression_SaveBank (int lp_player) {
+    BankLoad("CampaignXCore", lp_player);
+    BankSave(BankLastCreated());
+}
+
+bool XMAchievement_IsUnlocked (int lp_player, string lp_achievementId) {
+    return libE0EAE146_gf_XMProgression_BankInt(lp_player, "Achievement", lp_achievementId) > 0;
+}
+
+void XMAchievement_Unlock (int lp_player, string lp_achievementId) {
+    if (XMAchievement_IsUnlocked(lp_player, lp_achievementId)) {
+        return;
+    }
+    BankLoad("CampaignXCore", lp_player);
+    BankValueSetFromInt(BankLastCreated(), "Achievement", lp_achievementId, 1);
+    BankSave(BankLastCreated());
+    libE0EAE146_gf_XMDbgLog("INFO", "ACHIEVEMENT_UNLOCKED", "player=" + IntToString(lp_player) + " achievement=" + lp_achievementId);
+}
+
+void XMAchievement_SetProgress (int lp_player, string lp_achievementId, int lp_value) {
+    BankLoad("CampaignXCore", lp_player);
+    BankValueSetFromInt(BankLastCreated(), "AchievementProgress", lp_achievementId, lp_value);
+    BankSave(BankLastCreated());
+    libE0EAE146_gf_XMDbgLog("INFO", "ACHIEVEMENT_PROGRESS_SET", "player=" + IntToString(lp_player) + " achievement=" + lp_achievementId + " value=" + IntToString(lp_value));
+}
+
+bool XMBlessing_IsUnlocked (int lp_player, string lp_blessingId) {
+    return libE0EAE146_gf_XMProgression_BankInt(lp_player, "Blessing", lp_blessingId) > 0;
+}
+
+void XMBlessing_Unlock (int lp_player, string lp_blessingId) {
+    if (XMBlessing_IsUnlocked(lp_player, lp_blessingId)) {
+        return;
+    }
+    BankLoad("CampaignXCore", lp_player);
+    BankValueSetFromInt(BankLastCreated(), "Blessing", lp_blessingId, 1);
+    BankSave(BankLastCreated());
+    libE0EAE146_gf_XMDbgLog("INFO", "BLESSING_UNLOCKED", "player=" + IntToString(lp_player) + " blessing=" + lp_blessingId);
+}
+
+string XMBlessing_Selected (int lp_player) {
+    return libE0EAE146_gv_xmProgressionSelectedBlessing[lp_player];
+}
+
+string XMChallenge_Active (int lp_player) {
+    return libE0EAE146_gv_xmProgressionActiveChallenge[lp_player];
+}
+
+void XMBlessing_SelectForNextRun (int lp_player, string lp_blessingId) {
+    if (lp_blessingId != "") {
+        XMBlessing_Unlock(lp_player, lp_blessingId);
+    }
+    BankLoad("CampaignXCore", lp_player);
+    BankValueSetFromString(BankLastCreated(), "Blessing", "Selected", lp_blessingId);
+    BankSave(BankLastCreated());
+    libE0EAE146_gv_xmProgressionSelectedBlessing[lp_player] = lp_blessingId;
+    libE0EAE146_gf_XMDbgLog("INFO", "BLESSING_SELECTED", "player=" + IntToString(lp_player) + " blessing=" + lp_blessingId);
+}
+
+void XMChallenge_SelectForNextRun (int lp_player, string lp_challengeId) {
+    BankLoad("CampaignXCore", lp_player);
+    BankValueSetFromString(BankLastCreated(), "Challenge", "Active", lp_challengeId);
+    BankSave(BankLastCreated());
+    libE0EAE146_gv_xmProgressionActiveChallenge[lp_player] = lp_challengeId;
+    libE0EAE146_gf_XMDbgLog("INFO", "CHALLENGE_SELECTED", "player=" + IntToString(lp_player) + " challenge=" + lp_challengeId);
+}
+
+void XMBlessing_LoadSelected (int lp_player) {
+    string lv_selected;
+
+    lv_selected = libE0EAE146_gf_XMProgression_BankString(lp_player, "Blessing", "Selected");
+    if ((lv_selected != "") && !XMBlessing_IsUnlocked(lp_player, lv_selected)) {
+        libE0EAE146_gf_XMDbgLog("WARN", "BLESSING_SELECTED_LOCKED", "player=" + IntToString(lp_player) + " blessing=" + lv_selected);
+        lv_selected = "";
+    }
+    libE0EAE146_gv_xmProgressionSelectedBlessing[lp_player] = lv_selected;
+}
+
+void XMChallenge_LoadActive (int lp_player) {
+    libE0EAE146_gv_xmProgressionActiveChallenge[lp_player] = libE0EAE146_gf_XMProgression_BankString(lp_player, "Challenge", "Active");
+}
+
+void libE0EAE146_gf_XMProgression_HealPlayerUnits (int lp_player, bool lp_mechanicalOnly, bool lp_biologicalOnly, fixed lp_amount, string lp_event) {
+    unitgroup lv_units;
+    unit lv_unit;
+    fixed lv_life;
+    fixed lv_lifeMax;
+    bool lv_valid;
+
+    lv_units = UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_unit = UnitGroupUnit(lv_units, 1);
+    while (lv_unit != null) {
+        lv_valid = true;
+        if (lp_mechanicalOnly && !UnitTypeTestAttribute(UnitGetType(lv_unit), c_unitAttributeMechanical)) {
+            lv_valid = false;
+        }
+        if (lp_biologicalOnly && !UnitTypeTestAttribute(UnitGetType(lv_unit), c_unitAttributeBiological)) {
+            lv_valid = false;
+        }
+        if (lv_valid) {
+            lv_life = UnitGetPropertyFixed(lv_unit, c_unitPropLife, c_unitPropCurrent);
+            lv_lifeMax = UnitGetPropertyFixed(lv_unit, c_unitPropLifeMax, c_unitPropCurrent);
+            if ((lv_life > 0.0) && (lv_life < lv_lifeMax)) {
+                lv_life = lv_life + lp_amount;
+                if (lv_life > lv_lifeMax) {
+                    lv_life = lv_lifeMax;
+                }
+                UnitSetPropertyFixed(lv_unit, c_unitPropLife, lv_life);
+            }
+        }
+        UnitGroupRemove(lv_units, lv_unit);
+        lv_unit = UnitGroupUnit(lv_units, 1);
+    }
+}
+
+bool libE0EAE146_gt_XMProgressionPhaseRepair_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+    libE0EAE146_gf_XMProgression_HealPlayerUnits(1, true, false, 3.0, "BLESSING_PHASE_REPAIR_TICK");
+    return true;
+}
+
+bool libE0EAE146_gt_XMProgressionCreepRegen_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+    libE0EAE146_gf_XMProgression_HealPlayerUnits(1, false, true, 2.0, "BLESSING_CREEP_REGEN_TICK");
+    return true;
+}
+
+void libE0EAE146_gf_XMProgression_EnsureTriggers () {
+    if (libE0EAE146_gv_xmProgressionTriggersReady) {
+        return;
+    }
+    libE0EAE146_gv_xmProgressionTriggersReady = true;
+    libE0EAE146_gt_XMProgressionPhaseRepair = TriggerCreate("libE0EAE146_gt_XMProgressionPhaseRepair_Func");
+    TriggerAddEventTimePeriodic(libE0EAE146_gt_XMProgressionPhaseRepair, 2.0, c_timeGame);
+    TriggerEnable(libE0EAE146_gt_XMProgressionPhaseRepair, false);
+    libE0EAE146_gt_XMProgressionCreepRegen = TriggerCreate("libE0EAE146_gt_XMProgressionCreepRegen_Func");
+    TriggerAddEventTimePeriodic(libE0EAE146_gt_XMProgressionCreepRegen, 2.0, c_timeGame);
+    TriggerEnable(libE0EAE146_gt_XMProgressionCreepRegen, false);
+}
+
+void XMProgression_Init (int lp_player) {
+    libE0EAE146_gf_XMProgression_EnsureTriggers();
+    XMBlessing_LoadSelected(lp_player);
+    XMChallenge_LoadActive(lp_player);
+    libE0EAE146_gf_XMDbgLog("INFO", "PROGRESSION_INIT", "player=" + IntToString(lp_player) + " blessing=" + XMBlessing_Selected(lp_player) + " challenge=" + XMChallenge_Active(lp_player));
+}
+
+void XMBlessing_ApplySelected (int lp_player) {
+    string lv_selected;
+
+    libE0EAE146_gf_XMProgression_EnsureTriggers();
+    lv_selected = XMBlessing_Selected(lp_player);
+    TriggerEnable(libE0EAE146_gt_XMProgressionPhaseRepair, false);
+    TriggerEnable(libE0EAE146_gt_XMProgressionCreepRegen, false);
+
+    if (lv_selected == "BlessingPhaseRepair") {
+        TriggerEnable(libE0EAE146_gt_XMProgressionPhaseRepair, true);
+    }
+    else if (lv_selected == "BlessingCreepRegeneration") {
+        TriggerEnable(libE0EAE146_gt_XMProgressionCreepRegen, true);
+    }
+    else if (lv_selected != "") {
+        libE0EAE146_gf_XMDbgLog("INFO", "BLESSING_APPLY_STATE_ONLY", "player=" + IntToString(lp_player) + " blessing=" + lv_selected + " reason=effect_deferred");
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "BLESSING_APPLIED", "player=" + IntToString(lp_player) + " blessing=" + lv_selected);
+}
+
+void XMChallenge_RecordEvent (int lp_player, string lp_eventId, int lp_value) {
+    libE0EAE146_gf_XMDbgLog("INFO", "CHALLENGE_EVENT", "player=" + IntToString(lp_player) + " event=" + lp_eventId + " value=" + IntToString(lp_value));
+}
+
+void XMChallenge_EvaluateOnVictory (int lp_player, string lp_mapId, string lp_commanderId) {
+    string lv_challenge;
+    string lv_key;
+
+    lv_challenge = XMChallenge_Active(lp_player);
+    if (lv_challenge == "") {
+        return;
+    }
+
+    lv_key = lv_challenge + ":" + lp_mapId;
+    BankLoad("CampaignXCore", lp_player);
+    BankValueSetFromInt(BankLastCreated(), "ChallengeBest", lv_key, FixedToInt(AIGetTime()));
+    BankSave(BankLastCreated());
+
+    if (lv_challenge == "ChallengeResourceScarce") {
+        XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_RESOURCE_SCARCE_CLEAR");
+        XMBlessing_Unlock(lp_player, "BlessingResourceRich");
+    }
+    else if (lv_challenge == "ChallengeSpeedClear") {
+        XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_SPEED_CLEAR");
+        XMBlessing_Unlock(lp_player, "BlessingGoldenMinerals");
+    }
+    else if (lv_challenge == "ChallengeFullBonus") {
+        XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_FULL_BONUS_CLEAR");
+    }
+    else if (lv_challenge == "ChallengeNoHeroDeath") {
+        XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_NO_HERO_DEATH_CLEAR");
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "CHALLENGE_VICTORY_EVALUATED", "player=" + IntToString(lp_player) + " map=" + lp_mapId + " commander=" + lp_commanderId + " challenge=" + lv_challenge);
+}
+
+void XMProgression_Save (int lp_player) {
+    libE0EAE146_gf_XMProgression_SaveBank(lp_player);
+}
+
+void XMProgression_DebugUnlockFirstBatch (int lp_player) {
+    XMBlessing_Unlock(lp_player, "BlessingResourceRich");
+    XMBlessing_Unlock(lp_player, "BlessingGoldenMinerals");
+    XMBlessing_Unlock(lp_player, "BlessingGuardianShell");
+    XMBlessing_Unlock(lp_player, "BlessingPhaseRepair");
+    XMBlessing_Unlock(lp_player, "BlessingCreepRegeneration");
+    XMAchievement_Unlock(lp_player, "ACH_ARTANIS_CLEAR_KEY_MISSION");
+    XMAchievement_Unlock(lp_player, "ACH_KARAX_CLEAR_KEY_MISSION");
+    XMAchievement_Unlock(lp_player, "ACH_KERRIGAN_CREEP_CLEAR");
+    XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_RESOURCE_SCARCE_CLEAR");
+    XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_SPEED_CLEAR");
+    libE0EAE146_gf_XMDbgLog("INFO", "PROGRESSION_DEBUG_UNLOCK_FIRST_BATCH", "player=" + IntToString(lp_player) + " result=ok");
+}

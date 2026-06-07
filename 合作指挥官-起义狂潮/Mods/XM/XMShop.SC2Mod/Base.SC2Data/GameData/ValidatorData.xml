@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CValidatorUnitCompareBehaviorCount id="CasterHasShadowFuryFShop">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="ShadowFuryFShop"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationCompareRange id="MultiSeekerMissileShop">
+        <WhichLocation Effect="MultiSeekerMissileSetShop" Value="TargetUnit"/>
+        <Compare value="GE"/>
+        <Range value="10"/>
+        <Value Value="SourceUnit"/>
+    </CValidatorLocationCompareRange>
+    <CValidatorUnitCompareBehaviorCount id="PaperShellsCooldownShop">
+        <WhichUnit Value="Caster"/>
+        <Behavior value="PaperShellsCooldownShop"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HaveHeartControlShop">
+        <WhichUnit Value="Caster"/>
+        <Value value="1"/>
+        <Behavior value="HeartControlControllerShop"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="ShadowFuryNotTargettedShop">
+        <Behavior value="ShadowFuryTShop"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationEnumArea id="ShadowFuryTargetsInAreaShop">
+        <ResultFailed value="LoadAllNoTargetsFound,No Targets Found"/>
+        <WhichLocation Effect="ShadowFuryCPShop"/>
+        <AreaArray Compare="GT" Count="0" Radius="5"/>
+        <SearchFlags index="SameCliff" value="1"/>
+        <LaunchLocation Effect="ShadowFuryCPShop" Value="TargetPoint"/>
+        <SearchFilters value="Ground,Visible;Self,Player,Ally,Neutral,Structure,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorUnitCompareBehaviorCount id="ShadowFuryTargettedShop">
+        <Compare value="GT"/>
+        <Behavior value="ShadowFuryTShop"/>
+    </CValidatorUnitCompareBehaviorCount>
+</Catalog>

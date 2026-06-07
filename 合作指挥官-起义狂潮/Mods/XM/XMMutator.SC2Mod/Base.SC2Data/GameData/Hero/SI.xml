@@ -1,0 +1,2708 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectDamage id="BioDischargeDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Ranged"/>
+        <Amount value="10"/>
+        <Death value="Disintegrate"/>
+        <AttributeBonus index="Structure" value="10"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <Visibility value="Visible"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="BioDischargeLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="BioDischargeDamage"/>
+        <AmmoUnit value="BioDischargeMissile"/>
+        <Movers Link="MissileDefault"/>
+    </CEffectLaunchMissile>
+    <CEffectIssueOrder id="HeadbuttAttackTheStank">
+        <EditorCategories value="Race:Zerg"/>
+        <Abil value="attack"/>
+        <Target Effect="HeadbuttSearchArea" Value="CasterUnit"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="HeadbuttFinalSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="HeadbuttRemoveStun"/>
+        <EffectArray value="HeadbuttAttackTheStank"/>
+    </CEffectSet>
+    <CEffectDamage id="CleaveAttackDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Melee"/>
+        <Amount value="25"/>
+        <Death value="Eviscerate"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectSet id="CleaveAttackSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="CleaveAttackDamage"/>
+        <EffectArray value="CleaveAttackSearchArea"/>
+    </CEffectSet>
+    <CEffectEnumArea id="ExplodeSearchArea">
+        <EditorCategories value="Race:Zerg"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="3" Effect="SpewApplyDebuff"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="HeadbuttAnimPersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <Flags index="Channeled" value="1"/>
+        <InitialDelay value="0.5"/>
+        <InitialEffect value="HeadbuttSearchArea"/>
+        <ExpireDelay value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="HeadbuttApplyStun">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="HeadbuttDaze"/>
+        <ValidatorArray index="0" value="NotFrenzied"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="HeadbuttDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="35"/>
+        <AttributeBonus index="Structure" value="265"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectApplyForce id="HeadbuttForce">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Effect="HeadbuttSearchArea" Value="SourceUnit"/>
+        <Amount value="6"/>
+        <TimeScaleSource Value="Target"/>
+    </CEffectApplyForce>
+    <CEffectCreatePersistent id="HeadbuttForcePersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodCount value="8"/>
+        <PeriodicEffectArray value="HeadbuttForce"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <InitialEffect value="HeadbuttApplyStun"/>
+        <FinalEffect value="HeadbuttDelayStunPersistent"/>
+    </CEffectCreatePersistent>
+    <CEffectRemoveBehavior id="HeadbuttRemoveStun">
+        <EditorCategories value="Race:Zerg"/>
+        <BehaviorLink value="HeadbuttDaze"/>
+    </CEffectRemoveBehavior>
+    <CEffectEnumArea id="HeadbuttSearchArea">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Arc="180" Radius="3" Effect="HeadbuttSet"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFlags index="SameCliff" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="HeadbuttSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="HeadbuttDamage"/>
+        <EffectArray value="HeadbuttForcePersistent"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="HeadbuttDelayStunPersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <PeriodCount value="1"/>
+        <PeriodicPeriodArray value="3"/>
+        <WhichLocation Value="TargetUnit"/>
+        <FinalEffect value="HeadbuttFinalSet"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="KaboomerAcidDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="5"/>
+        <Flags index="Notification" value="1"/>
+        <Death value="Disintegrate"/>
+        <AttributeBonus index="Structure" value="5"/>
+        <ValidatorArray value="NotInvulnerable"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="CleaveAttackSearchArea">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <ExcludeArray Effect="CleaveAttackSet" Value="Target"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Arc="180" Radius="2" Effect="CleaveAttackDamage"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFlags index="SameCliff" value="1"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="SpewApplyImmobilizeBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="ImmobilizeKaboomer"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="SpewCreatePersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="40"/>
+        <PeriodicValidator value="CasterNotDeadandTargetNotInvulnerable"/>
+        <PeriodicEffectArray value="SpewLaunchMissile"/>
+        <PeriodicEffectArray value="SpewSearchArea"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.25"/>
+        <InitialEffect value="SpewApplyImmobilizeBehavior"/>
+        <FinalEffect value="SpewRemoveImmobilizeBehavior"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="SpewLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="Dummy"/>
+        <AmmoUnit value="SpewMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectRemoveBehavior id="SpewRemoveImmobilizeBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="ImmobilizeKaboomer"/>
+    </CEffectRemoveBehavior>
+    <CEffectEnumArea id="SpewSearchArea">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.2" Effect="SpewApplyDebuff"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="HunterlingClawsDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <ArmorReduction value="1"/>
+        <Amount value="15"/>
+        <Kind value="Melee"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Death value="Eviscerate"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="HunterlingLeapLaunchMissile">
+        <DeathType value="Unknown"/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <Movers Link="HunterlingLeapAttackMover"/>
+        <Flags index="2D" value="1"/>
+        <Flags index="Placement" value="1"/>
+        <Flags index="PlacementIgnoreBlockers" value="1"/>
+        <PlacementRange value="1"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="LeapHunterlingImpactSearchSet"/>
+        <ValidatorArray value="Pathable"/>
+        <ValidatorArray value="InRangeOfLeapTargetPoint"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="LeapHunterlingImpactSearchSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="HunterlingLeapImpactDamageSearch"/>
+        <EffectArray value="HunterlingLeapImpactStunSearch"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectEnumArea id="HunterlingLeapImpactDamageSearch">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="LeapHunterlingDamage"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="HunterlingLeapImpactStunSearch">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="LeapHunterlingStun"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="LeapHunterlingStun">
+        <EditorCategories value="Race:Zerg"/>
+        <ValidatorArray index="0" value="NotFrenzied"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="LeapHunterlingDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="100"/>
+    </CEffectDamage>
+    <!--CEffectCreatePersistent id="LeapLeapingPersistent">-->
+    <!--        <ValidatorArray value="Pathable"/>-->
+    <!--        <ValidatorArray value="InRangeOfLeapTargetPoint"/>-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <InitialEffect value="LeapMorphToFlyingForm"/>-->
+    <!--        <FinalEffect value="LeapImpactSet"/>-->
+    <!--        <PeriodicValidator value="InRangeOfLeapTargetPoint"/>-->
+    <!--        <PeriodicEffectArray value="LeapPullForce"/>-->
+    <!--        <PeriodicPeriodArray value="0.0625"/>-->
+    <!--        <PeriodCount value="80"/>-->
+    <!--        <WhichLocation Value="TargetUnitOrPoint"/>-->
+    <!--    </CEffectCreatePersistent>-->
+    <!--    <CEffectSet id="LeapImpactSet">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <EffectArray value="LeapRemoveLeapingBehavior"/>-->
+    <!--        <EffectArray value="LeapMorphToNormalForm"/>-->
+    <!--        <EffectArray value="LeapHunterlingStun"/>-->
+    <!--        <EffectArray value="LeapHunterlingDamage"/>-->
+    <!--        <TargetLocationType value="UnitOrPoint"/>-->
+    <!--    </CEffectSet>-->
+    <!--    <CEffectApplyBehavior id="LeapHunterlingStun">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--    </CEffectApplyBehavior>-->
+    <!--    <CEffectDamage id="LeapHunterlingDamage">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <Amount value="100"/>-->
+    <!--    </CEffectDamage>-->
+    <!--    <CEffectIssueOrder id="LeapIssueMoveOrder">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <WhichUnit Value="Caster"/>-->
+    <!--        <Abil value="move"/>-->
+    <!--        <Player Value="Caster"/>-->
+    <!--        <Target Effect="LeapLeapingPersistent" Value="TargetPoint"/>-->
+    <!--    </CEffectIssueOrder>-->
+    <!--    <CEffectIssueOrder id="LeapMorphToFlyingForm">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <WhichUnit Value="Caster"/>-->
+    <!--        <Abil value="LeapAttackMorphToFlyingForm"/>-->
+    <!--        <Player Value="Caster"/>-->
+    <!--    </CEffectIssueOrder>-->
+    <!--    <CEffectIssueOrder id="LeapMorphToNormalForm">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <WhichUnit Value="Caster"/>-->
+    <!--        <Abil value="LeapAttackMorphToNormalForm"/>-->
+    <!--        <Player Value="Caster"/>-->
+    <!--    </CEffectIssueOrder>-->
+    <!--    <CEffectApplyForce id="LeapPullForce">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <WhichLocation Value="TargetPoint"/>-->
+    <!--        <WhichUnit Value="Caster"/>-->
+    <!--        <Amount value="-2"/>-->
+    <!--    </CEffectApplyForce>-->
+    <!--    <CEffectRemoveBehavior id="LeapRemoveAttackingBehavior">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <WhichUnit Value="Caster"/>-->
+    <!--        <BehaviorLink value="LeapAttacking"/>-->
+    <!--    </CEffectRemoveBehavior>-->
+    <!--    <CEffectRemoveBehavior id="LeapRemoveLeapingBehavior">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <WhichUnit Value="Caster"/>-->
+    <!--        <BehaviorLink value="Leaping"/>-->
+    <!--    </CEffectRemoveBehavior>-->
+    <!--    <CEffectRemoveBehavior id="LeapRemoveStunBehavior">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <BehaviorLink value="LeapStun"/>-->
+    <!--    </CEffectRemoveBehavior>-->
+    <!--    <CEffectEnumArea id="LeapSearchArea">-->
+    <!--        <EditorCategories value="Race:Zerg"/>-->
+    <!--        <ImpactLocation Value="TargetPoint"/>-->
+    <!--        <SearchFilters value="Ground;Player,Ally,Neutral,Structure,Missile,Item,Buried,Dead,Hidden,Invulnerable"/>-->
+    <!--        <AreaArray MaxCount="1" Radius="0.25" Effect="LeapAttackDelayPersistent"/>-->
+    <!--    </CEffectEnumArea-->
+    <CEffectApplyBehavior id="SpewApplyDebuff">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="ToxicAcid"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="SpotterAuraSearch">
+        <SearchFilters value="-;Neutral,Enemy,Structure,Missile,Stasis,Dead,Invulnerable"/>
+        <AreaArray Radius="10" Effect="SpotterAuraSearchAB"/>
+        <ExcludeArray/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="SpotterAuraSearchAB">
+        <Behavior value="SpotterAura"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="SpotterCorruption">
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <InitialEffect value="SpotterCorruptionSearch"/>
+        <PeriodCount value="8"/>
+        <PeriodicValidator value="NotDead"/>
+        <PeriodicEffectArray value="CorruptionLaunchMissile"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <ValidatorArray value="noMarkers"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="SpotterCorruptionSearch">
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="CorruptionApplyBehavior"/>
+    </CEffectEnumArea>
+    <CEffectSet id="TentacleAttackChokedInitialEffectsSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAttackDamage"/>
+        <EffectArray value="TentacleAttackApplyChokedDisableAbilsBehavior"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TentacleAttackApplyChokedDisableAbilsBehavior">
+        <ValidatorArray index="0" value="NotFrenzied"/>
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="ChokedDisableAbils"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="SpitDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Ranged"/>
+        <Amount value="15"/>
+        <Death value="Disintegrate"/>
+        <AttributeBonus index="Structure" value="10"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="SpitLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="SpitDamage"/>
+        <AmmoUnit value="SpitMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="TentacleAttackApplyBehaviors">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAttackRemoveTentacleEnRouteBehavior"/>
+        <EffectArray value="TentacleAttackApplyCasterBehavior"/>
+        <EffectArray value="TentacleAttackApplyChokeBehavior"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TentacleAttackApplyCasterBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="TentaclesActive"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TentacleAttackApplyChokeBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="Choked"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ChokePreventApplyBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="ChokePrevent"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TentacleAttackApplyInitialCasterBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="InitialTentacleChannel"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TentacleAttackApplyTentacleEnRouteBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="TentacleEnRoute"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="TentacleAttackChannelPersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <InitialEffect value="TentacleAttackSearchSwitch"/>
+        <PeriodicValidator value="HasInitialTentacleBehaviorOrTentaclesActive"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <WhichLocation Value="TargetUnit"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="TentacleAttackInitialSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAttackApplyInitialCasterBehavior"/>
+        <EffectArray value="TentacleAttackChannelPersistent"/>
+    </CEffectSet>
+    <CEffectSet id="TentacleAttackLaunchTentacleSet">
+        <ValidatorArray value="TargetHasNoTentacleEnRoute"/>
+        <ValidatorArray value="TargetNotBeingChoked"/>
+        <ValidatorArray value="NotHaveChokePrevent"/>
+        <ValidatorArray value="NotMinorGoal"/>
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAttackApplyTentacleEnRouteBehavior"/>
+        <EffectArray value="TentacleAttackLaunchTentacle"/>
+    </CEffectSet>
+    <CEffectSet id="TentacleAttackRemoveBehaviors">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAttackRemoveCasterBehavior"/>
+        <EffectArray value="TentacleAttackRemoveChokeBehavior"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="TentacleAttackRemoveCasterBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="TentaclesActive"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="TentacleAttackRemoveTentacleEnRouteBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <BehaviorLink value="TentacleEnRoute"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreatePersistent id="TentacleAttackTentaclePersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <InitialEffect value="TentacleAttackApplyBehaviors"/>
+        <FinalEffect value="TentacleAttackRemoveBehaviors"/>
+        <PeriodicValidator value="ChokerValidators"/>
+        <PeriodicEffectArray value="TentacleAttackForce"/>
+        <PeriodicPeriodArray value="0.0625"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="TentacleAttackDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Melee"/>
+        <Amount value="4"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectApplyForce id="TentacleAttackForce">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="CasterUnit"/>
+        <Amount value="-1"/>
+        <TimeScaleSource Value="Target"/>
+        <ValidatorArray value="TargetIsGround"/>
+        <ValidatorArray value="NotFrenzied"/>
+    </CEffectApplyForce>
+    <CEffectLaunchMissile id="TentacleAttackLaunchTentacle">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="TentacleAttackLaunchTentacleGroundAirSet"/>
+        <AmmoUnit value="TentacleMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="TentacleAttackLaunchTentacleGroundAirSet">
+        <EffectArray value="TentacleAttackTentaclePersistent"/>
+        <EffectArray value="TentacleAttackAirSnare"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TentacleAttackAirSnare">
+        <ValidatorArray index="0" value="AirUnitFilter"/>
+        <ValidatorArray value="CasterNotDead"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="TentacleAirAttackLaunchTargetToAPathableLocationPrecursor">
+        <Origin Value="TargetUnit"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <SpawnEffect value="TentacleAirAttackLaunchTargetToAPathableLocationLM"/>
+        <SpawnUnit value="SNARE_PLACEHOLDER"/>
+    </CEffectCreateUnit>
+    <CEffectLaunchMissile id="TentacleAirAttackLaunchTargetToAPathableLocationLM">
+        <LaunchLocation Effect="TentacleAirAttackLaunchTargetToAPathableLocationPrecursor" Value="TargetUnit"/>
+        <Movers Link="LaunchTargetToAPathableLocationSlow"/>
+        <DeathType value="Unknown"/>
+        <FinishEffect value="TentacleAirAttackLaunchTargetToAPathableLocationSet"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="TentacleAirAttackLaunchTargetToAPathableLocationSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAirAttackLaunchTargetToAPathableLocationRU"/>
+        <EffectArray value="TentacleAttackAirSnareReheightBehavior"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TentacleAttackAirSnareReheightBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Effect="TentacleAttackLaunchTentacleGroundAirSet"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="TentacleAirAttackLaunchTargetToAPathableLocationRU">
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <Death value="Remove"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="TentacleAirAttackReheightSourceCreatePlaceholder">
+        <WhichLocation Value="SourceUnit"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="TentacleAirAttackReheightSourceStartSet"/>
+        <TypeFallbackUnit Value="Source"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="TentacleAirAttackReheightSourceStartSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAirAttackReheightSourceLaunchMissile"/>
+        <EffectArray value="TentacleAirAttackPrecursorReheightSource"/>
+        <EffectArray value="DelayedRemove"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="TentacleAirAttackReheightSourceLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Effect="TentacleAttackLaunchTentacle" Value="TargetUnit"/>
+        <Movers Link="MissileDefault"/>
+        <DeathType value="Unknown"/>
+        <ValidatorArray value="TentacleAttackReheightSourceLaunchMissileCasterNotDead"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="TentacleAirAttackPrecursorReheightSource"/>
+    <CEffectRemoveBehavior id="TentacleAttackRemoveChokeBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <BehaviorLink value="Choked"/>
+    </CEffectRemoveBehavior>
+    <CEffectEnumArea id="TentacleAttackSearchAreaHeroic">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Heroic;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="2" Effect="TentacleAttackLaunchTentacleSet"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="TentacleAttackSearchSwitch">
+        <EditorCategories value="Race:Terran"/>
+        <CaseArray Validator="IsHeroic" Effect="TentacleAttackSearchAreaHeroic"/>
+        <CaseDefault value="TentacleAttackSearchArea"/>
+    </CEffectSwitch>
+    <CEffectEnumArea id="TentacleAttackSearchArea">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Heroic,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="2" Radius="2" Effect="TentacleAttackLaunchTentacleSet"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectEnumArea>
+    <CAbilEffectTarget id="Headbutt">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Effect index="0" value="HeadbuttAnimPersistent"/>
+        <Cost>
+            <Charge Link=""/>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+        <Range value="2"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="Headbutt"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="LeapAttack">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Effect index="0" value="HunterlingLeapLaunchMissile"/>
+        <Cost>
+            <Charge Link=""/>
+            <Cooldown TimeUse="4"/>
+        </Cost>
+        <Range value="10"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="LeapAttack"/>
+    </CAbilEffectTarget>
+    <CAbilMorph id="LeapAttackMorphToFlyingForm">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="WaitUntilStopped" value="0"/>
+        <InfoArray Unit="HunterlingLeaping"/>
+    </CAbilMorph>
+    <CAbilMorph id="LeapAttackMorphToNormalForm">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="WaitUntilStopped" value="0"/>
+        <InfoArray Unit="Hunterling"/>
+    </CAbilMorph>
+    <CAbilEffectTarget id="Spew">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Effect index="0" value="SpewCreatePersistent"/>
+        <Cost>
+            <Charge Link=""/>
+            <Cooldown TimeUse="4"/>
+        </Cost>
+        <Range value="3"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="Spew"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="SpotterCorruption">
+        <Effect value="SpotterCorruption"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="45"/>
+        </Cost>
+        <TargetFilters value="Visible;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Invulnerable"/>
+        <Range value="6"/>
+        <CancelableArray index="Channel" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <EffectRange value="0,500"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="CorruptionAbility"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="TentacleAttack">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Effect index="0" value="TentacleAttackInitialSet"/>
+        <Cost>
+            <Charge Link=""/>
+            <Cooldown TimeUse="6"/>
+        </Cost>
+        <Range value="13"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="TentacleAttack"/>
+    </CAbilEffectTarget>
+    <CValidatorUnitFilters id="CasterNotStunnedorStasised">
+        <WhichUnit Value="Caster"/>
+        <Filters value="-;Stasis,Stunned"/>
+    </CValidatorUnitFilters>
+    <CValidatorUnitCompareBehaviorCount id="HunterlingLeapAttacking">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="LeapAttacking"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationEnumArea id="HunterlingLeapTargetScan">
+        <AreaArray>
+            <Compare value="GT"/>
+            <Count value="0"/>
+            <Radius value="0.25"/>
+            <Validator value="TargetNotBeingLeapAttacked"/>
+        </AreaArray>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Structure,Missile,Item,Buried,Dead,Hidden,Invulnerable"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationCompareRange id="InRangeOfLeapTargetPoint">
+        <Compare value="GT"/>
+        <Range value="0.5"/>
+    </CValidatorLocationCompareRange>
+    <CValidatorCombine id="HunterlingLeapingOrLanding">
+        <CombineArray value="HunterlingLeaping"/>
+        <CombineArray value="HunterlingLanding"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="HunterlingLeaping">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="Leaping"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HunterlingLanding">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="Landing"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TargetHasChokedDebuff">
+        <Compare value="GT"/>
+        <Behavior value="Choked"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HasInitialTentacleBehavior">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="InitialTentacleChannel"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="HasInitialTentacleBehaviorOrTentaclesActive">
+        <CombineArray value="HasInitialTentacleBehavior"/>
+        <CombineArray value="TentaclesActive"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="TargetHasNoTentacleEnRoute">
+        <Behavior value="TentacleEnRoute"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TargetNotBeingChoked">
+        <Behavior value="Choked"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="NotHaveChokePrevent">
+        <Behavior value="ChokePrevent"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TentaclesActive">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="TentaclesActive"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="ChokerValidators">
+        <Type value="And"/>
+        <CombineArray value="CasterAndTargetNotDead"/>
+        <CombineArray value="IsNotRecallingCombine"/>
+        <CombineArray value="TargetHasChokedDebuff"/>
+        <CombineArray value="CasterNotStunnedorStasised"/>
+        <CombineArray value="NotInvulnerable"/>
+    </CValidatorCombine>
+    <CValidatorUnitFilters id="TentacleAttackReheightSourceLaunchMissileCasterNotDead">
+        <Filters value="-;Dead"/>
+        <WhichUnit Effect="TentacleAttackLaunchTentacle"/>
+    </CValidatorUnitFilters>
+    <CButton id="Headbutt">
+        <Icon value="Assets\Textures\btn-ability-zerg-frenzied.dds"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CButton>
+    <CButton id="LeapAttack">
+        <Icon value="Assets\Textures\btn-ability-zerg-swarmseeds.dds"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CButton>
+    <CButton id="Spew">
+        <Icon value="Assets\Textures\btn-ability-zerg-generatecreep.dds"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CButton>
+    <CButton id="TentacleAttack">
+        <Icon value="Assets\Textures\btn-ability-zerg-leech.dds"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CButton>
+    <!--                                                                                         -->
+    <!-- Hunterling ............................................................................ -->
+    <!--                                                                                         -->
+    <CActorMissile id="Hunterling" parent="GenericUnitBase" unitName="Hunterling">
+        <PortraitModel value="HunterlingPortrait"/>
+        <WalkAnimMoveSpeed value="3.1328"/>
+        <BarWidth value="50"/>
+        <BarOffset value="30"/>
+        <DeathArray index="Normal" ModelLink="HunterlingDeath" SoundLink="Hunterling_Explode"/>
+        <DeathArray index="Disintegrate" ModelLink="HunterlingDeathAcid" SoundLink="Uni_DeathFXAcid"/>
+        <DeathArray index="Eviscerate" ModelLink="HunterlingDeathEviscerate" SoundLink="Hunterling_DeathFXEviscerate"/>
+        <DeathArray index="Fire" ModelLink="HunterlingDeathFire" SoundLink="Hunterling_DeathFXFire"/>
+        <Aliases value="_MissileHybrids"/>
+        <UnitIcon value="Assets\Textures\btn-unit-zerg-brutalisk.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-mod-l2d_zerg-hunterling.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-mod-l2d_zerg-hunterling.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <DeathCustoms ModelLink="HunterlingAirDeath" Name="Flying"/>
+        <On Terms="UnitDeathCustomize; AnimPlaying Jump" Send="DeathCustomize Flying"/>
+        <On Terms="UnitDeathCustomize; IsStatus InAir 1" Send="DeathCustomize Flying"/>
+        <On Terms="ActorCreation" Send="TimerSet 5.000000 Ambience"/>
+        <On Terms="TimerExpired; TimerName Ambience; PassChance 50.000000" Send="Create Left2Die_Hunterling_Ambience"/>
+        <On Terms="TimerExpired; TimerName Ambience" Send="TimerSet 5.000000 Ambience"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit HunterlingLeaping" Send="DeathCustomize Flying"/>
+        <On Terms="Behavior.HunterlingJump.Launch" Send="AnimBracketStart Jump Jump,Start Jump Jump,End,A"/>
+        <On Terms="Behavior.HunterlingJump.Launch" Send="AnimBlendTimeApply 0.000000"/>
+        <On Terms="Behavior.HunterlingJump.LandDown" Send="AnimBracketStop Jump"/>
+        <On Terms="Behavior.HunterlingJump.LandDown" Send="AnimBlendTimeApply"/>
+        <On Terms="Behavior.HunterlingJump.LandUp" Send="AnimBracketStop Jump"/>
+        <On Terms="Behavior.HunterlingJump.LandUp" Send="AnimBlendTimeApply"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.LeapAttack.SourceCastStart" Send="AnimClear Jump"/>
+        <On Terms="Abil.LeapAttack.SourceCastStart" Send="AnimBracketStart LeapAttack Jump,Start Jump IGNORE"/>
+        <On Terms="Effect.HunterlingLeapImpactDamageSearch.Start; At Caster" Send="AnimBracketStop LeapAttack"/>
+        <On Terms="Effect.LeapHunterlingDamage.Start; At Caster" Send="AnimPlay PounceAttacking Spell"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Hunterling_Land"/>
+        <!--On Terms="Effect.LeapNoTargetDummy.Start; At Caster" Send="AnimPlay Land Jump,End,A"/>
+        <On Terms="Effect.LeapAttackDelayPersistent.Start; At Caster" Send="AnimPlay Falling Jump,End 0 0.000000 0.000000"/>
+        <On Terms="Effect.LeapAttackingPersistent.Start; At Caster" Send="AnimPlay PounceAttacking Spell PlayForever"/>
+        <On Terms="Behavior.LeapAttacking.Off" Send="AnimClear PounceAttacking"/-->
+        <Macros value="AntiGravDeathRemoveMacro"/>
+    </CActorMissile>
+    <CActorSound id="Hunterling_Land" parent="SoundOneShot"/>
+    <CActorUnit id="HunterlingPlaceholder" parent="GenericUnitStandard" unitName="HunterlingPlaceholder">
+        <Model value="Hunterling"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-mod-l2d_zerg-hunterling.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSound id="Left2Die_Hunterling_Ambience" parent="SoundOneShot"/>
+    <!-- Jump                                                                                    -->
+    <CActorModel id="HunterlingJumpLandDownModel" parent="ModelAnimationStyleOneShot">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter SOpShadow"/>
+        <On Terms="Behavior.HunterlingJump.LandDown" Send="Create"/>
+        <On Terms="Behavior.HunterlingJump.LandUp" Send="Create"/>
+        <On Terms="Behavior.HunterlingJump.LandDown" Send="TimerSet 0.300000 TriggerSound"/>
+        <On Terms="TimerExpired; TimerName TriggerSound" Send="Create HunterlingJumpLandSound"/>
+        <Inherits index="CloakEffect" value="1"/>
+    </CActorModel>
+    <CActorSound id="HunterlingJumpLandSound" parent="SoundOneShot">
+        <On Terms="Behavior.HunterlingJump.LandUp" Send="Create"/>
+        <Sound value="Hunterling_JumpLand"/>
+    </CActorSound>
+    <CActorModel id="HunterlingJumpLaunchModel" parent="ModelAnimationStyleOneShot">
+        <On Terms="Behavior.HunterlingJump.Launch" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter SOpShadow" HoldPosition="1" HoldRotation="1"/>
+        <Inherits index="CloakEffect" value="1"/>
+    </CActorModel>
+    <CActorSound id="HunterlingJumpLaunchSound" parent="SoundOneShot">
+        <On Terms="Behavior.HunterlingJump.Launch" Send="Create"/>
+        <Sound value="Hunterling_JumpLaunch"/>
+    </CActorSound>
+    <!-- Attack                                                                                  -->
+    <CActorAction id="HunterlingAttack" parent="GenericAttack" effectAttack="HunterlingClawsDamage">
+        <ImpactAttachQuery Methods="AMFilterTargetVolumes"/>
+        <ImpactMap index="None" Sound="Hunterling_AttackImpact"/>
+        <ShieldFlashType value="Header"/>
+    </CActorAction>
+    <CActorSound id="HunterlingAttackStart" parent="SoundOneShot">
+        <On Terms="WeaponStart.HunterlingClaws.AttackStart" Send="Create"/>
+        <Sound value="Hunterling_AttackLaunch"/>
+    </CActorSound>
+    <!--                                                                                         -->
+    <!-- Kaboomer .............................................................................. -->
+    <!--                                                                                         -->
+    <CActorUnit id="Kaboomer" parent="GenericUnitBase" unitName="Kaboomer">
+        <DeathArray index="Normal" ModelLink="KaboomerDeath" SoundLink="Kaboomer_Suicide"/>
+        <PortraitModel value="KaboomerPortrait"/>
+        <WalkAnimMoveSpeed value="2"/>
+        <BarWidth value="70"/>
+        <BarOffset value="50"/>
+        <UnitIcon value="Assets\Textures\btn-unit-zerg-baneling.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-mod-l2d_zerg-kaboomer.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-mod-l2d_zerg-kaboomer.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <On Terms="ActorCreation" Send="TimerSet 5.000000 Ambience"/>
+        <On Terms="TimerExpired; TimerName Ambience; PassChance 50.000000" Send="Create Left2Die_Kaboomer_Ambience"/>
+        <On Terms="TimerExpired; TimerName Ambience" Send="TimerSet 5.000000 Ambience"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimPlay Attack Spell,Channel PlayForever"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="Create SpewInitialLaunch"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimClear Attack"/>
+    </CActorUnit>
+    <CActorSound id="Left2Die_Kaboomer_Ambience" parent="SoundOneShot"/>
+    <!-- Spew                                                                                    -->
+    <CActorMissile id="SpewMissile" parent="GenericAttackMissile" unitName="SpewMissile"/>
+    <CActorAction id="Spew" parent="GenericAttack" effectImpact="Dummy" effectLaunch="SpewLaunchMissile"/>
+    <CActorSound id="SpewInitialLaunch" parent="SoundOneShot">
+        <Sound value="Left2Die_Kaboomer_Attack"/>
+    </CActorSound>
+    <CActorModel id="SpewImpact" parent="ModelAnimationStyleContinuous">
+        <Model value="AcidPool"/>
+        <On Terms="Effect.SpewCreatePersistent.Start; At Target" Send="Create"/>
+        <On Terms="Effect.SpewCreatePersistent.Stop" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorSound id="SpewImpact_AS" parent="SoundOneShot">
+        <On Terms="Effect.SpewCreatePersistent.Start; At Target" Send="Create"/>
+        <Sound value="SpewImpact"/>
+    </CActorSound>
+    <!-- Acid                                                                                    -->
+    <CActorModel id="KaboomerAcidDebuff" parent="ModelAddition">
+        <MaxScale value="2.500000"/>
+        <HostSiteOps Ops="SOpAttachCenterSoft"/>
+        <AutoScaleFactor value="1.000000"/>
+        <On Terms="Behavior.ToxicAcid.On" Send="Create"/>
+        <On Terms="Behavior.ToxicAcid.On" Target="_Selectable" Send="SetTintColor 150,255,150 0.500000"/>
+        <On Terms="Behavior.ToxicAcid.Off" Target="_Selectable" Send="SetTintColor 255,255,255 0.500000"/>
+        <On Terms="Behavior.ToxicAcid.Off" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <!--                                                                                         -->
+    <!-- Spotter ............................................................................... -->
+    <!--                                                                                         -->
+    <CActorUnit id="Spotter" parent="GenericUnitBase" unitName="Spotter">
+        <DeathArray index="Normal" ModelLink="SpotterDeath" SoundLink="Overseer_Death"/>
+        <PortraitModel value="SpotterPortrait"/>
+        <BarOffset value="70"/>
+        <NameOffset value="70"/>
+        <UnitIcon value="Assets\Textures\btn-unit-zerg-overseer.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-zerg-spotter.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-zerg-spotter.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-flyercarapace-level0.dds"/>
+        <On Terms="ActorCreation" Send="TimerSet 5.000000 Ambience"/>
+        <On Terms="TimerExpired; TimerName Ambience; PassChance 50.000000" Send="Create Left2Die_Spotter_Ambience"/>
+        <On Terms="TimerExpired; TimerName Ambience" Send="TimerSet 5.000000 Ambience"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <BarWidth value="90"/>
+    </CActorUnit>
+    <CActorSound id="Left2Die_Spotter_Ambience" parent="SoundOneShot"/>
+    <!-- Attack                                                                                  -->
+    <CActorMissile id="BioDischargeMissile" parent="GenericAttackMissile" unitName="BioDischargeMissile"/>
+    <CActorAction id="BioDischarge" parent="GenericAttack" effectImpact="BioDischargeDamage" effectLaunch="BioDischargeLaunchMissile">
+        <ImpactMap index="None" Model="BioDischargeMissile"/>
+        <ImpactModel value="BioDischargeImpactModel"/>
+    </CActorAction>
+    <CActorModel id="BioDischargeImpactModel">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <On Terms="ActorCreation" Send="$Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+    </CActorModel>
+    <!--                                                                                         -->
+    <!-- Stank ................................................................................. -->
+    <!--                                                                                         -->
+    <CActorSiteOpLocalOffset id="SOpHeatbuttSplat">
+        <LocalOffset value="0.000000,-3.500000,0.000000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorUnit id="Stank" parent="GenericUnitBase" unitName="Stank">
+        <PortraitModel value="UltraliskPortrait"/>
+        <DeathArray index="Normal" ModelLink="StankDeath" SoundLink="Stank_Explode" VoiceLink="Stank_Death_Roar"/>
+        <DeathArray index="Disintegrate" ModelLink="StankDeathAcid" SoundLink="Uni_DeathFXAcid"/>
+        <DeathArray index="Fire" ModelLink="StankDeathFire" SoundLink="Uni_DeathFXFireLarge"/>
+        <AnimBlendTime value="0.300000"/>
+        <EventDataSound Name="UltraliskAttack" Actor="UnitSound" Sound="Stank_AttackLaunch"/>
+        <EventDataSound Name="UltraliskHeadAttack" Actor="UnitSound" Sound="Stank_HeadAttackImpact"/>
+        <EventDataSound Name="UltraliskRoar" Actor="UnitSound" Sound="Stank_HeadAttackRoar"/>
+        <WalkAnimMoveSpeed value="2.9375"/>
+        <BarWidth value="150"/>
+        <BarOffset value="25"/>
+        <NameOffset value="40"/>
+        <UnitIcon value="Assets\Textures\btn-unit-zerg-omegalisk.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-mod-l2d_zerg-stank.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-mod-l2d_zerg-stank.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <On Terms="ActorCreation" Send="Create StankBugSwarm"/>
+        <!--On Terms="ActorCreation" Send="Create Stank_BugSwarm_AS"/> not as cool as I hoped-->
+        <On Terms="ActorCreation" Send="TimerSet 5.000000 Ambience"/>
+        <On Terms="TimerExpired; TimerName Ambience; PassChance 50.000000" Send="Create Left2Die_Stank_Ambience"/>
+        <On Terms="TimerExpired; TimerName Ambience" Send="TimerSet 5.000000 Ambience"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Spell,A"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Effect.HeadbuttAnimPersistent.Start; At Caster" Send="AnimPlay Headbutt Spell,00 0 -1.000000 -1.000000 1.000000 AsDuration"/>
+    </CActorUnit>
+    <CActorModel id="StankBugSwarm" parent="ModelAddition">
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorSound id="Stank_BugSwarm_AS" parent="SoundContinuous">
+        <Sound value="Stank_BugSwarm"/>
+    </CActorSound>
+    <CActorSound id="Left2Die_Stank_Ambience" parent="SoundOneShot"/>
+    <!-- Headbutt                                                                                -->
+    <CActorModel id="HeadbuttDaze" parent="ModelAddition">
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <On Terms="Behavior.HeadbuttDaze.On" Send="Create"/>
+        <On Terms="Behavior.HeadbuttDaze.Off" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorSplat id="HeatbuttSplat">
+        <FadeIn value="0.500000"/>
+        <FadeOut value="2.500000"/>
+        <HoldTime value="1.500000"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary SOpHeatbuttSplat"/>
+        <On Terms="Effect.HeadbuttSearchArea.Start" Send="Create"/>
+    </CActorSplat>
+    <CActorModel id="HeadbuttShockwave" parent="ModelAnimationStyleOneShot">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+        <On Terms="Effect.HeadbuttSearchArea.Start; At Caster" Send="Create"/>
+    </CActorModel>
+    <CActorModel id="HunterlingLeapStun" parent="ModelAnimationStyleContinuous">
+        <On Terms="Behavior.LeapHunterlingStun.On" Send="Create"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart GL_BSD GLbirth GLstand GLdeath"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart $BSD"/>
+        <On Terms="Behavior.LeapHunterlingStun.Off" Send="AnimBracketStop BSD"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+    </CActorModel>
+    <CActorRange id="SpotterAuraRange">
+        <Range value="9.500000"/>
+        <On Terms="Behavior.SpotterAuraBuff.On" Send="Create"/>
+        <On Terms="Behavior.SpotterAuraBuff.Off" Send="Destroy"/>
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconTint value="255,255,0,0"/>
+    </CActorRange>
+    <!--                                                                                         -->
+    <!-- Choker ................................................................................ -->
+    <!--                                                                                         -->
+    <CActorUnit id="Choker" parent="GenericUnitBase" unitName="Choker">
+        <DeathArray index="Normal" ModelLink="ChokerDeath" SoundLink="Infestor_Death"/>
+        <DeathArray index="Fire" ModelLink="ChokerDeathFire" SoundLink="Uni_DeathFXFire"/>
+        <PortraitModel value="ChokerPortrait"/>
+        <WalkAnimMoveSpeed value="1.875"/>
+        <BarOffset value="70"/>
+        <UnitIcon value="Assets\Textures\btn-unit-zerg-infestor.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-zerg-choker.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-zerg-choker.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <On Terms="ActorCreation" Send="TimerSet 5.000000 Ambience"/>
+        <On Terms="TimerExpired; TimerName Ambience; PassChance 50.000000" Send="Create Left2Die_Choker_Ambience"/>
+        <On Terms="TimerExpired; TimerName Ambience" Send="TimerSet 5.000000 Ambience"/>
+        <On Terms="Abil.TentacleAttack.SourceCastStart" Send="AnimPlay TentacleAttack Attack PlayForever"/>
+        <On Terms="Abil.TentacleAttack.SourceChannelStop" Send="AnimClear TentacleAttack"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Spell,A"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <BarWidth value="75"/>
+    </CActorUnit>
+    <CActorSound id="Left2Die_Choker_Ambience" parent="SoundOneShot"/>
+    <!-- Spit Attack                                                                                  -->
+    <CActorMissile id="SpitMissile" parent="GenericAttackMissile" unitName="SpitMissile"/>
+    <CActorAction id="Spit" parent="GenericAttack" effectImpact="SpitDamage" effectLaunch="SpitLaunchMissile">
+        <ImpactMap index="None" Model="SpitMissile"/>
+        <ImpactModel value="SpitImpactModel"/>
+    </CActorAction>
+    <CActorModel id="SpitImpactModel">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <On Terms="ActorCreation" Send="$Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+    </CActorModel>
+    <!-- Tentacle Attack                                                                         -->
+    <CActorSite id="ChokerTentacleLaunchSite">
+        <Host Subject="::scope.Tentacle"/>
+    </CActorSite>
+    <CActorSite id="ChokerTentacleAttackImpactHoldingSite">
+        <Host Subject="_ImpactGuide" Scope="Target"/>
+        <HostSiteOps Ops="SOp180"/>
+    </CActorSite>
+    <CActorModel id="ChokerTentacle">
+        <Host Subject="_Selectable"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <HostSiteOps Ops="SOpAttachWeapon01Soft"/>
+        <HostedAttaches Name="TentacleAttack">
+            <AttachQuery Methods="Weapon"/>
+        </HostedAttaches>
+        <On Terms="Effect.TentacleAttackLaunchTentacle.Start; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Attack Stand Death"/>
+        <On Terms="ActorCreation" Send="RefSet ::scope.Tentacle ::Self"/>
+        <On Terms="ActorCreation" Send="SetOpacity"/>
+        <On Terms="ActorCreation" Send="SetOpacity 1.000000 0.500000"/>
+        <On Terms="Effect.TentacleAttackLaunchTentacle.Abort; FromEffectTreeDescendant" Send="AnimBracketStop BSD"/>
+        <On Terms="Effect.TentacleAttackTentaclePersistent.Start" Send="Create ChokerTentacleAttackImpactHoldingSite"/>
+        <On Terms="Effect.TentacleAttackTentaclePersistent.Start" Send="RefSetFromRequest TentacleAttack ChokerTentacleAttackImpactHoldingSite"/>
+        <On Terms="Effect.TentacleAttackTentaclePersistent.Stop; FromEffectTreeDescendant" Send="AnimBracketStop BSD"/>
+        <On Terms="ActorOrphan" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="TimerSet 1.500000 TimeOut"/>
+        <On Terms="TimerExpired; TimerName TimeOut" Send="AnimBracketStop BSD"/>
+        <On Terms="Effect.TentacleAttackTentaclePersistent.Start; FromEffectTreeDescendant" Send="TimerKill TimeOut"/>
+    </CActorModel>
+    <CActorModel id="ChokerTentacleAttackStunModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Behavior.ChokedDisableAbils.On" Send="Create"/>
+        <On Terms="Behavior.ChokedDisableAbils.Off" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <AutoScaleFactor value="0.750000"/>
+    </CActorModel>
+    <CActorMissile id="ChokerTentacleAttackMissile" parent="GenericAttackMissile" unitName="TentacleMissile">
+        <Model value="Invisible"/>
+        <Supporter>
+            <Subject value="ChokerTentacle"/>
+            <Scope value="Caster"/>
+            <Actor value="Find"/>
+            <Effect value="TentacleAttackLaunchTentacle"/>
+        </Supporter>
+        <On Terms="MotionPhaseStart; MotionPhase" Target="::Supporter" Send="RefSet TentacleAttack ::Self"/>
+    </CActorMissile>
+    <CActorAction id="ChokerTentacleAttack" parent="GenericAttack" effectImpact="TentacleAttackTentaclePersistent" effectLaunch="TentacleAttackLaunchTentacle">
+        <LaunchSite value="ChokerTentacleLaunchSite"/>
+        <LaunchAttachQuery Methods="Weapon 1"/>
+        <LaunchSiteOps Ops="SOpAttachHarnessStationary"/>
+        <ImpactAttachQuery Methods="Target 0"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpForwardLaunchGuide"/>
+        <ImpactSiteOpsReaction Ops="SOp2DRotation SOp180" HoldPosition="1" HoldRotation="1"/>
+        <LaunchAssets Sound=""/>
+        <ShieldFlashType value="Full"/>
+    </CActorAction>
+    <CActorSound id="ChokerTentacleAttackLaunch" parent="SoundOneShot">
+        <Sound value="Left2Die_Choker_Attack"/>
+        <On Terms="Effect.TentacleAttackInitialSet.Start; At Caster" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="ChokerTentacleDamage" parent="SoundOneShot">
+        <On Terms="Effect.TentacleAttackDamage.Start; At Target" Send="Create"/>
+    </CActorSound>
+    <CActorModel id="ChokerTentacleDamageModel" parent="ModelAnimationStyleOneShot">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="Effect.TentacleAttackDamage.Start; At Target" Send="Create"/>
+    </CActorModel>
+    <CModel id="AcidPool" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Zerg\L2D_AcidPool\L2D_AcidPool.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="BioDischargeMissile" parent="MissileFX">
+        <Model value="Assets\Effects\Zerg\L2D_SpotterMissile\L2D_SpotterMissile.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="HeadbuttShockwave" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Zerg\L2D_StankShockwave\L2D_StankShockwave.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="HunterlingAirDeath" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_HunterlingAirDeath\L2D_HunterlingAirDeath.m3"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+    </CModel>
+    <CModel id="HunterlingPortrait" parent="Portrait" Race="Zerg">
+        <Model value="Assets\Portraits\Zerg\L2D_HunterlingPortrait\L2D_HunterlingPortrait.m3"/>
+    </CModel>
+    <CModel id="KaboomerPortrait" parent="Portrait" Race="Zerg">
+        <Model value="Assets\Portraits\Zerg\L2D_KaboomerPortrait\L2D_KaboomerPortrait.m3"/>
+        <Lighting value="OverlordPortrait"/>
+    </CModel>
+    <CModel id="LeapImpactModel" parent="ImpactFX">
+        <Model value="Assets\Effects\Zerg\L2D_HunterlingPounceImpact\L2D_HunterlingPounceImpact.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="HeadbuttDaze" parent="BuffFX">
+        <Model value="Assets\Effects\Zerg\UnitStunImpact\UnitStunImpact.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="HeatbuttSplat" parent="Splat">
+        <Model value="Assets\Splats\Splat_ZerglingBurrowed\Splat_ZerglingBurrowed.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+        <VariationCount value="3"/>
+        <ScaleMax value="2.500000,2.500000,2.500000"/>
+        <ScaleMin value="2.500000,2.500000,2.500000"/>
+    </CModel>
+    <CModel id="KaboomerAcidDebuff" parent="BuffFX">
+        <Model value="Assets\Effects\Zerg\L2D_AcidDrips\L2D_AcidDrips.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="KaboomerDeath" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_KaboomerDeath\L2D_KaboomerDeath.m3"/>
+        <Occlusion value="Show"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+    </CModel>
+    <CModel id="Hunterling" parent="Unit" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_Hunterling\L2D_Hunterling.m3"/>
+        <Occlusion value="Show"/>
+        <Radius value="0.300000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <TechPurchaseCamera value="Star2CameraMid05"/>
+        <UnitGlossaryCamera value="Star2CameraMid05"/>
+        <PlanetPanelCamera value="Star2CameraMid05"/>
+        <SelectionRadius value="0.441400"/>
+        <ShadowRadius value="0.441400"/>
+        <Tipability value="0.750000"/>
+        <TipabilityLength value="0.400000"/>
+        <TipabilityWidth value="0.400000"/>
+    </CModel>
+    <CModel id="HunterlingUpgrade" parent="Unit" Race="Zerg">
+        <Model value="Assets\Units\Zerg\ZerglingUpgrade\ZerglingUpgrade.m3"/>
+        <AttachProps Id="Ref_Weapon Left">
+            <Keys index="Weapon" value="1"/>
+            <Keys index="Work" value="0"/>
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon Right">
+            <Keys index="Weapon" value="1"/>
+        </AttachProps>
+        <Occlusion value="Show"/>
+        <Radius value="0.300000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <TechPurchaseCamera value="Star2CameraMid05"/>
+        <UnitGlossaryCamera value="Star2CameraMid05"/>
+        <PlanetPanelCamera value="Star2CameraMid05"/>
+        <ScaleMax value="1.400000,1.400000,1.400000"/>
+        <ScaleMin value="1.400000,1.400000,1.400000"/>
+        <SelectionRadius value="0.441400"/>
+        <ShadowRadius value="0.441400"/>
+        <Tipability value="0.750000"/>
+        <TipabilityLength value="0.400000"/>
+        <TipabilityWidth value="0.400000"/>
+    </CModel>
+    <CModel id="Kaboomer" parent="Unit" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_Kaboomer\L2D_Kaboomer.m3"/>
+        <Occlusion value="Show"/>
+        <Radius value="0.400000"/>
+        <TechPurchaseCamera value="Star2CameraMid04"/>
+        <UnitGlossaryCamera value="Star2CameraMid04"/>
+        <PlanetPanelCamera value="Star2CameraMid04"/>
+        <ScaleMax value="2.100000,2.100000,2.100000"/>
+        <ScaleMin value="2.100000,2.100000,2.100000"/>
+        <SelectionRadius value="0.468700"/>
+        <ShadowRadius value="0.468700"/>
+        <Tipability value="0.750000"/>
+        <TipabilityLength value="0.600000"/>
+        <TipabilityWidth value="0.600000"/>
+    </CModel>
+    <CModel id="HunterlingJumpLandDownModel" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Terran\ReaperJumpLandDown\ReaperJumpLandDown.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="HunterlingJumpLaunchModel" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Terran\ReaperJumpLaunch\ReaperJumpLaunch.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="SpewMissile" parent="MissileFX">
+        <Model value="Assets\Effects\Zerg\L2D_KaboomerMissile\L2D_KaboomerMissile.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="Spotter" parent="Unit" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_Spotter\L2D_Spotter.m3"/>
+        <Occlusion value="Show"/>
+        <Radius value="0.900000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <TechPurchaseCamera value="Star2CameraLow08"/>
+        <UnitGlossaryCamera value="Star2CameraLow08"/>
+        <PlanetPanelCamera value="Star2CameraLow08"/>
+        <ScaleMax value="1.300000,1.300000,1.300000"/>
+        <ScaleMin value="1.300000,1.300000,1.300000"/>
+        <SelectionOffset value="0.000000,0.000000,-0.700000"/>
+        <SelectionRadius value="1.000000"/>
+        <ShadowRadius value="1.000000"/>
+        <Tipability value="0.050000"/>
+    </CModel>
+    <CModel id="SpotterDeath" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_SpotterDeath\L2D_SpotterDeath.m3"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="ZergExplosionTiny"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="ZergExplosionSmall"/>
+            <Type value="Sound"/>
+            <Time value="0.166600"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="ZergExplosionMedium"/>
+            <Type value="Sound"/>
+            <Time value="0.833300"/>
+        </Events>
+        <Events>
+            <Anim value="Death,01"/>
+            <Name value="ZergExplosionSmall"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+        </Events>
+        <Events>
+            <Anim value="Death,01"/>
+            <Name value="ZergExplosionMedium"/>
+            <Type value="Sound"/>
+            <Time value="0.833300"/>
+        </Events>
+        <LowQualityModel value="ZergLargeUnitDeathLow"/>
+    </CModel>
+    <CModel id="SpotterPortrait" parent="Portrait" Race="Zerg">
+        <Model value="Assets\Portraits\Zerg\L2D_SpotterPortrait\L2D_SpotterPortrait.m3"/>
+        <Lighting value="OverseerPortrait"/>
+    </CModel>
+    <CModel id="Stank" parent="Unit" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_Stank\L2D_Stank.m3"/>
+        <Occlusion value="Show"/>
+        <Radius value="1.250000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <TechPurchaseCamera value="Star2CameraHigh13"/>
+        <UnitGlossaryCamera value="Star2CameraHigh13"/>
+        <PlanetPanelCamera value="Star2CameraHigh13"/>
+        <Events>
+            <Anim value="Attack,00"/>
+            <Name value="UltraliskAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+        </Events>
+        <Events>
+            <Anim value="Attack,00"/>
+            <Name value="UltraliskAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.160000"/>
+        </Events>
+        <Events>
+            <Anim value="Attack,01"/>
+            <Name value="UltraliskAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.040000"/>
+        </Events>
+        <Events>
+            <Anim value="Attack,01"/>
+            <Name value="UltraliskAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.160000"/>
+        </Events>
+        <Events>
+            <Anim value="Spell,A"/>
+            <Name value="UltraliskAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.020000"/>
+        </Events>
+        <Events>
+            <Anim value="Spell,A"/>
+            <Name value="UltraliskAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.190000"/>
+        </Events>
+        <Events Anim="Spell,00" Name="UltraliskRoar" Type="Sound"/>
+        <Events>
+            <Anim value="Spell,00"/>
+            <Name value="UltraliskHeadAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.550000"/>
+        </Events>
+        <Events>
+            <Anim value="Spell,01"/>
+            <Name value="UltraliskHeadAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.450000"/>
+        </Events>
+        <Events>
+            <Anim value="Spell,01"/>
+            <Name value="UltraliskAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.400000"/>
+        </Events>
+        <Events>
+            <Anim value="Spell,01"/>
+            <Name value="UltraliskAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.490000"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="Stank_Footsteps"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Stank_Footsteps"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="Stank_Footsteps"/>
+            <Type value="Sound"/>
+            <Time value="0.466000"/>
+            <Payload value="Stank_Footsteps"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,Left,00"/>
+            <Name value="Stank_Footsteps"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Stank_Footsteps"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,Left,00"/>
+            <Name value="Stank_Footsteps"/>
+            <Type value="Sound"/>
+            <Time value="0.466000"/>
+            <Payload value="Stank_Footsteps"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,Right,00"/>
+            <Name value="Stank_Footsteps"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Stank_Footsteps"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,Right,00"/>
+            <Name value="Stank_Footsteps"/>
+            <Type value="Sound"/>
+            <Time value="0.466000"/>
+            <Payload value="Stank_Footsteps"/>
+        </Events>
+        <Events>
+            <Anim value="Fidget,00"/>
+            <Name value="Stank_VxFx_Fidget_2"/>
+            <Type value="Sound"/>
+            <Time value="2.723000"/>
+            <Payload value="Stank_VxFx_Fidget_2"/>
+        </Events>
+        <Events>
+            <Anim value="Fidget,00"/>
+            <Name value="Stank_VxFx_Fidget_1"/>
+            <Type value="Sound"/>
+            <Time value="0.052000"/>
+            <Payload value="Stank_VxFx_Fidget_1"/>
+        </Events>
+        <ScaleMax value="1.200000,1.200000,1.200000"/>
+        <ScaleMin value="1.200000,1.200000,1.200000"/>
+        <SelectionRadius value="1.176200"/>
+        <ShadowRadius value="1.176200"/>
+        <Tipability value="0.750000"/>
+        <TipabilityLength value="1.000000"/>
+        <TipabilityWidth value="1.000000"/>
+    </CModel>
+    <CModel id="HunterlingDeath" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_HunterlingDeath\L2D_HunterlingDeath.m3"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+        <Occlusion value="Show"/>
+    </CModel>
+    <CModel id="HunterlingDeathAcid" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_HunterlingDeath\L2D_HunterlingDeath.m3"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+        <Occlusion value="Show"/>
+    </CModel>
+    <CModel id="HunterlingDeathEviscerate" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_HunterlingDeath\L2D_HunterlingDeath.m3"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+        <Occlusion value="Show"/>
+        <Variations>
+            <Number value="0"/>
+            <Probability value="0"/>
+            <Radius value="0.000000"/>
+            <RadiusLoose value="0.000000"/>
+        </Variations>
+        <Variations>
+            <Number value="0"/>
+            <Probability value="0"/>
+            <Radius value="0.000000"/>
+            <RadiusLoose value="0.000000"/>
+        </Variations>
+    </CModel>
+    <CModel id="HunterlingDeathFire" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_HunterlingDeath\L2D_HunterlingDeath.m3"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+        <Occlusion value="Show"/>
+    </CModel>
+    <CModel id="StankBugSwarm" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Zerg\L2D_StankBugSwarm\L2D_StankBugSwarm.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="StankDeath" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_StankDeath\L2D_StankDeath.m3"/>
+        <LowQualityModel value="ZergLargeUnitDeathLow"/>
+        <Occlusion value="Show"/>
+        <VariationCount value="2"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Stank_BodyFall"/>
+            <Type value="Sound"/>
+            <Time value="2.218000"/>
+            <Payload value="Stank_BodyFall"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Stank_Explode_Splatter"/>
+            <Type value="Sound"/>
+            <Time value="0.645000"/>
+            <Payload value="Stank_Explode_Splatter"/>
+        </Events>
+    </CModel>
+    <CModel id="StankDeathAcid" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\UltraliskDeathAcid\UltraliskDeathAcid.m3"/>
+        <LowQualityModel value="ZergLargeUnitDeathLow"/>
+        <Occlusion value="Show"/>
+    </CModel>
+    <CModel id="StankDeathFire" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\UltraliskDeathFire\UltraliskDeathFire.m3"/>
+        <LowQualityModel value="ZergLargeUnitDeathLow"/>
+        <Occlusion value="Show"/>
+    </CModel>
+    <CModel id="StankPortrait" parent="Portrait" Race="Zerg">
+        <Model value="Assets\Portraits\Zerg\L2D_StankPortrait\L2D_StankPortrait.m3"/>
+        <Lighting value="UltraliskPortrait"/>
+    </CModel>
+    <CModel id="ToxicGoopSpill" parent="MissileFX">
+        <Model value="Assets\Effects\Zerg\L2D_SpotterDripLaunch\L2D_SpotterDripLaunch.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="HunterlingLeapStun" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Zerg\UnitStunImpact\UnitStunImpact.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="ChokerDeath" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_ChokerDeath\L2D_ChokerDeath.m3"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+    </CModel>
+    <CModel id="ChokerDeathFire" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_ChokerDeathFire\L2D_ChokerDeathFire.m3"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+    </CModel>
+    <CModel id="ChokerPortrait" parent="Portrait" Race="Zerg">
+        <Model value="Assets\Portraits\Zerg\L2D_ChokerPortrait\L2D_ChokerPortrait.m3"/>
+    </CModel>
+    <CModel id="SpitMissile" parent="MissileFX">
+        <Model value="Assets\Effects\Zerg\L2D_SpotterMissile\L2D_SpotterMissile.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="ChokerTentacle" parent="PersistentSpellFX">
+        <Model value="Assets\Units\Zerg\L2D_ChokerSiphon\L2D_ChokerSiphon.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="ChokerTentacleAttackStunModel" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Zerg\UnitStunImpact\UnitStunImpact.m3"/>
+    </CModel>
+    <CModel id="ChokerTentacleDamageModel" parent="ImpactFX">
+        <Model value="Assets\Effects\Zerg\InfestorSiphonImpact\InfestorSiphonImpact.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="Choker" parent="Unit" Race="Zerg">
+        <Model value="Assets\Units\Zerg\L2D_Choker\L2D_Choker.m3"/>
+        <Occlusion value="Show"/>
+        <Radius value="0.800000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <TechPurchaseCamera value="Star2CameraMid09"/>
+        <UnitGlossaryCamera value="Star2CameraMid09"/>
+        <PlanetPanelCamera value="Star2CameraMid09"/>
+        <SelectionRadius value="1.029000"/>
+        <ShadowRadius value="0.800000"/>
+        <Tipability value="0.750000"/>
+        <TipabilityLength value="1.000000"/>
+        <TipabilityWidth value="0.600000"/>
+    </CModel>
+    <CWeaponLegacy id="HunterlingClaws">
+        <EditorCategories value="Race:Zerg"/>
+        <Options index="Melee" value="1"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-meleeattacks-level0.dds"/>
+        <DisplayEffect value="HunterlingClawsDamage"/>
+        <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="0.1"/>
+        <Period value="0.696"/>
+        <Effect value="HunterlingClawsDamage"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="Spew">
+        <EditorCategories value="Race:Zerg"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-missileattacks-level0.dds"/>
+        <DisplayEffect value="KaboomerAcidDamage"/>
+        <TargetFilters value="Ground;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="2.5"/>
+        <Period value="5.5"/>
+        <DamagePoint value="0"/>
+        <Backswing value="0"/>
+        <Effect value="SpewCreatePersistent"/>
+        <LegacyOptions index="KeepChanneling" value="1"/>
+        <LegacyOptions index="Uninterruptible" value="1"/>
+        <RandomDelayMin value="0"/>
+        <RandomDelayMax value="0"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="StankKaiserBlades">
+        <EditorCategories value="Race:Zerg"/>
+        <Options index="Melee" value="1"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-meleeattacks-level0.dds"/>
+        <DisplayEffect value="CleaveAttackDamage"/>
+        <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AcquirePrioritization value="ByAngle"/>
+        <Range value="0.75"/>
+        <Period value="0.861"/>
+        <DamagePoint value="0.3332"/>
+        <Effect value="CleaveAttackSet"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="BioDischarge">
+        <EditorCategories value="Race:Zerg"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-airattacks-level0.dds"/>
+        <DisplayEffect value="BioDischargeDamage"/>
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="4"/>
+        <Period value="1.5246"/>
+        <DamagePoint value="0"/>
+        <Effect value="BioDischargeLaunchMissile"/>
+        <AllowedMovement value="Slowing"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="Spit">
+        <EditorCategories value="Race:Zerg"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-missileattacks-level0.dds"/>
+        <DisplayEffect value="SpitDamage"/>
+        <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="8"/>
+        <Period value="1.5246"/>
+        <DamagePoint value="0"/>
+        <Effect value="SpitLaunchMissile"/>
+        <AllowedMovement value="Slowing"/>
+    </CWeaponLegacy>
+    <CMoverMissile id="SpitMissile">
+        <HeightMap value="Air"/>
+        <MotionPhases>
+            <Driver value="Guidance"/>
+            <Acceleration value="3200"/>
+            <MaxSpeed value="12"/>
+            <Outro value="-1"/>
+            <YawPitchRoll value="719.2968"/>
+        </MotionPhases>
+        <MotionPhases YawPitchRoll="MAX"/>
+    </CMoverMissile>
+    <CMoverMissile id="Spew">
+        <HeightMap value="Air"/>
+        <MotionPhases>
+            <Driver value="Ballistic"/>
+            <Acceleration value="3200"/>
+            <MaxSpeed value="18.75"/>
+            <Gravity value="10"/>
+            <Outro value="-1"/>
+            <YawPitchRoll value="719.2968"/>
+            <FlightTime value="1,-1"/>
+        </MotionPhases>
+    </CMoverMissile>
+    <CMoverMissile id="HunterlingLeapAttackMover">
+        <MotionPhases>
+            <Driver value="Ballistic"/>
+            <Acceleration value="-1"/>
+            <Gravity value="10"/>
+            <ClearanceLookahead value="3"/>
+            <RotationActorType value="Upright"/>
+            <YawPitchRoll value="MAX"/>
+            <FlightTime value="2"/>
+        </MotionPhases>
+    </CMoverMissile>
+    <CMoverMissile id="LaunchTargetToAPathableLocationSlow">
+        <Flags index="IgnoreMovementSuppression" value="1"/>
+        <MotionPhases>
+            <Driver value="Guidance"/>
+            <Acceleration value="3200"/>
+            <MaxSpeed value="3"/>
+            <ClearanceAcceleration value="75"/>
+            <Outro value="-1"/>
+            <RotationActorType value="Upright"/>
+            <YawPitchRoll value="719.2968"/>
+        </MotionPhases>
+        <MotionPhases YawPitchRoll="MAX"/>
+        <RotationIgnoredByUnit value="1"/>
+    </CMoverMissile>
+    <CSound id="Event_Stank_Intro_VxFx" parent="Scripted_2D_Multichannel">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_WhateverRoar.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Slivan_Vox_DeathRoar.wav" FacialGroup=""/>
+        <DupeDestroyCount value="6"/>
+        <DupeMuteCount value="6"/>
+        <Pitch value="-4.000000,-2.000000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+        <Volume value="-6.000000,-4.000000"/>
+    </CSound>
+    <CSound id="Stank_BodyFall" parent="Death">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Kraith_BodyFall_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_BodyFall_2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_BodyFall_3.wav" FacialGroup=""/>
+        <Pitch value="-3.000000,0.000000"/>
+        <Volume value="-2.000000,-1.000000"/>
+    </CSound>
+    <CSound id="Left2Die_Hunterling_Amb_Trigger" parent="Alert">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Ambience01.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Ambience02.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Ambience03.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Ambience04.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Ambience05.wav"/>
+        <Category value="UI"/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <SpeakerMix index="Center" value="0.500000"/>
+        <SpeakerMix index="BackLeft" value="0.700000"/>
+        <SpeakerMix index="BackRight" value="0.700000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+    </CSound>
+    <CSound id="Left2Die_Kaboomer_Amb_Trigger" parent="Alert">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience01.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience02.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience03.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience04.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience05.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience06.wav"/>
+        <Category value="UI"/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <Volume value="-6.000000,-4.000000"/>
+        <SpeakerMix index="Center" value="0.500000"/>
+        <SpeakerMix index="BackLeft" value="0.700000"/>
+        <SpeakerMix index="BackRight" value="0.700000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="Left2Die_Spotter_Amb_Trigger" parent="Alert">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Spotter_Ambience01.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Spotter_Ambience02.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Spotter_Ambience03.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Spotter_Ambience04.wav"/>
+        <Category value="UI"/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <Pitch value="-1.000000,0.000000"/>
+        <Volume value="-9.000000,-7.000000"/>
+        <SpeakerMix index="Center" value="0.500000"/>
+        <SpeakerMix index="BackLeft" value="0.700000"/>
+        <SpeakerMix index="BackRight" value="0.700000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+        <Chance value="50"/>
+    </CSound>
+    <CSound id="Left2Die_Stank_Amb_Trigger" parent="Alert">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Stank_Ambience01.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Stank_Ambience02.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Stank_Ambience03.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Stank_Ambience04.wav"/>
+        <AssetArray File="Assets\Sounds\Stank_VxFx_Snarl_01.wav" FacialGroup=""/>
+        <Category value="UI"/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <Pitch value="-1.000000,0.000000"/>
+        <Volume value="0.000000,0.000000"/>
+        <SpeakerMix index="Center" value="0.500000"/>
+        <SpeakerMix index="BackLeft" value="0.700000"/>
+        <SpeakerMix index="BackRight" value="0.700000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+    </CSound>
+    <CSound id="Stank_VxFx_Fidget_1" parent="Ambience_Object">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_SlowLowMv.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_WhateverRoar.wav" Pitch="-3.000000,-3.000000" FacialGroup=""/>
+        <Pitch value="-4.000000,-3.000000"/>
+        <Volume value="-4.000000,-2.000000"/>
+    </CSound>
+    <CSound id="Stank_Explode_Splatter" parent="Zerg_ExplosionLarge">
+        <AssetArray index="0" File="Assets\Sounds\Kraith_DieHit_GoreSplatter_1.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="1" File="Assets\Sounds\Kraith_DieHit_GoreSplatter_2.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="2" File="Assets\Sounds\Kraith_DieHit_Gore_2.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="3" File="Assets\Sounds\Brakk_Meat_Splats_2.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="4" File="Assets\Sounds\Brakk_Meat_Splats_3.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Brakk_Meat_Splats_4.wav" FacialGroup=""/>
+        <Pitch value="-4.000000,-2.000000"/>
+        <SustainFade index="1" Time="1000"/>
+    </CSound>
+    <CSound id="Stank_Death_Roar" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Kraith_DeathRoar_00.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SnowBeast_Death_05.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SnowBeast_Death_06.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SnowBeast_Death_07.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SnowBeast_Death_08.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SnowBeast_Death_09.wav" FacialGroup=""/>
+        <DupeDestroyCount value="6"/>
+        <DupeMuteCount value="6"/>
+        <Pitch value="-3.000000,1.000000"/>
+        <Spread value="20.000000"/>
+        <Volume value="3.000000,3.000000"/>
+    </CSound>
+    <CSound id="Stank_VxFx_Fidget_2" parent="Ambience_Object">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_Snort_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_Snort_2.wav" FacialGroup=""/>
+        <Pitch value="-8.000000,-8.000000"/>
+        <Volume value="-4.000000,-2.000000"/>
+    </CSound>
+    <CSound id="Stank_BugSwarm" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Evo_SwarmHost_Base_AmbLoop_2.ogg" FacialGroup=""/>
+        <DupeDestroyCount value="2"/>
+        <DupeMuteCount value="2"/>
+        <Spread value="20.000000"/>
+        <Volume value="-18.000000,-14.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="22.000000" Volume="-96.000000"/>
+        <LoopCount value="-1"/>
+        <Pitch value="-1.690000,1.310000"/>
+        <Flags index="Stream" value="1"/>
+    </CSound>
+    <CSound id="Stank_Footsteps" parent="Brutalisk_Footsteps">
+        <Pitch value="-2.000000,0.000000"/>
+        <Volume value="-14.000000,-12.000000"/>
+    </CSound>
+    <CSound id="Left2DieMarine_Kaboomer" parent="Campaign">
+        <AssetArray index="0">
+            <File value="LocalizedData\Sounds\TerranUnitVO\Left2DieMarine\Left2Die_Marine_01.ogg"/>
+            <Weight value="75"/>
+            <FacialAnim value="Left2Die_Marine_01"/>
+            <PortraitModel value="Marine3Portrait"/>
+            <Speaker value="ConversationState/Left2DieCharacters/Left2DieMarine"/>
+            <Subtitle value="Conversation/Left2DieMarine/Line00001"/>
+        </AssetArray>
+        <AssetArray>
+            <File value="LocalizedData\Sounds\TerranUnitVO\Left2DieMarine\Left2Die_Marine_02.ogg"/>
+            <Weight value="25"/>
+            <FacialAnim value="Left2Die_Marine_02"/>
+            <PortraitModel value="Marine3Portrait"/>
+            <Speaker value="ConversationState/Left2DieCharacters/Left2DieMarine"/>
+            <Subtitle value="Conversation/Left2DieMarine/Line00002"/>
+        </AssetArray>
+        <EditorCategories value="Race:Terran"/>
+    </CSound>
+    <CSound id="Left2DieMarine_Hunterling" parent="Campaign">
+        <AssetArray index="0">
+            <File value="LocalizedData\Sounds\TerranUnitVO\Left2DieMarine\Left2Die_Marine_03.ogg"/>
+            <Weight value="75"/>
+            <FacialAnim value="Left2Die_Marine_03"/>
+            <PortraitModel value="Marine3Portrait"/>
+            <Speaker value="ConversationState/Left2DieCharacters/Left2DieMarine"/>
+            <Subtitle value="Conversation/Left2DieMarine/Line00003"/>
+        </AssetArray>
+        <AssetArray>
+            <File value="LocalizedData\Sounds\TerranUnitVO\Left2DieMarine\Left2Die_Marine_04.ogg"/>
+            <Weight value="25"/>
+            <FacialAnim value="Left2Die_Marine_04"/>
+            <PortraitModel value="Marine3Portrait"/>
+            <Speaker value="ConversationState/Left2DieCharacters/Left2DieMarine"/>
+            <Subtitle value="Conversation/Left2DieMarine/Line00004"/>
+        </AssetArray>
+        <EditorCategories value="Race:Terran"/>
+    </CSound>
+    <CSound id="Left2DieMarine_Spotter" parent="Campaign">
+        <AssetArray index="0">
+            <File value="LocalizedData\Sounds\TerranUnitVO\Left2DieMarine\Left2Die_Marine_05.ogg"/>
+            <Weight value="75"/>
+            <FacialAnim value="Left2Die_Marine_05"/>
+            <PortraitModel value="Marine3Portrait"/>
+            <Speaker value="ConversationState/Left2DieCharacters/Left2DieMarine"/>
+            <Subtitle value="Conversation/Left2DieMarine/Line00005"/>
+        </AssetArray>
+        <AssetArray>
+            <File value="LocalizedData\Sounds\TerranUnitVO\Left2DieMarine\Left2Die_Marine_06.ogg"/>
+            <Weight value="25"/>
+            <FacialAnim value="Left2Die_Marine_06"/>
+            <PortraitModel value="Marine3Portrait"/>
+            <Speaker value="ConversationState/Left2DieCharacters/Left2DieMarine"/>
+            <Subtitle value="Conversation/Left2DieMarine/Line00006"/>
+        </AssetArray>
+        <EditorCategories value="Race:Terran"/>
+    </CSound>
+    <CSound id="Left2DieMarine_Stank" parent="Campaign">
+        <AssetArray index="0">
+            <File value="LocalizedData\Sounds\TerranUnitVO\Left2DieMarine\Left2Die_Marine_09.ogg"/>
+            <Weight value="75"/>
+            <FacialAnim value="Left2Die_Marine_09"/>
+            <PortraitModel value="Marine3Portrait"/>
+            <Speaker value="ConversationState/Left2DieCharacters/Left2DieMarine"/>
+            <Subtitle value="Conversation/Left2DieMarine/Line00009"/>
+        </AssetArray>
+        <AssetArray>
+            <File value="LocalizedData\Sounds\TerranUnitVO\Left2DieMarine\Left2Die_Marine_10.ogg"/>
+            <Weight value="25"/>
+            <FacialAnim value="Left2Die_Marine_10"/>
+            <PortraitModel value="Marine3Portrait"/>
+            <Speaker value="ConversationState/Left2DieCharacters/Left2DieMarine"/>
+            <Subtitle value="Conversation/Left2DieMarine/Line00010"/>
+        </AssetArray>
+        <EditorCategories value="Race:Terran"/>
+    </CSound>
+    <CSound id="Left2Die_Hunterling_Ambience" parent="Ambience_Object">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Ambience01.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Ambience02.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Ambience03.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Ambience04.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Ambience05.wav"/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <Pitch value="-1.000000,1.000000"/>
+    </CSound>
+    <CSound id="Left2Die_Kaboomer_Ambience" parent="Ambience_Object">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience01.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience02.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience03.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience04.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience05.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Ambience06.wav"/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="35.000000" Volume="-96.000000"/>
+        <Pitch value="-1.000000,1.000000"/>
+    </CSound>
+    <CSound id="Left2Die_Spotter_Ambience" parent="Ambience_Object">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Spotter_Ambience01.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Spotter_Ambience02.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Spotter_Ambience03.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Spotter_Ambience04.wav"/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <Pitch value="-1.000000,0.000000"/>
+        <Volume value="-10.000000,-7.000000"/>
+    </CSound>
+    <CSound id="Left2Die_Stank_Ambience" parent="Ambience_Object">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Stank_VxFx_Snarl_01.wav" Volume="-4.000000,-4.000000" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_Impact_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_InhaleExert_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_InhaleExert_2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_InhaleExert_3.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_InhaleExert_4.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_LowGuteralMv_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_PostImpact_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_Snort_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_Snort_2.wav" FacialGroup=""/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <Volume value="-3.000000,0.000000"/>
+        <Pitch value="-6.000000,-2.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="40.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="Left2Die_Hunterling_Attack_Vx" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Attack01.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Attack02.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Attack03.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Hunterling_Attack04.ogg"/>
+    </CSound>
+    <CSound id="Left2Die_Kaboomer_Attack" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Attack01.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Attack02.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Attack03.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Kaboomer_Attack04.ogg"/>
+    </CSound>
+    <CSound id="Left2Die_Stank_Attack" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Stank_Attack01.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Stank_Attack02.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Stank_Attack03.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Stank_Attack04.ogg"/>
+        <Pitch value="-1.000000,0.000000"/>
+    </CSound>
+    <CSound id="Kaboomer_Suicide" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Baneling\Baneling_Suicide0.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Baneling\Baneling_Suicide1.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Baneling\Baneling_Suicide2.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Baneling\Baneling_Suicide3.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Baneling\Baneling_Suicide4.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Baneling\Baneling_Suicide5.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Baneling\Baneling_Suicide6.wav"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="Hunterling_JumpLand" parent="Movement">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray>
+            <File value="Assets\Sounds\Evolutions_Karak_JumpLand_Foley_A.wav"/>
+            <Pitch value="-3.000000,-3.000000"/>
+            <Volume value="3.000000,3.000000"/>
+            <FacialGroup value=""/>
+        </AssetArray>
+        <AssetArray>
+            <File value="Assets\Sounds\Evolutions_Karak_JumpLand_Foley_B.wav"/>
+            <Pitch value="-3.000000,-3.000000"/>
+            <Volume value="3.000000,3.000000"/>
+            <FacialGroup value=""/>
+        </AssetArray>
+        <AssetArray File="Assets\Sounds\Viper_Land_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Viper_Land_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Viper_Land_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Viper_Land_04.wav" FacialGroup=""/>
+        <DupeDestroyCount value="4"/>
+        <Pitch value="-0.890000,0.840000"/>
+        <Volume value="-2.000000,0.000000"/>
+    </CSound>
+    <CSound id="Hunterling_JumpLaunch" parent="Movement">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_What1.ogg"/>
+        <AssetArray File="Assets\Sounds\Evolutions_Karak_JumpAttack.wav" FacialGroup=""/>
+        <DupeDestroyCount value="4"/>
+        <Pitch value="-1.000000,1.000000"/>
+        <Volume value="-2.000000,-1.000000"/>
+    </CSound>
+    <CSound id="Hunterling_AttackImpact" parent="Zerg_AttackImpactSmallPierce">
+        <Pitch value="-2.000000,2.000000"/>
+        <Volume value="-8.000000,-6.000000"/>
+    </CSound>
+    <CSound id="Hunterling_AttackLaunch" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch0.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch1.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch10.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch11.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch12.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch13.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch14.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch15.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch2.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch3.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch4.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch5.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch6.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch7.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch8.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Zergling\Zergling_AttackLaunch9.wav"/>
+        <DupeDestroyCount value="4"/>
+        <Pitch value="-0.890000,0.840000"/>
+        <VariationMinimum value="8"/>
+        <Volume value="-3.560000,-2.560000"/>
+    </CSound>
+    <CSound id="Hunterling_Explode" parent="Zerg_ExplosionSmall">
+        <AssetArray index="0" File="Assets\Sounds\Zerg\SharedEffects\Explosions\Zerg_ExplosionSmall0.wav" Pitch="-3.000000,6.000000" Volume="-3.000000,0.000000"/>
+        <AssetArray index="1" File="Assets\Sounds\Zerg\SharedEffects\Explosions\Zerg_ExplosionSmall1.wav" Pitch="-3.000000,6.000000" Volume="-3.000000,0.000000"/>
+    </CSound>
+    <CSound id="SpewImpact" parent="Spell">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Infestor\Infestor_PlagueAttackImpact0.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Zerg\Infestor\Infestor_PlagueAttackImpact1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Zerg\Infestor\Infestor_PlagueAttackImpact2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_NewEmerge_Slime_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_NewEmerge_Slime_2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_NewEmerge_Slime_3.wav" FacialGroup=""/>
+        <DupeDestroyCount value="6"/>
+        <DupeMuteCount value="6"/>
+        <Pitch value="-2.000000,1.000000"/>
+        <SustainFade index="1" Time="1500"/>
+        <Volume value="-4.000000,-2.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="Hunterling_DeathFXEviscerate" parent="Uni_DeathFXEviscerate">
+        <EditorCategories value="Race:Zerg"/>
+        <Pitch value="-1.000000,1.000000"/>
+        <Volume value="-4.000000,-2.000000"/>
+    </CSound>
+    <CSound id="Hunterling_DeathFXFire" parent="Uni_DeathFXFire">
+        <EditorCategories value="Race:Zerg"/>
+        <Volume value="-2.000000,-1.000000"/>
+    </CSound>
+    <CSound id="Stank_Explode" parent="Zerg_ExplosionLarge">
+        <AssetArray index="0" File="Assets\Sounds\Slivan_DeathBlow_1.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="1" File="Assets\Sounds\Slivan_DeathBlow_1a.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="2" File="Assets\Sounds\Slivan_DeathBlow_2a.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="3" File="Assets\Sounds\Brakk_DeathBlow_1.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="4" File="Assets\Sounds\Brakk_DeathBlow_2.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <Pitch value="-3.000000,0.000000"/>
+        <Volume value="-4.000000,-4.000000"/>
+    </CSound>
+    <CSound id="Stank_AttackLaunch" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Ultralisk\Ultralisk_AttackLaunch0.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Ultralisk\Ultralisk_AttackLaunch1.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Ultralisk\Ultralisk_AttackLaunch2.wav"/>
+        <Volume value="-1.100000,0.900000"/>
+        <Pitch value="-2.000000,1.000000"/>
+    </CSound>
+    <CSound id="Stank_HeadAttackImpact" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Kraith_RockHit_1.wav" Volume="2.000000,2.000000" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_RockHit_2.wav" Volume="2.000000,2.000000" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_RockImpact_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_RockImpact_2.wav" FacialGroup=""/>
+        <Pitch value="-2.810000,0.180000"/>
+        <DupeDestroyCount value="6"/>
+        <DupeMuteCount value="6"/>
+        <Spread value="10.000000"/>
+        <Volume value="1.000000,2.000000"/>
+    </CSound>
+    <CSound id="Stank_HeadAttackRoar" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_Attack_2.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_Charge_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_Charge_2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_Growl_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kraith_Vox_Snarl_1.wav" FacialGroup=""/>
+        <Pitch value="-2.000000,1.000000"/>
+        <DupeDestroyCount value="6"/>
+        <DupeMuteCount value="6"/>
+        <Volume value="-6.000000,-4.000000"/>
+    </CSound>
+    <CSound id="Left2Die_Choker_Amb_Trigger" parent="Alert">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Ambience01.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Ambience02.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Ambience03.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Ambience05.wav"/>
+        <AssetArray File="Assets\Sounds\Choker_Vx_Utter_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Choker_Vx_Utter_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Choker_Vx_Utter_03.wav" FacialGroup=""/>
+        <Category value="UI"/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <Pitch value="-3.000000,1.000000"/>
+        <Volume value="-8.000000,-3.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+        <SpeakerMix index="Center" value="0.500000"/>
+        <SpeakerMix index="BackLeft" value="0.700000"/>
+        <SpeakerMix index="BackRight" value="0.700000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+    </CSound>
+    <CSound id="Left2Die_Choker_Ambience" parent="Ambience_Object">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Ambience01.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Ambience02.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Ambience03.wav"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Ambience05.wav"/>
+        <AssetArray File="Assets\Sounds\Choker_Vx_Utter_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Choker_Vx_Utter_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Choker_Vx_Utter_03.wav" FacialGroup=""/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <Volume value="-8.000000,-3.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="35.000000" Volume="-96.000000"/>
+        <Pitch value="-3.000000,1.000000"/>
+    </CSound>
+    <CSound id="Left2Die_Choker_Attack" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Attack01.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Attack02.ogg"/>
+        <AssetArray File="Assets\Sounds\Left2Die_Choker_Attack03.ogg"/>
+        <AssetArray File="Assets\Sounds\Choker_Vx_Utter_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Choker_Vx_Utter_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Choker_Vx_Utter_03.wav" FacialGroup=""/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="4"/>
+        <Pitch value="-3.000000,1.000000"/>
+        <Volume value="-4.000000,-2.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="SpitImpact" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged0.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged1.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged2.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged3.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged4.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged5.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged6.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged7.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged8.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged9.wav"/>
+        <Volume value="-12.980000,-11.040000"/>
+        <Pitch value="-2.000000,1.000000"/>
+    </CSound>
+    <CSound id="SpitLaunch" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged0.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged1.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged2.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged3.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged4.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged5.wav"/>
+        <DupeDestroyCount value="4"/>
+        <Pitch value="-2.000000,1.000000"/>
+        <Volume value="-9.980000,-6.980000"/>
+        <DupeMuteCount value="6"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="ChokerTentacleAttackImpact" parent="Spell">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Infestor\Infestor_NeuralParasiteAttackImpact0.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Zerg\Infestor\Infestor_NeuralParasiteAttackImpact1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Zerg\Infestor\Infestor_NeuralParasiteAttackImpact2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_NewEmerge_Slime_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_NewEmerge_Slime_2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_NewEmerge_Slime_3.wav" FacialGroup=""/>
+        <Pitch value="-2.000000,1.000000"/>
+        <Select value="Random"/>
+        <Volume value="-3.000000,-1.000000"/>
+    </CSound>
+    <CSound id="ChokerTentacleDamage" parent="Spell">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Infestor\Infestor_PlagueAttackImpact0.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Zerg\Infestor\Infestor_PlagueAttackImpact1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Zerg\Infestor\Infestor_PlagueAttackImpact2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_MissleSplash_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_MissleSplash_2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_MissleSplash_3.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_MissleSplash_4.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_MissleSplash_5.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_MissleSplash_6.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_MissleSplash_7.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CreepTumor_MissleSplash_8.wav" FacialGroup=""/>
+        <Volume value="-6.800000,-3.800000"/>
+        <DupeDestroyCount value="3"/>
+        <DupeMuteCount value="3"/>
+        <Pitch value="-4.000000,-1.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="26.000000" Volume="-96.000000"/>
+    </CSound>
+    <CUnit id="SNARE_PLACEHOLDER" parent="PLACEHOLDER">
+        <FlagArray index="Undetectable" value="1"/>
+        <FlagArray index="Unradarable" value="1"/>
+        <FlagArray index="ShowResources" value="0"/>
+        <FlagArray index="Unstoppable" value="1"/>
+        <FlagArray index="PlayerRevivable" value="0"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Height value="1"/>
+        <BehaviorArray Link="DelayedRemove"/>
+    </CUnit>
+    <CUnit id="Choker">
+        <DeathRevealRadius value="3"/>
+        <Race value="Zerg"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="AIThreatGround" value="1"/>
+        <FlagArray index="AIThreatAir" value="1"/>
+        <FlagArray index="AISplash" value="1"/>
+        <FlagArray index="AIHighPrioTarget" value="1"/>
+        <FlagArray index="AICaster" value="1"/>
+        <FlagArray index="AIPressForwardDisabled" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <LifeStart value="1000"/>
+        <LifeMax value="1000"/>
+        <LifeArmor value="3"/>
+        <LifeRegenRate value="0.2734"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergGroundArmor"/>
+        <Speed value="2.5"/>
+        <SpeedMultiplierCreep value="1.3"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46"/>
+        <Sight value="10"/>
+        <Food value="-3"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="100"/>
+        <CostResource index="Vespene" value="150"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="TentacleAttack"/>
+        <AbilArray Link="attack"/>
+        <BehaviorArray Link="Detector11"/>
+        <WeaponArray Link="Spit"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="AcquireMove" Type="AbilCmd" AbilCmd="move,AcquireMove" Row="0" Column="4"/>
+            <LayoutButtons Face="TentacleAttack" Type="AbilCmd" AbilCmd="TentacleAttack,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="0.875"/>
+        <InnerRadius value="0.5"/>
+        <CargoSize value="2"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="19"/>
+        <MinimapRadius value="1.5"/>
+        <TacticalAIThink value="libAB231903_gf_AIChokerAI"/>
+        <GlossaryCategory value="Unit/Category/ZergUnits"/>
+        <GlossaryPriority value="80"/>
+        <KillDisplay value="Always"/>
+    </CUnit>
+    <CUnit id="Hunterling">
+        <DeathRevealRadius value="3"/>
+        <Race value="Zerg"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Colossus" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="LocustForceField" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <LifeStart value="1000"/>
+        <LifeMax value="1000"/>
+        <LifeArmor value="2"/>
+        <LifeRegenRate value="0.2734"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergGroundArmor"/>
+        <Mover value="CliffJumper"/>
+        <Speed value="2.9531"/>
+        <SpeedMultiplierCreep value="1.3"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <Sight value="8"/>
+        <Food value="-1"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="25"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="LeapAttack"/>
+        <!--AbilArray Link="LeapAttackMorphToFlyingForm"/>
+        <AbilArray Link="LeapAttackMorphToNormalForm"/-->
+        <BehaviorArray Link="Detector11"/>
+        <BehaviorArray Link="HunterlingJump"/>
+        <WeaponArray Link="HunterlingClaws"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="LeapAttack" Type="AbilCmd" AbilCmd="LeapAttack,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="8"/>
+        <MinimapRadius value="1.5"/>
+        <TacticalAIThink value="libAB231903_gf_AIHunterlingAI"/>
+        <GlossaryCategory value="Unit/Category/ZergUnits"/>
+        <GlossaryPriority value="20"/>
+        <KillDisplay value="Always"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+            <ChanceArray index="Turn" value="33"/>
+        </Fidget>
+        <TauntDuration index="Cheer" value="5"/>
+        <TauntDuration index="Dance" value="5"/>
+    </CUnit>
+    <CUnit id="HunterlingLeaping">
+        <DeathRevealRadius value="3"/>
+        <ReviveType value="Hunterling"/>
+        <Race value="Zerg"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <LifeStart value="1000"/>
+        <LifeMax value="1000"/>
+        <LifeRegenRate value="0.2734"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergGroundArmor"/>
+        <Mover value="Fly"/>
+        <Speed value="2.9531"/>
+        <SpeedMultiplierCreep value="1.3"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <Sight value="8"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="25"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="LeapAttack"/>
+        <AbilArray Link="LeapAttackMorphToFlyingForm"/>
+        <AbilArray Link="LeapAttackMorphToNormalForm"/>
+        <BehaviorArray Link="Leaping"/>
+        <BehaviorArray Link="Detector11"/>
+        <WeaponArray Link="HunterlingClaws"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="LeapAttack" Type="AbilCmd" AbilCmd="LeapAttack,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="8"/>
+        <MinimapRadius value="1.5"/>
+        <TacticalAI value="Hunterling"/>
+        <LeaderAlias value="Hunterling"/>
+        <SelectAlias value="Hunterling"/>
+        <SubgroupAlias value="Hunterling"/>
+        <GlossaryCategory value="Unit/Category/ZergUnits"/>
+        <GlossaryPriority value="20"/>
+        <KillDisplay value="Always"/>
+        <AIEvaluateAlias value="Hunterling"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+            <ChanceArray index="Turn" value="33"/>
+        </Fidget>
+        <TauntDuration index="Cheer" value="5"/>
+        <TauntDuration index="Dance" value="5"/>
+        <LifeArmor value="2"/>
+        <Food value="-1"/>
+    </CUnit>
+    <CUnit id="Kaboomer">
+        <DeathRevealRadius value="3"/>
+        <Facing value="45"/>
+        <Race value="Zerg"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AISplash" value="1"/>
+        <FlagArray index="AIHighPrioTarget" value="1"/>
+        <FlagArray index="AIFleeDamageDisabled" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <LifeStart value="1500"/>
+        <LifeMax value="1500"/>
+        <LifeArmor value="2"/>
+        <LifeRegenRate value="0.2734"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergGroundArmor"/>
+        <Speed value="1.1015"/>
+        <SpeedMultiplierCreep value="1.3"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <Sight value="8"/>
+        <Food value="-2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="25"/>
+        <CostResource index="Vespene" value="25"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="attack"/>
+        <BehaviorArray Link="Detector11"/>
+        <WeaponArray Link="Spew"/>
+        <EffectArray index="Death" value="ExplodeSearchArea"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="1"/>
+        <InnerRadius value="0.375"/>
+        <CargoSize value="2"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="16"/>
+        <MinimapRadius value="1.5"/>
+        <AIEvalFactor value="3"/>
+        <GlossaryCategory value="Unit/Category/ZergUnits"/>
+        <GlossaryPriority value="30"/>
+        <KillDisplay value="Always"/>
+    </CUnit>
+    <CUnit id="HunterlingPlaceholder" parent="PLACEHOLDER">
+        <DeathRevealRadius value="3"/>
+        <Race value="Zerg"/>
+        <Collide index="Structure" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <SeparationRadius value="0.375"/>
+        <MinimapRadius value="1.5"/>
+        <LeaderAlias value=""/>
+        <LifeArmor value="1"/>
+    </CUnit>
+    <CUnit id="SpewMissile" parent="MISSILE_INVULNERABLE">
+        <Race value="Zerg"/>
+        <Mover value="Spew"/>
+    </CUnit>
+    <CUnit id="Spotter">
+        <DeathRevealRadius value="3"/>
+        <Facing value="45"/>
+        <Race value="Zerg"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <LifeStart value="1000"/>
+        <LifeMax value="1000"/>
+        <LifeArmor value="3"/>
+        <LifeRegenRate value="0.2734"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergAirArmor"/>
+        <Mover value="Colossus"/>
+        <Speed value="1.875"/>
+        <Acceleration value="2.125"/>
+        <LateralAcceleration value="46.0625"/>
+        <Sight value="12"/>
+        <Height value="3.75"/>
+        <VisionHeight value="4"/>
+        <Food value="-2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="100"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="SpotterCorruption"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="HybridGeneralPhaseShift"/>
+        <BehaviorArray Link="Detector11"/>
+        <BehaviorArray Link="SpotterAuraBuff"/>
+        <WeaponArray Link="BioDischarge"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="AcquireMove" Type="AbilCmd" AbilCmd="move,AcquireMove" Row="0" Column="4"/>
+            <LayoutButtons Face="CorruptionAbility" Type="AbilCmd" AbilCmd="SpotterCorruption,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="Detector" Type="Passive" Row="1" Column="4"/>
+            <LayoutButtons Face="HybridGeneralPhaseShift" Type="AbilCmd" AbilCmd="HybridGeneralPhaseShift,Execute" Row="2" Column="1"/>
+        </CardLayouts>
+        <SeparationRadius value="0.75"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="11"/>
+        <MinimapRadius value="1.5"/>
+        <TacticalAIThink value="libAB231903_gf_AISpotterAI"/>
+        <AIEvalFactor value="0"/>
+        <GlossaryCategory value="Unit/Category/ZergUnits"/>
+        <GlossaryPriority value="120"/>
+    </CUnit>
+    <CUnit id="Stank">
+        <DeathRevealRadius value="3"/>
+        <Race value="Zerg"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TurnBeforeMove" value="1"/>
+        <FlagArray index="AISplash" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Colossus" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Massive" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <LifeStart value="3500"/>
+        <LifeMax value="3500"/>
+        <LifeArmor value="4"/>
+        <LifeRegenRate value="0.2734"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergGroundArmor"/>
+        <Speed value="2"/>
+        <SpeedMultiplierCreep value="1.3"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <TurningRate value="360"/>
+        <Sight value="9"/>
+        <Food value="-12"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="300"/>
+        <CostResource index="Vespene" value="200"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="Headbutt"/>
+        <BehaviorArray Link="Detector9"/>
+        <WeaponArray Link="StankKaiserBlades"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="AcquireMove" Type="AbilCmd" AbilCmd="move,AcquireMove" Row="0" Column="4"/>
+            <LayoutButtons Face="Headbutt" Type="AbilCmd" AbilCmd="Headbutt,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="Detector" Type="Passive" Row="1" Column="4"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="1"/>
+        <InnerRadius value="0.75"/>
+        <CargoSize value="8"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="12"/>
+        <MinimapRadius value="1.5"/>
+        <TacticalAIThink value="libAB231903_gf_AIStankAI"/>
+        <GlossaryCategory value="Unit/Category/ZergUnits"/>
+        <GlossaryPriority value="90"/>
+        <KillDisplay value="Always"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="50"/>
+            <ChanceArray index="Idle" value="50"/>
+        </Fidget>
+        <TauntDuration index="Cheer" value="5"/>
+        <TauntDuration index="Dance" value="5"/>
+    </CUnit>
+    <CUnit id="BioDischargeMissile" parent="MISSILE_HALFLIFE">
+        <Race value="Zerg"/>
+    </CUnit>
+    <CUnit id="SpitMissile" parent="MISSILE_HALFLIFE">
+        <Race value="Zerg"/>
+    </CUnit>
+    <CUnit id="TentacleMissile" parent="MISSILE_INVULNERABLE">
+        <Race value="Zerg"/>
+        <Mover value="MissileDefault"/>
+    </CUnit>
+    <CBehaviorBuff id="TentacleAttackAirSnare">
+        <Modification>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <PlaneDelta index="Ground" value="1"/>
+            <PlaneDelta index="Air" value="-1"/>
+        </Modification>
+        <InitialEffect value="TentacleAirAttackLaunchTargetToAPathableLocationPrecursor"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <RemoveValidatorArray value="CasterNotDead"/>
+        <BehaviorCategories index="Stun" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="TentacleAttackAirSnareReheightBehavior">
+        <FinalEffect value="TentacleAirAttackReheightSourceCreatePlaceholder"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <RemoveValidatorArray value="CasterNotDead"/>
+        <BehaviorCategories index="Stun" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="TentacleAirAttackPrecursorReheightSource"/>
+    <CBehaviorBuff id="HeadbuttDaze">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-zerg-frenzied.dds"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Modification MoveSpeedBonus="10">
+            <StateFlags index="Stun" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorJump id="HunterlingJump">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <TriggerHeightDeltaMin value="1.5"/>
+        <TriggerHeightDeltaMax value="4.5"/>
+        <InitiateRangeUp value="1.5"/>
+        <InitiateRangeDown value="0.5"/>
+        <JumpRangeMax value="12"/>
+        <Mover value="CliffJumper"/>
+        <MoverUp value="ReaperJumpDown"/>
+        <MoverDown value="ReaperJumpDown"/>
+        <DurationPreLaunch value="0.05"/>
+        <DurationPostLand value="0.075"/>
+        <DurationMoveOut value="0.08"/>
+        <Placeholder value="HunterlingPlaceholder"/>
+        <LandAdjustmentDown value="1"/>
+        <LandArrivalRange value="0.05"/>
+        <LandCheckRadius value="5"/>
+    </CBehaviorJump>
+    <CBehaviorBuff id="ImmobilizeKaboomer">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Modification>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="SpawnPuddleOnDeath">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Modification>
+            <DeathResponse Chance="1" Effect="SpawnPuddleOnDeathSet"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ToxicAcid">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-zerg-explode.dds"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="3"/>
+        <Period value="0.5"/>
+        <InitialEffect value="KaboomerAcidDamage"/>
+        <PeriodicEffect value="KaboomerAcidDamage"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="LeapAttacking">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Modification>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <StateFlags index="SuppressCollision" value="1"/>
+            <AbilLinkDisableArray value="move"/>
+            <WeaponDisableArray value="HunterlingClaws"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="LeapStun">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-zerg-swarmseeds.dds"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Modification>
+            <ModifyFlags index="DisableAbils" value="1"/>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="LeapHunterlingStun">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-ultrasonicpulse.dds"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="5"/>
+        <Modification>
+            <StateFlags index="Stun" value="1"/>
+            <StateFlags index="SuppressAttack" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="Leaping">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Modification Height="3" MoveSpeedBonus="3">
+            <StateFlags index="SuppressCollision" value="1"/>
+            <HeightTime index="Start" value="0.25"/>
+            <HeightTime index="Stop" value="0.375"/>
+        </Modification>
+        <FinalEffect value="LeapApplyLandingBehavior"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ToxicGoop">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Period value="0.5"/>
+        <PeriodicEffect value="ToxicGoopSearchArea"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="SpotterAuraBuff">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <DisableValidatorArray value="NotOracleStasisTrapped"/>
+        <Period value="1"/>
+        <PeriodicEffect value="SpotterAuraSearch"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="SpotterAura">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-domination.dds"/>
+        <BehaviorCategories index="User13" value="1"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Duration value="1.5"/>
+        <Modification MoveSpeedBonus="1">
+            <VitalRegenArray index="Life" value="2"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ChokedDisableAbils">
+        <Alignment value="Negative"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <BehaviorCategories index="Stun" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <RemoveValidatorArray value="TargetHasChokedDebuff"/>
+        <Modification>
+            <ModifyFlags index="DisableAbils" value="1"/>
+            <AbilClassEnableArray index="CAbilMorph" value="1"/>
+            <AbilClassEnableArray index="CAbilMorphPlacement" value="1"/>
+            <AbilLinkEnableArray value="TorrasqueChrysalis"/>
+            <AbilLinkEnableArray value="TorrasqueCorpse"/>
+            <AbilLinkEnableArray value="ZealotPurifierReviveDeath"/>
+            <AbilLinkEnableArray value="ZealotPurifierReviveRebuild"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="Choked">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-zerg-leech.dds"/>
+        <BehaviorCategories index="User15" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Period value="0.5"/>
+        <InitialEffect value="TentacleAttackChokedInitialEffectsSet"/>
+        <PeriodicEffect value="TentacleAttackDamage"/>
+        <FinalEffect value="ChokePreventApplyBehavior"/>
+        <RemoveValidatorArray value="ChokerValidators"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ChokePrevent">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="10"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="InitialTentacleChannel">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="TentacleEnRoute">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="1.5"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="TentaclesActive">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <MaxStackCount value="0"/>
+    </CBehaviorBuff>
+</Catalog>

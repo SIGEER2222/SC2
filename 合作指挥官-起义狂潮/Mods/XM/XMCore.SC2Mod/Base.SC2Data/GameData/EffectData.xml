@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectLaunchMissile default="1">
+        <ValidatorArray index="0" removed="1"/>
+    </CEffectLaunchMissile>
+    <CEffectModifyPlayer default="1" id="Upgrade">
+        <EditorCategories value="Race:Terran"/>
+        <Upgrades Upgrade="##id##" Count="1"/>
+    </CEffectModifyPlayer>
+    <CEffectMorph default="1" id="MorphEffect">
+        <Name value="Effect/Name/MorphEffect"/>
+        <MorphFlags index="IgnoreFacing" value="1"/>
+        <MorphFlags index="IgnorePlacement" value="1"/>
+        <AbilKeyFallback value="##id##"/>
+    </CEffectMorph>
+    <CEffectCancelOrder id="COCA">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+    </CEffectCancelOrder>
+    <CEffectIssueOrder id="CasterBurrowDown">
+        <WhichUnit Value="Caster"/>
+        <Abil value="BurrowZerglingDown"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="GlazeShadowStart">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectSet id="GlazeShadowStop">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectIssueOrder id="IOSS">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Source"/>
+        <Abil value="stop"/>
+    </CEffectIssueOrder>
+    <CEffectRemoveBehavior id="RemoveAllDebuffs">
+        <EditorCategories value=""/>
+        <BehaviorAlignment value="Negative"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreateHealer id="Repair">
+        <ValidatorArray value="NotMinorGoal"/>
+    </CEffectCreateHealer>
+    <CEffectModifyUnit id="SalvageNow">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <ModifyFlags index="Salvage" value="1"/>
+        <SalvageFactor>
+            <Resource index="Minerals" value="-1"/>
+            <Resource index="Vespene" value="-1"/>
+            <Resource index="Terrazine" value="-1"/>
+            <Resource index="Custom" value="-1"/>
+        </SalvageFactor>
+    </CEffectModifyUnit>
+    <CEffectDamage id="SporeCrawlerU">
+        <AttributeBonus index="Biological" value="10"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="StartingVitalsC">
+        <EditorCategories value=""/>
+        <ModifyFlags index="StartingVitals" value="1"/>
+        <ImpactUnit Value="Caster"/>
+    </CEffectModifyUnit>
+    <CEffectAddTrackedUnit id="SOAPointAT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAStickyPointT"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectApplyBehavior id="SOAPointFinAB">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="SOAPointFin"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SOAPointFinSet">
+        <EditorCategories value=""/>
+        <EffectArray value="SOAPointT"/>
+        <EffectArray value="SOAPointRB"/>
+        <EffectArray value="SOAPointFinAB"/>
+        <EffectArray value="SOAPointRT"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SOAPointPreAB">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="SOAPointPre"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="KillT">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <Flags index="NoBehaviorResponse" value="1"/>
+    </CEffectDamage>
+    <CEffectDamage id="Damage0">
+        <EditorCategories value=""/>
+        <Flags index="NoBehaviorResponse" value="1"/>
+        <Flags index="NoZeroDamageInherit" value="1"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="AutoHarvestVespene6">
+        <EditorCategories value=""/>
+        <Resources value="-6"/>
+        <ResourcesHarvestedFraction value="1"/>
+    </CEffectModifyUnit>
+    <CEffectSet id="SOAPointFinPoint">
+        <EditorCategories value=""/>
+        <EffectArray value="SOAPointTT"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectEnumArea id="SOAPointPreS">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Structure,Missile,Stasis,Dead,Hidden"/>
+        <AreaArray Radius="5" Effect="SOAPointPreSet"/>
+        <MinCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="SOAPointPreSet">
+        <ValidatorArray value="SOAPointFilter"/>
+        <EditorCategories value=""/>
+        <EffectArray value="SOAPointAT"/>
+        <EffectArray value="SOAPointPreAB"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="SOAPointRB">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAPointPre"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveTrackedUnit id="SOAPointRT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAStickyPointT"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectRemoveTrackedUnit>
+    <CEffectTeleport id="SOAPointT">
+        <EditorCategories value=""/>
+        <PlacementArc value="360"/>
+        <PlacementAround Effect="SOAPointFinPoint"/>
+        <SourceLocation Value="CasterPoint"/>
+        <TargetLocation Effect="SOAPointFinPoint" Value="TargetPoint"/>
+    </CEffectTeleport>
+    <CEffectEnumTrackedUnits id="SOAPointTT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAStickyPointT"/>
+        <Effect value="SOAPointFinSet"/>
+    </CEffectEnumTrackedUnits>
+    <CEffectSet id="SOAStickyUnit">
+        <EditorCategories value=""/>
+        <ValidatorArray value="SOAStickyUnitNB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SOAStickyUnitABC">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="SOAStickyUnit"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="SOAStickyUnitAB">
+        <EditorCategories value=""/>
+        <Behavior value="SOAStickyUnit"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="SOAStickyUnitABTC">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="SOAStickyUnitT"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="SOAStickyUnitABT">
+        <EditorCategories value=""/>
+        <Behavior value="SOAStickyUnitT"/>
+    </CEffectApplyBehavior>
+    <CEffectAddTrackedUnit id="SOAStickyUnitATT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAStickyUnitT"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectAddTrackedUnit id="SOAStickyUnitATC">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAStickyUnitT"/>
+        <TrackerUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectDamage id="EAAbsorbed">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetUnit"/>
+        <Amount value="0">
+            <AccumulatorArray value="EAAbsorbed"/>
+        </Amount>
+    </CEffectDamage>
+    <CEffectRemoveBehavior id="SOAStickyUnitRBT">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Source"/>
+        <BehaviorLink value="SOAStickyUnitT"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="SOAStickyUnitSet">
+        <EditorCategories value=""/>
+        <EffectArray value="SOAStickyUnitABTC"/>
+        <EffectArray value="SOAStickyUnitATT"/>
+        <EffectArray value="SOAStickyUnitABC"/>
+        <EffectArray value="SOAStickyUnitABT"/>
+        <EffectArray value="SOAStickyUnitATC"/>
+        <EffectArray value="SOAStickyUnitAB"/>
+    </CEffectSet>
+    <CEffectEnumTrackedUnits id="SOAStickyUnitTT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAStickyUnitT"/>
+        <Effect value="EAAbsorbed"/>
+        <TrackerUnit Value="Source"/>
+    </CEffectEnumTrackedUnits>
+    <CEffectModifyUnit id="StartingVitalsT">
+        <EditorCategories value=""/>
+        <ModifyFlags index="StartingVitals" value="1"/>
+    </CEffectModifyUnit>
+    <CEffectSet id="StickyLine">
+        <EditorCategories value=""/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="InvincibleMorphAB">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="InvincibleMorph"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="InvincibleMorphFinal">
+        <EditorCategories value=""/>
+        <EffectArray value="FullHeal"/>
+        <EffectArray value="InvincibleMorphRB"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="InvincibleMorphRB">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="InvincibleMorph"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="TDropPodModelG">
+        <EditorCategories value=""/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="VeterancyC10">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <XP value="10"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="VeterancyC100">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <XP value="100"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="VeterancyT10">
+        <EditorCategories value=""/>
+        <XP value="10"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="VeterancyC20">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <XP value="20"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="VeterancyC50">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <XP value="50"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="VeterancyT20">
+        <EditorCategories value=""/>
+        <XP value="20"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="VeterancyT50">
+        <EditorCategories value=""/>
+        <XP value="50"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="VeterancyT100">
+        <EditorCategories value=""/>
+        <XP value="100"/>
+    </CEffectModifyUnit>
+    <CEffectSet id="ZDropPodModelG">
+        <EditorCategories value=""/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectCreateHealer id="heal">
+        <ValidatorArray index="1" value="HiddenCompareAB"/>
+        <ValidatorArray index="2" value="HiddenCompareBA"/>
+        <ValidatorArray index="3" value="NotVortexd"/>
+        <ValidatorArray index="4" value="NotMinorGoal"/>
+        <ValidatorArray index="5" removed="1"/>
+    </CEffectCreateHealer>
+    <CEffectSwitch id="AutoHarvestVespeneSW">
+        <EditorCategories value=""/>
+        <CaseArray Validator="HaveRichVespeneGeyser" Effect="AutoHarvestVespeneAB6"/>
+        <CaseDefault value="AutoHarvestVespeneAB4"/>
+    </CEffectSwitch>
+    <CEffectApplyBehavior id="AutoHarvestVespeneAB4">
+        <EditorCategories value=""/>
+        <Behavior value="AutoHarvestVespeneProtoss4"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="AutoHarvestVespeneAB6">
+        <EditorCategories value=""/>
+        <Behavior value="AutoHarvestVespeneProtoss6"/>
+    </CEffectApplyBehavior>
+</Catalog>

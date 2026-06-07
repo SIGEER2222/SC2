@@ -1,0 +1,925 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectEnumArea id="MutatorInfestedTurkeyTerrifyingGobbleSE">
+        <EditorCategories value=""/>
+        <AreaArray Radius="11" Effect="MutatorInfestedTurkeyTerrifyingGobbleAB"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinCount value="4"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="MutatorInfestedTurkeyTerrifyingGobbleAB">
+        <EditorCategories value=""/>
+        <Behavior value="MutatorInfestedTurkeyTerrifyingGobble"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="MutatorTurkeyPeckDamage" parent="DU_WEAP">
+        <Amount value="8"/>
+        <AttributeBonus index="Structure" value="8"/>
+    </CEffectDamage>
+    <CEffectDamage id="MutatorInfestedTurkeyDisgustingSpewDamage" parent="DU_WEAP">
+        <Death value="Disintegrate"/>
+        <AttributeBonus index="Structure" value="70"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="MutatorInfestedTurkeyDisgustingSpewLM">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="MutatorInfestedTurkeyDisgustingSpewDamage"/>
+        <AmmoUnit value="MutatorInfestedTurkeyDisgustingSpewWeapon"/>
+        <!--AmmoUnit value="AcidSalivaWeapon"/>
+        <ValidatorArray index="0" value="RoachLMTargetFilters"/-->
+    </CEffectLaunchMissile>
+    <CEffectDamage id="MutatorTurkingPeckOfJudgementDamage" parent="DU_WEAP">
+        <Amount value="250"/>
+        <AreaArray Radius="0.4" Fraction="1"/>
+        <AttributeBonus index="Structure" value="250"/>
+        <ExcludeArray Value="TargetOuter"/>
+    </CEffectDamage>
+    <CAbilEffectInstant id="MutatorInfestedTurkeyTerrifyingGobble">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="MutatorInfestedTurkeyTerrifyingGobbleSE"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="30"/>
+        </Cost>
+        <AutoCastRange value="11"/>
+        <PrepTime value="2.5"/>
+        <AutoCastFilters value="-;Player,Ally,Neutral,Structure,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable"/>
+        <ShowProgressArray index="Prep" value="1"/>
+        <UninterruptibleArray index="Prep" value="1"/>
+        <ProgressButtonArray index="Prep" value="MutatorInfestedTurkeyTerrifyingGobble"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="MutatorInfestedTurkeyTerrifyingGobble"/>
+    </CAbilEffectInstant>
+    <CButton id="MutatorInfestedTurkeyTerrifyingGobble">
+        <Icon value="Assets\Textures\fearex3_coop.dds"/>
+        <AlertIcon value="Assets\Textures\fearex3_coop.dds"/>
+        <EditorCategories value="Race:Neutral"/>
+    </CButton>
+    <CActorUnit id="MutatorTurkey" parent="GenericUnitCritter" unitName="MutatorTurkey">
+        <Aliases value="_UnitSmall"/>
+        <!--On Terms="ActorCreation" Send="$Birth 0 0.000000"/-->
+        <On Terms="Behavior.CarrionBirdFlee.On" Send="AnimBracketStart FlyAway Stand,Unpowered,End Stand,Unpowered Stand,Unpowered,Start ClosingFull"/>
+        <On Terms="Behavior.CarrionBirdFlee.Off" Send="AnimBracketStop FlyAway"/>
+        <On Terms="Effect.Suicide.Start" Send="Create CritterExplosion"/>
+        <On Terms="ActorCreation" Send="HaloStart"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Birth"/>
+        <DeathArray index="Normal" ModelLink="Turkey_Minion_Death" SoundLink="Mutator_Turkey_Death_Small"/>
+        <PortraitModel value="CarrionBirdPortrait"/>
+        <WalkAnimMoveSpeed value="2.5"/>
+        <BarOffset value="40"/>
+        <BarWidth value="36"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-critter-turkeyminion.dds"/>
+        </GroupIcon>
+        <SoundArray index="What" value="CarrionBird2_What"/>
+        <SoundArray index="Yes" value="CarrionBird2_What"/>
+        <SoundArray index="Attack" value="CarrionBird2_What"/>
+        <SoundArray index="Pissed" value="CarrionBird2_What"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <StatusBarFlags index="Magazine" value="0"/>
+        <UnitIcon value="Assets\Textures\Wireframe-critter-turkeyminion.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-critter-turkeyminion.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+    </CActorUnit>
+    <CActorSound id="MutatorTurkeyAttachLaunch_Vocal" parent="SoundOneShot">
+        <Sound value="TurkeyAttackLaunch_Vocal"/>
+        <On Terms="WeaponStart.MutatorTurkeyPeck" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="MutatorTurkeyAttachLaunch" parent="SoundOneShot">
+        <On Terms="WeaponStart.MutatorTurkeyPeck" Send="Create"/>
+        <Sound value="MutatorTurkeyAttackLaunch"/>
+    </CActorSound>
+    <CActorSound id="MutatorInfestedTurkeyAttachLaunch" parent="SoundOneShot">
+        <On Terms="WeaponStart.MutatorInfestedTurkeyDisgustingSpew" Send="Create"/>
+        <Sound value="MutatorInfestedTurkeyAttackLaunch"/>
+    </CActorSound>
+    <CActorUnit id="MutatorInfestedTurkey" parent="GenericUnitCritter" unitName="MutatorInfestedTurkey">
+        <Remove Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStart.MutatorInfestedTurkeyDisgustingSpew.AttackStart" Send="AnimBracketStart Attack Attack,A"/>
+        <On Terms="Behavior.CarrionBirdFlee.On" Send="AnimBracketStart FlyAway Stand,Unpowered,End Stand,Unpowered Stand,Unpowered,Start ClosingFull"/>
+        <On Terms="Behavior.CarrionBirdFlee.Off" Send="AnimBracketStop FlyAway"/>
+        <On Terms="Effect.Suicide.Start" Send="Create CritterExplosion"/>
+        <!--On Terms="ActorCreation" Send="$Birth 0 0.000000"/-->
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Birth"/>
+        <On Terms="ActorCreation" Send="Create MutatorInfestedTurkeyModelAddition"/>
+        <Aliases value="_UnitSmall"/>
+        <DeathArray index="Normal" ModelLink="Turkey_Infested_Minion_Death" SoundLink="Zerg_ExplosionSmall"/>
+        <PortraitModel value="CarrionBirdPortrait"/>
+        <WalkAnimMoveSpeed value="2.5"/>
+        <BarOffset value="60"/>
+        <BarWidth value="48"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-critter-turkeyinfestedminion.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <SoundArray index="What" value="CarrionBird2_What"/>
+        <SoundArray index="Yes" value="CarrionBird2_What"/>
+        <SoundArray index="Attack" value="CarrionBird2_What"/>
+        <SoundArray index="Pissed" value="CarrionBird2_What"/>
+        <StatusBarFlags index="Charges" value="1"/>
+        <UnitIcon value="Assets\Textures\Wireframe-critter-turkeyinfestedminion.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-critter-turkeyinfestedminion.dds"/>
+        </Wireframe>
+        <StatusBarOn index="Life" value="1"/>
+    </CActorUnit>
+    <CActorMissile id="MutatorInfestedTurkeyDisgustingSpewWeaponMissile" parent="GenericAttackMissile" unitName="MutatorInfestedTurkeyDisgustingSpewWeapon">
+        <HostSiteOps Ops="MutatorInfestedTurkeyDisgustingSpewWeaponMissileOffset"/>
+    </CActorMissile>
+    <CActorSiteOpLocalOffset id="MutatorInfestedTurkeyDisgustingSpewWeaponMissileOffset">
+        <LocalOffset value="0.000000,-0.450000,-0.200000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorAction id="MutatorInfestedTurkeyDisgustingSpewAttack" parent="GenericAttack" effectImpact="MutatorInfestedTurkeyDisgustingSpewDamage" effectLaunch="MutatorInfestedTurkeyDisgustingSpewLM">
+        <LaunchAttachQuery Methods="Weapon 0"/>
+        <LaunchAssets Sound="Roach_AttackLaunchRanged"/>
+        <ImpactMap index="None" Model="RoachMissileImpact" Sound="Roach_AttackImpactRanged"/>
+        <ImpactPhysics Name="AcidSalivaImpact" MatchKeys="Basic" Physics="RoachAttackDeathForce"/>
+        <AcquisitionYawHalfArc value="10.000000"/>
+        <AcquisitionPitchHalfArc value="15.000000"/>
+        <AccuracyHalfArc value="15.000000"/>
+        <Missile value="MutatorInfestedTurkeyDisgustingSpewWeaponMissile"/>
+    </CActorAction>
+    <CActorModel id="MutatorInfestedTurkeyTerrifyingGobble" parent="ModelAnimationStyleContinuous">
+        <On Terms="Behavior.MutatorInfestedTurkeyTerrifyingGobble.On" Send="Create"/>
+        <On Terms="Behavior.MutatorInfestedTurkeyTerrifyingGobble.Off" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+    </CActorModel>
+    <CActorSound id="MutatorInfestedTurkeyTerrifyingGobbleHit" parent="SoundOneShot">
+        <On Terms="Behavior.MutatorInfestedTurkeyTerrifyingGobble.On" Send="Create"/>
+    </CActorSound>
+    <CActorModel id="MutatorInfestedTurkeyModelAddition" parent="ModelAddition">
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorAction id="TurkeyAttack" parent="GenericAttack" effectAttack="MutatorTurkeyPeckDamage">
+        <ImpactAttachQuery Methods="AMFilterTargetVolumes"/>
+        <ImpactMap index="None" Sound="Mutator_Turkey_Impact_Small"/>
+        <ShieldFlashType value="Header"/>
+    </CActorAction>
+    <CActorSound id="MutatorTurkingAttachLaunch" parent="SoundOneShot">
+        <On Terms="WeaponStart.MutatorTurkingPeckOfJudgement" Send="Create"/>
+        <Sound value="MutatorTurkingAttackLaunch"/>
+    </CActorSound>
+    <CActorSound id="MutatorTurkingAttachVocalize" parent="SoundOneShot">
+        <On Terms="WeaponStart.MutatorTurkingPeckOfJudgement" Send="Create"/>
+        <Sound value="MutatorTurkingAttackVocalize"/>
+    </CActorSound>
+    <CActorUnit id="MutatorTurking" parent="GenericUnitCritter" unitName="MutatorTurking">
+        <Aliases value="_UnitSmall"/>
+        <On Terms="Behavior.CarrionBirdFlee.On" Send="AnimBracketStart FlyAway Stand,Unpowered,End Stand,Unpowered Stand,Unpowered,Start ClosingFull"/>
+        <On Terms="Behavior.CarrionBirdFlee.Off" Send="AnimBracketStop FlyAway"/>
+        <On Terms="Effect.Suicide.Start" Send="Create CritterExplosion"/>
+        <!--On Terms="ActorCreation" Send="$Birth 0 0.000000"/-->
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Birth"/>
+        <On Terms="Abil.MutatorInfestedTurkeyTerrifyingGobble.SourcePrepStart" Send="AnimPlay Spell Walk,00"/>
+        <On Terms="Abil.MutatorInfestedTurkeyTerrifyingGobble.SourceCastStop" Send="AnimClear Spell 1.000000"/>
+        <DeathArray index="Normal" ModelLink="Turkey_King_Death" SoundLink="Mutator_Turkey_Death_Large"/>
+        <PortraitModel value="CarrionBirdPortrait"/>
+        <WalkAnimMoveSpeed value="2.5"/>
+        <BarOffset value="90"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-critter-turkeyking.dds"/>
+        </GroupIcon>
+        <!--HighlightTooltip value="Unit/Name/MutatorTurkey"/-->
+        <SoundArray index="What" value="CarrionBird2_What"/>
+        <SoundArray index="Yes" value="CarrionBird2_What"/>
+        <SoundArray index="Attack" value="CarrionBird2_What"/>
+        <SoundArray index="Pissed" value="CarrionBird2_What"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <StatusBarFlags index="Magazine" value="0"/>
+        <UnitIcon value="Assets\Textures\Wireframe-critter-turkeyking.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-critter-turkeyking.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <StatusBarOn index="Life" value="1"/>
+    </CActorUnit>
+    <CActorAction id="TurkingAttack" parent="GenericAttack" effectAttack="MutatorTurkingPeckOfJudgementDamage">
+        <ImpactAttachQuery Methods="AMFilterTargetVolumes"/>
+        <ImpactMap index="None" Sound="MutatorTurkingAttackImpact"/>
+        <ShieldFlashType value="Header"/>
+    </CActorAction>
+    <CModel id="MutatorTurkey" parent="Unit">
+        <Model value="Assets\Units\Critters\Turkey_Minion\Turkey_Minion.m3"/>
+        <Events>
+            <Anim value="Stand,00"/>
+            <Name value="Mutator_Turkey_Peck_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.350000"/>
+            <Payload value="Mutator_Turkey_Peck_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,00"/>
+            <Name value="Mutator_Turkey_Peck_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.475000"/>
+            <Payload value="Mutator_Turkey_Peck_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,00"/>
+            <Name value="Mutator_Turkey_Peck_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.658000"/>
+            <Payload value="Mutator_Turkey_Peck_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.350000"/>
+            <Payload value="Mutator_Turkey_Peck_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.475000"/>
+            <Payload value="Mutator_Turkey_Peck_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.859000"/>
+            <Payload value="Mutator_Turkey_Peck_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Small"/>
+            <Type value="Sound"/>
+            <Time value="1.684000"/>
+            <Payload value="Mutator_Turkey_Peck_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Small"/>
+            <Type value="Sound"/>
+            <Time value="1.834000"/>
+            <Payload value="Mutator_Turkey_Peck_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Small"/>
+            <Type value="Sound"/>
+            <Time value="2.251000"/>
+            <Payload value="Mutator_Turkey_Peck_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="Mutator_Turkey_Flap_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.344000"/>
+            <Payload value="Mutator_Turkey_Flap_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="Mutator_Turkey_Flap_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.613000"/>
+            <Payload value="Mutator_Turkey_Flap_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="Mutator_Turkey_Flap_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.926000"/>
+            <Payload value="Mutator_Turkey_Flap_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="Mutator_Turkey_Flap_Small"/>
+            <Type value="Sound"/>
+            <Time value="1.465000"/>
+            <Payload value="Mutator_Turkey_Flap_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="Mutator_Turkey_Flap_Small"/>
+            <Type value="Sound"/>
+            <Time value="1.661000"/>
+            <Payload value="Mutator_Turkey_Flap_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="Mutator_Turkey_Walk_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.167000"/>
+            <Payload value="Mutator_Turkey_Walk_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="Mutator_Turkey_Walk_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.461000"/>
+            <Payload value="Mutator_Turkey_Walk_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="Mutator_Turkey_Walk_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.731000"/>
+            <Payload value="Mutator_Turkey_Walk_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="Mutator_Turkey_Walk_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.981000"/>
+            <Payload value="Mutator_Turkey_Walk_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.309000"/>
+            <Payload value="Mutator_Turkey_Walk_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.387000"/>
+            <Payload value="Mutator_Turkey_Walk_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.696000"/>
+            <Payload value="Mutator_Turkey_Walk_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Small"/>
+            <Type value="Sound"/>
+            <Time value="0.922000"/>
+            <Payload value="Mutator_Turkey_Walk_Small"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Small"/>
+            <Type value="Sound"/>
+            <Time value="1.236000"/>
+            <Payload value="Mutator_Turkey_Walk_Small"/>
+        </Events>
+    </CModel>
+    <CModel id="MutatorInfestedTurkey" parent="Unit">
+        <Model value="Assets\Units\Critters\Turkey_Infested_Minion\Turkey_Infested_Minion.m3"/>
+    </CModel>
+    <CModel id="MutatorInfestedTurkeyDisgustingSpewWeapon" parent="MissileFX">
+        <Model value="Assets\Effects\Zerg\RoachMissileEx1\RoachMissileEx1.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="MutatorInfestedTurkeyDisgustingSpewWeaponMissileImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Zerg\RoachMissileImpactEx1\RoachMissileImpactEx1.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="MutatorInfestedTurkeyTerrifyingGobble" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Neutral\Fear_Coop\Fear_Coop.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CModel id="MutatorInfestedTurkeyModelAddition" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Zerg\DisablingCloud\DisablingCloud.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+        <RadiusLoose value="0.650000"/>
+        <ScaleMax value="0.100000,0.100000,0.100000"/>
+        <ScaleMin value="0.100000,0.100000,0.100000"/>
+    </CModel>
+    <CModel id="Turkey_Minion_Death" parent="UnitDeath">
+        <Model value="Assets\Units\Critters\Turkey_Minion_Death\Turkey_Minion_Death.m3"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+    </CModel>
+    <CModel id="Turkey_King_Death" parent="UnitDeath">
+        <Model value="Assets\Units\Critters\Turkey_King_Death\Turkey_King_Death.m3"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+    </CModel>
+    <CModel id="Turkey_Infested_Minion_Death" parent="UnitDeath">
+        <Model value="Assets\Units\Critters\Turkey_Infested_Minion_Death\Turkey_Infested_Minion_Death.m3"/>
+        <LowQualityModel value="ZergSmallUnitDeathLow"/>
+    </CModel>
+    <CModel id="TurkeyAttackImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Zerg\RoachWeaponImpact\RoachWeaponImpact.m3"/>
+        <EditorCategories value="Race:Neutral"/>
+    </CModel>
+    <CModel id="MutatorTurking" parent="Unit">
+        <Model value="Assets\Units\Critters\Turkey_King\Turkey_King.m3"/>
+        <Events>
+            <Anim value="Stand,00"/>
+            <Name value="Mutator_Turkey_Peck_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.328000"/>
+            <Payload value="Mutator_Turkey_Peck_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,00"/>
+            <Name value="Mutator_Turkey_Peck_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.469000"/>
+            <Payload value="Mutator_Turkey_Peck_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,00"/>
+            <Name value="Mutator_Turkey_Peck_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.688000"/>
+            <Payload value="Mutator_Turkey_Peck_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.331000"/>
+            <Payload value="Mutator_Turkey_Peck_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.494000"/>
+            <Payload value="Mutator_Turkey_Peck_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.844000"/>
+            <Payload value="Mutator_Turkey_Peck_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Large"/>
+            <Type value="Sound"/>
+            <Time value="1.673000"/>
+            <Payload value="Mutator_Turkey_Peck_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Large"/>
+            <Type value="Sound"/>
+            <Time value="1.813000"/>
+            <Payload value="Mutator_Turkey_Peck_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="Mutator_Turkey_Peck_Large"/>
+            <Type value="Sound"/>
+            <Time value="2.181000"/>
+            <Payload value="Mutator_Turkey_Peck_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="Mutator_Turkey_Walk_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.132000"/>
+            <Payload value="Mutator_Turkey_Walk_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="Mutator_Turkey_Walk_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.930000"/>
+            <Payload value="Mutator_Turkey_Walk_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="Mutator_Turkey_Walk_Large"/>
+            <Type value="Sound"/>
+            <Time value="1.188000"/>
+            <Payload value="Mutator_Turkey_Walk_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.152000"/>
+            <Payload value="Mutator_Turkey_Walk_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.387000"/>
+            <Payload value="Mutator_Turkey_Walk_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.734000"/>
+            <Payload value="Mutator_Turkey_Walk_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.946000"/>
+            <Payload value="Mutator_Turkey_Walk_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Large"/>
+            <Type value="Sound"/>
+            <Time value="1.075000"/>
+            <Payload value="Mutator_Turkey_Walk_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,01"/>
+            <Name value="Mutator_Turkey_Walk_Large"/>
+            <Type value="Sound"/>
+            <Time value="1.282000"/>
+            <Payload value="Mutator_Turkey_Walk_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="Mutator_Turkey_Flap_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.277000"/>
+            <Payload value="Mutator_Turkey_Flap_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="Mutator_Turkey_Flap_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.480000"/>
+            <Payload value="Mutator_Turkey_Flap_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="Mutator_Turkey_Flap_Large"/>
+            <Type value="Sound"/>
+            <Time value="0.809000"/>
+            <Payload value="Mutator_Turkey_Flap_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="Mutator_Turkey_Flap_Large"/>
+            <Type value="Sound"/>
+            <Time value="1.180000"/>
+            <Payload value="Mutator_Turkey_Flap_Large"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="Mutator_Turkey_Flap_Large"/>
+            <Type value="Sound"/>
+            <Time value="1.344000"/>
+            <Payload value="Mutator_Turkey_Flap_Large"/>
+        </Events>
+    </CModel>
+    <CWeaponLegacy id="MutatorTurkeyPeck">
+        <Options index="Melee" value="1"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-meleeattacks-level0.dds"/>
+        <DisplayEffect value="MutatorTurkeyPeckDamage"/>
+        <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="0.1"/>
+        <Marker Link="Weapon/FusionCutter"/>
+        <Cost>
+            <Cooldown Link="Weapon/FusionCutter"/>
+        </Cost>
+        <Period value="1.5"/>
+        <Effect value="MutatorTurkeyPeckDamage"/>
+        <DamagePoint value="0.45"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="MutatorTurkingPeckOfJudgement">
+        <Options index="Melee" value="1"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-meleeattacks-level0.dds"/>
+        <DisplayEffect value="MutatorTurkingPeckOfJudgementDamage"/>
+        <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="1.4"/>
+        <Marker Link="Weapon/FusionCutter"/>
+        <Cost>
+            <Cooldown Link="Weapon/FusionCutter"/>
+        </Cost>
+        <Period value="2"/>
+        <Effect value="MutatorTurkingPeckOfJudgementDamage"/>
+        <DamagePoint value="0.45"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="MutatorInfestedTurkeyDisgustingSpew">
+        <Icon value="Assets\Textures\btn-upgrade-zerg-meleeattacks-level0.dds"/>
+        <DisplayEffect value="MutatorInfestedTurkeyDisgustingSpewDamage"/>
+        <TargetFilters value="Ground,Structure,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Marker Link="Weapon/FusionCutter"/>
+        <Cost>
+            <Cooldown Link="Weapon/FusionCutter"/>
+        </Cost>
+        <Period value="2"/>
+        <Effect value="MutatorInfestedTurkeyDisgustingSpewLM"/>
+        <Range value="6"/>
+        <DamagePoint value="0.45"/>
+    </CWeaponLegacy>
+    <CMoverMissile id="MutatorInfestedTurkeyWeaponMover">
+        <MotionPhases>
+            <Driver value="Guidance"/>
+            <Acceleration value="3200"/>
+            <MaxSpeed value="18.75"/>
+            <Outro value="-1"/>
+            <YawPitchRoll value="719.2968"/>
+        </MotionPhases>
+        <MotionPhases YawPitchRoll="MAX"/>
+    </CMoverMissile>
+    <CSound id="Mutator_Turkey_Death_Large" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_King_Death_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_King_Death_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_King_Death_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_King_Death_04.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-1.000000,1.000000"/>
+        <Volume value="-2.000000,-1.000000"/>
+    </CSound>
+    <CSound id="Mutator_Turkey_Flap_Large" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_04.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_05.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_06.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-3.000000,-1.000000"/>
+        <Volume value="-6.000000,-4.000000"/>
+        <VolumeRolloffPoints Distance="6.000000"/>
+        <VolumeRolloffPoints Distance="12.000000" Volume="-96.000000"/>
+        <Select value="Random"/>
+    </CSound>
+    <CSound id="Mutator_Turkey_Peck_Large" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Peck_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Peck_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Peck_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Peck_04.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-4.000000,-3.000000"/>
+        <Volume value="-10.000000,-8.000000"/>
+        <VolumeRolloffPoints Distance="6.000000"/>
+        <VolumeRolloffPoints Distance="10.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="Mutator_Turkey_Walk_Large" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Walk_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Walk_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Walk_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Walk_04.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-2.000000,-2.000000"/>
+        <Volume value="-8.000000,-6.000000"/>
+        <VolumeRolloffPoints Distance="6.000000"/>
+        <VolumeRolloffPoints Distance="12.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="TurkeyAttackLaunch_Vocal" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Attack_Vocal_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Attack_Vocal_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Attack_Vocal_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Attack_Vocal_04.wav" FacialGroup=""/>
+        <Chance value="20"/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-2.000000,2.000000"/>
+        <Volume value="-5.000000,-2.000000"/>
+    </CSound>
+    <CSound id="Mutator_Turkey_Impact_Small" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Impact_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Impact_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Impact_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Impact_04.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="2.000000,6.000000"/>
+        <Volume value="-15.000000,-13.000000"/>
+    </CSound>
+    <CSound id="Mutator_Turkey_Death_Small" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Death_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Death_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Death_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Death_04.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-1.000000,1.000000"/>
+    </CSound>
+    <CSound id="Mutator_Turkey_Walk_Small" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Walk_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Walk_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Walk_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Walk_04.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <VolumeRolloffPoints Distance="6.000000"/>
+        <VolumeRolloffPoints Distance="12.000000" Volume="-96.000000"/>
+        <Volume value="-8.000000,-6.000000"/>
+    </CSound>
+    <CSound id="Mutator_Turkey_Peck_Small" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Peck_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Peck_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Peck_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Peck_04.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-1.000000,0.000000"/>
+        <Volume value="-10.000000,-8.000000"/>
+        <VolumeRolloffPoints Distance="6.000000"/>
+        <VolumeRolloffPoints Distance="10.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="Mutator_Turkey_Flap_Small" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_04.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_05.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Flap_06.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-1.000000,1.000000"/>
+        <VolumeRolloffPoints Distance="6.000000"/>
+        <VolumeRolloffPoints Distance="12.000000" Volume="-96.000000"/>
+        <Volume value="-8.000000,-6.000000"/>
+        <Select value="Random"/>
+    </CSound>
+    <CSound id="MutatorTurkeyAttackLaunch" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Attack_01.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Attack_02.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Attack_03.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_Attack_04.ogg" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="0.000000,2.000000"/>
+        <Volume value="-10.000000,-6.000000"/>
+    </CSound>
+    <CSound id="MutatorTurkeyKingSpawned" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Mutator_Turkey_King_Spawned_01.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <VolumeRolloffPoints Distance="100.000000"/>
+        <VolumeRolloffPoints Distance="500.000000" Volume="-96.000000"/>
+        <PanLevel value="0.600000"/>
+        <Volume value="2.000000,2.000000"/>
+    </CSound>
+    <CSound id="MutatorInfestedTurkeysSpawnWarning" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\UI_Zerg_Warning_Sweep_1.wav"/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-2.000000,0.000000"/>
+    </CSound>
+    <CSound id="MutatorInfestedTurkeyAttackLaunch" parent="Combat">
+        <EditorCategories value="Race:Neutral"/>
+        <AssetArray File="Assets\Sounds\Uni\Units\Carrion Bird\CarrionBird_What02.ogg"/>
+        <AssetArray File="Assets\Sounds\Uni\Units\Carrion Bird\CarrionBird_What01.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Uni\Units\Carrion Bird\CarrionBird_What03.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Uni\Units\Carrion Bird\CarrionBird_What04.ogg" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-2.000000,0.000000"/>
+    </CSound>
+    <CSound id="MutatorInfestedTurkey_AttackLaunchRanged" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged0.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged1.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged2.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged3.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged4.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackLaunchRanged5.wav"/>
+        <DupeDestroyCount value="4"/>
+        <Pitch value="-1.000000,1.000000"/>
+        <Volume value="-13.980000,-12.040000"/>
+    </CSound>
+    <CSound id="MutatorInfestedTurkey_AttackImpactRanged" parent="Combat">
+        <EditorCategories value="Race:Zerg"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged0.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged1.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged2.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged3.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged4.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged5.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged6.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged7.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged8.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Roach\Roach_AttackImpactRanged9.wav"/>
+        <Pitch value="-1.000000,1.000000"/>
+        <Volume value="-13.980000,-12.040000"/>
+    </CSound>
+    <CSound id="MutatorInfestedTurkeyTerrifyingGobbleHit" parent="Spell">
+        <AssetArray File="Assets\Sounds\Mutator_Infested_Turkey_Terrifying_Gobble_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Infested_Turkey_Terrifying_Gobble_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Infested_Turkey_Terrifying_Gobble_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Mutator_Infested_Turkey_Terrifying_Gobble_04.wav" FacialGroup=""/>
+        <DupeDestroyCount value="1"/>
+        <DupeHistoryCount value="3"/>
+        <DupeMuteCount value="1"/>
+        <OffsetFadeIn Volume="-96.000000"/>
+        <OffsetFadeIn Time="100"/>
+        <Pitch value="0.000000,1.000000"/>
+        <PanLevel value="0.750000"/>
+    </CSound>
+    <CUnit id="MutatorTurkey" parent="Critter">
+        <Description value="Button/Tooltip/CritterMutatorTurkey"/>
+        <ReviveType value="CarrionBird"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Unclickable" value="1"/>
+        <FlagArray index="Destructible" value="1"/>
+        <LifeStart value="50"/>
+        <LifeMax value="50"/>
+        <LifeArmorName value="Unit/LifeArmorName/MutatorTurkey"/>
+        <AbilArray Link="attack"/>
+        <WeaponArray Link="MutatorTurkeyPeck"/>
+        <TacticalAI value="CarrionBird"/>
+        <SelectAlias value="CarrionBird"/>
+        <SubgroupAlias value="CarrionBird"/>
+        <AIEvaluateAlias value="CarrionBird"/>
+        <ReviveInfoBase>
+            <Charge Link="CarrionBird/Revive"/>
+            <Cooldown Link="CarrionBird/Revive"/>
+        </ReviveInfoBase>
+        <!--BehaviorArray Link="MutatorTurkeyBirthBehaviorBuff"/-->
+    </CUnit>
+    <CUnit id="MutatorTurking" parent="Critter">
+        <Description value="Button/Tooltip/CritterMutatorTurkey"/>
+        <ReviveType value="CarrionBird"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Unclickable" value="1"/>
+        <FlagArray index="Destructible" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <Attributes index="MapBoss" value="1"/>
+        <LifeStart value="4000"/>
+        <LifeMax value="4000"/>
+        <LifeArmor value="3"/>
+        <LifeArmorName value="Unit/LifeArmorName/MutatorTurking"/>
+        <Speed value="3"/>
+        <Food value="-10"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="MutatorInfestedTurkeyTerrifyingGobble"/>
+        <BehaviorArray index="0" Link="MutatorSilentDetector11"/>
+        <WeaponArray Link="MutatorTurkingPeckOfJudgement"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="MutatorInfestedTurkeyTerrifyingGobble" Type="AbilCmd" AbilCmd="MutatorInfestedTurkeyTerrifyingGobble,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <TacticalAI value="CarrionBird"/>
+        <SelectAlias value="CarrionBird"/>
+        <SubgroupAlias value="CarrionBird"/>
+        <AIEvaluateAlias value="CarrionBird"/>
+        <ReviveInfoBase>
+            <Charge Link="CarrionBird/Revive"/>
+            <Cooldown Link="CarrionBird/Revive"/>
+        </ReviveInfoBase>
+        <!--BehaviorArray Link="MutatorTurkeyBirthBehaviorBuff"/-->
+    </CUnit>
+    <CUnit id="MutatorInfestedTurkey" parent="Critter">
+        <Description value="Button/Tooltip/CritterMutatorTurkey"/>
+        <ReviveType value="CarrionBird"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Unclickable" value="1"/>
+        <FlagArray index="Destructible" value="1"/>
+        <LifeStart value="150"/>
+        <LifeMax value="150"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/MutatorInfestedTurkey"/>
+        <Speed value="1.5"/>
+        <Food value="-2"/>
+        <AbilArray Link="attack"/>
+        <BehaviorArray index="0" Link="MutatorSilentDetector11"/>
+        <WeaponArray Link="MutatorInfestedTurkeyDisgustingSpew"/>
+        <TacticalAI value="CarrionBird"/>
+        <SelectAlias value="CarrionBird"/>
+        <SubgroupAlias value="CarrionBird"/>
+        <AIEvaluateAlias value="CarrionBird"/>
+        <ReviveInfoBase>
+            <Charge Link="CarrionBird/Revive"/>
+            <Cooldown Link="CarrionBird/Revive"/>
+        </ReviveInfoBase>
+        <!--BehaviorArray Link="MutatorTurkeyBirthBehaviorBuff"/-->
+    </CUnit>
+    <CUnit id="MutatorInfestedTurkeyDisgustingSpewWeapon" parent="MISSILE">
+        <Race value="Zerg"/>
+        <Mover value="MutatorInfestedTurkeyWeaponMover"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
+    <CBehaviorBuff id="MutatorInfestedTurkeyTerrifyingGobble">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\fearex3_coop.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Duration value="10"/>
+        <Modification>
+            <ModifyFlags index="DisableWeapons" value="1"/>
+            <StateFlags index="HideWaypoints" value="1"/>
+            <StateFlags index="Uncommandable" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+</Catalog>

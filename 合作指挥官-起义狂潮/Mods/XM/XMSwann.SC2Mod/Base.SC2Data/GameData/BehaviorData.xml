@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CBehaviorBuff id="330mmBarrageCannonsSwann">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-bombardmentstrike.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <BuffFlags index="Channeling" value="1"/>
+        <Duration value="10"/>
+        <Modification>
+            <ModifyFlags index="DisableAbils" value="1"/>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="CombatDropHSwann">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="5"/>
+        <Modification>
+            <AdditiveMoveSpeedFactor value="-0.5"/>
+            <AdditiveAttackSpeedFactor value="-0.5"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="CombatDropSwann">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="5"/>
+        <Modification>
+            <StateFlags index="Stun" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorAttribute id="CommandCenterQueueSwann">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures"/>
+        <Requirements value="CommandCenterReactorResearched"/>
+        <MinPoints value="1"/>
+        <Modification QueueCount="1" QueueSize="3"/>
+    </CBehaviorAttribute>
+    <CBehaviorBuff id="DutchPlaceTurretSwann" parent="TimedLife">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Modification>
+            <AbilClassDisableArray index="CAbilBehavior" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="GrenadeTurretSwann">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-superconcussive.dds"/>
+        <BehaviorCategories index="Slow" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="1.5"/>
+        <Modification>
+            <AdditiveMoveSpeedFactor value="-0.3"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="LaserDrillTripod">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="0.75"/>
+        <Modification>
+            <AdditiveMoveSpeedFactor value="-0.7"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="PredatorBlinkSwann">
+        <InfoIcon value="Assets\Textures\btn-ability-protoss-stealth-blink.dds"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="5"/>
+        <Modification>
+            <LifeArmorBonus value="5"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="SalvageSharedSwann" parent="Salvage">
+        <Name value="Behavior/Name/SalvageSharedSwann"/>
+        <Modification>
+            <AbilLinkEnableArray index="0" removed="1"/>
+            <AbilLinkEnableArray index="1" removed="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorAttribute id="SupplyDropSwann">
+        <Alignment value="Positive"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\BTN-Building-Terran-SupplyDepot.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures"/>
+        <Modification Food="8"/>
+    </CBehaviorAttribute>
+    <CBehaviorBuff id="SupplyDropEnRouteSwann">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures"/>
+        <Duration value="4"/>
+        <ExpireEffect value="SupplyDropABSwann"/>
+        <Modification>
+            <AbilClassDisableArray index="CAbilMorph" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DrakkenLaserDrillPreventDestroy">
+        <Alignment value="Positive"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <DamageResponse Fatal="1" Handled="BrokenDrakkenLaserDrillIssueOrder" ModifyFraction="0">
+            <Chance value="1"/>
+        </DamageResponse>
+        <!--Modification>
+            <StateFlags index="Invulnerable" value="1"/>
+        </Modification-->
+    </CBehaviorBuff>
+    <CBehaviorBuff id="IrradiateSwann">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-irradiate.dds"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="30"/>
+        <Period value="1"/>
+        <PeriodicEffect value="IrradiateSSwann"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="WraithCloakSwann">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-cloak.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <RemoveValidatorArray value="CanSpendEnergy"/>
+        <RemoveValidatorArray value="hasEnergy"/>
+        <Modification>
+            <StateFlags index="Cloak" value="1"/>
+            <VitalRegenArray index="Energy" value="-1.5"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="CloakDistortionFieldSwann">
+        <Alignment value="Positive"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-cloak.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <DisableValidatorArray value="IsCloaked"/>
+        <Modification MoveSpeedMultiplier="1.3"/>
+        <DamageResponse ModifyFraction="0" ModifyMinimumDamage="1">
+            <Chance value="0.35"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="GeminiMissileMovementSwann">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <DisableValidatorArray value="WraithIsMoving"/>
+        <DamageResponse Location="Attacker" ModifyFraction="2">
+            <RequireEffectArray value="WraithADSwann"/>
+            <Chance value="1"/>
+        </DamageResponse>
+        <Requirements value="HavePulseAmplifierSwann"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="BurstLaserMovementSwann">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <DisableValidatorArray value="WraithIsMoving"/>
+        <DamageResponse Location="Attacker" ModifyFraction="4">
+            <RequireEffectArray value="WraithGDSwann"/>
+            <Chance value="1"/>
+        </DamageResponse>
+        <Requirements value="HavePulseAmplifierSwann"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DefensiveMatrixSwann">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-defensivematrix.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <DisplayDuration index="Self" value="1"/>
+        <DisplayDuration index="Ally" value="1"/>
+        <Duration value="20"/>
+        <Modification>
+            <VitalMaxArray index="Shields" value="200"/>
+        </Modification>
+        <RefreshEffect value="DefensiveMatrixMUSwann"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HyperjumpSwann">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Duration value="0.0625"/>
+        <ExpireEffect value="HyperjumpInABSwann"/>
+        <Modification>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="SuppressAttack" value="1"/>
+            <StateFlags index="SuppressCloak" value="1"/>
+            <StateFlags index="Untargetable" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HyperjumpInSwann">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Duration value="0.6"/>
+        <Modification>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="SuppressCloak" value="1"/>
+            <StateFlags index="Untargetable" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HyperjumpOutSwann">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Duration value="0.6"/>
+        <ExpireEffect value="HyperjumpSetSwann"/>
+        <Modification>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="SuppressCloak" value="1"/>
+            <StateFlags index="Untargetable" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="VespeneDroneSwann">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\Talent-Swann-Level05-VespeneDrone.dds"/>
+        <Period value="6.3"/>
+        <PeriodicEffect value="VespeneDroneMPSwann"/>
+    </CBehaviorBuff>
+    <CBehaviorAttribute id="DoubleBuildSwann">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <MinPoints value="1"/>
+        <Modification QueueCount="1" QueueSize="3">
+            <VitalMaxArray index="Life" value="500"/>
+        </Modification>
+    </CBehaviorAttribute>
+</Catalog>

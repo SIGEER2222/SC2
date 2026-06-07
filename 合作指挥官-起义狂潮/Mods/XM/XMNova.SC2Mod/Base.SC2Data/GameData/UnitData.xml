@@ -1,0 +1,3713 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CUnit id="HealingDrone">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="NoScore" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="AILifetime" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="50"/>
+        <LifeMax value="50"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranShipPlating"/>
+        <Mover value="Fly"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1000"/>
+        <Sight value="7"/>
+        <Height value="3"/>
+        <VisionHeight value="4"/>
+        <CostResource index="Minerals" value="100"/>
+        <RepairTime value="33.3332"/>
+        <AttackTargetPriority value="20"/>
+        <!--AbilArray Link="attack"/-->
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="HealingDroneHeal"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="MinorGoal"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="AcquireMove" Type="AbilCmd" AbilCmd="move,AcquireMove" Row="0" Column="4"/>
+            <LayoutButtons Face="HealingDroneHealBeam" Type="Passive" Requirements="HaveHealingDroneCloakHealBeam" Row="1" Column="0"/>
+            <LayoutButtons Face="BioMechanicalHeal" Type="AbilCmd" AbilCmd="HealingDroneHeal,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="0.625"/>
+        <SeparationRadius value="0.6"/>
+        <SubgroupPriority value="6"/>
+        <MinimapRadius value="0.6"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <LeaderAlias value=""/>
+        <GlossaryPriority value="315"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Never"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CUnit id="HealingDroneReleaseWeapon" parent="MISSILE_INVULNERABLE">
+        <Race value="Terr"/>
+        <Mover value="AutoTurretReleaseWeapon"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="GhostFemale_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <ReviveType value="Ghost"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="Cloaked" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Psionic" value="1"/>
+        <LifeStart value="250"/>
+        <LifeMax value="250"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranInfantryArmor"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="11"/>
+        <Food value="-2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="500"/>
+        <CostResource index="Vespene" value="250"/>
+        <RepairTime value="40"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="Snipe_BlackOps"/>
+        <AbilArray Link="GhostHoldFire"/>
+        <AbilArray Link="GhostWeaponsFree"/>
+        <AbilArray Link="EMPBlackOps"/>
+        <!--BehaviorArray Link="VorazunCloakDamageBoostPermanent"/-->
+        <WeaponArray Link="Ghost_BlackOps"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="GhostHoldFire" Type="AbilCmd" AbilCmd="GhostHoldFire,Execute" Row="1" Column="2"/>
+            <LayoutButtons Face="AttackGhost" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="Snipe_BlackOps" Type="AbilCmd" AbilCmd="Snipe_BlackOps,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="WeaponsFree" Type="AbilCmd" AbilCmd="GhostWeaponsFree,Execute" Row="1" Column="3"/>
+            <LayoutButtons Face="PermanentlyCloakedGhost" Type="Passive" Row="1" Column="0"/>
+            <LayoutButtons Face="EMP" Type="AbilCmd" AbilCmd="EMPBlackOps,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="GhostBlackOpsTripleTapPassive" Type="Passive" Row="1" Column="1"/>
+        </CardLayouts>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <CargoSize value="2"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="121"/>
+        <MinimapRadius value="0.375"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAI value="Ghost"/>
+        <TacticalAIThink value="AIThinkGhost"/>
+        <AIEvalFactor value="1.2"/>
+        <LeaderAlias value="Ghost"/>
+        <HotkeyAlias value="Ghost_BlackOps"/>
+        <SelectAlias value="Ghost"/>
+        <SubgroupAlias value="Ghost_BlackOps"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="70"/>
+        <GlossaryStrongArray value="Raven"/>
+        <GlossaryStrongArray value="Infestor"/>
+        <GlossaryStrongArray value="HighTemplar"/>
+        <GlossaryWeakArray value="Marauder"/>
+        <GlossaryWeakArray value="Zergling"/>
+        <GlossaryWeakArray value="Stalker"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="Ghost"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+            <ChanceArray index="Turn" value="33"/>
+        </Fidget>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="HunterSeekerWeaponNova" parent="MISSILE_INVULNERABLE">
+        <Race value="Terr"/>
+        <LifeStart value="5"/>
+        <LifeMax value="5"/>
+        <Mover value="HunterSeekerMissile"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
+    <CUnit id="NovaDefensiveMatrixDrone">
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="AILifetime" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="200"/>
+        <LifeMax value="200"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <EnergyStart value="200"/>
+        <EnergyMax value="200"/>
+        <EnergyRegenRate value="1"/>
+        <Mover value="Fly"/>
+        <Sight value="10"/>
+        <Height value="3"/>
+        <VisionHeight value="4"/>
+        <RepairTime value="33.3332"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="DefensiveMatrixTargetDrone"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="NovaDefensiveMatrixDroneTimedLife"/>
+        <BehaviorArray Link="MinorGoal"/>
+        <CardLayouts>
+            <LayoutButtons Face="DefensiveMatrixTargetDrone" Type="AbilCmd" AbilCmd="DefensiveMatrixTargetDrone,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="0"/>
+        <SeparationRadius value="0.6"/>
+        <SubgroupPriority value="6"/>
+        <MinimapRadius value="0.6"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="10"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Never"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="PointDefenseDrone"/>
+    </CUnit>
+    <CUnit id="NovaCoopDecoy">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="Uncommandable" value="1"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="AIThreatGround" value="1"/>
+        <FlagArray index="Unstoppable" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Psionic" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <LifeStart value="2000"/>
+        <LifeMax value="2000"/>
+        <LifeArmor value="2"/>
+        <LifeRegenRate value="5"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranInfantryArmor"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <Sight value="13"/>
+        <CostCategory value="Army"/>
+        <RepairTime value="41.667"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="PsiStrikeNova"/>
+        <!--BehaviorArray Link="NovaCoopDecoyTimedLife"/-->
+        <WeaponArray Link="WeaponPsiBladeNova"/>
+        <CardLayouts>
+            <LayoutButtons Face="MoveChampions" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="AttackChampions" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="NovaPsiBladeNova" Type="AbilCmd" AbilCmd="PsiStrikeNova,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="0.625"/>
+        <InnerRadius value="0.5"/>
+        <CargoSize value="2"/>
+        <SubgroupPriority value="5"/>
+        <MinimapRadius value="0.625"/>
+        <EditorCategories value="ObjectType:Hero,ObjectFamily:FactionCovertOps"/>
+        <HotkeyAlias value="FenixChampion"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="50"/>
+        <Fidget DelayMax="2" DelayMin="1" DistanceMax="10" DistanceMin="5">
+            <ChanceArray index="Anim" value="10"/>
+            <ChanceArray index="Idle" value="10"/>
+            <ChanceArray index="Move" value="60"/>
+            <ChanceArray index="Turn" value="20"/>
+        </Fidget>
+        <AlliedPushPriority value="11"/>
+    </CUnit>
+    <CUnit id="NovaBoombotBurrowed">
+        <Name value="Unit/Name/NovaBoombot"/>
+        <Description value="Button/Tooltip/NovaBoombot"/>
+        <DeathRevealRadius value="7"/>
+        <DeathRevealDuration value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="Undetectable" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="Cloaked" value="1"/>
+        <!--FlagArray index="Buried" value="1"/-->
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="AIThreatGround" value="1"/>
+        <FlagArray index="AIThreatAir" value="1"/>
+        <FlagArray index="AISplash" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="90"/>
+        <LifeMax value="90"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranVehiclePlating"/>
+        <Acceleration value="1000"/>
+        <StationaryTurningRate value="2292.8906"/>
+        <Sight value="7"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="75"/>
+        <CostResource index="Vespene" value="25"/>
+        <RepairTime value="20"/>
+        <AttackTargetPriority value="20"/>
+        <BehaviorArray Link="NovaBoombotBurrowedBoomDelay"/>
+        <CardLayouts>
+            <LayoutButtons Face="NovaBoombotBurrow" Type="Passive" Row="2" Column="0"/>
+        </CardLayouts>
+        <SubgroupPriority value="4"/>
+        <MinimapRadius value="0.375"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAIThink value="AIThinkNovaBoombotBurrowed"/>
+        <LeaderAlias value="NovaBoombot"/>
+        <HotkeyAlias value="NovaBoombot"/>
+        <SelectAlias value="NovaBoombot"/>
+        <SubgroupAlias value="NovaBoombot"/>
+        <TechAliasArray value="Alias_NovaBoombot"/>
+        <GlossaryPriority value="300"/>
+        <GlossaryStrongArray value="Marauder"/>
+        <GlossaryStrongArray value="Roach"/>
+        <GlossaryStrongArray value="Immortal"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Never"/>
+        <RankDisplay value="Always"/>
+    </CUnit>
+    <CUnit id="NovaStunDrone">
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="AILifetime" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="200"/>
+        <LifeMax value="200"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <EnergyStart value="200"/>
+        <EnergyMax value="200"/>
+        <EnergyRegenRate value="1"/>
+        <Mover value="Fly"/>
+        <Sight value="10"/>
+        <Height value="3"/>
+        <VisionHeight value="4"/>
+        <RepairTime value="33.3332"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="NovaCoopCasterStunGrenadeInstant"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="NovaDefensiveMatrixDroneIntro"/>
+        <BehaviorArray Link="NovaStunDroneTimedLife"/>
+        <CardLayouts>
+            <LayoutButtons Face="NovaCoopCasterStunGrenades" Type="AbilCmd" AbilCmd="NovaCoopCasterStunGrenadeInstant,Execute" Row="0" Column="0"/>
+        </CardLayouts>
+        <Radius value="0"/>
+        <SeparationRadius value="0.6"/>
+        <SubgroupPriority value="6"/>
+        <MinimapRadius value="0.6"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="315"/>
+        <KillDisplay value="Never"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="PointDefenseDrone"/>
+    </CUnit>
+    <CUnit id="NovaACLaserTurret">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="AILifetime" value="1"/>
+        <FlagArray index="AIDefense" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="400"/>
+        <LifeMax value="400"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="7"/>
+        <CostResource index="Minerals" value="200"/>
+        <RepairTime value="22.5"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="SalvageShared"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <WeaponArray Link="LaserTurret" Turret="AutoTurret"/>
+        <CardLayouts>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="AttackBuilding" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="Salvage" Type="AbilCmd" AbilCmd="SalvageShared,On" Row="2" Column="0"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="0.75"/>
+        <Footprint value="FootprintAutoTurret"/>
+        <PlacementFootprint value="FootprintAutoTurret"/>
+        <SubgroupPriority value="24"/>
+        <MinimapRadius value="0.75"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:FactionCovertOps"/>
+        <LeaderAlias value="AutoTurret"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="346"/>
+        <GlossaryStrongArray value="Marine"/>
+        <GlossaryStrongArray value="Firebat"/>
+        <GlossaryWeakArray value="Diamondback"/>
+        <GlossaryWeakArray value="Marauder"/>
+        <GlossaryWeakArray value="SiegeTank"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Never"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="AutoTurret"/>
+    </CUnit>
+    <CUnit id="GhostAcademyNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="2500"/>
+        <LifeMax value="2500"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="50"/>
+        <RepairTime value="40"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="que5"/>
+        <AbilArray Link="GhostAcademyResearchNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5,CancelLast" Row="2" Column="4"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="ResearchNovaDetector" Type="AbilCmd" AbilCmd="GhostAcademyResearchNova,Research1" Row="0" Column="0"/>
+            <LayoutButtons Face="ResearchNovaShotgunBlastRange" Type="AbilCmd" AbilCmd="GhostAcademyResearchNova,Research4" Row="0" Column="3"/>
+            <LayoutButtons Face="ResearchNovaLifeRegen" Type="AbilCmd" AbilCmd="GhostAcademyResearchNova,Research2" Row="0" Column="1"/>
+            <LayoutButtons Face="ResearchNovaSnipeRefund" Type="AbilCmd" AbilCmd="GhostAcademyResearchNova,Research3" Row="0" Column="2"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+        </CardLayouts>
+        <Radius value="1.5"/>
+        <SeparationRadius value="1.5"/>
+        <Footprint value="Footprint3x3CreepNormalContour"/>
+        <PlacementFootprint value="Footprint3x3CreepNormal"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="30"/>
+        <MinimapRadius value="1.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:FactionCovertOps"/>
+        <TechAliasArray value="Alias_ShadowOps"/>
+        <TechAliasArray value="GhostAcademy"/>
+        <GlossaryPriority value="318"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <TechTreeUnlockedUnitArray value="Ghost"/>
+    </CUnit>
+    <CUnit id="CoopCasterNova" parent="CoopGlobalCaster">
+        <Food value="100"/>
+        <AbilArray Link="NovaDefensiveMatrixDrone"/>
+        <AbilArray Link="NovaReviveInstantBuyback"/>
+        <AbilArray Link="NovaGriffinTransportLoad"/>
+        <AbilArray Link="SOAStickyLine"/>
+        <CardLayouts>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="NovaDefensiveMatrixDrone" Type="AbilCmd" AbilCmd="NovaDefensiveMatrixDrone,Execute" Row="0" Column="0"/>
+            <LayoutButtons Face="NovaGriffinBombingRun" Type="AbilCmd" AbilCmd="SOAStickyLine,Execute" Row="0" Column="1"/>
+            <LayoutButtons Face="NovaReviveInstantBuyback" Type="AbilCmd" AbilCmd="NovaReviveInstantBuyback,Execute" Row="0" Column="3"/>
+            <LayoutButtons Face="NovaGriffinTransportUnits" Type="AbilCmd" AbilCmd="NovaGriffinTransportLoad,Execute" Row="0" Column="2"/>
+        </CardLayouts>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+        <LeaderAlias value=""/>
+    </CUnit>
+    <CUnit id="NovaBoombot">
+        <DeathRevealRadius value="7"/>
+        <DeathRevealDuration value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="Undetectable" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="Cloaked" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="AIThreatGround" value="1"/>
+        <FlagArray index="AISplash" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="10"/>
+        <LifeMax value="10"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranVehiclePlating"/>
+        <Mover value="Fly"/>
+        <Speed value="2.8125"/>
+        <Acceleration value="1000"/>
+        <StationaryTurningRate value="2292.8906"/>
+        <Sight value="7"/>
+        <Height value="2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="75"/>
+        <CostResource index="Vespene" value="25"/>
+        <RepairTime value="40"/>
+        <AttackTargetPriority value="19"/>
+        <AbilArray Link="NovaBoombotBurrow"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="AttackAllowsInvulnerable"/>
+        <BehaviorArray Link="NovaBoombotsTimedLife"/>
+        <WeaponArray Link="BoombotNova"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="AttackAllowsInvulnerable,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="AcquireMove" Type="AbilCmd" AbilCmd="move,AcquireMove" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="NovaBoombotBurrow" Type="AbilCmd" AbilCmd="NovaBoombotBurrow,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <SeparationRadius value="0"/>
+        <CargoSize value="2"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="4"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAIThink value="AIThinkBoombot"/>
+        <TechAliasArray value="Alias_NovaBoombot"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="300"/>
+        <GlossaryStrongArray value="Marauder"/>
+        <GlossaryStrongArray value="Roach"/>
+        <GlossaryStrongArray value="Stalker"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Never"/>
+        <RankDisplay value="Always"/>
+    </CUnit>
+    <CUnit id="HellionBlackOpsInfernalFlameThrowerCoopWeapon" parent="MISSILE_INVULNERABLE">
+        <Race value="Terr"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="HellionBlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AISplash" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="300"/>
+        <LifeMax value="300"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranVehiclePlating"/>
+        <Speed value="4.25"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46"/>
+        <StationaryTurningRate value="1499.9414"/>
+        <Sight value="10"/>
+        <Food value="-2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="250"/>
+        <RepairTime value="30"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="MorphToHellbatBlackOps"/>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <WeaponArray Link="HellionBlackOps" Turret="Hellion"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="MorphToHellbatBlackOps" Type="AbilCmd" AbilCmd="MorphToHellbatBlackOps,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="PassiveInfernalPreIgniter" Type="Passive" Requirements="HaveInfernalPreigniter" Row="2" Column="2"/>
+        </CardLayouts>
+        <Radius value="0.625"/>
+        <SeparationRadius value="0.75"/>
+        <InnerRadius value="0.5"/>
+        <CargoSize value="2"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="116"/>
+        <MinimapRadius value="0.625"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAIThink value="AIThinkHellion"/>
+        <TechAliasArray value="Alias_Hellion"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="80"/>
+        <GlossaryStrongArray value="Zergling"/>
+        <GlossaryStrongArray value="Zealot"/>
+        <GlossaryWeakArray value="Marauder"/>
+        <GlossaryWeakArray value="Roach"/>
+        <GlossaryWeakArray value="Stalker"/>
+        <GlossaryAlias value="HellionBlackOps"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="Hellion"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="HellbatBlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AISplash" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="550"/>
+        <LifeMax value="550"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranVehiclePlating"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46"/>
+        <StationaryTurningRate value="1499.9414"/>
+        <Sight value="10"/>
+        <Food value="-2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="250"/>
+        <RepairTime value="30"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="MorphToHellionBlackOps"/>
+        <AbilArray Link="HellbatCharge"/>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <WeaponArray Link="HellbatBlackOps"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="MorphToHellionBlackOps" Type="AbilCmd" AbilCmd="MorphToHellionBlackOps,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="HellbatJumpJetAssault" Type="AbilCmd" AbilCmd="HellbatCharge,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="PassiveInfernalPreIgniter" Type="Passive" Requirements="HaveInfernalPreigniter" Row="2" Column="3"/>
+        </CardLayouts>
+        <Radius value="0.625"/>
+        <SeparationRadius value="0.75"/>
+        <InnerRadius value="0.5"/>
+        <CargoSize value="4"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="116"/>
+        <MinimapRadius value="0.625"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAIThink value="AIThinkHellionTank"/>
+        <LeaderAlias value="HellionBlackOps"/>
+        <HotkeyAlias value="HellionBlackOps"/>
+        <SelectAlias value="HellionBlackOps"/>
+        <SubgroupAlias value="HellionBlackOps"/>
+        <TechAliasArray value="Alias_Hellion"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="81"/>
+        <GlossaryStrongArray value="Zergling"/>
+        <GlossaryStrongArray value="Zealot"/>
+        <GlossaryWeakArray value="Baneling"/>
+        <GlossaryWeakArray value="Stalker"/>
+        <GlossaryWeakArray value="Marauder"/>
+        <GlossaryAlias value="HellionBlackOps"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Never"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="NovaCoop">
+        <DeathTime value="-1"/>
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <!--FlagArray index="Cloaked" value="1"/-->
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Colossus" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Psionic" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <LifeStart value="250"/>
+        <LifeMax value="250"/>
+        <LifeArmor value="2"/>
+        <LifeRegenRate value="5"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranInfantryArmor"/>
+        <EnergyStart value="100"/>
+        <EnergyMax value="100"/>
+        <EnergyRegenRate value="10"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/NovaShieldArmor"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <Sight value="13"/>
+        <CostCategory value="Army"/>
+        <RepairTime value="41.667"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="NovaWeaponImprovedCanisterRifleSnipe"/>
+        <AbilArray Link="NovaWeaponHellfireShotgunBlast"/>
+        <AbilArray Link="NovaGadgetBoombots"/>
+        <AbilArray Link="NovaBlink"/>
+        <AbilArray Link="NovaCoopCasterNuke"/>
+        <AbilArray Link="NovaKitSwap"/>
+        <AbilArray Link="NovaCoopDecoyTarget"/>
+        <AbilArray Link="SuperCloakNova"/>
+        <BehaviorArray Link="NovaDetector"/>
+        <BehaviorArray Link="NovaPermanentlyCloaked"/>
+        <WeaponArray Link="NovaWeaponImprovedCanisterRifle"/>
+        <CardLayouts>
+            <LayoutButtons Face="MoveChampions" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="AttackChampions" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="HellfireShotgunBlastNova" Type="AbilCmd" AbilCmd="NovaWeaponHellfireShotgunBlast,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="NovaWeaponImprovedCanisterRifleSnipe" Type="AbilCmd" AbilCmd="NovaWeaponImprovedCanisterRifleSnipe,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="BlinkNova" Type="AbilCmd" AbilCmd="NovaBlink,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="NovaGadgetBoombots" Type="AbilCmd" AbilCmd="NovaGadgetBoombots,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="NovaArmorCombatSuit" Type="Passive" Requirements="HaveNovaCombatSuit" Row="2" Column="1"/>
+            <LayoutButtons Face="NovaArmorStealthSuit" Type="Passive" Row="2" Column="1"/>
+            <LayoutButtons Face="NovaDetectorPassive" Type="Passive" Requirements="HaveNovaDetector" Row="1" Column="0"/>
+            <LayoutButtons Face="NovaCoopDecoy" Type="AbilCmd" AbilCmd="NovaCoopDecoyTarget,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="NovaUnitNuke" Type="AbilCmd" AbilCmd="NovaCoopCasterNuke,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="NovaSwitchAssaultMode" Type="AbilCmd" AbilCmd="NovaKitSwap,On" Row="2" Column="4"/>
+            <LayoutButtons Face="NovaSwitchStealthMode" Type="AbilCmd" AbilCmd="NovaKitSwap,Off" Row="2" Column="4"/>
+            <LayoutButtons Face="NovaLifeRegen" Type="Passive" Requirements="HaveNovaLifeRegen" Row="1" Column="1"/>
+            <LayoutButtons Face="NovaStanceDance" Type="Passive" Requirements="HaveNovaStanceDance" Row="1" Column="2"/>
+            <LayoutButtons Face="SuperClockOffNova" Type="AbilCmd" AbilCmd="SuperCloakNova,Off" Row="1" Column="4"/>
+            <LayoutButtons Face="SuperClockOnNova" Type="AbilCmd" AbilCmd="SuperCloakNova,On" Row="1" Column="4"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="1"/>
+        <InnerRadius value="0.5"/>
+        <CargoSize value="2"/>
+        <SubgroupPriority value="199"/>
+        <EditorCategories value="ObjectType:Hero,ObjectFamily:FactionCovertOps"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <RankDisplay value="Never"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+            <ChanceArray index="Turn" value="33"/>
+        </Fidget>
+        <ReviveInfoBase>
+            <Charge Link="Abil/NovaRevive"/>
+            <Cooldown Link="Abil/NovaRevive" Location="Player" TimeUse="0.1"/>
+        </ReviveInfoBase>
+        <AlliedPushPriority value="11"/>
+    </CUnit>
+    <CUnit id="NovaReviveBeacon">
+        <Race value="Terr"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="TreatStructureAsUnitForSelection" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <!--Collide index="Structure" value="1"/>
+        <Collide index="ForceField" value="1"/-->
+        <Attributes index="MapBoss" value="1"/>
+        <LifeStart value="100"/>
+        <LifeMax value="100"/>
+        <AbilArray Link="que1"/>
+        <AbilArray Link="NovaRevive"/>
+        <AbilArray Link="RallyReviveBeacon"/>
+        <AbilArray Link="NovaWeaponImprovedCanisterRifleSnipe"/>
+        <AbilArray Link="NovaWeaponHellfireShotgunBlast"/>
+        <AbilArray Link="NovaGadgetBoombots"/>
+        <AbilArray Link="NovaBlink"/>
+        <AbilArray Link="NovaWeaponsFree"/>
+        <AbilArray Link="NovaCoopCasterNuke"/>
+        <AbilArray Link="NovaNukeTimer"/>
+        <AbilArray Link="NovaEquipmentSwap"/>
+        <AbilArray Link="NovaKitSwap"/>
+        <AbilArray Link="NovaCoopDecoyCooldownDummy"/>
+        <BehaviorArray Link="NovaDecoyCooldown"/>
+        <BehaviorArray Link="NovaNukeCooldown"/>
+        <BehaviorArray Link="DisableRallyFor1Second"/>
+        <BehaviorArray Link="NovaPermanentlyCloaked"/>
+        <BehaviorArray Link="Unrepairable"/>
+        <BehaviorArray Link="Unmoved"/>
+        <CardLayouts>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="RallyReviveBeacon,Rally1" Row="1" Column="4"/>
+            <LayoutButtons Face="WeaponsFree" Type="AbilCmd" AbilCmd="NovaWeaponsFree,Execute" Row="1" Column="4"/>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <!--LayoutButtons Face="PermanentlyCloakedNova" Type="Passive" Requirements="HaveNovaArmorStealthSuit" Row="1" Column="0"/-->
+            <!--LayoutButtons Face="CloakOnNova" Type="AbilCmd" AbilCmd="NovaBasicCloak,On" Row="1" Column="0"/>
+            <LayoutButtons Face="WraithCloakOff" Type="AbilCmd" AbilCmd="NovaBasicCloak,Off" Row="1" Column="1"/-->
+            <!--LayoutButtons Face="NovaArmorJumpSuit" Type="Passive" Requirements="HaveNovaArmorJumpSuit" Row="1" Column="1"/-->
+            <LayoutButtons Face="AttackGhost" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <!--LayoutButtons Face="NovaArmorPredatorBattlesuit" Type="Passive" Requirements="HaveNovaArmorPredatorBattlesuit" Row="1" Column="1"/-->
+            <LayoutButtons Face="NuclearLaunchAndHoloDecoy" Type="Passive" Requirements="NovaLevel09" Row="1" Column="3"/>
+            <!--LayoutButtons>
+                <Face value="NovaWeaponSwap"/>
+                <Type value="Submenu"/>
+                <Requirements value="NovaEquipmentSwapVisible"/>
+                <SubmenuCardId value="WPN1"/>
+                <Row value="1"/>
+                <Column value="4"/>
+            </LayoutButtons-->
+            <LayoutButtons>
+                <Face value="HoloDecoyCooldownMonitor"/>
+                <Type value="Passive"/>
+                <AbilCmd value="NovaCoopDecoyTarget,Execute"/>
+                <Behavior value="NovaDecoyCooldown"/>
+                <Requirements value="HaveNovaStealthSuit"/>
+                <Row value="1"/>
+                <Column value="3"/>
+            </LayoutButtons>
+            <LayoutButtons Face="NovaWeaponImprovedCanisterRifleSnipe" Type="AbilCmd" AbilCmd="NovaWeaponImprovedCanisterRifleSnipe,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="NovaWeaponHellfireShotgunBlast" Type="AbilCmd" AbilCmd="NovaWeaponHellfireShotgunBlast,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="NovaGadgetBoombots" Type="AbilCmd" AbilCmd="NovaGadgetBoombots,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="BlinkNova" Type="AbilCmd" AbilCmd="NovaBlink,Execute" Row="2" Column="2"/>
+            <!--LayoutButtons Face="NovaNoWeaponEquipped" Type="Passive" Requirements="NovaNoWeapon" Row="2" Column="0"/-->
+            <!--LayoutButtons Face="NovaGadgetPulseGrenades" Type="AbilCmd" AbilCmd="NovaGadgetPulseGrenades,Execute" Row="2" Column="1"/-->
+            <LayoutButtons>
+                <Face value="NovaArmorStealthSuit"/>
+                <Type value="Passive"/>
+                <Behavior value="NovaPermanentlyCloaked"/>
+                <Requirements value="HaveNovaStealthSuit"/>
+                <Row value="2"/>
+                <Column value="1"/>
+            </LayoutButtons>
+            <LayoutButtons>
+                <Face value="NovaArmorCombatSuit"/>
+                <Type value="Passive"/>
+                <Behavior value="NovaCombatSuit"/>
+                <Requirements value="HaveNovaCombatSuit"/>
+                <Row value="2"/>
+                <Column value="1"/>
+            </LayoutButtons>
+            <LayoutButtons Face="NovaDetectorPassive" Type="Passive" Requirements="HaveNovaDetector" Row="1" Column="0"/>
+            <LayoutButtons Face="NovaUnitNuke" Type="AbilCmd" AbilCmd="NovaCoopCasterNuke,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="NuclearLaunchAndHoloDecoy" Type="Passive" Requirements="NovaLevel09" Row="2" Column="3"/>
+            <LayoutButtons Face="NovaSwitchAssaultMode" Type="AbilCmd" AbilCmd="NovaKitSwap,On" Row="2" Column="4"/>
+            <LayoutButtons Face="NovaSwitchStealthMode" Type="AbilCmd" AbilCmd="NovaKitSwap,Off" Row="2" Column="4"/>
+            <LayoutButtons Face="NovaLifeRegen" Type="Passive" Requirements="HaveNovaLifeRegen" Row="1" Column="1"/>
+            <LayoutButtons Face="NovaStanceDance" Type="Passive" Requirements="HaveNovaStanceDance" Row="1" Column="2"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="1"/>
+        <SubgroupPriority value="1"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:FactionCovertOps"/>
+        <AIEvalFactor value="0"/>
+        <SelectAlias value="NovaCoop"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+    </CUnit>
+    <CUnit id="NovaPenetratorRoundMissile" parent="MISSILE">
+        <Race value="Terr"/>
+        <Sight value="5"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="NovaUnitSmokeGrenadeMissile" parent="MISSILE">
+        <Race value="Terr"/>
+        <Mover value="TossGrenade"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="NovaUnitLockdownMissile" parent="MISSILE">
+        <Race value="Terr"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+        <Mover value="EMP2Weapon"/>
+    </CUnit>
+    <CUnit id="NovaCoopCasterStunGrenadeWeapon" parent="MISSILE">
+        <Race value="Terr"/>
+        <Mover value="TossGrenade"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Marine_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <LifeStart value="150"/>
+        <LifeMax value="150"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranInfantryArmor"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="10"/>
+        <Food value="-1"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="125"/>
+        <RepairTime value="20"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="NovaSuperStim"/>
+        <WeaponArray Link="Marine_BlackOps"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="CombatShield" Type="Passive" AbilCmd="255,255" Row="1" Column="0"/>
+            <LayoutButtons Face="LaserTargetingSystemMarine" Type="Passive" Requirements="HaveLaserTargetingSystemNova" Row="2" Column="1"/>
+            <LayoutButtons Face="NovaSuperStim" Type="AbilCmd" AbilCmd="NovaSuperStim,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <CargoSize value="1"/>
+        <SubgroupPriority value="114"/>
+        <MinimapRadius value="0.375"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAI value="Marine"/>
+        <SelectAlias value="Marine"/>
+        <GlossaryPriority value="31"/>
+        <GlossaryStrongArray value="Marauder"/>
+        <GlossaryStrongArray value="Immortal"/>
+        <GlossaryStrongArray value="Hydralisk"/>
+        <GlossaryWeakArray value="SiegeTankSieged"/>
+        <GlossaryWeakArray value="Colossus"/>
+        <GlossaryWeakArray value="Baneling"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="Marine"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+            <ChanceArray index="Turn" value="33"/>
+        </Fidget>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="Marine_BlackOpsSpawnerUnit">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <Food value="-4"/>
+        <CostResource index="Minerals" value="600"/>
+        <BehaviorArray Link="MarineBlackOpsSpawner"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <FlagArray index="NoScore" value="1"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Marauder_BlackOpsSpawnerUnit">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <Food value="-4"/>
+        <CostResource index="Minerals" value="500"/>
+        <CostResource index="Vespene" value="130"/>
+        <BehaviorArray Link="MarauderBlackOpsSpawner"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <FlagArray index="NoScore" value="1"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Ghost_BlackOpsSpawnerUnit">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <Food value="-4"/>
+        <CostResource index="Minerals" value="1000"/>
+        <CostResource index="Vespene" value="500"/>
+        <BehaviorArray Link="GhostBlackOpsSpawner"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <FlagArray index="NoScore" value="1"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Goliath_BlackOpsSpawnerUnit">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <Food value="-6"/>
+        <CostResource index="Minerals" value="650"/>
+        <CostResource index="Vespene" value="250"/>
+        <BehaviorArray Link="GoliathBlackOpsSpawner"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <FlagArray index="NoScore" value="1"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Hellbat_BlackOpsSpawnerUnit">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <Food value="-4"/>
+        <CostResource index="Minerals" value="500"/>
+        <BehaviorArray Link="HellbatBlackOpsSpawner"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <FlagArray index="NoScore" value="1"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="SiegeTank_BlackOpsSpawnerUnit">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <Food value="-6"/>
+        <CostResource index="Minerals" value="800"/>
+        <CostResource index="Vespene" value="700"/>
+        <BehaviorArray Link="SiegeTankBlackOpsSpawner"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <FlagArray index="NoScore" value="1"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Banshee_BlackOpsSpawnerUnit">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <Food value="-6"/>
+        <CostResource index="Minerals" value="700"/>
+        <CostResource index="Vespene" value="375"/>
+        <BehaviorArray Link="BansheeBlackOpsSpawner"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <FlagArray index="NoScore" value="1"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+        <Mover value="Fly"/>
+    </CUnit>
+    <CUnit id="Liberator_BlackOpsSpawnerUnit">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <Food value="-6"/>
+        <CostResource index="Minerals" value="650"/>
+        <CostResource index="Vespene" value="650"/>
+        <BehaviorArray Link="LiberatorBlackOpsSpawner"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <FlagArray index="NoScore" value="1"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+        <Mover value="Fly"/>
+    </CUnit>
+    <CUnit id="Medivac_BlackOpsSpawnerUnit">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <Food value="-4"/>
+        <CostResource index="Minerals" value="500"/>
+        <CostResource index="Vespene" value="500"/>
+        <BehaviorArray Link="MedivacBlackOpsSpawner"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <FlagArray index="NoScore" value="1"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Raven_BlackOpsSpawnerUnit">
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <Food value="-2"/>
+        <CostResource index="Minerals" value="500"/>
+        <CostResource index="Vespene" value="500"/>
+        <BehaviorArray Link="RavenBlackOpsSpawner"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <FlagArray index="NoScore" value="1"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+        <Mover value="Fly"/>
+    </CUnit>
+    <CUnit id="SiegeTank_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TurnBeforeMove" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="400"/>
+        <LifeMax value="400"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranVehiclePlating"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <Sight value="11"/>
+        <Food value="-3"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="400"/>
+        <CostResource index="Vespene" value="300"/>
+        <RepairTime value="50"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="SiegeTank_BlackOpsSiege"/>
+        <AbilArray Link="DeploySpiderMines"/>
+        <!--BehaviorArray Link="SiegeTankSiegeModeProgressiveRangeIncease"/-->
+        <WeaponArray Link="SiegeTank_BlackOps" Turret="SiegeTank"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="SiegeTank_BlackOpsSiege" Type="AbilCmd" AbilCmd="SiegeTank_BlackOpsSiege,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="DeploySpiderMines" Type="AbilCmd" AbilCmd="DeploySpiderMines,Execute" Row="2" Column="2"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="1"/>
+        <InnerRadius value="0.875"/>
+        <CargoSize value="4"/>
+        <SubgroupPriority value="119"/>
+        <MinimapRadius value="0.875"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAI value="SiegeTank"/>
+        <LeaderAlias value="SiegeTank"/>
+        <SelectAlias value="SiegeTank"/>
+        <TechAliasArray value="Alias_SiegeTank"/>
+        <GlossaryPriority value="142"/>
+        <GlossaryStrongArray value="Marine"/>
+        <GlossaryStrongArray value="Stalker"/>
+        <GlossaryStrongArray value="Hydralisk"/>
+        <GlossaryWeakArray value="Thor"/>
+        <GlossaryWeakArray value="Immortal"/>
+        <GlossaryWeakArray value="Zergling"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="SiegeTank"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+            <ChanceArray index="Turn" value="33"/>
+        </Fidget>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="SiegeTankSieged_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <Facing value="45"/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AISplash" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="400"/>
+        <LifeMax value="400"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranVehiclePlating"/>
+        <Sight value="11"/>
+        <Food value="-3"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="400"/>
+        <CostResource index="Vespene" value="300"/>
+        <RepairTime value="50"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="SiegeTank_BlackOpsUnsiege"/>
+        <AbilArray Link="DeploySpiderMines"/>
+        <!--BehaviorArray Link="SiegeTankSiegeModeProgressiveRangeIncease"/-->
+        <WeaponArray Link="SiegeTankSieged_BlackOps" Turret="SiegeTankSieged"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="AttackBuilding" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="SiegeTank_BlackOpsUnsiege" Type="AbilCmd" AbilCmd="SiegeTank_BlackOpsUnsiege,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="DeploySpiderMines" Type="AbilCmd" AbilCmd="DeploySpiderMines,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="SiegeModeProgressiveRange" Type="Passive" Requirements="HaveSiegeModeProgressiveRangeNova" Row="2" Column="3"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="1"/>
+        <InnerRadius value="0.875"/>
+        <CargoSize value="8"/>
+        <Footprint value="FootprintSieged"/>
+        <SubgroupPriority value="119"/>
+        <MinimapRadius value="0.875"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAI value="SiegeTankSieged"/>
+        <HotkeyAlias value="SiegeTank_BlackOps"/>
+        <SelectAlias value="SiegeTank"/>
+        <SubgroupAlias value="SiegeTank_BlackOps"/>
+        <TechAliasArray value="Alias_SiegeTank"/>
+        <GlossaryPriority value="143"/>
+        <GlossaryStrongArray value="Marine"/>
+        <GlossaryStrongArray value="Stalker"/>
+        <GlossaryStrongArray value="Hydralisk"/>
+        <GlossaryWeakArray value="Thor"/>
+        <GlossaryWeakArray value="Immortal"/>
+        <GlossaryWeakArray value="Zergling"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="SiegeTankSieged"/>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="Goliath_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <ReviveType value=""/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="450"/>
+        <LifeMax value="450"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranVehiclePlating"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="115.1875"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="9"/>
+        <Food value="-3"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="375"/>
+        <CostResource index="Vespene" value="125"/>
+        <RepairTime value="40"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <WeaponArray Link="Goliath_BlackOpsAUpgraded" Turret="FreeRotate"/>
+        <WeaponArray Link="Goliath_BlackOpsGUpgraded" Turret="SpartanCompany"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons>
+                <Face value="NovaUnitLockdown"/>
+                <Type value="Passive"/>
+                <Behavior value="NovaUnitLockdownC"/>
+                <Requirements value="HaveNovaUnitLockdown"/>
+                <Row value="2"/>
+                <Column value="0"/>
+            </LayoutButtons>
+            <LayoutButtons Face="AresClassWeaponsSystem" Type="Passive" Requirements="UseAresClassWeaponsSystem" Row="2" Column="1"/>
+        </CardLayouts>
+        <Radius value="0.6875"/>
+        <SeparationRadius value="0.65"/>
+        <CargoSize value="2"/>
+        <SubgroupPriority value="112"/>
+        <MinimapRadius value="0.65"/>
+        <EditorCategories value="ObjectFamily:FactionCovertOps,ObjectType:Unit"/>
+        <SelectAlias value="Goliath"/>
+        <GlossaryPriority value="181"/>
+        <GlossaryStrongArray value="Battlecruiser"/>
+        <GlossaryStrongArray value="Carrier"/>
+        <GlossaryStrongArray value="BroodLord"/>
+        <GlossaryWeakArray value="Marauder"/>
+        <GlossaryWeakArray value="Zealot"/>
+        <GlossaryWeakArray value="Zergling"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Never"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+            <ChanceArray index="Turn" value="33"/>
+        </Fidget>
+        <BehaviorArray Link="NovaUnitLockdownC"/>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="Marauder_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <LifeStart value="350"/>
+        <LifeMax value="350"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranInfantryArmor"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="69.125"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="8"/>
+        <Food value="-2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="250"/>
+        <CostResource index="Vespene" value="65"/>
+        <RepairTime value="25"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="MagrailMunitionsNova"/>
+        <WeaponArray Link="Marauder_BlackOps"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MagrailMunitionsNova" Type="AbilCmd" AbilCmd="MagrailMunitionsNova,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <InnerRadius value="0.375"/>
+        <CargoSize value="2"/>
+        <SubgroupPriority value="113"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAI value="Marauder"/>
+        <SelectAlias value="Marauder"/>
+        <GlossaryPriority value="51"/>
+        <GlossaryStrongArray value="Thor"/>
+        <GlossaryStrongArray value="Stalker"/>
+        <GlossaryStrongArray value="Roach"/>
+        <GlossaryWeakArray value="Marine"/>
+        <GlossaryWeakArray value="Zealot"/>
+        <GlossaryWeakArray value="Zergling"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="Marauder"/>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="Liberator_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AIThreatGround" value="1"/>
+        <FlagArray index="AIThreatAir" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="450"/>
+        <LifeMax value="450"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranShipPlating"/>
+        <Mover value="Fly"/>
+        <Speed value="3.375"/>
+        <Acceleration value="3.5"/>
+        <StationaryTurningRate value="1499.9414"/>
+        <TurningRate value="1499.9414"/>
+        <Sight value="10"/>
+        <Height value="3.75"/>
+        <VisionHeight value="4"/>
+        <Food value="-3"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="375"/>
+        <CostResource index="Vespene" value="375"/>
+        <RepairTime value="60"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="LiberatorAGNova"/>
+        <AbilArray Link="LiberatorMAGNova"/>
+        <WeaponArray Link="Liberator_BlackOpsMissileLaunchers"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Liberator_BlackOpsMorphtoAG" Type="AbilCmd" AbilCmd="LiberatorMAGNova,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="MAFServosLiberator" Type="Passive" Requirements="HaveLiberatorMAFServos" Row="2" Column="2"/>
+            <LayoutButtons Face="LiberatorStructureAttack" Type="Passive" Requirements="HaveLiberatorStructureAttack" Row="2" Column="3"/>
+        </CardLayouts>
+        <Radius value="0.75"/>
+        <SeparationRadius value="0.75"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="118"/>
+        <MinimapRadius value="0.75"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAIThink value="AIThinkLiberator"/>
+        <HotkeyAlias value="LiberatorAG_BlackOps"/>
+        <TechAliasArray value="Alias_Liberator"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="188"/>
+        <GlossaryStrongArray value="VikingFighter"/>
+        <GlossaryStrongArray value="Mutalisk"/>
+        <GlossaryStrongArray value="Phoenix"/>
+        <GlossaryWeakArray value="Battlecruiser"/>
+        <GlossaryWeakArray value="Corruptor"/>
+        <GlossaryWeakArray value="Carrier"/>
+        <GlossaryAlias value="Liberator"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Never"/>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <BehaviorArray Link="LiberatorTNova"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+        <EffectArray index="Death" value="LiberatorAGDeaNova"/>
+    </CUnit>
+    <CUnit id="LiberatorAG_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AIThreatGround" value="1"/>
+        <FlagArray index="AIThreatAir" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="450"/>
+        <LifeMax value="450"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranShipPlating"/>
+        <Mover value="Fly"/>
+        <StationaryTurningRate value="1499.9414"/>
+        <TurningRate value="1499.9414"/>
+        <Sight value="13"/>
+        <Height value="3.75"/>
+        <VisionHeight value="4"/>
+        <Food value="-3"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="375"/>
+        <CostResource index="Vespene" value="375"/>
+        <RepairTime value="60"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="LiberatorAANova"/>
+        <WeaponArray Link="LiberatorAG_BlackOpsWeapon" Turret="LiberatorAG_BlackOps"/>
+        <CardLayouts>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="Liberator_BlackOpsMorphtoAA" Type="AbilCmd" AbilCmd="LiberatorAANova,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MAFServosLiberator" Type="Passive" Requirements="HaveLiberatorMAFServos" Row="2" Column="2"/>
+            <LayoutButtons Face="LiberatorStructureAttack" Type="Passive" Requirements="HaveLiberatorStructureAttack" Row="2" Column="3"/>
+        </CardLayouts>
+        <Radius value="0.75"/>
+        <SeparationRadius value="0.75"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="118"/>
+        <MinimapRadius value="0.75"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAIThink value="AIThinkLiberatorAG"/>
+        <LeaderAlias value="Liberator_BlackOps"/>
+        <SelectAlias value="Liberator_BlackOps"/>
+        <SubgroupAlias value="Liberator_BlackOps"/>
+        <TechAliasArray value="Alias_Liberator"/>
+        <GlossaryPriority value="188"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <RankDisplay value="Never"/>
+        <EffectArray index="Death" value="LiberatorAGDeaNova"/>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <BehaviorArray Link="LiberatorTNova"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="Ghost_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <ReviveType value="Ghost"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="Cloaked" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Psionic" value="1"/>
+        <LifeStart value="250"/>
+        <LifeMax value="250"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranInfantryArmor"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="11"/>
+        <Food value="-2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="500"/>
+        <CostResource index="Vespene" value="250"/>
+        <RepairTime value="40"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="Snipe_BlackOps"/>
+        <AbilArray Link="GhostHoldFire"/>
+        <AbilArray Link="GhostWeaponsFree"/>
+        <AbilArray Link="EMPBlackOps"/>
+        <!--BehaviorArray Link="VorazunCloakDamageBoostPermanent"/-->
+        <WeaponArray Link="Ghost_BlackOps"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="GhostHoldFire" Type="AbilCmd" AbilCmd="GhostHoldFire,Execute" Row="1" Column="2"/>
+            <LayoutButtons Face="AttackGhost" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="Snipe_BlackOps" Type="AbilCmd" AbilCmd="Snipe_BlackOps,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="WeaponsFree" Type="AbilCmd" AbilCmd="GhostWeaponsFree,Execute" Row="1" Column="3"/>
+            <LayoutButtons Face="PermanentlyCloakedGhost" Type="Passive" Row="1" Column="0"/>
+            <LayoutButtons Face="EMP" Type="AbilCmd" AbilCmd="EMPBlackOps,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="GhostBlackOpsTripleTapPassive" Type="Passive" Row="1" Column="1"/>
+        </CardLayouts>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <CargoSize value="2"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="121"/>
+        <MinimapRadius value="0.375"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAI value="Ghost"/>
+        <TacticalAIThink value="AIThinkGhost"/>
+        <AIEvalFactor value="1.2"/>
+        <LeaderAlias value="Ghost"/>
+        <SelectAlias value="Ghost"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="70"/>
+        <GlossaryStrongArray value="Raven"/>
+        <GlossaryStrongArray value="Infestor"/>
+        <GlossaryStrongArray value="HighTemplar"/>
+        <GlossaryWeakArray value="Marauder"/>
+        <GlossaryWeakArray value="Zergling"/>
+        <GlossaryWeakArray value="Stalker"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="Ghost"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+            <ChanceArray index="Turn" value="33"/>
+        </Fidget>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="Banshee_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="350"/>
+        <LifeMax value="350"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranShipPlating"/>
+        <Mover value="Fly"/>
+        <Speed value="2.75"/>
+        <Acceleration value="3.25"/>
+        <StationaryTurningRate value="1499.9414"/>
+        <TurningRate value="1499.9414"/>
+        <Sight value="10"/>
+        <Height value="3.75"/>
+        <VisionHeight value="4"/>
+        <Food value="-3"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="350"/>
+        <CostResource index="Vespene" value="187"/>
+        <RepairTime value="60"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="Banshee_BlackOpsAirstrike"/>
+        <WeaponArray Link="Banshee_BlackOps"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Banshee_BlackOpsAirstrike" Type="AbilCmd" AbilCmd="Banshee_BlackOpsAirstrike,Execute" Row="2" Column="0"/>
+            <LayoutButtons>
+                <Face value="XN51CloakTechnology"/>
+                <Type value="Passive"/>
+                <AbilCmd value="255,255"/>
+                <Requirements value="HaveBansheePermaCloak"/>
+                <Row value="2"/>
+                <Column value="1"/>
+            </LayoutButtons>
+        </CardLayouts>
+        <Radius value="0.75"/>
+        <SeparationRadius value="0.75"/>
+        <SubgroupPriority value="115"/>
+        <MinimapRadius value="0.75"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAI value="Banshee"/>
+        <SelectAlias value="Banshee"/>
+        <GlossaryPriority value="221"/>
+        <GlossaryStrongArray value="Ghost"/>
+        <GlossaryStrongArray value="Stalker"/>
+        <GlossaryWeakArray value="Hydralisk"/>
+        <GlossaryWeakArray value="Phoenix"/>
+        <GlossaryWeakArray value="Marine"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Never"/>
+        <AIEvaluateAlias value="Banshee"/>
+        <BehaviorArray Link="XN51CloakTechnologyNova"/>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="Banshee_BlackOpsWeapon" parent="MISSILE">
+        <Race value="Terr"/>
+        <Mover value="BacklashRocketsLMWeapon"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Raven_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="AIThreatGround" value="1"/>
+        <FlagArray index="AIThreatAir" value="1"/>
+        <FlagArray index="AICaster" value="1"/>
+        <FlagArray index="AISupport" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Psionic" value="1"/>
+        <LifeStart value="350"/>
+        <LifeMax value="350"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranShipPlating"/>
+        <Mover value="Fly"/>
+        <Speed value="2.25"/>
+        <Acceleration value="2"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="11"/>
+        <Height value="3.75"/>
+        <VisionHeight value="4"/>
+        <Food value="-2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="100"/>
+        <CostResource index="Vespene" value="200"/>
+        <RepairTime value="60"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="SeekerMissileNova"/>
+        <AbilArray Link="BuildAutoTurret_BlackOps"/>
+        <AbilArray Link="PlaceHealingDrone"/>
+        <BehaviorArray Link="Detector11"/>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="BuildLaserTurretRaven" Type="AbilCmd" AbilCmd="BuildAutoTurret_BlackOps,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="AcquireMove" Type="AbilCmd" AbilCmd="move,AcquireMove" Row="0" Column="4"/>
+            <LayoutButtons Face="Detector" Type="Passive" Row="2" Column="3"/>
+            <LayoutButtons Face="BuildHealingDrone" Type="AbilCmd" AbilCmd="PlaceHealingDrone,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="InstantSeekerMissileNova" Type="AbilCmd" AbilCmd="SeekerMissileNova,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="SuperScience" Type="Passive" Requirements="HaveSuperScience" Row="1" Column="0"/>
+            <LayoutButtons Face="HealingDroneHealBeam" Type="Passive" Requirements="HaveHealingDroneCloakHealBeam" Row="1" Column="1"/>
+        </CardLayouts>
+        <Radius value="0.625"/>
+        <SeparationRadius value="0.625"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="122"/>
+        <MinimapRadius value="0.625"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:FactionCovertOps"/>
+        <TacticalAIThink value="AIThinkRaven"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="190"/>
+        <GlossaryStrongArray value="Banshee"/>
+        <GlossaryStrongArray value="Roach"/>
+        <GlossaryStrongArray value="DarkTemplar"/>
+        <GlossaryWeakArray value="Ghost"/>
+        <GlossaryWeakArray value="Corruptor"/>
+        <GlossaryWeakArray value="Phoenix"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Never"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+        </Fidget>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="Medivac_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AIThreatGround" value="1"/>
+        <FlagArray index="AIThreatAir" value="1"/>
+        <FlagArray index="AISupport" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="375"/>
+        <LifeMax value="375"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranShipPlating"/>
+        <Mover value="Fly"/>
+        <Speed value="2.5"/>
+        <Acceleration value="2.25"/>
+        <LateralAcceleration value="1000"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="11"/>
+        <Height value="3.75"/>
+        <VisionHeight value="4"/>
+        <Food value="-2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="250"/>
+        <CostResource index="Vespene" value="250"/>
+        <RepairTime value="42"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="Medivac_BlackOpsHeal"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="MedivacTransportBlackOps"/>
+        <AbilArray Link="MedivacSpeedBoost"/>
+        <AbilArray Link="MedivacDoubleBeamHeal"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="MedivacLoad" Type="AbilCmd" AbilCmd="MedivacTransportBlackOps,Load" Row="2" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="AcquireMove" Type="AbilCmd" AbilCmd="move,AcquireMove" Row="0" Column="4"/>
+            <LayoutButtons Face="Medivac_BlackOpsHeal" Type="AbilCmd" AbilCmd="Medivac_BlackOpsHeal,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="Heal" Type="AbilCmd" AbilCmd="MedivacDoubleBeamHeal,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="MedivacUnloadAll" Type="AbilCmd" AbilCmd="MedivacTransportBlackOps,UnloadAt" Row="2" Column="3"/>
+            <LayoutButtons Face="RapidDeploymentTubes" Type="Passive" Requirements="RapidDeploymentResearched" Row="2" Column="1"/>
+            <LayoutButtons Face="MedivacSpeedBoost" Type="AbilCmd" AbilCmd="MedivacSpeedBoost,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="AdvancedHealingAI" Type="Passive" Requirements="AdvancedHealingAIPurchased" Row="1" Column="1"/>
+            <LayoutButtons Face="HealingDroneCloakedHealBeam" Type="Passive" Requirements="HaveMedivacCloakHealBeam" Row="1" Column="0"/>
+        </CardLayouts>
+        <Radius value="0.75"/>
+        <SeparationRadius value="0.75"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="9"/>
+        <MinimapRadius value="0.75"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+        <TacticalAIThink value="AIThinkMedivac"/>
+        <AIEvalFactor value="0.2"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CUnit id="Goliath_BlackOpsAWeapon" parent="MISSILE">
+        <Race value="Terr"/>
+        <Mover value="GoliathMissile"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Liberator_BlackOpsMissile" parent="MISSILE_INVULNERABLE">
+        <Race value="Terr"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Liberator_BlackOpsDamageMissile" parent="MISSILE">
+        <Race value="Terr"/>
+        <Mover value="LiberatorMissile"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="LiberatorAG_BlackOpsMissile" parent="MISSILE_INVULNERABLE">
+        <Race value="Terr"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+        <SubgroupPriority value="100"/>
+    </CUnit>
+    <CUnit id="Marauder_BlackOpsLMWeapon" parent="MISSILE">
+        <Race value="Terr"/>
+        <Mover value="MarauderWeapon"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="Banshee_BlackOpsAirstrikeFakeAttackWeapon" parent="MISSILE">
+        <Race value="Terr"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="AutoTurret_BlackOps">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="AILifetime" value="1"/>
+        <FlagArray index="AIDefense" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="150"/>
+        <LifeMax value="150"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="7"/>
+        <CostResource index="Minerals" value="100"/>
+        <RepairTime value="22.5"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <WeaponArray Link="AutoTurret_BlackOps" Turret="AutoTurret"/>
+        <CardLayouts>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="AttackBuilding" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="0.75"/>
+        <Footprint value="FootprintAutoTurret"/>
+        <PlacementFootprint value="FootprintAutoTurret"/>
+        <SubgroupPriority value="2"/>
+        <MinimapRadius value="0.75"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Campaign"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="255"/>
+        <GlossaryStrongArray value="Marine"/>
+        <GlossaryStrongArray value="Firebat"/>
+        <GlossaryWeakArray value="Diamondback"/>
+        <GlossaryWeakArray value="Marauder"/>
+        <GlossaryWeakArray value="SiegeTank"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <KillDisplay value="Never"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CUnit id="AutoTurret_BlackOpsReleaseWeapon" parent="MISSILE_INVULNERABLE">
+        <Race value="Terr"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="PointDefenseDrone_BlackOpsReleaseWeapon" parent="MISSILE_INVULNERABLE">
+        <Race value="Terr"/>
+        <Mover value="AutoTurretReleaseWeapon"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="PointDefenseDrone_BlackOps">
+        <Race value="Terr"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="AILifetime" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="50"/>
+        <LifeMax value="50"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <EnergyStart value="100"/>
+        <EnergyMax value="100"/>
+        <Mover value="Fly"/>
+        <Sight value="7"/>
+        <Height value="2"/>
+        <VisionHeight value="4"/>
+        <CostResource index="Minerals" value="100"/>
+        <RepairTime value="33.3332"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="stop"/>
+        <WeaponArray Link="SJPointDefenseLaser" Turret="PointDefenseDrone"/>
+        <CardLayouts>
+            <LayoutButtons Face="SJPointDefense" Type="Passive" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="0.625"/>
+        <SeparationRadius value="0.6"/>
+        <SubgroupPriority value="6"/>
+        <MinimapRadius value="0.6"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+        <LeaderAlias value=""/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="250"/>
+        <KillDisplay value="Never"/>
+    </CUnit>
+    <CUnit id="ArmoryNova">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1500"/>
+        <LifeMax value="1500"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="100"/>
+        <RepairTime value="65"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="que5"/>
+        <AbilArray Link="ArmoryResearchNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5,CancelLast" Row="2" Column="4"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="TerranVehicleAndShipPlatingLevel1" Type="AbilCmd" AbilCmd="ArmoryResearchNova,Research6" Row="0" Column="1"/>
+            <LayoutButtons Face="TerranVehicleAndShipPlatingLevel2" Type="AbilCmd" AbilCmd="ArmoryResearchNova,Research7" Row="0" Column="1"/>
+            <LayoutButtons Face="TerranVehicleAndShipPlatingLevel3" Type="AbilCmd" AbilCmd="ArmoryResearchNova,Research8" Row="0" Column="1"/>
+            <LayoutButtons Face="TerranVehicleAndShipPlatingLevel4Nova" Type="AbilCmd" AbilCmd="ArmoryResearchNova,Research9" Row="0" Column="1"/>
+            <LayoutButtons Face="TerranVehicleAndShipPlatingLevel5Nova" Type="AbilCmd" AbilCmd="ArmoryResearchNova,Research10" Row="0" Column="1"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" AbilCmd="ArmoryResearch,Research9" Row="1" Column="3"/>
+            <LayoutButtons Face="TerranVehicleAndShipWeaponsLevel1" Type="AbilCmd" AbilCmd="ArmoryResearchNova,Research1" Row="0" Column="0"/>
+            <LayoutButtons Face="TerranVehicleAndShipWeaponsLevel2" Type="AbilCmd" AbilCmd="ArmoryResearchNova,Research2" Row="0" Column="0"/>
+            <LayoutButtons Face="TerranVehicleAndShipWeaponsLevel3" Type="AbilCmd" AbilCmd="ArmoryResearchNova,Research3" Row="0" Column="0"/>
+            <LayoutButtons Face="TerranVehicleAndShipWeaponsLevel4Nova" Type="AbilCmd" AbilCmd="ArmoryResearchNova,Research4" Row="0" Column="0"/>
+            <LayoutButtons Face="TerranVehicleAndShipWeaponsLevel5Nova" Type="AbilCmd" AbilCmd="ArmoryResearchNova,Research5" Row="0" Column="0"/>
+        </CardLayouts>
+        <Radius value="1.25"/>
+        <SeparationRadius value="1.25"/>
+        <Footprint value="Footprint3x3Contour"/>
+        <PlacementFootprint value="Footprint3x3"/>
+        <ScoreMake value="250"/>
+        <ScoreKill value="250"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.75"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TechAliasArray value="Alias_Armory"/>
+        <GlossaryPriority value="326"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <TechTreeUnlockedUnitArray value="Thor"/>
+        <TechTreeUnlockedUnitArray value="WidowMine"/>
+    </CUnit>
+    <CUnit id="AutomatedRefineryNova" parent="AutomatedRefinery">
+        <Name value="Unit/Name/AutomatedRefineryNova"/>
+        <Description value="Button/Tooltip/AutomatedRefineryNova"/>
+        <ReviveType value="AutomatedRefineryNova"/>
+        <LifeStart value="1000"/>
+        <LifeMax value="1000"/>
+        <BehaviorArray index="1" Link="TerranBuildingBurnDown"/>
+        <BehaviorArray index="3" removed="1"/>
+        <BehaviorArray index="4" removed="1"/>
+        <EffectArray index="Birth" value="AutoHarvestVespeneSW"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="1" removed="1"/>
+        </CardLayouts>
+        <TacticalAI value="AutomatedRefineryNova"/>
+        <LeaderAlias value="AutomatedRefineryNova"/>
+        <HotkeyAlias value="AutomatedRefineryNova"/>
+        <SelectAlias value="AutomatedRefineryNova"/>
+        <SubgroupAlias value="AutomatedRefineryNova"/>
+        <AIEvaluateAlias value="AutomatedRefineryNova"/>
+        <ReviveInfoBase>
+            <Charge Link="AutomatedRefineryNova/Revive"/>
+            <Cooldown Link="AutomatedRefineryNova/Revive"/>
+        </ReviveInfoBase>
+    </CUnit>
+    <CUnit id="BarracksNovaFlying">
+        <Name value="Unit/Name/Barracks"/>
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1000"/>
+        <LifeMax value="1000"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <Mover value="Fly"/>
+        <Speed value="0.9375"/>
+        <Acceleration value="1.3125"/>
+        <Sight value="9"/>
+        <Height value="3.25"/>
+        <VisionHeight value="4"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="150"/>
+        <RepairTime value="65"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BarracksLandNova"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="BarracksTrainNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="LandNova" Type="AbilCmd" AbilCmd="BarracksLandNova,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+        </CardLayouts>
+        <Radius value="1.75"/>
+        <SeparationRadius value="1.75"/>
+        <ScoreKill value="150"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.75"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <LeaderAlias value="Barracks"/>
+        <TechAliasArray value="Alias_Barracks"/>
+        <GlossaryAlias value="Barracks"/>
+    </CUnit>
+    <CUnit id="BarracksNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="2000"/>
+        <LifeMax value="2000"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="150"/>
+        <RepairTime value="65"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="que5"/>
+        <AbilArray Link="BarracksLiftOffNova"/>
+        <AbilArray Link="BarracksTrainNova"/>
+        <AbilArray Link="BarracksResearch"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="LiftNova" Type="AbilCmd" AbilCmd="BarracksLiftOffNova,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="ResearchMagrailMunitionsNova" Type="AbilCmd" AbilCmd="BarracksResearch,Research4" Row="2" Column="1"/>
+            <LayoutButtons Face="ResearchNovaSuperStim" Type="AbilCmd" AbilCmd="BarracksResearch,Research2" Row="2" Column="0"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5,CancelLast" Row="2" Column="4"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+            <LayoutButtons Face="TrainMarineNova" Type="AbilCmd" AbilCmd="BarracksTrainNova,Train1" Row="0" Column="0"/>
+            <LayoutButtons Face="TrainMarauderNova" Type="AbilCmd" AbilCmd="BarracksTrainNova,Train2" Row="0" Column="1"/>
+            <LayoutButtons Face="TrainGhostNova" Type="AbilCmd" AbilCmd="BarracksTrainNova,Train3" Row="0" Column="2"/>
+            <LayoutButtons Face="ResearchLaserTargetingSystemNova" Type="AbilCmd" AbilCmd="BarracksResearch,Research1" Row="1" Column="0"/>
+            <LayoutButtons Face="ResearchNovaConcussiveShells" Type="AbilCmd" AbilCmd="BarracksResearch,Research3" Row="1" Column="1"/>
+            <LayoutButtons Face="ResearchGhostBlackOpsEMP" Type="AbilCmd" AbilCmd="BarracksResearch,Research5" Row="1" Column="2"/>
+            <LayoutButtons Face="ResearchGhostBlackOpsTripleTap" Type="AbilCmd" AbilCmd="BarracksResearch,Research6" Row="2" Column="2"/>
+        </CardLayouts>
+        <Radius value="1.75"/>
+        <SeparationRadius value="1.75"/>
+        <Footprint value="Footprint3x3Contour"/>
+        <PlacementFootprint value="Footprint3x3"/>
+        <ScoreMake value="150"/>
+        <ScoreKill value="150"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.75"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TacticalAI value="Barracks"/>
+        <TechAliasArray value="Alias_Barracks"/>
+        <GlossaryPriority value="252"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <TechTreeProducedUnitArray value="Marine"/>
+        <TechTreeProducedUnitArray value="Marauder"/>
+        <TechTreeProducedUnitArray value="Reaper"/>
+        <TechTreeProducedUnitArray value="Ghost"/>
+        <EffectArray index="Birth" value="BarracksTrainSpeedNova"/>
+    </CUnit>
+    <CUnit id="BunkerNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="AIDefense" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="400"/>
+        <LifeMax value="400"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <Sight value="10"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="100"/>
+        <RepairTime value="40"/>
+        <AttackTargetPriority value="19"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="BunkerTransport"/>
+        <AbilArray Link="SalvageShared"/>
+        <AbilArray Link="SalvageBunkerRefund"/>
+        <AbilArray Link="Rally"/>
+        <AbilArray Link="StimpackRedirect"/>
+        <AbilArray Link="StimpackMarauderRedirect"/>
+        <AbilArray Link="StopRedirect"/>
+        <AbilArray Link="AttackRedirect"/>
+        <AbilArray Link="healRedirect"/>
+        <AbilArray Link="BunkerAttack"/>
+        <AbilArray Link="BunkerStop"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <WeaponArray/>
+        <CardLayouts>
+            <LayoutButtons Face="AttackRedirect" Type="AbilCmd" AbilCmd="AttackRedirect,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="BunkerAttack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="StopRedirect,Execute" Row="0" Column="1"/>
+            <LayoutButtons Face="StopBunker" Type="AbilCmd" AbilCmd="BunkerStop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="SetBunkerRallyPoint" Type="AbilCmd" AbilCmd="Rally,Rally1" Row="1" Column="4"/>
+            <LayoutButtons Face="BunkerLoad" Type="AbilCmd" AbilCmd="BunkerTransport,Load" Row="2" Column="1"/>
+            <LayoutButtons Face="BunkerUnloadAll" Type="AbilCmd" AbilCmd="BunkerTransport,UnloadAll" Row="2" Column="2"/>
+            <LayoutButtons Face="Salvage" Type="AbilCmd" AbilCmd="SalvageShared,On" Row="2" Column="3"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="SalvageShared,Off" Row="2" Column="4"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+        </CardLayouts>
+        <Radius value="1.25"/>
+        <SeparationRadius value="1.25"/>
+        <Footprint value="Footprint3x3Contour"/>
+        <PlacementFootprint value="Footprint3x3"/>
+        <ScoreMake value="100"/>
+        <ScoreKill value="100"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.75"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TacticalAIThink value="AIThinkBunker"/>
+        <AIEvalFactor value="1.1"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="300"/>
+        <GlossaryStrongArray value="Marine"/>
+        <GlossaryStrongArray value="Zergling"/>
+        <GlossaryStrongArray value="Zealot"/>
+        <GlossaryWeakArray value="SiegeTankSieged"/>
+        <GlossaryWeakArray value="Baneling"/>
+        <GlossaryWeakArray value="Colossus"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+    </CUnit>
+    <CUnit id="CommandCenterNovaFlying">
+        <Name value="Unit/Name/CommandCenter"/>
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventReveal" value="1"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1500"/>
+        <LifeMax value="1500"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <Mover value="Fly"/>
+        <Speed value="0.9375"/>
+        <Acceleration value="1.3125"/>
+        <Sight value="11"/>
+        <Height value="3.25"/>
+        <VisionHeight value="4"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="400"/>
+        <RepairTime value="100"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="CommandCenterLandNova"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="CommandCenterTransport"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="CommandCenterQueue"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="Land" Type="AbilCmd" AbilCmd="CommandCenterLandNova,0" Row="2" Column="3"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="CommandCenterLoad" Type="AbilCmd" AbilCmd="CommandCenterTransport,LoadAll" Row="2" Column="0"/>
+            <LayoutButtons Face="CommandCenterUnloadAll" Type="AbilCmd" AbilCmd="CommandCenterTransport,UnloadAll" Row="2" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+        </CardLayouts>
+        <Radius value="2.5"/>
+        <SeparationRadius value="2.5"/>
+        <ScoreKill value="400"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="2.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <LeaderAlias value="CommandCenter"/>
+        <TechAliasArray value="Alias_CommandCenter"/>
+        <GlossaryAlias value="CommandCenter"/>
+    </CUnit>
+    <CUnit id="CommandCenterNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventReveal" value="1"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="TownCamera" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <ResourceDropOff index="Minerals" value="1"/>
+        <ResourceDropOff index="Vespene" value="1"/>
+        <ResourceDropOff index="Terrazine" value="1"/>
+        <ResourceDropOff index="Custom" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="3000"/>
+        <LifeMax value="3000"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="11"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="400"/>
+        <RepairTime value="100"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="que5CancelToSelection"/>
+        <AbilArray Link="CommandCenterTrainNova"/>
+        <AbilArray Link="RallyCommand"/>
+        <AbilArray Link="CommandCenterTransport"/>
+        <AbilArray Link="CommandCenterLiftOffNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="CommandCenterQueue"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <EffectArray index="Create" value="CCCreateSet"/>
+        <EffectArray index="Birth" value="CCBirthSet"/>
+        <CardLayouts>
+            <LayoutButtons Face="SCVNova" Type="AbilCmd" AbilCmd="CommandCenterTrainNova,Train1" Row="0" Column="0"/>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="RallyCommand,Rally1" Row="1" Column="4"/>
+            <LayoutButtons Face="CommandCenterLoad" Type="AbilCmd" AbilCmd="CommandCenterTransport,LoadAll" Row="2" Column="0"/>
+            <LayoutButtons Face="CommandCenterUnloadAll" Type="AbilCmd" AbilCmd="CommandCenterTransport,UnloadAll" Row="2" Column="1"/>
+            <LayoutButtons Face="Lift" Type="AbilCmd" AbilCmd="CommandCenterLiftOffNova,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5CancelToSelection,CancelLast" Row="2" Column="4"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+        </CardLayouts>
+        <Radius value="2.5"/>
+        <SeparationRadius value="2.5"/>
+        <Footprint value="Footprint5x5Contour"/>
+        <PlacementFootprint value="Footprint5x5DropOff"/>
+        <ScoreMake value="400"/>
+        <ScoreKill value="400"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="2.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TacticalAI value="CommandCenter"/>
+        <TacticalAIThink value="AIThinkCommandCenter"/>
+        <TechAliasArray value="Alias_CommandCenter"/>
+        <GlossaryPriority value="30"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <TechTreeProducedUnitArray value="SCV"/>
+        <TechTreeProducedUnitArray value="PlanetaryFortress"/>
+        <TechTreeProducedUnitArray value="OrbitalCommand"/>
+    </CUnit>
+    <CUnit id="EngineeringBayNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1700"/>
+        <LifeMax value="1700"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="125"/>
+        <RepairTime value="35"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="que5"/>
+        <AbilArray Link="EngineeringBayResearchNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="TerranInfantryWeaponsLevel1" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research1" Row="0" Column="0"/>
+            <LayoutButtons Face="TerranInfantryWeaponsLevel2" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research2" Row="0" Column="0"/>
+            <LayoutButtons Face="TerranInfantryWeaponsLevel3" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research3" Row="0" Column="0"/>
+            <LayoutButtons Face="TerranInfantryWeaponsLevel4Nova" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research4" Row="0" Column="0"/>
+            <LayoutButtons Face="TerranInfantryWeaponsLevel5Nova" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research5" Row="0" Column="0"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5,CancelLast" Row="2" Column="4"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="TerranInfantryArmorLevel1" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research6" Row="0" Column="1"/>
+            <LayoutButtons Face="TerranInfantryArmorLevel2" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research7" Row="0" Column="1"/>
+            <LayoutButtons Face="TerranInfantryArmorLevel3" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research8" Row="0" Column="1"/>
+            <LayoutButtons Face="TerranInfantryArmorLevel4Nova" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research9" Row="0" Column="1"/>
+            <LayoutButtons Face="TerranInfantryArmorLevel5Nova" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research10" Row="0" Column="1"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+            <LayoutButtons Face="MissileTurretPassive" Type="Passive" Row="2" Column="2"/>
+            <LayoutButtons Face="UpgradeBuildingArmorLevel1" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research11" Row="1" Column="1"/>
+            <LayoutButtons Face="FireSuppressionSystemsNova" Type="AbilCmd" AbilCmd="EngineeringBayResearchNova,Research12" Row="1" Column="0"/>
+        </CardLayouts>
+        <Radius value="1.25"/>
+        <SeparationRadius value="1.25"/>
+        <Footprint value="Footprint3x3Contour"/>
+        <PlacementFootprint value="Footprint3x3"/>
+        <ScoreMake value="125"/>
+        <ScoreKill value="125"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.75"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TechAliasArray value="Alias_EngineeringBay"/>
+        <GlossaryPriority value="256"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+    </CUnit>
+    <CUnit id="FactoryNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="2500"/>
+        <LifeMax value="2500"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="100"/>
+        <RepairTime value="60"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="que5"/>
+        <AbilArray Link="FactoryLiftOffNova"/>
+        <AbilArray Link="FactoryTrainNova"/>
+        <AbilArray Link="FactoryResearch"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="ReactorQueue"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="LiftNova" Type="AbilCmd" AbilCmd="FactoryLiftOffNova,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5,CancelLast" Row="2" Column="4"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+            <LayoutButtons Face="TrainHellbatNova" Type="AbilCmd" AbilCmd="FactoryTrainNova,Train3" Row="0" Column="0"/>
+            <LayoutButtons Face="TrainSiegeTankNova" Type="AbilCmd" AbilCmd="FactoryTrainNova,Train2" Row="0" Column="2"/>
+            <LayoutButtons Face="TrainGoliathNova" Type="AbilCmd" AbilCmd="FactoryTrainNova,Train1" Row="0" Column="1"/>
+            <LayoutButtons Face="ResearchHighCapacityBarrelsNova" Type="AbilCmd" AbilCmd="FactoryResearch,Research1" Row="1" Column="0"/>
+            <LayoutButtons Face="ResearchAresClassTargetingSystemNova" Type="AbilCmd" AbilCmd="FactoryResearch,Research3" Row="1" Column="1"/>
+            <LayoutButtons Face="ResearchDeploySpiderMines" Type="AbilCmd" AbilCmd="FactoryResearch,Research5" Row="1" Column="2"/>
+            <LayoutButtons Face="ResearchHellbatJumpJetAssault" Type="AbilCmd" AbilCmd="FactoryResearch,Research2" Row="2" Column="0"/>
+            <LayoutButtons Face="ResearchNovaUnitLockdown" Type="AbilCmd" AbilCmd="FactoryResearch,Research4" Row="2" Column="1"/>
+            <LayoutButtons Face="ResearchSiegeModeProgressiveRangeIncrease" Type="AbilCmd" AbilCmd="FactoryResearch,Research6" Row="2" Column="2"/>
+        </CardLayouts>
+        <Radius value="1.625"/>
+        <SeparationRadius value="1.625"/>
+        <Footprint value="Footprint3x3Contour"/>
+        <PlacementFootprint value="Footprint3x3"/>
+        <ScoreMake value="250"/>
+        <ScoreKill value="250"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.625"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TacticalAI value="Factory"/>
+        <TechAliasArray value="Alias_Factory"/>
+        <GlossaryPriority value="322"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <TechTreeProducedUnitArray value="Hellion"/>
+        <TechTreeProducedUnitArray value="SiegeTank"/>
+        <TechTreeProducedUnitArray value="Thor"/>
+        <TechTreeProducedUnitArray value="Cyclone"/>
+        <EffectArray index="Birth" value="FactoryTrainSpeedNova"/>
+    </CUnit>
+    <CUnit id="FactoryNovaFlying">
+        <Name value="Unit/Name/Factory"/>
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1250"/>
+        <LifeMax value="1250"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <Mover value="Fly"/>
+        <Speed value="0.9375"/>
+        <Acceleration value="1.3125"/>
+        <Sight value="9"/>
+        <Height value="3.25"/>
+        <VisionHeight value="4"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="100"/>
+        <RepairTime value="60"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="FactoryLandNova"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="FactoryTrainNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="LandNova" Type="AbilCmd" AbilCmd="FactoryLandNova,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+        </CardLayouts>
+        <Radius value="1.625"/>
+        <SeparationRadius value="1.625"/>
+        <ScoreKill value="250"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.625"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <LeaderAlias value="Factory"/>
+        <TechAliasArray value="Alias_Factory"/>
+        <GlossaryAlias value="Factory"/>
+    </CUnit>
+    <CUnit id="FusionCoreNova">
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="750"/>
+        <LifeMax value="750"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <Sight value="9"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="150"/>
+        <RepairTime value="65"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="que5"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5,CancelLast" Row="2" Column="4"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+        </CardLayouts>
+        <Radius value="1.5"/>
+        <SeparationRadius value="1.5"/>
+        <Footprint value="Footprint3x3Contour"/>
+        <PlacementFootprint value="Footprint3x3"/>
+        <ScoreMake value="300"/>
+        <ScoreKill value="300"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TechAliasArray value="Alias_FusionCore"/>
+        <GlossaryPriority value="333"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <TechTreeUnlockedUnitArray value="Battlecruiser"/>
+    </CUnit>
+    <CUnit id="MercCompoundNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1000"/>
+        <LifeMax value="1000"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <EnergyRegenRate value="1"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostResource index="Minerals" value="100"/>
+        <CostResource index="Vespene" value="50"/>
+        <RepairTime value="75"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="que5"/>
+        <AbilArray Link="Rally"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="UnderConstruction"/>
+        <CardLayouts>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" AbilCmd="255,255" Row="1" Column="3"/>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="Rally,Rally1" Row="1" Column="4"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+        </CardLayouts>
+        <Radius value="1.5"/>
+        <SeparationRadius value="1.5"/>
+        <Footprint value="Footprint4x4Contour"/>
+        <PlacementFootprint value="Footprint4x4"/>
+        <ScoreMake value="100"/>
+        <ScoreKill value="300"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <GlossaryPriority value="31"/>
+        <HotkeyCategory value="Unit/Category/TerranStory"/>
+        <TechTreeUnlockedUnitArray value=""/>
+    </CUnit>
+    <CUnit id="MissileTurretNova">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="AIDefense" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="250"/>
+        <LifeMax value="250"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <Sight value="11"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="100"/>
+        <RepairTime value="25"/>
+        <AttackTargetPriority value="19"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="que1"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="Detector11"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <WeaponArray Link="LongboltMissile" Turret="MissileTurret"/>
+        <CardLayouts>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="AttackBuilding" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="Detector" Type="Passive" Requirements="NotUnderConstruction" Row="2" Column="3"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+        </CardLayouts>
+        <Radius value="0.75"/>
+        <SeparationRadius value="0.75"/>
+        <Footprint value="Footprint2x2Contour"/>
+        <PlacementFootprint value="Footprint2x2"/>
+        <ScoreMake value="100"/>
+        <ScoreKill value="100"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="0.75"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="310"/>
+        <GlossaryStrongArray value="Banshee"/>
+        <GlossaryStrongArray value="Mutalisk"/>
+        <GlossaryStrongArray value="VoidRay"/>
+        <GlossaryWeakArray value="Marine"/>
+        <GlossaryWeakArray value="Zergling"/>
+        <GlossaryWeakArray value="Zealot"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+    </CUnit>
+    <CUnit id="OrbitalCommandNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventReveal" value="1"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="TownCamera" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <ResourceDropOff index="Minerals" value="1"/>
+        <ResourceDropOff index="Vespene" value="1"/>
+        <ResourceDropOff index="Terrazine" value="1"/>
+        <ResourceDropOff index="Custom" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1500"/>
+        <LifeMax value="1500"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <EnergyStart value="50"/>
+        <EnergyMax value="200"/>
+        <EnergyRegenRate value="0.5625"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="11"/>
+        <Food value="11"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="550"/>
+        <RepairTime value="135"/>
+        <AttackTargetPriority value="11"/>
+        <KillXP value="80"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="CalldownMULE"/>
+        <AbilArray Link="SupplyDropNova"/>
+        <AbilArray Link="que5CancelToSelection"/>
+        <AbilArray Link="RallyCommand"/>
+        <AbilArray Link="CommandCenterTrainNova"/>
+        <AbilArray Link="ScannerSweep"/>
+        <AbilArray Link="OrbitalLiftOffNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="CommandCenterQueue"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="SCV" Type="AbilCmd" AbilCmd="CommandCenterTrainNova,Train1" Row="0" Column="0"/>
+            <LayoutButtons Face="Lift" Type="AbilCmd" AbilCmd="OrbitalLiftOffNova,0" Row="2" Column="3"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5CancelToSelection,CancelLast" Row="2" Column="4"/>
+            <LayoutButtons Face="Scan" Type="AbilCmd" AbilCmd="ScannerSweep,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="RallyCommand,Rally1" Row="1" Column="4"/>
+            <LayoutButtons Face="CalldownMULE" Type="AbilCmd" AbilCmd="CalldownMULE,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="SupplyDrop" Type="AbilCmd" AbilCmd="SupplyDropNova,Execute" Row="2" Column="1"/>
+        </CardLayouts>
+        <Radius value="2.5"/>
+        <SeparationRadius value="2.5"/>
+        <Footprint value="Footprint5x5Contour"/>
+        <PlacementFootprint value="Footprint5x5DropOff"/>
+        <ScoreMake value="550"/>
+        <ScoreKill value="550"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="4"/>
+        <MinimapRadius value="2.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TacticalAI value="OrbitalCommand"/>
+        <TacticalAIThink value="AIThinkOrbitalCommand"/>
+        <TechAliasArray value="Alias_CommandCenter"/>
+        <GlossaryPriority value="32"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+    </CUnit>
+    <CUnit id="OrbitalCommandNovaFlying">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventReveal" value="1"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1500"/>
+        <LifeMax value="1500"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <EnergyStart value="50"/>
+        <EnergyMax value="200"/>
+        <EnergyRegenRate value="0.5625"/>
+        <Mover value="Fly"/>
+        <Speed value="0.9375"/>
+        <Acceleration value="1.3125"/>
+        <Sight value="11"/>
+        <Height value="3.75"/>
+        <VisionHeight value="4"/>
+        <Food value="11"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="550"/>
+        <RepairTime value="135"/>
+        <AttackTargetPriority value="11"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="80"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="OrbitalCommandLandNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="CommandCenterQueue"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="Land" Type="AbilCmd" AbilCmd="OrbitalCommandLandNova,0" Row="2" Column="3"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+        </CardLayouts>
+        <Radius value="2.5"/>
+        <SeparationRadius value="2.5"/>
+        <ScoreKill value="550"/>
+        <SubgroupPriority value="4"/>
+        <MinimapRadius value="2.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <LeaderAlias value="OrbitalCommand"/>
+        <HotkeyAlias value="OrbitalCommand"/>
+        <TechAliasArray value="Alias_CommandCenter"/>
+        <GlossaryAlias value="OrbitalCommand"/>
+    </CUnit>
+    <CUnit id="PlanetaryFortressNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventReveal" value="1"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="TownCamera" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <ResourceDropOff index="Minerals" value="1"/>
+        <ResourceDropOff index="Vespene" value="1"/>
+        <ResourceDropOff index="Terrazine" value="1"/>
+        <ResourceDropOff index="Custom" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1500"/>
+        <LifeMax value="1500"/>
+        <LifeArmor value="3"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <Sight value="11"/>
+        <Food value="11"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="550"/>
+        <CostResource index="Vespene" value="150"/>
+        <RepairTime value="150"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="RallyCommand"/>
+        <AbilArray Link="CommandCenterTrainNova"/>
+        <AbilArray Link="que5PassiveCancelToSelection"/>
+        <AbilArray Link="CommandCenterTransport"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="CommandCenterQueue"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <WeaponArray Link="TwinIbiksCannon" Turret="PlanetaryFortress"/>
+        <CardLayouts>
+            <LayoutButtons Face="PlanetaryFortressLoad" Type="AbilCmd" AbilCmd="CommandCenterTransport,LoadAll" Row="2" Column="0"/>
+            <LayoutButtons Face="CommandCenterUnloadAll" Type="AbilCmd" AbilCmd="CommandCenterTransport,UnloadAll" Row="2" Column="1"/>
+            <LayoutButtons Face="StopPlanetaryFortress" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="3"/>
+            <LayoutButtons Face="AttackBuildingPFort" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5PassiveCancelToSelection,CancelLast" Row="2" Column="4"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="SCV" Type="AbilCmd" AbilCmd="CommandCenterTrainNova,Train1" Row="0" Column="0"/>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="RallyCommand,Rally1" Row="1" Column="4"/>
+        </CardLayouts>
+        <Radius value="2.5"/>
+        <SeparationRadius value="2.5"/>
+        <Footprint value="Footprint5x5Contour"/>
+        <PlacementFootprint value="Footprint5x5DropOff"/>
+        <ScoreMake value="700"/>
+        <ScoreKill value="700"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="2.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TacticalAI value="PlanetaryFortress"/>
+        <TacticalAIThink value="AIThinkCommandCenter"/>
+        <AIEvalFactor value="0.7"/>
+        <TechAliasArray value="Alias_CommandCenter"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="240"/>
+        <GlossaryStrongArray value="Marine"/>
+        <GlossaryStrongArray value="Zergling"/>
+        <GlossaryStrongArray value="Zealot"/>
+        <GlossaryWeakArray value="Banshee"/>
+        <GlossaryWeakArray value="Mutalisk"/>
+        <GlossaryWeakArray value="VoidRay"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+    </CUnit>
+    <CUnit id="RefineryNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <ResourceState value="Harvestable"/>
+        <ResourceType value="Vespene"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="500"/>
+        <LifeMax value="500"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="75"/>
+        <RepairTime value="30"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <BehaviorArray Link="HarvestableVespeneGeyserGas"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <BehaviorArray Link="RefineryMorph"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <EffectArray index="Create" value="RefineryRichSearch"/>
+        <CardLayouts>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+            <LayoutButtons>
+                <Face value="MicroFiltering"/>
+                <Type value="Passive"/>
+                <AbilCmd value="255"/>
+                <Requirements value="HaveMicroFiltering"/>
+                <Row value="1"/>
+                <Column value="0"/>
+            </LayoutButtons>
+        </CardLayouts>
+        <Radius value="1.5"/>
+        <SeparationRadius value="1.5"/>
+        <Footprint value="FootprintGeyserRoundedBuilt"/>
+        <PlacementFootprint value="Footprint3x3CappedGeyser"/>
+        <BuiltOn value="VespeneGeyser"/>
+        <BuiltOn value="SpacePlatformGeyser"/>
+        <BuiltOn value="RichVespeneGeyser"/>
+        <BuiltOn value="ProtossVespeneGeyser"/>
+        <BuiltOn value="PurifierVespeneGeyser"/>
+        <BuiltOn value="ShakurasVespeneGeyser"/>
+        <BuildOnAs value="RefineryRich"/>
+        <ScoreMake value="75"/>
+        <ScoreKill value="75"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="1"/>
+        <MinimapRadius value="1.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <GlossaryPriority value="244"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+    </CUnit>
+    <CUnit id="SCVNova">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Worker" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <DefaultAcquireLevel value="Defensive"/>
+        <Response value="Flee"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="45"/>
+        <LifeMax value="45"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranInfantryArmor"/>
+        <Speed value="2.8125"/>
+        <Acceleration value="2.5"/>
+        <LateralAcceleration value="46"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="8"/>
+        <Food value="-1"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="50"/>
+        <RepairTime value="16.667"/>
+        <AttackTargetPriority value="20"/>
+        <AIOverideTargetPriority value="10"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="10"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="Repair"/>
+        <AbilArray Link="SCVHarvest"/>
+        <AbilArray Link="TerranBuildNova"/>
+        <WeaponArray Link="FusionCutter"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="AttackWorker" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Repair" Type="AbilCmd" AbilCmd="Repair,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="GatherTerr" Type="AbilCmd" AbilCmd="SCVHarvest,Gather" Row="1" Column="0"/>
+            <LayoutButtons Face="ReturnCargo" Type="AbilCmd" AbilCmd="SCVHarvest,Return" Row="1" Column="1"/>
+            <LayoutButtons Face="TerranBuild" Type="Submenu" SubmenuCardId="TBl1" Row="2" Column="0"/>
+            <LayoutButtons Face="TerranBuildAdvanced" Type="Submenu" SubmenuCardId="TBl2" Row="2" Column="1"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="TerranBuild2,255" Row="2" Column="4"/>
+        </CardLayouts>
+        <CardLayouts CardId="TBl1">
+            <LayoutButtons Face="CommandCenterNova" Type="AbilCmd" AbilCmd="TerranBuildNova,Build1" Row="0" Column="0"/>
+            <LayoutButtons Face="AutomatedRefineryNova" Type="AbilCmd" AbilCmd="TerranBuildNova,Build19" Row="0" Column="1"/>
+            <LayoutButtons Face="BarracksNova" Type="AbilCmd" AbilCmd="TerranBuildNova,Build4" Row="1" Column="0"/>
+            <LayoutButtons Face="EngineeringBayNova" Type="AbilCmd" AbilCmd="TerranBuildNova,Build5" Row="1" Column="1"/>
+            <LayoutButtons Face="NovaACLaserTurret" Type="AbilCmd" AbilCmd="TerranBuildNova,Build15" Row="2" Column="0"/>
+            <LayoutButtons Face="MissileTurretNova" Type="AbilCmd" AbilCmd="TerranBuildNova,Build6" Row="2" Column="1"/>
+            <LayoutButtons Face="Cancel" Type="CancelSubmenu" Row="2" Column="4"/>
+        </CardLayouts>
+        <CardLayouts CardId="TBl2">
+            <LayoutButtons Face="GhostAcademyNova" Type="AbilCmd" AbilCmd="TerranBuildNova,Build10" Row="0" Column="0"/>
+            <LayoutButtons Face="FactoryNova" Type="AbilCmd" AbilCmd="TerranBuildNova,Build11" Row="1" Column="0"/>
+            <LayoutButtons Face="ArmoryNova" Type="AbilCmd" AbilCmd="TerranBuildNova,Build14" Row="1" Column="1"/>
+            <LayoutButtons Face="StarportNova" Type="AbilCmd" AbilCmd="TerranBuildNova,Build12" Row="2" Column="0"/>
+            <LayoutButtons Face="Cancel" Type="CancelSubmenu" Row="2" Column="4"/>
+        </CardLayouts>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <CargoSize value="1"/>
+        <ScoreMake value="50"/>
+        <ScoreKill value="50"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="6"/>
+        <MinimapRadius value="0.375"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
+        <TacticalAIThink value="AIThinkSCV"/>
+        <GlossaryCategory value="Unit/Category/Nova"/>
+        <GlossaryPriority value="10"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+            <ChanceArray index="Turn" value="33"/>
+        </Fidget>
+        <BehaviorArray Link="NovaStunResistance"/>
+        <LifeRegenDelay value="5"/>
+        <LifeRegenRate value="1"/>
+    </CUnit>
+    <CUnit id="SensorTowerNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="200"/>
+        <LifeMax value="200"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="12"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="125"/>
+        <CostResource index="Vespene" value="100"/>
+        <RepairTime value="25"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <BehaviorArray Link="SensorTowerRadar"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="UnderConstruction"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="RadarField" Type="Passive" Requirements="NotUnderConstruction" Row="1" Column="0"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+        </CardLayouts>
+        <Radius value="0.75"/>
+        <SeparationRadius value="0.75"/>
+        <Footprint value="Footprint1x1"/>
+        <PlacementFootprint value="Footprint1x1"/>
+        <ScoreMake value="225"/>
+        <ScoreKill value="225"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="0.75"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <GlossaryPriority value="314"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+    </CUnit>
+    <CUnit id="StarportNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="2600"/>
+        <LifeMax value="2600"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="100"/>
+        <RepairTime value="50"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="que5"/>
+        <AbilArray Link="StarportLiftOffNova"/>
+        <AbilArray Link="StarportTrainNova"/>
+        <AbilArray Link="StarportResearch"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="ReactorQueue"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="ResearchBanshee_BlackOpsAirstrike" Type="AbilCmd" AbilCmd="StarportResearch,Research4" Row="2" Column="0"/>
+            <LayoutButtons Face="ResearchSmartServosNova" Type="AbilCmd" AbilCmd="StarportResearch,Research2" Row="2" Column="1"/>
+            <LayoutButtons Face="LiftNova" Type="AbilCmd" AbilCmd="StarportLiftOffNova,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5,CancelLast" Row="2" Column="4"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+            <LayoutButtons Face="TrainBansheeNova" Type="AbilCmd" AbilCmd="StarportTrainNova,Train1" Row="0" Column="0"/>
+            <LayoutButtons Face="TrainLiberatorNova" Type="AbilCmd" AbilCmd="StarportTrainNova,Train3" Row="0" Column="1"/>
+            <LayoutButtons Face="TrainRavenNova" Type="AbilCmd" AbilCmd="StarportTrainNova,Train2" Row="0" Column="2"/>
+            <LayoutButtons Face="ResearchXN51CloakTechnology" Type="AbilCmd" AbilCmd="StarportResearch,Research3" Row="1" Column="0"/>
+            <LayoutButtons Face="ResearchRaidArtilleryNova" Type="AbilCmd" AbilCmd="StarportResearch,Research1" Row="1" Column="1"/>
+            <LayoutButtons Face="ResearchHealingDroneCloakHealBeamNova" Type="AbilCmd" AbilCmd="StarportResearch,Research5" Row="1" Column="2"/>
+            <LayoutButtons Face="ResearchSuperScience" Type="AbilCmd" AbilCmd="StarportResearch,Research6" Row="2" Column="2"/>
+        </CardLayouts>
+        <Radius value="1.625"/>
+        <SeparationRadius value="1.625"/>
+        <Footprint value="Footprint3x3Contour"/>
+        <PlacementFootprint value="Footprint3x3"/>
+        <ScoreMake value="250"/>
+        <ScoreKill value="250"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.625"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TacticalAI value="Starport"/>
+        <TechAliasArray value="Alias_Starport"/>
+        <GlossaryPriority value="329"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+        <TechTreeProducedUnitArray value="VikingFighter"/>
+        <TechTreeProducedUnitArray value="Medivac"/>
+        <TechTreeProducedUnitArray value="Liberator"/>
+        <TechTreeProducedUnitArray value="Raven"/>
+        <TechTreeProducedUnitArray value="Banshee"/>
+        <TechTreeProducedUnitArray value="Battlecruiser"/>
+        <EffectArray index="Birth" value="StarportTrainSpeedNova"/>
+    </CUnit>
+    <CUnit id="StarportNovaFlying">
+        <Name value="Unit/Name/Starport"/>
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1300"/>
+        <LifeMax value="1300"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <Mover value="Fly"/>
+        <Speed value="0.9375"/>
+        <Acceleration value="1.3125"/>
+        <Sight value="9"/>
+        <Height value="3.25"/>
+        <VisionHeight value="4"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="100"/>
+        <RepairTime value="50"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="StarportLandNova"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="StarportTrainNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="LandNova" Type="AbilCmd" AbilCmd="StarportLandNova,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+        </CardLayouts>
+        <Radius value="1.625"/>
+        <SeparationRadius value="1.625"/>
+        <ScoreKill value="250"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.625"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <LeaderAlias value="Starport"/>
+        <TechAliasArray value="Alias_Starport"/>
+        <GlossaryAlias value="Starport"/>
+    </CUnit>
+    <CUnit id="SupplyDepotNovaDrop">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="350"/>
+        <LifeMax value="350"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostResource index="Minerals" value="100"/>
+        <RepairTime value="50"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildinProgressNonCancellable"/>
+        <AbilArray Link="DropToSupplyDepotNova"/>
+        <CardLayouts/>
+        <Radius value="1.25"/>
+        <SeparationRadius value="1.25"/>
+        <Footprint value="Footprint2x2Contour"/>
+        <PlacementFootprint value="Footprint2x2"/>
+        <ScoreMake value="50"/>
+        <ScoreKill value="150"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.25"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TechAliasArray value="Alias_SupplyDepot"/>
+    </CUnit>
+    <CUnit id="SupplyDepotNova">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="400"/>
+        <LifeMax value="400"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <Food value="8"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="100"/>
+        <RepairTime value="30"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="SupplyDepotLowerNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="Lower" Type="AbilCmd" AbilCmd="SupplyDepotLowerNova,0" Row="2" Column="0"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+        </CardLayouts>
+        <Radius value="1.25"/>
+        <SeparationRadius value="1.25"/>
+        <Footprint value="Footprint2x2Contour"/>
+        <PlacementFootprint value="Footprint2x2"/>
+        <ScoreMake value="100"/>
+        <ScoreKill value="100"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.25"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <TacticalAI value="SupplyDepot"/>
+        <SelectAlias value="SupplyDepot"/>
+        <TechAliasArray value="Alias_SupplyDepot"/>
+        <GlossaryPriority value="248"/>
+        <HotkeyCategory value="Unit/Category/Nova"/>
+    </CUnit>
+    <CUnit id="SupplyDepotNovaLowered">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="400"/>
+        <LifeMax value="400"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <Food value="8"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="100"/>
+        <RepairTime value="30"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="SupplyDepotRaiseNova"/>
+        <BehaviorArray Link="TerranBuildingBurnDown"/>
+        <BehaviorArray Link="FireSuppressionSystem"/>
+        <CardLayouts>
+            <LayoutButtons Face="Raise" Type="AbilCmd" AbilCmd="SupplyDepotRaiseNova,0" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="1.25"/>
+        <SeparationRadius value="1.25"/>
+        <Footprint value="Footprint2x2Underground"/>
+        <ScoreKill value="100"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.25"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <LeaderAlias value="SupplyDepot"/>
+        <HotkeyAlias value="SupplyDepot"/>
+        <SelectAlias value="SupplyDepot"/>
+        <TechAliasArray value="Alias_SupplyDepot"/>
+    </CUnit>
+    <CUnit id="NovaGriffinTransportCaster">
+        <Race value="Prot"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="Unstoppable" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Mover value="Fly"/>
+        <AbilArray Link="NovaGriffinTransportUnload"/>
+        <CardLayouts>
+            <LayoutButtons Face="SOAPoint" Type="AbilCmd" AbilCmd="NovaGriffinTransportUnload,Execute" Row="0" Column="0"/>
+        </CardLayouts>
+        <MinimapRadius value="0"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="NovaGriffinBombingRunTargeter">
+        <Race value="Terr"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="Unstoppable" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Mover value="Fly"/>
+        <AbilArray Link="NovaGriffinBombingRunExecute"/>
+        <CardLayouts>
+            <LayoutButtons Face="NovaGriffinBombingRun" Type="AbilCmd" AbilCmd="NovaGriffinBombingRunExecute,Execute" Row="0" Column="0"/>
+        </CardLayouts>
+        <MinimapRadius value="0"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="NovaGriffinBombingRunStrafer">
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="Unstoppable" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="375"/>
+        <LifeMax value="375"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranShipPlating"/>
+        <Mover value="Fly"/>
+        <Speed value="12"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="1000"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="3"/>
+        <VisionHeight value="4"/>
+        <BehaviorArray Link="NovaGriffinBombingRunStraferDummyLMDelay"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="AcquireMove" Type="AbilCmd" AbilCmd="move,AcquireMove" Row="0" Column="4"/>
+        </CardLayouts>
+        <Radius value="0"/>
+        <SeparationRadius value="0"/>
+        <ScoreResult value="BuildOrder"/>
+        <MinimapRadius value="0"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="NovaGriffinBombingRunDummyLMWeapon" parent="MISSILE">
+        <Race value="Terr"/>
+        <Mover value="NovaGriffinBombingRunDummyAttackMissile"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="NovaGriffinBombingRunDummyAltLMWeapon" parent="MISSILE">
+        <Race value="Terr"/>
+        <Mover value="NovaGriffinBombingRunDummyAttackMissile"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:FactionCovertOps"/>
+    </CUnit>
+    <CUnit id="LiberatorAGUnitNova">
+        <Race value="Terr"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="Uncommandable" value="1"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="Uncursorable" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <FlagArray index="Unstoppable" value="1"/>
+        <EditorCategories value=""/>
+        <Mover value="FlyLow"/>
+        <Speed value="2"/>
+        <Acceleration value="100"/>
+        <Deceleration value="100"/>
+    </CUnit>
+</Catalog>

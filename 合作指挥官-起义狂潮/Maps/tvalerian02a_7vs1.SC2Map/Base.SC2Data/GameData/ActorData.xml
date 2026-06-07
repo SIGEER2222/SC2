@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CActorUnit id="BroodmotherNaisha" parent="GenericUnitBase" unitName="BroodmotherNaisha">
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="ZergBurrowStandardAnimMacro"/>
+        <Macros value="ZergLargeBurrowEffects"/>
+        <Macros value="UnloadDropAnim"/>
+        <On Terms="UnitBirth.BroodmotherNaishaBurrowed" Send="Create"/>
+        <On Terms="UnitBirth.BroodmotherNaishaBurrowed" Send="AnimBracketStart Burrow Burrow IGNORE Unburrow ClosingFull,OpeningPlayForever,Instant"/>
+        <On Terms="UnitBirth.BroodmotherNaisha.Normal" Send="$Birth 0 0.000000"/>
+        <On Terms="AbilMorph.*.Start; AbilKey BurrowDown" Send="Create BurrowDownLarge"/>
+        <On Terms="AbilMorph.*.Cancel; MorphFrom BroodmotherNaisha; MorphTo BroodmotherNaishaBurrowed" Send="AnimClear Burrow"/>
+        <On Terms="AbilMorph.*.Finish; MorphTo BroodmotherNaisha; MorphFrom BroodmotherNaishaBurrowed" Send="AnimBracketStop Burrow"/>
+        <On Terms="AbilMorph.*.Finish; MorphTo BroodmotherNaisha; MorphFrom BroodmotherNaishaBurrowed" Send="AnimClear Burrow"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.SwarmQueenAcidSpines.AttackStart" Send="AnimBracketStart Attack Spell,C"/>
+        <On Terms="WeaponStart.SwarmQueenTalons.AttackStart; WeaponTargetDistance LE 1.000000" Send="AnimBracketStart Attack Attack,Cover"/>
+        <On Terms="WeaponStart.SwarmQueenTalons.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="Signal.*.Egg; IsStatus MoveStatus 0" Send="AnimPlay WorkStart Stand,Work,Start"/>
+        <On Terms="AnimDone; AnimName WorkStart" Send="AnimPlay WorkEnd Stand,Work,End"/>
+        <On Terms="UnitMovementUpdate.BroodmotherNaisha.Stand" Send="StatusSet MoveStatus 0"/>
+        <On Terms="UnitMovementUpdate.BroodmotherNaisha.Walk" Send="StatusSet MoveStatus 1"/>
+        <On Terms="UnitMovementUpdate.BroodmotherNaisha.Walk" Send="AnimClear WorkStart"/>
+        <On Terms="UnitMovementUpdate.BroodmotherNaisha.Walk" Send="AnimClear WorkEnd"/>
+        <On Terms="UnitBirth.BroodmotherNaisha" Send="TerrainSquibActivateGroup RippleStandard"/>
+        <On Terms="AbilMorph.*.Finish; MorphTo BroodmotherNaisha; MorphFrom BroodmotherNaishaBurrowed" Send="TerrainSquibActivateGroup RippleStandard"/>
+        <On Terms="AbilMorph.*.Finish; MorphTo BroodmotherNaishaBurrowed; MorphFrom BroodmotherNaisha" Send="TerrainSquibDeactivate"/>
+        <Model value="HugeSwarmQueen"/>
+        <BuildModel value="HugeSwarmQueen"/>
+        <DeathArray index="Normal" ModelLink="HugeSwarmQueenDeath" SoundLink="Queen_Explode" VoiceLink="Niadra_Death"/>
+        <PlacementModel value="HugeSwarmQueen"/>
+        <PortraitActor value="SwarmQueenPortrait"/>
+        <PortraitModel value="SwarmQueenPortrait"/>
+        <TerrainSquibs>
+            <GroupName value="RippleStandard"/>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="2.000000"/>
+            <RangeDown value="2.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleHugeSwarmQueen"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="1.7031"/>
+        <BarOffset value="75"/>
+        <CustomUnitStatusFrame value="HotS_UnitStatus/KerriganHeroUnitStatusFrameTemplate"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Zerg-ExpeditionQueenLevel3.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-Zerg-broodqueen.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <SoundArray index="Ready" value="QueenReady"/>
+        <SoundArray index="Help" value="Niadra_Help"/>
+        <SoundArray index="What" value="Niadra_What"/>
+        <SoundArray index="Yes" value="Niadra_Yes"/>
+        <SoundArray index="Attack" value="Niadra_Attack"/>
+        <SoundArray index="Pissed" value="Niadra_Pissed"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <UnitIcon value="Assets\Textures\btn-unit-Zerg-broodqueen.dds"/>
+        <UnitKillRank Text="UnitKillRank/BroodMother"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Zerg-ExpeditionQueenLevel3.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorModel id="MutatorScorchedEarthFireBeamLargeModel">
+        <Scale value="11.000000"/>
+    </CActorModel>
+</Catalog>

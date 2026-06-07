@@ -1,0 +1,664 @@
+// XMFinal split module: commander panel ability test profiles.
+
+bool libE0EAE146_gf_XMTestBench_CheckPanelProfile (int lp_player, string lp_commander, string lp_panelAbilityId, string lp_abilityId, string lp_buttonId, string lp_requirementId, string lp_casterId, string lp_targetMode, string lp_note, point lp_targetPoint) {
+    int lv_mineralsBefore;
+    int lv_vespeneBefore;
+    bool lv_ok;
+
+    lv_mineralsBefore = PlayerGetPropertyInt(lp_player, c_playerPropMinerals);
+    lv_vespeneBefore = PlayerGetPropertyInt(lp_player, c_playerPropVespene);
+    lv_ok = true;
+
+    if ((lp_abilityId == "") || (!CatalogEntryIsValid(c_gameCatalogAbil, lp_abilityId))) {
+        lv_ok = false;
+    }
+    if ((lp_buttonId != "") && (!CatalogEntryIsValid(c_gameCatalogButton, lp_buttonId))) {
+        lv_ok = false;
+    }
+    if ((lp_requirementId != "") && (!CatalogEntryIsValid(c_gameCatalogRequirement, lp_requirementId))) {
+        lv_ok = false;
+    }
+    if ((lp_casterId != "") && (!CatalogEntryIsValid(c_gameCatalogUnit, lp_casterId))) {
+        lv_ok = false;
+    }
+
+    if (!lv_ok) {
+        libE0EAE146_gv_xmTestBenchMissing[lp_player] += 1;
+        libE0EAE146_gf_XMTestBench_AddWarning(lp_player);
+        libE0EAE146_gf_XMTestBench_SetLastEvent(lp_player, "PANEL_PROFILE_MISSING");
+        libE0EAE146_gf_XMDbgLog("WARN", "PANEL_PROFILE_MISSING", "commander=" + lp_commander + " panel=" + lp_panelAbilityId + " ability=" + lp_abilityId + " button=" + lp_buttonId + " requirement=" + lp_requirementId + " caster=" + lp_casterId + " targetMode=" + lp_targetMode + " note=" + lp_note + " result=missing_catalog_entry");
+        return false;
+    }
+
+    libE0EAE146_gv_xmTestBenchCreated[lp_player] += 1;
+    libE0EAE146_gf_XMTestBench_SetLastEvent(lp_player, "PANEL_PROFILE_HIT");
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_HIT", "commander=" + lp_commander + " panel=" + lp_panelAbilityId + " ability=" + lp_abilityId + " button=" + lp_buttonId + " requirement=" + lp_requirementId + " targetMode=" + lp_targetMode + " mineralsBefore=" + IntToString(lv_mineralsBefore) + " vespeneBefore=" + IntToString(lv_vespeneBefore) + " caster=" + lp_casterId + " note=" + lp_note + " result=profile_metadata_only reason=actual_cast_not_issued_by_smoke");
+    return true;
+}
+
+bool libE0EAE146_gf_XMTestBench_RaynorPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Raynor", "hyperion", "VoidCoopSummonHyperion", "SummonHyperionVoid", "", "CoopCasterRaynor", "point", "summon_hyperion", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Raynor", "banshee_airstrike", "BansheeAirstrike", "BansheeAirstrike", "", "CoopCasterRaynor", "point", "summon_dusk_wings", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if (lv_panel == "hyperion") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Raynor", "hyperion", "VoidCoopSummonHyperion", "SummonHyperionVoid", "", "CoopCasterRaynor", "point", "summon_hyperion", lp_targetPoint);
+    }
+    if ((lv_panel == "banshee") || (lv_panel == "banshee_airstrike")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Raynor", "banshee_airstrike", "BansheeAirstrike", "BansheeAirstrike", "", "CoopCasterRaynor", "point", "summon_dusk_wings", lp_targetPoint);
+    }
+
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Raynor requested=" + lv_panel + " fallback=hyperion");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Raynor", "hyperion", "VoidCoopSummonHyperion", "SummonHyperionVoid", "", "CoopCasterRaynor", "point", "summon_hyperion", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_NovaPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default") || (lv_panel == "griffin_bombing_run")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Nova", "griffin_bombing_run", "NovaGriffinBombingRunExecute", "NovaGriffinBombingRun", "", "CoopCasterNova", "point", "griffin_bombing_run", lp_targetPoint);
+    }
+    if ((lv_panel == "griffin_transport") || (lv_panel == "transport")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Nova", "griffin_transport", "NovaGriffinTransportLoadUnits", "NovaGriffinTransportUnits", "", "CoopCasterNova", "instant", "griffin_transport", lp_targetPoint);
+    }
+    if ((lv_panel == "nuke") || (lv_panel == "tactical_nuke")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Nova", "tactical_nuke", "NovaCoopCasterNuke", "NovaCoopCasterNuke", "HaveShadowOpsandNovaStealthSuit", "CoopCasterNova", "point", "tactical_nuke", lp_targetPoint);
+    }
+    if ((lv_panel == "holo_decoy") || (lv_panel == "decoy")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Nova", "holo_decoy", "NovaCoopDecoyTarget", "NovaCoopDecoy", "HaveNovaCombatSuit", "CoopCasterNova", "point", "holo_decoy", lp_targetPoint);
+    }
+
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Nova requested=" + lv_panel + " fallback=griffin_bombing_run");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Nova", "griffin_bombing_run", "NovaGriffinBombingRunExecute", "NovaGriffinBombingRun", "", "CoopCasterNova", "point", "griffin_bombing_run", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_DehakaPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default") || (lv_panel == "glevig")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Dehaka", "glevig", "DehakaGlevigTopBar", "DehakaGlevigTopBar", "DehakaSummonGlevig", "CoopCasterDehaka", "point", "summon_glevig", lp_targetPoint);
+    }
+    if (lv_panel == "murvar") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Dehaka", "murvar", "DehakaMurvarTopBar", "DehakaMurvarTopBar", "DehakaSummonMurvar", "CoopCasterDehaka", "point", "summon_murvar", lp_targetPoint);
+    }
+    if (lv_panel == "dakrun") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Dehaka", "dakrun", "DehakaDakrunTopBar", "DehakaDakrunTopBar", "DehakaSummonDakrun", "CoopCasterDehaka", "point", "summon_dakrun", lp_targetPoint);
+    }
+    if ((lv_panel == "nydus_destroyer") || (lv_panel == "primal_wurm")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Dehaka", "nydus_destroyer", "DehakaNydusDestroyerTopBar", "DehakaNydusDestroyerTopBar", "HaveDehakaGlevigStructure", "CoopCasterDehaka", "point", "summon_primal_wurm", lp_targetPoint);
+    }
+
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Dehaka requested=" + lv_panel + " fallback=glevig");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Dehaka", "glevig", "DehakaGlevigTopBar", "DehakaGlevigTopBar", "DehakaSummonGlevig", "CoopCasterDehaka", "point", "summon_glevig", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_AlarakPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Alarak", "structure_overcharge", "AlarakStructureOvercharge", "AlarakStructureOvercharge", "", "CoopCasterAlarak", "unit_or_structure", "structure_overcharge", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Alarak", "death_fleet", "AlarakACSummonDeathfleetTarget", "AlarakACSummonDeathfleet", "NoAlarakMothership", "CoopCasterAlarak", "point", "summon_death_fleet", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "structure_overcharge") || (lv_panel == "overcharge")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Alarak", "structure_overcharge", "AlarakStructureOvercharge", "AlarakStructureOvercharge", "", "CoopCasterAlarak", "unit_or_structure", "structure_overcharge", lp_targetPoint);
+    }
+    if ((lv_panel == "death_fleet") || (lv_panel == "deathfleet")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Alarak", "death_fleet", "AlarakACSummonDeathfleetTarget", "AlarakACSummonDeathfleet", "NoAlarakMothership", "CoopCasterAlarak", "point", "summon_death_fleet", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Alarak requested=" + lv_panel + " fallback=structure_overcharge");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Alarak", "structure_overcharge", "AlarakStructureOvercharge", "AlarakStructureOvercharge", "", "CoopCasterAlarak", "unit_or_structure", "structure_overcharge", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_ArtanisPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "power_field", "SOAPylonPower", "SOAPylonPower", "HaveSOAPylonPower", "SoACasterArtanis", "point", "deploy_power_field", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "orbital_strike_activate", "SOAOrbitalStrikeActivate", "SOAOrbitalStrike", "HaveSOAOrbitalStrike", "SoACasterArtanis", "toggle", "orbital_strike_targeting_on", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "orbital_strike_execute", "SOAOrbitalStrikeExecute", "SOAOrbitalStrike", "HaveSOAOrbitalStrike", "SoACasterArtanis", "point", "orbital_strike_execute", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "shield_overcharge", "SoASuperShield", "SOASuperShield", "HaveSOASuperShield", "SoACasterArtanis", "instant", "shield_overcharge", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "solar_bombardment", "SOAStrafeAttack", "SOAStrafeAttack", "HaveSOAStrafeAttack", "SoACasterArtanis", "point", "solar_bombardment", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "solar_bombardment_execute", "SOAStrafeAttackExecute", "SOAStrafeAttack", "", "SoACasterArtanis", "point", "solar_bombardment_execute", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "power_field") || (lv_panel == "pylon_power")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "power_field", "SOAPylonPower", "SOAPylonPower", "HaveSOAPylonPower", "SoACasterArtanis", "point", "deploy_power_field", lp_targetPoint);
+    }
+    if (lv_panel == "orbital_strike") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "orbital_strike_execute", "SOAOrbitalStrikeExecute", "SOAOrbitalStrike", "HaveSOAOrbitalStrike", "SoACasterArtanis", "point", "orbital_strike_execute", lp_targetPoint);
+    }
+    if ((lv_panel == "shield_overcharge") || (lv_panel == "shield")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "shield_overcharge", "SoASuperShield", "SOASuperShield", "HaveSOASuperShield", "SoACasterArtanis", "instant", "shield_overcharge", lp_targetPoint);
+    }
+    if ((lv_panel == "solar_bombardment") || (lv_panel == "strafe")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "solar_bombardment", "SOAStrafeAttack", "SOAStrafeAttack", "HaveSOAStrafeAttack", "SoACasterArtanis", "point", "solar_bombardment", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Artanis requested=" + lv_panel + " fallback=power_field");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Artanis", "power_field", "SOAPylonPower", "SOAPylonPower", "HaveSOAPylonPower", "SoACasterArtanis", "point", "deploy_power_field", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_FenixPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Fenix", "praetor_suit", "SOASummonFenix", "SOASummonFenix", "", "SoACasterFenix", "point", "summon_praetor_suit", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Fenix", "dragoon_suit", "SOASummonFenixDragoon", "SOASummonFenixDragoon", "", "SoACasterFenix", "point", "summon_dragoon_suit", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Fenix", "arbiter_suit", "SOASummonFenixArbiter", "SOASummonFenixArbiter", "", "SoACasterFenix", "point", "summon_arbiter_suit", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "praetor_suit") || (lv_panel == "fenix")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Fenix", "praetor_suit", "SOASummonFenix", "SOASummonFenix", "", "SoACasterFenix", "point", "summon_praetor_suit", lp_targetPoint);
+    }
+    if ((lv_panel == "dragoon_suit") || (lv_panel == "dragoon")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Fenix", "dragoon_suit", "SOASummonFenixDragoon", "SOASummonFenixDragoon", "", "SoACasterFenix", "point", "summon_dragoon_suit", lp_targetPoint);
+    }
+    if ((lv_panel == "arbiter_suit") || (lv_panel == "arbiter")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Fenix", "arbiter_suit", "SOASummonFenixArbiter", "SOASummonFenixArbiter", "", "SoACasterFenix", "point", "summon_arbiter_suit", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Fenix requested=" + lv_panel + " fallback=praetor_suit");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Fenix", "praetor_suit", "SOASummonFenix", "SOASummonFenix", "", "SoACasterFenix", "point", "summon_praetor_suit", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_KaraxPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Karax", "orbital_strike", "SOAOrbitalStrikeKarax", "SOAOrbitalStrikeKarax", "HaveSOAOrbitalStrike", "SoACasterKarax", "point", "orbital_strike_energy", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Karax", "solar_lance_activate", "SOAThermalLanceActivate", "SOAThermalLance", "", "SoACasterKarax", "toggle", "solar_lance_targeting_on", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Karax", "solar_lance_execute", "SOAThermalLanceExecute", "SOAThermalLance", "", "SoACasterKarax", "line", "solar_lance_execute", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Karax", "chrono_wave", "SOAMapWideChrono", "SOAMapWideChrono", "HaveSOAMapWideChrono", "SoACasterKarax", "instant", "chrono_wave", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Karax", "purifier_beam", "SOAPurifierBeam", "SOAPurifierBeam", "", "SoACasterKarax", "point", "purifier_beam", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if (lv_panel == "orbital_strike") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Karax", "orbital_strike", "SOAOrbitalStrikeKarax", "SOAOrbitalStrikeKarax", "HaveSOAOrbitalStrike", "SoACasterKarax", "point", "orbital_strike_energy", lp_targetPoint);
+    }
+    if ((lv_panel == "solar_lance") || (lv_panel == "thermal_lance")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Karax", "solar_lance_execute", "SOAThermalLanceExecute", "SOAThermalLance", "", "SoACasterKarax", "line", "solar_lance_execute", lp_targetPoint);
+    }
+    if ((lv_panel == "chrono_wave") || (lv_panel == "map_wide_chrono")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Karax", "chrono_wave", "SOAMapWideChrono", "SOAMapWideChrono", "HaveSOAMapWideChrono", "SoACasterKarax", "instant", "chrono_wave", lp_targetPoint);
+    }
+    if (lv_panel == "purifier_beam") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Karax", "purifier_beam", "SOAPurifierBeam", "SOAPurifierBeam", "", "SoACasterKarax", "point", "purifier_beam", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Karax requested=" + lv_panel + " fallback=orbital_strike");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Karax", "orbital_strike", "SOAOrbitalStrikeKarax", "SOAOrbitalStrikeKarax", "HaveSOAOrbitalStrike", "SoACasterKarax", "point", "orbital_strike_energy", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_KerriganPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Kerrigan", "assimilation_aura", "KerriganVoidCoopEconDrop", "KerriganVoidCoopEconDrop", "", "K5Kerrigan", "instant", "assimilation_aura", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Kerrigan", "immobilization_wave", "KerriganVoidCoopCrushingGripWave", "KerriganVoidCoopCrushingGripWave", "", "K5Kerrigan", "instant", "immobilization_wave", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Kerrigan", "maelstrom", "KerriganMaelstrom", "KerriganMaelstrom", "", "K5Kerrigan", "instant", "maelstrom", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "assimilation_aura") || (lv_panel == "econ_drop")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Kerrigan", "assimilation_aura", "KerriganVoidCoopEconDrop", "KerriganVoidCoopEconDrop", "", "K5Kerrigan", "instant", "assimilation_aura", lp_targetPoint);
+    }
+    if ((lv_panel == "immobilization_wave") || (lv_panel == "crushing_grip_wave")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Kerrigan", "immobilization_wave", "KerriganVoidCoopCrushingGripWave", "KerriganVoidCoopCrushingGripWave", "", "K5Kerrigan", "instant", "immobilization_wave", lp_targetPoint);
+    }
+    if (lv_panel == "maelstrom") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Kerrigan", "maelstrom", "KerriganMaelstrom", "KerriganMaelstrom", "", "K5Kerrigan", "instant", "maelstrom", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Kerrigan requested=" + lv_panel + " fallback=assimilation_aura");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Kerrigan", "assimilation_aura", "KerriganVoidCoopEconDrop", "KerriganVoidCoopEconDrop", "", "K5Kerrigan", "instant", "assimilation_aura", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_VorazunPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "dark_pylon", "SOADarkPylon", "SOADarkPylon", "", "SoACasterVorazun", "build_point", "summon_dark_pylon", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "black_hole", "VoidSentryBlackHole", "SOAVorazunBlackHole", "", "SoACasterVorazun", "point", "black_hole", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "shadow_guard", "SOAShadowGuardCalldown", "SOAShadowGuardCalldown", "", "SoACasterVorazun", "point", "summon_shadow_guard", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "time_stop", "SOATimeFreeze", "SOATimeFreeze", "HaveSOATimeFreeze", "SoACasterVorazun", "instant", "time_stop", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "time_stop_prestige", "CommanderPrestigeVorazunTimeStop", "SOATimeFreeze", "HaveSOATimeFreeze", "SoACasterVorazun", "instant", "time_stop_prestige", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if (lv_panel == "dark_pylon") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "dark_pylon", "SOADarkPylon", "SOADarkPylon", "", "SoACasterVorazun", "build_point", "summon_dark_pylon", lp_targetPoint);
+    }
+    if ((lv_panel == "black_hole") || (lv_panel == "vortex")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "black_hole", "VoidSentryBlackHole", "SOAVorazunBlackHole", "", "SoACasterVorazun", "point", "black_hole", lp_targetPoint);
+    }
+    if ((lv_panel == "shadow_guard") || (lv_panel == "shadowguard")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "shadow_guard", "SOAShadowGuardCalldown", "SOAShadowGuardCalldown", "", "SoACasterVorazun", "point", "summon_shadow_guard", lp_targetPoint);
+    }
+    if (lv_panel == "time_stop") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "time_stop", "SOATimeFreeze", "SOATimeFreeze", "HaveSOATimeFreeze", "SoACasterVorazun", "instant", "time_stop", lp_targetPoint);
+    }
+    if ((lv_panel == "time_stop_prestige") || (lv_panel == "prestige_time_stop")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "time_stop_prestige", "CommanderPrestigeVorazunTimeStop", "SOATimeFreeze", "HaveSOATimeFreeze", "SoACasterVorazun", "instant", "time_stop_prestige", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Vorazun requested=" + lv_panel + " fallback=dark_pylon");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Vorazun", "dark_pylon", "SOADarkPylon", "SOADarkPylon", "", "SoACasterVorazun", "build_point", "summon_dark_pylon", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_AbathurPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Abathur", "toxic_nest", "SpawnToxicNest", "SpawnToxicNest", "", "CoopCasterAbathur", "build_point", "spawn_toxic_nest", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Abathur", "mend", "AbathurCreepMend", "AbathurCreepMend", "", "CoopCasterAbathur", "instant", "mend", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Abathur", "bio_mechanical_transfusion", "BioMechanicalTransfusion", "BioMechanicalTransfusion", "HaveBioMechanicalTransfusion", "CoopCasterAbathur", "unit", "bio_mechanical_transfusion", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "toxic_nest") || (lv_panel == "nest") || (lv_panel == "build_toxic_nest")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Abathur", "toxic_nest", "SpawnToxicNest", "SpawnToxicNest", "", "CoopCasterAbathur", "build_point", "spawn_toxic_nest", lp_targetPoint);
+    }
+    if (lv_panel == "mend") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Abathur", "mend", "AbathurCreepMend", "AbathurCreepMend", "", "CoopCasterAbathur", "instant", "mend", lp_targetPoint);
+    }
+    if ((lv_panel == "bio_mechanical_transfusion") || (lv_panel == "transfusion") || (lv_panel == "heal")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Abathur", "bio_mechanical_transfusion", "BioMechanicalTransfusion", "BioMechanicalTransfusion", "HaveBioMechanicalTransfusion", "CoopCasterAbathur", "unit", "bio_mechanical_transfusion", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Abathur requested=" + lv_panel + " fallback=toxic_nest");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Abathur", "toxic_nest", "SpawnToxicNest", "SpawnToxicNest", "", "CoopCasterAbathur", "build_point", "spawn_toxic_nest", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_AbathurRebornPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "AbathurReborn", "toxic_nest", "SpawnToxicNestAbathurReborn", "SpawnToxicNestAbathurReborn", "HaveAbathurRebornCommander", "CoopCasterAbathurReborn", "build_point", "spawn_toxic_nest", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "AbathurReborn", "mend", "AbathurRebornMend", "AbathurRebornMend", "", "CoopCasterAbathurReborn", "instant", "mend", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "toxic_nest") || (lv_panel == "nest") || (lv_panel == "build_toxic_nest")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "AbathurReborn", "toxic_nest", "SpawnToxicNestAbathurReborn", "SpawnToxicNestAbathurReborn", "HaveAbathurRebornCommander", "CoopCasterAbathurReborn", "build_point", "spawn_toxic_nest", lp_targetPoint);
+    }
+    if ((lv_panel == "mend") || (lv_panel == "healing")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "AbathurReborn", "mend", "AbathurRebornMend", "AbathurRebornMend", "", "CoopCasterAbathurReborn", "instant", "mend", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=AbathurReborn requested=" + lv_panel + " fallback=toxic_nest");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "AbathurReborn", "toxic_nest", "SpawnToxicNestAbathurReborn", "SpawnToxicNestAbathurReborn", "HaveAbathurRebornCommander", "CoopCasterAbathurReborn", "build_point", "spawn_toxic_nest", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_SwannPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Swann", "laser_drill_attack", "DrakkenLaserDrillAttackIssueOrder", "DrakkenLaserDrillAttackIssueOrder", "HaveLaserDrill", "CoopCasterSwann", "unit", "laser_drill_attack", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Swann", "concentrated_beam", "DrakkenLaserDrillConcentratedBeamIssueOrder", "DrakkenLaserDrillBFGIO", "HaveLaserDrillBFG", "CoopCasterSwann", "point", "concentrated_beam", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Swann", "pulse_cannon", "DrakkenLaserDrillPulseCannonIssueOrder", "DrakkenLaserDrillPulseCannonIO", "HaveLaserDrillNuke", "CoopCasterSwann", "point", "pulse_cannon", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Swann", "combat_drop", "SpecialDelivery", "SpecialDelivery", "", "CoopCasterSwann", "point", "combat_drop", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "laser_drill_attack") || (lv_panel == "laser_drill")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Swann", "laser_drill_attack", "DrakkenLaserDrillAttackIssueOrder", "DrakkenLaserDrillAttackIssueOrder", "HaveLaserDrill", "CoopCasterSwann", "unit", "laser_drill_attack", lp_targetPoint);
+    }
+    if ((lv_panel == "concentrated_beam") || (lv_panel == "beam")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Swann", "concentrated_beam", "DrakkenLaserDrillConcentratedBeamIssueOrder", "DrakkenLaserDrillBFGIO", "HaveLaserDrillBFG", "CoopCasterSwann", "point", "concentrated_beam", lp_targetPoint);
+    }
+    if ((lv_panel == "pulse_cannon") || (lv_panel == "laser_nuke")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Swann", "pulse_cannon", "DrakkenLaserDrillPulseCannonIssueOrder", "DrakkenLaserDrillPulseCannonIO", "HaveLaserDrillNuke", "CoopCasterSwann", "point", "pulse_cannon", lp_targetPoint);
+    }
+    if ((lv_panel == "combat_drop") || (lv_panel == "special_delivery")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Swann", "combat_drop", "SpecialDelivery", "SpecialDelivery", "", "CoopCasterSwann", "point", "combat_drop", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Swann requested=" + lv_panel + " fallback=laser_drill_attack");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Swann", "laser_drill_attack", "DrakkenLaserDrillAttackIssueOrder", "DrakkenLaserDrillAttackIssueOrder", "HaveLaserDrill", "CoopCasterSwann", "unit", "laser_drill_attack", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_HornerPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "mag_mines", "HHTrainTopBar", "HHMagneticMines", "", "CoopCasterHorner", "build_point", "mag_mines", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "precision_strike_dummy", "HHBomberPlatformAreaBombTopBarDummyTimer", "HHBomberAreaBombTopBarDummy", "", "CoopCasterHorner", "point", "precision_strike_dummy", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "precision_strike", "HHBomberPlatformAreaBombTopBarOrder", "HHBomberAreaBombTopBar", "HornerHanLevel02", "CoopCasterHorner", "point", "precision_strike", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "air_fleet_activate", "HornerAirFleetActivate", "HornerAirFleet", "HornerHanLevel05", "CoopCasterHorner", "toggle", "air_fleet_targeting_on", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "air_fleet_target", "HornerAirFleetTargetingDummy", "HornerAirFleet", "HornerHanLevel05", "CoopCasterHorner", "point", "air_fleet_target", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "space_station", "HHSummonMercenarySpaceStation", "HHSummonSpaceStation", "HornerHanLevel10", "CoopCasterHorner", "point", "space_station", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "mag_mines") || (lv_panel == "mines")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "mag_mines", "HHTrainTopBar", "HHMagneticMines", "", "CoopCasterHorner", "build_point", "mag_mines", lp_targetPoint);
+    }
+    if ((lv_panel == "precision_strike") || (lv_panel == "bomber")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "precision_strike", "HHBomberPlatformAreaBombTopBarOrder", "HHBomberAreaBombTopBar", "HornerHanLevel02", "CoopCasterHorner", "point", "precision_strike", lp_targetPoint);
+    }
+    if ((lv_panel == "precision_strike_dummy") || (lv_panel == "bomber_dummy")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "precision_strike_dummy", "HHBomberPlatformAreaBombTopBarDummyTimer", "HHBomberAreaBombTopBarDummy", "", "CoopCasterHorner", "point", "precision_strike_dummy", lp_targetPoint);
+    }
+    if ((lv_panel == "air_fleet") || (lv_panel == "air_fleet_target")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "air_fleet_target", "HornerAirFleetTargetingDummy", "HornerAirFleet", "HornerHanLevel05", "CoopCasterHorner", "point", "air_fleet_target", lp_targetPoint);
+    }
+    if (lv_panel == "air_fleet_activate") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "air_fleet_activate", "HornerAirFleetActivate", "HornerAirFleet", "HornerHanLevel05", "CoopCasterHorner", "toggle", "air_fleet_targeting_on", lp_targetPoint);
+    }
+    if ((lv_panel == "space_station") || (lv_panel == "station")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "space_station", "HHSummonMercenarySpaceStation", "HHSummonSpaceStation", "HornerHanLevel10", "CoopCasterHorner", "point", "space_station", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Horner requested=" + lv_panel + " fallback=mag_mines");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Horner", "mag_mines", "HHTrainTopBar", "HHMagneticMines", "", "CoopCasterHorner", "build_point", "mag_mines", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_StukovPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "psi_emitter", "SIStukovPlaceHordeRally", "SIStukovPlaceHordeRallyTopBar", "", "CoopCasterStukov", "point", "psi_emitter", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "infest_structure", "SIStukovInfestStructure", "SIStukovInfestStructure", "", "CoopCasterStukov", "unit_or_structure", "infest_structure", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "infest_structure_upgraded", "SIStukovInfestStructureUpgraded", "SIStukovInfestStructureUpgraded", "", "CoopCasterStukov", "unit_or_structure", "infest_structure_upgraded", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "apocalisk", "StukovSummonApocalisk", "StukovSummonApocalisk", "StukovLevel04", "CoopCasterStukov", "point", "summon_apocalisk", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "aleksander", "StukovSummonAleksander", "StukovSummonAleksander", "StukovLevel10", "CoopCasterStukov", "point", "summon_aleksander", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "psi_emitter") || (lv_panel == "rally")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "psi_emitter", "SIStukovPlaceHordeRally", "SIStukovPlaceHordeRallyTopBar", "", "CoopCasterStukov", "point", "psi_emitter", lp_targetPoint);
+    }
+    if (lv_panel == "infest_structure") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "infest_structure", "SIStukovInfestStructure", "SIStukovInfestStructure", "", "CoopCasterStukov", "unit_or_structure", "infest_structure", lp_targetPoint);
+    }
+    if ((lv_panel == "infest_structure_upgraded") || (lv_panel == "infest_upgrade")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "infest_structure_upgraded", "SIStukovInfestStructureUpgraded", "SIStukovInfestStructureUpgraded", "", "CoopCasterStukov", "unit_or_structure", "infest_structure_upgraded", lp_targetPoint);
+    }
+    if (lv_panel == "apocalisk") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "apocalisk", "StukovSummonApocalisk", "StukovSummonApocalisk", "StukovLevel04", "CoopCasterStukov", "point", "summon_apocalisk", lp_targetPoint);
+    }
+    if ((lv_panel == "aleksander") || (lv_panel == "alexander")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "aleksander", "StukovSummonAleksander", "StukovSummonAleksander", "StukovLevel10", "CoopCasterStukov", "point", "summon_aleksander", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Stukov requested=" + lv_panel + " fallback=psi_emitter");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stukov", "psi_emitter", "SIStukovPlaceHordeRally", "SIStukovPlaceHordeRallyTopBar", "", "CoopCasterStukov", "point", "psi_emitter", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_MengskPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "bunker_drop", "BunkerDepotMengskDrop", "BunkerDepotMengskDrop", "", "CoopCasterMengsk", "build_point", "bunker_drop", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "contaminated_strike", "ArtilleryMengskGlobalExperimentalStrike", "ArtilleryMengskExperimentalStrike", "MengskLevel04", "CoopCasterMengsk", "point", "contaminated_strike", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "dogs_of_war_level1", "MengskZergCalldownLevel1", "MengskZergCalldownLevel1", "", "CoopCasterMengsk", "point", "dogs_of_war_level1", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "dogs_of_war_level2", "MengskZergCalldownLevel2", "MengskZergCalldownLevel1", "", "CoopCasterMengsk", "point", "dogs_of_war_level2", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "dogs_of_war_level3", "MengskZergCalldownLevel3", "MengskZergCalldownLevel1", "", "CoopCasterMengsk", "point", "dogs_of_war_level3", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "dogs_of_war_level4", "MengskZergCalldownLevel4", "MengskZergCalldownLevel1", "", "CoopCasterMengsk", "point", "dogs_of_war_level4", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "nuclear_annihilation", "NuclearAnnihilationMengsk", "NuclearAnnihilationMengsk", "MengskLevel10", "CoopCasterMengsk", "point", "nuclear_annihilation", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "bunker_drop") || (lv_panel == "forced_conscription")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "bunker_drop", "BunkerDepotMengskDrop", "BunkerDepotMengskDrop", "", "CoopCasterMengsk", "build_point", "bunker_drop", lp_targetPoint);
+    }
+    if ((lv_panel == "contaminated_strike") || (lv_panel == "experimental_strike")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "contaminated_strike", "ArtilleryMengskGlobalExperimentalStrike", "ArtilleryMengskExperimentalStrike", "MengskLevel04", "CoopCasterMengsk", "point", "contaminated_strike", lp_targetPoint);
+    }
+    if ((lv_panel == "dogs_of_war") || (lv_panel == "dogs_of_war_level1")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "dogs_of_war_level1", "MengskZergCalldownLevel1", "MengskZergCalldownLevel1", "", "CoopCasterMengsk", "point", "dogs_of_war_level1", lp_targetPoint);
+    }
+    if (lv_panel == "dogs_of_war_level2") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "dogs_of_war_level2", "MengskZergCalldownLevel2", "MengskZergCalldownLevel1", "", "CoopCasterMengsk", "point", "dogs_of_war_level2", lp_targetPoint);
+    }
+    if (lv_panel == "dogs_of_war_level3") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "dogs_of_war_level3", "MengskZergCalldownLevel3", "MengskZergCalldownLevel1", "", "CoopCasterMengsk", "point", "dogs_of_war_level3", lp_targetPoint);
+    }
+    if (lv_panel == "dogs_of_war_level4") {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "dogs_of_war_level4", "MengskZergCalldownLevel4", "MengskZergCalldownLevel1", "", "CoopCasterMengsk", "point", "dogs_of_war_level4", lp_targetPoint);
+    }
+    if ((lv_panel == "nuclear_annihilation") || (lv_panel == "nuke")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "nuclear_annihilation", "NuclearAnnihilationMengsk", "NuclearAnnihilationMengsk", "MengskLevel10", "CoopCasterMengsk", "point", "nuclear_annihilation", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Mengsk requested=" + lv_panel + " fallback=bunker_drop");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Mengsk", "bunker_drop", "BunkerDepotMengskDrop", "BunkerDepotMengskDrop", "", "CoopCasterMengsk", "build_point", "bunker_drop", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_StetmannPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stetmann", "speed", "PowerFieldMovementSpeedOn", "PowerFieldMovementSpeed", "", "CoopCasterStetmann", "instant", "stetzone_speed", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stetmann", "hugs", "PowerFieldHPRegenerationOn", "PowerFieldHPRegeneration", "", "CoopCasterStetmann", "instant", "stetzone_heal", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stetmann", "juice", "PowerFieldEnergyRegenerationOn", "PowerFieldEnergyRegeneration", "", "CoopCasterStetmann", "instant", "stetzone_energy", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stetmann", "stetellite", "DeployPowerTowerStetmann", "PowerTowerStetmannLevel1", "", "CoopCasterStetmann", "build_point", "deploy_stetellite", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "speed") || (lv_panel == "movement")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stetmann", "speed", "PowerFieldMovementSpeedOn", "PowerFieldMovementSpeed", "", "CoopCasterStetmann", "instant", "stetzone_speed", lp_targetPoint);
+    }
+    if ((lv_panel == "hugs") || (lv_panel == "heal")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stetmann", "hugs", "PowerFieldHPRegenerationOn", "PowerFieldHPRegeneration", "", "CoopCasterStetmann", "instant", "stetzone_heal", lp_targetPoint);
+    }
+    if ((lv_panel == "juice") || (lv_panel == "energy")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stetmann", "juice", "PowerFieldEnergyRegenerationOn", "PowerFieldEnergyRegeneration", "", "CoopCasterStetmann", "instant", "stetzone_energy", lp_targetPoint);
+    }
+    if ((lv_panel == "stetellite") || (lv_panel == "power_tower")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stetmann", "stetellite", "DeployPowerTowerStetmann", "PowerTowerStetmannLevel1", "", "CoopCasterStetmann", "build_point", "deploy_stetellite", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Stetmann requested=" + lv_panel + " fallback=speed");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Stetmann", "speed", "PowerFieldMovementSpeedOn", "PowerFieldMovementSpeed", "", "CoopCasterStetmann", "instant", "stetzone_speed", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_TychusPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Tychus", "medivac_transport", "TychusMedicTransportLoadUnits", "TychusMedicTransportUnitsTopBar", "HaveMedivacPlatformGlobal", "CoopCasterTychus", "point", "medivac_transport", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Tychus", "odin_calldown", "TychusCalldownOdinTargeted", "TychusCalldownOdin", "TychusLevel03", "CoopCasterTychus", "point", "calldown_odin", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Tychus", "odin_barrage", "TychusOdinBarrage", "TychusOdinRedButton", "", "TychusOdin", "point", "odin_barrage", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Tychus", "odin_nuke", "TychusOdinNuclearStrike", "TychusOdinNuclearStrike", "", "TychusOdin", "point", "odin_nuke", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "medivac_transport") || (lv_panel == "medivac")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Tychus", "medivac_transport", "TychusMedicTransportLoadUnits", "TychusMedicTransportUnitsTopBar", "HaveMedivacPlatformGlobal", "CoopCasterTychus", "point", "medivac_transport", lp_targetPoint);
+    }
+    if ((lv_panel == "odin_calldown") || (lv_panel == "odin")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Tychus", "odin_calldown", "TychusCalldownOdinTargeted", "TychusCalldownOdin", "TychusLevel03", "CoopCasterTychus", "point", "calldown_odin", lp_targetPoint);
+    }
+    if ((lv_panel == "odin_barrage") || (lv_panel == "barrage")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Tychus", "odin_barrage", "TychusOdinBarrage", "TychusOdinRedButton", "", "TychusOdin", "point", "odin_barrage", lp_targetPoint);
+    }
+    if ((lv_panel == "odin_nuke") || (lv_panel == "red_button")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Tychus", "odin_nuke", "TychusOdinNuclearStrike", "TychusOdinNuclearStrike", "", "TychusOdin", "point", "odin_nuke", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Tychus requested=" + lv_panel + " fallback=medivac_transport");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Tychus", "medivac_transport", "TychusMedicTransportLoadUnits", "TychusMedicTransportUnitsTopBar", "HaveMedivacPlatformGlobal", "CoopCasterTychus", "point", "medivac_transport", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_ZagaraPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zagara", "baneling_barrage", "ZagaraVoidCoopBanelingBarrage", "ZagaraVoidCoopBanelingBarrage", "", "ZagaraVoidCoop", "point", "baneling_barrage", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zagara", "hunter_killers", "ZagaraVoidCoopSpawnHunterKillers", "ZagaraVoidCoopSpawnHunterKillers", "", "ZagaraVoidCoop", "point", "spawn_hunter_killers", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zagara", "mass_frenzy", "ZagaraVoidCoopMassFrenzy", "ZagaraVoidCoopMassFrenzy", "", "ZagaraVoidCoop", "instant", "mass_frenzy", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zagara", "roach_drop", "ZagaraVoidCoopMassRoachDrop", "MassRoachDrop", "ZagaraLevel02", "ZagaraVoidCoop", "point", "mass_roach_drop", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "baneling_barrage") || (lv_panel == "barrage")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zagara", "baneling_barrage", "ZagaraVoidCoopBanelingBarrage", "ZagaraVoidCoopBanelingBarrage", "", "ZagaraVoidCoop", "point", "baneling_barrage", lp_targetPoint);
+    }
+    if ((lv_panel == "hunter_killers") || (lv_panel == "hunter_killer")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zagara", "hunter_killers", "ZagaraVoidCoopSpawnHunterKillers", "ZagaraVoidCoopSpawnHunterKillers", "", "ZagaraVoidCoop", "point", "spawn_hunter_killers", lp_targetPoint);
+    }
+    if ((lv_panel == "mass_frenzy") || (lv_panel == "frenzy")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zagara", "mass_frenzy", "ZagaraVoidCoopMassFrenzy", "ZagaraVoidCoopMassFrenzy", "", "ZagaraVoidCoop", "instant", "mass_frenzy", lp_targetPoint);
+    }
+    if ((lv_panel == "roach_drop") || (lv_panel == "mass_roach_drop")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zagara", "roach_drop", "ZagaraVoidCoopMassRoachDrop", "MassRoachDrop", "ZagaraLevel02", "ZagaraVoidCoop", "point", "mass_roach_drop", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Zagara requested=" + lv_panel + " fallback=baneling_barrage");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zagara", "baneling_barrage", "ZagaraVoidCoopBanelingBarrage", "ZagaraVoidCoopBanelingBarrage", "", "ZagaraVoidCoop", "point", "baneling_barrage", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XMTestBench_ZeratulPanelCostSmoke (int lp_player, string lp_panelAbilityId, point lp_targetPoint) {
+    bool lv_ok;
+    string lv_panel;
+
+    lv_panel = lp_panelAbilityId;
+    if ((lv_panel == "") || (lv_panel == "default")) {
+        lv_ok = true;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "rally_legendary_legion", "RallyZeratulTopBarRedirect", "RallyZeratulTopBarRedirect", "HaveZeratulLegionUnits", "CoopCasterZeratul", "point", "rally_legendary_legion", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "karass_legion", "ZeratulTopBarWarpTrain", "ZeratulSummonKarass", "HaveZeratulArtifactUpgradeTier0A", "CoopCasterZeratul", "point", "summon_karass_legion", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "mohandar_legion", "ZeratulTopBarWarpTrain", "ZeratulSummonMohandar", "HaveZeratulArtifactUpgradeTier0B", "CoopCasterZeratul", "point", "summon_mohandar_legion", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "dark_archon_legion", "ZeratulTopBarWarpTrain", "ZeratulSummonDarkArchon", "HaveZeratulArtifactUpgradeTier0C", "CoopCasterZeratul", "point", "summon_dark_archon_legion", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "mapwide_stasis", "ZeratulMapWideStasisIssueOrder", "ZeratulMapWideStasis", "HaveZeratulArtifactUpgradeTier1A", "CoopCasterZeratul", "line", "mapwide_stasis", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "khaydarin_monolith", "ZeratulTopBarBuild", "ZeratulKhaydarinMonolith", "HaveZeratulArtifactUpgradeTier1C", "CoopCasterZeratul", "build_point", "khaydarin_monolith", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "suppression_crystal", "ZeratulTopBarWarpTrain", "ZeratulSuppressionCrystal", "HaveZeratulArtifactUpgradeTier1B", "CoopCasterZeratul", "point", "suppression_crystal", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "avatar_form", "ZeratulTopBarUltimateWarpTrain", "ZeratulArtifactUpgradeTier3A", "HaveZeratulArtifactUpgradeTier3A", "CoopCasterZeratul", "point", "avatar_form", lp_targetPoint) && lv_ok;
+        lv_ok = libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "avatar_essence", "ZeratulTopBarUltimateWarpTrain", "ZeratulArtifactUpgradeTier3B", "HaveZeratulArtifactUpgradeTier3B", "CoopCasterZeratul", "point", "avatar_essence", lp_targetPoint) && lv_ok;
+        return lv_ok;
+    }
+    if ((lv_panel == "rally_legendary_legion") || (lv_panel == "rally_legion")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "rally_legendary_legion", "RallyZeratulTopBarRedirect", "RallyZeratulTopBarRedirect", "HaveZeratulLegionUnits", "CoopCasterZeratul", "point", "rally_legendary_legion", lp_targetPoint);
+    }
+    if ((lv_panel == "karass_legion") || (lv_panel == "karass")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "karass_legion", "ZeratulTopBarWarpTrain", "ZeratulSummonKarass", "HaveZeratulArtifactUpgradeTier0A", "CoopCasterZeratul", "point", "summon_karass_legion", lp_targetPoint);
+    }
+    if ((lv_panel == "mohandar_legion") || (lv_panel == "mohandar")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "mohandar_legion", "ZeratulTopBarWarpTrain", "ZeratulSummonMohandar", "HaveZeratulArtifactUpgradeTier0B", "CoopCasterZeratul", "point", "summon_mohandar_legion", lp_targetPoint);
+    }
+    if ((lv_panel == "dark_archon_legion") || (lv_panel == "dark_archon")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "dark_archon_legion", "ZeratulTopBarWarpTrain", "ZeratulSummonDarkArchon", "HaveZeratulArtifactUpgradeTier0C", "CoopCasterZeratul", "point", "summon_dark_archon_legion", lp_targetPoint);
+    }
+    if ((lv_panel == "mapwide_stasis") || (lv_panel == "stasis")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "mapwide_stasis", "ZeratulMapWideStasisIssueOrder", "ZeratulMapWideStasis", "HaveZeratulArtifactUpgradeTier1A", "CoopCasterZeratul", "line", "mapwide_stasis", lp_targetPoint);
+    }
+    if ((lv_panel == "khaydarin_monolith") || (lv_panel == "monolith")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "khaydarin_monolith", "ZeratulTopBarBuild", "ZeratulKhaydarinMonolith", "HaveZeratulArtifactUpgradeTier1C", "CoopCasterZeratul", "build_point", "khaydarin_monolith", lp_targetPoint);
+    }
+    if ((lv_panel == "suppression_crystal") || (lv_panel == "crystal")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "suppression_crystal", "ZeratulTopBarWarpTrain", "ZeratulSuppressionCrystal", "HaveZeratulArtifactUpgradeTier1B", "CoopCasterZeratul", "point", "suppression_crystal", lp_targetPoint);
+    }
+    if ((lv_panel == "avatar_form") || (lv_panel == "form_avatar")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "avatar_form", "ZeratulTopBarUltimateWarpTrain", "ZeratulArtifactUpgradeTier3A", "HaveZeratulArtifactUpgradeTier3A", "CoopCasterZeratul", "point", "avatar_form", lp_targetPoint);
+    }
+    if ((lv_panel == "avatar_essence") || (lv_panel == "essence_avatar")) {
+        return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "avatar_essence", "ZeratulTopBarUltimateWarpTrain", "ZeratulArtifactUpgradeTier3B", "HaveZeratulArtifactUpgradeTier3B", "CoopCasterZeratul", "point", "avatar_essence", lp_targetPoint);
+    }
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_PROFILE_ALIAS_FALLBACK", "commander=Zeratul requested=" + lv_panel + " fallback=rally_legendary_legion");
+    return libE0EAE146_gf_XMTestBench_CheckPanelProfile(lp_player, "Zeratul", "rally_legendary_legion", "RallyZeratulTopBarRedirect", "RallyZeratulTopBarRedirect", "HaveZeratulLegionUnits", "CoopCasterZeratul", "point", "rally_legendary_legion", lp_targetPoint);
+}
+
+bool libE0EAE146_gf_XM_InvokeCommanderPanelAbility (int lp_player, string lp_commander, string lp_panelAbilityId, point lp_targetPoint) {
+    string lv_commander;
+
+    if (!libE0EAE146_gf_XMTestBench_PlayerValid(lp_player)) {
+        libE0EAE146_gf_XMDbgLog("ERROR", "PANEL_TEST_PLAYER_INVALID", "player=" + IntToString(lp_player));
+        return false;
+    }
+
+    lv_commander = libE0EAE146_gf_NormalizeCommanderId(lp_commander);
+    if (lv_commander == "Abathur") {
+        return libE0EAE146_gf_XMTestBench_AbathurPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "AbathurReborn") {
+        return libE0EAE146_gf_XMTestBench_AbathurRebornPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Alarak") {
+        return libE0EAE146_gf_XMTestBench_AlarakPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Artanis") {
+        return libE0EAE146_gf_XMTestBench_ArtanisPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Fenix") {
+        return libE0EAE146_gf_XMTestBench_FenixPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if ((lv_commander == "Mira") || (lv_commander == "Horner")) {
+        return libE0EAE146_gf_XMTestBench_HornerPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Karax") {
+        return libE0EAE146_gf_XMTestBench_KaraxPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Kerrigan") {
+        return libE0EAE146_gf_XMTestBench_KerriganPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Mengsk") {
+        return libE0EAE146_gf_XMTestBench_MengskPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Raynor") {
+        return libE0EAE146_gf_XMTestBench_RaynorPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Nova") {
+        return libE0EAE146_gf_XMTestBench_NovaPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Dehaka") {
+        return libE0EAE146_gf_XMTestBench_DehakaPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Stetmann") {
+        return libE0EAE146_gf_XMTestBench_StetmannPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Stukov") {
+        return libE0EAE146_gf_XMTestBench_StukovPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Swann") {
+        return libE0EAE146_gf_XMTestBench_SwannPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Tychus") {
+        return libE0EAE146_gf_XMTestBench_TychusPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Vorazun") {
+        return libE0EAE146_gf_XMTestBench_VorazunPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Zagara") {
+        return libE0EAE146_gf_XMTestBench_ZagaraPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+    if (lv_commander == "Zeratul") {
+        return libE0EAE146_gf_XMTestBench_ZeratulPanelCostSmoke(lp_player, lp_panelAbilityId, lp_targetPoint);
+    }
+
+    libE0EAE146_gf_XMTestBench_SetLastEvent(lp_player, "PANEL_TEST_INVOKE");
+    libE0EAE146_gf_XMDbgLog("INFO", "PANEL_TEST_INVOKE", "commander=" + lp_commander + " normalized=" + libE0EAE146_gf_NormalizeCommanderId(lp_commander) + " ability=" + lp_panelAbilityId + " trigger=command target=point result=stub");
+    return false;
+}
+
+bool XM_InvokeCommanderPanelAbility (int lp_player, string lp_commander, string lp_panelAbilityId, point lp_targetPoint) {
+    return libE0EAE146_gf_XM_InvokeCommanderPanelAbility(lp_player, lp_commander, lp_panelAbilityId, lp_targetPoint);
+}

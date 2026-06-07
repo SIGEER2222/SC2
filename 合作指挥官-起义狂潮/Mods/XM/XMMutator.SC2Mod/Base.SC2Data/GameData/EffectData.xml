@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectCreatePersistent id="MutatorTornadoAOEPersistent">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="SourceUnit"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicEffectArray value="MutatorTornadoAOESearch"/>
+        <PeriodicPeriodArray value="0.25"/>
+    </CEffectCreatePersistent>
+    <CEffectDestroyPersistent id="MutatorTornadoAOERP">
+        <EditorCategories value=""/>
+        <WhichLocation Value="SourceUnit"/>
+        <Effect value="MutatorTornadoAOEPersistent"/>
+        <Count value="1"/>
+    </CEffectDestroyPersistent>
+    <CEffectEnumArea id="MutatorTornadoAOESearch">
+        <EditorCategories value=""/>
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.3" Effect="MutatorTornadoAOESearchSet"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="MutatorTornadoAOESearchDamage">
+        <EditorCategories value=""/>
+        <Amount value="25"/>
+    </CEffectDamage>
+    <CEffectSet id="MutatorTornadoAOESearchSet">
+        <EditorCategories value=""/>
+        <EffectArray value="MutatorTornadoKnockbackCheck"/>
+        <EffectArray value="MutatorTornadoAOESearchDamage"/>
+    </CEffectSet>
+    <CEffectSet id="MutatorTornadoKnockbackCheck">
+        <EffectArray value="UnitKnockbackBy8"/>
+        <ValidatorArray value="TargetIsNotUnstoppable"/>
+    </CEffectSet>
+    <CEffectDamage id="MutatorPurifierBeamDamage">
+        <EditorCategories value=""/>
+        <Amount value="10"/>
+        <ImpactUnitValidator value="TargetIsEnemy"/>
+        <AreaArray Radius="1" Fraction="1"/>
+        <AreaArray Radius="2.2" Fraction="0.5"/>
+        <AreaArray Radius="2.8" Fraction="0.1"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Flags index="Notification" value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="VoidRiftTrainLMMalash">
+        <ImpactEffect value="VoidRiftTrainPrecursorRBMalash"/>
+        <AmmoUnit value="VoidRiftTrainMissile"/>
+        <Movers Link="VoidRiftTrainMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="VoidRiftTrainPrecursorABMalash">
+        <Behavior value="VoidRiftTrainPrecursorMalash"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="VoidRiftTrainPrecursorRBMalash">
+        <BehaviorLink value="VoidRiftTrainPrecursorMalash"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="VoidRiftTrainSetMalash">
+        <EffectArray value="VoidRiftTrainPrecursorABMalash"/>
+        <EffectArray value="VoidRiftTrainLMMalash"/>
+        <EffectArray value="GlazeShadowStart"/>
+    </CEffectSet>
+</Catalog>

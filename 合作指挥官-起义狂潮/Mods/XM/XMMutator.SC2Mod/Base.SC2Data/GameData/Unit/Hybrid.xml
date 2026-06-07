@@ -1,0 +1,1308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectSet id="PnPHybridFloorBurstSet">
+        <EditorCategories value=""/>
+        <EffectArray value="PnPHybridFloorBurstCPA"/>
+        <EffectArray value="PnPHybridFloorBurstCPB"/>
+        <Random value="1"/>
+        <MinCount value="1"/>
+        <MaxCount value="1"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="PnPHybridFloorBurstCPB">
+        <EditorCategories value=""/>
+        <PeriodicEffectArray value="PnPHybridFloorBurstCP"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="0,1,0"/>
+        <PeriodicOffsetArray value="0,2,0"/>
+        <PeriodicOffsetArray value="0,3,0"/>
+        <PeriodicOffsetArray value="0,4,0"/>
+        <PeriodicOffsetArray value="0,5,0"/>
+        <PeriodicOffsetArray value="0,6,0"/>
+        <PeriodicOffsetArray value="0,7,0"/>
+        <PeriodicOffsetArray value="0,8,0"/>
+        <PeriodicOffsetArray value="0,-1,0"/>
+        <PeriodicOffsetArray value="0,-2,0"/>
+        <PeriodicOffsetArray value="0,-3,0"/>
+        <PeriodicOffsetArray value="0,-4,0"/>
+        <PeriodicOffsetArray value="0,-5,0"/>
+        <PeriodicOffsetArray value="0,-6,0"/>
+        <PeriodicOffsetArray value="0,-7,0"/>
+        <PeriodicOffsetArray value="0,-8,0"/>
+        <PeriodCount value="17"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="PnPHybridFloorBurstCPA">
+        <EditorCategories value=""/>
+        <PeriodicEffectArray value="PnPHybridFloorBurstCP"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="1,0,0"/>
+        <PeriodicOffsetArray value="2,0,0"/>
+        <PeriodicOffsetArray value="3,0,0"/>
+        <PeriodicOffsetArray value="4,0,0"/>
+        <PeriodicOffsetArray value="5,0,0"/>
+        <PeriodicOffsetArray value="6,0,0"/>
+        <PeriodicOffsetArray value="7,0,0"/>
+        <PeriodicOffsetArray value="8,0,0"/>
+        <PeriodicOffsetArray value="-1,0,0"/>
+        <PeriodicOffsetArray value="-2,0,0"/>
+        <PeriodicOffsetArray value="-3,0,0"/>
+        <PeriodicOffsetArray value="-4,0,0"/>
+        <PeriodicOffsetArray value="-5,0,0"/>
+        <PeriodicOffsetArray value="-6,0,0"/>
+        <PeriodicOffsetArray value="-7,0,0"/>
+        <PeriodicOffsetArray value="-8,0,0"/>
+        <PeriodCount value="17"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="PnPHybridPuddleCPC">
+        <EditorCategories value=""/>
+        <PeriodicOffsetArray value="8,4,0"/>
+        <PeriodicOffsetArray value="4,0,0"/>
+        <PeriodicOffsetArray value="12,0,0"/>
+        <PeriodicOffsetArray value="8,-4,0"/>
+        <PeriodicOffsetArray value="-8,4,0"/>
+        <PeriodicOffsetArray value="-4,0,0"/>
+        <PeriodicOffsetArray value="-12,0,0"/>
+        <PeriodicOffsetArray value="-8,-4,0"/>
+        <PeriodicOffsetArray value="4,8,0"/>
+        <PeriodicOffsetArray value="0,4,0"/>
+        <PeriodicOffsetArray value="0,12,0"/>
+        <PeriodicOffsetArray value="-4,8,0"/>
+        <PeriodicOffsetArray value="4,-8,0"/>
+        <PeriodicOffsetArray value="0,-4,0"/>
+        <PeriodicOffsetArray value="0,-12,0"/>
+        <PeriodicOffsetArray value="-4,-8,0"/>
+        <PeriodicEffectArray value="PnPHybridPuddleCP"/>
+        <WhichLocation Value="CasterPoint"/>
+        <PeriodCount value="16"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="HybridDominatorPlasmaBlastD">
+        <EditorCategories value="Race:Zerg"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Visibility value="Visible"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Splash"/>
+        <Amount value="160"/>
+        <Death value="Blast"/>
+        <AreaArray Radius="1" Fraction="0.5"/>
+        <AreaArray Radius="2" Fraction="0.25"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="HybridDominatorPlasmaBlastLM">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactEffect value="HybridDominatorPlasmaBlastD"/>
+        <AmmoUnit value="HybridDominatorVoidPlasmaWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="HybridDominatorPlasmaBlastS">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetUnit"/>
+        <IncludeArray Value="Target"/>
+        <SearchFilters value="Visible;Self,Player,Ally,Neutral,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable,PowerupOrItem"/>
+        <TargetSorts>
+            <SortArray value="TSLifeLargestFirst"/>
+        </TargetSorts>
+        <AreaArray MaxCount="4" Radius="4" Effect="HybridDominatorPlasmaBlastLM"/>
+        <MaxCount value="4"/>
+        <RecycleCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="PnPHybridPuddleCPA">
+        <EditorCategories value=""/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="4,0,0"/>
+        <PeriodicOffsetArray value="8,0,0"/>
+        <PeriodicOffsetArray value="12,0,0"/>
+        <PeriodicOffsetArray value="16,0,0"/>
+        <PeriodicOffsetArray value="-4,0,0"/>
+        <PeriodicOffsetArray value="-8,0,0"/>
+        <PeriodicOffsetArray value="-12,0,0"/>
+        <PeriodicOffsetArray value="-16,0,0"/>
+        <PeriodicOffsetArray value="0,4,0"/>
+        <PeriodicOffsetArray value="0,8,0"/>
+        <PeriodicOffsetArray value="0,12,0"/>
+        <PeriodicOffsetArray value="0,16,0"/>
+        <PeriodicOffsetArray value="0,-4,0"/>
+        <PeriodicOffsetArray value="0,-8,0"/>
+        <PeriodicOffsetArray value="0,-12,0"/>
+        <PeriodicOffsetArray value="0,-16,0"/>
+        <PeriodCount value="17"/>
+        <PeriodicEffectArray value="PnPHybridPuddleCP"/>
+        <WhichLocation Value="CasterPoint"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="PnPHybridPuddleCPB">
+        <EditorCategories value=""/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="3,3,0"/>
+        <PeriodicOffsetArray value="6,6,0"/>
+        <PeriodicOffsetArray value="9,9,0"/>
+        <PeriodicOffsetArray value="12,12,0"/>
+        <PeriodicOffsetArray value="-3,3,0"/>
+        <PeriodicOffsetArray value="-6,6,0"/>
+        <PeriodicOffsetArray value="-9,9,0"/>
+        <PeriodicOffsetArray value="-12,12,0"/>
+        <PeriodicOffsetArray value="3,-3,0"/>
+        <PeriodicOffsetArray value="6,-6,0"/>
+        <PeriodicOffsetArray value="9,-9,0"/>
+        <PeriodicOffsetArray value="12,-12,0"/>
+        <PeriodicOffsetArray value="-3,-3,0"/>
+        <PeriodicOffsetArray value="-6,-6,0"/>
+        <PeriodicOffsetArray value="-9,-9,0"/>
+        <PeriodicOffsetArray value="-12,-12,0"/>
+        <PeriodicEffectArray value="PnPHybridPuddleCP"/>
+        <WhichLocation Value="CasterPoint"/>
+        <PeriodCount value="17"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="PnPHybridFloorBurstCP">
+        <EditorCategories value="Race:Terran"/>
+        <InitialDelay value="4.5"/>
+        <InitialEffect value="PnPHybridFloorBurstSearch"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="PnPHybridPuddleSet">
+        <EditorCategories value=""/>
+        <EffectArray value="PnPHybridPuddleCPA"/>
+        <EffectArray value="PnPHybridPuddleCPB"/>
+        <EffectArray value="PnPHybridPuddleCPC"/>
+        <Random value="1"/>
+        <MinCount value="1"/>
+        <MaxCount value="1"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="HybridWhackBoss">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialDelay value="0.45"/>
+        <InitialEffect value="HybridWhackBossD"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="HybridWhackBossD"/>
+        <PeriodicPeriodArray value="0.2"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="HybridWhackBossD">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetUnit"/>
+        <AttributeBonus index="Armored" value="10"/>
+        <ArmorReduction value="1"/>
+        <Kind value="Melee"/>
+        <KindSplash value="Melee"/>
+        <Amount value="40"/>
+        <AreaArray Radius="1.5" Fraction="0.5"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable,PowerupOrItem"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="PnPHybridFloorBurstSearch">
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.5" Effect="PnPHybridFloorBurstDamage"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="PnPHybridFloorBurstDamage">
+        <EditorCategories value="Race:Protoss"/>
+        <Amount value="50"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="PnPHybridPuddleCP">
+        <PeriodCount value="75"/>
+        <PeriodicEffectArray value="PnPHybridPuddleS"/>
+        <PeriodicPeriodArray value="0.2"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="PnPHybridPuddleS">
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="PnPHybridPuddleD"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="PnPHybridPuddleAB">
+        <Behavior value="PnPHybridPuddle"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="PnPHybridPuddleD">
+        <ResponseFlags index="Flee" value="1"/>
+        <Visibility value="Hidden"/>
+        <Amount value="2"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectSet id="PnPSingleTargetLockOnPersistentSet">
+        <EffectArray value="PnPSingleTargetLockOnPersistent"/>
+        <EffectArray value="MoebiusSeekerLaunchTintCP"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="MoebiusSeekerLaunchTintCP">
+        <EditorCategories value="Race:Protoss"/>
+        <PeriodCount value="30"/>
+        <PeriodicPeriodArray value="0.1"/>
+        <PeriodicEffectArray value="MoebiusSeekerTintApplyBehavior"/>
+        <PeriodicValidator value="SourceNotDead"/>
+        <WhichLocation Value="SourceUnit"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="MoebiusSeekerTintApplyBehavior">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="MoebiusSeekerTint"/>
+        <WhichUnit Effect="PnPSingleTargetLockOnPersistentSet"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="MoebiusSeekerReleaseWeapon">
+        <EditorCategories value="Race:Terran"/>
+        <SpawnEffect value="MoebiusSeekerSet"/>
+        <SpawnUnit value="MoebiusSeeker"/>
+        <SpawnRange value="0"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="MoebiusSeekerSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="MoebiusSeekerReleaseLaunch"/>
+    </CEffectSet>
+    <CEffectSet id="MoebiusSeekerReleaseLaunch">
+        <EffectArray value="MoebiusSeekerReleaseLM"/>
+        <EffectArray value="MakePrecursor"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="MoebiusSeekerReleaseLM">
+        <EditorCategories value="Race:Terran"/>
+        <FinishEffect value="MoebiusSeekerImpactSet"/>
+        <AmmoUnit value="MoebiusSeekerWeapon"/>
+        <LaunchLocation Value="CasterUnit"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="MoebiusSeekerImpactSet">
+        <EditorCategories value=""/>
+        <EffectArray value="RemovePrecursor"/>
+        <EffectArray value="MoebiusSeekerIssueOrder"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="MoebiusSeekerIssueOrder">
+        <EditorCategories value="Race:Protoss"/>
+        <Abil value="PnPSingleTargetLockOn"/>
+        <Target Effect="MoebiusSeekerReleaseWeapon" Value="TargetUnit"/>
+        <WhichUnit Effect="MoebiusSeekerSet"/>
+    </CEffectIssueOrder>
+    <CEffectDamage id="HybridDominatorCoopBossDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Kind value="Ranged"/>
+        <Amount value="40"/>
+        <SearchFilters value="-;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <ValidatorArray value="NotCreepTumorBurrowed"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <AttributeBonus index="Armored" value="20"/>
+        <AttributeBonus index="Heroic" value="20"/>
+    </CEffectDamage>
+    <CEffectTeleport id="HybridDominatorCoopBossBlink">
+        <EditorCategories value="Race:Protoss"/>
+        <ClearQueuedOrders value="0"/>
+        <PlacementAround Value="CasterUnit"/>
+        <PlacementRange value="8"/>
+        <Range value="8"/>
+        <WhichUnit Value="Caster"/>
+        <TargetLocation Value="TargetPoint"/>
+        <TeleportFlags index="TestCliff" value="1"/>
+    </CEffectTeleport>
+    <CEffectSet id="HybridBehemothCoopBossSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="HybridBehemothCoopBossDamage"/>
+        <EffectArray value="HybridBehemothCoopBossCleaveSearch"/>
+    </CEffectSet>
+    <CEffectDamage id="HybridBehemothCoopBossDamage" parent="DU_WEAP">
+        <Death value="Eviscerate"/>
+        <Amount value="30"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="HybridBehemothCoopBossCleaveSearch">
+        <SearchFilters value="Ground;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Arc="270" Radius="1.5" Effect="HybridBehemothCoopBossCleaveDamage"/>
+        <ExcludeArray Value="Target"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="HybridBehemothCoopBossCleaveDamage" parent="DU_WEAP">
+        <Death value="Eviscerate"/>
+        <Amount value="25"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="HybridBehemothCoopBossAntiAirAttackLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="HybridBehemothCoopBossAntiAirAttackDamage"/>
+        <AmmoUnit value="HybridBehemothCoopBossAntiAirAttackWeapon"/>
+        <ValidatorArray value="NotCreepTumorBurrowed"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="HybridBehemothCoopBossAntiAirAttackDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="50"/>
+        <SearchFilters value="Air,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.75" Fraction="0.5"/>
+        <ExcludeArray Value="Target"/>
+    </CEffectDamage>
+    <CAbilTrain id="TrainHybrid">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoArray index="Train1" Time="20">
+            <Button DefaultButtonFace="HybridReaverHybrid"/>
+            <Unit value="HybridReaver"/>
+        </InfoArray>
+        <InfoArray index="Train2" Time="20">
+            <Button DefaultButtonFace="HybridDestroyerHybrid"/>
+            <Unit value="HybridDestroyer"/>
+        </InfoArray>
+        <InfoArray index="Train3" Time="40">
+            <Button DefaultButtonFace="HybridBehemothHybrid"/>
+            <Unit value="HybridBehemoth"/>
+        </InfoArray>
+        <InfoArray index="Train4" Time="20">
+            <Button DefaultButtonFace="HybridNemesisHybrid"/>
+            <Unit value="HybridNemesis"/>
+        </InfoArray>
+        <InfoArray index="Train5" Time="40">
+            <Button DefaultButtonFace="HybridDominatorHybrid"/>
+            <Unit value="HybridDominatorVoid"/>
+        </InfoArray>
+        <InfoArray index="Train6" Time="60">
+            <Button DefaultButtonFace="HybridDominatorCoopBossHybrid"/>
+            <Unit value="HybridDominatorCoopBoss"/>
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilEffectTarget id="HybridDominatorPlasmaBlast">
+        <Alignment value="Negative"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="HybridDominatorPlasmaBlastS"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+            <Cooldown TimeUse="20"/>
+        </Cost>
+        <Range value="13"/>
+        <RangeSlop value="10"/>
+        <PrepTime value="3"/>
+        <UninterruptibleArray index="Prep" value="1"/>
+        <UninterruptibleArray index="Cast" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <UninterruptibleArray index="Finish" value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="HybridDominatorPlasmaBlastBoss"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="PnPHybridFloorBurst">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Range value="8"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PnPHybridFloorBurst"/>
+        <Effect index="0" value="PnPHybridFloorBurstSet"/>
+        <AINotifyEffect value="PnPHybridFloorBurstCP"/>
+        <Cost>
+            <Vital index="Energy" value="10"/>
+            <Cooldown TimeUse="18"/>
+        </Cost>
+        <PrepTime value="0.5"/>
+        <FinishTime value="1"/>
+        <UninterruptibleArray index="Prep" value="1"/>
+        <UninterruptibleArray index="Cast" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <UninterruptibleArray index="Finish" value="1"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="PnPHybridPuddle">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="PnPHybridPuddleSet"/>
+        <Flags index="BestUnit" value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PnPHybridPuddle"/>
+        <PrepTime value="1"/>
+        <FinishTime value="1"/>
+        <UninterruptibleArray index="Prep" value="1"/>
+        <UninterruptibleArray index="Cast" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <UninterruptibleArray index="Finish" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="25"/>
+        </Cost>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="MoebiusSeekerLockOn">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <Effect index="0" value="MoebiusSeekerReleaseWeapon"/>
+        <TargetFilters value="Visible;Self,Missile,Stasis,Dead,Hidden,Hallucination,Invulnerable"/>
+        <Range value="13"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PnPSingleTargetLockOn"/>
+        <Cost>
+            <Vital index="Energy" value="30"/>
+            <Cooldown TimeUse="20"/>
+        </Cost>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="HybridDominatorCoopBossBlink">
+        <AbilSetId value="Blnk"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Flags index="BestUnit" value="0"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Cost>
+            <Cooldown Link="Blink" TimeUse="10"/>
+        </Cost>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="Blink">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+    <CButton id="HybridBehemothHybrid">
+        <Icon value="Assets\Textures\tip_hybridbehemoth.dds"/>
+    </CButton>
+    <CButton id="HybridDestroyerHybrid">
+        <Icon value="Assets\Textures\BTN-Unit-xelnaga-destroyer.dds"/>
+    </CButton>
+    <CButton id="HybridNemesisHybrid">
+        <Icon value="Assets\Textures\tip_hybridnemesis.dds"/>
+    </CButton>
+    <CButton id="HybridDominatorCoopBossHybrid">
+        <Icon value="Assets\Textures\tip_narud.dds"/>
+    </CButton>
+    <CButton id="HybridDominatorHybrid">
+        <Icon value="Assets\Textures\tip_hybriddominator.dds"/>
+    </CButton>
+    <CButton id="HybridReaverHybrid">
+        <Icon value="Assets\Textures\BTN-Unit-xelnaga-viper.dds"/>
+    </CButton>
+    <CButton id="HybridDominatorPlasmaBlastBoss">
+        <Icon value="Assets\Textures\btn-ability-protoss-purify.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-protoss-purify.dds"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CButton>
+    <CButton id="PnPHybridFloorBurst">
+        <Icon value="Assets\Textures\btn-tips-walloffire.dds"/>
+    </CButton>
+    <CButton id="PnPHybridPuddle">
+        <Icon value="Assets\Textures\firefight_coop.dds"/>
+    </CButton>
+    <CButton id="PnPSingleTargetLockOn">
+        <Icon value="Assets\Textures\btn-ability-protoss-targetlock.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-protoss-targetlock.dds"/>
+        <EditorCategories value="Race:Neutral"/>
+    </CButton>
+    <CActorSound id="HybridWhackBoss" parent="SoundOneShot">
+        <EditorCategories value=""/>
+        <On Terms="Effect.HybridWhackBossD.Start" Send="Create"/>
+        <Sound value="HybridF_AttackLaunch"/>
+    </CActorSound>
+    <CActorAction id="HybridDominatorPlasmaAttack" parent="GenericAttack" effectImpact="HybridDominatorPlasmaBlastD" effectLaunch="HybridDominatorPlasmaBlastLM">
+        <LaunchAssets Sound="Hybrid_PlasmaBlastLaunch"/>
+        <Missile value="HybridDominatorVoidPlasmaAttackMissile"/>
+        <ImpactSiteOps HoldPosition="1"/>
+        <ImpactMap index="None" Model="HybridDominatorVoidPlasmaAttackImpact" Sound="Hybrid_PlasmaBlastImpact"/>
+        <ImpactModel value="HybridDominatorPlasmaAttackImpactModel"/>
+    </CActorAction>
+    <CActorModel id="HybridDominatorPlasmaAttackChargeModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Abil.HybridDominatorPlasmaBlast.SourcePrepStart" Send="Create"/>
+        <On Terms="Abil.HybridDominatorPlasmaBlast.SourcePrepStop" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachWeapon"/>
+        <Model value="HybridDominatorVoidPlasmaAttackChargeModel"/>
+        <Scale value="0.500000"/>
+    </CActorModel>
+    <CActorSound id="HybridDominatorPlasmaAttackChargeSound" parent="SoundContinuous">
+        <On Terms="Abil.HybridDominatorPlasmaBlast.SourcePrepStart" Send="Create"/>
+        <On Terms="Abil.HybridDominatorPlasmaBlast.SourcePrepStop" Send="Destroy"/>
+        <Host Subject="HybridDominatorVoidPlasmaAttackChargeModel"/>
+        <Sound value="Hybrid_PlasmaBlastCharge"/>
+    </CActorSound>
+    <CActorModel id="HybridDominatorPlasmaAttackImpactModel" parent="ModelAnimationStyleOneShotNoOrphan">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Model value="GenericAttackModel"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorMissile id="MoebiusSeekerReleaseMissile" parent="GenericAttackMissile" unitName="MoebiusSeekerWeapon"/>
+    <CActorUnit id="MoebiusSeeker" parent="GenericUnitBase" unitName="MoebiusSeeker">
+        <HostSiteOps Ops="SOpPointDown"/>
+        <On Terms="Abil.PnPSingleTargetLockOn.SourceCastStart" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+    </CActorUnit>
+    <CActorAction id="MoebiusSeekerRelease" parent="GenericAttack" effectImpact="RemovePrecursor" effectLaunch="MoebiusSeekerReleaseLM">
+        <LaunchSiteOps Ops="SOpAttachHardPoint01 SOpForwardTargetPoint"/>
+    </CActorAction>
+    <CActorSimple id="MoebiusSeekerTint">
+        <On Terms="Behavior.MoebiusSeekerTint.On" Send="Create"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 255,50,50 0.500000 OneShot SeekerTarget"/>
+        <On Terms="Behavior.MoebiusSeekerTint.Off" Target="_Unit" Send="ClearTintColor 0.500000 SeekerTarget"/>
+        <On Terms="Behavior.MoebiusSeekerTint.Off" Send="Destroy"/>
+    </CActorSimple>
+    <CActorUnit id="HybridHoldingCellHybrid" parent="GenericUnitBase" unitName="HybridHoldingCellHybrid">
+        <On Terms="ActorCreation" Send="Create SoundEmitter Doodad_HybridHoldingCell"/>
+        <On Terms="Abil.HybridReleaseVoid.SourcePrepStart" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="Abil.HybridReleaseVoid.SourcePrepStart" Target="HybridReleaseVoidAddition" Send="AnimBaselineStart"/>
+        <On Terms="Abil.HybridReleaseVoid.SourceCastStart" Target="HybridReleaseVoidAddition" Send="Destroy"/>
+        <Model value="HybridHoldingCellSmallUnitVoid"/>
+        <Scale value="0.700000"/>
+        <ModelFlags index="OutlineOccluder" value="1"/>
+        <BuildModel value="HybridHoldingCellSmallUnitVoid"/>
+        <DeathArray index="Normal" ModelLink="HybridHoldingCellSmallDeath" SoundLink="Hybrid02_Cell_Explode"/>
+        <DeathActorModel value="UnitDeathModelPersistent"/>
+        <DeathActorModelLow value="UnitDeathModelPersistent"/>
+        <PlacementModel value="HybridHoldingCellSmallUnitVoid"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarOffset value="240"/>
+        <BarWidth value="200"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <UnitIcon value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorUnit id="HybridStasisChamberHybrid" parent="GenericUnitBase" unitName="HybridStasisChamberHybrid">
+        <On Terms="ActorCreation" Send="Create SoundEmitter Doodad_HybridHoldingCell"/>
+        <On Terms="Abil.HybridStasisChamberBRelease.SourcePrepStart" Send="AnimBracketStart Work Death Dead"/>
+        <On Terms="Abil.HybridStasisChamberBRelease.SourcePrepStart" Target="HybridStasisChamberBAddition" Send="AnimBaselineStart"/>
+        <On Terms="Abil.HybridStasisChamberBRelease.SourceCastStart" Target="HybridStasisChamberBAddition" Send="Destroy"/>
+        <Model value="HybridStasisChamberB"/>
+        <Scale value="0.700000"/>
+        <ModelFlags index="OutlineOccluder" value="1"/>
+        <BuildModel value="HybridStasisChamberB"/>
+        <DeathArray index="Normal" ModelLink="HybridStasisChamberBDeath" SoundLink="Hybrid_StasisChamber_Explode"/>
+        <DeathActorModel value="UnitDeathModelPersistent"/>
+        <DeathActorModelLow value="UnitDeathModelPersistent"/>
+        <PlacementModel value="HybridStasisChamberB"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarOffset value="240"/>
+        <BarWidth value="200"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <UnitIcon value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSplat id="HybridImmortalConsumeWarning">
+        <FogVisibility value="Visible"/>
+        <On Terms="Effect.HybridImmortalConsumeInitialCP.Start" Send="Create"/>
+        <On Terms="Effect.HybridImmortalConsumeInitialCP.Stop" Send="Destroy"/>
+        <HostSiteOps Ops="SOpTargetPoint SOpShadow" HoldPosition="1" HoldRotation="1"/>
+        <FadeOut value="0.000000"/>
+        <HoldTime value="-1.000000"/>
+        <Layer value="AOELayer"/>
+        <Model value="AmonTentacleCAttackWarning"/>
+    </CActorSplat>
+    <CActorModel id="HybridImmortalConsumeImpact" parent="ModelAnimationStyleOneShot">
+        <!--On Terms="ActorCreation" Send="SetTintColor 255,0,0"/-->
+        <On Terms="Effect.HybridImmortalConsumeSearch.Start; At Target" Send="Create"/>
+        <Model value="VoidTendrilVoidZoneAttackImpact"/>
+    </CActorModel>
+    <CActorMissile id="HybridImmortalConsumeMissile" parent="GenericAttackMissile" unitName="HybridImmortalConsumeMissile">
+        <Model value="ConsumeDNAFeedbackWeapon"/>
+    </CActorMissile>
+    <CActorAction id="HybridImmortalConsumeAttack" parent="GenericAttackBase">
+        <On Terms="Effect.HybridImmortalConsumeImpact.Start; FromEffectTreeDescendant" Send="ActionImpact"/>
+        <On Terms="Effect.HybridImmortalConsumeImpact.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics"/>
+        <On Terms="Effect.HybridImmortalConsumeFeedbackLM.Start; At Caster" Send="Create"/>
+        <ImpactSiteOps Ops="SOpAttachHarness"/>
+        <LaunchAttachQuery Methods="Center"/>
+        <ImpactAttachQuery Methods="Center"/>
+        <ShieldFlashType value="Full"/>
+        <ForceCommencementFrom value="HybridImmortalConsumeFeedbackLM"/>
+    </CActorAction>
+    <CActorSound id="HybridF_HybridImmortalConsumeLaunch" parent="SoundOneShot">
+        <On Terms="Abil.HybridImmortalConsume.SourceCastStart" Send="Create"/>
+        <Sound value="VoidTendril_VoidZone_Missile"/>
+    </CActorSound>
+    <CActorSound id="HybridF_HybridImmortalConsumeImpact" parent="SoundOneShot">
+        <On Terms="Effect.HybridImmortalConsumeImpactCP.Start" Send="Create"/>
+        <Sound value="VoidTendrilShockwaveImpact"/>
+    </CActorSound>
+    <CActorUnit id="HybridStasisChamberA" parent="GenericUnitBase" unitName="HybridStasisChamberA">
+        <ModelFlags index="OutlineOccluder" value="1"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarWidth value="200"/>
+        <BarOffset value="240"/>
+        <On Terms="ActorCreation" Send="Create SoundEmitter Doodad_HybridHoldingCell"/>
+        <On Terms="ActorCreation" Send="Create HybridStasisChamberAAddition"/>
+        <On Terms="Abil.HybridStasisChamberARelease.SourcePrepStart" Send="AnimBracketStart Work Death Dead"/>
+        <On Terms="Abil.HybridStasisChamberARelease.SourcePrepStart" Target="HybridStasisChamberAAddition" Send="AnimBaselineStart"/>
+        <On Terms="Abil.HybridStasisChamberARelease.SourceCastStart" Target="HybridStasisChamberAAddition" Send="Destroy"/>
+        <On Terms="Abil.HybridStasisChamberARelease.SourceCastStart" Send="SetMinimapVisibility"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <DeathArray index="Normal" ModelLink="HybridStasisChamberADeath" SoundLink="Hybrid_StasisChamber_Explode"/>
+        <DeathActorModel value="UnitDeathModelPersistent"/>
+        <DeathActorModelLow value="UnitDeathModelPersistent"/>
+        <UnitIcon value="Assets\Textures\WireFrame-PartParcel-HybridCapsule.dds"/>
+        <HeroIcon value="Assets\Textures\WireFrame-PartParcel-HybridCapsule.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\WireFrame-PartParcel-HybridCapsule.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\WireFrame-PartParcel-HybridCapsule.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSound id="HybridStasisChamberAOpenSound" parent="SoundOneShot">
+        <Sound value="Hybrid_HoldingCell_open"/>
+        <On Terms="Abil.HybridStasisChamberARelease.SourcePrepStart" Send="Create"/>
+    </CActorSound>
+    <CActorSiteOpLocalOffset id="HybridStasisChamberAAdditionAttachmentOffset">
+        <LocalOffset value="0.000000,0.000000,3.000000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorModel id="HybridStasisChamberAAddition">
+        <ModelFlags index="UseSyncSeed" value="1"/>
+        <Aliases value="_Snapshot"/>
+        <Host Subject="_Selectable"/>
+        <Inherits index="CastShadows" value="1"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="CreepEngulfment" value="1"/>
+        <Inherits index="Decal" value="1"/>
+        <Inherits index="Opacity" value="1"/>
+        <Inherits index="TeamColor" value="1"/>
+        <Inherits index="TimeScale" value="1"/>
+        <Inherits index="TintColor" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Inherits index="WarpGroup" value="1"/>
+        <HostSiteOps Ops="SOpShadow HybridStasisChamberAAdditionAttachmentOffset"/>
+        <On Terms="ActorCreation" Send="AnimBaselineStart"/>
+        <On Terms="UnitDeathCustomize" Send="Destroy"/>
+    </CActorModel>
+    <CActorMissile id="HybridStasisChamberAAttackMissile" parent="GenericAttackMissile" unitName="HybridStasisChamberAReleaseWeapon">
+        <On Terms="ActorCreation" Send="SetScale 1.500000 0.500000"/>
+    </CActorMissile>
+    <CActorAction id="HybridStasisChamberAAttack" parent="GenericAttack" effectImpact="HybridStasisChamberAReleaseImpact" effectLaunch="HybridStasisChamberAReleaseLM">
+        <LaunchSiteOps Ops="SOpShadow HybridStasisChamberAAdditionAttachmentOffset"/>
+        <ImpactMap index="None" Sound="Hybrid_Nemesis_Death_Vanish"/>
+    </CActorAction>
+    <CActorUnit id="HybridStasisChamberB" parent="GenericUnitBase" unitName="HybridStasisChamberB">
+        <ModelFlags index="OutlineOccluder" value="1"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarWidth value="200"/>
+        <BarOffset value="240"/>
+        <On Terms="ActorCreation" Send="Create SoundEmitter Doodad_HybridHoldingCell"/>
+        <On Terms="ActorCreation" Send="Create HybridStasisChamberBAddition"/>
+        <On Terms="Abil.HybridStasisChamberBRelease.SourcePrepStart" Send="AnimBracketStart Work Death Dead"/>
+        <On Terms="Abil.HybridStasisChamberBRelease.SourcePrepStart" Target="HybridStasisChamberBAddition" Send="AnimBaselineStart"/>
+        <On Terms="Abil.HybridStasisChamberBRelease.SourceCastStart" Target="HybridStasisChamberBAddition" Send="Destroy"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <DeathArray index="Normal" ModelLink="HybridStasisChamberBDeath" SoundLink="Hybrid_StasisChamber_Explode"/>
+        <DeathActorModel value="UnitDeathModelPersistent"/>
+        <DeathActorModelLow value="UnitDeathModelPersistent"/>
+        <UnitIcon value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        <HeroIcon value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-HybridHoldingCellSmall.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSound id="HybridStasisChamberBOpenSound" parent="SoundOneShot">
+        <Sound value="Hybrid_HoldingCell_open"/>
+        <On Terms="Abil.HybridStasisChamberBRelease.SourcePrepStart" Send="Create"/>
+    </CActorSound>
+    <CActorSiteOpLocalOffset id="HybridStasisChamberBAdditionAttachmentOffset">
+        <LocalOffset value="0.000000,0.000000,3.000000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorModel id="HybridStasisChamberBAddition">
+        <ModelFlags index="UseSyncSeed" value="1"/>
+        <Aliases value="_Snapshot"/>
+        <Host Subject="_Selectable"/>
+        <Inherits index="CastShadows" value="1"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="CreepEngulfment" value="1"/>
+        <Inherits index="Decal" value="1"/>
+        <Inherits index="Opacity" value="1"/>
+        <Inherits index="TeamColor" value="1"/>
+        <Inherits index="TimeScale" value="1"/>
+        <Inherits index="TintColor" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Inherits index="WarpGroup" value="1"/>
+        <HostSiteOps Ops="SOpShadow HybridStasisChamberBAdditionAttachmentOffset"/>
+        <On Terms="ActorCreation" Send="AnimBaselineStart"/>
+        <On Terms="UnitDeathCustomize" Send="Destroy"/>
+    </CActorModel>
+    <CActorMissile id="HybridStasisChamberBAttackMissile" parent="GenericAttackMissile" unitName="HybridStasisChamberBReleaseWeapon"/>
+    <CActorAction id="HybridStasisChamberBAttack" parent="GenericAttack" effectImpact="HybridStasisChamberBReleaseImpact" effectLaunch="HybridStasisChamberBReleaseLM">
+        <LaunchSiteOps Ops="SOpShadow HybridStasisChamberBAdditionAttachmentOffset"/>
+        <ImpactMap index="None" Sound="Hybrid_Nemesis_Death_Vanish"/>
+    </CActorAction>
+    <CActorSound id="HybridDominatorCoopBoss_Death_AS" parent="SoundOneShot">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+        <Sound value="Event_HybridDominatorCoopBoss_Death_RedEnergy_2D"/>
+        <Layers Sound="Event_HybridDominatorCoopBoss_Death_RedSpirit_2D"/>
+    </CActorSound>
+    <CActorUnit id="HybridDominatorCoopBoss" parent="GenericUnitBase" unitName="HybridDominatorCoopBoss">
+        <DeathArray index="Normal" ModelLink="HybridDominatorCoopBossDeath" SoundLink="Hybrid_Protoss_Death" VoiceLink="HybridADeath"/>
+        <PortraitModel value="HybridDominatorCoopBossPortrait"/>
+        <AnimBlendTime value="0.200000"/>
+        <On Terms="WeaponStart.HybridDominatorCoopBoss.AttackStart" Send="AnimBracketStart Spell Spell"/>
+        <On Terms="WeaponStop.HybridDominatorCoopBoss.AttackStop" Send="AnimBracketStop Spell"/>
+        <!--On Terms="ActorCreation" Send="TimerSet 0.200000 Shadow"/>
+        <On Terms="TimerExpired; TimerName Shadow; IsStatus ShadowCreate 1" Send="Create HybridDominatorCoopBossShadow"/>
+        <On Terms="TimerExpired; TimerName Shadow" Send="TimerSet 0.200000 Shadow"/>
+        <On Terms="UnitMovementUpdate.*.Stand" Send="StatusSet ShadowCreate 0"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="StatusSet ShadowCreate 1"/>
+        <On Terms="ActorCreation" Send="StatusSet ShadowCreate 0"/-->
+        <On Terms="Signal.*.Birth" Send="$Birth 0 0.000000"/>
+        <On Terms="Effect.HybridDominatorCoopBossBlink.Stop" Send="AnimPlay Blink Birth"/>
+        <On Terms="Effect.HybridDominatorCoopBossBlink.Stop" Send="SetOpacity"/>
+        <On Terms="Effect.HybridDominatorCoopBossBlink.Stop" Send="SetOpacity 1.000000 0.500000"/>
+        <!--On Terms="Behavior.HybridPnPMirrorImage.On" Send="ModelSwap HybridDominatorCoopBossMirrorImage"/-->
+        <On Terms="Behavior.HybridPnPMirrorImage.On" Send="StatusSet MirrorImageDeath 1"/>
+        <On Terms="UnitDeathCustomize; IsStatus MirrorImageDeath 1" Send="DeathCustomize Hallucination"/>
+        <On Terms="WeaponStart.HybridWhackBoss.AttackStart" Send="AnimPlay Attack Attack NonLooping"/>
+        <On Terms="Abil.HybridDominatorPlasmaBlast.SourcePrepStart" Send="AnimPlay Channel Stand,Channel"/>
+        <On Terms="Abil.HybridDominatorPlasmaBlast.SourcePrepStop" Send="AnimClear Channel"/>
+        <On Terms="Abil.PnPHybridPuddle.SourcePrepStart" Send="$Spell,B NonLooping -1.000000 -1.000000 2.000000 AsDuration"/>
+        <On Terms="Abil.PnPHybridFloorBurst.SourcePrepStart" Send="$Spell NonLooping"/>
+        <DeathCustoms ModelLink="HybridDominatorCoopBossMirrorImageDeath" Name="Hallucination"/>
+        <BuildModel value="HybridWarpIn"/>
+        <BarWidth value="90"/>
+        <BarOffset value="240"/>
+        <SoundArray index="Birth" value="Hybrid_Dom_CoopBoss_Birth"/>
+        <SoundArray index="Ready" value="Hybrid_Ready"/>
+        <SoundArray index="What" value="Hybrid_What"/>
+        <SoundArray index="Yes" value="Hybrid_Yes"/>
+        <SoundArray index="Attack" value="Hybrid_Attack"/>
+        <SoundArray index="Pissed" value="Hybrid_Pissed"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <UnitIcon value="Assets\Textures\BTN-Unit-xelnaga-maar.dds"/>
+        <HeroIcon value="Assets\Textures\BTN-Unit-xelnaga-maar.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\WireFrame-PartParcel-Hybrid-MoebiusHybrid-Shield00.dds"/>
+            <Image value="Assets\Textures\WireFrame-PartParcel-Hybrid-MoebiusHybrid-Shield01.dds"/>
+            <Image value="Assets\Textures\WireFrame-PartParcel-Hybrid-MoebiusHybrid-Shield02.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\WireFrame-PartParcel-Hybrid-MoebiusHybrid.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\WireFrame-PartParcel-Hybrid-MoebiusHybrid.dds"/>
+        </Wireframe>
+        <BarDistance value="42"/>
+        <UnitKillRank Text="UnitKillRank/H05SHybrid"/>
+        <Aliases value="_UnitHuge"/>
+        <Aliases value="_ShieldBlack"/>
+    </CActorUnit>
+    <CActorSound id="Hybrid_Dom_CoopBoss_MirrorImage_AS" parent="SoundOneShot">
+        <!--On Terms="Behavior.HybridPnPMirrorImage.On" Send="Create"/>-->
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+        <Sound value="Hybrid_Dom_CoopBoss_MirrorImage"/>
+    </CActorSound>
+    <CActorSound id="Hybrid_Dom_CoopBoss_MirrorImage_Death_AS" parent="SoundOneShot">
+        <On Terms="UnitDeathCustomize; IsStatus MirrorImageDeath 1" Send="Create"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+        <Sound value="Hybrid_Dom_CoopBoss_MirrorImage_Death"/>
+    </CActorSound>
+    <CActorBeamSimple id="HybridDominatorCoopBossAttackBeam" parent="BeamSimpleAnimationStyleOneShot"/>
+    <CActorAction id="HybridDominatorCoopBossAttack" parent="GenericAttack" effectAttack="HybridDominatorCoopBossDamage">
+        <LaunchAttachQuery Methods="Weapon"/>
+        <LaunchSiteOps Ops="SOpAttachWeapon"/>
+        <LaunchAssets Sound="HybridProtoss_attack"/>
+        <ImpactMap index="None" Model="HybridDominatorCoopBossAttackBeamImpact" Sound="Hybrid_Dom_CoopBoss_SpellB"/>
+    </CActorAction>
+    <CActorModel id="HybridDominatorCoopBossShadow" parent="ModelAnimationStyleOneShotNoOrphan">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary SOp2DRotation"/>
+        <On Terms="ActorCreation" Send="SetCastShadows"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.500000 ShadowFade"/>
+        <On Terms="ActorCreation" Send="SetTintColor 0,0,128 1.200000"/>
+        <On Terms="ActorCreation" Send="SetOpacity"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.700000 0.500000"/>
+        <On Terms="ActorCreation" Send="AnimHookSet HookedBaseline _Unit ::Baseline"/>
+        <On Terms="ActorCreation" Send="AnimSetPausedAll"/>
+        <On Terms="ActorCreation" Send="AnimHookClear HookedBaseline"/>
+        <On Terms="TimerExpired; TimerName ShadowFade" Send="SetOpacity 0.000000 0.700000"/>
+        <On Terms="TimerExpired; TimerName ShadowFade" Send="TimerSet 0.700000 DelayDestroy"/>
+        <On Terms="TimerExpired; TimerName DelayDestroy" Send="Destroy"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorModel id="HybridDominatorCoopBossBlinkOriginModel" parent="ModelAnimationStyleOneShot">
+        <InheritType value="OneShot"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <On Terms="Effect.HybridDominatorCoopBossBlink.Start; At Source" Send="Create"/>
+        <On Terms="ActorCreation" Send="SetTintColor 0,0,255 1.000000"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.000000 1.000000"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+    </CActorModel>
+    <!--CActorModel id="HybridDominatorCoopBossBlinkStopModel" parent="ModelAnimationStyleOneShot">-->
+    <!--        <InheritType value="OneShot"/>-->
+    <!--        <Inherits index="BaseModelScale" value="1"/>-->
+    <!--        <Inherits index="Scale" value="1"/>-->
+    <!--        <On Terms="Effect.HybridDominatorCoopBossBlink.Stop; At Source" Send="Create"/>-->
+    <!--        <On Terms="ActorCreation" Send="SetTintColor 0,0,255"/>-->
+    <!--        <On Terms="ActorCreation" Send="SetTintColor 255,255,255 1"/>-->
+    <!--        <On Terms="ActorCreation" Send="SetOpacity 0"/>-->
+    <!--        <On Terms="ActorCreation" Send="SetOpacity 1 1"/>-->
+    <!--        <Host Subject="_Selectable"/>-->
+    <!--        <HostSiteOps Ops="SOpAttachOrigin"/>-->
+    <!--    </CActorModel-->
+    <CActorSound id="HybridDominatorCoopBossBlinkStopSound" parent="SoundOneShot">
+        <Sound value="Hybrid_Dom_CoopBoss_Birth"/>
+        <On Terms="Effect.HybridDominatorCoopBossBlink.Stop; At Source" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+        <Layers Sound="Zeratul_BlinkCloud"/>
+    </CActorSound>
+    <CActorUnit id="HybridBehemothCoopBoss" parent="GenericUnitStandard" unitName="HybridBehemothCoopBoss">
+        <DeathArray index="Normal" ModelLink="HybridBehemothCoopBossDeath" SoundLink="HybridZerg_Death"/>
+        <PortraitModel value="HybridBehemothCoopBossPortrait"/>
+        <On Terms="Signal.*.Birth" Send="$Birth 0 0.000000"/>
+        <AnimBlendTime value="0.200000"/>
+        <BarWidth value="150"/>
+        <BarOffset value="200"/>
+        <SoundArray index="Birth" value=""/>
+        <SoundArray index="Ready" value="HybridCReady"/>
+        <SoundArray index="Help" value="HybridCHelp"/>
+        <SoundArray index="What" value="HybridCWhat"/>
+        <SoundArray index="Yes" value="HybridCYes"/>
+        <SoundArray index="Attack" value="HybridCYes"/>
+        <SoundArray index="Pissed" value="HybridCPissed"/>
+        <SoundArray index="Movement" value="HybridCMovement"/>
+        <SoundArray index="Turning" value="HybridCTurning"/>
+        <SoundArray index="Board" value="HybridCBoard"/>
+        <SoundArray index="Click" value="HybridCClick"/>
+        <SoundArray index="ClickError" value="HybridCClickError"/>
+        <SoundArray index="Highlight" value="HybridCHighlight"/>
+        <GroupSoundArray index="Birth" value="HybridCBirth"/>
+        <GroupSoundArray index="Ready" value="HybridCReady"/>
+        <GroupSoundArray index="Help" value="HybridCHelp"/>
+        <GroupSoundArray index="What" value="HybridCWhat"/>
+        <GroupSoundArray index="Yes" value="HybridCYes"/>
+        <GroupSoundArray index="Attack" value="HybridCYes"/>
+        <GroupSoundArray index="Pissed" value="HybridCPissed"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-zerg-hybridbehemoth.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-zerg-hybridbehemoth.dds"/>
+        </Wireframe>
+        <UnitKillRank Text="UnitKillRank/H05SHybrid"/>
+        <UnitIcon value="Assets\Textures\tip_hybridbehemoth.dds"/>
+        <Aliases value="_UnitHuge"/>
+    </CActorUnit>
+    <CActorPortrait id="HybridBehemothCoopBossPortrait" parent="CompositePortrait"/>
+    <CActorAction id="HybridBehemothCoopBossAttack" parent="GenericAttack" effectAttack="HybridBehemothCoopBossDamage"/>
+    <CActorMissile id="HybridBehemothCoopBossAntiAirAttackMissile" parent="GenericAttackMissile" unitName="HybridBehemothCoopBossAntiAirAttackWeapon"/>
+    <CActorAction id="HybridBehemothCoopBossAntiAirAttack" parent="GenericAttack" effectImpact="HybridBehemothCoopBossAntiAirAttackDamage" effectLaunch="HybridBehemothCoopBossAntiAirAttackLaunchMissile">
+        <LaunchAssets Sound="SporeCannon_AttackLaunch"/>
+        <LaunchAttachQuery Methods="Center"/>
+        <ImpactMap index="None" Sound="Infestor_FungalGrowthImpact"/>
+    </CActorAction>
+    <CActorModel id="Hybrid_ProtossAdvanced_Experimented_StasisBomb_Cursor" parent="ModelAnimationStyleContinuous">
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorModel>
+    <CActorModel id="HybridPnPStasisField" parent="ModelAnimationStyleContinuous">
+        <EditorCategories value=""/>
+        <On Terms="Behavior.HybridPnPStasisField.On" Send="Create"/>
+        <On Terms="Behavior.HybridPnPStasisField.On" Send="Create Hybrid_StealStrengthCast"/>
+        <On Terms="ActorCreation; ValidateUnit IsColossus" Send="SetScale 1.200000,1.200000,2.500000"/>
+        <On Terms="ActorCreation; ValidateUnit IsBrutalisk" Send="SetScale 2.000000"/>
+        <On Terms="Behavior.HybridPnPStasisField.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.HybridPnPStasisField.On; ValidateUnit IsSILiberator" Target="_Unit" Send="Signal CloudAway"/>
+        <On Terms="Behavior.HybridPnPStasisField.On" Target="_Unit" Send="AnimSetPausedAll"/>
+        <On Terms="Behavior.HybridPnPStasisField.Off" Target="_Unit" Send="AnimSetPausedAll 0"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="0.900000"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+    </CActorModel>
+    <CWeaponLegacy id="HybridWhackBoss">
+        <EditorCategories value=""/>
+        <Options index="Melee" value="1"/>
+        <Icon value="Assets\Textures\btn-upgrade-stetmann-mechameleeattacks-level3.dds"/>
+        <DisplayAttackCount value="2"/>
+        <TargetFilters value="Ground,Visible;Self,RawResource,HarvestableResource,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AcquireFilters value="-;Player,Ally,Neutral"/>
+        <Range value="1"/>
+        <Period value="1.5"/>
+        <DamagePoint value="0"/>
+        <LegacyOptions index="CanRetargetWhileChanneling" value="1"/>
+        <AllowedMovement value="Slowing"/>
+        <DisplayEffect value="HybridWhackBossD"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="HybridDominatorCoopBoss">
+        <Icon value="Assets\Textures\btn-upgrade-protoss-groundweaponslevel0.dds"/>
+        <DisplayEffect value="HybridDominatorCoopBossDamage"/>
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="13"/>
+        <Period value="1.5"/>
+        <Effect value="HybridDominatorCoopBossDamage"/>
+    </CWeaponLegacy>
+    <CUnit id="HybridHoldingCellHybrid">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <FlagArray index="Destructible" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Massive" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1000"/>
+        <LifeMax value="1000"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <Sight value="5"/>
+        <AbilArray Link="que5"/>
+        <AbilArray Link="Rally"/>
+        <AbilArray Link="TrainHybrid"/>
+        <CardLayouts>
+            <LayoutButtons Face="HybridReaverHybrid" Type="AbilCmd" AbilCmd="TrainHybrid,Train1" Row="0" Column="0"/>
+            <LayoutButtons Face="HybridDestroyerHybrid" Type="AbilCmd" AbilCmd="TrainHybrid,Train2" Row="0" Column="1"/>
+            <LayoutButtons Face="HybridNemesisHybrid" Type="AbilCmd" AbilCmd="TrainHybrid,Train4" Row="0" Column="2"/>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="Rally,Rally1" Row="1" Column="4"/>
+        </CardLayouts>
+        <Radius value="2"/>
+        <SeparationRadius value="2"/>
+        <Footprint value="FootprintDoodad4x4"/>
+        <DeadFootprint value="FootprintDoodad4x4"/>
+        <SubgroupPriority value="1"/>
+        <MinimapRadius value="2"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="HybridStasisChamberHybrid">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <FlagArray index="Destructible" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Massive" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="2000"/>
+        <LifeMax value="2000"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <Sight value="5"/>
+        <KillXP value="10"/>
+        <AbilArray Link="que5"/>
+        <AbilArray Link="Rally"/>
+        <AbilArray Link="TrainHybrid"/>
+        <CardLayouts>
+            <LayoutButtons Face="HybridBehemothHybrid" Type="AbilCmd" AbilCmd="TrainHybrid,Train3" Row="0" Column="0"/>
+            <LayoutButtons Face="HybridDominatorHybrid" Type="AbilCmd" AbilCmd="TrainHybrid,Train5" Row="0" Column="1"/>
+            <LayoutButtons Face="HybridNemesisHybrid" Type="AbilCmd" AbilCmd="TrainHybrid,Train4" Row="0" Column="2"/>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="Rally,Rally1" Row="1" Column="4"/>
+        </CardLayouts>
+        <Radius value="2"/>
+        <SeparationRadius value="2"/>
+        <Footprint value="FootprintDoodad6x6"/>
+        <DeadFootprint value="FootprintDoodad6x6"/>
+        <SubgroupPriority value="1"/>
+        <MinimapRadius value="2"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="HybridBehemoth">
+        <Food value="-8"/>
+        <DamageDealtXP value="0"/>
+        <DamageTakenXP value="0"/>
+        <KillXP value="140"/>
+        <WeaponArray index="1" removed="1"/>
+        <ScoreKill value="0"/>
+        <HotkeyCategory value="Unit/Category/Hybrid"/>
+    </CUnit>
+    <CUnit id="HybridDestroyer">
+        <Food value="-8"/>
+        <DamageDealtXP value="0"/>
+        <DamageTakenXP value="0"/>
+        <KillXP value="150"/>
+        <ScoreKill value="0"/>
+        <HotkeyCategory value="Unit/Category/Hybrid"/>
+    </CUnit>
+    <CUnit id="HybridDominatorVoid">
+        <Food value="-8"/>
+        <DamageDealtXP value="0"/>
+        <DamageTakenXP value="0"/>
+        <KillXP value="200"/>
+        <ScoreKill value="0"/>
+        <HotkeyCategory value="Unit/Category/Hybrid"/>
+    </CUnit>
+    <CUnit id="HybridNemesis">
+        <Food value="-8"/>
+        <CostResource index="Minerals" value="600"/>
+        <DamageDealtXP value="0"/>
+        <DamageTakenXP value="0"/>
+        <KillXP value="100"/>
+        <ScoreMake value="0"/>
+        <ScoreKill value="0"/>
+        <HotkeyCategory value="Unit/Category/Hybrid"/>
+    </CUnit>
+    <CUnit id="HybridReaver">
+        <Food value="-8"/>
+        <DamageDealtXP value="0"/>
+        <DamageTakenXP value="0"/>
+        <ScoreKill value="0"/>
+        <HotkeyCategory value="Unit/Category/Hybrid"/>
+    </CUnit>
+    <CUnit id="HybridDominatorCoopBoss">
+        <DeathRevealRadius value="3"/>
+        <Race value="Prot"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <PushPriority value="11"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <Attributes index="MapBoss" value="1"/>
+        <LifeStart value="4000"/>
+        <LifeMax value="4000"/>
+        <LifeArmor value="3"/>
+        <LifeRegenRate value="0.25"/>
+        <LifeArmorName value="Unit/LifeArmorName/HybridArmor"/>
+        <EnergyStart value="100"/>
+        <EnergyMax value="200"/>
+        <EnergyRegenRate value="2"/>
+        <ShieldsStart value="3000"/>
+        <ShieldsMax value="3000"/>
+        <ShieldArmor value="3"/>
+        <ShieldRegenDelay value="10"/>
+        <ShieldRegenRate value="2"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/HybridShields"/>
+        <Mover value="Fly"/>
+        <Speed value="2.8125"/>
+        <Acceleration value="6.25"/>
+        <LateralAcceleration value="46"/>
+        <Sight value="14"/>
+        <Food value="-8"/>
+        <CostResource index="Minerals" value="1200"/>
+        <AttackTargetPriority value="20"/>
+        <KillXP value="200"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="HybridDominatorCoopBossBlink"/>
+        <AbilArray Link="MoebiusSeekerLockOn"/>
+        <AbilArray Link="PnPHybridFloorBurst"/>
+        <AbilArray Link="PnPHybridPuddle"/>
+        <AbilArray Link="HybridDominatorPlasmaBlast"/>
+        <BehaviorArray Link="Detector10"/>
+        <WeaponArray Link="HybridWhackBoss"/>
+        <WeaponArray Link="HybridDominatorCoopBoss"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Blink" Type="AbilCmd" AbilCmd="HybridDominatorCoopBossBlink,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="PnPSingleTargetLockOn" Type="AbilCmd" AbilCmd="MoebiusSeekerLockOn,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="PnPHybridFloorBurst" Type="AbilCmd" AbilCmd="PnPHybridFloorBurst,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="PnPHybridPuddle" Type="AbilCmd" AbilCmd="PnPHybridPuddle,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="HybridDominatorPlasmaBlastBoss" Type="AbilCmd" AbilCmd="HybridDominatorPlasmaBlast,Execute" Row="2" Column="4"/>
+        </CardLayouts>
+        <Radius value="1.25"/>
+        <InnerRadius value="0.75"/>
+        <SubgroupPriority value="15"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+        <GlossaryCategory value="Unit/Category/HybridUnits"/>
+        <GlossaryPriority value="350"/>
+        <HotkeyCategory value="Unit/Category/Hybrid"/>
+    </CUnit>
+    <CBehaviorBuff id="PnPHybridPuddle">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\firefight_coop.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <TimeScaleSource Value="Global"/>
+        <Duration value="0.25"/>
+        <Period value="0.1"/>
+        <PeriodicEffect value="PnPHybridPuddleD"/>
+    </CBehaviorBuff>
+    <CModel id="HybridDominatorCoopBossPortrait" parent="Portrait" Race="Protoss">
+        <Model value="Assets\Portraits\Protoss\Hybrid_ProtossAdvanced_Experimented_Portrait\Hybrid_ProtossAdvanced_Experimented_Portrait.m3"/>
+        <Image value="Assets\Textures\hybrid_protossadvanced_experimented_portrait_static.dds"/>
+    </CModel>
+    <CModel id="HybridDominatorCoopBoss" parent="Unit" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Hybrid_ProtossAdvanced_Experimented\Hybrid_ProtossAdvanced_Experimented.m3"/>
+        <Occlusion value="Show"/>
+        <SelectionRadius value="1.111000"/>
+        <Radius value="1.000000"/>
+        <Flags index="AutoUnload" value="1"/>
+        <ShadowRadius value="1.111000"/>
+        <TechPurchaseCamera value="Star2CameraHigher08"/>
+        <UnitGlossaryCamera value="Star2CameraHigher08"/>
+        <PlanetPanelCamera value="Star2CameraHigher08"/>
+        <ScaleMax value="2.000000,2.000000,2.000000"/>
+        <ScaleMin value="2.000000,2.000000,2.000000"/>
+        <SelectionOffset value="0.000000,0.000000,1.000000"/>
+        <Events>
+            <Anim value="Spell,B,00"/>
+            <Name value="Hybrid_Dom_CoopBoss_SpellB"/>
+            <Type value="Sound"/>
+            <Time value="0.009000"/>
+            <Payload value="Hybrid_Dom_CoopBoss_SpellB"/>
+        </Events>
+        <Events>
+            <Anim value="Spell,B,00"/>
+            <Name value="HybridNemesisWeapon_Vx_02"/>
+            <Type value="Sound"/>
+            <Time value="0.037000"/>
+            <Payload value="HybridNemesisWeapon_Vx_02"/>
+        </Events>
+    </CModel>
+    <CModel id="HybridDominatorCoopBossDeath" parent="UnitDeath" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Hybrid_ProtossAdvanced_Experimented_Death\Hybrid_ProtossAdvanced_Experimented_Death.m3"/>
+        <Occlusion value="Show"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="HybridDominatorCoopBoss_Death_AS"/>
+            <Type value="Actor"/>
+            <Time value="0.024000"/>
+            <Payload value="HybridDominatorCoopBoss_Death_AS"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Event_HybridDominatorCoopBoss_Death_Blast_2D"/>
+            <Type value="Sound"/>
+            <Time value="2.053000"/>
+            <Payload value="Event_HybridDominatorCoopBoss_Death_Blast_2D"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Event_HybridDominatorCoopBoss_Death_LFE_2D"/>
+            <Type value="Sound"/>
+            <Time value="2.002000"/>
+            <Payload value="Event_HybridDominatorCoopBoss_Death_LFE_2D"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Event_HybridDominatorCoopBoss_Death_SoulVapor_2D"/>
+            <Type value="Sound"/>
+            <Time value="1.962000"/>
+            <Payload value="Event_HybridDominatorCoopBoss_Death_SoulVapor_2D"/>
+        </Events>
+        <LowQualityModel value="ProtossLargeUnitDeathLow"/>
+    </CModel>
+    <CModel id="HybridDominatorCoopBossMirrorImageDeath" parent="UnitDeath" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Hybrid_ProtossAdvanced_Experimented_MirrorImage_Death\Hybrid_ProtossAdvanced_Experimented_MirrorImage_Death.m3"/>
+        <Occlusion value="Show"/>
+        <LowQualityModel value="ProtossLargeUnitDeathLow"/>
+    </CModel>
+    <CModel id="HybridDominatorCoopBossAttackBeam" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Neutral\Hybrid_ProtossAdvanced_Experimented_AttackBeam\Hybrid_ProtossAdvanced_Experimented_AttackBeam.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="HybridDominatorCoopBossAttackBeamImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\Hybrid_ProtossAdvanced_Experimented_AttackBeam_Impact\Hybrid_ProtossAdvanced_Experimented_AttackBeam_Impact.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="HybridDominatorCoopBossShadow" parent="OneShotSpellFX">
+        <Model value="Assets\Units\Protoss\Hybrid_ProtossAdvanced_Experimented\Hybrid_ProtossAdvanced_Experimented.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ScaleMax value="2.000000,2.000000,2.000000"/>
+        <ScaleMin value="2.000000,2.000000,2.000000"/>
+    </CModel>
+    <CModel id="HybridDominatorCoopBossBlinkOriginModel" parent="OneShotSpellFX">
+        <Model value="Assets\Units\Protoss\Hybrid_ProtossAdvanced_Experimented\Hybrid_ProtossAdvanced_Experimented.m3"/>
+        <ScaleMax value="2.000000,2.000000,2.000000"/>
+        <ScaleMin value="2.000000,2.000000,2.000000"/>
+        <EditorCategories value="Race:Protoss"/>
+        <SelectionRadius value="0.833200"/>
+        <ShadowRadius value="0.833200"/>
+        <Events>
+            <Anim value="Spell,B,00"/>
+            <Name value="Hybrid_Dom_CoopBoss_SpellB"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Hybrid_Dom_CoopBoss_SpellB"/>
+        </Events>
+        <Events>
+            <Anim value="Birth,00"/>
+            <Name value="Hybrid_Dom_CoopBoss_Birth"/>
+            <Type value="Sound"/>
+            <Time value="0.009000"/>
+            <Payload value="Hybrid_Dom_CoopBoss_Birth"/>
+        </Events>
+    </CModel>
+    <CModel id="HybridDominatorCoopBossBlinkStopModel" parent="OneShotSpellFX">
+        <Model value="Assets\Units\Protoss\Hybrid_ProtossAdvanced_Experimented\Hybrid_ProtossAdvanced_Experimented.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ScaleMax value="2.000000,2.000000,2.000000"/>
+        <ScaleMin value="2.000000,2.000000,2.000000"/>
+    </CModel>
+    <CModel id="HybridBehemothCoopBossPortrait" parent="Portrait" Race="Zerg">
+        <Model value="Assets\Portraits\Zerg\Hybrid_Zerg_Advanced_Portrait\Hybrid_Zerg_Advanced_Portrait.m3"/>
+        <Lighting value="HybridZergAdvanced"/>
+        <Image value="Assets\Textures\hybridzergadvancedportrait_static.dds"/>
+    </CModel>
+    <CModel id="HybridBehemothCoopBoss" parent="Unit" Race="Zerg">
+        <Model value="Assets\Units\Zerg\Hybrid_Zerg_Advanced\Hybrid_Zerg_Advanced.m3"/>
+        <Occlusion value="Show"/>
+        <SelectionRadius value="1.250000"/>
+        <Radius value="1.000000"/>
+        <Flags index="AutoUnload" value="1"/>
+        <ShadowRadius value="1.250000"/>
+        <TechPurchaseCamera value="Star2CameraHigher14"/>
+        <UnitGlossaryCamera value="Star2CameraHigher14"/>
+        <PlanetPanelCamera value="Star2CameraHigher14"/>
+        <Events>
+            <Anim value="Birth,00"/>
+            <Name value="HybridBehemoth_Birth"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="HybridBehemoth_Birth"/>
+        </Events>
+        <Events>
+            <Anim value="Attack,00"/>
+            <Name value="HybridSounds"/>
+            <Type value="Sound"/>
+            <Time value="0.100000"/>
+            <Payload value="HybridF_AttackLaunch"/>
+        </Events>
+        <Events>
+            <Anim value="Attack,00"/>
+            <Name value="HybridSounds"/>
+            <Type value="Sound"/>
+            <Time value="0.200000"/>
+            <Payload value="HybridF_AttackLaunch"/>
+        </Events>
+        <Events>
+            <Anim value="Attack,00"/>
+            <Name value="HybridSounds"/>
+            <Type value="Sound"/>
+            <Time value="0.390000"/>
+            <Payload value="HybridF_AttackImpact"/>
+        </Events>
+        <Events>
+            <Anim value="Attack,00"/>
+            <Name value="HybridSounds"/>
+            <Type value="Sound"/>
+            <Time value="0.530000"/>
+            <Payload value="HybridF_AttackImpact"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Angry,00"/>
+            <Name value="HybridSounds"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="HybridF_Roar"/>
+        </Events>
+        <Lighting value="HybridZergAdvanced"/>
+    </CModel>
+    <CModel id="HybridBehemothCoopBossDeath" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\Hybrid_Zerg_Advanced_Death\Hybrid_Zerg_Advanced_Death.m3"/>
+        <Occlusion value="Show"/>
+        <LowQualityModel value="ProtossLargeUnitDeathLow"/>
+    </CModel>
+    <CModel id="HybridBehemothCoopBossAntiAirAttackWeapon" parent="MissileFX">
+        <Model value="Assets\Effects\Zerg\SporeCannonMissile\SporeCannonMissile.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="HybridBehemothCoopBossAntiAirAttackImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Zerg\FungalGrowthMissileImpact\FungalGrowthMissileImpact.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+        <ScaleMax value="0.450000,0.450000,0.450000"/>
+        <ScaleMin value="0.450000,0.450000,0.450000"/>
+    </CModel>
+    <CModel id="HybridDominatorCoopBossMirrorImage" parent="Unit" Race="Protoss">
+        <Model value="Assets\Effects\Neutral\Hybrid_ProtossAdvanced_Experimented_MirrorImage\Hybrid_ProtossAdvanced_Experimented_MirrorImage.m3"/>
+        <Occlusion value="Show"/>
+        <SelectionRadius value="1.111000"/>
+        <Radius value="1.000000"/>
+        <Flags index="AutoUnload" value="1"/>
+        <ShadowRadius value="1.111000"/>
+        <TechPurchaseCamera value="Star2CameraHigher08"/>
+        <UnitGlossaryCamera value="Star2CameraHigher08"/>
+        <PlanetPanelCamera value="Star2CameraHigher08"/>
+        <ScaleMax value="2.000000,2.000000,2.000000"/>
+        <ScaleMin value="2.000000,2.000000,2.000000"/>
+        <SelectionOffset value="0.000000,0.000000,1.000000"/>
+        <Events>
+            <Anim value="Birth,00"/>
+            <Name value="Hybrid_Dom_CoopBoss_MirrorImage"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Hybrid_Dom_CoopBoss_MirrorImage"/>
+        </Events>
+    </CModel>
+    <CModel id="Hybrid_ProtossAdvanced_Experimented_StasisBomb_Cursor" parent="UI">
+        <Model value="Assets\UI\Cursors\Hybrid_ProtossAdvanced_Experimented_StasisBomb_Cursor\Hybrid_ProtossAdvanced_Experimented_StasisBomb_Cursor.m3"/>
+    </CModel>
+    <CModel id="HybridPnPStasisField" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Other\Hybrid_ProtossAdvanced_Experimented_StasisBomb\Hybrid_ProtossAdvanced_Experimented_StasisBomb.m3"/>
+        <Occlusion value="Show"/>
+    </CModel>
+</Catalog>

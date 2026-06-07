@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CBehaviorBuff id="IncendiaryBompsMira">
+        <Face value="IncendiaryBompsMira"/>
+        <Alignment value="Negative"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="10"/>
+        <Period value="0.5"/>
+        <PeriodicEffect value="IncendiaryBompsBDMira"/>
+        <Modification>
+            <StateFlags index="SuppressCloak" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorAttribute id="MagneticMinesMira">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <MinPoints value="1"/>
+    </CBehaviorAttribute>
+    <CBehaviorUnitTracker id="MercStarportHangarMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <MaxTrackedUnits value="6"/>
+    </CBehaviorUnitTracker>
+    <CBehaviorBuff id="RavenAnalyzeMira">
+        <InfoIcon value="Assets\Textures\btn-ability-protoss-targetlock.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <RemoveValidatorArray value="DistanceLessThan10"/>
+        <FinalEffect value="RavenAnalyzeDeMira"/>
+        <Modification>
+            <DamageTakenScaled index="Melee" value="3"/>
+            <DamageTakenScaled index="Ranged" value="3"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorUnitTracker id="BomberPlatformHangarMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <MaxTrackedUnits value="1"/>
+    </CBehaviorUnitTracker>
+    <CBehaviorAttribute id="MercStarportCargoInstalledMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Modification Detect="7">
+            <VitalMaxArray index="Life" value="100"/>
+            <VitalRegenArray index="Life" value="2"/>
+            <WeaponArray Link="MercStarportLaunchMira"/>
+        </Modification>
+    </CBehaviorAttribute>
+    <CBehaviorUnitTracker id="RavenAnalyzeTMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <MaxTrackedUnits value="2"/>
+        <UnitAddedAtMaxRule value="ReplaceOldest"/>
+        <ReplacedEffect value="RavenAnalyzeRBMira"/>
+    </CBehaviorUnitTracker>
+    <CBehaviorBuff id="ReaperClusterBombMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <DamageResponse Fatal="1" Handled="ReaperClusterBombLM">
+            <Chance value="1"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ReaperClusterBombS">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <RemoveValidatorArray value="NotHeroic"/>
+        <RemoveValidatorArray value="NotFrenzied"/>
+        <Duration value="2"/>
+        <InitialEffect value="ReaperClusterBombD"/>
+        <Modification>
+            <StateFlags index="Stun" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ReaperFlyingMira">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="15"/>
+        <FinalEffect value="ReaperLandMira"/>
+        <Modification Height="2.5">
+            <HeightTime index="Start" value="0.3"/>
+            <HeightTime index="Stop" value="0.1"/>
+        </Modification>
+        <DisplayDuration index="Self" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ReaperRegenMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <DisableValidatorArray value="ReaperOutOfCombat"/>
+        <DisableValidatorArray value="NotFullLife"/>
+        <Modification>
+            <VitalRegenArray index="Life" value="2"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="SalvageSharedMira" parent="Salvage">
+        <Name value="Behavior/Name/SalvageSharedMira"/>
+        <Modification>
+            <AbilLinkEnableArray index="1" removed="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="PunisherGrenadesMira">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-slow.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <RemoveValidatorArray value="HasPsiStrike"/>
+        <RemoveValidatorArray value="NoPurificationNova"/>
+        <RemoveValidatorArray value="HasNovaPsiStrikeWalkSpeed"/>
+        <Duration value="1.5"/>
+        <Modification MoveSpeedMultiplier="0.5"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="StarportUnitOrderQueueMoveMira">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <Period value="0.5"/>
+        <PeriodicEffect value="StarportUnitOrderQueueMoveMira"/>
+        <RemoveValidatorArray value="TargetHasNoOrders"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DehhakaCreeperLocustDehakaDeathExplode">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:PrimalZerg,AbilityorEffectType:Units"/>
+        <Modification>
+            <DeathResponse Chance="1" Effect="DehakaCreeperExplodeSearch">
+                <Relationship index="Self" value="0"/>
+            </DeathResponse>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HellionSlowMira">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-slow.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <RemoveValidatorArray value="HasPsiStrike"/>
+        <RemoveValidatorArray value="NoPurificationNova"/>
+        <RemoveValidatorArray value="HasNovaPsiStrikeWalkSpeed"/>
+        <Duration value="1.5"/>
+        <Modification MoveSpeedMultiplier="0.5"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HellionBombSlowMira">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-hornerhan-hellion-slowbomb.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <RemoveValidatorArray value="HasPsiStrike"/>
+        <RemoveValidatorArray value="NoPurificationNova"/>
+        <RemoveValidatorArray value="HasNovaPsiStrikeWalkSpeed"/>
+        <Duration value="5"/>
+        <Modification MoveSpeedMultiplier="0.25" WeaponRange="-3" WeaponScanBonus="-3"/>
+    </CBehaviorBuff>
+    <!--CBehaviorBuff id="SOAMapWideChronoPassiveTargetNew">-->
+    <!--        <Alignment value="Positive"/>-->
+    <!--        <InfoIcon value="Assets\Textures\btn-upgrade-karax-chronofield.dds"/>-->
+    <!--        <BehaviorCategories index="Fast" value="1"/>-->
+    <!--        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>-->
+    <!--        <DisableValidatorArray value="HasKaraxSOAChronoPassive"/>-->
+    <!--        <BuffFlags index="DisableWhileUnderConstruction" value="1"/>-->
+    <!--        <TimeScaleSource Value="Global"/>-->
+    <!--        <InitialEffect value="ChronoFieldBlackOpsSet"/>-->
+    <!--        <Modification MoveSpeedMultiplier="1.15">-->
+    <!--            <RateMultiplierArray index="Charge" value="1.15"/>-->
+    <!--            <RateMultiplierArray index="Cooldown" value="1.15"/>-->
+    <!--            <RateMultiplierArray index="Morph" value="1.15"/>-->
+    <!--            <RateMultiplierArray index="Progress" value="1.15"/>-->
+    <!--            <RateMultiplierArray index="Queueable" value="1.15"/>-->
+    <!--            <RateMultiplierArray index="Spawn" value="1.15"/>-->
+    <!--            <RateMultiplierArray index="Creep" value="1.15"/>-->
+    <!--        </Modification>-->
+    <!--    </CBehaviorBuff-->
+    <CBehaviorBuff id="ChronoFieldStarportMira">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-upgrade-karax-chronowave.dds"/>
+        <BehaviorCategories index="Fast" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <TimeScaleSource Value="Global"/>
+        <Period value="0.1"/>
+        <PeriodicEffect value="ChronoFieldStarportCooldownsMira"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <RemoveValidatorArray value="IsHornerCoopCommander"/>
+        <RemoveValidatorArray value="HasKaraxSOAChronoPassive"/>
+        <BehaviorFlags index="Permanent" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="SOAMapWideChronoStarportMira">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-upgrade-karax-chronowave.dds"/>
+        <BehaviorCategories index="Fast" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <TimeScaleSource Value="Global"/>
+        <Duration value="20"/>
+        <Period value="0.1"/>
+        <PeriodicEffect value="SOAMapWideChronoStarportCooldownsMira"/>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="StimpackMira">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-stimpack.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="15"/>
+        <Modification MoveSpeedMultiplier="1.5" AttackSpeedMultiplier="1.5"/>
+    </CBehaviorBuff>
+    <CBehaviorAttribute id="WraithFuryPMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <MaxPoints value="10"/>
+        <Modification>
+            <AdditiveAttackSpeedFactor value="0.1"/>
+        </Modification>
+    </CBehaviorAttribute>
+    <CBehaviorBuff id="ChronoBoostStarportMira">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-upgrade-karax-chronowave.dds"/>
+        <BehaviorCategories index="Fast" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <TimeScaleSource Value="Global"/>
+        <Period value="0.1"/>
+        <PeriodicEffect value="ChronoBoostStarportCooldownsMira"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <DisableValidatorArray value="HaveTimeWarpProduction"/>
+        <RemoveValidatorArray value="IsHornerCoopCommander"/>
+        <BehaviorFlags index="Permanent" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="WidowMineAnimationControllerMira">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="20"/>
+        <DisableValidatorArray value="NotStasis"/>
+        <DisableValidatorArray value="NotVortexd"/>
+        <DisableValidatorArray value="NotGravitonBeamd"/>
+        <DisableValidatorArray value="NotThunderCannond"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <DisplayDuration index="Self" value="1"/>
+        <DisplayDuration index="Ally" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="WidowMineDelayRemoveABMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <Modification>
+            <ModifyFlags index="DisableAbils" value="1"/>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="SuppressAttack" value="1"/>
+            <StateFlags index="NoDraw" value="1"/>
+        </Modification>
+        <Duration value="2"/>
+        <FinalEffect value="SuicideRemove"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="MagneticMineWeaponSearchMira">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Period value="0.125"/>
+        <PeriodicEffect value="MagneticMineWeaponSearchMira"/>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="MagMineChargedMira">
+        <RemoveValidatorArray value="MagMineCoolUpMira"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="D8ClusterChargeFateMira">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="3.5"/>
+        <InitialEffect value="D8ClusterBombCreatePersistantMira"/>
+        <ExpireEffect value="D8ChargeExplodeMira"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <Modification>
+            <StateFlags index="SuppressCloak" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="D8ClusterSingleChargeFateMira">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="1.5"/>
+        <ExpireEffect value="D8ChargeExplodeMira"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <Modification>
+            <StateFlags index="SuppressCloak" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="D8ClusterBombFateMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="2.5"/>
+        <ExpireEffect value="D8ClusterBombExplodeMira"/>
+        <Modification>
+            <StateFlags index="SuppressCloak" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ReaperPrecursorUnitKnockbackMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <Duration value="1.0625"/>
+        <Modification>
+            <ModifyFlags index="DisableAbils" value="1"/>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="SuppressCollision" value="1"/>
+            <StateFlags index="NoDraw" value="1"/>
+            <StateFlags index="Uncommandable" value="1"/>
+            <StateFlags index="Unselectable" value="1"/>
+            <StateFlags index="Untargetable" value="1"/>
+        </Modification>
+        <FinalEffect value="SuicideRemove"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="WidowMineBlossomMira">
+        <Alignment value="Positive"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <DamageResponse Fatal="1" Handled="WidowMineLMSwitchMira">
+            <Chance value="1"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="MercenarySpaceStationSpawnMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="0.66"/>
+        <Modification>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="SuppressAttack" value="1"/>
+            <StateFlags index="Unselectable" value="1"/>
+            <StateFlags index="Untargetable" value="1"/>
+            <AbilClassDisableArray index="CAbilAttack" value="1"/>
+        </Modification>
+        <ExpireEffect value="MercenarySpaceStationSpawnImpactSetMira"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="MercenarySpaceStationTimedLifeMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <DisplayDuration index="Self" value="1"/>
+        <DisplayDuration index="Ally" value="1"/>
+        <DisplayDuration index="Enemy" value="1"/>
+        <Duration value="10"/>
+        <ExpireEffect value="MercenarySpaceStationSuicideSetMira"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="MercenarySpaceStationSuicideMira">
+        <Alignment value="Positive"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <DamageResponse Fatal="1" Handled="MercenarySpaceStationSuicideSetMira" ModifyFraction="0">
+            <Chance value="1"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="WraithPermanentCloakMira">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-cloak.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Modification>
+            <StateFlags index="Cloak" value="1"/>
+        </Modification>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="RavenHealPodIncomingMira">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-stimpack.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <Duration value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="RavenHealPodTargetMira">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-stimpack.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="10"/>
+        <InitialEffect value="RavenHealPodTargetHealMira"/>
+        <PeriodicEffect value="RavenHealPodTargetHealMira"/>
+        <Period value="1"/>
+        <PeriodCount value="9"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="RavenSensorMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Modification Radar="40" RadarFilters="-;Player,Ally,Neutral,RawResource,HarvestableResource,Missile,Destructible,Cloaked,Invulnerable"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="YamatoShotsMira">
+        <Alignment value="Positive"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\btn-ability-hornerhan-battlecruiser-yamato.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Modification>
+            <WeaponEnableArray value="LaserBatteryMira"/>
+            <WeaponDisableArray value="ATALaserBatteryMira"/>
+            <WeaponDisableArray value="ATSLaserBatteryMira"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="YamatoShotsActivateMira">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-hornerhan-battlecruiser-yamato.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <FinalEffect value="YamatoShotsUpgradeActivateIssueOrderMira"/>
+        <RemoveValidatorArray value="BattlecruiserNotUpgradedMira"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ScrapCreatedMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <Duration value="3"/>
+        <Modification>
+            <AbilLinkDisableArray value="ScrapPickupMira"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ReleaseEscortsWanderDelayMira">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <FinalEffect value="ReleaseEscortsPatrolCPMira"/>
+        <RemoveValidatorArray value="ReleaseEscortsDestinationNotReachedMira"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ReleaseEscortsApplySourceIsAliveMira">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <FinalEffect value="Suicide"/>
+        <RemoveValidatorArray value="EscortsSourceNotDeadMira"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ArmyOOCRegenSpeedMira">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <DisableValidatorArray value="CasterNotInCombat10"/>
+        <Modification>
+            <VitalRegenArray index="Life" value="3.75"/>
+        </Modification>
+        <RemoveValidatorArray value="HaveArmyOOCRegenMira"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HellionStimMira">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-hornerhan-hellion-stim.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="15"/>
+        <Modification MoveSpeedMultiplier="1.25" AttackSpeedMultiplier="1.2"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HellionDoTMira">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-hornerhan-hellbat-dot.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="5"/>
+        <Period value="1"/>
+        <PeriodicEffect value="HellionDoTDamageMira"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HellionTankFearMira">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-hornerhan-hellbat-fear.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="3"/>
+        <Modification>
+            <ModifyFlags index="DisableWeapons" value="1"/>
+            <StateFlags index="HideWaypoints" value="1"/>
+            <StateFlags index="Uncommandable" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="WraithFuryMira">
+        <InfoIcon value="Assets\Textures\btn-ability-hornerhan-wraith-attackspeed.dds"/>
+        <BehaviorCategories index="Fast" value="1"/>
+        <Duration value="5"/>
+        <InitialEffect value="WraithFuryABPMira"/>
+        <RefreshEffect value="WraithFuryABPMira"/>
+        <FinalEffect value="WraithFuryRBPMira"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="BomberAreaBombFireMira">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\firefight_coop.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <TimeScaleSource Value="Global"/>
+        <Duration value="10"/>
+        <Period value="0.5"/>
+        <PeriodicEffect value="BomberAreaBombFireDamageMira"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="D8ClusterChargeFateUpgradeMira">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="3.5"/>
+        <InitialEffect value="D8ClusterBombCreatePersistantUpgradeMira"/>
+        <ExpireEffect value="D8ChargeExplodeMira"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <Modification>
+            <StateFlags index="SuppressCloak" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="SupplyDepotInitialStunMira">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="4"/>
+        <Modification>
+            <StateFlags index="Stun" value="1"/>
+        </Modification>
+        <InfoFlags index="Hidden" value="1"/>
+        <DisableValidatorArray value="NotUnderConstruction"/>
+    </CBehaviorBuff>
+    <!--CBehaviorBuff id="MercStartportInterceptorHeightMira">-->
+    <!--        <Modification Height="4">-->
+    <!--            <HeightTime index="Start" value="0.0625"/>-->
+    <!--            <HeightTime index="Stop" value="2"/>-->
+    <!--        </Modification>-->
+    <!--    </CBehaviorBuff-->
+    <CBehaviorBuff id="SwannWreckageScrapMira">
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="RavenCloakMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <Modification>
+            <StateFlags index="Cloak" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HyperjumpMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Duration value="0.0625"/>
+        <ExpireEffect value="HyperjumpInABMira"/>
+        <Modification>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="SuppressAttack" value="1"/>
+            <StateFlags index="SuppressCloak" value="1"/>
+            <StateFlags index="Untargetable" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HyperjumpInMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Duration value="0.6"/>
+        <Modification>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="SuppressCloak" value="1"/>
+            <StateFlags index="Untargetable" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HyperjumpOutMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Duration value="0.6"/>
+        <ExpireEffect value="HyperjumpSetMira"/>
+        <Modification>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="SuppressCloak" value="1"/>
+            <StateFlags index="Untargetable" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorUnitTracker id="LiberatorTMira">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <MaxTrackedUnits value="1"/>
+    </CBehaviorUnitTracker>
+    <CBehaviorUnitTracker id="AirFleetTMira">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <MaxTrackedUnits value="1"/>
+    </CBehaviorUnitTracker>
+    <CBehaviorBuff id="AirFleetSMira">
+        <RemoveValidatorArray value="NotAirFleetYamatoMira"/>
+        <Period value="0.167"/>
+        <PeriodicEffect value="HornerAirFleetSearch"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="AirFleetSYamatoMira">
+        <RemoveValidatorArray value="HaveAirFleetYamatoMira"/>
+        <Period value="3"/>
+        <PeriodicEffect value="HornerAirFleetSearchYamato"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="AirFleetUMira">
+        <RemoveValidatorArray value="HaveAirFleetYamatoMira"/>
+        <Period value="0.25"/>
+        <PeriodicEffect value="HornerAirFleetCP"/>
+    </CBehaviorBuff>
+</Catalog>

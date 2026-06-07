@@ -1,0 +1,62 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA1BA7A9F_h"
+
+void libA1BA7A9F_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+bool libA1BA7A9F_InitVariables_completed = false;
+int libA1BA7A9F_gv_abathurPlayer;
+
+void libA1BA7A9F_InitVariables () {
+    if (libA1BA7A9F_InitVariables_completed) {
+        return;
+    }
+    libA1BA7A9F_InitVariables_completed = true;
+    libA1BA7A9F_gv_abathurPlayer = 1;
+}
+
+void libA1BA7A9F_gf_InitializeAbathurRebornEvent (int lp_player) {
+    libA1BA7A9F_gv_abathurPlayer = lp_player;
+    // The 7v1 patch package owns only private catalog data; map-side init wires gameplay.
+}
+
+bool libA1BA7A9F_gf_AbathurRebornCanDropBiomass (unit lp_unit) {
+    return false;
+}
+
+fixed libA1BA7A9F_gf_AbathurRebornBiomassAmount (unit lp_unit) {
+    return 0.0;
+}
+
+bool libA1BA7A9F_gt_AbathurRebornBiomassDrop_Func (bool testConds, bool runActions) {
+    return false;
+}
+
+void libA1BA7A9F_gt_AbathurRebornBiomassDrop_Init () {
+}
+
+bool libA1BA7A9F_gt_AbathurRebornBiomassPickup_Func (bool testConds, bool runActions) {
+    return false;
+}
+
+void libA1BA7A9F_gt_AbathurRebornBiomassPickup_Init () {
+}
+
+void libA1BA7A9F_InitTriggers () {
+}
+
+bool libA1BA7A9F_InitLib_completed = false;
+
+void libA1BA7A9F_InitLib () {
+    if (libA1BA7A9F_InitLib_completed) {
+        return;
+    }
+
+    libA1BA7A9F_InitLib_completed = true;
+
+    libA1BA7A9F_InitLibraries();
+    libA1BA7A9F_InitVariables();
+    libA1BA7A9F_InitTriggers();
+}

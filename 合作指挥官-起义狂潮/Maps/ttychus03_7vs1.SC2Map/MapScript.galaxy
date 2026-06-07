@@ -1,0 +1,2769 @@
+//==================================================================================================
+// 
+// Generated Map Script
+// 
+// Name:   ??????????????????
+// 
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+include "TriggerLibs/LibertyLib"
+include "TriggerLibs/CampaignLib"
+include "Lib67C0F0E7"
+include "LibE0EAE146"
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+    libLbty_InitLib();
+    libCamp_InitLib();
+    lib67C0F0E7_InitLib();
+    libE0EAE146_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Constants
+//--------------------------------------------------------------------------------------------------
+const int gv_p01_USER = 1;
+const int gv_p02_ZERG = 2;
+const int gv_p03_MOEBIUS = 3;
+const int gv_p05_ZERG_BASE = 5;
+const int gv_p06_MOEBIUS_SEC_FORCE = 6;
+const int gv_p07_ZERG_KERRIGAN = 7;
+const int gv_p08_NEUTRAL_CITY = 8;
+const int gv_p09_MOEBIUSLAB = 9;
+const int gv_p10_LEVIATHANBROOD = 10;
+const int gv_p11_SCAVENGERS = 11;
+const int gv_p12_RAVAGERS = 12;
+
+//--------------------------------------------------------------------------------------------------
+// Global Variables
+//--------------------------------------------------------------------------------------------------
+unit gv_uNIT_KERRIGAN;
+bool gv_gameOver;
+bool gv_inCinematic;
+bool gv_state;
+int gv_u;
+unitgroup gv_tG;
+unit gv_t;
+bool gv_victoryCinematicCompleted;
+unitgroup gv_victoryHiddenUnitGroup;
+unit gv_briefingKerrigan;
+
+void InitGlobals () {
+    gv_tG = UnitGroupEmpty();
+    gv_victoryHiddenUnitGroup = UnitGroupEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Global Function Declarations
+//--------------------------------------------------------------------------------------------------
+void gf_KerriganAttackAI (int lp_owner, unit lp_hunter, unitgroup lp_nearbyUnits);
+void gf_AbandonedBuildingtychus03AI (int lp_owner, unit lp_hunter, unitgroup lp_nearbyUnits);
+void gf_AddAirAttackWaypoints (int lp_player);
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_Initialization;
+trigger gt_Init01Technology;
+trigger gt_Init02Players;
+trigger gt_Init03Units;
+trigger gt_Init04Music;
+trigger gt_Init05Environment;
+trigger gt_Init06Difficulties;
+trigger gt_IntroSequence;
+trigger gt_StartGame;
+trigger gt_bon1;
+trigger gt_Bon2;
+trigger gt__6p1;
+trigger gt__6p2;
+trigger gt__6p3;
+trigger gt__6p4;
+trigger gt__6p5;
+trigger gt__6p6;
+trigger gt_Main;
+trigger gt_CreateMedivacIntro;
+trigger gt_Kerrigan;
+trigger gt_KerriganCalculatingETAQ;
+trigger gt_KerriganTauntsRaynor1Q;
+trigger gt_KerriganTauntsRaynor2Q;
+trigger gt_KerriganTauntsRaynor3Q;
+trigger gt_KerriganApproachesSite1Q;
+trigger gt_KerriganApproachesSite2Q;
+trigger gt_KerriganApproachesSite3Q;
+trigger gt_BaseRetaliationDialogueQ;
+trigger gt_TransmissionMissionStartQ;
+trigger gt_TransmissionMedivacIntroQ;
+trigger gt_TransmissionBrutaliskFoundQ;
+trigger gt_TransmissionCoreIsDestroyedQ;
+trigger gt_TransmissionSite1MilitiaRescuedQ;
+trigger gt_TransmissionSite2MilitiaRescuedQ;
+trigger gt_TransmissionSite3MilitiaRescuedQ;
+trigger gt_StartAI;
+trigger gt_ZergP05AttackWavesBase;
+trigger gt_P2AttackWaves;
+trigger gt_P5AttackWaves;
+trigger gt_P10LeviathanAttackWaves;
+trigger gt_Victory;
+trigger gt_DefeatBaseDead;
+trigger gt_DefeatPrimaryObjectiveFailed;
+trigger gt_Defeat;
+trigger gt_VictoryCheat;
+trigger gt_DefeatCheat;
+trigger gt_VictoryQ;
+trigger gt_VictorySetup;
+trigger gt_VictoryCinematic;
+trigger gt_VictoryCinematicEnd;
+trigger gt_VictoryCleanup;
+trigger gt_VictoryNydusSpawn;
+trigger gt_VictoryBaseLiftoff;
+trigger gt_BriefingQ;
+trigger gt_BriefingScene00;
+trigger gt_BriefingScene00DropPods;
+trigger gt_BriefingScene01;
+trigger gt_BriefingScene02;
+trigger gt_BriefingScene03;
+trigger gt_BriefingKerrgianSpawn;
+trigger gt_BriefingCameraShake;
+
+//--------------------------------------------------------------------------------------------------
+// Global Functions
+//--------------------------------------------------------------------------------------------------
+void gf_KerriganAttackAI (int lp_owner, unit lp_hunter, unitgroup lp_nearbyUnits) {
+    // Variable Declarations
+    unitgroup lv_uG;
+    aifilter lv_targetFilter;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_uG = UnitGroupEmpty();
+    lv_targetFilter = AIFilter(lp_owner);
+
+    // Implementation
+    AISetFilterRange(lv_targetFilter, lp_hunter, 6.0);
+    lv_uG = AIGetFilterGroup(lv_targetFilter, lp_nearbyUnits);
+    if ((UnitGroupCount(lv_uG, c_unitCountAlive) == 0)) {
+        return ;
+    }
+
+    if ((UnitGroupCount(lv_uG, c_unitCountAlive) >= 4) && (UnitAbilityGetCooldown(lp_hunter, "Tychus03OmegaStorm", "Abil/OmegaStorm") == 0.0) && (UnitGetPropertyInt(lp_hunter, c_unitPropEnergy, c_unitPropCurrent) >= 100)) {
+        libNtve_gf_AICast(lp_hunter, OrderTargetingPoint(AbilityCommand("Tychus03OmegaStorm", 0), UnitGroupCenterOfGroup(lv_uG)));
+        return ;
+    }
+
+}
+
+void gf_AbandonedBuildingtychus03AI (int lp_owner, unit lp_hunter, unitgroup lp_nearbyUnits) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((UnitGroupCount(lp_nearbyUnits, c_unitCountAlive) == 0)) {
+        return ;
+    }
+
+    if ((UnitGetPropertyInt(lp_hunter, c_unitPropLife, c_unitPropCurrent) <= 7000)) {
+        UnitIssueOrder(lp_hunter, Order(AbilityCommand("AbandonedBuildingtychus03LiftOff", 0)), c_orderQueueReplace);
+        return ;
+    }
+
+}
+
+void gf_AddAirAttackWaypoints (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    AIAttackWaveAddWaypoint(lp_player, PointFromId(119), false);
+    AIAttackWaveAddWaypoint(lp_player, PointFromId(401), false);
+    AIAttackWaveAddWaypoint(lp_player, PointFromId(402), false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialization
+//--------------------------------------------------------------------------------------------------
+bool gt_Initialization_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerModifyPropertyInt(gv_p01_USER, c_playerPropMinerals, c_playerPropOperSetTo, 300);
+    PlayerModifyPropertyInt(gv_p01_USER, c_playerPropVespene, c_playerPropOperSetTo, 100);
+    libE0EAE146_gf_Initialize(false);
+    TriggerExecute(gt_Init01Technology, true, true);
+    TriggerExecute(gt_Init02Players, true, true);
+    TriggerExecute(gt_Init03Units, true, true);
+    TriggerExecute(gt_Init04Music, true, true);
+    TriggerExecute(gt_Init05Environment, true, true);
+    TriggerExecute(gt_Init06Difficulties, true, true);
+    TriggerExecute(gt_IntroSequence, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Initialization_Init () {
+    gt_Initialization = TriggerCreate("gt_Initialization_Func");
+    TriggerAddEventMapInit(gt_Initialization);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Init 01 Technology
+//--------------------------------------------------------------------------------------------------
+bool gt_Init01Technology_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TechTreeUpgradeAddLevel(10, "overlordtransport", 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Init01Technology_Init () {
+    gt_Init01Technology = TriggerCreate("gt_Init01Technology_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Init 02 Players
+//--------------------------------------------------------------------------------------------------
+bool gt_Init02Players_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    playergroup lv_pG;
+    playergroup lv_zG;
+    int lv_i;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_pG = PlayerGroupEmpty();
+    lv_zG = PlayerGroupEmpty();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerGroupAdd(lv_pG,1);
+    PlayerGroupAdd(lv_pG,8);
+    PlayerGroupAdd(lv_pG,9);
+    PlayerGroupAdd(lv_zG,2);
+    PlayerGroupAdd(lv_zG,5);
+    PlayerGroupAdd(lv_zG,10);
+    PlayerGroupAdd(lv_zG,11);
+    PlayerGroupAdd(lv_zG,12);
+    lib67C0F0E7_gf_SetPGAlliance(lv_pG, 499);
+    lib67C0F0E7_gf_SetPGAlliance(lv_zG, 497);
+    lib67C0F0E7_gf_SetPGAllianceBetweenPG(PlayerGroupSingle(7), lv_zG, 497);
+    lib67C0F0E7_gf_SetPGAllianceBetweenPG(PlayerGroupSingle(3), lv_zG, 1011);
+    lib67C0F0E7_gf_SetAllianceBetween(3, 9, 1);
+    lib67C0F0E7_gf_SetPGAllianceBetweenPG(PlayerGroupSingle(6), lv_zG, 1);
+    lib67C0F0E7_gf_SetPGAllianceBetweenPG(PlayerGroupSingle(6), PlayerGroupSingle(7), 1);
+    lib67C0F0E7_gf_SetPGAllianceBetweenPG(PlayerGroupSingle(6), lv_pG, 1);
+    lv_i = 2;
+    for ( ; ( lv_i <= 12 ) ; lv_i += 1 ) {
+        lib67C0F0E7_gf_AIIgnoreCost(lv_i);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Init02Players_Init () {
+    gt_Init02Players = TriggerCreate("gt_Init02Players_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Init 03 Units
+//--------------------------------------------------------------------------------------------------
+bool gt_Init03Units_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup auto9D7EBC36_g;
+    int auto9D7EBC36_u;
+    unit auto9D7EBC36_var;
+    unitgroup auto9340685C_g;
+    int auto9340685C_u;
+    unit auto9340685C_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_uNIT_KERRIGAN = UnitFromId(164);
+    auto9D7EBC36_g = UnitGroup(null, gv_p06_MOEBIUS_SEC_FORCE, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto9D7EBC36_u = UnitGroupCount(auto9D7EBC36_g, c_unitCountAll);
+    for (;; auto9D7EBC36_u -= 1) {
+        auto9D7EBC36_var = UnitGroupUnitFromEnd(auto9D7EBC36_g, auto9D7EBC36_u);
+        if (auto9D7EBC36_var == null) { break; }
+        UnitIssueOrder(auto9D7EBC36_var, Order(AbilityCommand("move", 2)), c_orderQueueReplace);
+    }
+    auto9340685C_g = UnitGroup("AbandonedBuilding", gv_p08_NEUTRAL_CITY, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto9340685C_u = UnitGroupCount(auto9340685C_g, c_unitCountAll);
+    for (;; auto9340685C_u -= 1) {
+        auto9340685C_var = UnitGroupUnitFromEnd(auto9340685C_g, auto9340685C_u);
+        if (auto9340685C_var == null) { break; }
+        UnitSetInfoText(auto9340685C_var, StringExternal("Param/Value/3585DECC"), StringExternal("Param/Value/5357C97E"), StringToText(""));
+    }
+    UnitGroupAddUnitGroup(gv_tG, UnitGroup(null, gv_p03_MOEBIUS, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Init03Units_Init () {
+    gt_Init03Units = TriggerCreate("gt_Init03Units_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Init 04 Music
+//--------------------------------------------------------------------------------------------------
+bool gt_Init04Music_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    SoundtrackDefault(PlayerGroupAll(), c_soundtrackCategoryMusic, "Music_TerrLow_All", c_soundtrackCueAny, c_soundtrackIndexAny);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Init04Music_Init () {
+    gt_Init04Music = TriggerCreate("gt_Init04Music_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Init 05 Environment
+//--------------------------------------------------------------------------------------------------
+bool gt_Init05Environment_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GameTimeOfDaySet("08:00:00");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Init05Environment_Init () {
+    gt_Init05Environment = TriggerCreate("gt_Init05Environment_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Init 06 Difficulties
+//--------------------------------------------------------------------------------------------------
+bool gt_Init06Difficulties_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Init06Difficulties_Init () {
+    gt_Init06Difficulties = TriggerCreate("gt_Init06Difficulties_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Intro Sequence
+//--------------------------------------------------------------------------------------------------
+bool gt_IntroSequence_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    // 7vs1 hybrid: keep XM runtime + commander selection state, but avoid
+
+    // spawning the legacy XM base because CoopZeroPop owns the playable start.
+    CinematicFade(false, 0.0, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, false);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), 0.0);
+    libNtve_gf_GlobalCinematicSetting(true);
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), 1.5);
+    libNtve_gf_GlobalCinematicSetting(false);
+    libNtve_gf_SwooshCamera(gv_p01_USER, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), PointFromId(154), 1.5);
+    CinematicFade(true, 1.5, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
+    TriggerExecute(gt_StartAI, true, false);
+    TriggerExecute(gt_StartGame, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_IntroSequence_Init () {
+    gt_IntroSequence = TriggerCreate("gt_IntroSequence_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start Game
+//--------------------------------------------------------------------------------------------------
+bool gt_StartGame_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup auto23173B9E_g;
+    int auto23173B9E_u;
+    unit auto23173B9E_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libE0EAE146_gf_StartGame();
+    SoundtrackPlay(PlayerGroupAll(), c_soundtrackCategoryMusic, "TTychus03MusicIntro", c_soundtrackCueAny, c_soundtrackIndexAny, false);
+    lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/A93DF1F4"), 1, true, 0, 5);
+    lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/7D5E64ED"), 2, true, 0, 5);
+    lib67C0F0E7_gf_ObjectiveNew(false, StringExternal("Param/Value/005B0140"), 1, false, 0, 0);
+    lib67C0F0E7_gf_ObjectiveNew(false, StringExternal("Param/Value/8E4C8ACE"), 2, false, 0, 0);
+    Wait(1.0, c_timeGame);
+    lib67C0F0E7_gf_ObjectiveSet(true, 1, lib67C0F0E7_ge_ObjectiveSet_Show);
+    Wait(1.0, c_timeGame);
+    lib67C0F0E7_gf_ObjectiveSet(true, 2, lib67C0F0E7_ge_ObjectiveSet_Show);
+    auto23173B9E_g = gv_tG;
+    auto23173B9E_u = UnitGroupCount(auto23173B9E_g, c_unitCountAll);
+    for (;; auto23173B9E_u -= 1) {
+        auto23173B9E_var = UnitGroupUnitFromEnd(auto23173B9E_g, auto23173B9E_u);
+        if (auto23173B9E_var == null) { break; }
+        lib67C0F0E7_gf_PingUnitU(auto23173B9E_var, "PingObjective", Color(0.00, 100.00, 0.00));
+        Wait(1.0, c_timeGame);
+    }
+    Wait(20.0, c_timeGame);
+    TriggerExecute(gt_CreateMedivacIntro, true, false);
+    Wait(1.0, c_timeGame);
+    Wait(4.0, c_timeGame);
+    TriggerExecute(gt_TransmissionMedivacIntroQ, true, false);
+    lib67C0F0E7_gf_ObjectiveSet(false, 1, lib67C0F0E7_ge_ObjectiveSet_Show);
+    lib67C0F0E7_gf_PingUnitU(UnitFromId(490463695), "PingTriangle", Color(100.00, 100.00, 0.00));
+    Wait(12.0, c_timeGame);
+    TriggerExecute(gt_KerriganTauntsRaynor1Q, true, false);
+    Wait(30.0, c_timeGame);
+    TriggerExecute(gt_TransmissionBrutaliskFoundQ, true, false);
+    lib67C0F0E7_gf_ObjectiveSet(false, 2, lib67C0F0E7_ge_ObjectiveSet_Show);
+    lib67C0F0E7_gf_PingUnitU(UnitFromId(1178), "PingTriangle", Color(100.00, 100.00, 0.00));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_StartGame_Init () {
+    gt_StartGame = TriggerCreate("gt_StartGame_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: bon1
+//--------------------------------------------------------------------------------------------------
+bool gt_bon1_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    lib67C0F0E7_gf_ObjectiveSet(false, 1, lib67C0F0E7_ge_ObjectiveSet_Defeat);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_bon1_Init () {
+    gt_bon1 = TriggerCreate("gt_bon1_Func");
+    TriggerAddEventUnitDied(gt_bon1, UnitRefFromUnit(UnitFromId(490463695)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Bon2
+//--------------------------------------------------------------------------------------------------
+bool gt_Bon2_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libE0EAE146_gf_Bon2();
+    lib67C0F0E7_gf_ObjectiveSet(false, 2, lib67C0F0E7_ge_ObjectiveSet_Finish);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Bon2_Init () {
+    gt_Bon2 = TriggerCreate("gt_Bon2_Func");
+    TriggerAddEventUnitDied(gt_Bon2, UnitRefFromUnit(UnitFromId(1178)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: 6p1
+//--------------------------------------------------------------------------------------------------
+bool gt__6p1_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+
+        if (!(lib67C0F0E7_gf_Once())) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libNtve_gf_RescueUnit2(UnitGroup(null, 6, RegionFromId(2), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), 1, true);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Marine500019", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Marine500019", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt__6p1_Init () {
+    gt__6p1 = TriggerCreate("gt__6p1_Func");
+    TriggerAddEventUnitRegion(gt__6p1, null, RegionFromId(2), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: 6p2
+//--------------------------------------------------------------------------------------------------
+bool gt__6p2_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+
+        if (!(lib67C0F0E7_gf_Once())) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libNtve_gf_RescueUnit2(UnitGroup(null, 6, RegionFromId(3), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), 1, true);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Goliath00028", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Goliath00028", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt__6p2_Init () {
+    gt__6p2 = TriggerCreate("gt__6p2_Func");
+    TriggerAddEventUnitRegion(gt__6p2, null, RegionFromId(3), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: 6p3
+//--------------------------------------------------------------------------------------------------
+bool gt__6p3_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+
+        if (!(lib67C0F0E7_gf_Once())) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libNtve_gf_RescueUnit2(UnitGroup(null, 6, RegionFromId(4), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), 1, true);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Marine700017", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Marine700017", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt__6p3_Init () {
+    gt__6p3 = TriggerCreate("gt__6p3_Func");
+    TriggerAddEventUnitRegion(gt__6p3, null, RegionFromId(4), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: 6p4
+//--------------------------------------------------------------------------------------------------
+bool gt__6p4_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+
+        if (!(lib67C0F0E7_gf_Once())) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libNtve_gf_RescueUnit2(UnitGroup(null, 6, RegionFromId(5), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), 1, true);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Marine500019", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Marine500019", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt__6p4_Init () {
+    gt__6p4 = TriggerCreate("gt__6p4_Func");
+    TriggerAddEventUnitRegion(gt__6p4, null, RegionFromId(5), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: 6p5
+//--------------------------------------------------------------------------------------------------
+bool gt__6p5_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+
+        if (!(lib67C0F0E7_gf_Once())) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libNtve_gf_RescueUnit2(UnitGroup(null, 6, RegionFromId(6), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), 1, true);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Goliath00028", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Goliath00028", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt__6p5_Init () {
+    gt__6p5 = TriggerCreate("gt__6p5_Func");
+    TriggerAddEventUnitRegion(gt__6p5, null, RegionFromId(6), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: 6p6
+//--------------------------------------------------------------------------------------------------
+bool gt__6p6_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+
+        if (!(lib67C0F0E7_gf_Once())) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libNtve_gf_RescueUnit2(UnitGroup(null, 6, RegionFromId(8), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), 1, true);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Marine500019", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Marine500019", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt__6p6_Init () {
+    gt__6p6 = TriggerCreate("gt__6p6_Func");
+    TriggerAddEventUnitRegion(gt__6p6, null, RegionFromId(8), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Main
+//--------------------------------------------------------------------------------------------------
+bool gt_Main_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetOwner(libNtve_gf_KillingUnit()) == 1)) {
+        lib67C0F0E7_gf_ObjectiveSet(true, 1, lib67C0F0E7_ge_ObjectiveSet_Add);
+        TriggerExecute(gt_TransmissionCoreIsDestroyedQ, true, false);
+        if ((lib67C0F0E7_gf_ObjectiveMultiNow(true, 1) == 5)) {
+            gv_gameOver = true;
+            TriggerExecute(gt_VictoryQ, true, false);
+        }
+        else {
+            if ((gv_t == EventUnit())) {
+                AIAttackWaveCancel(AIUnitGetWave(gv_uNIT_KERRIGAN));
+                gv_t = UnitGroupRandomUnit(gv_tG, c_unitCountAlive);
+                AIAttackWaveUseUnit(7, gv_uNIT_KERRIGAN);
+                AIAttackWaveSetTargetUnit(7, gv_t);
+                AIAttackWaveSend(7, 0, true);
+            }
+
+        }
+    }
+    else {
+        lib67C0F0E7_gf_ObjectiveSet(true, 2, lib67C0F0E7_ge_ObjectiveSet_Add);
+        AIAttackWaveCancel(AIUnitGetWave(gv_uNIT_KERRIGAN));
+        if ((lib67C0F0E7_gf_ObjectiveMultiNow(true, 2) == 5)) {
+            gv_state = false;
+            TriggerExecute(gt_DefeatPrimaryObjectiveFailed, true, false);
+        }
+        else {
+            Wait(30.0, c_timeGame);
+            gv_t = UnitGroupRandomUnit(gv_tG, c_unitCountAlive);
+            AIAttackWaveUseUnit(7, gv_uNIT_KERRIGAN);
+            AIAttackWaveSetTargetUnit(7, gv_t);
+            AIAttackWaveSend(7, 0, true);
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Main_Init () {
+    gt_Main = TriggerCreate("gt_Main_Func");
+    TriggerAddEventUnitDied(gt_Main, UnitRefFromUnit(UnitFromId(1538376746)));
+    TriggerAddEventUnitDied(gt_Main, UnitRefFromUnit(UnitFromId(2011667625)));
+    TriggerAddEventUnitDied(gt_Main, UnitRefFromUnit(UnitFromId(2015551774)));
+    TriggerAddEventUnitDied(gt_Main, UnitRefFromUnit(UnitFromId(1974515564)));
+    TriggerAddEventUnitDied(gt_Main, UnitRefFromUnit(UnitFromId(1097673837)));
+    TriggerAddEventUnitDied(gt_Main, UnitRefFromUnit(UnitFromId(1317262391)));
+    TriggerAddEventUnitDied(gt_Main, UnitRefFromUnit(UnitFromId(1535935149)));
+    TriggerAddEventUnitDied(gt_Main, UnitRefFromUnit(UnitFromId(585840159)));
+    TriggerAddEventUnitDied(gt_Main, UnitRefFromUnit(UnitFromId(1781681811)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Create Medivac Intro
+//--------------------------------------------------------------------------------------------------
+bool gt_CreateMedivacIntro_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    string autoBEEAC669_val;
+
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    autoBEEAC669_val = libE0EAE146_gv_commander;
+    if (autoBEEAC669_val == "Mira") {
+        libNtve_gf_CreateUnitsAtPoint2(1, "MedivacMira", 0, gv_p01_USER, PointFromId(999));
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(618516690)), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsAtPoint2(1, "MedivacMira", 0, gv_p01_USER, PointFromId(2827));
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(462539341)), c_orderQueueReplace);
+    }
+    else if (autoBEEAC669_val == "Mengsk") {
+        libNtve_gf_CreateUnitsAtPoint2(1, "MedivacMengsk", 0, gv_p01_USER, PointFromId(999));
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(618516690)), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsAtPoint2(1, "MedivacMengsk", 0, gv_p01_USER, PointFromId(2827));
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(462539341)), c_orderQueueReplace);
+    }
+    else {
+        libNtve_gf_CreateUnitsAtPoint2(1, "Medivac", 0, gv_p01_USER, PointFromId(999));
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(618516690)), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsAtPoint2(1, "Medivac", 0, gv_p01_USER, PointFromId(2827));
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(462539341)), c_orderQueueReplace);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_CreateMedivacIntro_Init () {
+    gt_CreateMedivacIntro = TriggerCreate("gt_CreateMedivacIntro_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kerrigan
+//--------------------------------------------------------------------------------------------------
+bool gt_Kerrigan_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    int auto4952478F_val;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PingSetVisible(DataTableGetPing(true, ("Ping" + IntToString(1))), false);
+    AIAttackWaveCancel(AIUnitGetWave(gv_uNIT_KERRIGAN));
+    lib67C0F0E7_gf_UnitAddAttributePoint(gv_uNIT_KERRIGAN, "ttychus03", false, 1);
+    gv_state = false;
+    auto4952478F_val = TriggerGetExecCount(TriggerGetCurrent());
+    if (auto4952478F_val == 2) {
+        TriggerExecute(gt_KerriganTauntsRaynor2Q, true, false);
+    }
+    else if (auto4952478F_val == 4) {
+        TriggerExecute(gt_KerriganTauntsRaynor3Q, true, false);
+    }
+    else {
+    }
+    Wait(30.0, c_timeGame);
+    UnitSetPosition(EventUnit(), PointFromId(902020644), false);
+    UnitRevive(EventUnit());
+    UnitSetPropertyFixed(EventUnit(), c_unitPropLifePercent, 100.0);
+    PingSetVisible(DataTableGetPing(true, ("Ping" + IntToString(1))), true);
+    Wait(30.0, c_timeGame);
+    gv_t = UnitGroupRandomUnit(gv_tG, c_unitCountAlive);
+    AIAttackWaveUseUnit(7, gv_uNIT_KERRIGAN);
+    AIAttackWaveSetTargetUnit(7, gv_t);
+    AIAttackWaveSend(7, 0, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Kerrigan_Init () {
+    gt_Kerrigan = TriggerCreate("gt_Kerrigan_Func");
+    TriggerAddEventUnitDied(gt_Kerrigan, UnitRefFromUnit(UnitFromId(164)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kerrigan - Calculating ETA Q
+//--------------------------------------------------------------------------------------------------
+bool gt_KerriganCalculatingETAQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TriggerGetExecCount(TriggerGetCurrent()) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerQueueEnter();
+    UIAlertUnit("Trigger", gv_p01_USER, StringExternal("Param/Value/04074059"), null, gv_uNIT_KERRIGAN);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Adjutant00003", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Adjutant00003", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_KerriganCalculatingETAQ_Init () {
+    gt_KerriganCalculatingETAQ = TriggerCreate("gt_KerriganCalculatingETAQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kerrigan - Taunts Raynor 1 Q
+//--------------------------------------------------------------------------------------------------
+bool gt_KerriganTauntsRaynor1Q_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TriggerGetExecCount(TriggerGetCurrent()) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerQueueEnter();
+    UIAlertUnit("Trigger", gv_p01_USER, StringExternal("Param/Value/1F81401C"), null, gv_uNIT_KERRIGAN);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Kerrigan00007", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Kerrigan00007", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTosh02Raynor00011", -1), c_transmissionDurationAdd, 0.0, true);
+    // Transmission - SoundLink("TTychus03Kerrigan00008", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Kerrigan00008", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_KerriganTauntsRaynor1Q_Init () {
+    gt_KerriganTauntsRaynor1Q = TriggerCreate("gt_KerriganTauntsRaynor1Q_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kerrigan - Taunts Raynor 2 Q
+//--------------------------------------------------------------------------------------------------
+bool gt_KerriganTauntsRaynor2Q_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TriggerGetExecCount(TriggerGetCurrent()) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerQueueEnter();
+    UIAlertUnit("Trigger", gv_p01_USER, StringExternal("Param/Value/FBEF4FF0"), null, gv_uNIT_KERRIGAN);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Kerrigan00038", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Kerrigan00038", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_KerriganTauntsRaynor2Q_Init () {
+    gt_KerriganTauntsRaynor2Q = TriggerCreate("gt_KerriganTauntsRaynor2Q_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kerrigan - Taunts Raynor 3 Q
+//--------------------------------------------------------------------------------------------------
+bool gt_KerriganTauntsRaynor3Q_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TriggerGetExecCount(TriggerGetCurrent()) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerQueueEnter();
+    UIAlertUnit("Trigger", gv_p01_USER, StringExternal("Param/Value/081F327C"), null, gv_uNIT_KERRIGAN);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Kerrigan00040", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Kerrigan00040", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_KerriganTauntsRaynor3Q_Init () {
+    gt_KerriganTauntsRaynor3Q = TriggerCreate("gt_KerriganTauntsRaynor3Q_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kerrigan - Approaches Site 1 Q
+//--------------------------------------------------------------------------------------------------
+bool gt_KerriganApproachesSite1Q_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TriggerGetExecCount(TriggerGetCurrent()) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerQueueEnter();
+    UIAlertUnit("Trigger", gv_p01_USER, StringExternal("Param/Value/D8FADF59"), null, gv_uNIT_KERRIGAN);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Tychus00013", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Tychus00013", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_KerriganApproachesSite1Q_Init () {
+    gt_KerriganApproachesSite1Q = TriggerCreate("gt_KerriganApproachesSite1Q_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kerrigan - Approaches Site 2 Q
+//--------------------------------------------------------------------------------------------------
+bool gt_KerriganApproachesSite2Q_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TriggerGetExecCount(TriggerGetCurrent()) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerQueueEnter();
+    UIAlertUnit("Trigger", gv_p01_USER, StringExternal("Param/Value/8BAEDB5D"), null, gv_uNIT_KERRIGAN);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Horner00014", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Horner00014", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_KerriganApproachesSite2Q_Init () {
+    gt_KerriganApproachesSite2Q = TriggerCreate("gt_KerriganApproachesSite2Q_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kerrigan - Approaches Site 3 Q
+//--------------------------------------------------------------------------------------------------
+bool gt_KerriganApproachesSite3Q_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TriggerGetExecCount(TriggerGetCurrent()) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerQueueEnter();
+    UIAlertUnit("Trigger", gv_p01_USER, StringExternal("Param/Value/5E22D217"), null, gv_uNIT_KERRIGAN);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Horner00032", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Horner00032", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_KerriganApproachesSite3Q_Init () {
+    gt_KerriganApproachesSite3Q = TriggerCreate("gt_KerriganApproachesSite3Q_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Base - Retaliation Dialogue Q
+//--------------------------------------------------------------------------------------------------
+bool gt_BaseRetaliationDialogueQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    int autoFD8333F3_val;
+
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TValerian03Adjutant00039", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TValerian03Adjutant00039", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    autoFD8333F3_val = TriggerGetExecCount(TriggerGetCurrent());
+    if (autoFD8333F3_val == 0) {
+        TriggerQueueEnter();
+        libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+        libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+        // Transmission - SoundLink("TTychus03Horner00033", -1)
+        libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Horner00033", -1), c_transmissionDurationAdd, 0.0, true);
+        libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+        TriggerQueueExit();
+    }
+    else if (autoFD8333F3_val == 1) {
+        TriggerQueueEnter();
+        libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+        libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+        // Transmission - SoundLink("TTychus03Horner00009", -1)
+        libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Horner00009", -1), c_transmissionDurationAdd, 0.0, true);
+        libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+        TriggerQueueExit();
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BaseRetaliationDialogueQ_Init () {
+    gt_BaseRetaliationDialogueQ = TriggerCreate("gt_BaseRetaliationDialogueQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Transmission - Mission Start Q
+//--------------------------------------------------------------------------------------------------
+bool gt_TransmissionMissionStartQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((gv_inCinematic == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Kerrigan00023", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Kerrigan00023", -1), c_transmissionDurationAdd, 0.0, true);
+    // Transmission - SoundLink("TTychus03Raynor00001", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Raynor00001", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TransmissionMissionStartQ_Init () {
+    gt_TransmissionMissionStartQ = TriggerCreate("gt_TransmissionMissionStartQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Transmission - Medivac Intro Q
+//--------------------------------------------------------------------------------------------------
+bool gt_TransmissionMedivacIntroQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((gv_inCinematic == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Narud00005", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Narud00005", -1), c_transmissionDurationAdd, 0.0, true);
+    // Transmission - SoundLink("TTychus03Medivac00010", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("Hercules_Ready", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TransmissionMedivacIntroQ_Init () {
+    gt_TransmissionMedivacIntroQ = TriggerCreate("gt_TransmissionMedivacIntroQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Transmission - Brutalisk Found Q
+//--------------------------------------------------------------------------------------------------
+bool gt_TransmissionBrutaliskFoundQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((gv_inCinematic == false))) {
+            return false;
+        }
+
+        if (!((TriggerGetExecCount(TriggerGetCurrent()) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Raynor00036", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Raynor00036", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TransmissionBrutaliskFoundQ_Init () {
+    gt_TransmissionBrutaliskFoundQ = TriggerCreate("gt_TransmissionBrutaliskFoundQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Transmission - Core Is Destroyed Q
+//--------------------------------------------------------------------------------------------------
+bool gt_TransmissionCoreIsDestroyedQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    int auto41D00CF7_val;
+
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((gv_inCinematic == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto41D00CF7_val = TriggerGetExecCount(TriggerGetCurrent());
+    if (auto41D00CF7_val == 1) {
+        TriggerQueueEnter();
+        libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+        SoundtrackPlay(PlayerGroupAll(), c_soundtrackCategoryMusic, "TTychus03MusicEventB", c_soundtrackCueAny, c_soundtrackIndexAny, false);
+        libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+        // Transmission - SoundLink("TTychus03Raynor00011", -1)
+        libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Raynor00011", -1), c_transmissionDurationAdd, 0.0, true);
+        // Transmission - SoundLink("TTychus03Kerrigan00025", -1)
+        libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Kerrigan00025", -1), c_transmissionDurationAdd, 0.0, true);
+        // Transmission - SoundLink("TTychus03Raynor00026", -1)
+        libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Raynor00026", -1), c_transmissionDurationAdd, 0.0, true);
+        libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+        return true;
+        TriggerQueueExit();
+    }
+    else if (auto41D00CF7_val == 2) {
+        TriggerQueueEnter();
+        libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+        libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+        // Transmission - SoundLink("TTychus03Kerrigan00047", -1)
+        libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Kerrigan00047", -1), c_transmissionDurationAdd, 0.0, true);
+        // Transmission - SoundLink("TTychus03Raynor00048", -1)
+        libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Raynor00048", -1), c_transmissionDurationAdd, 0.0, true);
+        // Transmission - SoundLink("TTychus03Narud00049", -1)
+        libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Narud00049", -1), c_transmissionDurationAdd, 0.0, true);
+        libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+        return true;
+        TriggerQueueExit();
+    }
+    else if (auto41D00CF7_val == 4) {
+        TriggerQueueEnter();
+        libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+        libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+        // Transmission - SoundLink("TTychus03Narud00004", -1)
+        libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Narud00004", -1), c_transmissionDurationAdd, 1.0, true);
+        libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+        Wait(2.0, c_timeGame);
+        return true;
+        TriggerQueueExit();
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TransmissionCoreIsDestroyedQ_Init () {
+    gt_TransmissionCoreIsDestroyedQ = TriggerCreate("gt_TransmissionCoreIsDestroyedQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Transmission - Site 1 Militia Rescued Q
+//--------------------------------------------------------------------------------------------------
+bool gt_TransmissionSite1MilitiaRescuedQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((gv_inCinematic == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Marine900015", -1)
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TransmissionSite1MilitiaRescuedQ_Init () {
+    gt_TransmissionSite1MilitiaRescuedQ = TriggerCreate("gt_TransmissionSite1MilitiaRescuedQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Transmission - Site 2 Militia Rescued Q
+//--------------------------------------------------------------------------------------------------
+bool gt_TransmissionSite2MilitiaRescuedQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((gv_inCinematic == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Marine600018", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Marine600018", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    libNtve_gf_KillModel(libNtve_gf_ActorLastCreated());
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TransmissionSite2MilitiaRescuedQ_Init () {
+    gt_TransmissionSite2MilitiaRescuedQ = TriggerCreate("gt_TransmissionSite2MilitiaRescuedQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Transmission - Site 3 Militia Rescued Q
+//--------------------------------------------------------------------------------------------------
+bool gt_TransmissionSite3MilitiaRescuedQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((gv_inCinematic == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TriggerQueueEnter();
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    if (true) {
+        // Transmission - SoundLink("TTychus03MoebiusMarine00024", -1)
+        libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03MoebiusMarine00024", -1), c_transmissionDurationAdd, 0.0, true);
+    }
+
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    libNtve_gf_KillModel(libNtve_gf_ActorLastCreated());
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TransmissionSite3MilitiaRescuedQ_Init () {
+    gt_TransmissionSite3MilitiaRescuedQ = TriggerCreate("gt_TransmissionSite3MilitiaRescuedQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start AI
+//--------------------------------------------------------------------------------------------------
+bool gt_StartAI_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupIssueOrder(UnitGroup(null, gv_p02_ZERG, RegionFromId(7), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(272)), c_orderQueueReplace);
+    UnitGroupIssueOrder(UnitGroup(null, gv_p02_ZERG, RegionFromId(64), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(4)), c_orderQueueReplace);
+    UnitGroupIssueOrder(UnitGroup(null, gv_p02_ZERG, RegionFromId(61), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(441)), c_orderQueueReplace);
+    UnitGroupIssueOrder(UnitGroup("Corruptor", c_playerAny, RegionFromId(68), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(218)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(1276), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(1237)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(285), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(189)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(429), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(1235)), c_orderQueueReplace);
+    CampaignInitAI();
+    AINearestTownBullyRebuild(gv_p05_ZERG_BASE, true);
+    VisRevealerCreate(1, RegionFromId(113));
+    TriggerExecute(gt_P2AttackWaves, true, false);
+    TriggerExecute(gt_P5AttackWaves, true, false);
+    TriggerExecute(gt_P10LeviathanAttackWaves, true, false);
+    Wait(120.0, c_timeGame);
+    lib67C0F0E7_gf_PingUnitI(gv_uNIT_KERRIGAN, "PingBoss", Color(100.00, 0.00, 0.00), 1);
+    gv_t = UnitGroupRandomUnit(gv_tG, c_unitCountAlive);
+    AIAttackWaveUseUnit(7, gv_uNIT_KERRIGAN);
+    AIAttackWaveSetTargetUnit(7, gv_t);
+    AIAttackWaveSend(7, 0, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_StartAI_Init () {
+    gt_StartAI = TriggerCreate("gt_StartAI_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Zerg P05 Attack Waves - Base
+//--------------------------------------------------------------------------------------------------
+bool gt_ZergP05AttackWavesBase_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    AIAttackWaveSetTargetPlayer(gv_p05_ZERG_BASE, PlayerGroupSingle(gv_p01_USER));
+    AIAttackWaveSetGatherPoint(gv_p05_ZERG_BASE, PointFromId(326));
+    Wait(90.0, c_timeAI);
+    AIAttackWaveAddUnits4(0, 1, 2, 3, "Mutalisk");
+    gf_AddAirAttackWaypoints(gv_p05_ZERG_BASE);
+    AIAttackWaveSend(gv_p05_ZERG_BASE, 120, true);
+    Wait(60.0, c_timeAI);
+    AIAttackWaveAddUnits4(4, 4, 7, 10, "Zergling");
+    AIAttackWaveAddUnits4(1, 1, 2, 2, "Roach");
+    AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+    AIAttackWaveSend(gv_p05_ZERG_BASE, 150, false);
+    Wait(60.0, c_timeAI);
+    AIAttackWaveAddUnits4(3, 3, 3, 4, "Mutalisk");
+    gf_AddAirAttackWaypoints(gv_p05_ZERG_BASE);
+    AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(620), false);
+    AIAttackWaveSend(gv_p05_ZERG_BASE, 105, false);
+    Wait(90.0, c_timeAI);
+    Wait(30.0, c_timeAI);
+    Wait(60.0, c_timeAI);
+    AIAttackWaveAddUnits4(10, 10, 14, 18, "Zergling");
+    AIAttackWaveAddUnits4(1, 1, 1, 2, "Hydralisk");
+    AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+    AIAttackWaveSend(gv_p05_ZERG_BASE, 150, false);
+    Wait(120.0, c_timeAI);
+    Wait(30.0, c_timeAI);
+    Wait(90.0, c_timeAI);
+    AIAttackWaveAddUnits4(5, 5, 6, 5, "Mutalisk");
+    AIAttackWaveAddUnits4(0, 0, 0, 1, "Corruptor");
+    AIAttackWaveAddUnits4(0, 0, 0, 1, "BroodLord");
+    AIAttackWaveAddUnits4(0, 0, 1, 1, "Overseer");
+    gf_AddAirAttackWaypoints(gv_p05_ZERG_BASE);
+    AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(620), false);
+    AIAttackWaveSend(gv_p05_ZERG_BASE, 150, false);
+    Wait(120.0, c_timeAI);
+    Wait(30.0, c_timeAI);
+    while (true) {
+        Wait(90.0, c_timeAI);
+        AIAttackWaveAddUnits4(8, 8, 10, 12, "Zergling");
+        AIAttackWaveAddUnits4(0, 0, 1, 2, "Hydralisk");
+        AIAttackWaveAddUnits4(1, 1, 1, 0, "Roach");
+        AIAttackWaveAddUnits4(3, 3, 4, 5, "Mutalisk");
+        AIAttackWaveAddUnits4(0, 0, 0, 1, "Infestor");
+        AIAttackWaveAddUnits4(0, 0, 1, 2, "Corruptor");
+        AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+        AIAttackWaveSend(gv_p05_ZERG_BASE, 150, true);
+        Wait(90.0, c_timeAI);
+        AIAttackWaveAddUnits4(4, 4, 5, 5, "Mutalisk");
+        AIAttackWaveAddUnits4(0, 0, 1, 2, "BroodLord");
+        AIAttackWaveAddUnits4(0, 0, 1, 1, "Overseer");
+        gf_AddAirAttackWaypoints(gv_p05_ZERG_BASE);
+        AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(620), false);
+        AIAttackWaveSend(gv_p05_ZERG_BASE, 150, true);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ZergP05AttackWavesBase_Init () {
+    gt_ZergP05AttackWavesBase = TriggerCreate("gt_ZergP05AttackWavesBase_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: P2 Attack Waves
+//--------------------------------------------------------------------------------------------------
+bool gt_P2AttackWaves_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_aI;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_aI = 2;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    AIAttackWaveSetTargetPlayer(lv_aI, PlayerGroupAlliance(c_playerGroupEnemy, lv_aI));
+    AIAttackWaveSetGatherPoint(lv_aI, PointFromId(85297421));
+    Wait(120.0, c_timeGame);
+    AIAttackWaveAddUnits4(8, 8, 10, 12, "HotSRaptor");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "RoachVile");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "Hydralisk");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddUnits4(8, 8, 10, 12, "HotSRaptor");
+    AIAttackWaveAddUnits4(4, 4, 5, 6, "RoachVile");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "Ravager");
+    AIAttackWaveAddUnits4(0, 0, 1, 1, "Ultralisk");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddUnits4(11, 11, 13, 16, "HotSRaptor");
+    AIAttackWaveAddUnits4(1, 1, 1, 2, "Infestor");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "Hydralisk");
+    AIAttackWaveAddUnits4(1, 1, 1, 1, "Overseer");
+    AIAttackWaveAddUnits4(1, 1, 1, 1, "Viper");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddUnits4(6, 6, 8, 10, "RoachVile");
+    AIAttackWaveAddUnits4(3, 3, 4, 5, "Queen");
+    AIAttackWaveAddUnits4(2, 2, 2, 3, "Guardian");
+    AIAttackWaveAddUnits4(1, 1, 1, 2, "Ravager");
+    AIAttackWaveAddUnits4(1, 1, 1, 1, "Viper");
+    AIAttackWaveAddUnits4(1, 1, 1, 1, "Overseer");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddUnits4(6, 6, 8, 10, "Mutalisk");
+    AIAttackWaveAddUnits4(2, 2, 3, 3, "Ravager");
+    AIAttackWaveAddUnits4(12, 12, 15, 20, "HotSRaptor");
+    AIAttackWaveAddUnits4(1, 1, 1, 1, "Overseer");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddUnits4(10, 10, 11, 12, "Mutalisk");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "Queen");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "Hydralisk");
+    AIAttackWaveAddUnits4(1, 1, 1, 1, "Viper");
+    AIAttackWaveSend(lv_aI, 180, true);
+    while (true) {
+        AIAttackWaveAddUnits4(12, 12, 15, 20, "HotSRaptor");
+        AIAttackWaveAddUnits4(1, 1, 1, 2, "Infestor");
+        AIAttackWaveAddUnits4(4, 4, 5, 6, "RoachVile");
+        AIAttackWaveAddUnits4(1, 1, 1, 1, "Overseer");
+        AIAttackWaveSend(lv_aI, 180, true);
+        AIAttackWaveAddUnits4(5, 5, 6, 8, "RoachVile");
+        AIAttackWaveAddUnits4(2, 2, 2, 3, "BroodLord");
+        AIAttackWaveAddUnits4(1, 1, 1, 2, "HotSSplitterlingBig");
+        AIAttackWaveAddUnits4(2, 2, 3, 4, "Queen");
+        AIAttackWaveAddUnits4(1, 1, 1, 1, "Viper");
+        AIAttackWaveSend(lv_aI, 180, true);
+        AIAttackWaveAddUnits4(3, 3, 4, 5, "Mutalisk");
+        AIAttackWaveAddUnits4(2, 2, 3, 3, "Ravager");
+        AIAttackWaveAddUnits4(4, 4, 5, 6, "RoachVile");
+        AIAttackWaveAddUnits4(12, 12, 15, 20, "HotSRaptor");
+        AIAttackWaveAddUnits4(1, 1, 1, 1, "Overseer");
+        AIAttackWaveSend(lv_aI, 180, true);
+        AIAttackWaveAddUnits4(10, 10, 12, 14, "Mutalisk");
+        AIAttackWaveAddUnits4(4, 4, 5, 6, "Queen");
+        AIAttackWaveAddUnits4(2, 2, 3, 4, "Ravager");
+        AIAttackWaveAddUnits4(1, 1, 1, 1, "Viper");
+        AIAttackWaveSend(lv_aI, 180, true);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_P2AttackWaves_Init () {
+    gt_P2AttackWaves = TriggerCreate("gt_P2AttackWaves_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: P5 Attack Waves
+//--------------------------------------------------------------------------------------------------
+bool gt_P5AttackWaves_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_aI;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_aI = 5;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    AIAttackWaveSetTargetPlayer(lv_aI, PlayerGroupSingle(1));
+    AIAttackWaveSetGatherPoint(lv_aI, PointFromId(902020644));
+    Wait(60.0, c_timeGame);
+    AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+    AIAttackWaveAddUnits4(8, 8, 10, 12, "HotSRaptor");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "RoachVile");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+    AIAttackWaveAddUnits4(8, 8, 10, 12, "HotSRaptor");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "Hydralisk");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "Mutalisk");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+    AIAttackWaveAddUnits4(6, 6, 7, 9, "Mutalisk");
+    AIAttackWaveAddUnits4(2, 2, 3, 3, "Devourer");
+    AIAttackWaveAddUnits4(1, 1, 1, 1, "Overseer");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+    AIAttackWaveAddUnits4(6, 6, 7, 9, "Mutalisk");
+    AIAttackWaveAddUnits4(12, 12, 15, 18, "HotSRaptor");
+    AIAttackWaveAddUnits4(1, 1, 1, 2, "BroodLord");
+    AIAttackWaveAddUnits4(1, 1, 1, 1, "Viper");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+    AIAttackWaveAddUnits4(3, 3, 4, 5, "Mutalisk");
+    AIAttackWaveAddUnits4(0, 0, 1, 1, "Ultralisk");
+    AIAttackWaveAddUnits4(12, 12, 15, 18, "HotSRaptor");
+    AIAttackWaveAddUnits4(4, 4, 5, 6, "Hydralisk");
+    AIAttackWaveAddUnits4(1, 1, 1, 1, "Overseer");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+    AIAttackWaveAddUnits4(12, 12, 14, 16, "Mutalisk");
+    AIAttackWaveAddUnits4(1, 1, 1, 2, "Guardian");
+    AIAttackWaveAddUnits4(2, 2, 3, 3, "Corruptor");
+    AIAttackWaveAddUnits4(1, 1, 1, 1, "Viper");
+    AIAttackWaveSend(lv_aI, 180, true);
+    while (true) {
+        AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+        AIAttackWaveAddUnits4(10, 10, 11, 12, "Mutalisk");
+        AIAttackWaveAddUnits4(12, 12, 15, 18, "HotSRaptor");
+        AIAttackWaveAddUnits4(2, 2, 3, 4, "BroodLord");
+        AIAttackWaveAddUnits4(1, 1, 1, 1, "Viper");
+        AIAttackWaveSend(lv_aI, 180, true);
+        AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+        AIAttackWaveAddUnits4(3, 3, 4, 5, "Mutalisk");
+        AIAttackWaveAddUnits4(1, 1, 1, 2, "Ultralisk");
+        AIAttackWaveAddUnits4(12, 12, 15, 18, "HotSRaptor");
+        AIAttackWaveAddUnits4(4, 4, 5, 6, "Hydralisk");
+        AIAttackWaveAddUnits4(1, 1, 1, 1, "Overseer");
+        AIAttackWaveSend(lv_aI, 180, true);
+        AIAttackWaveAddWaypoint(gv_p05_ZERG_BASE, PointFromId(870), false);
+        AIAttackWaveAddUnits4(12, 12, 14, 16, "Mutalisk");
+        AIAttackWaveAddUnits4(2, 2, 3, 4, "Guardian");
+        AIAttackWaveAddUnits4(2, 2, 3, 3, "Corruptor");
+        AIAttackWaveSend(lv_aI, 180, true);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_P5AttackWaves_Init () {
+    gt_P5AttackWaves = TriggerCreate("gt_P5AttackWaves_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: P10 Leviathan Attack Waves
+//--------------------------------------------------------------------------------------------------
+bool gt_P10LeviathanAttackWaves_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_aI;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_aI = 10;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    AIAttackWaveSetTargetPlayer(lv_aI, PlayerGroupAlliance(c_playerGroupEnemy, lv_aI));
+    AIAttackWaveSetGatherPoint(lv_aI, PointFromId(1354600470));
+    Wait(240.0, c_timeGame);
+    AIAttackWaveAddUnits4(12, 12, 15, 20, "HotSRaptor");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "Queen");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddWaypoint(lv_aI, PointFromId(1378396751), false);
+    AIAttackWaveAddUnits4(6, 6, 7, 8, "Mutalisk");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "Queen");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddUnits4(12, 12, 15, 20, "HotSRaptor");
+    AIAttackWaveAddUnits4(1, 1, 2, 2, "QueenClassic");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "BroodLord");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddWaypoint(lv_aI, PointFromId(1378396751), false);
+    AIAttackWaveAddUnits4(8, 8, 10, 12, "Mutalisk");
+    AIAttackWaveAddUnits4(2, 2, 3, 4, "Corruptor");
+    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveAddUnits4(1, 1, 2, 3, "Queen");
+    AIAttackWaveAddUnits4(1, 1, 1, 2, "Guardian");
+    AIAttackWaveAddUnits4(4, 4, 5, 6, "Hydralisk");
+    AIAttackWaveAddUnits4(12, 12, 15, 20, "HotSRaptor");
+    AIAttackWaveSend(lv_aI, 180, true);
+    while (true) {
+        Wait(1.0, c_timeGame);
+        AIAttackWaveAddWaypoint(lv_aI, PointFromId(1378396751), false);
+        AIAttackWaveAddUnits4(12, 12, 15, 20, "HotSRaptor");
+        AIAttackWaveAddUnits4(4, 4, 5, 6, "Hydralisk");
+        AIAttackWaveSend(lv_aI, 180, true);
+        AIAttackWaveAddUnits4(8, 8, 10, 12, "Mutalisk");
+        AIAttackWaveAddUnits4(3, 3, 4, 5, "Corruptor");
+        AIAttackWaveAddUnits4(2, 2, 2, 3, "BroodLord");
+        AIAttackWaveSend(lv_aI, 180, true);
+        AIAttackWaveAddWaypoint(lv_aI, PointFromId(1378396751), false);
+        AIAttackWaveAddUnits4(2, 2, 3, 4, "Queen");
+        AIAttackWaveAddUnits4(4, 4, 5, 6, "Hydralisk");
+        AIAttackWaveAddUnits4(1, 1, 2, 2, "QueenClassic");
+        AIAttackWaveAddUnits4(12, 12, 15, 20, "HotSRaptor");
+        AIAttackWaveSend(lv_aI, 180, true);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_P10LeviathanAttackWaves_Init () {
+    gt_P10LeviathanAttackWaves = TriggerCreate("gt_P10LeviathanAttackWaves_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory
+//--------------------------------------------------------------------------------------------------
+bool gt_Victory_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    VictoryPanelAddAchievement("TTychus03_1");
+    VictoryPanelAddAchievement("TTychus03_2");
+    VictoryPanelAddAchievement("TTychus03_3");
+    VictoryPanelAddTrackedStatistic("UnitsKilledCount");
+    VictoryPanelAddTrackedStatistic("UnitsTotalCount");
+    VictoryPanelAddTrackedStatistic("UnitsLostCount");
+    VictoryPanelAddCustomStatisticLine(StringToText(""), StringToText(""));
+    VictoryPanelAddCustomStatisticLine(StringToText(""), StringToText(""));
+    if ((UnitIsAlive(UnitFromId(490463695)) == true)) {
+        VictoryPanelAddCustomStatisticLine(StringExternal("Param/Value/2D5C1E70"), StringExternal("Param/Value/63138D43"));
+        libE0EAE146_gf_Bon2();
+    }
+    else {
+        VictoryPanelAddCustomStatisticLine(StringExternal("Param/Value/0D7EBAF8"), StringExternal("Param/Value/ECB06850"));
+    }
+    if (lib67C0F0E7_gf_ObjectiveFinished(false, 2)) {
+        VictoryPanelAddCustomStatisticLine(StringExternal("Param/Value/13155FF5"), StringExternal("Param/Value/13EE5891"));
+    }
+    else {
+        VictoryPanelAddCustomStatisticLine(StringExternal("Param/Value/FF64036B"), StringExternal("Param/Value/2325A662"));
+    }
+    libE0EAE146_gf_FinishLevel();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Victory_Init () {
+    gt_Victory = TriggerCreate("gt_Victory_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Defeat Base Dead
+//--------------------------------------------------------------------------------------------------
+bool gt_DefeatBaseDead_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((gv_inCinematic == false))) {
+            return false;
+        }
+
+        if (!((UnitGroupCount(UnitGroup(null, gv_p01_USER, RegionEntireMap(), UnitFilter((1 << c_targetFilterPreventDefeat), 0, 0, 0), 0), c_unitCountAlive) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    gv_gameOver = true;
+    TriggerQueuePause(true);
+    TriggerQueueClear(c_triggerQueueRemove);
+    Wait(2.0, c_timeReal);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
+    libLbty_gf_PlayTransmissionCueSound(PlayerGroupAll());
+    // Transmission - SoundLink("TTychus03Kerrigan00046", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Kerrigan00046", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Game);
+    libCamp_gf_DisplayCampaignMessage(PlayerGroupAll(), libCamp_ge_CampaignMessageType_MissionFailed, StringExternal("Param/Value/52F6EC65"), libCamp_ge_CampaignMessageFormatNotFormat_FormatMessage);
+    TriggerExecute(gt_Defeat, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DefeatBaseDead_Init () {
+    gt_DefeatBaseDead = TriggerCreate("gt_DefeatBaseDead_Func");
+    TriggerAddEventTimePeriodic(gt_DefeatBaseDead, 1.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Defeat Primary Objective Failed
+//--------------------------------------------------------------------------------------------------
+bool gt_DefeatPrimaryObjectiveFailed_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((TriggerGetExecCount(TriggerGetCurrent()) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_gameOver = true;
+    TriggerQueuePause(true);
+    TriggerQueueClear(c_triggerQueueRemove);
+    Wait(2.0, c_timeReal);
+    // Transmission - SoundLink("TTychus03Kerrigan00046", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Kerrigan00046", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_DisplayCampaignMessage(PlayerGroupAll(), libCamp_ge_CampaignMessageType_MissionFailed, StringExternal("Param/Value/B89DBA01"), libCamp_ge_CampaignMessageFormatNotFormat_FormatMessage);
+    TriggerExecute(gt_Defeat, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DefeatPrimaryObjectiveFailed_Init () {
+    gt_DefeatPrimaryObjectiveFailed = TriggerCreate("gt_DefeatPrimaryObjectiveFailed_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Defeat
+//--------------------------------------------------------------------------------------------------
+bool gt_Defeat_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib67C0F0E7_gf_Defeat();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Defeat_Init () {
+    gt_Defeat = TriggerCreate("gt_Defeat_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory Cheat
+//--------------------------------------------------------------------------------------------------
+bool gt_VictoryCheat_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_gameOver = true;
+    TriggerExecute(gt_Victory, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_VictoryCheat_Init () {
+    gt_VictoryCheat = TriggerCreate("gt_VictoryCheat_Func");
+    TriggerAddEventPlayerLeft(gt_VictoryCheat, gv_p01_USER, c_gameResultVictory);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Defeat Cheat
+//--------------------------------------------------------------------------------------------------
+bool gt_DefeatCheat_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((gv_gameOver == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_gameOver = true;
+    TriggerExecute(gt_Defeat, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DefeatCheat_Init () {
+    gt_DefeatCheat = TriggerCreate("gt_DefeatCheat_Func");
+    TriggerAddEventPlayerLeft(gt_DefeatCheat, gv_p01_USER, c_gameResultDefeat);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory Q
+//--------------------------------------------------------------------------------------------------
+bool gt_VictoryQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerQueueEnter();
+    TriggerExecute(gt_VictorySetup, true, true);
+    TriggerExecute(gt_VictoryCinematic, true, true);
+    TriggerExecute(gt_VictoryCinematicEnd, true, true);
+    TriggerExecute(gt_VictoryCleanup, true, true);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_VictoryQ_Init () {
+    gt_VictoryQ = TriggerCreate("gt_VictoryQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory Setup
+//--------------------------------------------------------------------------------------------------
+bool gt_VictorySetup_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_pickedUnit;
+
+    // Automatic Variable Declarations
+    unitgroup auto24160650_g;
+    int auto24160650_u;
+    unit auto24160650_var;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_inCinematic = true;
+    CinematicFade(false, 1.0, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, false);
+    UISetMode(PlayerGroupAll(), c_uiModeFullscreen, 1.0);
+    Wait(1.0, c_timeReal);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), 0.0);
+    libNtve_gf_GlobalCinematicSetting(true);
+    UnitClearSelection(gv_p01_USER);
+    auto24160650_g = UnitGroup(null, c_playerAny, RegionPlayableMap(), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    auto24160650_u = UnitGroupCount(auto24160650_g, c_unitCountAll);
+    for (;; auto24160650_u -= 1) {
+        auto24160650_var = UnitGroupUnitFromEnd(auto24160650_g, auto24160650_u);
+        if (auto24160650_var == null) { break; }
+        libNtve_gf_ShowHideUnit(auto24160650_var, false);
+        libNtve_gf_PauseUnit(auto24160650_var, true);
+    }
+    PlayerSetState(gv_p01_USER, c_playerStateXPGain, false);
+    GameTimeOfDayPause(true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_VictorySetup_Init () {
+    gt_VictorySetup = TriggerCreate("gt_VictorySetup_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory Cinematic
+//--------------------------------------------------------------------------------------------------
+bool gt_VictoryCinematic_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_tYPE;
+    point lv_pOINT;
+    unit lv_commandCenter;
+
+    // Automatic Variable Declarations
+    unitgroup autoFAB23EE7_g;
+    int autoFAB23EE7_u;
+    unit autoFAB23EE7_var;
+    unitgroup auto52D8B6ED_g;
+    int auto52D8B6ED_u;
+    unit auto52D8B6ED_var;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerSkippableBegin(PlayerGroupAll(), 0, null, true, false);
+    gv_victoryCinematicCompleted = false;
+    autoFAB23EE7_g = UnitGroup(null, gv_p01_USER, RegionFromId(1), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    autoFAB23EE7_u = UnitGroupCount(autoFAB23EE7_g, c_unitCountAll);
+    for (;; autoFAB23EE7_u -= 1) {
+        autoFAB23EE7_var = UnitGroupUnitFromEnd(autoFAB23EE7_g, autoFAB23EE7_u);
+        if (autoFAB23EE7_var == null) { break; }
+        if ((UnitGetType(autoFAB23EE7_var) != "Refinery") && (UnitGetType(autoFAB23EE7_var) != "AutomatedRefinery")) {
+            lv_tYPE = UnitGetType(autoFAB23EE7_var);
+            lv_pOINT = UnitGetPosition(autoFAB23EE7_var);
+            UnitRemove(autoFAB23EE7_var);
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_tYPE, 0, gv_p01_USER, lv_pOINT);
+        }
+
+    }
+    libNtve_gf_CreateUnitsAtPoint2(1, "Medivac", 0, 1, PointFromId(1862));
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(1871)), c_orderQueueReplace);
+    libNtve_gf_CreateUnitsAtPoint2(1, "Medivac", 0, 1, PointFromId(1868));
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(2154)), c_orderQueueReplace);
+    libNtve_gf_CreateUnitsAtPoint2(1, "Medivac", 0, 1, PointFromId(1865));
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(2153)), c_orderQueueReplace);
+    lv_commandCenter = UnitGroupUnit(UnitGroup("CommandCenter", gv_p01_USER, RegionFromId(1), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), 1);
+    if ((UnitIsAlive(lv_commandCenter) == true)) {
+        libNtve_gf_CreateUnitsAtPoint2(1, "SCV", 0, 1, PointFromId(1246));
+        libNtve_gf_CreateUnitsAtPoint2(1, "SCV", 0, 1, PointFromId(1433));
+        libNtve_gf_CreateUnitsAtPoint2(1, "SCV", 0, 1, PointFromId(1435));
+        libNtve_gf_CreateUnitsAtPoint2(1, "SCV", 0, 1, PointFromId(1436));
+        libNtve_gf_CreateUnitsAtPoint2(1, "SCV", 0, 1, PointFromId(1460));
+        libLbty_gf_OrderWorkerstoGatherNearbyResources(RegionEntireMap(), gv_p01_USER);
+    }
+
+    CameraApplyInfo(1, CameraInfoFromId(367), 0.0, -1, 10, true);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(98), (SoundLengthSync(SoundLink("TTychus03Raynor00035", -1)) + SoundLengthSync(SoundLink("TTychus03Narud00034", -1))), -1, 20, true);
+    SoundtrackPlay(PlayerGroupAll(), c_soundtrackCategoryMusic, "TTychus03MusicOutro", c_soundtrackCueAny, c_soundtrackIndexAny, false);
+    TriggerExecute(gt_VictoryNydusSpawn, true, false);
+    // Transmission - SoundLink("TTychus03Raynor00035", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Raynor00035", -1), c_transmissionDurationAdd, 0.0, true);
+    TriggerExecute(gt_VictoryBaseLiftoff, true, false);
+    if ((UnitIsAlive(lv_commandCenter) == true)) {
+        auto52D8B6ED_g = UnitGroup("SCV", gv_p01_USER, RegionFromId(92), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto52D8B6ED_u = UnitGroupCount(auto52D8B6ED_g, c_unitCountAll);
+        for (;; auto52D8B6ED_u -= 1) {
+            auto52D8B6ED_var = UnitGroupUnitFromEnd(auto52D8B6ED_g, auto52D8B6ED_u);
+            if (auto52D8B6ED_var == null) { break; }
+            UnitIssueOrder(auto52D8B6ED_var, OrderTargetingPoint(AbilityCommand("move", 0), UnitGetPosition(lv_commandCenter)), c_orderQueueReplace);
+        }
+    }
+
+    // Transmission - SoundLink("TTychus03Narud00034", -1)
+    libCamp_gf_SendTransmissionCampaign(null, SoundLink("TTychus03Narud00034", -1), c_transmissionDurationAdd, 0.0, true);
+    gv_victoryCinematicCompleted = true;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_VictoryCinematic_Init () {
+    gt_VictoryCinematic = TriggerCreate("gt_VictoryCinematic_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory Cinematic End
+//--------------------------------------------------------------------------------------------------
+bool gt_VictoryCinematicEnd_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_fadeDuration;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PortraitSetVisible(libNtve_gf_CinematicPortrait(libNtve_ge_CinematicPortraitPosition_CenterLeft), PlayerGroupAll(), false, false);
+    if ((gv_victoryCinematicCompleted == true)) {
+        lv_fadeDuration = 2.0;
+    }
+    else {
+        lv_fadeDuration = 0.5;
+    }
+    CinematicFade(false, lv_fadeDuration, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, false);
+    Wait(lv_fadeDuration, c_timeReal);
+    UnitPauseAll(true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_VictoryCinematicEnd_Init () {
+    gt_VictoryCinematicEnd = TriggerCreate("gt_VictoryCinematicEnd_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory Cleanup
+//--------------------------------------------------------------------------------------------------
+bool gt_VictoryCleanup_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_fadeDuratioin;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitPauseAll(true);
+    TriggerExecute(gt_Victory, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_VictoryCleanup_Init () {
+    gt_VictoryCleanup = TriggerCreate("gt_VictoryCleanup_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory Nydus Spawn
+//--------------------------------------------------------------------------------------------------
+bool gt_VictoryNydusSpawn_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit[4] lv_victoryWorm;
+    int lv_wormIndex;
+
+    // Automatic Variable Declarations
+    const int autoDE5163B7_n = 5;
+    int autoDE5163B7_i;
+    const int auto0B56A5D3_ae = 3;
+    const int auto0B56A5D3_ai = 1;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(1.0, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "NydusCanal", 0, gv_p05_ZERG_BASE, RegionGetCenter(RegionFromId(79)));
+    libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(UnitLastCreated()), c_animNameDefault, "Birth 02", 0, c_animTimeDefault);
+    lv_victoryWorm[1] = UnitLastCreated();
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "NydusCanal", 0, gv_p05_ZERG_BASE, RegionGetCenter(RegionFromId(80)));
+    libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(UnitLastCreated()), c_animNameDefault, "Birth 02", 0, c_animTimeDefault);
+    lv_victoryWorm[2] = UnitLastCreated();
+    Wait(2.0, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "NydusCanal", 0, gv_p05_ZERG_BASE, RegionGetCenter(RegionFromId(38)));
+    libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(UnitLastCreated()), c_animNameDefault, "Birth 01", 0, c_animTimeDefault);
+    lv_victoryWorm[3] = UnitLastCreated();
+    SoundPlayAtPoint(SoundLink("NydusWorm_Birth", -1), PlayerGroupAll(), UnitGetPosition(UnitLastCreated()), 8.0, 100.0, 0.0);
+    Wait(4.7, c_timeGame);
+    for (autoDE5163B7_i = 1; autoDE5163B7_i <= autoDE5163B7_n; autoDE5163B7_i += 1) {
+        lv_wormIndex = 1;
+        for ( ; ( (auto0B56A5D3_ai >= 0 && lv_wormIndex <= auto0B56A5D3_ae) || (auto0B56A5D3_ai < 0 && lv_wormIndex >= auto0B56A5D3_ae) ) ; lv_wormIndex += auto0B56A5D3_ai ) {
+            libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(lv_victoryWorm[lv_wormIndex]), c_animNameDefault, "Spell", 0, c_animTimeDefault);
+            libNtve_gf_CreateUnitsWithDefaultFacing(3, "Zergling", 0, gv_p05_ZERG_BASE, UnitGetPosition(lv_victoryWorm[lv_wormIndex]));
+            UnitGroupIssueOrder(UnitLastCreatedGroup(), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1615)), c_orderQueueReplace);
+            Wait(1.0, c_timeGame);
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_VictoryNydusSpawn_Init () {
+    gt_VictoryNydusSpawn = TriggerCreate("gt_VictoryNydusSpawn_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory Base Liftoff
+//--------------------------------------------------------------------------------------------------
+bool gt_VictoryBaseLiftoff_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_commandCenter;
+
+    // Automatic Variable Declarations
+    unitgroup auto852730DC_g;
+    int auto852730DC_u;
+    unit auto852730DC_var;
+    unitgroup auto2D19C848_g;
+    int auto2D19C848_u;
+    unit auto2D19C848_var;
+    unitgroup autoA2B9B0DD_g;
+    int autoA2B9B0DD_u;
+    unit autoA2B9B0DD_var;
+    unitgroup auto312296BC_g;
+    int auto312296BC_u;
+    unit auto312296BC_var;
+    unitgroup auto46452081_g;
+    int auto46452081_u;
+    unit auto46452081_var;
+    unitgroup auto3FBA9F13_g;
+    int auto3FBA9F13_u;
+    unit auto3FBA9F13_var;
+    unitgroup auto061F6D86_g;
+    int auto061F6D86_u;
+    unit auto061F6D86_var;
+    unitgroup auto8F834BA9_g;
+    int auto8F834BA9_u;
+    unit auto8F834BA9_var;
+    const int autoCC1AC9DC_n = 10;
+    int autoCC1AC9DC_i;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_commandCenter = UnitGroupUnit(UnitGroup("CommandCenter", gv_p01_USER, RegionFromId(1), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), 1);
+    Wait(4.0, c_timeGame);
+    auto852730DC_g = UnitGroup("Barracks", gv_p01_USER, RegionFromId(1), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto852730DC_u = UnitGroupCount(auto852730DC_g, c_unitCountAll);
+    for (;; auto852730DC_u -= 1) {
+        auto852730DC_var = UnitGroupUnitFromEnd(auto852730DC_g, auto852730DC_u);
+        if (auto852730DC_var == null) { break; }
+        UnitIssueOrder(auto852730DC_var, Order(AbilityCommand("BarracksLiftOff", 0)), c_orderQueueReplace);
+    }
+    Wait(0.5, c_timeGame);
+    auto2D19C848_g = UnitGroup("Factory", gv_p01_USER, RegionFromId(1), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto2D19C848_u = UnitGroupCount(auto2D19C848_g, c_unitCountAll);
+    for (;; auto2D19C848_u -= 1) {
+        auto2D19C848_var = UnitGroupUnitFromEnd(auto2D19C848_g, auto2D19C848_u);
+        if (auto2D19C848_var == null) { break; }
+        UnitIssueOrder(auto2D19C848_var, Order(AbilityCommand("FactoryLiftOff", 0)), c_orderQueueReplace);
+    }
+    Wait(0.5, c_timeGame);
+    autoA2B9B0DD_g = UnitGroup("Starport", gv_p01_USER, RegionFromId(1), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoA2B9B0DD_u = UnitGroupCount(autoA2B9B0DD_g, c_unitCountAll);
+    for (;; autoA2B9B0DD_u -= 1) {
+        autoA2B9B0DD_var = UnitGroupUnitFromEnd(autoA2B9B0DD_g, autoA2B9B0DD_u);
+        if (autoA2B9B0DD_var == null) { break; }
+        UnitIssueOrder(autoA2B9B0DD_var, Order(AbilityCommand("StarportLiftOff", 0)), c_orderQueueReplace);
+    }
+    Wait(0.5, c_timeGame);
+    auto312296BC_g = UnitGroup("CommandCenter", gv_p01_USER, RegionFromId(1), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto312296BC_u = UnitGroupCount(auto312296BC_g, c_unitCountAll);
+    for (;; auto312296BC_u -= 1) {
+        auto312296BC_var = UnitGroupUnitFromEnd(auto312296BC_g, auto312296BC_u);
+        if (auto312296BC_var == null) { break; }
+        UnitIssueOrder(auto312296BC_var, Order(AbilityCommand("CommandCenterLiftOff", 0)), c_orderQueueReplace);
+    }
+    Wait(0.5, c_timeGame);
+    auto46452081_g = UnitGroup("BarracksFlying", gv_p01_USER, RegionFromId(1), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto46452081_u = UnitGroupCount(auto46452081_g, c_unitCountAll);
+    for (;; auto46452081_u -= 1) {
+        auto46452081_var = UnitGroupUnitFromEnd(auto46452081_g, auto46452081_u);
+        if (auto46452081_var == null) { break; }
+        UnitIssueOrder(auto46452081_var, OrderTargetingPoint(AbilityCommand("move", 0), PointWithOffset(UnitGetPosition(auto46452081_var), 25.0, 25.0)), c_orderQueueAddToEnd);
+    }
+    Wait(0.5, c_timeGame);
+    auto3FBA9F13_g = UnitGroup("FactoryFlying", gv_p01_USER, RegionFromId(1), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto3FBA9F13_u = UnitGroupCount(auto3FBA9F13_g, c_unitCountAll);
+    for (;; auto3FBA9F13_u -= 1) {
+        auto3FBA9F13_var = UnitGroupUnitFromEnd(auto3FBA9F13_g, auto3FBA9F13_u);
+        if (auto3FBA9F13_var == null) { break; }
+        UnitIssueOrder(auto3FBA9F13_var, OrderTargetingPoint(AbilityCommand("move", 0), PointWithOffset(UnitGetPosition(auto3FBA9F13_var), 25.0, 25.0)), c_orderQueueAddToEnd);
+    }
+    Wait(0.5, c_timeGame);
+    auto061F6D86_g = UnitGroup("StarportFlying", gv_p01_USER, RegionFromId(1), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto061F6D86_u = UnitGroupCount(auto061F6D86_g, c_unitCountAll);
+    for (;; auto061F6D86_u -= 1) {
+        auto061F6D86_var = UnitGroupUnitFromEnd(auto061F6D86_g, auto061F6D86_u);
+        if (auto061F6D86_var == null) { break; }
+        UnitIssueOrder(auto061F6D86_var, OrderTargetingPoint(AbilityCommand("move", 0), PointWithOffset(UnitGetPosition(auto061F6D86_var), 25.0, 25.0)), c_orderQueueAddToEnd);
+    }
+    Wait(0.5, c_timeGame);
+    auto8F834BA9_g = UnitGroup("CommandCenterFlying", gv_p01_USER, RegionFromId(1), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto8F834BA9_u = UnitGroupCount(auto8F834BA9_g, c_unitCountAll);
+    for (;; auto8F834BA9_u -= 1) {
+        auto8F834BA9_var = UnitGroupUnitFromEnd(auto8F834BA9_g, auto8F834BA9_u);
+        if (auto8F834BA9_var == null) { break; }
+        UnitIssueOrder(auto8F834BA9_var, OrderTargetingPoint(AbilityCommand("move", 0), PointWithOffset(UnitGetPosition(auto8F834BA9_var), 25.0, 25.0)), c_orderQueueAddToEnd);
+    }
+    if ((UnitIsAlive(lv_commandCenter) == true)) {
+        for (autoCC1AC9DC_i = 1; autoCC1AC9DC_i <= autoCC1AC9DC_n; autoCC1AC9DC_i += 1) {
+            if ((UnitGroupCount(UnitGroup("SCV", gv_p01_USER, RegionCircle(UnitGetPosition(lv_commandCenter), 8.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) >= 1)) {
+                UnitIssueOrder(lv_commandCenter, Order(AbilityCommand("CommandCenterTransport", 4)), c_orderQueueAddToFront);
+            }
+
+            Wait(1.0, c_timeGame);
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_VictoryBaseLiftoff_Init () {
+    gt_VictoryBaseLiftoff = TriggerCreate("gt_VictoryBaseLiftoff_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Briefing Q
+//--------------------------------------------------------------------------------------------------
+bool gt_BriefingQ_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TriggerIsEnabled(TriggerGetCurrent()) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TriggerStop(gt_StartGame);
+    TriggerQueueClear(c_triggerQueueRemove);
+    TriggerQueueEnter();
+    gv_inCinematic = true;
+    gv_gameOver = true;
+    UnitPauseAll(true);
+    AITimePause(true);
+    GameTimeOfDayPause(true);
+    CinematicFade(false, 0.1, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), 0.0);
+    libNtve_gf_GlobalCinematicSetting(true);
+    UISetMode(PlayerGroupAll(), c_uiModeFullscreen, 0.0);
+    TriggerExecute(gt_BriefingScene00, true, true);
+    TriggerExecute(gt_BriefingScene01, true, true);
+    TriggerExecute(gt_BriefingScene02, true, true);
+    TriggerExecute(gt_BriefingScene03, true, true);
+    CinematicFade(false, 0.1, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BriefingQ_Init () {
+    gt_BriefingQ = TriggerCreate("gt_BriefingQ_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Briefing Scene 00
+//--------------------------------------------------------------------------------------------------
+bool gt_BriefingScene00_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup auto0CC54695_g;
+    int auto0CC54695_u;
+    unit auto0CC54695_var;
+    unitgroup auto582DB775_g;
+    int auto582DB775_u;
+    unit auto582DB775_var;
+    unitgroup autoF6691D74_g;
+    int autoF6691D74_u;
+    unit autoF6691D74_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(1.0, c_timeGame);
+    UnitGroupIssueOrder(UnitGroup(null, gv_p02_ZERG, RegionFromId(7), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), OrderTargetingRelativePoint(AbilityCommand("move", 1), PointFromId(272)), c_orderQueueReplace);
+    UnitGroupIssueOrder(UnitGroup(null, gv_p02_ZERG, RegionFromId(64), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(4)), c_orderQueueReplace);
+    UnitGroupIssueOrder(UnitGroup(null, gv_p02_ZERG, RegionFromId(61), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(441)), c_orderQueueReplace);
+    UnitGroupIssueOrder(UnitGroup("Corruptor", c_playerAny, RegionFromId(68), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(218)), c_orderQueueReplace);
+    auto0CC54695_g = UnitGroup(null, c_playerAny, RegionFromId(1), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto0CC54695_u = UnitGroupCount(auto0CC54695_g, c_unitCountAll);
+    for (;; auto0CC54695_u -= 1) {
+        auto0CC54695_var = UnitGroupUnitFromEnd(auto0CC54695_g, auto0CC54695_u);
+        if (auto0CC54695_var == null) { break; }
+        libNtve_gf_ShowHideUnit(auto0CC54695_var, false);
+    }
+    auto582DB775_g = UnitGroup(null, gv_p06_MOEBIUS_SEC_FORCE, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto582DB775_u = UnitGroupCount(auto582DB775_g, c_unitCountAll);
+    for (;; auto582DB775_u -= 1) {
+        auto582DB775_var = UnitGroupUnitFromEnd(auto582DB775_g, auto582DB775_u);
+        if (auto582DB775_var == null) { break; }
+        libNtve_gf_ShowHideUnit(auto582DB775_var, false);
+    }
+    autoF6691D74_g = UnitGroup(null, gv_p02_ZERG, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoF6691D74_u = UnitGroupCount(autoF6691D74_g, c_unitCountAll);
+    for (;; autoF6691D74_u -= 1) {
+        autoF6691D74_var = UnitGroupUnitFromEnd(autoF6691D74_g, autoF6691D74_u);
+        if (autoF6691D74_var == null) { break; }
+        libNtve_gf_PauseUnit(autoF6691D74_var, false);
+    }
+    TriggerExecute(gt_BriefingScene00DropPods, true, false);
+    CameraApplyInfo(gv_p01_USER, CameraInfoFromId(177), 0.0, -1, 10, true);
+    CinematicFade(true, 0.1, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(gv_p01_USER, CameraInfoFromId(360), 20.0, -1, 10, true);
+    MovieStartRecording("Briefing_Video_TTychus03_00");
+    SoundPlay(SoundLink("TTychus03BriefingNarud00001", -1), PlayerGroupAll(), 100.0, 0.0);
+    Wait((1.0 * SoundLengthSync(SoundLink("TTychus03BriefingNarud00001", -1))), c_timeReal);
+    SoundPlay(SoundLink("TTychus03BriefingNarud00005", -1), PlayerGroupAll(), 100.0, 0.0);
+    Wait((1.0 * SoundLengthSync(SoundLink("TTychus03BriefingNarud00005", -1))), c_timeReal);
+    SoundPlay(SoundLink("TTychus03BriefingRaynor00002", -1), PlayerGroupAll(), 100.0, 0.0);
+    Wait((1.0 * SoundLengthSync(SoundLink("TTychus03BriefingRaynor00002", -1))), c_timeReal);
+    Wait((0.5 * SoundLengthSync(SoundLink("TTychus03BriefingNarud00001", -1))), c_timeReal);
+    Wait((0.5 * SoundLengthSync(SoundLink("TTychus03BriefingNarud00005", -1))), c_timeReal);
+    Wait((0.5 * SoundLengthSync(SoundLink("TTychus03BriefingRaynor00002", -1))), c_timeReal);
+    Wait(2.0, c_timeReal);
+    MovieStopRecording();
+    CinematicFade(false, 0.1, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BriefingScene00_Init () {
+    gt_BriefingScene00 = TriggerCreate("gt_BriefingScene00_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Briefing Scene 00 Drop Pods
+//--------------------------------------------------------------------------------------------------
+bool gt_BriefingScene00DropPods_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unitgroup lv_zergGroup;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_zergGroup = UnitGroupEmpty();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(3.0, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(5, "Zergling", 0, gv_p02_ZERG, PointFromId(2187));
+    libNtve_gf_AddUnitGroupToUnitGroup(UnitLastCreatedGroup(), lv_zergGroup);
+    libCamp_gf_CreateDropPod(libCamp_ge_DropPodRace_Zerg, PointFromId(2184), UnitLastCreatedGroup(), true);
+    UnitGroupIssueOrder(lv_zergGroup, OrderTargetingRelativePoint(AbilityCommand("move", 0), PointFromId(100)), c_orderQueueReplace);
+    libNtve_gf_CreateUnitsWithDefaultFacing(5, "Zergling", 0, gv_p02_ZERG, PointFromId(2187));
+    libNtve_gf_AddUnitGroupToUnitGroup(UnitLastCreatedGroup(), lv_zergGroup);
+    libCamp_gf_CreateDropPod(libCamp_ge_DropPodRace_Zerg, PointFromId(2185), UnitLastCreatedGroup(), true);
+    UnitGroupIssueOrder(lv_zergGroup, OrderTargetingRelativePoint(AbilityCommand("move", 0), PointFromId(100)), c_orderQueueReplace);
+    UnitGroupIssueOrder(lv_zergGroup, Order(AbilityCommand("BurrowZerglingDown", 0)), c_orderQueueAddToEnd);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BriefingScene00DropPods_Init () {
+    gt_BriefingScene00DropPods = TriggerCreate("gt_BriefingScene00DropPods_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Briefing Scene 01
+//--------------------------------------------------------------------------------------------------
+bool gt_BriefingScene01_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    RegionPlayableMapSet(RegionEntireMap());
+    Wait(1.0, c_timeGame);
+    libNtve_gf_CreateUnitsAtPoint2(1, "Medivac", 0, gv_p06_MOEBIUS_SEC_FORCE, PointFromId(2182));
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(3029)), c_orderQueueReplace);
+    libNtve_gf_CreateUnitsAtPoint2(1, "Medivac", 0, gv_p06_MOEBIUS_SEC_FORCE, PointFromId(2509));
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(3029)), c_orderQueueReplace);
+    Wait(1.0, c_timeGame);
+    CameraApplyInfo(gv_p01_USER, CameraInfoFromId(2033), 0.0, -1, 10, true);
+    CinematicFade(true, 0.1, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(gv_p01_USER, CameraInfoFromId(2007), SoundLengthSync(SoundLink("TTychus03BriefingNarud00003", -1)), -1, 10, true);
+    MovieStartRecording("Briefing_Video_TTychus03_01");
+    SoundPlay(SoundLink("TTychus03BriefingNarud00003", -1), PlayerGroupAll(), 100.0, 0.0);
+    Wait((1.0 * SoundLengthSync(SoundLink("TTychus03BriefingNarud00003", -1))), c_timeReal);
+    Wait((0.5 * SoundLengthSync(SoundLink("TTychus03BriefingNarud00003", -1))), c_timeReal);
+    Wait(5.0, c_timeReal);
+    MovieStopRecording();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BriefingScene01_Init () {
+    gt_BriefingScene01 = TriggerCreate("gt_BriefingScene01_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Briefing Scene 02
+//--------------------------------------------------------------------------------------------------
+bool gt_BriefingScene02_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CameraApplyInfo(gv_p01_USER, CameraInfoFromId(224), 0.0, -1, 10, true);
+    Wait(0.1, c_timeReal);
+    CameraApplyInfo(gv_p01_USER, CameraInfoFromId(1221), SoundLengthSync(SoundLink("TTychus03BriefingNarud00004", -1)), -1, 10, true);
+    MovieStartRecording("Briefing_Video_TTychus03_02");
+    SoundPlay(SoundLink("TTychus03BriefingNarud00004", -1), PlayerGroupAll(), 100.0, 0.0);
+    Wait((0.2 * SoundLengthSync(SoundLink("TTychus03BriefingNarud00004", -1))), c_timeReal);
+    Wait((0.8 * SoundLengthSync(SoundLink("TTychus03BriefingNarud00004", -1))), c_timeReal);
+    Wait((0.5 * SoundLengthSync(SoundLink("TTychus03BriefingNarud00004", -1))), c_timeReal);
+    Wait(5.0, c_timeReal);
+    MovieStopRecording();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BriefingScene02_Init () {
+    gt_BriefingScene02 = TriggerCreate("gt_BriefingScene02_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Briefing Scene 03
+//--------------------------------------------------------------------------------------------------
+bool gt_BriefingScene03_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitRemove(gv_uNIT_KERRIGAN);
+    Wait(3.0, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Kerrigan", 0, gv_p07_ZERG_KERRIGAN, PointFromId(1));
+    gv_briefingKerrigan = UnitLastCreated();
+    libCamp_gf_CreateDropPod(libCamp_ge_DropPodRace_Zerg, PointFromId(361), UnitLastCreatedGroup(), false);
+    CameraApplyInfo(gv_p01_USER, CameraInfoFromId(90), 0.0, -1, 10, true);
+    Wait(0.1, c_timeReal);
+    CameraApplyInfo(gv_p01_USER, CameraInfoFromId(977), (SoundLengthSync(SoundLink("TTychus03BriefingAdjutant00012", -1)) + SoundLengthSync(SoundLink("TTychus03BriefingRaynor00006", -1))), -1, 10, true);
+    MovieStartRecording("Briefing_Video_TTychus03_03");
+    TriggerExecute(gt_BriefingCameraShake, true, false);
+    SoundPlay(SoundLink("TTychus03BriefingAdjutant00012", -1), PlayerGroupAll(), 100.0, 0.0);
+    Wait((1.0 * SoundLengthSync(SoundLink("TTychus03BriefingAdjutant00012", -1))), c_timeReal);
+    SoundPlay(SoundLink("TTychus03BriefingRaynor00006", -1), PlayerGroupAll(), 100.0, 0.0);
+    Wait((1.0 * SoundLengthSync(SoundLink("TTychus03BriefingRaynor00006", -1))), c_timeReal);
+    CameraApplyInfo(gv_p01_USER, CameraInfoFromId(2186), SoundLengthSync(SoundLink("TTychus03BriefingRaynor00007", -1)), -1, 10, true);
+    SoundPlay(SoundLink("TTychus03BriefingRaynor00007", -1), PlayerGroupAll(), 100.0, 0.0);
+    Wait((1.0 * SoundLengthSync(SoundLink("TTychus03BriefingRaynor00007", -1))), c_timeReal);
+    Wait((0.5 * SoundLengthSync(SoundLink("TTychus03BriefingAdjutant00012", -1))), c_timeReal);
+    Wait((0.5 * SoundLengthSync(SoundLink("TTychus03BriefingRaynor00006", -1))), c_timeReal);
+    Wait((0.5 * SoundLengthSync(SoundLink("TTychus03BriefingRaynor00007", -1))), c_timeReal);
+    Wait(5.0, c_timeReal);
+    MovieStopRecording();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BriefingScene03_Init () {
+    gt_BriefingScene03 = TriggerCreate("gt_BriefingScene03_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Briefing Kerrgian Spawn
+//--------------------------------------------------------------------------------------------------
+bool gt_BriefingKerrgianSpawn_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((EventUnit() == gv_briefingKerrigan))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SendActorMessageToUnit(gv_briefingKerrigan, "Signal BirthRays");
+    libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(gv_briefingKerrigan), c_animNameDefault, "Stand Cover Start", 0, c_animTimeDefault);
+    Wait(11.0, c_timeGame);
+    libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(gv_briefingKerrigan), c_animNameDefault, "Stand Cover", c_animFlagPlayForever, c_animTimeDefault);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BriefingKerrgianSpawn_Init () {
+    gt_BriefingKerrgianSpawn = TriggerCreate("gt_BriefingKerrgianSpawn_Func");
+    TriggerAddEventUnitRegion(gt_BriefingKerrgianSpawn, null, RegionFromId(89), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Briefing Camera Shake
+//--------------------------------------------------------------------------------------------------
+bool gt_BriefingCameraShake_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(2.0, c_timeGame);
+    CameraShakeStart(1, c_cameraPositionTarget, c_cameraDirectionZ, 0.5, 2.0, 100.0, 1.25);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BriefingCameraShake_Init () {
+    gt_BriefingCameraShake = TriggerCreate("gt_BriefingCameraShake_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_Initialization_Init();
+    gt_Init01Technology_Init();
+    gt_Init02Players_Init();
+    gt_Init03Units_Init();
+    gt_Init04Music_Init();
+    gt_Init05Environment_Init();
+    gt_Init06Difficulties_Init();
+    gt_IntroSequence_Init();
+    gt_StartGame_Init();
+    gt_bon1_Init();
+    gt_Bon2_Init();
+    gt__6p1_Init();
+    gt__6p2_Init();
+    gt__6p3_Init();
+    gt__6p4_Init();
+    gt__6p5_Init();
+    gt__6p6_Init();
+    gt_Main_Init();
+    gt_CreateMedivacIntro_Init();
+    gt_Kerrigan_Init();
+    gt_KerriganCalculatingETAQ_Init();
+    gt_KerriganTauntsRaynor1Q_Init();
+    gt_KerriganTauntsRaynor2Q_Init();
+    gt_KerriganTauntsRaynor3Q_Init();
+    gt_KerriganApproachesSite1Q_Init();
+    gt_KerriganApproachesSite2Q_Init();
+    gt_KerriganApproachesSite3Q_Init();
+    gt_BaseRetaliationDialogueQ_Init();
+    gt_TransmissionMissionStartQ_Init();
+    gt_TransmissionMedivacIntroQ_Init();
+    gt_TransmissionBrutaliskFoundQ_Init();
+    gt_TransmissionCoreIsDestroyedQ_Init();
+    gt_TransmissionSite1MilitiaRescuedQ_Init();
+    gt_TransmissionSite2MilitiaRescuedQ_Init();
+    gt_TransmissionSite3MilitiaRescuedQ_Init();
+    gt_StartAI_Init();
+    gt_ZergP05AttackWavesBase_Init();
+    gt_P2AttackWaves_Init();
+    gt_P5AttackWaves_Init();
+    gt_P10LeviathanAttackWaves_Init();
+    gt_Victory_Init();
+    gt_DefeatBaseDead_Init();
+    gt_DefeatPrimaryObjectiveFailed_Init();
+    gt_Defeat_Init();
+    gt_VictoryCheat_Init();
+    gt_DefeatCheat_Init();
+    gt_VictoryQ_Init();
+    gt_VictorySetup_Init();
+    gt_VictoryCinematic_Init();
+    gt_VictoryCinematicEnd_Init();
+    gt_VictoryCleanup_Init();
+    gt_VictoryNydusSpawn_Init();
+    gt_VictoryBaseLiftoff_Init();
+    gt_BriefingQ_Init();
+    gt_BriefingScene00_Init();
+    gt_BriefingScene00DropPods_Init();
+    gt_BriefingScene01_Init();
+    gt_BriefingScene02_Init();
+    gt_BriefingScene03_Init();
+    gt_BriefingKerrgianSpawn_Init();
+    gt_BriefingCameraShake_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitGlobals();
+    InitTriggers();
+}

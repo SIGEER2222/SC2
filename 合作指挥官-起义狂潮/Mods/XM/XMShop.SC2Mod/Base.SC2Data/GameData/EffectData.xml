@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectApplyBehavior id="FreezeBeamABNShop">
+        <ValidatorArray index="0" removed="1"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="FreezeBeamNShop"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="FreezeBeamABSShop">
+        <EditorCategories value=""/>
+        <Behavior value="FreezeBeamSShop"/>
+    </CEffectApplyBehavior>
+    <CEffectSwitch id="FreezeBeamCShop">
+        <EditorCategories value=""/>
+        <CaseArray Validator="IsHeroic" Effect="FreezeBeamABSShop"/>
+        <CaseDefault value="FreezeBeamABNShop"/>
+    </CEffectSwitch>
+    <CEffectDamage id="FreezeBeamDShop" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Kind value="Ranged"/>
+        <Amount value="2"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="FreezeBeamShop">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicEffectArray value="FreezeBeamSetShop"/>
+        <PeriodicPeriodArray value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="FreezeBeamSetShop">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="FreezeBeamDShop"/>
+        <EffectArray value="FreezeBeamCShop"/>
+    </CEffectSet>
+    <CEffectDamage id="ThrowMolotovDShop">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <AttributeBonus index="Light" value="5"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="10"/>
+        <AreaArray Radius="1" Fraction="0.5"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="-;Player,Ally,Neutral,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable,PowerupOrItem"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="ThrowMolotovLMShop">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="ThrowMolotovDShop"/>
+        <AmmoUnit value="CivilianWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="BabyUltraliskABSShop">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Source"/>
+        <Behavior value="TimedLifeG"/>
+        <Flags index="UseDuration" value="1"/>
+        <Duration value="30"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="BabyUltraliskSetShop">
+        <EditorCategories value=""/>
+        <EffectArray value="BabyUltraliskSShop"/>
+        <EffectArray value="BabyUltraliskABSShop"/>
+    </CEffectSet>
+    <CEffectDamage id="DivineMirrorShop" parent="DU_WEAP_MISSILE">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetUnit"/>
+        <Amount value="0">
+            <AccumulatorArray value="EAAbsorbed"/>
+        </Amount>
+    </CEffectDamage>
+    <CEffectDamage id="MagicMirrorShop">
+        <EditorCategories value=""/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="0">
+            <AccumulatorArray value="EAAbsorbed"/>
+        </Amount>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="MultiSeekerMissileCPShop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodCount value="4"/>
+        <PeriodicEffectArray value="MultiSeekerMissileCUShop"/>
+        <PeriodicOffsetArray value="3,3,0"/>
+        <PeriodicOffsetArray value="-3,-3,0"/>
+        <PeriodicOffsetArray value="-3,3,0"/>
+        <PeriodicOffsetArray value="3,-3,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="MultiSeekerMissileCUShop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="MultiSeekerMissileLMShop"/>
+        <SpawnUnit value="MultiSeekerMissileWShop"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="MultiSeekerMissileSetShop">
+        <EditorCategories value=""/>
+        <EffectArray value="MultiSeekerMissileCPShop"/>
+    </CEffectSet>
+    <CEffectDamage id="MultiSeekerMissileDShop">
+        <EditorCategories value="Race:Terran"/>
+        <AINotifyFlags index="HurtFriend" value="1"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <AINotifyFlags index="MajorDanger" value="1"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Visibility value="Visible"/>
+        <Flags index="Notification" value="1"/>
+        <AreaArray Radius="0.6" Fraction="1"/>
+        <AreaArray Radius="1.2" Fraction="0.5"/>
+        <AreaArray Radius="2.4" Fraction="0.25"/>
+        <ExcludeArray Value="Target"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="-;Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="SameCliff" value="0"/>
+        <Amount value="70"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="MultiSeekerMissileSuCPShop">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="SourceUnit"/>
+        <ExpireEffect value="MultiSeekerMissileSuicideShop"/>
+        <PeriodCount value="1"/>
+        <PeriodicPeriodArray value="5"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="MultiSeekerMissileLMShop">
+        <ValidatorArray index="0" removed="1"/>
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="TargetUnit"/>
+        <ImpactLocation Effect="MultiSeekerMissileSetShop"/>
+        <LaunchEffect value="MultiSeekerMissileSuCPShop"/>
+        <ImpactEffect value="MultiSeekerMissileDShop"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="MultiSeekerMissileSuicideShop">
+        <ValidatorArray value="MultiSeekerMissileShop"/>
+        <EditorCategories value=""/>
+        <ImpactLocation Value="SourceUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="RayChargeBeamABRShop">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="RayChargeBeamRShop"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="RayChargeBeamABShop">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="RayChargeBeamShop"/>
+        <Flags index="SetAttributePoints" value="1"/>
+        <Flags index="SetAttributePointsDelta" value="1"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="RayChargeBeamCPShop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <FinalEffect value="RayChargeBeamABRShop"/>
+        <PeriodicEffectArray value="RayChargeBeamSetShop"/>
+        <PeriodicPeriodArray value="0.25"/>
+        <TimeScaleSource Value="Caster"/>
+        <InitialEffect value="RayChargeBeamRBRShop"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="SymbioteCU1Shop">
+        <EditorCategories value=""/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="SymbioteCPShop"/>
+        <SpawnUnit value="SymSymbioteShop"/>
+    </CEffectCreateUnit>
+    <CEffectDamage id="RayChargeBeamDShop">
+        <EditorCategories value=""/>
+        <AttributeBonus index="Armored" value="1"/>
+        <Amount value="0">
+            <AccumulatorArray value="RayChargeBeamShop"/>
+        </Amount>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+    </CEffectDamage>
+    <CEffectRemoveBehavior id="RayChargeBeamRBRShop">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="RayChargeBeamRShop"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="RayChargeBeamRBShop">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="RayChargeBeamShop"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="RayChargeBeamSetShop">
+        <EditorCategories value=""/>
+        <EffectArray value="RayChargeBeamABShop"/>
+        <EffectArray value="RayChargeBeamDShop"/>
+    </CEffectSet>
+    <CEffectApplyKinetic id="SymbioteAKShop">
+        <EditorCategories value=""/>
+        <Kinetic value="FCP"/>
+    </CEffectApplyKinetic>
+    <CEffectCreatePersistent id="SymbioteCPShop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <InitialEffect value="SymbioteAKShop"/>
+        <FinalEffect value="SymbioteDShop"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="SymbioteCU2Shop">
+        <EditorCategories value=""/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="SymbioteCPShop"/>
+        <SpawnUnit value="SymSCVShop"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="SymbioteCU3Shop">
+        <EditorCategories value=""/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="SymbioteCPShop"/>
+        <SpawnUnit value="SymSMX2RobotShop"/>
+    </CEffectCreateUnit>
+    <CEffectDamage id="SymbioteDShop">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <Flags index="NoLeech" value="1"/>
+        <Flags index="NoScaledDealtBonus" value="1"/>
+        <Flags index="NoFractionDealtBonus" value="1"/>
+        <Flags index="NoUnscaledDealtBonus" value="1"/>
+    </CEffectDamage>
+    <CEffectSet id="SymbioteSetShop">
+        <EditorCategories value=""/>
+        <EffectArray value="SymbioteCU1Shop"/>
+        <EffectArray value="SymbioteCU2Shop"/>
+        <EffectArray value="SymbioteCU3Shop"/>
+        <Random value="1"/>
+        <MinCount value="1"/>
+        <MaxCount value="1"/>
+    </CEffectSet>
+    <CEffectDamage id="SymbioteStabDShop" parent="DU_WEAP_MISSILE">
+        <EditorCategories value=""/>
+        <Amount value="15"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="SymbioteStabLMShop">
+        <EditorCategories value=""/>
+        <ImpactEffect value="SymbioteStabDShop"/>
+        <AmmoUnit value="SymbioteStabWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDestroyPersistent id="SymbioteRCPShop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="SourceUnit"/>
+        <Effect value="SymbioteCPShop"/>
+        <Count value="1"/>
+    </CEffectDestroyPersistent>
+    <CEffectCreatePersistent id="GatlingCannonCPShop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodCount value="8"/>
+        <PeriodicEffectArray value="GatlingCannonSetShop"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <PeriodicValidator value="TargetInWeaponRange"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="JumpDShop" parent="DU_WEAP_MISSILE">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetUnit"/>
+        <AttributeBonus index="Massive" value="20"/>
+        <Amount value="50"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="JumpLMShop">
+        <EditorCategories value=""/>
+        <ImpactEffect value="JumpDShop"/>
+        <Flags index="Placement" value="1"/>
+        <Movers Link="JumpShop"/>
+        <MoverExecutePattern value="Bounce"/>
+        <DeathType value="Unknown"/>
+        <BounceArray Offset="0,-2,0"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="WhirlwindABShop">
+        <ValidatorArray index="0" removed="1"/>
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="WhirlwindShop"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyForce id="WhirlwindAFShop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="CasterUnit"/>
+        <Amount value="-10"/>
+    </CEffectApplyForce>
+    <CEffectRemoveKinetic id="WhirlwindRKShop">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <KineticLink value="WhirlwindShop"/>
+    </CEffectRemoveKinetic>
+    <CEffectApplyKinetic id="WhirlwindAKShop">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <Kinetic value="WhirlwindShop"/>
+    </CEffectApplyKinetic>
+    <CEffectDamage id="WhirlwindDShop">
+        <EditorCategories value=""/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="15"/>
+    </CEffectDamage>
+    <CEffectSet id="WhirlwindSetShop">
+        <EditorCategories value=""/>
+        <EffectArray value="WhirlwindAFShop"/>
+        <EffectArray value="WhirlwindDShop"/>
+    </CEffectSet>
+    <CEffectEnumArea id="WhirlwindSShop">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable,PowerupOrItem"/>
+        <AreaArray Radius="2" Effect="WhirlwindSetShop"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="BoxingGloveCPShop">
+        <ValidatorArray value="NotStructureTarget"/>
+        <ValidatorArray value="ProtossBurnDownValid"/>
+        <EditorCategories value=""/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="BoxingGloveLMShop"/>
+        <PeriodicOffsetArray value="0,-10,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="BoxingGloveDShop" parent="DU_WEAP">
+        <EditorCategories value=""/>
+        <Amount value="20"/>
+        <Death value="Squish"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="BoxingGloveLMShop">
+        <EditorCategories value=""/>
+        <LaunchLocation Effect="BoxingGloveSetShop" Value="TargetUnit"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <Movers Link="KD8Charge"/>
+        <DeathType value="Unknown"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="BoxingGloveSetShop">
+        <EditorCategories value=""/>
+        <EffectArray value="BoxingGloveDShop"/>
+        <EffectArray value="BoxingGloveCPShop"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TheMorosDeviceABShop">
+        <EditorCategories value=""/>
+        <Behavior value="TheMorosDeviceShop"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="TheMorosDeviceCPShop">
+        <EditorCategories value=""/>
+        <PeriodCount value="40"/>
+        <PeriodicEffectArray value="TheMorosDeviceSShop"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="TheMorosDeviceSShop">
+        <EditorCategories value=""/>
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Stasis,Dead,Hidden,Invulnerable,MapBoss"/>
+        <AreaArray Radius="2.5" Effect="TheMorosDeviceABShop"/>
+    </CEffectEnumArea>
+    <CEffectLaunchMissile id="SpiderMineLMShop">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactOffset value="0,-0.75,0"/>
+        <Flags index="2D" value="1"/>
+        <Flags index="Placement" value="1"/>
+        <AmmoUnit value="SpiderMineSCV"/>
+        <Movers Link="VulcanCannonWeapon"/>
+        <DeathType value="Unknown"/>
+        <PlacementMinDistance value="0.5"/>
+        <PlacementRange value="0.5"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="CrushingGripABShop">
+        <EditorCategories value=""/>
+        <Behavior value="CrushingGripShop"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="CrushingGripABHShop">
+        <EditorCategories value=""/>
+        <Behavior value="CrushingGripHShop"/>
+    </CEffectApplyBehavior>
+    <CEffectSwitch id="CrushingGripCaseShop">
+        <EditorCategories value=""/>
+        <CaseArray Validator="IsHeroic" Effect="CrushingGripABHShop"/>
+        <CaseDefault value="CrushingGripABShop"/>
+    </CEffectSwitch>
+    <CEffectDamage id="CrushingGripDShop">
+        <EditorCategories value=""/>
+        <Amount value="8"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <VitalFractionMax index="Life" value="0.05"/>
+    </CEffectDamage>
+    <CEffectApplyForce id="GatlingCannonAFShop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="CasterUnit"/>
+        <Amount value="15"/>
+        <MassFraction value="0"/>
+    </CEffectApplyForce>
+    <CEffectSet id="CrushingGripSetShop">
+        <EditorCategories value=""/>
+        <EffectArray value="CrushingGripDShop"/>
+        <EffectArray value="CrushingGripCaseShop"/>
+    </CEffectSet>
+    <CEffectDamage id="GatlingCannonDShop" parent="DU_WEAP_MISSILE">
+        <EditorCategories value=""/>
+        <Amount value="4"/>
+    </CEffectDamage>
+    <CEffectSet id="GatlingCannonSetShop">
+        <EditorCategories value=""/>
+        <EffectArray value="GatlingCannonAFShop"/>
+        <EffectArray value="GatlingCannonDShop"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="HealingWardMUShop">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchUnit Value="Caster"/>
+        <VitalArray index="Life">
+            <ChangeFraction value="0.02"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectEnumArea id="HealingWardSShop">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="-;Neutral,Enemy,Structure,User1,Missile,Stasis,Dead,Invulnerable,MapBoss"/>
+        <AreaArray Radius="6" Effect="HealingWardTABShop"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="HealingWardTABShop">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="HealingWardTShop"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="SmallYamatoDShop">
+        <EditorCategories value=""/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="150"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable,PowerupOrItem"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="SmallYamatoLMShop">
+        <EditorCategories value=""/>
+        <ImpactEffect value="SmallYamatoDShop"/>
+        <AmmoUnit value="ShadowYamatoMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectCreateUnit id="ConvoyCU1Shop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnUnit value="ProbePr1"/>
+        <SelectUnit Value="Caster"/>
+        <SpawnEffect value="TimedLife30sPr"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="ConvoyCU2Shop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnUnit value="ProbePr2"/>
+        <SelectUnit Value="Caster"/>
+        <SpawnEffect value="TimedLife30sPr"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="ConvoyCU4Shop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnUnit value="ProbePr4"/>
+        <SelectUnit Value="Caster"/>
+        <SpawnEffect value="TimedLife30sPr"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="ConvoyCU6Shop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnUnit value="ProbePr6"/>
+        <SelectUnit Value="Caster"/>
+        <SpawnEffect value="TimedLife30sPr"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="ConvoyCU5Shop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnUnit value="ProbePr5"/>
+        <SelectUnit Value="Caster"/>
+        <SpawnEffect value="TimedLife30sPr"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="ConvoyCU3Shop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnUnit value="ProbePr3"/>
+        <SelectUnit Value="Caster"/>
+        <SpawnEffect value="TimedLife30sPr"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="ConvoySetShop">
+        <EditorCategories value=""/>
+        <EffectArray value="ConvoyCU1Shop"/>
+        <EffectArray value="ConvoyCU2Shop"/>
+        <EffectArray value="ConvoyCU3Shop"/>
+        <EffectArray value="ConvoyCU4Shop"/>
+        <EffectArray value="ConvoyCU5Shop"/>
+        <EffectArray value="ConvoyCU6Shop"/>
+        <Random value="1"/>
+        <MinCount value="1"/>
+        <MaxCount value="1"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="ConvoyCPShop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="CasterPoint"/>
+        <PeriodCount value="4"/>
+        <PeriodicEffectArray value="ConvoySetShop"/>
+        <PeriodicOffsetArray value="2,0,0"/>
+        <PeriodicOffsetArray value="0,2,0"/>
+        <PeriodicOffsetArray value="-2,0,0"/>
+        <PeriodicOffsetArray value="0,-2,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="PaperShellsCoABShop">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="PaperShellsCooldownShop"/>
+        <Flags index="UseDuration" value="1"/>
+        <Duration value="30"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="PaperShellsSetShop">
+        <EditorCategories value=""/>
+        <EffectArray value="PaperShellsCoABShop"/>
+        <EffectArray value="PaperShellsABShop"/>
+    </CEffectSet>
+    <CEffectEnumArea id="BabyUltraliskSShop">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Ground;Self,Structure,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable,PowerupOrItem"/>
+        <AreaArray Radius="1.5" Effect="BabyUltraliskABShop"/>
+    </CEffectEnumArea>
+    <CEffectLaunchMissile id="BabyUltraliskLMShop">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetUnitOrPoint"/>
+        <ImpactEffect value="BabyUltraliskSetShop"/>
+        <Flags index="2D" value="1"/>
+        <Flags index="Placement" value="1"/>
+        <Flags index="PlacementIgnoreBlockers" value="1"/>
+        <AmmoUnit value="PygaliskShop"/>
+        <Movers Link="BabyUltraliskShop"/>
+        <DeathType value="Unknown"/>
+        <PlacementMinDistance value="1"/>
+        <PlacementRange value="1"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="BabyUltraliskABShop">
+        <EditorCategories value=""/>
+        <Behavior value="BabyUltraliskShop"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="HeartControlCPShop">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="HeartControlRBCasterShop"/>
+        <FinalEffect value="HeartControlABTargetShop"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="HeartControlABCasterShop"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="HeartControlABCasterShop">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="HeartControlControllerShop"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="HeartControlABTargetShop">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="HeartControlShop"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="HeartControlRBCasterShop">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichUnit Value="Source"/>
+        <BehaviorLink value="HeartControlControllerShop"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="HealthDispenserABShop">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="HealthDispenserShop"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="HeighStimpackShop">
+        <EditorCategories value=""/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="InvinciblePotionShop">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="InvincibleShop"/>
+        <Flags index="UseDuration" value="1"/>
+        <Duration value="60"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="PaperShellsABShop">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="InvincibleShop"/>
+        <Flags index="UseDuration" value="1"/>
+        <Duration value="10"/>
+    </CEffectApplyBehavior>
+    <CEffectModifyUnit id="SuperStimpackMUShop">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <VitalArray index="Life">
+            <Change value="4"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectApplyBehavior id="SuperStimpackShop">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="HealingGuardsShop">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <SpawnUnit value="HealingWardShop"/>
+    </CEffectCreateUnit>
+    <CEffectCreatePersistent id="ShadowFuryFCPShop">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="OriginPoint"/>
+        <InitialEffect value="ShadowFuryFTShop"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="ShadowFuryCABShop">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="ShadowFuryCShop"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="ShadowFuryDShop">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="30"/>
+        <Death value="Eviscerate"/>
+    </CEffectDamage>
+    <CEffectTeleport id="ShadowFuryFTShop">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <ClearQueuedOrders value="0"/>
+        <PlacementAround Effect="ShadowFuryCPShop" Value="OriginPoint"/>
+        <PlacementRange value="10"/>
+        <Range value="10"/>
+        <TargetLocation Value="TargetPoint"/>
+        <TeleportFlags index="TestFog" value="0"/>
+    </CEffectTeleport>
+    <CEffectApplyBehavior id="ShadowFuryFABShop">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="ShadowFuryFShop"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="ShadowFuryImpactSetShop">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="ShadowFuryTSShop"/>
+        <EffectArray value="ShadowFuryDShop"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="ShadowFuryCPShop">
+        <ValidatorArray value="TargetIsPathable"/>
+        <ValidatorArray value="ShadowFuryTargetsInAreaShop"/>
+        <EditorCategories value="Race:Terran"/>
+        <InitialEffect value="ShadowFuryCABShop"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="ShadowFurySShop">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Effect="ShadowFuryCPShop" Value="TargetPoint"/>
+        <ImpactLocation Effect="ShadowFuryCPShop"/>
+        <SearchFilters value="Ground,Visible;Self,Player,Ally,Neutral,Structure,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <TargetSorts RequestCount="1">
+            <SortArray value="TSRandom"/>
+        </TargetSorts>
+        <AreaArray MaxCount="1" Radius="5" Effect="ShadowFurySSetAOEShop"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFlags index="SameCliff" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="ShadowFurySSetAOEShop">
+        <ValidatorArray value="NotLarva"/>
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="ShadowFuryTABShop"/>
+        <EffectArray value="ShadowFuryImpactSetShop"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="ShadowFuryTABShop">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="ShadowFuryTShop"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="ShadowFuryT1CPShop">
+        <EditorCategories value="Race:Terran"/>
+        <OffsetVectorStartLocation Value="SourcePoint"/>
+        <OffsetVectorEndLocation Effect="TargetPoint"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="ShadowFuryTShop"/>
+        <PeriodicOffsetArray value="0.2,-0.8,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectTeleport id="ShadowFuryTShop">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <ClearQueuedOrders value="0"/>
+        <TargetLocation Value="TargetPoint"/>
+        <TeleportFlags index="TestFog" value="0"/>
+        <TeleportEffect value="ShadowFuryTFShop"/>
+    </CEffectTeleport>
+    <CEffectCreatePersistent id="ShadowFuryT2CPShop">
+        <EditorCategories value="Race:Terran"/>
+        <OffsetVectorStartLocation Value="SourcePoint"/>
+        <OffsetVectorEndLocation Effect="TargetPoint"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="ShadowFuryTShop"/>
+        <PeriodicOffsetArray value="0.3,-1.2,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="ShadowFuryT3CPShop">
+        <EditorCategories value="Race:Terran"/>
+        <OffsetVectorStartLocation Value="SourcePoint"/>
+        <OffsetVectorEndLocation Effect="TargetPoint"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="ShadowFuryTShop"/>
+        <PeriodicOffsetArray value="0.3,-1.7,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="ShadowFuryT4CPShop">
+        <EditorCategories value="Race:Terran"/>
+        <OffsetVectorStartLocation Value="SourcePoint"/>
+        <OffsetVectorEndLocation Effect="TargetPoint"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="ShadowFuryTShop"/>
+        <PeriodicOffsetArray value="0.4,-2.2,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="ShadowFuryT5CPShop">
+        <EditorCategories value="Race:Terran"/>
+        <OffsetVectorStartLocation Value="SourcePoint"/>
+        <OffsetVectorEndLocation Effect="TargetPoint"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="ShadowFuryTShop"/>
+        <PeriodicOffsetArray value="0.4,-2.7,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectModifyUnit id="ShadowFuryTFShop">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactUnit Value="Caster"/>
+        <FacingLocation Effect="ShadowFuryImpactSetShop" Value="TargetUnit"/>
+        <FacingType value="LookAt"/>
+    </CEffectModifyUnit>
+    <CEffectSwitch id="ShadowFuryTSShop">
+        <EditorCategories value="Race:Terran"/>
+        <CaseArray Validator="TargetRadiusGT2" Effect="ShadowFuryT5CPShop"/>
+        <CaseArray Validator="TargetRadiusGT1Dot5" Effect="ShadowFuryT4CPShop"/>
+        <CaseArray Validator="TargetRadiusGT1" Effect="ShadowFuryT3CPShop"/>
+        <CaseArray Validator="TargetRadiusGT0Dot5" Effect="ShadowFuryT2CPShop"/>
+        <CaseDefault value="ShadowFuryT1CPShop"/>
+    </CEffectSwitch>
+</Catalog>
