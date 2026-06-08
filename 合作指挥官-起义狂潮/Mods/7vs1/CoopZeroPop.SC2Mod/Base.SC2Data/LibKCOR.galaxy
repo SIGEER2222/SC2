@@ -3620,6 +3620,174 @@ void libKCOR_gf_CC_SaveTransitionVarString (bank lp_bank, string lp_section, str
     }
 }
 
+string libKCOR_gf_CC_CommanderPowerBankCommanderKey (string lp_commander) {
+    if ((lp_commander == "TerranRaynor") || (lp_commander == "Raynor")) {
+        return "Raynor";
+    }
+    if ((lp_commander == "ZergKerrigan") || (lp_commander == "Kerrigan")) {
+        return "Kerrigan";
+    }
+    if ((lp_commander == "ProtossArtanis") || (lp_commander == "Artanis")) {
+        return "Artanis";
+    }
+    if ((lp_commander == "TerranSwann") || (lp_commander == "Swann")) {
+        return "Swann";
+    }
+    if ((lp_commander == "ZergZagara") || (lp_commander == "Zagara")) {
+        return "Zagara";
+    }
+    if ((lp_commander == "ProtossVorazun") || (lp_commander == "Vorazun")) {
+        return "Vorazun";
+    }
+    if ((lp_commander == "ProtossKarax") || (lp_commander == "Karax")) {
+        return "Karax";
+    }
+    if ((lp_commander == "ZergAbathur") || (lp_commander == "Abathur")) {
+        return "Abathur";
+    }
+    if ((lp_commander == "ProtossAlarak") || (lp_commander == "Alarak")) {
+        return "Alarak";
+    }
+    if ((lp_commander == "TerranNova") || (lp_commander == "Nova")) {
+        return "Nova";
+    }
+    if ((lp_commander == "ZergStukov") || (lp_commander == "Stukov")) {
+        return "Stukov";
+    }
+    if ((lp_commander == "ProtossFenix") || (lp_commander == "Fenix")) {
+        return "Fenix";
+    }
+    if ((lp_commander == "ZergDehaka") || (lp_commander == "Dehaka")) {
+        return "Dehaka";
+    }
+    if ((lp_commander == "TerranHorner") || (lp_commander == "Horner") || (lp_commander == "Mira")) {
+        return "Mira";
+    }
+    if ((lp_commander == "TerranTychus") || (lp_commander == "Tychus")) {
+        return "Tychus";
+    }
+    if ((lp_commander == "ProtossZeratul") || (lp_commander == "Zeratul")) {
+        return "Zeratul";
+    }
+    if ((lp_commander == "ZergStetmann") || (lp_commander == "Stetmann")) {
+        return "Stetmann";
+    }
+    if ((lp_commander == "TerranMengsk") || (lp_commander == "Mengsk")) {
+        return "Mengsk";
+    }
+    return "";
+}
+
+int libKCOR_gf_CC_CommanderPowerPrestigeMaskFromIndex (int lp_prestigeIndex) {
+    if (lp_prestigeIndex == 1) {
+        return 1;
+    }
+    if (lp_prestigeIndex == 2) {
+        return 2;
+    }
+    if (lp_prestigeIndex == 3) {
+        return 4;
+    }
+    return 0;
+}
+
+bool libKCOR_gf_CC_CommanderPowerConsumePreserveBankPreset (bank lp_bank) {
+    int lv_preserve;
+
+    lv_preserve = libKCOR_gf_CC_LoadTransitionVarInteger(lp_bank, "CommanderPowerRuntime", "PreserveBankPreset", 0);
+    if (lv_preserve <= 0) {
+        return false;
+    }
+    libKCOR_gf_CC_SaveTransitionVarInteger(lp_bank, "CommanderPowerRuntime", "PreserveBankPreset", (lv_preserve-1), 0);
+    BankSave(lp_bank);
+    return true;
+}
+
+void libKCOR_gf_CC_SyncCommanderPowerToBank (int lp_player) {
+    // Variable Declarations
+    bank lv_bank;
+    string lv_bankCommander;
+    string lv_commander;
+    string lv_indexMasteryUpgrade;
+    int lv_enableMasteries;
+    int lv_enablePrestiges;
+    int lv_masteryIndex;
+    int lv_prestigeIndex;
+    int lv_prestigeMask;
+    int[6] lv_masteryLevels;
+    bool lv_masteryEnabled;
+    bool lv_prestigeEnabled;
+
+    // Automatic Variable Declarations
+    int autoA8FE402E_ai;
+    int autoA8FE402E_ae;
+
+    // Variable Initialization
+
+    // Implementation
+    lv_commander = libKCOR_gf_ActiveCommanderForPlayer(lp_player);
+    if (lv_commander == null) {
+        return;
+    }
+    lv_bankCommander = libKCOR_gf_CC_CommanderPowerBankCommanderKey(lv_commander);
+    if (lv_bankCommander == "") {
+        return;
+    }
+    BankLoad("CampaignXCore", lp_player);
+    lv_bank = BankLastCreated();
+    if (libKCOR_gf_CC_CommanderPowerConsumePreserveBankPreset(lv_bank)) {
+        return;
+    }
+    lv_masteryEnabled = (GameAttributeGameValue("[bnet:local/0.0/223536]3") == "0001");
+    lv_prestigeEnabled = (GameAttributeGameValue("[bnet:local/0.0/223536]9") == "0001");
+    lv_enableMasteries = 0;
+    lv_enablePrestiges = 0;
+    if (lv_masteryEnabled) {
+        lv_enableMasteries = 1;
+    }
+    if (lv_prestigeEnabled) {
+        lv_enablePrestiges = 1;
+    }
+    lv_prestigeIndex = 0;
+    if (lv_prestigeEnabled) {
+        lv_prestigeIndex = libKCOR_gf_CC_PlayerActivePrestigeIndex(lp_player);
+    }
+    lv_prestigeMask = 0;
+    if (lv_prestigeEnabled) {
+        lv_prestigeMask = 7;
+    }
+    if (lv_masteryEnabled) {
+        autoA8FE402E_ai = 0;
+        autoA8FE402E_ae = UserDataInstanceCount("MasteryUpgrades")+1;
+        while (autoA8FE402E_ai < autoA8FE402E_ae) {
+            autoA8FE402E_ai = autoA8FE402E_ai+1;
+            lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", autoA8FE402E_ai);
+            if (lv_commander == libKCOR_gf_CC_PlayerMasteryCommander(lv_indexMasteryUpgrade)) {
+                lv_masteryIndex = (libKCOR_gf_CC_PlayerMasteryInternalIndex(lv_indexMasteryUpgrade)-1);
+                if ((lv_masteryIndex >= 0) && (lv_masteryIndex < 6)) {
+                    lv_masteryLevels[lv_masteryIndex] = libNtve_gf_ArithmeticIntClamp(libKCOR_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade), 0, 30);
+                }
+            }
+        }
+    }
+    libKCOR_gf_CC_SaveTransitionVarString(lv_bank, "Ach", "Commander", lv_bankCommander, "");
+    libKCOR_gf_CC_SaveTransitionVarString(lv_bank, "CommanderPower", (lv_bankCommander + ".Profile"), "AllPositiveFusion", "");
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".EnablePrestiges"), lv_enablePrestiges, -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".EnableMasteries"), lv_enableMasteries, -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".PrestigePointIndex"), lv_prestigeIndex, -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".PrestigeIndex"), lv_prestigeIndex, -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".PrestigeBonusMask"), lv_prestigeMask, -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".PrestigeMask"), lv_prestigeMask, -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".MasteryDefault"), 0, -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".Mastery0"), lv_masteryLevels[0], -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".Mastery1"), lv_masteryLevels[1], -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".Mastery2"), lv_masteryLevels[2], -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".Mastery3"), lv_masteryLevels[3], -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".Mastery4"), lv_masteryLevels[4], -1);
+    libKCOR_gf_CC_SaveTransitionVarInteger(lv_bank, "CommanderPower", (lv_bankCommander + ".Mastery5"), lv_masteryLevels[5], -1);
+    BankSave(lv_bank);
+}
+
 bool libKCOR_gf_PlayerIsCommander (int lp_player) {
     // Automatic Variable Declarations
     // Implementation

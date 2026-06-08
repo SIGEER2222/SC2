@@ -8,6 +8,7 @@
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibE0EAE146"
 
@@ -18,6 +19,7 @@ void InitLibs () {
     libNtve_InitLib();
     libLbty_InitLib();
     libCamp_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libE0EAE146_InitLib();
 }
@@ -313,6 +315,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_pLAYER_USER, c_playerPropMinerals, c_playerPropOperSetTo, 1000);
     PlayerModifyPropertyInt(gv_pLAYER_USER, c_playerPropVespene, c_playerPropOperSetTo, 800);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointFromId(789749215), 12, null, true);
     UnitEventSetNullVariableInvalid(true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
@@ -549,9 +552,6 @@ bool gt_StartGame_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    // 7vs1 hybrid: keep XM runtime + commander selection state, but avoid
-
-    // spawning the legacy XM base because CoopZeroPop owns the playable start.
     libE0EAE146_gf_StartGame();
     lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/150C9BCE"), 1, false, 0, 0);
     lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/48E87925"), 2, false, 0, 0);
@@ -4126,7 +4126,6 @@ bool gt_IntroCleanup_Func (bool testConds, bool runActions) {
     CameraApplyInfo(gv_pLAYER_USER, CameraInfoDefault(), 0.0, -1, 10, false);
     VisExploreArea(gv_pLAYER_USER, RegionEntireMap(), false, false);
     Wait(0.1, c_timeReal);
-    UnitAbilitySpend(gv_artifact, AbilityCommand("EnergyNova", 0), c_spendLocationAll);
     libNtve_gf_UnitAbilityRemoveCooldown(gv_artifact, "EnergyNova", "Abil/Supernova");
     UnitAbilityAddCooldown(gv_artifact, "EnergyNova", "Abil/Supernova", 184.0);
     gv_energyNovasUsed = 0;
@@ -4142,6 +4141,7 @@ bool gt_IntroCleanup_Func (bool testConds, bool runActions) {
     libNtve_gf_SwooshCamera(gv_pLAYER_USER, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), PlayerStartLocation(gv_pLAYER_USER), 1.5);
     CinematicFade(true, lv_fadeDuration, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p05_GARM);
     TriggerExecute(gt_StartGame, true, false);
     TechTreeAbilityAllow(gv_pLAYER_USER, AbilityCommand("EnergyNova", 0), false);
     return true;

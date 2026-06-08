@@ -10,6 +10,11 @@ include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
 include "LibA070801C"
 include "Lib67C0F0E7"
+include "LibC0F50AA6"
+include "Lib81FF3B49"
+include "LibDF8E6945"
+include "Lib0940FFB7"
+include "Lib975E2FE9"
 include "LibE0EAE146"
 
 //--------------------------------------------------------------------------------------------------
@@ -21,6 +26,11 @@ void InitLibs () {
     libCamp_InitLib();
     libA070801C_InitLib();
     lib67C0F0E7_InitLib();
+    libC0F50AA6_InitLib();
+    lib81FF3B49_InitLib();
+    libDF8E6945_InitLib();
+    lib0940FFB7_InitLib();
+    lib975E2FE9_InitLib();
     libE0EAE146_InitLib();
 }
 
@@ -988,8 +998,9 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
 
     PlayerModifyPropertyInt(gv_p1_USER, c_playerPropMinerals, c_playerPropOperSetTo, 300);
     PlayerModifyPropertyInt(gv_p1_USER, c_playerPropVespene, c_playerPropOperSetTo, 100);
-    // 7vs1 hybrid: CoopZeroPop initializes the test commander. Keep the
-    // mission trigger chain below, but do not seed/run the old XM commander UI.
+    // 7vs1 hybrid: initialize the bank-selected commander base before the mission trigger chain.
+    libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, false);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03VariablesUnits, true, true);
@@ -1249,7 +1260,8 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     libNtve_gf_SwooshCamera(gv_p1_USER, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), PlayerStartLocation(gv_p1_USER), 1.5);
     CinematicFade(true, 1.5, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
     TriggerExecute(gt_StartAI, true, false);
-    gf_7v1MaybeStartMutators();
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p2_PROTOSS_EAST_ATTACKERS);
+    gf_UpdateMutatorsSafetyZone();
     TriggerEnable(gt_ToshSetup, true);
     TriggerEnable(gt_ToshExpo, true);
     TriggerEnable(gt_PlayerExpo, true);

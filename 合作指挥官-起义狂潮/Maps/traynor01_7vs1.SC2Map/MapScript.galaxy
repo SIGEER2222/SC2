@@ -8,6 +8,7 @@
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibC0F50AA6"
 include "LibDF8E6945"
@@ -21,6 +22,7 @@ void InitLibs () {
     libNtve_InitLib();
     libLbty_InitLib();
     libCamp_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libC0F50AA6_InitLib();
     libDF8E6945_InitLib();
@@ -113,6 +115,55 @@ unitgroup gv_midHiddenUnitGroup;
 sound gv_crowdSoundEmitter;
 bool gv_victoryCinematicCompleted;
 unitgroup gv_victoryHiddenUnitGroup;
+
+string gf_ResolveUnitTypeWithFallback3 (string lp_primary, string lp_fallbackA, string lp_fallbackB) {
+    string lv_unitType;
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_primary);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackA);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    return libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackB);
+}
+
+void gf_CreateUnitsAtPoint2WithFallback3 (int lp_count, string lp_primary, string lp_fallbackA, string lp_fallbackB, int lp_flags, int lp_player, point lp_spawnPoint) {
+    string lv_unitType;
+
+    lv_unitType = gf_ResolveUnitTypeWithFallback3(lp_primary, lp_fallbackA, lp_fallbackB);
+    if (lv_unitType == "") {
+        return;
+    }
+
+    libNtve_gf_CreateUnitsAtPoint2(lp_count, lv_unitType, lp_flags, lp_player, lp_spawnPoint);
+}
+
+void gf_CreateUnitsWithDefaultFacingFallback3 (int lp_count, string lp_primary, string lp_fallbackA, string lp_fallbackB, int lp_player, point lp_spawnPoint) {
+    string lv_unitType;
+
+    lv_unitType = gf_ResolveUnitTypeWithFallback3(lp_primary, lp_fallbackA, lp_fallbackB);
+    if (lv_unitType == "") {
+        return;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(lp_count, lv_unitType, 0, lp_player, lp_spawnPoint);
+}
+
+void gf_CargoCreateWithFallback3 (unit lp_transport, string lp_primary, string lp_fallbackA, string lp_fallbackB, int lp_count) {
+    string lv_unitType;
+
+    lv_unitType = gf_ResolveUnitTypeWithFallback3(lp_primary, lp_fallbackA, lp_fallbackB);
+    if ((lv_unitType == "") || (UnitIsValid(lp_transport) == false)) {
+        return;
+    }
+
+    UnitCargoCreate(lp_transport, lv_unitType, lp_count);
+}
 
 void InitGlobals () {
     int init_i;
@@ -352,6 +403,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     }
 
     libE0EAE146_gf_Initialize(true);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -498,9 +550,9 @@ bool gt_Init03Units_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "GhostMengsk", 0, 0, PointFromId(173864182));
     }
     else if (auto935BE165_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "MicrobotSwann", 0, gv_p7_MISSINGSOLDIERS, RegionGetCenter(RegionFromId(55)));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "MicrobotSwann", 0, gv_p7_MISSINGSOLDIERS, RegionGetCenter(RegionFromId(56)));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "GoliathSwann", 0, gv_p7_MISSINGSOLDIERS, RegionGetCenter(RegionFromId(58)));
+        gf_CreateUnitsWithDefaultFacingFallback3(2, "MicrobotSwann", "ScienceVesselSwann", "Medic", gv_p7_MISSINGSOLDIERS, RegionGetCenter(RegionFromId(55)));
+        gf_CreateUnitsWithDefaultFacingFallback3(2, "MicrobotSwann", "ScienceVesselSwann", "Medic", gv_p7_MISSINGSOLDIERS, RegionGetCenter(RegionFromId(56)));
+        gf_CreateUnitsWithDefaultFacingFallback3(2, "GoliathSwann", "Goliath", "Marauder", gv_p7_MISSINGSOLDIERS, RegionGetCenter(RegionFromId(58)));
     }
     else if (auto935BE165_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "HydraliskStetmann", 0, gv_p7_MISSINGSOLDIERS, RegionGetCenter(RegionFromId(55)));
@@ -1044,7 +1096,9 @@ bool gt_PickUpPickUp_Func (bool testConds, bool runActions) {
 //--------------------------------------------------------------------------------------------------
 void gt_PickUpPickUp_Init () {
     gt_PickUpPickUp = TriggerCreate("gt_PickUpPickUp_Func");
-    TriggerAddEventPlayerEffectUsed(gt_PickUpPickUp, c_playerAny, "PickupTechnologySetFinal");
+    if (CatalogEntryIsValid(c_gameCatalogEffect, "PickupTechnologySetFinal")) {
+        TriggerAddEventPlayerEffectUsed(gt_PickUpPickUp, c_playerAny, "PickupTechnologySetFinal");
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1059,6 +1113,7 @@ bool gt_StartGame_Func (bool testConds, bool runActions) {
 
     libE0EAE146_gf_StartGame();
     CampaignInitAI();
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p2_DOMINION_RED);
     UIAlertPoint("Trigger", gv_p1_USER, StringExternal("Param/Value/B544795D"), null, PointFromId(505));
     lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/4351431C"), 1, false, 0, 0);
     lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/0B18F00D"), 2, false, 0, 0);
@@ -5004,7 +5059,7 @@ bool gt_IntroSetup_Func (bool testConds, bool runActions) {
         if (autoBFA525CF_var == null) { break; }
         UnitGroupAdd(gv_introCinHiddenUnitGroup, autoBFA525CF_var);
     }
-    auto73025897_g = UnitLastCreatedGroup();
+    auto73025897_g = gv_introCinHiddenUnitGroup;
     auto73025897_u = UnitGroupCount(auto73025897_g, c_unitCountAll);
     for (;; auto73025897_u -= 1) {
         auto73025897_var = UnitGroupUnitFromEnd(auto73025897_g, auto73025897_u);
@@ -5037,7 +5092,7 @@ bool gt_IntroCinematic_Func (bool testConds, bool runActions) {
     gv_introDropship = UnitLastCreated();
     auto440B2AF1_val = libE0EAE146_gv_commander;
     if (auto440B2AF1_val == "Stukov") {
-        UnitCargoCreate(gv_introDropship, "SIStukov", 1);
+        gf_CargoCreateWithFallback3(gv_introDropship, "SIStukov", "CoopCasterStukov", "StukovInfestedBanshee", 1);
         gv_raynor = UnitCargoLastCreated();
     }
     else if (auto440B2AF1_val == "Dehaka") {
@@ -5076,14 +5131,14 @@ bool gt_IntroCinematic_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsAtPoint2(1, "PickupPalletMinerals", 0, gv_p1_USER, PointFromId(2034889046));
     }
     else if (auto440B2AF1_val == "Swann") {
-        UnitCargoCreate(gv_introDropship, "SwannSwann", 1);
+        gf_CargoCreateWithFallback3(gv_introDropship, "SwannSwann", "CasterSwann", "CoopCasterSwann", 1);
         gv_raynor = UnitCargoLastCreated();
-        UnitCargoCreate(gv_introDropship, "MicrobotSwann", 2);
+        gf_CargoCreateWithFallback3(gv_introDropship, "MicrobotSwann", "ScienceVesselSwann", "Medic", 2);
     }
     else if (auto440B2AF1_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "GaryStetmann", 0, 1, PointFromId(505));
         gv_raynor = UnitLastCreated();
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "LarvaPStetmann", 0, 1, PointFromId(505));
+        gf_CreateUnitsWithDefaultFacingFallback3(1, "LarvaPStetmann", "Larva", "Drone", 1, PointFromId(505));
         UnitCargoCreate(gv_introDropship, "HydraliskStetmann", 2);
     }
     else {
@@ -5254,7 +5309,7 @@ bool gt_IntroCleanupEscape_Func (bool testConds, bool runActions) {
     UnitPauseAll(false);
     autoACB5ADFA_val = libE0EAE146_gv_commander;
     if (autoACB5ADFA_val == "Stukov") {
-        libNtve_gf_CreateUnitsAtPoint2(1, "SIStukov", 0, gv_p1_USER, PointFromId(505));
+        gf_CreateUnitsAtPoint2WithFallback3(1, "SIStukov", "CoopCasterStukov", "StukovInfestedBanshee", 0, gv_p1_USER, PointFromId(505));
         gv_raynor = UnitLastCreated();
     }
     else if (autoACB5ADFA_val == "Dehaka") {
@@ -5299,15 +5354,15 @@ bool gt_IntroCleanupEscape_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsAtPoint2(1, "PickupPalletMinerals", 0, gv_p1_USER, PointFromId(2034889046));
     }
     else if (autoACB5ADFA_val == "Swann") {
-        libNtve_gf_CreateUnitsAtPoint2(1, "SwannSwann", 0, gv_p1_USER, PointFromId(505));
+        gf_CreateUnitsAtPoint2WithFallback3(1, "SwannSwann", "CasterSwann", "CoopCasterSwann", 0, gv_p1_USER, PointFromId(505));
         gv_raynor = UnitLastCreated();
-        libNtve_gf_CreateUnitsAtPoint2(1, "MicrobotSwann", 0, gv_p1_USER, PointFromId(415));
-        libNtve_gf_CreateUnitsAtPoint2(1, "MicrobotSwann", 0, gv_p1_USER, PointFromId(581));
+        gf_CreateUnitsAtPoint2WithFallback3(1, "MicrobotSwann", "ScienceVesselSwann", "Medic", 0, gv_p1_USER, PointFromId(415));
+        gf_CreateUnitsAtPoint2WithFallback3(1, "MicrobotSwann", "ScienceVesselSwann", "Medic", 0, gv_p1_USER, PointFromId(581));
     }
     else if (autoACB5ADFA_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "GaryStetmann", 0, 1, PointFromId(505));
         gv_raynor = UnitLastCreated();
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "LarvaPStetmann", 0, 1, PointFromId(505));
+        gf_CreateUnitsWithDefaultFacingFallback3(1, "LarvaPStetmann", "Larva", "Drone", 1, PointFromId(505));
         libNtve_gf_CreateUnitsAtPoint2(1, "HydraliskStetmann", 0, gv_p1_USER, PointFromId(415));
         libNtve_gf_CreateUnitsAtPoint2(1, "HydraliskStetmann", 0, gv_p1_USER, PointFromId(581));
     }

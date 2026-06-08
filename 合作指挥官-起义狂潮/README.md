@@ -6,8 +6,14 @@
 
 - 当前进度与文件说明：`docs/当前进度与文件说明-2026-06-07.md`
 - 启动测试说明：`docs/启动测试说明-2026-06-07.md`
+- `Shared/CommanderPower/commander-power-metadata.json`：18 个官方指挥官的威望/精通结构化元数据，给后续独立 UI 选项和脚本测试复用。
 - 当前自动烟测门槛：只有真正进图并完成地图初始化，才算玩法验证通过；`login_required` 只代表当前没有新增启动级阻塞。
-- 当前结构基线：`ttosh02_7vs1.SC2Map` 是已验证的特殊基线图，其它 `_7vs1` 变体统一走共享 `XMFinal.SC2Mod` + `CoopZeroPop.SC2Mod` 依赖模式。
+- 当前结构基线：`ttosh02_7vs1.SC2Map` 是纯 `7vs1` 依赖基线图。
+- 当前 28 张 `_7vs1` 地图都已去掉旧公共运行时 mod 的地图级依赖，并在地图本地带 `Lib67C0F0E7.galaxy` / `LibE0EAE146.galaxy`。
+- 目标工程当前不再携带旧公共运行时 mod；批量本地化脚本改用 `Shared/7vs1PublicLibs/Base.SC2Data/` 作为公共 Galaxy 库源。
+- 当前 28 张 `_7vs1` 地图都已经去掉对 `Mods/XM/*.SC2Mod` 的地图级私有依赖。
+- 目标目录当前只保留 `Mods/7vs1/` 与 `Mods/kit_mutations.SC2Mod`；旧 `Mods/XM/` 已从目标 runtime 目录移除。
+- 当前 owner 线已不再携带旧公共运行时 mod；`launch-7vs1-coop-test.ps1` 现在按依赖白名单清理 live 目录里的未批准 workspace 私有 mod 残留。
 - 原始地图不在本目录重复存放；统一回源到 `C:\Users\22448\Downloads\合作指挥官版起义狂潮0.81\Maps\XM` 做对照。
 
 ## 目录来源
@@ -15,6 +21,8 @@
 - `Maps/ttosh02_7vs1.SC2Map`：当前 7vs1 欢迎来到丛林混合测试图。
 - `Mods/7vs1/CoopZeroPop.SC2Mod`：来自 `7vs1母巢之战合作指挥官bate版_SC2Replay_94137/s2ma_packages/pkg03/extract`，用于提供指挥官选择、威望、精通、指挥官面板和核心机制。
 - `Mods/kit_mutations.SC2Mod`：来自 `因子之翼/kit_mutations.SC2Mod`，用于提供合作突变因子运行库 `LibA070801C` 和 Mutators 数据。
+- `Shared/7vs1PublicLibs/Base.SC2Data`：当前 7vs1 变体图批量本地化时使用的公共 Galaxy 库源码镜像，不参与游戏运行时依赖。
+- `Shared/CommanderPower/commander-power-metadata.json`：由 `scripts/export-commander-power-metadata.ps1` 从官方合作指挥官 JSON + `liberty.sc2mod` 威望本地化数据导出，当前验证脚本会直接消费这份元数据。
 
 ## 当前接入方式
 

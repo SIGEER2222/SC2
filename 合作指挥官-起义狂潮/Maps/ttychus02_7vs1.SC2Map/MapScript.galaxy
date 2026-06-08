@@ -9,6 +9,7 @@ include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
 include "TriggerLibs/SwarmLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibC0F50AA6"
 include "LibDF8E6945"
@@ -23,6 +24,7 @@ void InitLibs () {
     libLbty_InitLib();
     libCamp_InitLib();
     libHots_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libC0F50AA6_InitLib();
     libDF8E6945_InitLib();
@@ -108,6 +110,44 @@ int gv_statProtossStructureKills;
 actor[5] gv_midCinematicPings;
 unitgroup gv_midCinematicProtoss;
 unitgroup gv_midHiddenUnitGroup;
+
+string gf_ResolveUnitTypeWithFallback3 (string lp_primary, string lp_fallbackA, string lp_fallbackB) {
+    string lv_unitType;
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_primary);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackA);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    return libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackB);
+}
+
+void gf_CreateUnitsWithDefaultFacingFallback3 (int lp_count, string lp_primary, string lp_fallbackA, string lp_fallbackB, int lp_player, point lp_spawnPoint) {
+    string lv_unitType;
+
+    lv_unitType = gf_ResolveUnitTypeWithFallback3(lp_primary, lp_fallbackA, lp_fallbackB);
+    if (lv_unitType == "") {
+        return;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(lp_count, lv_unitType, 0, lp_player, lp_spawnPoint);
+}
+
+void gf_CargoCreateWithFallback3 (unit lp_transport, string lp_primary, string lp_fallbackA, string lp_fallbackB, int lp_count) {
+    string lv_unitType;
+
+    lv_unitType = gf_ResolveUnitTypeWithFallback3(lp_primary, lp_fallbackA, lp_fallbackB);
+    if ((lv_unitType == "") || (UnitIsValid(lp_transport) == false)) {
+        return;
+    }
+
+    UnitCargoCreate(lp_transport, lv_unitType, lp_count);
+}
 bool gv_midCinematicCompleted;
 point[9] gv_victoryMarineFormationLeft;
 point[9] gv_victoryMarineFormationRight;
@@ -400,6 +440,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_p1_USER, c_playerPropMinerals, c_playerPropOperSetTo, 300);
     PlayerModifyPropertyInt(gv_p1_USER, c_playerPropVespene, c_playerPropOperSetTo, 100);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, false);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -504,10 +545,16 @@ bool gt_Init03Units_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    AISetUnitScriptControlled(UnitFromId(139857341), true);
-    AISetUnitScriptControlled(UnitFromId(166952305), true);
-    UnitSetPropertyFixed(UnitFromId(1770579481), c_unitPropLifeMax, 3000.0);
-    UnitSetPropertyFixed(UnitFromId(1770579481), c_unitPropLife, 3000.0);
+    if ((UnitIsValid(UnitFromId(139857341)) == true)) {
+        AISetUnitScriptControlled(UnitFromId(139857341), true);
+    }
+    if ((UnitIsValid(UnitFromId(166952305)) == true)) {
+        AISetUnitScriptControlled(UnitFromId(166952305), true);
+    }
+    if ((UnitIsValid(UnitFromId(1770579481)) == true)) {
+        UnitSetPropertyFixed(UnitFromId(1770579481), c_unitPropLifeMax, 3000.0);
+        UnitSetPropertyFixed(UnitFromId(1770579481), c_unitPropLife, 3000.0);
+    }
     gv_tHEONEDRILL = UnitFromId(409);
     gv_tHEONEDOOR = UnitFromId(125);
     gv_lDAttackedByEnemyTriggers[1] = gt_Laserdrillunderattack01Q;
@@ -837,9 +884,14 @@ bool gt_TacticalVictory_Func (bool testConds, bool runActions) {
 
 //--------------------------------------------------------------------------------------------------
 void gt_TacticalVictory_Init () {
+    unit lv_tacticalVictoryTarget;
+
     gt_TacticalVictory = TriggerCreate("gt_TacticalVictory_Func");
     TriggerEnable(gt_TacticalVictory, false);
-    TriggerAddEventUnitRegion(gt_TacticalVictory, null, RegionCircle(UnitGetPosition(UnitFromId(1473794652)), 2.0), true);
+    lv_tacticalVictoryTarget = UnitFromId(1473794652);
+    if ((UnitIsValid(lv_tacticalVictoryTarget) == true)) {
+        TriggerAddEventUnitRegion(gt_TacticalVictory, null, RegionCircle(UnitGetPosition(lv_tacticalVictoryTarget), 2.0), true);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -883,6 +935,9 @@ void gt_IntroSequence_Init () {
 bool gt_StartGameTacticalPhase_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
     string autoA39A42DB_val;
+    unit lv_introTransport;
+    unitgroup lv_introTychusUnits;
+    unit lv_introTychusUnit;
 
     // Conditions
     if (testConds) {
@@ -897,6 +952,9 @@ bool gt_StartGameTacticalPhase_Func (bool testConds, bool runActions) {
     }
 
     libE0EAE146_gf_StartGame();
+    lv_introTransport = UnitFromId(317);
+    lv_introTychusUnits = null;
+    lv_introTychusUnit = null;
     autoA39A42DB_val = libE0EAE146_gv_commander;
     if (autoA39A42DB_val == "Dehaka") {
         BankLoad("CampaignXCore", 1);
@@ -908,39 +966,58 @@ bool gt_StartGameTacticalPhase_Func (bool testConds, bool runActions) {
 
     }
     else if (autoA39A42DB_val == "Mira") {
-        UnitCargoCreate(UnitFromId(317), "MarauderMira", 2);
-        UnitCargoCreate(UnitFromId(317), "CycloneMira", 2);
+        if ((UnitIsValid(lv_introTransport) == true)) {
+            UnitCargoCreate(lv_introTransport, "MarauderMira", 2);
+            UnitCargoCreate(lv_introTransport, "CycloneMira", 2);
+        }
     }
     else if (autoA39A42DB_val == "Stukov") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SIInfestedBunkerUpgUprooted", 0, 1, PointFromId(484));
+        gf_CreateUnitsWithDefaultFacingFallback3(1, "SIInfestedBunkerUpgUprooted", "Bunker", "Bunker", 1, PointFromId(484));
         UnitCargoCreate(UnitLastCreated(), "SIInfestedTrooper", 4);
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SIInfestedBunkerUpgUprooted", 0, 1, PointFromId(484));
+        gf_CreateUnitsWithDefaultFacingFallback3(1, "SIInfestedBunkerUpgUprooted", "Bunker", "Bunker", 1, PointFromId(484));
         UnitCargoCreate(UnitLastCreated(), "SIInfestedTrooper", 4);
     }
     else if (autoA39A42DB_val == "Tychus") {
-        UnitCargoCreate(UnitFromId(317), "TychusCoop", 1);
-        lib67C0F0E7_gf_TychusSquadSetMember(UnitCargoLastCreated());
+        if ((UnitIsValid(lv_introTransport) == true)) {
+            UnitCargoCreate(lv_introTransport, "TychusCoop", 1);
+        }
     }
     else if (autoA39A42DB_val == "Nova") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "NovaCoop", 0, 1, PointFromId(484));
         lib0940FFB7_gf_NovaTrigger(UnitLastCreated());
     }
     else if (autoA39A42DB_val == "Mengsk") {
-        UnitCargoCreate(UnitFromId(317), "TrooperMengskImproved", 6);
-        UnitCargoCreate(UnitFromId(317), "MengskMedic", 2);
+        if ((UnitIsValid(lv_introTransport) == true)) {
+            UnitCargoCreate(lv_introTransport, "TrooperMengskImproved", 6);
+            UnitCargoCreate(lv_introTransport, "MengskMedic", 2);
+        }
     }
     else if (autoA39A42DB_val == "Swann") {
-        UnitCargoCreate(UnitFromId(317), "PredatorSwann", 3);
-        UnitCargoCreate(UnitFromId(317), "MicrobotSwann", 3);
+        if ((UnitIsValid(lv_introTransport) == true)) {
+            gf_CargoCreateWithFallback3(lv_introTransport, "PredatorSwann", "HellionTank", "Hellion", 3);
+            gf_CargoCreateWithFallback3(lv_introTransport, "MicrobotSwann", "ScienceVesselSwann", "Medic", 3);
+        }
     }
     else if (autoA39A42DB_val == "Stetmann") {
-        UnitCargoCreate(UnitFromId(317), "ZerglingStetmann", 6);
-        UnitCargoCreate(UnitFromId(317), "HydraliskStetmann", 3);
+        if ((UnitIsValid(lv_introTransport) == true)) {
+            UnitCargoCreate(lv_introTransport, "ZerglingStetmann", 6);
+            UnitCargoCreate(lv_introTransport, "HydraliskStetmann", 3);
+        }
     }
     else {
     }
     Wait(0.5, c_timeGame);
-    lib67C0F0E7_gf_DropCargoAndExit(UnitFromId(317), PointFromId(488), PointFromId(489));
+    if ((UnitIsValid(lv_introTransport) == true)) {
+        lib67C0F0E7_gf_DropCargoAndExit(lv_introTransport, PointFromId(488), PointFromId(489));
+    }
+    if (autoA39A42DB_val == "Tychus") {
+        Wait(0.25, c_timeGame);
+        lv_introTychusUnits = UnitGroup("TychusCoop", gv_p1_USER, RegionCircle(PointFromId(488), 12.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        if ((UnitGroupCount(lv_introTychusUnits, c_unitCountAlive) >= 1)) {
+            lv_introTychusUnit = UnitGroupUnit(lv_introTychusUnits, 1);
+            lib67C0F0E7_gf_TychusSquadSetMember(lv_introTychusUnit);
+        }
+    }
     TriggerExecute(gt_RaynorQ, true, true);
     lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/6D9B8197"), 1, false, 0, 0);
     lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/FFFE15FD"), 2, false, 0, 0);
@@ -1135,6 +1212,10 @@ void gt_RaynorQ_Init () {
 //--------------------------------------------------------------------------------------------------
 bool gt_InitDarkArchonDies_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
+    unit lv_archonNorth;
+    unit lv_archonSouth;
+    unit lv_archonCenter;
+
     // Actions
     if (!runActions) {
         return true;
@@ -1146,20 +1227,32 @@ bool gt_InitDarkArchonDies_Func (bool testConds, bool runActions) {
     // spawning the legacy XM base because CoopZeroPop owns the playable start.
     Wait(2.0, c_timeGame);
     TriggerExecute(gt_StartAI, true, false);
-    libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingTriangle", UnitGetPosition(UnitFromId(139857341)), ColorWithAlpha(100.00, 100.00, 0.00, 0.00), 0.0, 270.0);
-    PingSetScale(PingLastCreated(), 0.7);
-    PingSetTooltip(PingLastCreated(), StringExternal("Param/Value/51509E8E"));
-    libHots_gf_StorePingForUnit(UnitFromId(139857341), 1, PingLastCreated());
-    libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingTriangle", UnitGetPosition(UnitFromId(166952305)), ColorWithAlpha(100.00, 100.00, 0.00, 0.00), 0.0, 270.0);
-    PingSetScale(PingLastCreated(), 0.7);
-    PingSetTooltip(PingLastCreated(), StringExternal("Param/Value/324DB076"));
-    libHots_gf_StorePingForUnit(UnitFromId(166952305), 1, PingLastCreated());
-    libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingTriangle", UnitGetPosition(UnitFromId(1770579481)), ColorWithAlpha(100.00, 100.00, 0.00, 0.00), 0.0, 270.0);
-    PingSetScale(PingLastCreated(), 0.7);
-    PingSetTooltip(PingLastCreated(), StringExternal("Param/Value/191214E5"));
-    libHots_gf_StorePingForUnit(UnitFromId(1770579481), 1, PingLastCreated());
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p5_NW_PROTOSSLeft);
+    lv_archonNorth = UnitFromId(139857341);
+    lv_archonSouth = UnitFromId(166952305);
+    lv_archonCenter = UnitFromId(1770579481);
+    if ((UnitIsValid(lv_archonNorth) == true)) {
+        libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingTriangle", UnitGetPosition(lv_archonNorth), ColorWithAlpha(100.00, 100.00, 0.00, 0.00), 0.0, 270.0);
+        PingSetScale(PingLastCreated(), 0.7);
+        PingSetTooltip(PingLastCreated(), StringExternal("Param/Value/51509E8E"));
+        libHots_gf_StorePingForUnit(lv_archonNorth, 1, PingLastCreated());
+    }
+    if ((UnitIsValid(lv_archonSouth) == true)) {
+        libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingTriangle", UnitGetPosition(lv_archonSouth), ColorWithAlpha(100.00, 100.00, 0.00, 0.00), 0.0, 270.0);
+        PingSetScale(PingLastCreated(), 0.7);
+        PingSetTooltip(PingLastCreated(), StringExternal("Param/Value/324DB076"));
+        libHots_gf_StorePingForUnit(lv_archonSouth, 1, PingLastCreated());
+    }
+    if ((UnitIsValid(lv_archonCenter) == true)) {
+        libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingTriangle", UnitGetPosition(lv_archonCenter), ColorWithAlpha(100.00, 100.00, 0.00, 0.00), 0.0, 270.0);
+        PingSetScale(PingLastCreated(), 0.7);
+        PingSetTooltip(PingLastCreated(), StringExternal("Param/Value/191214E5"));
+        libHots_gf_StorePingForUnit(lv_archonCenter, 1, PingLastCreated());
+    }
     TriggerEnable(gt_DefeatBaseDead, true);
-    VisRevealArea(1, RegionCircle(UnitGetPosition(UnitFromId(1770579481)), 6.0), 2.0, false);
+    if ((UnitIsValid(lv_archonCenter) == true)) {
+        VisRevealArea(1, RegionCircle(UnitGetPosition(lv_archonCenter), 6.0), 2.0, false);
+    }
     TriggerQueueEnter();
     if (((gv_gameOver == true))) {
         return true;
@@ -1188,16 +1281,23 @@ void gt_InitDarkArchonDies_Init () {
 //--------------------------------------------------------------------------------------------------
 bool gt_Phase1Start_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
+    unit lv_dismantlerUnit;
+
     // Actions
     if (!runActions) {
         return true;
     }
 
     TriggerExecute(gt_DrillTimerStart, true, false);
-    UnitBehaviorAdd(gv_tHEONEDRILL, "Dismantle", UnitFromId(1713592106), 1);
-    UnitBehaviorAdd(UnitFromId(1713592106), "TimeWarpProduction", UnitFromId(1713592106), 1);
-    gv_dismantler = UnitFromId(1713592106);
-    VisRevealArea(1, RegionCircle(UnitGetPosition(gv_dismantler), 6.0), 0.0, false);
+    lv_dismantlerUnit = UnitFromId(1713592106);
+    if ((UnitIsValid(gv_tHEONEDRILL) == true) && (UnitIsValid(lv_dismantlerUnit) == true)) {
+        UnitBehaviorAdd(gv_tHEONEDRILL, "Dismantle", lv_dismantlerUnit, 1);
+        UnitBehaviorAdd(lv_dismantlerUnit, "TimeWarpProduction", lv_dismantlerUnit, 1);
+    }
+    gv_dismantler = lv_dismantlerUnit;
+    if ((UnitIsValid(gv_dismantler) == true)) {
+        VisRevealArea(1, RegionCircle(UnitGetPosition(gv_dismantler), 6.0), 0.0, false);
+    }
     TriggerEnable(gt_TacticalVictory, true);
     TriggerEnable(gt_DrillTimerExpires, true);
     TriggerQueueEnter();
@@ -1598,7 +1698,7 @@ bool gt_RevealRelicShrinesQ_Func (bool testConds, bool runActions) {
         if (autoD4EC2E03_var == null) { break; }
         UnitFlashSelection(autoD4EC2E03_var, 6.0);
     }
-    if ((UnitIsAlive(UnitFromId(90)) == true)) {
+    if ((UnitIsValid(UnitFromId(90)) == true) && (UnitIsAlive(UnitFromId(90)) == true)) {
         SoundPlay(SoundLink("UI_TerranPing", -1), PlayerGroupAll(), 100.0, 0.0);
         VisRevealArea(gv_p1_USER, RegionCircle(UnitGetPosition(UnitFromId(90)), 7.0), 12.0, false);
         libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingObjective", UnitGetPosition(UnitFromId(90)), ColorWithAlpha(100.00, 100.00, 0.00, 0.00), 0.0, 270.0);
@@ -1607,7 +1707,7 @@ bool gt_RevealRelicShrinesQ_Func (bool testConds, bool runActions) {
         Wait(1.0, c_timeReal);
     }
 
-    if ((UnitIsAlive(UnitFromId(271)) == true)) {
+    if ((UnitIsValid(UnitFromId(271)) == true) && (UnitIsAlive(UnitFromId(271)) == true)) {
         SoundPlay(SoundLink("UI_TerranPing", -1), PlayerGroupAll(), 100.0, 0.0);
         VisRevealArea(gv_p1_USER, RegionCircle(UnitGetPosition(UnitFromId(271)), 7.0), 12.0, false);
         libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingObjective", UnitGetPosition(UnitFromId(271)), ColorWithAlpha(100.00, 100.00, 0.00, 0.00), 0.0, 270.0);
@@ -1616,7 +1716,7 @@ bool gt_RevealRelicShrinesQ_Func (bool testConds, bool runActions) {
         Wait(1.0, c_timeReal);
     }
 
-    if ((UnitIsAlive(UnitFromId(592)) == true)) {
+    if ((UnitIsValid(UnitFromId(592)) == true) && (UnitIsAlive(UnitFromId(592)) == true)) {
         SoundPlay(SoundLink("UI_TerranPing", -1), PlayerGroupAll(), 100.0, 0.0);
         VisRevealArea(gv_p1_USER, RegionCircle(UnitGetPosition(UnitFromId(592)), 7.0), 12.0, false);
         libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingObjective", UnitGetPosition(UnitFromId(592)), ColorWithAlpha(100.00, 100.00, 0.00, 0.00), 0.0, 270.0);

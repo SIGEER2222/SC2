@@ -13,6 +13,9 @@ Install and launch the replay-derived 7vs1 coop commander test map.
 
 .EXAMPLE
   pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\launch-7vs1-coop-test.ps1 -MapSource "游戏数据\其他mod数据\7vs1混合地图测试\Maps\ttosh02_7vs1.SC2Map" -LiveMapName "ttosh02_7vs1.SC2Map"
+
+.EXAMPLE
+  pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\launch-7vs1-coop-test.ps1 -MapSource ".\Maps\ttosh02_7vs1.SC2Map" -LiveMapName "ttosh02_7vs1.SC2Map" -Commanders @("ZergAbathur") -TestSpawnPreset "AbathurFusion"
 #>
 [CmdletBinding()]
 param(
@@ -26,11 +29,33 @@ param(
     [string]$Preset = "Default",
     [ValidateSet("Full", "NoVisuals", "CoreOnly")]
     [string]$AbathurPatchProfile = "Full",
+    [ValidateSet("", "AbathurFusion")]
+    [string]$TestSpawnPreset = "",
+    [string]$CommanderPowerProfile = "AllPositiveFusion",
+    [Alias("CommanderPowerPrestigeMask")]
+    [int]$CommanderPowerPrestigeBonusMask = 7,
+    [Alias("CommanderPowerPrestigeIndex")]
+    [Nullable[int]]$CommanderPowerPrestigePointIndex = $null,
+    [int]$CommanderPowerEnablePrestiges = 1,
+    [int]$CommanderPowerEnableMasteries = 1,
+    [int]$CommanderPowerMasteryLevel = 30,
+    [Nullable[int]]$CommanderPowerMastery0 = $null,
+    [Nullable[int]]$CommanderPowerMastery1 = $null,
+    [Nullable[int]]$CommanderPowerMastery2 = $null,
+    [Nullable[int]]$CommanderPowerMastery3 = $null,
+    [Nullable[int]]$CommanderPowerMastery4 = $null,
+    [Nullable[int]]$CommanderPowerMastery5 = $null,
+    [string]$CommanderPowerPresetPath = "",
+    [string[]]$CommanderPowerOverride = @(),
+    [switch]$SkipCommanderPowerPreset,
     [switch]$DisableAbathurRebornPatch,
+    [switch]$ForceStopSc2BeforeInstall,
     [switch]$NoLaunch
 )
 
 $ErrorActionPreference = "Stop"
+
+. (Join-Path $PSScriptRoot "commander-power-metadata.ps1")
 
 function Get-WorkspaceRoot {
     return (Split-Path -Parent $PSScriptRoot)
@@ -38,9 +63,15 @@ function Get-WorkspaceRoot {
 
 function Resolve-DefaultSourceRoot {
     $workspaceRoot = Get-WorkspaceRoot
-    $legacyReplayRoot = Join-Path $workspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137"
-    if (Test-Path -LiteralPath $legacyReplayRoot) {
-        return $legacyReplayRoot
+    $candidates = @(
+        (Join-Path $workspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137"),
+        "C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137"
+    )
+
+    foreach ($candidate in $candidates) {
+        if (Test-Path -LiteralPath $candidate) {
+            return $candidate
+        }
     }
 
     return $workspaceRoot
@@ -68,16 +99,6 @@ function Resolve-ExtensionSource {
     return Join-Path $SourceRoot "s2ma_packages\pkg03\extract"
 }
 
-function Resolve-7v1CoreSource {
-    $workspaceRoot = Get-WorkspaceRoot
-    $localCore = Join-Path $workspaceRoot "Mods\7vs1\7v1Core.SC2Mod"
-    if (Test-Path -LiteralPath $localCore) {
-        return $localCore
-    }
-
-    return ""
-}
-
 function Resolve-AbathurRebornPatchSource {
     $workspaceRoot = Get-WorkspaceRoot
     $localPatch = Join-Path $workspaceRoot "Mods\7vs1\7v1AbathurRebornPatch.SC2Mod"
@@ -86,6 +107,11 @@ function Resolve-AbathurRebornPatchSource {
     }
 
     return Join-Path $workspaceRoot "游戏数据\其他mod数据\7vs1混合地图测试\Mods\7vs1\7v1AbathurRebornPatch.SC2Mod"
+}
+
+function Resolve-CommanderCatalogSource {
+    $workspaceRoot = Get-WorkspaceRoot
+    return (Join-Path $workspaceRoot "Mods\7vs1\CommanderCatalog.SC2Mod")
 }
 
 function Resolve-SwannSourceGameData {
@@ -167,6 +193,562 @@ function Resolve-CommanderPreset {
     return @($presets[$Name])
 }
 
+function Get-CampaignXCoreBankPaths {
+    $paths = New-Object System.Collections.Generic.List[string]
+
+    $liveBank = Join-Path $env:USERPROFILE "Documents\StarCraft II\Banks\CampaignXCore.SC2Bank"
+    if (Test-Path -LiteralPath $liveBank) {
+        $paths.Add((Resolve-Path -LiteralPath $liveBank).Path)
+    }
+
+    $accountsRoot = Join-Path $env:USERPROFILE "Documents\StarCraft II\Accounts"
+    if (Test-Path -LiteralPath $accountsRoot) {
+        $accountBanks = Get-ChildItem -LiteralPath $accountsRoot -Recurse -File -Filter "CampaignXCore.SC2Bank" |
+            Where-Object { $_.FullName -notmatch '\\backup\\' } |
+            Sort-Object LastWriteTime -Descending
+        foreach ($bank in $accountBanks) {
+            if ($paths -notcontains $bank.FullName) {
+                $paths.Add($bank.FullName)
+            }
+        }
+    }
+
+    return $paths.ToArray()
+}
+
+function Get-OrCreateBankSection {
+    param(
+        [xml]$Xml,
+        [string]$SectionName
+    )
+
+    $bank = $Xml.SelectSingleNode("/Bank")
+    if (-not $bank) {
+        throw "Invalid bank file: missing <Bank> root."
+    }
+
+    $section = $Xml.SelectSingleNode("/Bank/Section[@name='$SectionName']")
+    if (-not $section) {
+        $section = $Xml.CreateElement("Section")
+        $null = $section.SetAttribute("name", $SectionName)
+        $null = $bank.AppendChild($section)
+    }
+
+    return $section
+}
+
+function Get-OrCreateBankKey {
+    param(
+        [xml]$Xml,
+        [System.Xml.XmlNode]$Section,
+        [string]$KeyName
+    )
+
+    $escapedKey = $KeyName.Replace("'", "&apos;")
+    $key = $Section.SelectSingleNode("Key[@name='$escapedKey']")
+    if (-not $key) {
+        $key = $Xml.CreateElement("Key")
+        $null = $key.SetAttribute("name", $KeyName)
+        $null = $Section.AppendChild($key)
+    }
+
+    return $key
+}
+
+function Set-BankStringKeyValue {
+    param(
+        [xml]$Xml,
+        [string]$SectionName,
+        [string]$KeyName,
+        [string]$Value
+    )
+
+    $section = Get-OrCreateBankSection -Xml $Xml -SectionName $SectionName
+    $key = Get-OrCreateBankKey -Xml $Xml -Section $section -KeyName $KeyName
+    $valueNode = $key.SelectSingleNode("Value")
+    if (-not $valueNode) {
+        $valueNode = $Xml.CreateElement("Value")
+        $null = $key.AppendChild($valueNode)
+    }
+
+    $null = $valueNode.RemoveAttribute("int")
+    $null = $valueNode.SetAttribute("string", $Value)
+}
+
+function Set-BankIntKeyValue {
+    param(
+        [xml]$Xml,
+        [string]$SectionName,
+        [string]$KeyName,
+        [int]$Value
+    )
+
+    $section = Get-OrCreateBankSection -Xml $Xml -SectionName $SectionName
+    $key = Get-OrCreateBankKey -Xml $Xml -Section $section -KeyName $KeyName
+    $valueNode = $key.SelectSingleNode("Value")
+    if (-not $valueNode) {
+        $valueNode = $Xml.CreateElement("Value")
+        $null = $key.AppendChild($valueNode)
+    }
+
+    $null = $valueNode.RemoveAttribute("string")
+    $null = $valueNode.SetAttribute("int", [string]$Value)
+}
+
+function Save-XmlDocumentWithRetry {
+    param(
+        [xml]$Xml,
+        [string]$Path,
+        [int]$RetryCount = 10,
+        [int]$DelayMilliseconds = 500
+    )
+
+    for ($attempt = 1; $attempt -le $RetryCount; $attempt++) {
+        try {
+            $Xml.Save($Path)
+            return
+        }
+        catch {
+            if ($attempt -ge $RetryCount) {
+                throw
+            }
+            Start-Sleep -Milliseconds $DelayMilliseconds
+        }
+    }
+}
+
+function Write-FileBytesWithRetry {
+    param(
+        [string]$Path,
+        [byte[]]$Bytes,
+        [int]$RetryCount = 10,
+        [int]$DelayMilliseconds = 500
+    )
+
+    for ($attempt = 1; $attempt -le $RetryCount; $attempt++) {
+        try {
+            [System.IO.File]::WriteAllBytes($Path, $Bytes)
+            return
+        }
+        catch {
+            if ($attempt -ge $RetryCount) {
+                throw
+            }
+            Start-Sleep -Milliseconds $DelayMilliseconds
+        }
+    }
+}
+
+function Set-FileTextWithRetry {
+    param(
+        [string]$Path,
+        [string]$Text,
+        [int]$RetryCount = 10,
+        [int]$DelayMilliseconds = 500
+    )
+
+    for ($attempt = 1; $attempt -le $RetryCount; $attempt++) {
+        try {
+            Set-Content -LiteralPath $Path -Value $Text -NoNewline -Encoding UTF8
+            return
+        }
+        catch {
+            if ($attempt -ge $RetryCount) {
+                throw
+            }
+            Start-Sleep -Milliseconds $DelayMilliseconds
+        }
+    }
+}
+
+function Wait-PathAvailable {
+    param(
+        [string]$Path,
+        [int]$RetryCount = 20,
+        [int]$DelayMilliseconds = 250
+    )
+
+    for ($attempt = 1; $attempt -le $RetryCount; $attempt++) {
+        if (Test-Path -LiteralPath $Path) {
+            return
+        }
+        if ($attempt -lt $RetryCount) {
+            Start-Sleep -Milliseconds $DelayMilliseconds
+        }
+    }
+
+    throw "Path not found after wait: $Path"
+}
+
+function Convert-TestCommanderToCommanderPowerKey {
+    param([string]$Commander)
+
+    if ($Commander -eq "ZergAbathurReborn") {
+        return "AbathurReborn"
+    }
+
+    return (Convert-CommanderPowerCommanderToBankKey -Commander $Commander -WorkspaceRoot (Get-WorkspaceRoot))
+}
+
+function Resolve-CommanderPowerPresetPath {
+    param([string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        return ""
+    }
+
+    if ([System.IO.Path]::IsPathRooted($Path)) {
+        return [System.IO.Path]::GetFullPath($Path)
+    }
+
+    return [System.IO.Path]::GetFullPath((Join-Path (Get-WorkspaceRoot) $Path))
+}
+
+function ConvertTo-CommanderPowerBoolInt {
+    param(
+        [Parameter(Mandatory = $false)]
+        [object]$Value,
+        [int]$DefaultValue = 0
+    )
+
+    if ($null -eq $Value) {
+        return $DefaultValue
+    }
+
+    if ($Value -is [bool]) {
+        return $(if ($Value) { 1 } else { 0 })
+    }
+
+    $text = [string]$Value
+    if ([string]::IsNullOrWhiteSpace($text)) {
+        return $DefaultValue
+    }
+
+    if ($text.Equals("true", [System.StringComparison]::OrdinalIgnoreCase)) {
+        return 1
+    }
+    if ($text.Equals("false", [System.StringComparison]::OrdinalIgnoreCase)) {
+        return 0
+    }
+
+    $intValue = 0
+    if ([int]::TryParse($text, [ref]$intValue)) {
+        return $(if ($intValue -gt 0) { 1 } else { 0 })
+    }
+
+    throw "Invalid boolean/int value for CommanderPower preset: $Value"
+}
+
+function ConvertTo-CommanderPowerPrestigeMask {
+    param(
+        [Parameter(Mandatory = $true)]
+        [pscustomobject]$CommanderRecord,
+        [Parameter(Mandatory = $true)]
+        [pscustomobject]$Entry,
+        [int]$DefaultMask
+    )
+
+    if ($null -ne $Entry.prestige_bonus_mask) {
+        return [Math]::Max(0, [Math]::Min(7, [int]$Entry.prestige_bonus_mask))
+    }
+
+    if ($null -ne $Entry.prestige_mask) {
+        return [Math]::Max(0, [Math]::Min(7, [int]$Entry.prestige_mask))
+    }
+
+    if ($null -ne $Entry.prestige_slots) {
+        $mask = 0
+        foreach ($slot in @($Entry.prestige_slots)) {
+            $slotIndex = [int]$slot
+            if (($slotIndex -lt 0) -or ($slotIndex -ge @($CommanderRecord.prestiges).Count)) {
+                throw ("Invalid prestige slot '{0}' for commander '{1}'." -f $slot, $CommanderRecord.runtime_commander)
+            }
+
+            $mask = ($mask -bor (1 -shl $slotIndex))
+        }
+        return $mask
+    }
+
+    if ($null -ne $Entry.prestige_ids) {
+        $mask = 0
+        foreach ($prestigeId in @($Entry.prestige_ids)) {
+            $matched = $false
+            foreach ($prestige in @($CommanderRecord.prestiges)) {
+                if (([string]$prestige.id).Equals([string]$prestigeId, [System.StringComparison]::OrdinalIgnoreCase) -or
+                    ([string]$prestige.button_id).Equals([string]$prestigeId, [System.StringComparison]::OrdinalIgnoreCase)) {
+                    $mask = ($mask -bor (1 -shl [int]$prestige.slot))
+                    $matched = $true
+                    break
+                }
+            }
+
+            if (-not $matched) {
+                throw ("Unknown prestige id '{0}' for commander '{1}'." -f $prestigeId, $CommanderRecord.runtime_commander)
+            }
+        }
+        return $mask
+    }
+
+    return $DefaultMask
+}
+
+function ConvertTo-CommanderPowerPrestigePointIndex {
+    param(
+        [Parameter(Mandatory = $true)]
+        [pscustomobject]$Entry,
+        [int]$DefaultPointIndex
+    )
+
+    if ($null -ne $Entry.prestige_point_index) {
+        return [Math]::Max(-1, [Math]::Min(3, [int]$Entry.prestige_point_index))
+    }
+
+    if ($null -ne $Entry.prestige_index) {
+        return [Math]::Max(-1, [Math]::Min(3, [int]$Entry.prestige_index))
+    }
+
+    return $DefaultPointIndex
+}
+
+function ConvertTo-CommanderPowerMasteryValues {
+    param(
+        [Parameter(Mandatory = $true)]
+        [pscustomobject]$CommanderRecord,
+        [Parameter(Mandatory = $true)]
+        [pscustomobject]$Entry,
+        [int]$DefaultMasteryLevel
+    )
+
+    $values = @()
+    for ($masteryIndex = 0; $masteryIndex -lt @($CommanderRecord.masteries).Count; $masteryIndex++) {
+        $values += $DefaultMasteryLevel
+    }
+
+    if ($null -eq $Entry.masteries) {
+        return $values
+    }
+
+    if (($Entry.masteries -is [System.Management.Automation.PSCustomObject]) -or
+        ($Entry.masteries -is [System.Collections.IDictionary])) {
+        foreach ($property in $Entry.masteries.PSObject.Properties) {
+            $index = [int]$property.Name
+            if (($index -lt 0) -or ($index -ge $values.Count)) {
+                throw ("Invalid mastery slot '{0}' for commander '{1}'." -f $property.Name, $CommanderRecord.runtime_commander)
+            }
+
+            $values[$index] = [Math]::Max(0, [Math]::Min(30, [int]$property.Value))
+        }
+
+        return $values
+    }
+
+    $arrayValues = @($Entry.masteries)
+    if ($arrayValues.Count -ne $values.Count) {
+        throw ("Commander '{0}' mastery array expected {1} values, got {2}." -f $CommanderRecord.runtime_commander, $values.Count, $arrayValues.Count)
+    }
+
+    for ($masteryIndex = 0; $masteryIndex -lt $arrayValues.Count; $masteryIndex++) {
+        $values[$masteryIndex] = [Math]::Max(0, [Math]::Min(30, [int]$arrayValues[$masteryIndex]))
+    }
+
+    return $values
+}
+
+function Get-CommanderPowerPresetEntries {
+    param([string]$PresetPath)
+
+    $resolvedPath = Resolve-CommanderPowerPresetPath -Path $PresetPath
+    if ([string]::IsNullOrWhiteSpace($resolvedPath)) {
+        return @()
+    }
+
+    if (-not (Test-Path -LiteralPath $resolvedPath)) {
+        throw "CommanderPower preset path not found: $resolvedPath"
+    }
+
+    $json = Get-Content -LiteralPath $resolvedPath -Encoding UTF8 -Raw | ConvertFrom-Json
+    if ($null -eq $json.entries) {
+        throw "CommanderPower preset file must contain an 'entries' array."
+    }
+
+    return @($json.entries)
+}
+
+function Apply-CommanderPowerOverrideEntry {
+    param(
+        [xml]$Xml,
+        [string]$OverrideEntry
+    )
+
+    if ([string]::IsNullOrWhiteSpace($OverrideEntry)) {
+        return
+    }
+
+    $parts = $OverrideEntry.Split("=", 2)
+    if ($parts.Count -ne 2) {
+        throw "Invalid CommanderPowerOverride entry '$OverrideEntry'. Expected Commander.Key=Value."
+    }
+
+    $fullKey = $parts[0].Trim()
+    $value = $parts[1].Trim()
+    $keyParts = $fullKey.Split(".", 2)
+    if ($keyParts.Count -ne 2) {
+        throw "Invalid CommanderPowerOverride key '$fullKey'. Expected Commander.Key."
+    }
+
+    $commanderKey = Convert-TestCommanderToCommanderPowerKey -Commander $keyParts[0].Trim()
+    if ([string]::IsNullOrWhiteSpace($commanderKey)) {
+        $commanderKey = $keyParts[0].Trim()
+    }
+    $bankKey = "$commanderKey.$($keyParts[1].Trim())"
+
+    $intValue = 0
+    if ([int]::TryParse($value, [ref]$intValue)) {
+        Set-BankIntKeyValue -Xml $Xml -SectionName "CommanderPower" -KeyName $bankKey -Value $intValue
+        return
+    }
+
+    Set-BankStringKeyValue -Xml $Xml -SectionName "CommanderPower" -KeyName $bankKey -Value $value
+}
+
+function Set-CampaignXCoreCommanderPowerPreset {
+    param(
+        [string[]]$SelectedCommanders,
+        [string]$Profile,
+        [int]$PrestigeBonusMask,
+        [Nullable[int]]$PrestigePointIndex,
+        [int]$EnablePrestiges,
+        [int]$EnableMasteries,
+        [int]$MasteryLevel,
+        [Nullable[int]]$Mastery0,
+        [Nullable[int]]$Mastery1,
+        [Nullable[int]]$Mastery2,
+        [Nullable[int]]$Mastery3,
+        [Nullable[int]]$Mastery4,
+        [Nullable[int]]$Mastery5,
+        [string]$PresetPath,
+        [string[]]$Overrides
+    )
+
+    $bankPaths = @(Get-CampaignXCoreBankPaths)
+    if ($bankPaths.Count -eq 0) {
+        Write-Warning "CampaignXCore.SC2Bank not found; skipping CommanderPower preset."
+        return
+    }
+
+    $normalizedMasteryLevel = [Math]::Max(0, [Math]::Min(30, $MasteryLevel))
+    $normalizedPrestigeBonusMask = [Math]::Max(0, [Math]::Min(7, $PrestigeBonusMask))
+    $normalizedEnablePrestiges = if ($EnablePrestiges -gt 0) { 1 } else { 0 }
+    $normalizedEnableMasteries = if ($EnableMasteries -gt 0) { 1 } else { 0 }
+    $normalizedPrestigePointIndex = -1
+    if ($null -ne $PrestigePointIndex) {
+        $normalizedPrestigePointIndex = [Math]::Max(-1, [Math]::Min(3, [int]$PrestigePointIndex))
+    }
+    $masteryOverrides = @(
+        $Mastery0,
+        $Mastery1,
+        $Mastery2,
+        $Mastery3,
+        $Mastery4,
+        $Mastery5
+    )
+    $commanderSettings = [ordered]@{}
+    foreach ($selectedCommander in $SelectedCommanders) {
+        $commanderKey = Convert-TestCommanderToCommanderPowerKey -Commander $selectedCommander
+        if ([string]::IsNullOrWhiteSpace($commanderKey)) {
+            continue
+        }
+
+        $commanderMasteryValues = @()
+        for ($masteryIndex = 0; $masteryIndex -le 5; $masteryIndex++) {
+            $masteryValue = $normalizedMasteryLevel
+            if ($null -ne $masteryOverrides[$masteryIndex]) {
+                $masteryValue = [Math]::Max(0, [Math]::Min(30, [int]$masteryOverrides[$masteryIndex]))
+            }
+            $commanderMasteryValues += $masteryValue
+        }
+
+        $commanderSettings[$commanderKey] = @{
+            Profile = $Profile
+            EnablePrestiges = $normalizedEnablePrestiges
+            EnableMasteries = $normalizedEnableMasteries
+            PrestigePointIndex = $normalizedPrestigePointIndex
+            PrestigeIndex = $normalizedPrestigePointIndex
+            PrestigeBonusMask = $normalizedPrestigeBonusMask
+            PrestigeMask = $normalizedPrestigeBonusMask
+            MasteryDefault = $normalizedMasteryLevel
+            Masteries = $commanderMasteryValues
+        }
+    }
+
+    foreach ($entry in @(Get-CommanderPowerPresetEntries -PresetPath $PresetPath)) {
+        $entryCommander = [string]$entry.commander
+        if ([string]::IsNullOrWhiteSpace($entryCommander)) {
+            throw "CommanderPower preset entry is missing required field 'commander'."
+        }
+
+        if ($entryCommander -eq "ZergAbathurReborn") {
+            throw "CommanderPower preset does not support ZergAbathurReborn. Keep using direct CommanderPowerOverride or legacy Abathur patch controls for that path."
+        }
+
+        $commanderRecord = Resolve-CommanderPowerCommanderRecord -Commander $entryCommander -WorkspaceRoot (Get-WorkspaceRoot)
+        if ($null -eq $commanderRecord) {
+            throw "Unknown commander in CommanderPower preset: $entryCommander"
+        }
+
+        $bankCommander = [string]$commanderRecord.bank_commander
+        $entryMasteryDefault = $normalizedMasteryLevel
+        if ($null -ne $entry.mastery_default) {
+            $entryMasteryDefault = [Math]::Max(0, [Math]::Min(30, [int]$entry.mastery_default))
+        }
+
+        $commanderSettings[$bankCommander] = @{
+            Profile = $(if ($null -ne $entry.profile -and -not [string]::IsNullOrWhiteSpace([string]$entry.profile)) { [string]$entry.profile } else { $Profile })
+            EnablePrestiges = (ConvertTo-CommanderPowerBoolInt -Value $entry.enable_prestiges -DefaultValue $normalizedEnablePrestiges)
+            EnableMasteries = (ConvertTo-CommanderPowerBoolInt -Value $entry.enable_masteries -DefaultValue $normalizedEnableMasteries)
+            PrestigePointIndex = (ConvertTo-CommanderPowerPrestigePointIndex -Entry $entry -DefaultPointIndex $normalizedPrestigePointIndex)
+            PrestigeIndex = (ConvertTo-CommanderPowerPrestigePointIndex -Entry $entry -DefaultPointIndex $normalizedPrestigePointIndex)
+            PrestigeBonusMask = (ConvertTo-CommanderPowerPrestigeMask -CommanderRecord $commanderRecord -Entry $entry -DefaultMask $normalizedPrestigeBonusMask)
+            PrestigeMask = (ConvertTo-CommanderPowerPrestigeMask -CommanderRecord $commanderRecord -Entry $entry -DefaultMask $normalizedPrestigeBonusMask)
+            MasteryDefault = $entryMasteryDefault
+            Masteries = (ConvertTo-CommanderPowerMasteryValues -CommanderRecord $commanderRecord -Entry $entry -DefaultMasteryLevel $entryMasteryDefault)
+        }
+    }
+
+    foreach ($bankPath in $bankPaths) {
+        [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
+
+        if ($commanderSettings.Count -gt 0) {
+            Set-BankStringKeyValue -Xml $xml -SectionName "Ach" -KeyName "Commander" -Value @($commanderSettings.Keys)[0]
+        }
+
+        foreach ($commanderKey in $commanderSettings.Keys) {
+            $setting = $commanderSettings[$commanderKey]
+            Set-BankStringKeyValue -Xml $xml -SectionName "CommanderPower" -KeyName "$commanderKey.Profile" -Value $setting.Profile
+            Set-BankIntKeyValue -Xml $xml -SectionName "CommanderPower" -KeyName "$commanderKey.EnablePrestiges" -Value $setting.EnablePrestiges
+            Set-BankIntKeyValue -Xml $xml -SectionName "CommanderPower" -KeyName "$commanderKey.EnableMasteries" -Value $setting.EnableMasteries
+            Set-BankIntKeyValue -Xml $xml -SectionName "CommanderPower" -KeyName "$commanderKey.PrestigePointIndex" -Value $setting.PrestigePointIndex
+            Set-BankIntKeyValue -Xml $xml -SectionName "CommanderPower" -KeyName "$commanderKey.PrestigeIndex" -Value $setting.PrestigeIndex
+            Set-BankIntKeyValue -Xml $xml -SectionName "CommanderPower" -KeyName "$commanderKey.PrestigeBonusMask" -Value $setting.PrestigeBonusMask
+            Set-BankIntKeyValue -Xml $xml -SectionName "CommanderPower" -KeyName "$commanderKey.PrestigeMask" -Value $setting.PrestigeMask
+            Set-BankIntKeyValue -Xml $xml -SectionName "CommanderPower" -KeyName "$commanderKey.MasteryDefault" -Value $setting.MasteryDefault
+            for ($masteryIndex = 0; $masteryIndex -le 5; $masteryIndex++) {
+                $masteryValue = [int]$setting.Masteries[$masteryIndex]
+                Set-BankIntKeyValue -Xml $xml -SectionName "CommanderPower" -KeyName "$commanderKey.Mastery$masteryIndex" -Value $masteryValue
+            }
+        }
+        if ($commanderSettings.Count -gt 0) {
+            Set-BankIntKeyValue -Xml $xml -SectionName "CommanderPowerRuntime" -KeyName "PreserveBankPreset" -Value ([Math]::Max(1, $commanderSettings.Count))
+        }
+
+        foreach ($overrideEntry in $Overrides) {
+            Apply-CommanderPowerOverrideEntry -Xml $xml -OverrideEntry $overrideEntry
+        }
+
+        Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
+    }
+}
+
 function Copy-DirectoryClean {
     param(
         [Parameter(Mandatory = $true)]
@@ -180,7 +762,7 @@ function Copy-DirectoryClean {
     }
 
     if (Test-Path -LiteralPath $Destination) {
-        Remove-Item -LiteralPath $Destination -Recurse -Force
+        Remove-DirectoryWithRetry -Path $Destination
     }
 
     $parent = Split-Path -Parent $Destination
@@ -189,6 +771,91 @@ function Copy-DirectoryClean {
     }
 
     Copy-Item -LiteralPath $Source -Destination $Destination -Recurse -Force
+}
+
+function Remove-DirectoryWithRetry {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [int]$RetryCount = 5,
+        [int]$DelayMilliseconds = 400
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    for ($attempt = 1; $attempt -le $RetryCount; $attempt++) {
+        try {
+            Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction Stop
+            return
+        }
+        catch {
+            if (($attempt -ge $RetryCount) -or (-not (Test-Path -LiteralPath $Path))) {
+                throw
+            }
+            Start-Sleep -Milliseconds $DelayMilliseconds
+        }
+    }
+}
+
+function Remove-UnsupportedLiveRuntimeRoots {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Sc2Root,
+        [string[]]$AllowedDependencies = @()
+    )
+
+    $removed = New-Object 'System.Collections.Generic.List[string]'
+    $modsRoot = Join-Path $Sc2Root "Mods"
+    if (-not (Test-Path -LiteralPath $modsRoot)) {
+        return $removed.ToArray()
+    }
+
+    $allowed7vs1Mods = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($dependency in $AllowedDependencies) {
+        if (-not (Test-WorkspaceModDependency -Dependency $dependency)) {
+            continue
+        }
+
+        $relativePath = Convert-DependencyToRelativePath -Dependency $dependency
+        if ($relativePath -like 'Mods\7vs1\*.SC2Mod') {
+            $null = $allowed7vs1Mods.Add((Split-Path -Path $relativePath -Leaf))
+        }
+    }
+
+    foreach ($entry in Get-ChildItem -LiteralPath $modsRoot -Force -ErrorAction SilentlyContinue) {
+        if ($entry.Name -notlike 'XM*') {
+            continue
+        }
+
+        Remove-DirectoryWithRetry -Path $entry.FullName
+        $null = $removed.Add(("Mods\{0}" -f $entry.Name))
+    }
+
+    $mods7vs1Root = Join-Path $modsRoot "7vs1"
+    if (Test-Path -LiteralPath $mods7vs1Root) {
+        foreach ($entry in Get-ChildItem -LiteralPath $mods7vs1Root -Force -ErrorAction SilentlyContinue) {
+            if (($entry.Name -notlike '*.SC2Mod') -or $allowed7vs1Mods.Contains($entry.Name)) {
+                continue
+            }
+
+            Remove-DirectoryWithRetry -Path $entry.FullName
+            $null = $removed.Add(("Mods\7vs1\{0}" -f $entry.Name))
+        }
+    }
+
+    return $removed.ToArray()
+}
+
+function Remove-LegacyLiveRuntimeRoots {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Sc2Root,
+        [string[]]$AllowedDependencies = @()
+    )
+
+    return Remove-UnsupportedLiveRuntimeRoots -Sc2Root $Sc2Root -AllowedDependencies $AllowedDependencies
 }
 
 function Set-DocumentInfoDependencies {
@@ -200,7 +867,7 @@ function Set-DocumentInfoDependencies {
     )
 
     if (-not (Test-Path -LiteralPath $Path)) {
-        throw "DocumentInfo not found: $Path"
+        Wait-PathAvailable -Path $Path
     }
 
     [xml]$xml = Get-Content -LiteralPath $Path -Raw
@@ -316,7 +983,7 @@ function Set-DocumentHeaderDependencies {
     )
 
     if (-not (Test-Path -LiteralPath $Path)) {
-        throw "DocumentHeader not found: $Path"
+        Wait-PathAvailable -Path $Path
     }
 
     [byte[]]$bytes = [System.IO.File]::ReadAllBytes($Path)
@@ -333,7 +1000,7 @@ function Set-DocumentHeaderDependencies {
     $stream.Write($dependencyBytes, 0, $dependencyBytes.Length)
     $stream.Write($bytes, $dependencyEnd, $bytes.Length - $dependencyEnd)
 
-    [System.IO.File]::WriteAllBytes($Path, $stream.ToArray())
+    Write-FileBytesWithRetry -Path $Path -Bytes $stream.ToArray()
 }
 
 function Set-PackageDependencies {
@@ -355,7 +1022,7 @@ function Get-DocumentInfoDependencies {
     )
 
     if (-not (Test-Path -LiteralPath $Path)) {
-        throw "DocumentInfo not found: $Path"
+        Wait-PathAvailable -Path $Path
     }
 
     [xml]$xml = Get-Content -LiteralPath $Path -Raw
@@ -375,6 +1042,195 @@ function Add-DependencyUnique {
     }
 
     return @($Dependencies + $Dependency)
+}
+
+function Get-DependencyFileTarget {
+    param([string]$Dependency)
+
+    $parts = $Dependency.Split(',')
+    $target = $parts[$parts.Count - 1]
+    if ($target -like 'file:*') {
+        return ($target -replace '\\', '/')
+    }
+
+    return ""
+}
+
+function Normalize-MapRuntimeDependencies {
+    param([string[]]$Dependencies)
+
+    $libertyStory = "bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign"
+    $libertyMod = "bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod"
+    $normalized = @($libertyStory, $libertyMod)
+
+    foreach ($dependency in $Dependencies) {
+        $target = Get-DependencyFileTarget -Dependency $dependency
+        if (($target -eq "file:Campaigns/LibertyStory.SC2Campaign") -or
+            ($target -eq "file:Mods/Liberty.SC2Mod")) {
+            continue
+        }
+
+        if ($dependency -like "file:*") {
+            $dependency = ($dependency -replace '\\', '/')
+        }
+        $normalized = Add-DependencyUnique -Dependencies $normalized -Dependency $dependency
+    }
+
+    return $normalized
+}
+
+function Test-AnyLocalModDependency {
+    param([string]$Dependency)
+
+    return $Dependency -like 'file:Mods/*'
+}
+
+function Test-WorkspaceModDependency {
+    param([string]$Dependency)
+
+    if (-not (Test-AnyLocalModDependency -Dependency $Dependency)) {
+        return $false
+    }
+
+    $normalized = $Dependency.Replace('\', '/').ToLowerInvariant()
+    return ($normalized -like 'file:mods/7vs1/*.sc2mod') -or
+        ($normalized -eq 'file:mods/kit_mutations.sc2mod')
+}
+
+function Assert-SupportedWorkspaceModDependency {
+    param([string]$Dependency)
+
+    if ((Test-AnyLocalModDependency -Dependency $Dependency) -and
+        (-not (Test-WorkspaceModDependency -Dependency $Dependency))) {
+        throw "Unsupported workspace dependency '$Dependency'. 7vs1 smoke/install only allows file:Mods/7vs1/*.SC2Mod and file:Mods/kit_mutations.SC2Mod. Remove stale unsupported local mod references from DocumentInfo."
+    }
+}
+
+function Assert-NoUnsupportedWorkspaceDependency {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string[]]$Dependencies,
+        [string]$DependencyOwner = "dependency list"
+    )
+
+    foreach ($dependency in $Dependencies) {
+        Assert-SupportedWorkspaceModDependency -Dependency $dependency
+    }
+}
+
+function Convert-DependencyToRelativePath {
+    param([string]$Dependency)
+
+    if (-not (Test-WorkspaceModDependency -Dependency $Dependency)) {
+        Assert-SupportedWorkspaceModDependency -Dependency $Dependency
+        throw "Unsupported local dependency path: $Dependency"
+    }
+
+    return $Dependency.Substring(5).Replace('/', '\')
+}
+
+function Resolve-WorkspaceDependencySource {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Dependency,
+        [Parameter(Mandatory = $true)]
+        [string]$WorkspaceRoot
+    )
+
+    $relativePath = Convert-DependencyToRelativePath -Dependency $Dependency
+    $sourcePath = Join-Path $WorkspaceRoot $relativePath
+    if (-not (Test-Path -LiteralPath $sourcePath)) {
+        throw "Workspace dependency source not found for ${Dependency}: $sourcePath"
+    }
+
+    return $sourcePath
+}
+
+function Resolve-LiveDependencyDestination {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Dependency,
+        [Parameter(Mandatory = $true)]
+        [string]$Sc2Root
+    )
+
+    return (Join-Path $Sc2Root (Convert-DependencyToRelativePath -Dependency $Dependency))
+}
+
+function Resolve-WorkspaceModDependencyClosure {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string[]]$Dependencies,
+        [Parameter(Mandatory = $true)]
+        [string]$WorkspaceRoot
+    )
+
+    $queue = New-Object 'System.Collections.Generic.Queue[string]'
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    $closure = New-Object 'System.Collections.Generic.List[string]'
+
+foreach ($dependency in $Dependencies) {
+    Assert-SupportedWorkspaceModDependency -Dependency $dependency
+    if (Test-WorkspaceModDependency -Dependency $dependency) {
+        $queue.Enqueue($dependency)
+    }
+}
+
+    while ($queue.Count -gt 0) {
+        $dependency = $queue.Dequeue()
+        if (-not $seen.Add($dependency)) {
+            continue
+        }
+
+        $null = $closure.Add($dependency)
+        $sourceRoot = Resolve-WorkspaceDependencySource -Dependency $dependency -WorkspaceRoot $WorkspaceRoot
+        $documentInfoPath = Join-Path $sourceRoot 'DocumentInfo'
+        if (-not (Test-Path -LiteralPath $documentInfoPath)) {
+            continue
+        }
+
+    foreach ($childDependency in (Get-DocumentInfoDependencies -Path $documentInfoPath)) {
+        Assert-SupportedWorkspaceModDependency -Dependency $childDependency
+        if (Test-WorkspaceModDependency -Dependency $childDependency) {
+            $queue.Enqueue($childDependency)
+        }
+        }
+    }
+
+    return $closure.ToArray()
+}
+
+function Install-WorkspaceModDependencyClosure {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string[]]$Dependencies,
+        [Parameter(Mandatory = $true)]
+        [string]$WorkspaceRoot,
+        [Parameter(Mandatory = $true)]
+        [string]$Sc2Root,
+        [string[]]$SkipDependencies = @()
+    )
+
+    $skipSet = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($dependency in $SkipDependencies) {
+        if (-not [string]::IsNullOrWhiteSpace($dependency)) {
+            $null = $skipSet.Add($dependency)
+        }
+    }
+
+    $installed = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($dependency in (Resolve-WorkspaceModDependencyClosure -Dependencies $Dependencies -WorkspaceRoot $WorkspaceRoot)) {
+        if ($skipSet.Contains($dependency)) {
+            continue
+        }
+
+        $sourceRoot = Resolve-WorkspaceDependencySource -Dependency $dependency -WorkspaceRoot $WorkspaceRoot
+        $liveRoot = Resolve-LiveDependencyDestination -Dependency $dependency -Sc2Root $Sc2Root
+        Copy-DirectoryClean -Source $sourceRoot -Destination $liveRoot
+        $null = $installed.Add($dependency)
+    }
+
+    return $installed.ToArray()
 }
 
 function Get-CodexStartPoints {
@@ -421,7 +1277,7 @@ function Get-MapObjectStartPointOverrides {
     $overrides = @{}
     $matches = [regex]::Matches(
         $text,
-        '<ObjectPoint\b[^>]*\bPosition="(?<x>-?\d+(?:\.\d+)?),(?<y>-?\d+(?:\.\d+)?),[^"]*"[^>]*\bType="StartLoc"[^>]*\bName="Start Location P(?<player>\d+)[^"]*"',
+        '<ObjectPoint\b[^>]*\bPosition="(?<x>-?\d+(?:\.\d+)?),(?<y>-?\d+(?:\.\d+)?),[^"]*"[^>]*\bType="StartLoc"[^>]*\bName="Start Location (?:P)?(?<player>\d+)\b[^"]*"',
         [System.Text.RegularExpressions.RegexOptions]::IgnoreCase
     )
 
@@ -513,7 +1369,7 @@ function Add-SafeStartPointOverride {
     }
 
     $text = [regex]::Replace($text, 'PlayerStartLocation\(', "$FunctionName(")
-    Set-Content -LiteralPath $Path -Value $text -NoNewline -Encoding UTF8
+    Set-FileTextWithRetry -Path $Path -Text $text
 }
 
 function Disable-LiveRewardGrants {
@@ -528,7 +1384,7 @@ function Disable-LiveRewardGrants {
         '(?m)^\s*PlayerAddReward\([^\r\n]*\);\s*$',
         '    // Codex local smoke test: PlayerAddReward omitted because SC2Switcher has no reward authority.'
     )
-    Set-Content -LiteralPath $Path -Value $text -NoNewline -Encoding UTF8
+    Set-FileTextWithRetry -Path $Path -Text $text
 }
 
 function Patch-LiveTychusUiGuards {
@@ -562,12 +1418,11 @@ function Patch-LiveTychusUiGuards {
     libNtve_gf_SetDialogItemUnit(libKCUI_gv_cU_TychusSquadUnitTargets[lv_squadindex][lp_player], lp_targetUnit, PlayerGroupAll());
 '@
     $newText = [regex]::Replace($text, $targetFramePattern, $targetFrameReplacement, 1)
-    if ($newText -eq $text) {
-        throw "Could not patch Tychus target frame guard in $Path"
+    if ($newText -ne $text) {
+        $text = $newText
     }
-    $text = $newText
 
-    Set-Content -LiteralPath $Path -Value $text -NoNewline -Encoding UTF8
+    Set-FileTextWithRetry -Path $Path -Text $text
 }
 
 function Patch-LiveAbathurBiomassScaleGuard {
@@ -585,7 +1440,7 @@ function Patch-LiveAbathurBiomassScaleGuard {
         '        ActorSendAsText(libNtve_gf_MainActorofUnit(lp_biomassUnit), TextExpressionAssemble("Param/Expression/lib_KMIS_139DC70E"));',
         '        // Codex local smoke test: skip actor scale message when the copied test map has no valid biomass actor info.'
     )
-    Set-Content -LiteralPath $Path -Value $text -NoNewline -Encoding UTF8
+    Set-FileTextWithRetry -Path $Path -Text $text
 }
 
 function Patch-LiveAbathurCommanderBridge {
@@ -609,7 +1464,7 @@ function Patch-LiveAbathurCommanderBridge {
         '        if ((TechTreeUpgradeCount(lp_player, "AbathurCommander", c_techCountCompleteOnly) == 1)) {',
         '        if (((TechTreeUpgradeCount(lp_player, "AbathurCommander", c_techCountCompleteOnly) == 1) || (TechTreeUpgradeCount(lp_player, "AbathurRebornCommander", c_techCountCompleteOnly) == 1))) {'
     )
-    Set-Content -LiteralPath $LibKPVPPath -Value $kpvp -NoNewline -Encoding UTF8
+    Set-FileTextWithRetry -Path $LibKPVPPath -Text $kpvp
 
     $kcor = Get-Content -LiteralPath $LibKCORPath -Raw
     if ($kcor -notmatch 'ZergAbathurReborn') {
@@ -640,7 +1495,7 @@ else if (auto7BF4C060_val == "ZergAbathur") {
             1
         )
     }
-    Set-Content -LiteralPath $LibKCORPath -Value $kcor -NoNewline -Encoding UTF8
+    Set-FileTextWithRetry -Path $LibKCORPath -Text $kcor
 
     $kcui = Get-Content -LiteralPath $LibKCUIPath -Raw
     $kcui = [regex]::Replace(
@@ -656,7 +1511,7 @@ else if (auto25C94ED4_val == "ZergAbathur") {
 '@,
         1
     )
-    Set-Content -LiteralPath $LibKCUIPath -Value $kcui -NoNewline -Encoding UTF8
+    Set-FileTextWithRetry -Path $LibKCUIPath -Text $kcui
 
     $kmis = Get-Content -LiteralPath $LibKMISPath -Raw
     if ($kmis -notmatch 'libKMIS_gf_codex_is_abathur_commander') {
@@ -831,7 +1686,7 @@ int libKMIS_gf_codex_first_abathur_player () {
     TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_Abathur_RavagerSpellCooldown, c_playerAny, "RavagerCorrosiveBileAoeLaunchSetAbathurReborn");
 '@
     )
-    Set-Content -LiteralPath $LibKMISPath -Value $kmis -NoNewline -Encoding UTF8
+    Set-FileTextWithRetry -Path $LibKMISPath -Text $kmis
 }
 
 function Validate-LiveAbathurRebornInstall {
@@ -845,6 +1700,7 @@ function Validate-LiveAbathurRebornInstall {
     )
 
     $mapInfo = Get-Content -LiteralPath (Join-Path $MapLive "DocumentInfo") -Raw
+    $mapDependencies = Get-DocumentInfoDependencies -Path (Join-Path $MapLive "DocumentInfo")
     $patchInfo = Get-Content -LiteralPath (Join-Path $PatchLive "DocumentInfo") -Raw
     $kpvp = Get-Content -LiteralPath (Join-Path $ExtensionLive "Base.SC2Data\LibKPVP.galaxy") -Raw
     $kcor = Get-Content -LiteralPath (Join-Path $ExtensionLive "Base.SC2Data\LibKCOR.galaxy") -Raw
@@ -853,6 +1709,7 @@ function Validate-LiveAbathurRebornInstall {
 
     foreach ($required in @(
         'file:Mods/7vs1/CoopZeroPop.SC2Mod',
+        'file:Mods/7vs1/CommanderCatalog.SC2Mod',
         'file:Mods/7vs1/7v1AbathurRebornPatch.SC2Mod'
     )) {
         if (-not $mapInfo.Contains($required)) {
@@ -892,16 +1749,20 @@ function Validate-LiveBaseTestlineInstall {
     )
 
     $mapInfo = Get-Content -LiteralPath (Join-Path $MapLive "DocumentInfo") -Raw
+    $mapDependencies = Get-DocumentInfoDependencies -Path (Join-Path $MapLive "DocumentInfo")
     $kpvp = Get-Content -LiteralPath (Join-Path $ExtensionLive "Base.SC2Data\LibKPVP.galaxy") -Raw
 
     if (-not $mapInfo.Contains('file:Mods/7vs1/CoopZeroPop.SC2Mod')) {
         throw 'Live base testline dependency missing: file:Mods/7vs1/CoopZeroPop.SC2Mod'
     }
+    if (-not $mapInfo.Contains('file:Mods/7vs1/CommanderCatalog.SC2Mod')) {
+        throw 'Live base testline dependency missing: file:Mods/7vs1/CommanderCatalog.SC2Mod'
+    }
+
+    Assert-NoUnsupportedWorkspaceDependency -Dependencies $mapDependencies -DependencyOwner "live map DocumentInfo"
 
     $hasSecondaryDependency = $false
     foreach ($marker in @(
-        'file:Mods\XM\XMFinal.SC2Mod',
-        'file:Mods/XM/XMFinal.SC2Mod',
         'file:Campaigns/LibertyStory.SC2Campaign',
         'file:Campaigns/Void.SC2Campaign',
         'file:Mods/Liberty.SC2Mod',
@@ -1162,7 +2023,8 @@ function Set-LiveCommanderTestOverride {
         [Parameter(Mandatory = $true)]
         [string]$LibPath,
         [Parameter(Mandatory = $true)]
-        [string[]]$SelectedCommanders
+        [string[]]$SelectedCommanders,
+        [string]$TestSpawnPreset = ""
     )
 
     if (($SelectedCommanders.Count -lt 1) -or ($SelectedCommanders.Count -gt 7)) {
@@ -1241,77 +2103,46 @@ function Set-LiveCommanderTestOverride {
     [void]$functionBlock.AppendLine("    UIDisplayMessage(PlayerGroupSingle(lp_player), c_messageAreaChat, StringToText((`"Codex test init: TerranSwann KelMorianWorker tech enabled. Workers=`" + IntToString(UnitGroupCount(UnitGroup(`"KelMorianWorker`", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive)))));")
     [void]$functionBlock.AppendLine("}")
     [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_ensure_start_units (int lp_player, string lp_commander) {")
+    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_abathur_apply_full_biomass (unit lp_unit, int lp_player, int lp_stack) {")
+    [void]$functionBlock.AppendLine("    if (lp_unit == null) {")
+    [void]$functionBlock.AppendLine("        return;")
+    [void]$functionBlock.AppendLine("    }")
+    [void]$functionBlock.AppendLine("    libKMIS_gf_CM_Abathur_BiomassSetStack(lp_unit, lp_stack);")
+    [void]$functionBlock.AppendLine("    libKMIS_gf_CM_Abathur_BiomassScale(lp_unit, true);")
+    [void]$functionBlock.AppendLine("    libKMIS_gf_CM_Abathur_BiomassMerge(lp_unit, lp_stack);")
+    [void]$functionBlock.AppendLine("}")
+    [void]$functionBlock.AppendLine("")
+    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_spawn_abathur_fusion_units (int lp_player) {")
     [void]$functionBlock.AppendLine("    point lv_start;")
-    [void]$functionBlock.AppendLine("    point lv_workerPoint;")
-    [void]$functionBlock.AppendLine("    point lv_heroPoint;")
-    [void]$functionBlock.AppendLine("    string lv_race;")
-    [void]$functionBlock.AppendLine("    string lv_townHall;")
-    [void]$functionBlock.AppendLine("    string lv_worker;")
-    [void]$functionBlock.AppendLine("    unitgroup lv_structures;")
-    [void]$functionBlock.AppendLine("    unitgroup lv_heroPlacements;")
-    [void]$functionBlock.AppendLine("    unit lv_primary;")
+    [void]$functionBlock.AppendLine("    unit lv_unit;")
     [void]$functionBlock.AppendLine("")
     [void]$functionBlock.AppendLine("    lv_start = libKPVP_gf_codex_start_point(lp_player);")
-    [void]$functionBlock.AppendLine("    lv_workerPoint = Point(PointGetX(lv_start) + 4.0, PointGetY(lv_start) - 2.0);")
-    [void]$functionBlock.AppendLine("    lv_heroPoint = Point(PointGetX(lv_start) - 4.0, PointGetY(lv_start) + 2.0);")
-    [void]$functionBlock.AppendLine("    lv_race = libKCOR_gf_CC_CommanderSpawnRace(lp_commander);")
-    [void]$functionBlock.AppendLine("    lv_townHall = `"CommandCenter`";")
-    [void]$functionBlock.AppendLine("    lv_worker = `"SCV`";")
-    [void]$functionBlock.AppendLine("    if (lv_race == `"Zerg`") {")
-    [void]$functionBlock.AppendLine("        lv_townHall = `"Hatchery`";")
-    [void]$functionBlock.AppendLine("        lv_worker = `"Drone`";")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if ((lv_race == `"Prot`") || (lv_race == `"ProZ`") || (lp_commander == `"ProtossZeratul`")) {")
-    [void]$functionBlock.AppendLine("        lv_townHall = `"Nexus`";")
-    [void]$functionBlock.AppendLine("        lv_worker = `"Probe`";")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    if (lp_commander == `"TerranHorner`") {")
-    [void]$functionBlock.AppendLine("        lv_townHall = `"HHCommandCenter`";")
-    [void]$functionBlock.AppendLine("        lv_worker = `"HHSCV`";")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"TerranTychus`") {")
-    [void]$functionBlock.AppendLine("        lv_townHall = `"TychusCommandCenter`";")
-    [void]$functionBlock.AppendLine("        lv_worker = `"TychusSCV`";")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"TerranSwann`") {")
-    [void]$functionBlock.AppendLine("        lv_worker = `"KelMorianWorker`";")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"TerranMengsk`") {")
-    [void]$functionBlock.AppendLine("        lv_townHall = `"CommandCenterMengsk`";")
-    [void]$functionBlock.AppendLine("        lv_worker = `"SCVMengsk`";")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"ZergStukov`") {")
-    [void]$functionBlock.AppendLine("        lv_townHall = `"SICommandCenter`";")
-    [void]$functionBlock.AppendLine("        lv_worker = `"SISCV`";")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"ZergDehaka`") {")
-    [void]$functionBlock.AppendLine("        lv_townHall = `"DehakaHatchery`";")
-    [void]$functionBlock.AppendLine("        lv_worker = `"DehakaDrone`";")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"ZergStetmann`") {")
-    [void]$functionBlock.AppendLine("        lv_townHall = `"HatcheryStetmann`";")
-    [void]$functionBlock.AppendLine("        lv_worker = `"DroneStetmann`";")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"ZergAbathurReborn`") {")
-    [void]$functionBlock.AppendLine("        lv_townHall = `"HatcheryAbathurReborn`";")
-    [void]$functionBlock.AppendLine("        lv_worker = `"DroneAbathurReborn`";")
-    [void]$functionBlock.AppendLine("    }")
     [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("    lv_structures = UnitGroup(null, lp_player, RegionCircle(lv_start, 12.0), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);")
-    [void]$functionBlock.AppendLine("    if (UnitGroupCount(lv_structures, c_unitCountAlive) <= 0) {")
-    [void]$functionBlock.AppendLine("        libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_townHall, c_unitCreateIgnorePlacement, lp_player, lv_start);")
-    [void]$functionBlock.AppendLine("        lv_primary = UnitLastCreated();")
-    [void]$functionBlock.AppendLine("        libNtve_gf_CreateUnitsWithDefaultFacing(5, lv_worker, c_unitCreateIgnorePlacement, lp_player, lv_workerPoint);")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else {")
-    [void]$functionBlock.AppendLine("        lv_primary = UnitGroupClosestToPoint(lv_structures, lv_start);")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    libKMIS_gv_cM_PrimaryTownHall[lp_player] = lv_primary;")
-    [void]$functionBlock.AppendLine("    lv_heroPlacements = UnitGroup(`"ACHeroSpawnPlacement`", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);")
-    [void]$functionBlock.AppendLine("    if (UnitGroupCount(lv_heroPlacements, c_unitCountAlive) <= 0) {")
-    [void]$functionBlock.AppendLine("        libNtve_gf_CreateUnitsWithDefaultFacing(1, `"ACHeroSpawnPlacement`", c_unitCreateIgnorePlacement, lp_player, lv_heroPoint);")
-    [void]$functionBlock.AppendLine("    }")
+    [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"BrutaliskAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 10.0, PointGetY(lv_start) + 6.0));")
+    [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
+    [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
+    [void]$functionBlock.AppendLine("")
+    [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"LeviathanAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 14.0, PointGetY(lv_start) + 10.0));")
+    [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
+    [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
+    [void]$functionBlock.AppendLine("")
+    [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"RavagerAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 6.0, PointGetY(lv_start) + 12.0));")
+    [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
+    [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
+    [void]$functionBlock.AppendLine("")
+    [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"MutaliskAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 2.0, PointGetY(lv_start) + 14.0));")
+    [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
+    [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
+    [void]$functionBlock.AppendLine("")
+    [void]$functionBlock.AppendLine("    UIDisplayMessage(PlayerGroupSingle(lp_player), c_messageAreaChat, StringToText(`"Codex test init: Abathur fusion verification units spawned.`"));")
+    [void]$functionBlock.AppendLine("}")
+    [void]$functionBlock.AppendLine("")
+    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_run_test_spawn_preset (int lp_player, string lp_commander) {")
+    if ($TestSpawnPreset -eq "AbathurFusion") {
+        [void]$functionBlock.AppendLine("    if (lp_commander == `"ZergAbathur`") {")
+        [void]$functionBlock.AppendLine("        libKPVP_gf_codex_spawn_abathur_fusion_units(lp_player);")
+        [void]$functionBlock.AppendLine("    }")
+    }
     [void]$functionBlock.AppendLine("}")
     [void]$functionBlock.AppendLine("")
     [void]$functionBlock.AppendLine("void libKPVP_gf_codex_init_test_player (int lp_player, string lp_commander) {")
@@ -1322,10 +2153,12 @@ function Set-LiveCommanderTestOverride {
     [void]$functionBlock.AppendLine("    if (lp_commander == `"TerranSwann`") {")
     [void]$functionBlock.AppendLine("        libKPVP_gf_codex_apply_swann_worker_tech(lp_player);")
     [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    libKPVP_gf_codex_ensure_start_units(lp_player, lp_commander);")
     [void]$functionBlock.AppendLine("    if (lp_commander == `"TerranSwann`") {")
-    [void]$functionBlock.AppendLine("        libKPVP_gf_codex_apply_swann_worker_tech(lp_player);")
+        [void]$functionBlock.AppendLine("        libKPVP_gf_codex_apply_swann_worker_tech(lp_player);")
     [void]$functionBlock.AppendLine("    }")
+    if (-not [string]::IsNullOrWhiteSpace($TestSpawnPreset)) {
+        [void]$functionBlock.AppendLine("    libKPVP_gf_codex_run_test_spawn_preset(lp_player, lp_commander);")
+    }
     [void]$functionBlock.AppendLine("}")
     [void]$functionBlock.AppendLine("")
     [void]$functionBlock.AppendLine("void libKPVP_gf_codex_init_7vs1_test_commanders () {")
@@ -1351,7 +2184,7 @@ function Set-LiveCommanderTestOverride {
         throw "Could not replace original commander selection loop in $LibPath"
     }
 
-    Set-Content -LiteralPath $LibPath -Value $newText -NoNewline -Encoding UTF8
+    Set-FileTextWithRetry -Path $LibPath -Text $newText
 }
 
 function Stop-RunningSc2 {
@@ -1401,16 +2234,18 @@ else {
     "Default+Objects"
 }
 $extensionSource = Resolve-ExtensionSource -SourceRoot $SourceRoot
-$coreSource = Resolve-7v1CoreSource
 $abathurRebornPatchSource = Resolve-AbathurRebornPatchSource
+$commanderCatalogSource = Resolve-CommanderCatalogSource
 $swannSourceGameData = Resolve-SwannSourceGameData -SourceRoot $SourceRoot
 $mapLive = Join-Path (Join-Path $Sc2Root "Maps\7vs1") $LiveMapName
 $extensionLive = Join-Path $Sc2Root "Mods\7vs1\CoopZeroPop.SC2Mod"
-$coreLive = Join-Path $Sc2Root "Mods\7vs1\7v1Core.SC2Mod"
 $abathurRebornPatchLive = Join-Path $Sc2Root "Mods\7vs1\7v1AbathurRebornPatch.SC2Mod"
 
 if (-not (Test-Path -LiteralPath $SwitcherPath)) {
     throw "SwitcherPath not found: $SwitcherPath"
+}
+if (-not (Test-Path -LiteralPath $commanderCatalogSource)) {
+    throw "CommanderCatalog source not found: $commanderCatalogSource"
 }
 
 $defaultCommanderSlots = Resolve-CommanderPreset -Name $Preset
@@ -1434,6 +2269,7 @@ if (($Commanders.Count -lt 1) -or ($Commanders.Count -gt 7)) {
 }
 
 $effectiveCommanders = @($Commanders)
+$useAbathurBiomassGuard = ($effectiveCommanders -contains "ZergAbathur") -or ($effectiveCommanders -contains "ZergAbathurReborn")
 
 if ($DisableAbathurRebornPatch) {
     foreach ($commander in $effectiveCommanders) {
@@ -1445,7 +2281,26 @@ if ($DisableAbathurRebornPatch) {
 
 $useAbathurRebornPatch = (-not $DisableAbathurRebornPatch) -and ($effectiveCommanders -contains "ZergAbathurReborn")
 
-if (-not $NoLaunch) {
+if (-not $SkipCommanderPowerPreset) {
+    Set-CampaignXCoreCommanderPowerPreset `
+        -SelectedCommanders $effectiveCommanders `
+        -Profile $CommanderPowerProfile `
+        -PrestigeBonusMask $CommanderPowerPrestigeBonusMask `
+        -PrestigePointIndex $CommanderPowerPrestigePointIndex `
+        -EnablePrestiges $CommanderPowerEnablePrestiges `
+        -EnableMasteries $CommanderPowerEnableMasteries `
+        -MasteryLevel $CommanderPowerMasteryLevel `
+        -Mastery0 $CommanderPowerMastery0 `
+        -Mastery1 $CommanderPowerMastery1 `
+        -Mastery2 $CommanderPowerMastery2 `
+        -Mastery3 $CommanderPowerMastery3 `
+        -Mastery4 $CommanderPowerMastery4 `
+        -Mastery5 $CommanderPowerMastery5 `
+        -PresetPath $CommanderPowerPresetPath `
+        -Overrides $CommanderPowerOverride
+}
+
+if ($ForceStopSc2BeforeInstall -or (-not $NoLaunch)) {
     Stop-RunningSc2
 }
 
@@ -1468,30 +2323,54 @@ $abathurRebornPatchDependencies = @(
 $mapDependencies = @(
     Get-DocumentInfoDependencies -Path (Join-Path $mapLive "DocumentInfo")
 )
+$mapDependencies = Normalize-MapRuntimeDependencies -Dependencies $mapDependencies
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CoopZeroPop.SC2Mod"
-$use7v1Core = ($mapDependencies -contains "file:Mods/7vs1/7v1Core.SC2Mod")
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CommanderCatalog.SC2Mod"
 if ($useAbathurRebornPatch) {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/7v1AbathurRebornPatch.SC2Mod"
 }
+
+Assert-NoUnsupportedWorkspaceDependency -Dependencies $extensionDependencies -DependencyOwner "extension dependencies"
+Assert-NoUnsupportedWorkspaceDependency -Dependencies $mapDependencies -DependencyOwner "map dependencies"
+if ($useAbathurRebornPatch) {
+    Assert-NoUnsupportedWorkspaceDependency -Dependencies $abathurRebornPatchDependencies -DependencyOwner "Abathur reborn patch dependencies"
+}
+
+$liveAllowedDependencies = New-Object 'System.Collections.Generic.List[string]'
+$liveAllowedDependencies.AddRange([string[]]$extensionDependencies)
+$liveAllowedDependencies.AddRange([string[]]$mapDependencies)
+if ($useAbathurRebornPatch) {
+    $liveAllowedDependencies.AddRange([string[]]$abathurRebornPatchDependencies)
+}
+
+$removedUnsupportedLiveRuntimeRoots = Remove-UnsupportedLiveRuntimeRoots `
+    -Sc2Root $Sc2Root `
+    -AllowedDependencies $liveAllowedDependencies.ToArray()
 
 Set-PackageDependencies -PackageRoot $extensionLive -Dependencies $extensionDependencies
 if ($useAbathurRebornPatch) {
     Set-PackageDependencies -PackageRoot $abathurRebornPatchLive -Dependencies $abathurRebornPatchDependencies
 }
 Set-PackageDependencies -PackageRoot $mapLive -Dependencies $mapDependencies
-if ($use7v1Core) {
-    if ([string]::IsNullOrWhiteSpace($coreSource)) {
-        throw "Map requires file:Mods/7vs1/7v1Core.SC2Mod, but local core source was not found."
-    }
-    Copy-DirectoryClean -Source $coreSource -Destination $coreLive
+
+$workspaceDependencySkips = @(
+    "file:Mods/7vs1/CoopZeroPop.SC2Mod"
+)
+if ($useAbathurRebornPatch) {
+    $workspaceDependencySkips += "file:Mods/7vs1/7v1AbathurRebornPatch.SC2Mod"
 }
+$installedWorkspaceDependencyMods = Install-WorkspaceModDependencyClosure `
+    -Dependencies $mapDependencies `
+    -WorkspaceRoot (Get-WorkspaceRoot) `
+    -Sc2Root $Sc2Root `
+    -SkipDependencies $workspaceDependencySkips
 
 $liveLibKPVP = Join-Path $extensionLive "Base.SC2Data\LibKPVP.galaxy"
-Set-LiveCommanderTestOverride -LibPath $liveLibKPVP -SelectedCommanders $effectiveCommanders
+Set-LiveCommanderTestOverride -LibPath $liveLibKPVP -SelectedCommanders $effectiveCommanders -TestSpawnPreset $TestSpawnPreset
 Add-SafeStartPointOverride -Path $liveLibKPVP -FunctionName "libKPVP_gf_codex_start_point" -InsertionAnchor "void libKPVP_gf_apply_peace_time" -StartPoints $effectiveStartPoints
 
 $liveGameData = Join-Path $extensionLive "Base.SC2Data\GameData"
-if ($swannSourceGameData) {
+if (($effectiveCommanders -contains "TerranSwann") -and $swannSourceGameData) {
     Patch-LiveSwannKelMorianWorkerData -SourceGameData $swannSourceGameData -LiveGameData $liveGameData
 }
 elseif ($effectiveCommanders -contains "TerranSwann") {
@@ -1504,10 +2383,6 @@ Add-SafeStartPointOverride -Path $liveLibKCOR -FunctionName "libKCOR_gf_codex_st
 $liveLibKMIS = Join-Path $extensionLive "Base.SC2Data\LibKMIS.galaxy"
 Add-SafeStartPointOverride -Path $liveLibKMIS -FunctionName "libKMIS_gf_codex_start_point" -InsertionAnchor "void libKMIS_gf_CM_Zeratul_GiveProphecyHint" -StartPoints $effectiveStartPoints
 Disable-LiveRewardGrants -Path $liveLibKMIS
-if ($useAbathurRebornPatch) {
-    Patch-LiveAbathurBiomassScaleGuard -Path $liveLibKMIS
-}
-
 $liveLibKCUI = Join-Path $extensionLive "Base.SC2Data\LibKCUI.galaxy"
 Patch-LiveTychusUiGuards -Path $liveLibKCUI
 if ($useAbathurRebornPatch) {
@@ -1518,8 +2393,41 @@ else {
     Validate-LiveBaseTestlineInstall -MapLive $mapLive -ExtensionLive $extensionLive
 }
 
+# Re-apply the CommanderPower bank preset at the end of the install path so
+# the final bank state wins even if any install/validation helper touched it.
+if (-not $SkipCommanderPowerPreset) {
+    Set-CampaignXCoreCommanderPowerPreset `
+        -SelectedCommanders $effectiveCommanders `
+        -Profile $CommanderPowerProfile `
+        -PrestigeBonusMask $CommanderPowerPrestigeBonusMask `
+        -PrestigePointIndex $CommanderPowerPrestigePointIndex `
+        -EnablePrestiges $CommanderPowerEnablePrestiges `
+        -EnableMasteries $CommanderPowerEnableMasteries `
+        -MasteryLevel $CommanderPowerMasteryLevel `
+        -Mastery0 $CommanderPowerMastery0 `
+        -Mastery1 $CommanderPowerMastery1 `
+        -Mastery2 $CommanderPowerMastery2 `
+        -Mastery3 $CommanderPowerMastery3 `
+        -Mastery4 $CommanderPowerMastery4 `
+        -Mastery5 $CommanderPowerMastery5 `
+        -PresetPath $CommanderPowerPresetPath `
+        -Overrides $CommanderPowerOverride
+}
+
 Write-Host "Installed map: $mapLive"
 Write-Host "Installed extension mod: $extensionLive"
+if ($removedUnsupportedLiveRuntimeRoots.Count -gt 0) {
+    Write-Host "Removed unsupported live runtime roots: $($removedUnsupportedLiveRuntimeRoots -join ', ')"
+}
+else {
+    Write-Host "Removed unsupported live runtime roots: none"
+}
+if ($installedWorkspaceDependencyMods.Count -gt 0) {
+    Write-Host "Installed workspace dependency mods: $($installedWorkspaceDependencyMods -join ', ')"
+}
+else {
+    Write-Host "Installed workspace dependency mods: none"
+}
 if ($useAbathurRebornPatch) {
     Write-Host "Installed Abathur reborn patch mod: $abathurRebornPatchLive"
     Write-Host "Abathur reborn patch profile: $AbathurPatchProfile"
@@ -1530,6 +2438,21 @@ else {
 Write-Host "Requested commanders: $($Commanders -join ', ')"
 Write-Host "Test commanders P1-P$($effectiveCommanders.Count): $($effectiveCommanders -join ', ')"
 Write-Host "Start point preset: $effectiveStartPointLabel"
+if (-not $SkipCommanderPowerPreset) {
+    Write-Host "Commander power profile: $CommanderPowerProfile"
+    Write-Host "Commander power prestige bonus mask: $CommanderPowerPrestigeBonusMask"
+    Write-Host "Commander power prestige point index: $CommanderPowerPrestigePointIndex"
+    Write-Host "Commander power enable prestiges: $CommanderPowerEnablePrestiges"
+    Write-Host "Commander power enable masteries: $CommanderPowerEnableMasteries"
+    Write-Host "Commander power mastery level: $CommanderPowerMasteryLevel"
+    Write-Host "Commander power mastery overrides: [$CommanderPowerMastery0,$CommanderPowerMastery1,$CommanderPowerMastery2,$CommanderPowerMastery3,$CommanderPowerMastery4,$CommanderPowerMastery5]"
+    if (-not [string]::IsNullOrWhiteSpace($CommanderPowerPresetPath)) {
+        Write-Host "Commander power preset path: $(Resolve-CommanderPowerPresetPath -Path $CommanderPowerPresetPath)"
+    }
+    if ($CommanderPowerOverride.Count -gt 0) {
+        Write-Host "Commander power overrides: $($CommanderPowerOverride -join '; ')"
+    }
+}
 
 if (-not $NoLaunch) {
     Write-Host "Launching map: $mapLive"

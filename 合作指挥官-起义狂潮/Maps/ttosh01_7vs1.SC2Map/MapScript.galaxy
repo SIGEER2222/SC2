@@ -8,6 +8,7 @@
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibE0EAE146"
 
@@ -18,6 +19,7 @@ void InitLibs () {
     libNtve_InitLib();
     libLbty_InitLib();
     libCamp_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libE0EAE146_InitLib();
 }
@@ -420,6 +422,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_p01_USER, c_playerPropMinerals, c_playerPropOperSetTo, 300);
     PlayerModifyPropertyInt(gv_p01_USER, c_playerPropVespene, c_playerPropOperSetTo, 200);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -662,6 +665,7 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     libNtve_gf_SwooshCamera(gv_p01_USER, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), PlayerStartLocation(gv_p01_USER), 1.5);
     CinematicFade(true, 1.5, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p04_ZERG);
     TriggerExecute(gt_StartGame, true, false);
     return true;
 }

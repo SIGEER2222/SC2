@@ -1,0 +1,21 @@
+void libE0EAE146_gf_NovaRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    int lv_mastery;
+
+    if (libE0EAE146_gv_novaRuntimeInitialized == true) {
+        return;
+    }
+
+    libE0EAE146_gv_novaRuntimeInitialized = true;
+    lib0940FFB7_gf_NovaCaster();
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterNova", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+    lib67C0F0E7_gf_CU_GPInit(lp_player, "Nova", UnitLastCreated(), null);
+    lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+    lib67C0F0E7_gf_ShowChooseButton();
+    lv_mastery = libE0EAE146_gf_CommanderPowerMasteryLevel("Nova", 1);
+    if (lv_mastery != 0) {
+        lib67C0F0E7_gf_SOAStickyLineUpg(lp_player, lv_mastery);
+    }
+    if (lp_createHero == true) {
+        lib0940FFB7_gf_InitlizeNova(lp_player);
+    }
+}

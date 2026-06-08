@@ -8,6 +8,7 @@
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibE0EAE146"
 
@@ -18,6 +19,7 @@ void InitLibs () {
     libNtve_InitLib();
     libLbty_InitLib();
     libCamp_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libE0EAE146_InitLib();
 }
@@ -187,6 +189,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
 
     PlayerModifyPropertyInt(gv_pLAYER_01_USER, c_playerPropMinerals, c_playerPropOperSetTo, libNtve_gf_DifficultyValueInt(200, 100, 100, 100));
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -584,6 +587,7 @@ bool gt_StartGame_Func (bool testConds, bool runActions) {
 
     libE0EAE146_gf_StartGame();
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_pLAYER_02_DOMINION);
     Wait(2.0, c_timeGame);
     lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/3EB85219"), 1, false, 0, 0);
     lib67C0F0E7_gf_ObjectiveSet(true, 1, lib67C0F0E7_ge_ObjectiveSet_Show);
@@ -624,7 +628,9 @@ bool gt_NullNeut_Func (bool testConds, bool runActions) {
 //--------------------------------------------------------------------------------------------------
 void gt_NullNeut_Init () {
     gt_NullNeut = TriggerCreate("gt_NullNeut_Func");
-    TriggerAddEventPlayerEffectUsed(gt_NullNeut, c_playerAny, "NullNeut");
+    if (CatalogEntryIsValid(c_gameCatalogEffect, "NullNeut")) {
+        TriggerAddEventPlayerEffectUsed(gt_NullNeut, c_playerAny, "NullNeut");
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

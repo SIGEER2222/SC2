@@ -8,6 +8,7 @@
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibE0EAE146"
 
@@ -18,6 +19,7 @@ void InitLibs () {
     libNtve_InitLib();
     libLbty_InitLib();
     libCamp_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libE0EAE146_InitLib();
 }
@@ -550,6 +552,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_pLAYER_01_USER, c_playerPropMinerals, c_playerPropOperSetTo, 200);
     PlayerModifyPropertyInt(gv_pLAYER_01_USER, c_playerPropVespene, c_playerPropOperSetTo, 200);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -819,6 +822,7 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     libNtve_gf_SwooshCamera(gv_pLAYER_01_USER, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), PlayerStartLocation(gv_pLAYER_01_USER), 1.5);
     CinematicFade(true, 1.5, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_pLAYER_02_DOMINION);
     TriggerExecute(gt_StartGame, true, false);
     return true;
 }
@@ -886,20 +890,18 @@ bool gt_bon1Set_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    lib67C0F0E7_gf_PingUnitT(UnitFromId(1119505537), "PingTriangle", Color(100.00, 100.00, 0.00), gt_Bon1);
-    lib67C0F0E7_gf_PingUnitT(UnitFromId(1798199382), "PingTriangle", Color(100.00, 100.00, 0.00), gt_Bon1);
-    lib67C0F0E7_gf_PingUnitT(UnitFromId(1064031387), "PingTriangle", Color(100.00, 100.00, 0.00), gt_Bon1);
-    UnitGroupAdd(lv_uG, UnitFromId(1119505537));
-    UnitGroupAdd(lv_uG, UnitFromId(1798199382));
-    UnitGroupAdd(lv_uG, UnitFromId(1064031387));
-    auto84CA166F_g = lv_uG;
-    auto84CA166F_u = UnitGroupCount(auto84CA166F_g, c_unitCountAll);
-    for (;; auto84CA166F_u -= 1) {
-        auto84CA166F_var = UnitGroupUnitFromEnd(auto84CA166F_g, auto84CA166F_u);
-        if (auto84CA166F_var == null) { break; }
-        UnitBehaviorAdd(auto84CA166F_var, "MissionObjectives", auto84CA166F_var, 1);
-        UnitSetPropertyFixed(auto84CA166F_var, c_unitPropLifeMax, 2000.0);
-        UnitSetPropertyFixed(auto84CA166F_var, c_unitPropLife, 2000.0);
+    if ((CatalogEntryIsValid(c_gameCatalogUnit, "DefilerInf") == true)) {
+        lv_uG = UnitGroup("DefilerInf", c_playerAny, null, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto84CA166F_g = lv_uG;
+        auto84CA166F_u = UnitGroupCount(auto84CA166F_g, c_unitCountAll);
+        for (;; auto84CA166F_u -= 1) {
+            auto84CA166F_var = UnitGroupUnitFromEnd(auto84CA166F_g, auto84CA166F_u);
+            if (auto84CA166F_var == null) { break; }
+            lib67C0F0E7_gf_PingUnitT(auto84CA166F_var, "PingTriangle", Color(100.00, 100.00, 0.00), gt_Bon1);
+            UnitBehaviorAdd(auto84CA166F_var, "MissionObjectives", auto84CA166F_var, 1);
+            UnitSetPropertyFixed(auto84CA166F_var, c_unitPropLifeMax, 2000.0);
+            UnitSetPropertyFixed(auto84CA166F_var, c_unitPropLife, 2000.0);
+        }
     }
     return true;
 }

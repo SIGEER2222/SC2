@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$MapsRoot = "游戏数据\其他mod数据\7vs1混合地图测试\Maps",
+    [string]$MapsRoot = "",
     [string]$SourceMapsRoot = "C:\Users\22448\Downloads\合作指挥官版起义狂潮0.81\Maps\XM",
     [switch]$FailOnMismatch
 )
@@ -9,6 +9,17 @@ $ErrorActionPreference = "Stop"
 
 function Resolve-WorkspacePath {
     param([string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        $workspaceRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+        $preferredMapsRoot = Join-Path $workspaceRoot "Maps"
+        if (Test-Path -LiteralPath $preferredMapsRoot) {
+            return [System.IO.Path]::GetFullPath($preferredMapsRoot)
+        }
+
+        $legacyMapsRoot = Join-Path $workspaceRoot "游戏数据\其他mod数据\7vs1混合地图测试\Maps"
+        return [System.IO.Path]::GetFullPath($legacyMapsRoot)
+    }
 
     if ([System.IO.Path]::IsPathRooted($Path)) {
         return [System.IO.Path]::GetFullPath($Path)
@@ -77,6 +88,66 @@ function Test-HasLocalLib {
     return (Test-Path -LiteralPath (Join-Path $MapRoot ("Base.SC2Data\{0}" -f $Name)))
 }
 
+function Get-PrivateXMDependencies {
+    param([string[]]$Dependencies)
+
+    return @($Dependencies | Where-Object { $_ -match '^file:Mods[/\\]XM[/\\].+?\.SC2Mod$' })
+}
+
+function Get-Unexpected7vs1Dependencies {
+    param([string[]]$Dependencies)
+
+    return @($Dependencies | Where-Object {
+        ($_ -match '^file:Mods[/\\]7vs1[/\\].+?\.SC2Mod$') -and
+        ($_ -notmatch '^file:Mods[/\\]7vs1[/\\](CoopZeroPop|CommanderCatalog)\.SC2Mod$')
+    })
+}
+
+function Test-HasDependencyTarget {
+    param(
+        [string[]]$Dependencies,
+        [string]$Target
+    )
+
+    return [bool](@($Dependencies | Where-Object {
+        ($_ -eq $Target) -or ($_ -like ("*," + $Target))
+    }).Count -gt 0)
+}
+
+function Get-DependencyFileTarget {
+    param([string]$Value)
+
+    $parts = $Value.Split(',')
+    $target = $parts[$parts.Count - 1]
+    if ($target -like 'file:*') {
+        return ($target -replace '\\', '/')
+    }
+
+    return ''
+}
+
+function Get-DuplicateDependencyTargets {
+    param([string[]]$Dependencies)
+
+    $seen = @{}
+    $duplicates = New-Object System.Collections.Generic.List[string]
+    foreach ($dependency in $Dependencies) {
+        $target = Get-DependencyFileTarget -Value $dependency
+        if ([string]::IsNullOrWhiteSpace($target)) {
+            continue
+        }
+        if ($seen.ContainsKey($target)) {
+            if (-not $duplicates.Contains($target)) {
+                $duplicates.Add($target) | Out-Null
+            }
+            continue
+        }
+        $seen[$target] = $true
+    }
+
+    return $duplicates.ToArray()
+}
+
 function Get-MapScriptStats {
     param([string]$Path)
 
@@ -119,37 +190,34 @@ if ($variantMaps.Count -eq 0) {
 $results = New-Object System.Collections.Generic.List[object]
 $failures = New-Object System.Collections.Generic.List[string]
 
-$libertyStory = 'bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign'
-$libertyMod = 'bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod'
+$libertyStoryTarget = 'file:Campaigns/LibertyStory.SC2Campaign'
+$libertyModTarget = 'file:Mods/Liberty.SC2Mod'
 $coopZeroPop = 'file:Mods/7vs1/CoopZeroPop.SC2Mod'
-$xmCore = 'file:Mods/XM/XMCore.SC2Mod'
+$commanderCatalog = 'file:Mods/7vs1/CommanderCatalog.SC2Mod'
+$kitMutations = 'file:Mods/kit_mutations.SC2Mod'
 $xmFinalForward = 'file:Mods/XM/XMFinal.SC2Mod'
 $xmFinalBack = 'file:Mods\XM\XMFinal.SC2Mod'
-$libToDependency = @{
-    'Lib0940FFB7' = 'file:Mods/XM/XMNova.SC2Mod'
-    'Lib4B62E36B' = 'file:Mods/XM/XMSwann.SC2Mod'
-    'Lib81FF3B49' = 'file:Mods/XM/XMTychus.SC2Mod'
-    'Lib975E2FE9' = 'file:Mods/XM/XMStetmann.SC2Mod'
-    'LibA1BA7A9F' = 'file:Mods/XM/XMAbathur.SC2Mod'
-    'LibA2FC17B7' = 'file:Mods/XM/XMAlarak.SC2Mod'
-    'LibB7B23F0D' = 'file:Mods/XM/XMSCV.SC2Mod'
-    'LibBE3BBD9F' = 'file:Mods/XM/XMStukov.SC2Mod'
-    'LibC0F50AA6' = 'file:Mods/XM/XMMengsk.SC2Mod'
-    'LibD0E57A9C' = 'file:Mods/XM/XMKerrigan.SC2Mod'
-    'LibDA886FA0' = 'file:Mods/XM/XMMira.SC2Mod'
-    'LibDF8E6945' = 'file:Mods/XM/XMDehaka.SC2Mod'
-}
 
 foreach ($variant in $variantMaps) {
     $sourceName = $variant.Name -replace '_7vs1(?=\.SC2Map$)', ''
     $sourcePath = Join-Path $resolvedSourceMapsRoot $sourceName
     $sourceExists = Test-Path -LiteralPath $sourcePath
     $variantDocInfo = Join-Path $variant.FullName 'DocumentInfo'
+    $sourceDocInfo = Join-Path $sourcePath 'DocumentInfo'
     $variantScript = Join-Path $variant.FullName 'MapScript.galaxy'
     $sourceScript = Join-Path $sourcePath 'MapScript.galaxy'
 
     $deps = Get-DocumentInfoDependencies -Path $variantDocInfo
+    $sourceDeps = if ($sourceExists) { Get-DocumentInfoDependencies -Path $sourceDocInfo } else { @() }
     $normalizedDeps = @($deps | ForEach-Object {
+        if ($_ -like 'file:*') {
+            $_ -replace '\\', '/'
+        }
+        else {
+            $_
+        }
+    })
+    $normalizedSourceDeps = @($sourceDeps | ForEach-Object {
         if ($_ -like 'file:*') {
             $_ -replace '\\', '/'
         }
@@ -162,10 +230,17 @@ foreach ($variant in $variantMaps) {
     $includeLibIds = Get-MapIncludeLibIds -Path $variantScript
 
     $hasCoopZeroPop = $normalizedDeps -contains $coopZeroPop
+    $hasCommanderCatalog = $normalizedDeps -contains $commanderCatalog
+    $hasKitMutations = $normalizedDeps -contains $kitMutations
+    $unexpected7vs1Deps = Get-Unexpected7vs1Dependencies -Dependencies $normalizedDeps
+    $hasUnexpected7vs1Dependency = $unexpected7vs1Deps.Count -gt 0
     $hasXMFinal = (($normalizedDeps -contains $xmFinalForward) -or ($normalizedDeps -contains $xmFinalBack))
-    $hasLibertyStory = $normalizedDeps -contains $libertyStory
-    $hasLibertyMod = $normalizedDeps -contains $libertyMod
-    $hasXMCore = $normalizedDeps -contains $xmCore
+    $hasLibertyStory = Test-HasDependencyTarget -Dependencies $normalizedDeps -Target $libertyStoryTarget
+    $hasLibertyMod = Test-HasDependencyTarget -Dependencies $normalizedDeps -Target $libertyModTarget
+    $duplicateDependencyTargets = Get-DuplicateDependencyTargets -Dependencies $normalizedDeps
+    $sourceHasLibertyStory = Test-HasDependencyTarget -Dependencies $normalizedSourceDeps -Target $libertyStoryTarget
+    $sourceHasLibertyMod = Test-HasDependencyTarget -Dependencies $normalizedSourceDeps -Target $libertyModTarget
+    $privateXMDeps = Get-PrivateXMDependencies -Dependencies $normalizedDeps
     $hasLocalLib67 = Test-HasLocalLib -MapRoot $variant.FullName -Name 'Lib67C0F0E7.galaxy'
     $hasLocalLibE0 = Test-HasLocalLib -MapRoot $variant.FullName -Name 'LibE0EAE146.galaxy'
     $initializeCallCount = $variantScriptStats.InitializeCallCount
@@ -179,18 +254,45 @@ foreach ($variant in $variantMaps) {
     $notes = New-Object System.Collections.Generic.List[string]
     if (-not $sourceExists) { $notes.Add('missing_source') }
     if (-not $hasCoopZeroPop) { $notes.Add('missing_coopzeropop') }
+    if (-not $hasCommanderCatalog) { $notes.Add('missing_commandercatalog') }
     if ($hasXMFinal) { $notes.Add('still_depends_on_xmfinal') }
-    if (-not $hasLibertyStory) { $notes.Add('missing_libertystory') }
-    if (-not $hasLibertyMod) { $notes.Add('missing_liberty_mod') }
-    if (-not $hasLocalLibE0) { $notes.Add('missing_local_libe0eae146') }
-    if ((-not $hasLocalLib67) -and (-not $hasXMCore)) { $notes.Add('missing_xmcore_or_local_lib67') }
-    foreach ($libId in $includeLibIds) {
-        if ($libToDependency.ContainsKey($libId) -and -not ($normalizedDeps -contains $libToDependency[$libId])) {
-            $notes.Add(("missing_dep_for_{0}" -f $libId.ToLowerInvariant()))
+    if ($privateXMDeps.Count -gt 0) { $notes.Add('still_depends_on_private_xm') }
+    if ($sourceHasLibertyStory -and -not $hasLibertyStory) { $notes.Add('missing_libertystory') }
+    if ($sourceHasLibertyMod -and -not $hasLibertyMod) { $notes.Add('missing_liberty_mod') }
+    foreach ($duplicateDependencyTarget in $duplicateDependencyTargets) {
+        $notes.Add(("duplicate_dependency_target:{0}" -f $duplicateDependencyTarget))
+    }
+    foreach ($dependency in $normalizedDeps) {
+        $target = Get-DependencyFileTarget -Value $dependency
+        if (($target -eq $libertyStoryTarget) -and ($dependency -ne 'bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign')) {
+            $notes.Add('noncanonical_libertystory_bnet')
+        }
+        if (($target -eq $libertyModTarget) -and ($dependency -ne 'bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod')) {
+            $notes.Add('noncanonical_liberty_mod_bnet')
         }
     }
-    if ($initializeCallCount -lt 1 -and $variant.Name -ne 'ttosh02_7vs1.SC2Map') { $notes.Add('missing_initialize') }
-    if ($initializeBaseCallCount -gt 0) { $notes.Add('initializebase_not_removed') }
+    if ($variant.Name -eq 'ttosh02_7vs1.SC2Map') {
+        if (-not $hasKitMutations) { $notes.Add('missing_kit_mutations') }
+    }
+    foreach ($unexpected7vs1Dep in $unexpected7vs1Deps) {
+        $notes.Add(("unexpected_7vs1_dependency:{0}" -f $unexpected7vs1Dep))
+    }
+    if (-not $hasLocalLibE0) { $notes.Add('missing_local_libe0eae146') }
+    if (-not $hasLocalLib67) { $notes.Add('missing_local_lib67c0f0e7') }
+    foreach ($libId in $includeLibIds) {
+        if ($libId -eq 'LibA070801C') {
+            if (-not $hasKitMutations) {
+                $notes.Add('missing_dep_for_liba070801c')
+            }
+            continue
+        }
+
+        if (-not (Test-HasLocalLib -MapRoot $variant.FullName -Name ("{0}.galaxy" -f $libId))) {
+            $notes.Add(("missing_local_lib_for_{0}" -f $libId.ToLowerInvariant()))
+        }
+    }
+    if ($initializeCallCount -lt 1) { $notes.Add('missing_initialize') }
+    if ($initializeBaseCallCount -lt 1) { $notes.Add('missing_initializebase') }
     if ($mapInitEventCount -ne $sourceScriptStats.MapInitEventCount) { $notes.Add('map_init_count_changed') }
     if ($startAICallCount -ne $sourceScriptStats.StartAICallCount) { $notes.Add('startai_exec_count_changed') }
     if ($sourceHasCustomAI -and -not $variantHasCustomAI) { $notes.Add('lost_customai_component') }
@@ -199,10 +301,15 @@ foreach ($variant in $variantMaps) {
         Map = $variant.Name
         Source = $sourceName
         HasCoopZeroPop = $hasCoopZeroPop
+        HasCommanderCatalog = $hasCommanderCatalog
+        HasKitMutations = $hasKitMutations
+        HasUnexpected7vs1Dependency = $hasUnexpected7vs1Dependency
         HasXMFinal = $hasXMFinal
         HasLibertyStory = $hasLibertyStory
         HasLibertyMod = $hasLibertyMod
-        HasXMCore = $hasXMCore
+        SourceHasLibertyStory = $sourceHasLibertyStory
+        SourceHasLibertyMod = $sourceHasLibertyMod
+        PrivateXMDependencyCount = $privateXMDeps.Count
         HasLocalLib67 = $hasLocalLib67
         HasLocalLibE0 = $hasLocalLibE0
         InitializeCalls = $initializeCallCount

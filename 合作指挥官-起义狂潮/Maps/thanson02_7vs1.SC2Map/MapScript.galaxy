@@ -8,6 +8,7 @@
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibE0EAE146"
 
@@ -18,6 +19,7 @@ void InitLibs () {
     libNtve_InitLib();
     libLbty_InitLib();
     libCamp_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libE0EAE146_InitLib();
 }
@@ -566,6 +568,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_pLAYER_01_USER, c_playerPropMinerals, c_playerPropOperSetTo, 400);
     PlayerModifyPropertyInt(gv_pLAYER_01_USER, c_playerPropVespene, c_playerPropOperSetTo, 100);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, false);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -800,9 +803,6 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    // 7vs1 hybrid: keep XM runtime + commander selection state, but avoid
-
-    // spawning the legacy XM base because CoopZeroPop owns the playable start.
     CinematicFade(false, 0.0, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, false);
     libNtve_gf_CinematicMode(true, PlayerGroupAll(), 0.0);
     libNtve_gf_GlobalCinematicSetting(true);
@@ -814,6 +814,7 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     libNtve_gf_SwooshCamera(gv_pLAYER_01_USER, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), PointFromId(453), 1.5);
     CinematicFade(true, 1.5, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_pLAYER_03_INFESTED_REFUGEES);
     TriggerExecute(gt_StartGame, true, false);
     return true;
 }
@@ -1220,7 +1221,6 @@ bool gt_InfestorNorthFoundEarly_Func (bool testConds, bool runActions) {
 //--------------------------------------------------------------------------------------------------
 void gt_InfestorNorthFoundEarly_Init () {
     gt_InfestorNorthFoundEarly = TriggerCreate("gt_InfestorNorthFoundEarly_Func");
-    TriggerAddEventUnitDamaged(gt_InfestorNorthFoundEarly, UnitRefFromUnit(UnitFromId(1213477141)), c_unitDamageTypeAny, c_unitDamageEither, null);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1249,7 +1249,6 @@ bool gt_InfestorSouthFoundEarly_Func (bool testConds, bool runActions) {
 //--------------------------------------------------------------------------------------------------
 void gt_InfestorSouthFoundEarly_Init () {
     gt_InfestorSouthFoundEarly = TriggerCreate("gt_InfestorSouthFoundEarly_Func");
-    TriggerAddEventUnitDamaged(gt_InfestorSouthFoundEarly, UnitRefFromUnit(UnitFromId(1944424310)), c_unitDamageTypeAny, c_unitDamageEither, null);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1276,8 +1275,6 @@ bool gt_InfestorSouth_Func (bool testConds, bool runActions) {
 //--------------------------------------------------------------------------------------------------
 void gt_InfestorSouth_Init () {
     gt_InfestorSouth = TriggerCreate("gt_InfestorSouth_Func");
-    TriggerAddEventUnitDied(gt_InfestorSouth, UnitRefFromUnit(UnitFromId(1944424310)));
-    TriggerAddEventUnitDied(gt_InfestorSouth, UnitRefFromUnit(UnitFromId(1213477141)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2624,7 +2621,9 @@ bool gt_IntroHellions_Func (bool testConds, bool runActions) {
 
     TriggerEnable(TriggerGetCurrent(), false);
     Wait(40.0, c_timeGame);
-    libNtve_gf_CreateActorAtPoint("TDropPodModelG", PointFromId(930));
+    if (CatalogEntryIsValid(c_gameCatalogActor, "TDropPodModelG")) {
+        libNtve_gf_CreateActorAtPoint("TDropPodModelG", PointFromId(930));
+    }
     Wait(4.0, c_timeGame);
     auto1B27F4F2_val = libE0EAE146_gv_commander;
     if (auto1B27F4F2_val == "Mira") {

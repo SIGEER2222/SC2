@@ -10,6 +10,7 @@ include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
 include "TriggerLibs/SwarmLib"
 include "TriggerLibs/VoidLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibE0EAE146"
 
@@ -22,6 +23,7 @@ void InitLibs () {
     libCamp_InitLib();
     libHots_InitLib();
     libLotv_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libE0EAE146_InitLib();
 }
@@ -121,6 +123,7 @@ void InitGlobals () {
     gv_playerAndProtoss = PlayerGroupEmpty();
     gv_purifierTimer = TimerCreate();
     gv_purifierTimeWindow = c_timerWindowNone;
+    gv_infestationRegion[2] = RegionFromId(9);
     for (init_i = 0; init_i <= 10; init_i += 1) {
         gv_infestationPings[init_i] = c_invalidPingId;
     }
@@ -910,6 +913,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_p01_USER, c_playerPropMinerals, c_playerPropOperSetTo, 300);
     PlayerModifyPropertyInt(gv_p01_USER, c_playerPropVespene, c_playerPropOperSetTo, 150);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -1133,13 +1137,15 @@ bool gt_Init03Units_Func (bool testConds, bool runActions) {
         UnitBehaviorAddPlayer(auto2A1C41CA_var, "ColonyInfestation", gv_p04_ZERG_NORTH, 1);
         UnitSetState(auto2A1C41CA_var, c_unitStateTargetable, true);
     }
-    auto6AD46C2B_g = UnitGroup("Kit@ObserverSiegeMode", gv_p11_OBSERVERS, null, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-    auto6AD46C2B_u = UnitGroupCount(auto6AD46C2B_g, c_unitCountAll);
-    for (;; auto6AD46C2B_u -= 1) {
-        auto6AD46C2B_var = UnitGroupUnitFromEnd(auto6AD46C2B_g, auto6AD46C2B_u);
-        if (auto6AD46C2B_var == null) { break; }
-        UnitSetState(auto6AD46C2B_var, c_unitStateInvulnerable, true);
-        UnitIssueOrder(auto6AD46C2B_var, Order(AbilityCommand("move", 2)), c_orderQueueReplace);
+    if ((CatalogEntryIsValid(c_gameCatalogUnit, "Kit@ObserverSiegeMode") == true)) {
+        auto6AD46C2B_g = UnitGroup("Kit@ObserverSiegeMode", gv_p11_OBSERVERS, null, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto6AD46C2B_u = UnitGroupCount(auto6AD46C2B_g, c_unitCountAll);
+        for (;; auto6AD46C2B_u -= 1) {
+            auto6AD46C2B_var = UnitGroupUnitFromEnd(auto6AD46C2B_g, auto6AD46C2B_u);
+            if (auto6AD46C2B_var == null) { break; }
+            UnitSetState(auto6AD46C2B_var, c_unitStateInvulnerable, true);
+            UnitIssueOrder(auto6AD46C2B_var, Order(AbilityCommand("move", 2)), c_orderQueueReplace);
+        }
     }
     auto16445B26_g = UnitGroup(null, gv_p11_OBSERVERS, null, UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     auto16445B26_u = UnitGroupCount(auto16445B26_g, c_unitCountAll);
@@ -4187,6 +4193,8 @@ bool gt_IntroCinematic_Func (bool testConds, bool runActions) {
     unit lv_viking3;
     unit lv_broodLord1;
     unit lv_broodLord2;
+    unit lv_broodLordAnchor1;
+    unit lv_broodLordAnchor2;
     fixed lv_broodLordDistance;
 
     // Automatic Variable Declarations
@@ -4210,12 +4218,18 @@ bool gt_IntroCinematic_Func (bool testConds, bool runActions) {
         UnitCreate(1, "Feederling", 0, gv_p07_ZERG_INFESTED, RegionRandomPoint(RegionFromId(9)), 270.0);
     }
     TriggerExecute(gt_IntroFeederlingMover, true, false);
-    libNtve_gf_UnitCreateFacingPoint(1, "BroodLord", 0, gv_p07_ZERG_INFESTED, PointWithOffsetPolar(PointFromId(4173), lv_broodLordDistance, AngleBetweenPoints(PointFromId(644), PointFromId(4173))), UnitGetPosition(UnitFromId(97)));
-    lv_broodLord1 = UnitLastCreated();
-    UnitGroupAdd(gv_introSpawnedUnits, lv_broodLord1);
-    libNtve_gf_UnitCreateFacingPoint(1, "BroodLord", 0, gv_p07_ZERG_INFESTED, PointWithOffsetPolar(PointFromId(565), lv_broodLordDistance, AngleBetweenPoints(PointFromId(645), PointFromId(565))), UnitGetPosition(UnitFromId(96)));
-    lv_broodLord2 = UnitLastCreated();
-    UnitGroupAdd(gv_introSpawnedUnits, lv_broodLord2);
+    lv_broodLordAnchor1 = UnitFromId(97);
+    if ((UnitIsValid(lv_broodLordAnchor1) == true)) {
+        libNtve_gf_UnitCreateFacingPoint(1, "BroodLord", 0, gv_p07_ZERG_INFESTED, PointWithOffsetPolar(PointFromId(4173), lv_broodLordDistance, AngleBetweenPoints(PointFromId(644), PointFromId(4173))), UnitGetPosition(lv_broodLordAnchor1));
+        lv_broodLord1 = UnitLastCreated();
+        UnitGroupAdd(gv_introSpawnedUnits, lv_broodLord1);
+    }
+    lv_broodLordAnchor2 = UnitFromId(96);
+    if ((UnitIsValid(lv_broodLordAnchor2) == true)) {
+        libNtve_gf_UnitCreateFacingPoint(1, "BroodLord", 0, gv_p07_ZERG_INFESTED, PointWithOffsetPolar(PointFromId(565), lv_broodLordDistance, AngleBetweenPoints(PointFromId(645), PointFromId(565))), UnitGetPosition(lv_broodLordAnchor2));
+        lv_broodLord2 = UnitLastCreated();
+        UnitGroupAdd(gv_introSpawnedUnits, lv_broodLord2);
+    }
     TriggerSkippableBegin(PlayerGroupAll(), 0, null, true, false);
     gv_introCinematicCompleted = false;
     SoundtrackPlay(PlayerGroupAll(), c_soundtrackCategoryMusic, "THanson03BMusicIntro", c_soundtrackCueAny, c_soundtrackIndexAny, false);
@@ -4356,6 +4370,7 @@ bool gt_IntroCleanup_Func (bool testConds, bool runActions) {
 
     gv_inCinematic = false;
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p08_ZERG_SOUTH);
     TriggerExecute(gt_StartGame, true, false);
     return true;
 }
@@ -4393,15 +4408,16 @@ bool gt_IntroFeederlingMover_Func (bool testConds, bool runActions) {
 
     while (true) {
         if ((gv_inCinematic == true)) {
-            lv_feederling = UnitGroupRandomUnit(UnitGroup("Feederling", gv_p07_ZERG_INFESTED, gv_infestationRegion[2], UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
-            if ((lv_feederling != null) && (UnitOrder(lv_feederling, 0) == null)) {
-                for (autoF17949B3_i = 1; autoF17949B3_i <= autoF17949B3_n; autoF17949B3_i += 1) {
-                    lv_hut = UnitGroupRandomUnit(UnitGroup("InfestableHut", c_playerAny, gv_infestationRegion[2], UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
-                    if ((lv_hut != null)) {
-                        UnitIssueOrder(lv_feederling, OrderTargetingPoint(AbilityCommand("move", 0), UnitGetPosition(lv_hut)), c_orderQueueAddToEnd);
-                        UnitIssueOrder(lv_feederling, OrderTargetingPoint(AbilityCommand("move", 0), RegionGetCenter(gv_infestationRegion[2])), c_orderQueueAddToEnd);
+            if ((gv_infestationRegion[2] != null)) {
+                lv_feederling = UnitGroupRandomUnit(UnitGroup("Feederling", gv_p07_ZERG_INFESTED, gv_infestationRegion[2], UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
+                if ((lv_feederling != null) && (UnitOrder(lv_feederling, 0) == null)) {
+                    for (autoF17949B3_i = 1; autoF17949B3_i <= autoF17949B3_n; autoF17949B3_i += 1) {
+                        lv_hut = UnitGroupRandomUnit(UnitGroup("InfestableHut", c_playerAny, gv_infestationRegion[2], UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
+                        if ((lv_hut != null)) {
+                            UnitIssueOrder(lv_feederling, OrderTargetingPoint(AbilityCommand("move", 0), UnitGetPosition(lv_hut)), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_feederling, OrderTargetingPoint(AbilityCommand("move", 0), RegionGetCenter(gv_infestationRegion[2])), c_orderQueueAddToEnd);
+                        }
                     }
-
                 }
             }
 

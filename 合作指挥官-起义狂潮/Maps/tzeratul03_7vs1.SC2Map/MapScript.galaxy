@@ -8,6 +8,7 @@
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibE0EAE146"
 
@@ -18,6 +19,7 @@ void InitLibs () {
     libNtve_InitLib();
     libLbty_InitLib();
     libCamp_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libE0EAE146_InitLib();
 }
@@ -370,6 +372,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     }
 
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointFromId(2109449659), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -641,6 +644,7 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     libNtve_gf_GlobalCinematicSetting(true);
     Wait(0.1, c_timeGame);
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p03_ZERG_NORTH);
     UnitIssueOrder(UnitFromId(685), OrderTargetingPoint(AbilityCommand("VoidSeekerTransport", 2), PointFromId(686)), c_orderQueueReplace);
     UIAlertUnit("Trigger", gv_p01_USER, StringExternal("Param/Value/1930A941"), null, gv_zeratul);
     libNtve_gf_CinematicMode(false, PlayerGroupAll(), 1.5);
@@ -3209,8 +3213,6 @@ bool gt_MidCineSetup_Func (bool testConds, bool runActions) {
     }
 
     CinematicFade(false, 1.0, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, false);
-    // 7vs1 hybrid: keep XM runtime + commander selection state, but avoid
-    // spawning the legacy XM base because CoopZeroPop owns the playable start.
     gv_inCinematic = true;
     UISetMode(PlayerGroupAll(), c_uiModeFullscreen, 1.0);
     Wait(1.0, c_timeReal);

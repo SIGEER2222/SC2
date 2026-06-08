@@ -1,0 +1,42 @@
+void libE0EAE146_gf_MengskRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    int lv_bonus;
+    int lv_prestigeMask;
+    int lv_value;
+
+    if (libE0EAE146_gv_mengskRuntimeInitialized == true) {
+        return;
+    }
+
+    libE0EAE146_gv_mengskRuntimeInitialized = true;
+    lv_bonus = 0;
+    lv_prestigeMask = libE0EAE146_gf_CommanderPowerPrestigeMask("Mengsk");
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 1) == true) {
+        lv_bonus += 100;
+    }
+
+    lv_value = libE0EAE146_gf_CommanderPowerMasteryLevel("Mengsk", 0);
+    if (lv_value != 0) {
+        libC0F50AA6_gv_trooperRate += (lv_value * 0.01);
+    }
+    lv_value = libE0EAE146_gf_CommanderPowerMasteryLevel("Mengsk", 1);
+    if (lv_value != 0) {
+        libC0F50AA6_gv_royalGuardRate += (lv_value * 0.01);
+    }
+    lv_value = libE0EAE146_gf_CommanderPowerMasteryLevel("Mengsk", 5);
+    if (lv_value == 0) {
+        libC0F50AA6_gv_mengskVeterancyExp += lv_bonus;
+    }
+    else {
+        libC0F50AA6_gv_mengskVeterancyExp += (lv_bonus + (lv_value * 0.5));
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterMengsk", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+    lv_value = libE0EAE146_gf_CommanderPowerMasteryLevel("Mengsk", 4);
+    if (lv_value != 0) {
+        lib67C0F0E7_gf_UnitAddProperty(UnitLastCreated(), c_unitPropEnergy, (lv_value * 2));
+    }
+    lib67C0F0E7_gf_CU_GPInit(lp_player, "Mengsk", UnitLastCreated(), null);
+    lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+    lib67C0F0E7_gf_ShowChooseButton();
+    libC0F50AA6_gf_InitlizeMengsk();
+}

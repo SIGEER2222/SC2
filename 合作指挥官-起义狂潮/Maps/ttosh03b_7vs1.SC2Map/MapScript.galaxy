@@ -8,6 +8,7 @@
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibC0F50AA6"
 include "Lib81FF3B49"
@@ -23,6 +24,7 @@ void InitLibs () {
     libNtve_InitLib();
     libLbty_InitLib();
     libCamp_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libC0F50AA6_InitLib();
     lib81FF3B49_InitLib();
@@ -118,6 +120,52 @@ unit gv_p3Raven;
 unit gv_p3BCruiser;
 unit gv_p3NukerA;
 unit gv_p3NukerASilo;
+
+//--------------------------------------------------------------------------------------------------
+// Compatibility Helpers
+//--------------------------------------------------------------------------------------------------
+string gf_ResolveUnitTypeWithFallback3 (string lp_primary, string lp_fallbackA, string lp_fallbackB) {
+    string lv_unitType;
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_primary);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackA);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    return libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackB);
+}
+
+void gf_CreateUnitsWithFallback3 (int lp_count, string lp_primary, string lp_fallbackA, string lp_fallbackB, int lp_player, point lp_spawnPoint) {
+    string lv_unitType;
+
+    lv_unitType = gf_ResolveUnitTypeWithFallback3(lp_primary, lp_fallbackA, lp_fallbackB);
+    if (lv_unitType == "") {
+        return;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(lp_count, lv_unitType, 0, lp_player, lp_spawnPoint);
+}
+
+void gf_CreateSwannCommanderUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "SwannSwann", "CasterSwann", "CoopCasterSwann", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateSwannMicrobotUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "MicrobotSwann", "ScienceVesselSwann", "Medic", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateSwannGoliathUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "GoliathSwann", "Goliath", "Marauder", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateStukovCommanderUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "SIStukov", "CoopCasterStukov", "StukovInfestedBanshee", lp_player, lp_spawnPoint);
+}
 unit gv_p3NukerB;
 unit gv_p3NukerBSilo;
 unit gv_p3SouthViking;
@@ -458,6 +506,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 1000);
     PlayerModifyPropertyInt(1, c_playerPropSuppliesMade, c_playerPropOperSetTo, 200);
     libE0EAE146_gf_Initialize(true);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -817,6 +866,9 @@ void gt_ResetNova_Init () {
 bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     // Variable Declarations
     int lv_i;
+    string lv_commandCenterUnit;
+    string lv_workerUnit;
+    string lv_secondUnit;
 
     // Automatic Variable Declarations
     string auto2F29E444_val;
@@ -849,16 +901,25 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CommanderAch", lib67C0F0E7_gf_StrToUserinstance(libE0EAE146_gv_commander), "CommandCenter", 1), 0, 1, PlayerStartLocation(1));
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CommanderAch", lib67C0F0E7_gf_StrToUserinstance(libE0EAE146_gv_commander), "Worker", 1), 0, 1, PlayerStartLocation(1));
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CommanderAch", lib67C0F0E7_gf_StrToUserinstance(libE0EAE146_gv_commander), "SecondUnit", 1), 0, 1, PointFromId(8));
+    lv_commandCenterUnit = libE0EAE146_gf_CommanderAchUnit("CommandCenter");
+    lv_workerUnit = libE0EAE146_gf_CommanderAchUnit("Worker");
+    lv_secondUnit = libE0EAE146_gf_CommanderAchUnit("SecondUnit");
+    if (lv_commandCenterUnit != "") {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_commandCenterUnit, 0, 1, PlayerStartLocation(1));
+    }
+    if (lv_workerUnit != "") {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_workerUnit, 0, 1, PlayerStartLocation(1));
+    }
+    if (lv_secondUnit != "") {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_secondUnit, 0, 1, PointFromId(8));
+    }
     auto2F29E444_val = libE0EAE146_gv_commander;
-    if (auto2F29E444_val == "Stukov") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SIStukov", 0, 1, PointFromId(29));
+    if ((auto2F29E444_val == "Stukov") || (auto2F29E444_val == "ZergStukov")) {
+        gf_CreateStukovCommanderUnits(1, 1, PointFromId(29));
         gv_nova = UnitLastCreated();
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterStukov", 0, 1, RegionGetCenter(RegionEntireMap()));
     }
-    else if (auto2F29E444_val == "Dehaka") {
+    else if ((auto2F29E444_val == "Dehaka") || (auto2F29E444_val == "ZergDehaka")) {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "DehakaCoop", 0, 1, PointFromId(29));
         gv_nova = UnitLastCreated();
         libDF8E6945_gf_InitializeDehakaEvent(1, UnitLastCreated());
@@ -868,16 +929,16 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
         }
 
     }
-    else if (auto2F29E444_val == "Mira") {
+    else if ((auto2F29E444_val == "Mira") || (auto2F29E444_val == "TerranHorner")) {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "GhostMira", 0, 1, PointFromId(29));
         gv_nova = UnitLastCreated();
         libNtve_gf_CreateUnitsWithDefaultFacing(4, "ReaperMira", 0, 1, PointFromId(29));
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "MedicMira", 0, 1, PointFromId(29));
     }
-    else if (auto2F29E444_val == "Tychus") {
+    else if ((auto2F29E444_val == "Tychus") || (auto2F29E444_val == "TerranTychus")) {
         lib67C0F0E7_gf_CU_GPInit(1, "Tychus", UnitFromId(1066825918), null);
         lib67C0F0E7_gf_CU_GPShowHide(true, 1, c_transitionDurationDefault);
-        lib67C0F0E7_gf_TychusSquadInitTrigger(1, 4, "Abil/TychusTrain", "CoopTechTychusSquad", "Event_TychusHeroStructureCreate", "Event_TychusHeroMainBuilding");
+        lib67C0F0E7_gf_TychusSquadInitTrigger(1, 4, "Abil/TychusTrain", "CoopTechTychusSquad", "Event_TychusHeroStructureCreate", "");
         lib67C0F0E7_gv_tychusSquadMainBuilding = UnitLastCreated();
         lib81FF3B49_gf_InitializeTychusEvent();
         lib67C0F0E7_gf_TychusSquadAddCharge(4);
@@ -885,27 +946,27 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
         gv_nova = UnitLastCreated();
         lib67C0F0E7_gf_TychusSquadSetMember(UnitLastCreated());
     }
-    else if (auto2F29E444_val == "Nova") {
+    else if ((auto2F29E444_val == "Nova") || (auto2F29E444_val == "TerranNova")) {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "NovaCoop", 0, 1, PointFromId(29));
         lib0940FFB7_gf_NovaTrigger(UnitLastCreated());
         gv_nova = UnitLastCreated();
         libNtve_gf_CreateUnitsWithDefaultFacing(4, "Marine_BlackOps", 0, 1, PointFromId(29));
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "Marauder_BlackOps", 0, 1, PointFromId(29));
     }
-    else if (auto2F29E444_val == "Mengsk") {
+    else if ((auto2F29E444_val == "Mengsk") || (auto2F29E444_val == "TerranMengsk")) {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "GhostMengsk", 0, 1, PointFromId(29));
         gv_nova = UnitLastCreated();
         libC0F50AA6_gf_AddMengskVeterancyUnit(UnitLastCreatedGroup());
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "MengskMedic", 0, 1, PointFromId(29));
         libNtve_gf_CreateUnitsWithDefaultFacing(4, "TrooperMengsk", 0, 1, PointFromId(29));
     }
-    else if (auto2F29E444_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SwannSwann", 0, 1, PointFromId(29));
+    else if ((auto2F29E444_val == "Swann") || (auto2F29E444_val == "TerranSwann")) {
+        gf_CreateSwannCommanderUnits(1, 1, PointFromId(29));
         gv_nova = UnitLastCreated();
-        libNtve_gf_CreateUnitsWithDefaultFacing(3, "MicrobotSwann", 0, 1, PointFromId(29));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "GoliathSwann", 0, 1, PointFromId(29));
+        gf_CreateSwannMicrobotUnits(3, 1, PointFromId(29));
+        gf_CreateSwannGoliathUnits(2, 1, PointFromId(29));
     }
-    else if (auto2F29E444_val == "Stetmann") {
+    else if ((auto2F29E444_val == "Stetmann") || (auto2F29E444_val == "ZergStetmann")) {
         BankLoad("CampaignXCore", 1);
         lv_i = BankValueGetAsInt(BankLastCreated(), libE0EAE146_gv_commander, "AchBit");
         if ((lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_i, 7) == true)) {
@@ -927,6 +988,7 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     libNtve_gf_CinematicMode(true, PlayerGroupAll(), 0.0);
     libNtve_gf_GlobalCinematicSetting(true);
     CampaignInitAI();
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_pLAYER02_TOSH);
     auto5341E998_g = UnitGroup("Bunker", gv_pLAYER02_TOSH, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     auto5341E998_u = UnitGroupCount(auto5341E998_g, c_unitCountAll);
     for (;; auto5341E998_u -= 1) {
@@ -1935,6 +1997,9 @@ void gt_KillOrbitalCommands_Init () {
 // Trigger: Orbital Scans
 //--------------------------------------------------------------------------------------------------
 bool gt_OrbitalScans_Func (bool testConds, bool runActions) {
+    unit lv_eventUnit;
+    unit lv_damageSource;
+
     // Automatic Variable Declarations
     unitgroup auto16139802_g;
     int auto16139802_u;
@@ -1953,14 +2018,16 @@ bool gt_OrbitalScans_Func (bool testConds, bool runActions) {
     }
 
     Wait(1.0, c_timeGame);
-    if ((UnitGroupCount(UnitGroupAlliance(gv_pLAYER02_TOSH, c_unitAllianceEnemy, RegionCircle(UnitGetPosition(EventUnit()), 15.0), UnitFilter((1 << c_targetFilterCloaked), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
+    lv_eventUnit = EventUnit();
+    lv_damageSource = EventUnitDamageSourceUnit();
+    if ((UnitIsValid(lv_eventUnit) == true) && (UnitIsValid(lv_damageSource) == true) && (UnitGroupCount(UnitGroupAlliance(gv_pLAYER02_TOSH, c_unitAllianceEnemy, RegionCircle(UnitGetPosition(lv_eventUnit), 15.0), UnitFilter((1 << c_targetFilterCloaked), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
         auto16139802_g = UnitGroup("OrbitalCommand", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
         auto16139802_u = UnitGroupCount(auto16139802_g, c_unitCountAll);
         for (;; auto16139802_u -= 1) {
             auto16139802_var = UnitGroupUnitFromEnd(auto16139802_g, auto16139802_u);
             if (auto16139802_var == null) { break; }
-            if ((UnitGetPropertyFixed(auto16139802_var, c_unitPropEnergy, c_unitPropCurrent) >= 50.0) && (libNtve_gf_UnitInRegion(EventUnitDamageSourceUnit(), RegionCircle(UnitGetPosition(auto16139802_var), 50.0)) == true)) {
-                UnitIssueOrder(auto16139802_var, OrderTargetingPoint(AbilityCommand("ScannerSweep", 0), UnitGetPosition(EventUnitDamageSourceUnit())), c_orderQueueReplace);
+            if ((UnitGetPropertyFixed(auto16139802_var, c_unitPropEnergy, c_unitPropCurrent) >= 50.0) && (libNtve_gf_UnitInRegion(lv_damageSource, RegionCircle(UnitGetPosition(auto16139802_var), 50.0)) == true)) {
+                UnitIssueOrder(auto16139802_var, OrderTargetingPoint(AbilityCommand("ScannerSweep", 0), UnitGetPosition(lv_damageSource)), c_orderQueueReplace);
                 if ((gv_scanPerformed == false)) {
                     gv_scanPerformed = true;
                     TriggerQueueEnter();

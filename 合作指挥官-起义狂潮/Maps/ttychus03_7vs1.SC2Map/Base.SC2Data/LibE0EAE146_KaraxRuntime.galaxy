@@ -1,0 +1,185 @@
+void libE0EAE146_gf_KaraxSetUpgradeAtLeast (int lp_player, string lp_upgrade, int lp_level) {
+    int lv_currentLevel;
+
+    if ((lp_upgrade == "") || (!CatalogEntryIsValid(c_gameCatalogUpgrade, lp_upgrade))) {
+        return;
+    }
+
+    lv_currentLevel = TechTreeUpgradeCount(lp_player, lp_upgrade, c_techCountCompleteOnly);
+    if (lv_currentLevel < lp_level) {
+        TechTreeUpgradeAddLevel(lp_player, lp_upgrade, (lp_level - lv_currentLevel));
+    }
+}
+
+void libE0EAE146_gf_KaraxAllowUnitIfPresent (int lp_player, string lp_unit) {
+    if ((lp_unit == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unit))) {
+        return;
+    }
+    TechTreeUnitAllow(lp_player, lp_unit, true);
+}
+
+void libE0EAE146_gf_KaraxBlockUnitIfPresent (int lp_player, string lp_unit) {
+    if ((lp_unit == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unit))) {
+        return;
+    }
+    TechTreeUnitAllow(lp_player, lp_unit, false);
+}
+
+void libE0EAE146_gf_KaraxAllowAbilityIfPresent (int lp_player, string lp_abil, int lp_cmdIndex) {
+    if ((lp_abil == "") || (!CatalogEntryIsValid(c_gameCatalogAbil, lp_abil))) {
+        return;
+    }
+    TechTreeAbilityAllow(lp_player, AbilityCommand(lp_abil, lp_cmdIndex), true);
+}
+
+void libE0EAE146_gf_KaraxApplyFullLevelUpgrades (int lp_player) {
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "CommanderLevel", 16);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "KaraxCommander", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "KaraxSOAChronoPassive", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "KaraxKhaydarinMonolithUnlock", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "SOAMapWideChronoUpgrade", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "SOARepairBeam", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "KaraxInstantStructureWarp", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "SOAThermalLance", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "KaraxUnitSpawnBarrier", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "KaraxCarrierUpgrade", 1);
+}
+
+void libE0EAE146_gf_KaraxApplyResearchUnlocks (int lp_player) {
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "KaraxTurretRange", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "KaraxTurretAttackSpeed", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "ShieldBatteryStructureBarrier", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "ZealotResearchReconstruction", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "EnergizerReclamation", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "KaraxEnergyRegenUpgrade", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "ImmortalResearchBarrierAdvanced", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "ImmortalResearchShadowCannon", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "ColossusFireBeam", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "SolarEfficiencyLevel1", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "SolarEfficiencyLevel2", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "SolarEfficiencyLevel3", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "SOARepairBeamExtraTarget", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "SOAOrbitalStrikeUpgrade", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "SOASolarLanceUpgrade", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "MiragePhaseArmor", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "CarrierRepairDrones", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "KaraxCarrierInterceptorLaunchSpeed", 1);
+}
+
+void libE0EAE146_gf_KaraxApplyFullMasteries (int lp_player) {
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "MasteryKaraxUnitVital", 30);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "MasteryKaraxBuildingVital", 30);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "MasteryKaraxRepairBeamHeal", 30);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "MasteryKaraxSoAChronoRegen", 30);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "MasteryKaraxChronoBoostSpeed", 30);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "MasteryKaraxStartingAndMaxSoAEnergy", 30);
+}
+
+void libE0EAE146_gf_KaraxApplyPositivePrestigeEffects (int lp_player) {
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "CommanderPrestigeKaraxStructures", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "CommanderPrestigeKaraxStructuresPerk", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "CommanderPrestigeKaraxStructuresMastery", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "CommanderPrestigeKaraxStructuresMasteryChronoBoostSpeed", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "CommanderPrestigeKaraxArmy", 1);
+    libE0EAE146_gf_KaraxSetUpgradeAtLeast(lp_player, "CommanderPrestigeKaraxTopBar", 1);
+}
+
+void libE0EAE146_gf_KaraxApplyTechFilter (int lp_player) {
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Nexus");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Probe");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Pylon");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Assimilator");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Gateway");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "WarpGate");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Forge");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "PhotonCannon");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "CyberneticsCore");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "TwilightCouncil");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "ShieldBattery");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "SolarForge");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "RoboticsFacility");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "RoboticsBay");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Stargate");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "FleetBeacon");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "KhaydarinMonolith");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Zealot");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Sentry");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Immortal");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Observer");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "ObserverSiegeMode");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Phoenix");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Scout");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Colossus");
+    libE0EAE146_gf_KaraxBlockUnitIfPresent(lp_player, "Carrier");
+
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "NexusKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "ProbeKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "PylonKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "AssimilatorKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "GatewayKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "WarpGateKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "ForgeKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "PhotonCannonKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "CyberneticsCoreKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "TwilightCouncilKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "ShieldBatteryKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "SolarForgeKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "RoboticsFacilityKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "RoboticsBayKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "StargateKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "FleetBeaconKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "KhaydarinMonolithKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "ZealotPurifier");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "SentryPurifier");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "ImmortalAiur");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "ObserverKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "ObserverSiegeModeKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "PhoenixPurifier");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "ScoutKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "ColossusKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "CarrierKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "SoACasterKarax");
+    libE0EAE146_gf_KaraxAllowUnitIfPresent(lp_player, "KaraxChampion");
+
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "ProtossBuildKarax", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "NexusTrainKarax", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "GatewayTrainKarax", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "WarpGateTrainKarax", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "RoboticsFacilityTrainKarax", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "StargateTrainKarax", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "SolarForgeResearch", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "SOAOrbitalStrikeKarax", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "SOAThermalLanceActivate", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "SOAThermalLanceTargetingDummy", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "SOAThermalLanceExecute", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "SOAMapWideChrono", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "SOAPurifierBeam", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "SOARepairBeam", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "EnergizerReclamation", 0);
+    libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "ShieldBatteryStructureBarrier", 0);
+}
+
+void libE0EAE146_gf_KaraxRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    unit lv_caster;
+
+    if (libE0EAE146_gv_karaxRuntimeInitialized == true) {
+        return;
+    }
+
+    libE0EAE146_gv_karaxRuntimeInitialized = true;
+    libE0EAE146_gf_CommanderPowerApplyProfile(lp_player, "Karax");
+    if (libE0EAE146_gf_CommanderUsePrivateTechFilter("Karax")) {
+        libE0EAE146_gf_KaraxApplyTechFilter(lp_player);
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "SoACasterKarax", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+    lv_caster = UnitLastCreated();
+    lib67C0F0E7_gf_CU_GPInit(lp_player, "Karax", lv_caster, null);
+    lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+    lib67C0F0E7_gf_ShowChooseButton();
+    libE0EAE146_gf_CreateCommanderHeroStructure(lp_player, "Karax");
+
+    if (lp_createHero == true) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "KaraxChampion", 0, lp_player, lp_heroPoint);
+    }
+}

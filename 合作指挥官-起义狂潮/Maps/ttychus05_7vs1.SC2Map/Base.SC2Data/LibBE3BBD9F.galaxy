@@ -1,0 +1,99 @@
+include "TriggerLibs/NativeLib"
+include "Lib67C0F0E7"
+
+include "LibBE3BBD9F_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Stukov
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libBE3BBD9F_InitLibraries () {
+    libNtve_InitVariables();
+    lib67C0F0E7_InitVariables();
+}
+
+// Functions
+void libBE3BBD9F_gf_StukovCreepAnnular (int lp_player, point lp_targetPoint, fixed lp_radius, int lp_times) {
+    // Variable Declarations
+    int lv_roundNum;
+    int lv_i;
+    fixed lv_angle;
+    fixed lv_distance;
+    int lv_failTimes;
+    point lv_finalPoint;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_roundNum = 1;
+
+    // Implementation
+    lv_roundNum = lp_times;
+    lv_distance = lp_radius;
+    lv_distance = (lv_distance*lv_roundNum*2);
+    lv_roundNum = (lv_roundNum*6);
+    lv_angle = (360.0/lv_roundNum);
+    lv_i = 1;
+    for ( ; ( lv_i <= lv_roundNum ) ; lv_i += 1 ) {
+        lv_finalPoint = PointWithOffsetPolar(lp_targetPoint, lv_distance, (lv_angle*lv_i));
+        if ((RegionContainsPoint(RegionEntireMap(), lv_finalPoint) == true)) {
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, "SICreep", c_unitCreateIgnorePlacement | c_unitCreateIgnoreBirth, lp_player, lv_finalPoint);
+        }
+        else {
+            lv_failTimes += 1;
+        }
+        Wait(0.25, c_timeGame);
+    }
+    if ((lv_failTimes == lv_roundNum)) {
+        TriggerStop(TriggerGetCurrent());
+    }
+
+}
+
+trigger auto_libBE3BBD9F_gf_StukovCreepEntireMap_Trigger = null;
+int auto_libBE3BBD9F_gf_StukovCreepEntireMap_lp_player;
+
+void libBE3BBD9F_gf_StukovCreepEntireMap (int lp_player) {
+    auto_libBE3BBD9F_gf_StukovCreepEntireMap_lp_player = lp_player;
+
+    if (auto_libBE3BBD9F_gf_StukovCreepEntireMap_Trigger == null) {
+        auto_libBE3BBD9F_gf_StukovCreepEntireMap_Trigger = TriggerCreate("auto_libBE3BBD9F_gf_StukovCreepEntireMap_TriggerFunc");
+    }
+
+    TriggerExecute(auto_libBE3BBD9F_gf_StukovCreepEntireMap_Trigger, false, false);
+}
+
+bool auto_libBE3BBD9F_gf_StukovCreepEntireMap_TriggerFunc (bool testConds, bool runActions) {
+    int lp_player = auto_libBE3BBD9F_gf_StukovCreepEntireMap_lp_player;
+
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "SICreep", 0, lp_player, PlayerStartLocation(lp_player));
+    Wait(90.0, c_timeGame);
+    lv_i = 1;
+    for ( ; ( lv_i <= 16 ) ; lv_i += 1 ) {
+        libBE3BBD9F_gf_StukovCreepAnnular(lp_player, PlayerStartLocation(lp_player), 11.0, lv_i);
+        Wait(100.0, c_timeGame);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libBE3BBD9F_InitLib_completed = false;
+
+void libBE3BBD9F_InitLib () {
+    if (libBE3BBD9F_InitLib_completed) {
+        return;
+    }
+
+    libBE3BBD9F_InitLib_completed = true;
+
+    libBE3BBD9F_InitLibraries();
+}
+

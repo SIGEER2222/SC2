@@ -9,6 +9,7 @@ include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
 include "TriggerLibs/SwarmLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibE0EAE146"
 
@@ -20,6 +21,7 @@ void InitLibs () {
     libLbty_InitLib();
     libCamp_InitLib();
     libHots_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libE0EAE146_InitLib();
 }
@@ -328,6 +330,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_p1_USER, c_playerPropMinerals, c_playerPropOperSetTo, 150);
     PlayerModifyPropertyInt(gv_p1_USER, c_playerPropVespene, c_playerPropOperSetTo, 50);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -675,6 +678,7 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     libNtve_gf_GlobalCinematicSetting(false);
     libNtve_gf_SwooshCamera(gv_p1_USER, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), CameraInfoGetTarget(CameraInfoFromId(26)), 1.5);
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p2_ZERG);
     TriggerExecute(gt_StartGame, true, false);
     return true;
 }
@@ -1119,13 +1123,19 @@ bool gt_OuterForcefieldArea_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    lv_nullifierTopPosition = UnitGetPosition(lv_nullifierTop);
-    lv_nullifierBottomPosition = UnitGetPosition(lv_nullifierBottom);
-    lv_highTemplarPosition = UnitGetPosition(lv_highTemplar);
-    UnitIssueOrder(lv_highTemplar, Order(AbilityCommand("move", 2)), c_orderQueueReplace);
+    if ((UnitIsValid(lv_nullifierTop) == true)) {
+        lv_nullifierTopPosition = UnitGetPosition(lv_nullifierTop);
+    }
+    if ((UnitIsValid(lv_nullifierBottom) == true)) {
+        lv_nullifierBottomPosition = UnitGetPosition(lv_nullifierBottom);
+    }
+    if ((UnitIsValid(lv_highTemplar) == true)) {
+        lv_highTemplarPosition = UnitGetPosition(lv_highTemplar);
+        UnitIssueOrder(lv_highTemplar, Order(AbilityCommand("move", 2)), c_orderQueueReplace);
+    }
     while (true) {
         Wait(1.0, c_timeGame);
-        if ((UnitIsAlive(lv_nullifierTop) == false) && (UnitIsAlive(lv_nullifierBottom) == false) && (UnitIsAlive(lv_highTemplar) == false)) {
+        if ((((UnitIsValid(lv_nullifierTop) == false) || (UnitIsAlive(lv_nullifierTop) == false))) && (((UnitIsValid(lv_nullifierBottom) == false) || (UnitIsAlive(lv_nullifierBottom) == false))) && (((UnitIsValid(lv_highTemplar) == false) || (UnitIsAlive(lv_highTemplar) == false)))) {
             return true;
         }
 
@@ -1133,25 +1143,25 @@ bool gt_OuterForcefieldArea_Func (bool testConds, bool runActions) {
             lv_psiCooldown -= 1;
         }
 
-        if ((UnitIsAlive(lv_nullifierTop) == true) && (UnitGetPropertyFixed(lv_nullifierTop, c_unitPropEnergy, c_unitPropCurrent) >= 30.0) && (UnitGroupCount(UnitGroup(null, gv_p1_USER, RegionFromId(5), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0) && (UnitGroupCount(UnitGroup("ForceField", c_playerAny, RegionCircle(PointFromId(121), 1.5), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0)) {
+        if ((UnitIsValid(lv_nullifierTop) == true) && (UnitIsAlive(lv_nullifierTop) == true) && (UnitGetPropertyFixed(lv_nullifierTop, c_unitPropEnergy, c_unitPropCurrent) >= 30.0) && (UnitGroupCount(UnitGroup(null, gv_p1_USER, RegionFromId(5), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0) && (UnitGroupCount(UnitGroup("ForceField", c_playerAny, RegionCircle(PointFromId(121), 1.5), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0)) {
             UnitIssueOrder(lv_nullifierTop, OrderTargetingPoint(AbilityCommand("ForceField", 0), PointFromId(121)), c_orderQueueReplace);
         }
         else {
-            if ((RegionContainsPoint(RegionCircle(lv_nullifierTopPosition, 1.0), UnitGetPosition(lv_nullifierTop)) == false)) {
+            if ((UnitIsValid(lv_nullifierTop) == true) && (RegionContainsPoint(RegionCircle(lv_nullifierTopPosition, 1.0), UnitGetPosition(lv_nullifierTop)) == false)) {
                 UnitIssueOrder(lv_nullifierTop, OrderTargetingPoint(AbilityCommand("move", 0), lv_nullifierTopPosition), c_orderQueueReplace);
             }
 
         }
-        if ((UnitIsAlive(lv_nullifierBottom) == true) && (UnitGetPropertyFixed(lv_nullifierBottom, c_unitPropEnergy, c_unitPropCurrent) >= 30.0) && (UnitGroupCount(UnitGroup(null, gv_p1_USER, RegionFromId(5), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0) && (UnitGroupCount(UnitGroup("ForceField", c_playerAny, RegionCircle(PointFromId(122), 1.5), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0)) {
+        if ((UnitIsValid(lv_nullifierBottom) == true) && (UnitIsAlive(lv_nullifierBottom) == true) && (UnitGetPropertyFixed(lv_nullifierBottom, c_unitPropEnergy, c_unitPropCurrent) >= 30.0) && (UnitGroupCount(UnitGroup(null, gv_p1_USER, RegionFromId(5), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0) && (UnitGroupCount(UnitGroup("ForceField", c_playerAny, RegionCircle(PointFromId(122), 1.5), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0)) {
             UnitIssueOrder(lv_nullifierBottom, OrderTargetingPoint(AbilityCommand("ForceField", 0), PointFromId(122)), c_orderQueueReplace);
         }
         else {
-            if ((RegionContainsPoint(RegionCircle(lv_nullifierBottomPosition, 1.0), UnitGetPosition(lv_nullifierBottom)) == false)) {
+            if ((UnitIsValid(lv_nullifierBottom) == true) && (RegionContainsPoint(RegionCircle(lv_nullifierBottomPosition, 1.0), UnitGetPosition(lv_nullifierBottom)) == false)) {
                 UnitIssueOrder(lv_nullifierBottom, OrderTargetingPoint(AbilityCommand("move", 0), lv_nullifierBottomPosition), c_orderQueueReplace);
             }
 
         }
-        if ((UnitIsAlive(lv_highTemplar) == true) && (UnitGetPropertyFixed(lv_highTemplar, c_unitPropEnergy, c_unitPropCurrent) >= 75.0) && (lv_psiCooldown == 0) && (UnitGroupCount(UnitGroup(null, gv_p1_USER, RegionCircle(UnitGetPosition(lv_highTemplar), 7.0), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
+        if ((UnitIsValid(lv_highTemplar) == true) && (UnitIsAlive(lv_highTemplar) == true) && (UnitGetPropertyFixed(lv_highTemplar, c_unitPropEnergy, c_unitPropCurrent) >= 75.0) && (lv_psiCooldown == 0) && (UnitGroupCount(UnitGroup(null, gv_p1_USER, RegionCircle(UnitGetPosition(lv_highTemplar), 7.0), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
             lv_broken = false;
             autoED2F391A_g = UnitGroup(null, gv_p1_USER, RegionCircle(UnitGetPosition(lv_highTemplar), 7.0), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
             autoED2F391A_u = UnitGroupCount(autoED2F391A_g, c_unitCountAll);
@@ -1173,7 +1183,7 @@ bool gt_OuterForcefieldArea_Func (bool testConds, bool runActions) {
 
         }
         else {
-            if ((RegionContainsPoint(RegionCircle(lv_highTemplarPosition, 1.0), UnitGetPosition(lv_highTemplar)) == false)) {
+            if ((UnitIsValid(lv_highTemplar) == true) && (RegionContainsPoint(RegionCircle(lv_highTemplarPosition, 1.0), UnitGetPosition(lv_highTemplar)) == false)) {
                 UnitIssueOrder(lv_highTemplar, OrderTargetingPoint(AbilityCommand("move", 0), lv_highTemplarPosition), c_orderQueueReplace);
             }
 
@@ -1251,44 +1261,60 @@ bool gt_LowerForcefieldArea_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    lv_nullifier1Position = UnitGetPosition(lv_nullifier1);
-    lv_nullifier2Position = UnitGetPosition(lv_nullifier2);
-    lv_stalker1Position = UnitGetPosition(lv_stalker1);
-    lv_stalker2Position = UnitGetPosition(lv_stalker2);
+    if ((UnitIsValid(lv_nullifier1) == true)) {
+        lv_nullifier1Position = UnitGetPosition(lv_nullifier1);
+    }
+    if ((UnitIsValid(lv_nullifier2) == true)) {
+        lv_nullifier2Position = UnitGetPosition(lv_nullifier2);
+    }
+    if ((UnitIsValid(lv_stalker1) == true)) {
+        lv_stalker1Position = UnitGetPosition(lv_stalker1);
+    }
+    if ((UnitIsValid(lv_stalker2) == true)) {
+        lv_stalker2Position = UnitGetPosition(lv_stalker2);
+    }
     while (true) {
-        if ((UnitIsAlive(lv_nullifier1) == false) && (UnitIsAlive(lv_nullifier2) == false) && (UnitIsAlive(lv_stalker1) == false) && (UnitIsAlive(lv_stalker2) == false)) {
+        if ((((UnitIsValid(lv_nullifier1) == false) || (UnitIsAlive(lv_nullifier1) == false))) && (((UnitIsValid(lv_nullifier2) == false) || (UnitIsAlive(lv_nullifier2) == false))) && (((UnitIsValid(lv_stalker1) == false) || (UnitIsAlive(lv_stalker1) == false))) && (((UnitIsValid(lv_stalker2) == false) || (UnitIsAlive(lv_stalker2) == false)))) {
             return true;
         }
 
         Wait(1.0, c_timeGame);
-        if ((UnitIsAlive(lv_nullifier1) == true) && (UnitGetPropertyFixed(lv_nullifier1, c_unitPropEnergy, c_unitPropCurrent) >= 30.0) && (UnitGroupCount(UnitGroup(null, gv_p1_USER, RegionFromId(39), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0) && (UnitGroupCount(UnitGroup("ForceField", c_playerAny, RegionCircle(PointFromId(718), 1.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0)) {
+        if ((UnitIsValid(lv_nullifier1) == true) && (UnitIsAlive(lv_nullifier1) == true) && (UnitGetPropertyFixed(lv_nullifier1, c_unitPropEnergy, c_unitPropCurrent) >= 30.0) && (UnitGroupCount(UnitGroup(null, gv_p1_USER, RegionFromId(39), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0) && (UnitGroupCount(UnitGroup("ForceField", c_playerAny, RegionCircle(PointFromId(718), 1.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0)) {
             UnitIssueOrder(lv_nullifier1, OrderTargetingPoint(AbilityCommand("ForceField", 0), PointFromId(718)), c_orderQueueReplace);
         }
         else {
-            if ((RegionContainsPoint(RegionCircle(lv_nullifier1Position, 1.0), UnitGetPosition(lv_nullifier1)) == false)) {
+            if ((UnitIsValid(lv_nullifier1) == true) && (RegionContainsPoint(RegionCircle(lv_nullifier1Position, 1.0), UnitGetPosition(lv_nullifier1)) == false)) {
                 UnitIssueOrder(lv_nullifier1, OrderTargetingPoint(AbilityCommand("move", 0), lv_nullifier1Position), c_orderQueueReplace);
             }
 
         }
-        if ((UnitIsAlive(lv_nullifier2) == true) && (UnitGetPropertyFixed(lv_nullifier2, c_unitPropEnergy, c_unitPropCurrent) >= 30.0) && (UnitGroupCount(UnitGroup(null, gv_p1_USER, RegionFromId(39), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0) && (UnitGroupCount(UnitGroup("ForceField", c_playerAny, RegionCircle(PointFromId(719), 1.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0)) {
+        if ((UnitIsValid(lv_nullifier2) == true) && (UnitIsAlive(lv_nullifier2) == true) && (UnitGetPropertyFixed(lv_nullifier2, c_unitPropEnergy, c_unitPropCurrent) >= 30.0) && (UnitGroupCount(UnitGroup(null, gv_p1_USER, RegionFromId(39), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0) && (UnitGroupCount(UnitGroup("ForceField", c_playerAny, RegionCircle(PointFromId(719), 1.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0)) {
             UnitIssueOrder(lv_nullifier2, OrderTargetingPoint(AbilityCommand("ForceField", 0), PointFromId(719)), c_orderQueueReplace);
         }
         else {
-            if ((RegionContainsPoint(RegionCircle(lv_nullifier2Position, 1.0), UnitGetPosition(lv_nullifier2)) == false)) {
+            if ((UnitIsValid(lv_nullifier2) == true) && (RegionContainsPoint(RegionCircle(lv_nullifier2Position, 1.0), UnitGetPosition(lv_nullifier2)) == false)) {
                 UnitIssueOrder(lv_nullifier2, OrderTargetingPoint(AbilityCommand("move", 0), lv_nullifier2Position), c_orderQueueReplace);
             }
 
         }
         if ((UnitGroupCount(UnitGroupAlliance(gv_p3_TEMPLE, c_unitAllianceEnemy, RegionCircle(UnitGetPosition(gv_artifact), 13.0), UnitFilter(0, 0, (1 << c_targetFilterMissile) | (1 << c_targetFilterBuried) | (1 << c_targetFilterCloaked), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) >= 1)) {
             lv_stalkerTarget = UnitGetPosition(libNtve_gf_ClosestUnitToPoint(UnitGetPosition(gv_artifact), UnitGroupAlliance(gv_p3_TEMPLE, c_unitAllianceEnemy, RegionCircle(UnitGetPosition(gv_artifact), 14.0), UnitFilter(0, 0, (1 << c_targetFilterMissile) | (1 << c_targetFilterBuried) | (1 << c_targetFilterCloaked), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0)));
-            UnitIssueOrder(lv_stalker1, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalkerTarget), c_orderQueueReplace);
-            UnitIssueOrder(lv_stalker2, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalkerTarget), c_orderQueueReplace);
-            UnitIssueOrder(lv_stalker1, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalker1Position), c_orderQueueAddToEnd);
-            UnitIssueOrder(lv_stalker2, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalker2Position), c_orderQueueAddToEnd);
+            if ((UnitIsValid(lv_stalker1) == true) && (UnitIsAlive(lv_stalker1) == true)) {
+                UnitIssueOrder(lv_stalker1, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalkerTarget), c_orderQueueReplace);
+                UnitIssueOrder(lv_stalker1, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalker1Position), c_orderQueueAddToEnd);
+            }
+            if ((UnitIsValid(lv_stalker2) == true) && (UnitIsAlive(lv_stalker2) == true)) {
+                UnitIssueOrder(lv_stalker2, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalkerTarget), c_orderQueueReplace);
+                UnitIssueOrder(lv_stalker2, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalker2Position), c_orderQueueAddToEnd);
+            }
         }
         else {
-            UnitIssueOrder(lv_stalker1, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalker1Position), c_orderQueueReplace);
-            UnitIssueOrder(lv_stalker2, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalker2Position), c_orderQueueReplace);
+            if ((UnitIsValid(lv_stalker1) == true) && (UnitIsAlive(lv_stalker1) == true)) {
+                UnitIssueOrder(lv_stalker1, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalker1Position), c_orderQueueReplace);
+            }
+            if ((UnitIsValid(lv_stalker2) == true) && (UnitIsAlive(lv_stalker2) == true)) {
+                UnitIssueOrder(lv_stalker2, OrderTargetingPoint(AbilityCommand("attack", 0), lv_stalker2Position), c_orderQueueReplace);
+            }
         }
     }
     return true;

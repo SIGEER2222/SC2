@@ -8,6 +8,7 @@
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibDF8E6945"
 include "Lib0940FFB7"
@@ -20,6 +21,7 @@ void InitLibs () {
     libNtve_InitLib();
     libLbty_InitLib();
     libCamp_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libDF8E6945_InitLib();
     lib0940FFB7_InitLib();
@@ -123,6 +125,33 @@ void gf_AttackwithZergDropPod (int lp_qty1, string lp_type1, int lp_qty2, string
 void gf_SpawnNydusWorm (point lp_spawnPoint, int lp_player, int lp_packs, int lp_packSize, string lp_type, fixed lp_cooldown);
 void gf_ResearchUpgradesForZerg (int lp_qty, string lp_upgrade);
 void gf_ColonyShipBlastoff (unit lp_unit);
+
+string gf_ResolveUnitTypeWithFallback3 (string lp_primary, string lp_fallbackA, string lp_fallbackB) {
+    string lv_unitType;
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_primary);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackA);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    return libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackB);
+}
+
+void gf_CargoCreateWithFallback3 (unit lp_transport, string lp_primary, string lp_fallbackA, string lp_fallbackB, int lp_count) {
+    string lv_unitType;
+
+    lv_unitType = gf_ResolveUnitTypeWithFallback3(lp_primary, lp_fallbackA, lp_fallbackB);
+    if ((lv_unitType == "") || (UnitIsValid(lp_transport) == false)) {
+        return;
+    }
+
+    UnitCargoCreate(lp_transport, lv_unitType, lp_count);
+}
 
 //--------------------------------------------------------------------------------------------------
 // Trigger Variables
@@ -547,6 +576,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_p1_USER, c_playerPropMinerals, c_playerPropOperSetTo, 200);
     PlayerModifyPropertyInt(gv_p1_USER, c_playerPropVespene, c_playerPropOperSetTo, 50);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, false);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03VariablesUnits, true, true);
@@ -802,6 +832,7 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     SoundtrackPlay(PlayerGroupAll(), c_soundtrackCategoryMusic, "THanson01MusicIntro", c_soundtrackCueAny, c_soundtrackIndexAny, false);
     CinematicFade(true, 1.5, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p2_ZERG_ORANGE_NW);
     TriggerExecute(gt_StartGame, true, false);
     return true;
 }
@@ -902,7 +933,6 @@ bool gt_FirebatDropshipAction_Func (bool testConds, bool runActions) {
     auto8F0E1D21_val = libE0EAE146_gv_commander;
     if (auto8F0E1D21_val == "Tychus") {
         UnitCargoCreate(UnitFromId(290), "TychusFirebat", 1);
-        lib67C0F0E7_gf_TychusSquadSetMember(UnitCargoLastCreated());
     }
     else if (auto8F0E1D21_val == "Mira") {
         UnitCargoCreate(UnitFromId(290), "HellionTankMira", 3);
@@ -925,7 +955,7 @@ bool gt_FirebatDropshipAction_Func (bool testConds, bool runActions) {
         UnitCargoCreate(UnitFromId(290), "TrooperMengskFlamethrower", 6);
     }
     else if (auto8F0E1D21_val == "Swann") {
-        UnitCargoCreate(UnitFromId(290), "PredatorSwann", 4);
+        gf_CargoCreateWithFallback3(UnitFromId(290), "PredatorSwann", "HellionTank", "Hellion", 4);
     }
     else if (auto8F0E1D21_val == "Stetmann") {
         UnitCargoCreate(UnitFromId(290), "LurkerStetmann", 3);

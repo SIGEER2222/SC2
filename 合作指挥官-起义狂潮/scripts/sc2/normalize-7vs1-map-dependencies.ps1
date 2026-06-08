@@ -40,6 +40,33 @@ function Get-DocumentInfoPreload {
     })
 }
 
+function Get-MapIncludeLibIds {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return @()
+    }
+
+    return @(Select-String -Path $Path -Pattern '^include "Lib[0-9A-F]+"' | ForEach-Object {
+        if ($_.Line -match '"(Lib[0-9A-F]+)"') {
+            $matches[1]
+        }
+    })
+}
+
+function Test-MapHasLocalizedPublicLibs {
+    param([string]$MapRoot)
+
+    $baseDataRoot = Join-Path $MapRoot 'Base.SC2Data'
+    if (-not (Test-Path -LiteralPath $baseDataRoot)) {
+        return $false
+    }
+
+    $lib67 = Join-Path $baseDataRoot 'Lib67C0F0E7.galaxy'
+    $libE0 = Join-Path $baseDataRoot 'LibE0EAE146.galaxy'
+    return (Test-Path -LiteralPath $lib67) -and (Test-Path -LiteralPath $libE0)
+}
+
 function Write-DocumentInfo {
     param(
         [string]$Path,
@@ -96,41 +123,16 @@ function Normalize-FileDependency {
     return $Value
 }
 
-function Get-IncludeLibIds {
-    param([string]$MapScriptPath)
+function Get-DependencyFileTarget {
+    param([string]$Value)
 
-    return @(Select-String -Path $MapScriptPath -Pattern '^include "Lib[0-9A-F]+"' | ForEach-Object {
-        if ($_.Line -match '"(Lib[0-9A-F]+)"') {
-            $matches[1]
-        }
-    })
-}
-
-function Get-RequiredXMDependencies {
-    param([string[]]$LibIds)
-
-    $libToDependency = @{
-        'Lib0940FFB7' = 'file:Mods/XM/XMNova.SC2Mod'
-        'Lib4B62E36B' = 'file:Mods/XM/XMSwann.SC2Mod'
-        'Lib81FF3B49' = 'file:Mods/XM/XMTychus.SC2Mod'
-        'Lib975E2FE9' = 'file:Mods/XM/XMStetmann.SC2Mod'
-        'LibA1BA7A9F' = 'file:Mods/XM/XMAbathur.SC2Mod'
-        'LibA2FC17B7' = 'file:Mods/XM/XMAlarak.SC2Mod'
-        'LibB7B23F0D' = 'file:Mods/XM/XMSCV.SC2Mod'
-        'LibBE3BBD9F' = 'file:Mods/XM/XMStukov.SC2Mod'
-        'LibC0F50AA6' = 'file:Mods/XM/XMMengsk.SC2Mod'
-        'LibD0E57A9C' = 'file:Mods/XM/XMKerrigan.SC2Mod'
-        'LibDA886FA0' = 'file:Mods/XM/XMMira.SC2Mod'
-        'LibDF8E6945' = 'file:Mods/XM/XMDehaka.SC2Mod'
+    $parts = $Value.Split(',')
+    $target = $parts[$parts.Count - 1]
+    if ($target -like 'file:*') {
+        return ($target -replace '\\', '/')
     }
 
-    $dependencies = New-Object System.Collections.Generic.List[string]
-    foreach ($libId in $LibIds) {
-        if ($libToDependency.ContainsKey($libId)) {
-            Add-UniqueDependency -Dependencies $dependencies -Value $libToDependency[$libId]
-        }
-    }
-    return $dependencies.ToArray()
+    return ''
 }
 
 function Test-ByteSequenceAt {
@@ -237,8 +239,9 @@ function Set-DocumentHeaderDependencies {
 }
 
 $libertyStory = 'bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign'
+$libertyMod = 'bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod'
 $coopZeroPop = 'file:Mods/7vs1/CoopZeroPop.SC2Mod'
-$coreMod = 'file:Mods/7vs1/7v1Core.SC2Mod'
+$commanderCatalog = 'file:Mods/7vs1/CommanderCatalog.SC2Mod'
 $kitMutations = 'file:Mods/kit_mutations.SC2Mod'
 $xmFinalPatterns = @(
     'file:Mods/XM/XMFinal.SC2Mod',
@@ -250,55 +253,50 @@ if (-not (Test-Path -LiteralPath $resolvedMapsRoot)) {
     throw "MapsRoot not found: $resolvedMapsRoot"
 }
 
-$targets = Get-ChildItem -LiteralPath $resolvedMapsRoot -Directory |
-    Where-Object { $_.Name -like '*_7vs1.SC2Map' }
-
 if ($Maps.Count -gt 0) {
     $nameSet = @{}
     foreach ($name in $Maps) {
         $nameSet[$name] = $true
     }
-    $targets = $targets | Where-Object { $nameSet.ContainsKey($_.Name) }
+    $targets = Get-ChildItem -LiteralPath $resolvedMapsRoot -Directory |
+        Where-Object { $nameSet.ContainsKey($_.Name) }
+}
+else {
+    $targets = Get-ChildItem -LiteralPath $resolvedMapsRoot -Directory |
+        Where-Object { $_.Name -like '*_7vs1.SC2Map' }
 }
 
 $targets = $targets | Sort-Object Name
 
 foreach ($map in $targets) {
-    if ($map.Name -eq 'ttosh02_7vs1.SC2Map') {
-        Write-Output ("SKIPPED {0} special_baseline" -f $map.Name)
-        continue
-    }
-
     $documentInfoPath = Join-Path $map.FullName 'DocumentInfo'
     $documentHeaderPath = Join-Path $map.FullName 'DocumentHeader'
-    $mapScriptPath = Join-Path $map.FullName 'MapScript.galaxy'
-    $baseDataPath = Join-Path $map.FullName 'Base.SC2Data'
-    $localLibE0Path = Join-Path $baseDataPath 'LibE0EAE146.galaxy'
-
     $existingDependencies = @(Get-DocumentInfoDependencies -Path $documentInfoPath | ForEach-Object {
         Normalize-FileDependency -Value $_
     })
     $preload = Get-DocumentInfoPreload -Path $documentInfoPath
-    $includeLibIds = Get-IncludeLibIds -MapScriptPath $mapScriptPath
-    $requiredXMDependencies = Get-RequiredXMDependencies -LibIds $includeLibIds
+    $includeLibIds = Get-MapIncludeLibIds -Path (Join-Path $map.FullName 'MapScript.galaxy')
 
     $newDependencies = New-Object System.Collections.Generic.List[string]
+    Add-UniqueDependency -Dependencies $newDependencies -Value $libertyStory
+    Add-UniqueDependency -Dependencies $newDependencies -Value $libertyMod
 
     foreach ($dependency in $existingDependencies) {
-        if ($dependency -like 'bnet:*') {
+        $dependencyTarget = Get-DependencyFileTarget -Value $dependency
+        if (($dependencyTarget -eq 'file:Campaigns/LibertyStory.SC2Campaign') -or
+            ($dependencyTarget -eq 'file:Mods/Liberty.SC2Mod')) {
+            continue
+        }
+
+        if ($dependency -like 'bnet:*' -and $dependency -ne $libertyStory -and $dependency -ne $libertyMod) {
             Add-UniqueDependency -Dependencies $newDependencies -Value $dependency
         }
     }
 
     Add-UniqueDependency -Dependencies $newDependencies -Value $coopZeroPop
-    Add-UniqueDependency -Dependencies $newDependencies -Value $coreMod
-
-    if ($existingDependencies -contains $kitMutations) {
+    Add-UniqueDependency -Dependencies $newDependencies -Value $commanderCatalog
+    if (($map.Name -eq 'ttosh02_7vs1.SC2Map') -or ($includeLibIds -contains 'LibA070801C')) {
         Add-UniqueDependency -Dependencies $newDependencies -Value $kitMutations
-    }
-
-    foreach ($dependency in $requiredXMDependencies) {
-        Add-UniqueDependency -Dependencies $newDependencies -Value $dependency
     }
 
     foreach ($dependency in $existingDependencies) {
@@ -310,7 +308,7 @@ foreach ($map in $targets) {
             continue
         }
 
-        if ($dependency -eq $coopZeroPop -or $dependency -eq $kitMutations) {
+        if ($dependency -eq $coopZeroPop -or $dependency -eq $commanderCatalog -or $dependency -eq $kitMutations) {
             continue
         }
 
@@ -323,9 +321,6 @@ foreach ($map in $targets) {
 
     Write-DocumentInfo -Path $documentInfoPath -Dependencies $newDependencies.ToArray() -Preload $preload
     Set-DocumentHeaderDependencies -Path $documentHeaderPath -Dependencies $newDependencies.ToArray()
-    if (Test-Path -LiteralPath $localLibE0Path) {
-        Remove-Item -LiteralPath $localLibE0Path -Force
-    }
 
     Write-Output ("NORMALIZED {0} deps={1}" -f $map.Name, $newDependencies.Count)
 }

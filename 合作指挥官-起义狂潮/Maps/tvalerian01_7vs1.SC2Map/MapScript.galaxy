@@ -9,6 +9,7 @@ include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
 include "TriggerLibs/SwarmLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibC0F50AA6"
 include "Lib81FF3B49"
@@ -25,6 +26,7 @@ void InitLibs () {
     libLbty_InitLib();
     libCamp_InitLib();
     libHots_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libC0F50AA6_InitLib();
     lib81FF3B49_InitLib();
@@ -138,6 +140,84 @@ actor gv_fire01;
 actor gv_fire02;
 actor gv_fire03;
 actor gv_fire04;
+
+//--------------------------------------------------------------------------------------------------
+// Compatibility Helpers
+//--------------------------------------------------------------------------------------------------
+string gf_ResolveUnitTypeWithFallback3 (string lp_primary, string lp_fallbackA, string lp_fallbackB) {
+    string lv_unitType;
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_primary);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackA);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    return libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackB);
+}
+
+void gf_CreateUnitsWithFallback3 (int lp_count, string lp_primary, string lp_fallbackA, string lp_fallbackB, int lp_player, point lp_spawnPoint) {
+    string lv_unitType;
+
+    lv_unitType = gf_ResolveUnitTypeWithFallback3(lp_primary, lp_fallbackA, lp_fallbackB);
+    if (lv_unitType == "") {
+        return;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(lp_count, lv_unitType, 0, lp_player, lp_spawnPoint);
+}
+
+void gf_CreateSwannMicrobotUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "MicrobotSwann", "ScienceVesselSwann", "Medic", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateSwannGoliathUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "GoliathSwann", "Goliath", "Marauder", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateSwannSiegeTankUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "SiegeTankSwann", "SiegeTank", "SiegeTankSieged", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateSwannSiegedTankUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "SiegeTankSiegedSwann", "SiegeTankSieged", "SiegeTank", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateSwannWraithUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "WraithSwann", "Wraith", "Banshee", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateSwannCommanderUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "SwannSwann", "CasterSwann", "CoopCasterSwann", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateSwannSupportUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "ScienceVesselSwann", "Raven", "Medic", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateStukovBunkerUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "SIInfestedBunkerUpg", "Bunker", "Bunker", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateStukovUprootedBunkerUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "SIInfestedBunkerUpgUprooted", "Bunker", "Bunker", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateStukovCommanderUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "SIStukov", "CoopCasterStukov", "StukovInfestedBanshee", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateStukovOverseerUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "OverseerStukov", "Overseer", "Overlord", lp_player, lp_spawnPoint);
+}
+
+void gf_CreateStetmannLarvaUnits (int lp_count, int lp_player, point lp_spawnPoint) {
+    gf_CreateUnitsWithFallback3(lp_count, "LarvaPStetmann", "Larva", "Drone", lp_player, lp_spawnPoint);
+}
 actor gv_fire05;
 unit gv_bunker01;
 unit gv_bunker02;
@@ -562,6 +642,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 1000);
     PlayerModifyPropertyInt(1, c_playerPropSuppliesMade, c_playerPropOperSetTo, 200);
     libE0EAE146_gf_Initialize(true);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -699,13 +780,13 @@ bool gt_Init03Units_Func (bool testConds, bool runActions) {
     libNtve_gf_MakeUnitInvulnerable(UnitFromId(1808577598), true);
     auto412F2E68_val = libE0EAE146_gv_commander;
     if (auto412F2E68_val == "Stukov") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SIInfestedBunkerUpg", 0, gv_p12_MOEBIUS, PointFromId(385406063));
+        gf_CreateStukovBunkerUnits(1, gv_p12_MOEBIUS, PointFromId(385406063));
         UnitCargoCreate(UnitLastCreated(), "SIInfestedTrooper", 4);
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "StukovInfestedSiegeTank", 0, gv_p12_MOEBIUS, PointFromId(855382681));
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "StukovInfestedDiamondBack", 0, gv_p12_MOEBIUS, PointFromId(898485624));
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SIInfestedBunkerUpg", 0, gv_p12_MOEBIUS, PointFromId(95514741));
+        gf_CreateStukovBunkerUnits(1, gv_p12_MOEBIUS, PointFromId(95514741));
         UnitCargoCreate(UnitLastCreated(), "SIInfestedTrooper", 4);
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SIInfestedBunkerUpg", 0, gv_p12_MOEBIUS, PointFromId(95514741));
+        gf_CreateStukovBunkerUnits(1, gv_p12_MOEBIUS, PointFromId(95514741));
         UnitCargoCreate(UnitLastCreated(), "SIInfestedTrooper", 4);
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "StukovInfestedDiamondBack", 0, gv_p12_MOEBIUS, PointFromId(1089641768));
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "StukovInfestedSiegeTank", 0, gv_p12_MOEBIUS, PointFromId(665));
@@ -780,16 +861,16 @@ bool gt_Init03Units_Func (bool testConds, bool runActions) {
         libC0F50AA6_gf_AddMengskVeterancyUnit(UnitLastCreatedGroup());
     }
     else if (auto412F2E68_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(4, "MicrobotSwann", 0, gv_p12_MOEBIUS, PointFromId(385406063));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "SiegeTankSwann", 0, gv_p12_MOEBIUS, PointFromId(855382681));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "GoliathSwann", 0, gv_p12_MOEBIUS, PointFromId(898485624));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "GoliathSwann", 0, gv_p12_MOEBIUS, PointFromId(95514741));
-        libNtve_gf_CreateUnitsWithDefaultFacing(4, "MicrobotSwann", 0, gv_p12_MOEBIUS, PointFromId(95514741));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "GoliathSwann", 0, gv_p12_MOEBIUS, PointFromId(95514741));
-        libNtve_gf_CreateUnitsWithDefaultFacing(4, "MicrobotSwann", 0, gv_p12_MOEBIUS, PointFromId(1089641768));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "GoliathSwann", 0, gv_p12_MOEBIUS, PointFromId(1089641768));
-        libNtve_gf_CreateUnitsWithDefaultFacing(3, "SiegeTankSiegedSwann", 0, gv_p12_MOEBIUS, PointFromId(665));
-        libNtve_gf_CreateUnitsWithDefaultFacing(3, "GoliathSwann", 0, gv_p12_MOEBIUS, PointFromId(344935602));
+        gf_CreateSwannMicrobotUnits(4, gv_p12_MOEBIUS, PointFromId(385406063));
+        gf_CreateSwannSiegeTankUnits(2, gv_p12_MOEBIUS, PointFromId(855382681));
+        gf_CreateSwannGoliathUnits(2, gv_p12_MOEBIUS, PointFromId(898485624));
+        gf_CreateSwannGoliathUnits(2, gv_p12_MOEBIUS, PointFromId(95514741));
+        gf_CreateSwannMicrobotUnits(4, gv_p12_MOEBIUS, PointFromId(95514741));
+        gf_CreateSwannGoliathUnits(2, gv_p12_MOEBIUS, PointFromId(95514741));
+        gf_CreateSwannMicrobotUnits(4, gv_p12_MOEBIUS, PointFromId(1089641768));
+        gf_CreateSwannGoliathUnits(2, gv_p12_MOEBIUS, PointFromId(1089641768));
+        gf_CreateSwannSiegedTankUnits(3, gv_p12_MOEBIUS, PointFromId(665));
+        gf_CreateSwannGoliathUnits(3, gv_p12_MOEBIUS, PointFromId(344935602));
     }
     else if (auto412F2E68_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(4, "HydraliskStetmann", 0, gv_p12_MOEBIUS, PointFromId(385406063));
@@ -1081,16 +1162,16 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
 
     auto6FC7555F_val = libE0EAE146_gv_commander;
     if (auto6FC7555F_val == "Stukov") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SIStukov", 0, 1, PointFromId(1));
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "OverseerStukov", 0, 1, PointFromId(1));
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SIInfestedBunkerUpgUprooted", 0, 1, PointFromId(1));
+        gf_CreateStukovCommanderUnits(1, 1, PointFromId(1));
+        gf_CreateStukovOverseerUnits(1, 1, PointFromId(1));
+        gf_CreateStukovUprootedBunkerUnits(1, 1, PointFromId(1));
         UnitCargoCreate(UnitLastCreated(), "SIInfestedTrooper", 4);
     }
     else if (auto6FC7555F_val == "Dehaka") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "DehakaCoop", 0, 1, PointFromId(1));
         libDF8E6945_gf_InitializeDehakaEvent(1, UnitLastCreated());
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "DehakaHydraliskLevel2", 0, 1, PointFromId(1));
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "OverseerStukov", 0, 1, PointFromId(1));
+        gf_CreateStukovOverseerUnits(1, 1, PointFromId(1));
         BankLoad("CampaignXCore", 1);
         if ((lib67C0F0E7_gf_BitMaskTrueIndexIs(BankValueGetAsInt(BankLastCreated(), libE0EAE146_gv_commander, "AchBit"), 0) == true)) {
             libDF8E6945_gf_DehakaBroodbrother();
@@ -1102,19 +1183,19 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "HellionTankMira", 0, 1, PointFromId(1));
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "GhostMira", 0, 1, PointFromId(1));
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "MedicMira", 0, 1, PointFromId(1));
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "OverseerStukov", 0, 1, PointFromId(1));
+        gf_CreateStukovOverseerUnits(1, 1, PointFromId(1));
     }
     else if (auto6FC7555F_val == "Tychus") {
         lib67C0F0E7_gf_CU_GPInit(1, "Tychus", UnitFromId(853449436), null);
         lib67C0F0E7_gf_CU_GPShowHide(true, 1, c_transitionDurationDefault);
-        lib67C0F0E7_gf_TychusSquadInitTrigger(1, 4, "Abil/TychusTrain", "CoopTechTychusSquad", "Event_TychusHeroStructureCreate", "Event_TychusHeroMainBuilding");
+        lib67C0F0E7_gf_TychusSquadInitTrigger(1, 4, "Abil/TychusTrain", "CoopTechTychusSquad", "Event_TychusHeroStructureCreate", "");
         lib67C0F0E7_gv_tychusSquadMainBuilding = UnitLastCreated();
         lib81FF3B49_gf_InitializeTychusEvent();
         lib67C0F0E7_gf_TychusSquadAddCharge(4);
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "TychusCoop", 0, 1, PointFromId(1));
         lib67C0F0E7_gf_TychusSquadSetMember(UnitLastCreated());
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "MercMedic", 0, 1, PointFromId(1));
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "OverseerStukov", 0, 1, PointFromId(1));
+        gf_CreateStukovOverseerUnits(1, 1, PointFromId(1));
     }
     else if (auto6FC7555F_val == "Nova") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "NovaCoop", 0, 1, PointFromId(1));
@@ -1131,10 +1212,10 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "MengskMedic", 0, 1, PointFromId(1));
     }
     else if (auto6FC7555F_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SwannSwann", 0, 1, PointFromId(1));
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ScienceVesselSwann", 0, 1, PointFromId(1));
-        libNtve_gf_CreateUnitsWithDefaultFacing(3, "GoliathSwann", 0, 1, PointFromId(1));
-        libNtve_gf_CreateUnitsWithDefaultFacing(3, "MicrobotSwann", 0, 1, PointFromId(1));
+        gf_CreateSwannCommanderUnits(1, 1, PointFromId(1));
+        gf_CreateSwannSupportUnits(1, 1, PointFromId(1));
+        gf_CreateSwannGoliathUnits(3, 1, PointFromId(1));
+        gf_CreateSwannMicrobotUnits(3, 1, PointFromId(1));
     }
     else if (auto6FC7555F_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterStetmann", c_unitCreateIgnorePlacement, 1, RegionGetBoundsMin(RegionEntireMap()));
@@ -1149,7 +1230,7 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
         lib975E2FE9_gf_PowerFieldTrigger(1, BankValueGetAsInt(BankLastCreated(), libE0EAE146_gv_commander, IntToString(2)));
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "GaryStetmann", 0, 1, PointFromId(1));
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "OverseerStetmann", 0, 1, PointFromId(1));
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "LarvaPStetmann", 0, 1, PointFromId(1));
+        gf_CreateStetmannLarvaUnits(1, 1, PointFromId(1));
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "HydraliskStetmann", 0, 1, PointFromId(1));
     }
     else {
@@ -1158,6 +1239,7 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     libNtve_gf_CinematicMode(true, PlayerGroupAll(), 0.0);
     libNtve_gf_GlobalCinematicSetting(true);
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p06_GRENDELBROOD);
     Wait(0.2, c_timeGame);
     autoC4FACED6_g = UnitGroup(null, gv_p14_FIRETEAMZULU, null, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     autoC4FACED6_u = UnitGroupCount(autoC4FACED6_g, c_unitCountAll);
@@ -1540,7 +1622,7 @@ bool gt_PredatorCave1Rescue_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "GasCanister", 0, 1, UnitGetPosition(UnitFromId(917115859)));
     }
     else if (auto11830AB1_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(3, "GoliathSwann", 0, 1, UnitGetPosition(UnitFromId(917115859)));
+        gf_CreateSwannGoliathUnits(3, 1, UnitGetPosition(UnitFromId(917115859)));
     }
     else if (auto11830AB1_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(8, "ZerglingStetmann", 0, 1, UnitGetPosition(UnitFromId(917115859)));
@@ -1607,7 +1689,7 @@ bool gt_EggCaveRescue_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "GasCanister", 0, 1, UnitGetPosition(UnitFromId(1561859421)));
     }
     else if (auto8B577ED3_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "GoliathSwann", 0, 1, UnitGetPosition(UnitFromId(1561859421)));
+        gf_CreateSwannGoliathUnits(2, 1, UnitGetPosition(UnitFromId(1561859421)));
     }
     else if (auto8B577ED3_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(6, "BanelingStetmann", 0, 1, UnitGetPosition(UnitFromId(1561859421)));
@@ -2266,7 +2348,7 @@ bool gt_PhantomSporeDestroyed_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "MengskBanshee", 0, 1, UnitGetPosition(EventUnit()));
     }
     else if (auto450F6423_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(4, "WraithSwann", 0, 1, UnitGetPosition(EventUnit()));
+        gf_CreateSwannWraithUnits(4, 1, UnitGetPosition(EventUnit()));
     }
     else if (auto450F6423_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLordStetmann", 0, 1, UnitGetPosition(EventUnit()));
@@ -2326,7 +2408,7 @@ bool gt_LiberatorSporeDestroyed_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "MengskBanshee", 0, 1, UnitGetPosition(EventUnit()));
     }
     else if (auto07918D19_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(4, "WraithSwann", 0, 1, UnitGetPosition(EventUnit()));
+        gf_CreateSwannWraithUnits(4, 1, UnitGetPosition(EventUnit()));
     }
     else if (auto07918D19_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLordStetmann", 0, 1, UnitGetPosition(EventUnit()));
@@ -2385,7 +2467,7 @@ bool gt_RavenSporeDestroyed_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "MengskBanshee", 0, 1, UnitGetPosition(EventUnit()));
     }
     else if (autoE06E5BD0_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(4, "WraithSwann", 0, 1, UnitGetPosition(EventUnit()));
+        gf_CreateSwannWraithUnits(4, 1, UnitGetPosition(EventUnit()));
     }
     else if (autoE06E5BD0_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLordStetmann", 0, 1, UnitGetPosition(EventUnit()));
@@ -2443,7 +2525,7 @@ bool gt_VoidConduitSporeDestroyed_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "MengskBanshee", 0, 1, UnitGetPosition(EventUnit()));
     }
     else if (auto4D29ED48_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(4, "WraithSwann", 0, 1, UnitGetPosition(EventUnit()));
+        gf_CreateSwannWraithUnits(4, 1, UnitGetPosition(EventUnit()));
     }
     else if (auto4D29ED48_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLordStetmann", 0, 1, UnitGetPosition(EventUnit()));

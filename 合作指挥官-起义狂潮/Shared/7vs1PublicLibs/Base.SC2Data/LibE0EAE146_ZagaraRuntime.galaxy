@@ -1,0 +1,184 @@
+void libE0EAE146_gf_ZagaraSetUpgradeAtLeast (int lp_player, string lp_upgrade, int lp_level) {
+    int lv_currentLevel;
+
+    if ((lp_upgrade == "") || (!CatalogEntryIsValid(c_gameCatalogUpgrade, lp_upgrade))) {
+        return;
+    }
+
+    lv_currentLevel = TechTreeUpgradeCount(lp_player, lp_upgrade, c_techCountCompleteOnly);
+    if (lv_currentLevel < lp_level) {
+        TechTreeUpgradeAddLevel(lp_player, lp_upgrade, (lp_level - lv_currentLevel));
+    }
+}
+
+void libE0EAE146_gf_ZagaraAllowUnitIfPresent (int lp_player, string lp_unit) {
+    if ((lp_unit == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unit))) {
+        return;
+    }
+    TechTreeUnitAllow(lp_player, lp_unit, true);
+}
+
+void libE0EAE146_gf_ZagaraBlockUnitIfPresent (int lp_player, string lp_unit) {
+    if ((lp_unit == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unit))) {
+        return;
+    }
+    TechTreeUnitAllow(lp_player, lp_unit, false);
+}
+
+void libE0EAE146_gf_ZagaraAllowAbilityIfPresent (int lp_player, string lp_abil, int lp_cmdIndex) {
+    if ((lp_abil == "") || (!CatalogEntryIsValid(c_gameCatalogAbil, lp_abil))) {
+        return;
+    }
+    TechTreeAbilityAllow(lp_player, AbilityCommand(lp_abil, lp_cmdIndex), true);
+}
+
+void libE0EAE146_gf_ZagaraApplyFullLevelUpgrades (int lp_player) {
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "CommanderLevel", 16);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "ZagaraCommander", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "K5TwoDrones", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "MasteryZagaraLarvaRatePassive", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "QueenDoubleInjectLarva", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "ZagaraBileLaunchers", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "ZagaraVoidCoopBanelingSpawner", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "ZagaraVoidCoopAberrationBanelingIncubation", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "ZagaraVoidCoopImprovedMassRoachDrop", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "CoopZerglingSwarmling", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "CoopBanelingSplitterling", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "ZagaraVoidCoopImprovedAbilities", 1);
+}
+
+void libE0EAE146_gf_ZagaraApplyFullMasteries (int lp_player) {
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "MasteryZagaraHealthAndEnergyRegen", 30);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "MasteryZagaraAutoAttackDamage", 30);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "MasteryZagaraMassFrenzySpeedBoost", 30);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "MasteryZagaraZerglingDodgeChance", 30);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "MasteryZagaraRoachDropDamageAndHealth", 30);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "MasteryZagaraBanelingsDamage", 30);
+}
+
+void libE0EAE146_gf_ZagaraApplyPositivePrestigeEffects (int lp_player) {
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "CommanderPrestigeZagaraMaxSupply", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "CommanderPrestigeZagaraMaxSupplyScourgeCostUpgrade", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "CommanderPrestigeZagaraCorruptorsAberrations", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "CommanderPrestigeZagaraZagara", 1);
+    libE0EAE146_gf_ZagaraSetUpgradeAtLeast(lp_player, "CommanderPrestigeZagaraZagaraMastery", 1);
+}
+
+void libE0EAE146_gf_ZagaraApplyTechFilter (int lp_player) {
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Drone");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Larva");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Overlord");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Hatchery");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Lair");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Hive");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Extractor");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "SpawningPool");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "EvolutionChamber");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Spire");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "BanelingNest");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "ScourgeNest");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "SpineCrawler");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "SporeCrawler");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Queen");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "QueenCoop");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Zergling");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Baneling");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "HotSHunter");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "HotSSplitterlingBig");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Roach");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "HunterKiller");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "HunterKillerBurrowed");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "InfestedAbomination");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Scourge");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "Overseer");
+    libE0EAE146_gf_ZagaraBlockUnitIfPresent(lp_player, "OverseerSiegeMode");
+
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "CoopCasterZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "ZagaraVoidCoop");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "ZagaraVoidCoopBurrowed");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "DroneZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "LarvaZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "OverlordZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "HatcheryZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "LairZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "HiveZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "ExtractorZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "SpawningPoolZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "EvolutionChamberZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "SpireZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "BanelingNestZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "ScourgeNestZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "SpineCrawlerZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "SporeCrawlerZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "BileLauncherZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "QueenZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "SwarmQueenZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "ZerglingZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "BanelingZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "HotSHunterZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "HotSSplitterlingBigZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "RoachZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "HunterKillerZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "HunterKillerBurrowedZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "InfestedAbominationZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "ScourgeZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "OverseerZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "OverseerSiegeModeZagara");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "ZagaraCorruptor");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "ZagaraReviveCocoon");
+    libE0EAE146_gf_ZagaraAllowUnitIfPresent(lp_player, "RoachMassDropDummy");
+
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "ZergBuildZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "LarvaTrainZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "LarvaTrainSwarmZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "TrainQueenZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "UpgradeToLairZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "UpgradeToHiveZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "MorphToOverseerZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "OverseerMorphtoOverseerSiegeZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "OverseerSiegeMorphtoOverseerZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "MorphZerglingToBanelingZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "MorphZerglingToHunterZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "MorphZerglingToSplitterlingZagara", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "ScourgeNestResearch", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "BanelingNestResearch", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "evolutionchamberresearch", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "ZagaraVoidCoopBanelingBarrage", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "ZagaraVoidCoopSpawnHunterKillers", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "ZagaraVoidCoopMassFrenzy", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "ZagaraVoidCoopMassRoachDrop", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "CommanderPrestigeZagaraZagaraDeepTunnel", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "ZagaraVoidCoopBurrow", 0);
+    libE0EAE146_gf_ZagaraAllowAbilityIfPresent(lp_player, "BurrowHunterKillerZagaraUp", 0);
+}
+
+void libE0EAE146_gf_ZagaraRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    unit lv_caster;
+    unit lv_hero;
+
+    if (libE0EAE146_gv_zagaraRuntimeInitialized == true) {
+        return;
+    }
+
+    libE0EAE146_gv_zagaraRuntimeInitialized = true;
+    libE0EAE146_gf_CommanderPowerApplyProfile(lp_player, "Zagara");
+    if (libE0EAE146_gf_CommanderUsePrivateTechFilter("Zagara")) {
+        libE0EAE146_gf_ZagaraApplyTechFilter(lp_player);
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterZagara", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+    lv_caster = UnitLastCreated();
+
+    if (lp_createHero == true) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZagaraVoidCoop", 0, lp_player, lp_heroPoint);
+        lv_hero = UnitLastCreated();
+        libE0EAE146_gt_CommanderHeroDied_Init();
+        lib67C0F0E7_gf_CU_GPInit(lp_player, "Zagara", lv_hero, lv_caster);
+    }
+    else {
+        lib67C0F0E7_gf_CU_GPInit(lp_player, "Zagara", lv_caster, null);
+    }
+
+    lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+    lib67C0F0E7_gf_ShowChooseButton();
+}

@@ -8,6 +8,19 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Read-DocumentInfoXml {
+    param([string]$Path)
+
+    $raw = Get-Content -LiteralPath $Path -Raw
+    $docInfoEnd = $raw.IndexOf('</DocInfo>')
+    if ($docInfoEnd -ge 0) {
+        $raw = $raw.Substring(0, $docInfoEnd + '</DocInfo>'.Length)
+    }
+
+    [xml]$xml = $raw
+    return $xml
+}
+
 function Get-ActiveDocumentInfoDependencies {
     param([string]$Path)
 
@@ -15,7 +28,28 @@ function Get-ActiveDocumentInfoDependencies {
         throw "DocumentInfo not found: $Path"
     }
 
-    [xml]$xml = Get-Content -LiteralPath $Path -Raw
+    $xml = Read-DocumentInfoXml -Path $Path
+    $entries = New-Object System.Collections.Generic.List[string]
+
+    foreach ($node in @($xml.SelectNodes('/DocInfo/Flags/Value'))) {
+        $entries.Add([string]$node.InnerText) | Out-Null
+    }
+
+    foreach ($node in @($xml.SelectNodes('/DocInfo/Dependencies/Value'))) {
+        $entries.Add([string]$node.InnerText) | Out-Null
+    }
+
+    return $entries.ToArray()
+}
+
+function Get-ActiveDocumentInfoDependenciesOnly {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        throw "DocumentInfo not found: $Path"
+    }
+
+    $xml = Read-DocumentInfoXml -Path $Path
     return @($xml.SelectNodes('/DocInfo/Dependencies/Value') | ForEach-Object {
         [string]$_.InnerText
     })
@@ -45,6 +79,7 @@ function Find-DocumentHeaderDependencyStart {
     param([byte[]]$Bytes)
 
     $markers = @(
+        [System.Text.Encoding]::UTF8.GetBytes("ExtensionMod"),
         [System.Text.Encoding]::UTF8.GetBytes("file:"),
         [System.Text.Encoding]::UTF8.GetBytes("bnet:")
     )

@@ -1,0 +1,18 @@
+void libE0EAE146_gf_DehakaRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    if (libE0EAE146_gv_dehakaRuntimeInitialized == true) {
+        return;
+    }
+
+    libE0EAE146_gv_dehakaRuntimeInitialized = true;
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "CasterDehaka", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+    lib67C0F0E7_gf_CU_GPInit(lp_player, "Dehaka", UnitLastCreated(), null);
+    lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+    lib67C0F0E7_gf_ShowChooseButton();
+    if (lp_createHero == true) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "DehakaCoop", 0, lp_player, lp_heroPoint);
+        libDF8E6945_gf_InitializeDehakaEvent(lp_player, UnitLastCreated());
+        if (lib67C0F0E7_gf_BitMaskTrueIndexIs(libE0EAE146_gf_CommanderPowerPrestigeMask("Dehaka"), 2) == true) {
+            libDF8E6945_gf_DehakaBroodbrother();
+        }
+    }
+}

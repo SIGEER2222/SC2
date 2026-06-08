@@ -9,6 +9,7 @@ include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
 include "TriggerLibs/SwarmLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibC0F50AA6"
 include "LibE0EAE146"
@@ -21,6 +22,7 @@ void InitLibs () {
     libLbty_InitLib();
     libCamp_InitLib();
     libHots_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libC0F50AA6_InitLib();
     libE0EAE146_InitLib();
@@ -88,6 +90,33 @@ bool gv_introCinematicCompleted;
 unitgroup gv_introHiddenProtossGroup;
 unitgroup gv_introCineProtossGroup;
 unit gv_introStalker01;
+
+string gf_ResolveUnitTypeWithFallback3 (string lp_primary, string lp_fallbackA, string lp_fallbackB) {
+    string lv_unitType;
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_primary);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackA);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    return libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackB);
+}
+
+void gf_CreateUnitsWithDefaultFacingFallback3 (int lp_count, string lp_primary, string lp_fallbackA, string lp_fallbackB, int lp_player, point lp_spawnPoint) {
+    string lv_unitType;
+
+    lv_unitType = gf_ResolveUnitTypeWithFallback3(lp_primary, lp_fallbackA, lp_fallbackB);
+    if (lv_unitType == "") {
+        return;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(lp_count, lv_unitType, 0, lp_player, lp_spawnPoint);
+}
 unit gv_introStalker02;
 bool gv_baseMidCinematicCompleted;
 unitgroup gv_baseMidHiddenUnitGroup;
@@ -554,6 +583,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_pLAYER_01_USER, c_playerPropMinerals, c_playerPropOperSetTo, 1000);
     PlayerModifyPropertyInt(gv_pLAYER_01_USER, c_playerPropVespene, c_playerPropOperSetTo, 400);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -732,9 +762,9 @@ bool gt_Init03Units_Func (bool testConds, bool runActions) {
         libC0F50AA6_gf_AddMengskVeterancyUnit(UnitLastCreatedGroup());
     }
     else if (auto901728B1_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "WraithSwann", 0, 1, PointFromId(1709600040));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "WraithSwann", 0, 1, PointFromId(2080109945));
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ScienceVesselSwann", 0, 1, PointFromId(2080109945));
+        gf_CreateUnitsWithDefaultFacingFallback3(2, "WraithSwann", "Wraith", "Banshee", 1, PointFromId(1709600040));
+        gf_CreateUnitsWithDefaultFacingFallback3(2, "WraithSwann", "Wraith", "Banshee", 1, PointFromId(2080109945));
+        gf_CreateUnitsWithDefaultFacingFallback3(1, "ScienceVesselSwann", "Raven", "Medic", 1, PointFromId(2080109945));
     }
     else if (auto901728B1_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "CorruptorStetmann", 0, 1, PointFromId(1709600040));
@@ -5012,6 +5042,7 @@ bool gt_BaseMidCleanup_Func (bool testConds, bool runActions) {
     CinematicFade(true, lv_fadeDuration, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, true);
     gv_inCinematic = false;
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_pLAYER_02_NYON);
     TriggerExecute(gt_StartGameStage2, true, false);
     TriggerExecute(gt_StartAIWaves, true, false);
     AIToggleBulliesInRegion(gv_pLAYER_02_NYON, RegionFromId(3), false);

@@ -1,0 +1,204 @@
+// XMFinal split module: commander level, mastery, and prestige fusion profiles.
+
+void libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast (int lp_player, string lp_upgrade, int lp_level) {
+    int lv_currentLevel;
+
+    if ((lp_upgrade == "") || (!CatalogEntryIsValid(c_gameCatalogUpgrade, lp_upgrade))) {
+        return;
+    }
+
+    lv_currentLevel = TechTreeUpgradeCount(lp_player, lp_upgrade, c_techCountCompleteOnly);
+    if (lv_currentLevel < lp_level) {
+        TechTreeUpgradeAddLevel(lp_player, lp_upgrade, (lp_level - lv_currentLevel));
+    }
+}
+
+int libE0EAE146_gf_CommanderPowerBankIntOrDefault (string lp_commander, string lp_key, int lp_defaultValue) {
+    string lv_bankKey;
+
+    BankLoad("CampaignXCore", 1);
+    lv_bankKey = lp_commander + "." + lp_key;
+    if (!BankKeyExists(BankLastCreated(), "CommanderPower", lv_bankKey)) {
+        return lp_defaultValue;
+    }
+    return BankValueGetAsInt(BankLastCreated(), "CommanderPower", lv_bankKey);
+}
+
+string libE0EAE146_gf_CommanderPowerBankStringOrDefault (string lp_commander, string lp_key, string lp_defaultValue) {
+    string lv_value;
+
+    BankLoad("CampaignXCore", 1);
+    lv_value = BankValueGetAsString(BankLastCreated(), "CommanderPower", (lp_commander + "." + lp_key));
+    if (lv_value == "") {
+        return lp_defaultValue;
+    }
+    return lv_value;
+}
+
+bool libE0EAE146_gf_CommanderPowerBankKeyExists (string lp_commander, string lp_key) {
+    BankLoad("CampaignXCore", 1);
+    return BankKeyExists(BankLastCreated(), "CommanderPower", (lp_commander + "." + lp_key));
+}
+
+int libE0EAE146_gf_CommanderPowerClampInt (int lp_value, int lp_min, int lp_max) {
+    if (lp_value < lp_min) {
+        return lp_min;
+    }
+    if (lp_value > lp_max) {
+        return lp_max;
+    }
+    return lp_value;
+}
+
+string libE0EAE146_gf_CommanderPowerProfileName (string lp_commander) {
+    return libE0EAE146_gf_CommanderPowerBankStringOrDefault(lp_commander, "Profile", "AllPositiveFusion");
+}
+
+bool libE0EAE146_gf_CommanderPowerMasteriesEnabled (string lp_commander) {
+    return (libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "EnableMasteries", 1) > 0);
+}
+
+int libE0EAE146_gf_CommanderPowerMasteryDefaultLevel (string lp_commander) {
+    if (!libE0EAE146_gf_CommanderPowerMasteriesEnabled(lp_commander)) {
+        return 0;
+    }
+    return libE0EAE146_gf_CommanderPowerClampInt(libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "MasteryDefault", 30), 0, 30);
+}
+
+int libE0EAE146_gf_CommanderPowerMasteryLevel (string lp_commander, int lp_masteryIndex) {
+    int lv_defaultLevel;
+    string lv_bankKey;
+
+    if (!libE0EAE146_gf_CommanderPowerMasteriesEnabled(lp_commander)) {
+        return 0;
+    }
+    lv_defaultLevel = libE0EAE146_gf_CommanderPowerMasteryDefaultLevel(lp_commander);
+    lv_bankKey = lp_commander + "." + ("Mastery" + IntToString(lp_masteryIndex));
+    BankLoad("CampaignXCore", 1);
+    if (!BankKeyExists(BankLastCreated(), "CommanderPower", lv_bankKey)) {
+        return lv_defaultLevel;
+    }
+    return libE0EAE146_gf_CommanderPowerClampInt(BankValueGetAsInt(BankLastCreated(), "CommanderPower", lv_bankKey), 0, 30);
+}
+
+bool libE0EAE146_gf_CommanderPowerPrestigesEnabled (string lp_commander) {
+    return (libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "EnablePrestiges", 1) > 0);
+}
+
+int libE0EAE146_gf_CommanderPowerPrestigePointIndex (string lp_commander) {
+    if (libE0EAE146_gf_CommanderPowerBankKeyExists(lp_commander, "PrestigePointIndex")) {
+        return libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigePointIndex", -1);
+    }
+    return libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeIndex", -1);
+}
+
+int libE0EAE146_gf_CommanderPowerPrestigeIndex (string lp_commander) {
+    return libE0EAE146_gf_CommanderPowerPrestigePointIndex(lp_commander);
+}
+
+int libE0EAE146_gf_CommanderPowerPrestigeBonusMask (string lp_commander) {
+    int lv_prestigePointIndex;
+    int lv_prestigeMask;
+
+    if (!libE0EAE146_gf_CommanderPowerPrestigesEnabled(lp_commander)) {
+        return 0;
+    }
+    if (libE0EAE146_gf_CommanderPowerBankKeyExists(lp_commander, "PrestigeBonusMask")) {
+        lv_prestigeMask = libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeBonusMask", 7);
+        return libE0EAE146_gf_CommanderPowerClampInt(lv_prestigeMask, 0, 7);
+    }
+    if (libE0EAE146_gf_CommanderPowerBankKeyExists(lp_commander, "PrestigeMask")) {
+        lv_prestigeMask = libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeMask", 7);
+        return libE0EAE146_gf_CommanderPowerClampInt(lv_prestigeMask, 0, 7);
+    }
+
+    lv_prestigePointIndex = libE0EAE146_gf_CommanderPowerPrestigePointIndex(lp_commander);
+    if (lv_prestigePointIndex == 0) {
+        return 0;
+    }
+    if (lv_prestigePointIndex == 1) {
+        return 1;
+    }
+    if (lv_prestigePointIndex == 2) {
+        return 2;
+    }
+    if (lv_prestigePointIndex == 3) {
+        return 4;
+    }
+    return libE0EAE146_gf_CommanderPowerClampInt(libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeMask", 7), 0, 7);
+}
+
+int libE0EAE146_gf_CommanderPowerPrestigeMask (string lp_commander) {
+    return libE0EAE146_gf_CommanderPowerPrestigeBonusMask(lp_commander);
+}
+
+bool libE0EAE146_gf_CommanderPowerApplyNegativePrestigeTradeoffs (string lp_commander) {
+    return (libE0EAE146_gf_CommanderPowerProfileName(lp_commander) != "AllPositiveFusion");
+}
+
+void libE0EAE146_gf_CommanderPowerBeginGeneratedContext (string lp_commander) {
+    libE0EAE146_gv_commanderPowerActiveCommander = lp_commander;
+    libE0EAE146_gv_commanderPowerApplyTradeoffs = libE0EAE146_gf_CommanderPowerApplyNegativePrestigeTradeoffs(lp_commander);
+}
+
+void libE0EAE146_gf_CommanderPowerEndGeneratedContext () {
+    libE0EAE146_gv_commanderPowerActiveCommander = "";
+    libE0EAE146_gv_commanderPowerApplyTradeoffs = false;
+}
+
+void libE0EAE146_gf_CommanderPowerApplyRaynorFullLevel (int lp_player) {
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderLevel", 16);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorCommander", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorCommanderStimUpgrade", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "Stimpack", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorCommanderMechCostReduction", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorBansheeAirstrike", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorFirebatMedicRange", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorUnlockBattlecruiser", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ShrikeTurret", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "FortifiedBunkerCarapace", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "OrbitalStrike", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorCommanderArmorVanadium", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "SupplyDepotDrop", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorCommanderHyperionAdvancedTargetingSystems", 1);
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorCommanderTerranWeaponAttackSpeed", 1);
+}
+
+void libE0EAE146_gf_CommanderPowerApplyRaynorMasteries (int lp_player) {
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "MasteryRaynorResearchCost", libE0EAE146_gf_CommanderPowerMasteryLevel("Raynor", 0));
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "MasteryRaynorDropPodHaste", libE0EAE146_gf_CommanderPowerMasteryLevel("Raynor", 1));
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "MasteryRaynorHyperionCooldown", libE0EAE146_gf_CommanderPowerMasteryLevel("Raynor", 2));
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "MasteryRaynorDuskWingCooldown", libE0EAE146_gf_CommanderPowerMasteryLevel("Raynor", 3));
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "MasteryRaynorMedicSecondaryHeal", libE0EAE146_gf_CommanderPowerMasteryLevel("Raynor", 4));
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "MasteryRaynorMechAttackSpeed", libE0EAE146_gf_CommanderPowerMasteryLevel("Raynor", 5));
+}
+
+void libE0EAE146_gf_CommanderPowerApplyRaynorPositivePrestige (int lp_player) {
+    int lv_prestigeMask;
+
+    lv_prestigeMask = libE0EAE146_gf_CommanderPowerPrestigeMask("Raynor");
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 0)) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorFusionPrestigeBioPositive", 1);
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorBioMarineUpgrade", 1);
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorBioFirebatUpgrade", 1);
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorBioUpgradeTerranInfantryArmorLevel1", 1);
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorBioUpgradeTerranInfantryArmorLevel2", 1);
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorBioUpgradeTerranInfantryArmorLevel3", 1);
+    }
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 1)) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorFusionPrestigeMechAfterburnersPositive", 1);
+    }
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 2)) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "RaynorFusionPrestigeAirPositive", 1);
+    }
+}
+
+void libE0EAE146_gf_CommanderPowerApplyRaynor (int lp_player) {
+    libE0EAE146_gf_CommanderPowerApplyRaynorFullLevel(lp_player);
+    libE0EAE146_gf_CommanderPowerApplyRaynorMasteries(lp_player);
+    libE0EAE146_gf_CommanderPowerApplyRaynorPositivePrestige(lp_player);
+}
+
+void libE0EAE146_gf_CommanderPowerApplyProfile (int lp_player, string lp_commander) {
+    libE0EAE146_gf_CommanderPowerApplyGeneratedProfile(lp_player, lp_commander);
+}

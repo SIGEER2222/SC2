@@ -1,0 +1,519 @@
+void libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast (int lp_player, string lp_upgrade, int lp_level) {
+    int lv_currentLevel;
+
+    lv_currentLevel = TechTreeUpgradeCount(lp_player, lp_upgrade, c_techCountCompleteOnly);
+    if (lv_currentLevel < lp_level) {
+        TechTreeUpgradeAddLevel(lp_player, lp_upgrade, (lp_level - lv_currentLevel));
+    }
+}
+
+bool libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty (string lp_section, string lp_key, string lp_value) {
+    if ((BankKeyExists(BankLastCreated(), lp_section, lp_key) == false) || (BankValueGetAsString(BankLastCreated(), lp_section, lp_key) == "")) {
+        BankValueSetFromString(BankLastCreated(), lp_section, lp_key, lp_value);
+        return true;
+    }
+    return false;
+}
+
+void libE0EAE146_gf_AbathurRebornSeedDefaultCrysBankIfEmpty (int lp_player) {
+    bool lv_changed;
+
+    lv_changed = false;
+    BankLoad("cryswarmcoop", lp_player);
+    if (libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty("Commanders", "Commander", "Abathur")) {
+        lv_changed = true;
+    }
+    if (libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty("Evolutions", "Zergling", "Raptorling")) {
+        lv_changed = true;
+    }
+    if (libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty("Evolutions", "Baneling", "Hunter")) {
+        lv_changed = true;
+    }
+    if (libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty("Evolutions", "Roach", "Vile")) {
+        lv_changed = true;
+    }
+    if (libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty("Evolutions", "Hydralisk", "Lurker")) {
+        lv_changed = true;
+    }
+    if (libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty("Evolutions", "Mutalisk", "Char")) {
+        lv_changed = true;
+    }
+    if (libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty("Evolutions", "Swarm Host", "Carrion")) {
+        lv_changed = true;
+    }
+    if (libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty("Evolutions", "Ultralisk", "Torrasque")) {
+        lv_changed = true;
+    }
+    if (libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty("Evolutions", "Monstrous Flier", "Brood Lord")) {
+        lv_changed = true;
+    }
+    if (libE0EAE146_gf_AbathurRebornSeedBankStringIfEmpty("Evolutions", "Caster", "Infestor")) {
+        lv_changed = true;
+    }
+    if (lv_changed) {
+        BankSave(BankLastCreated());
+    }
+}
+
+void libE0EAE146_gf_AbathurRebornDisableLeakUnits (int lp_player) {
+    TechTreeUnitAllow(lp_player, "NydusNetwork", false);
+    TechTreeUnitAllow(lp_player, "GreaterNydusWorm", false);
+    TechTreeUnitAllow(lp_player, "Brutalisk", false);
+    TechTreeUnitAllow(lp_player, "BrutaliskBurrowed", false);
+    TechTreeUnitAllow(lp_player, "Omegalisk", false);
+    TechTreeUnitAllow(lp_player, "Blightbringer", false);
+    TechTreeUnitAllow(lp_player, "HotSLeviathan", false);
+    TechTreeUnitAllow(lp_player, "Leviathan", false);
+    TechTreeUnitAllow(lp_player, "Naktul", false);
+}
+
+void libE0EAE146_gf_AbathurRebornAllowBaseEconomy (int lp_player) {
+    TechTreeUnitAllow(lp_player, "HatcheryAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "LairAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "HiveAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "LarvaAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "DroneAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "OverlordAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "ExtractorAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "SpawningPoolAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "EvolutionChamberAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "BanelingNestAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "RoachWarrenAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "HydraliskDenAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "InfestationPitAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "SpireAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "GreaterSpireAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "UltraliskCavernAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "SpineCrawlerAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "SporeCrawlerAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "ToxicNestAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "ToxicNestBurrowedAbathurReborn", true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("SpawnToxicNestAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("ToxicNestExplodeAbathurReborn", 0), true);
+}
+
+void libE0EAE146_gf_AbathurRebornDisableVariantUnits (int lp_player) {
+    TechTreeUnitAllow(lp_player, "HotSRaptorAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "HotSSwarmlingAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "PygaliskAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "ZerglingToxicAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "HotSHunterAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "HotSSplitterlingBigAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "FrostFiendAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "BileTitanAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "RoachVileAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "RoachCorpserAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "RavagerAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "IgniterAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "HydraliskLurkerAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "HydraliskImpalerAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "HunterKillerAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "Hydralisk2AbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "MutaliskCharAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "MambaAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "MutaliskAnkylosAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "MesmerAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "SwarmHostSplitAAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "SwarmHostSplitBAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "BaneHostAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "VespidHostAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "HotSTorrasqueAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "HotSNoxiousAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "UltraliskSavageAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "UltraliskKaldirAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "IzshaGuardianAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "DevourerAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "KrakenAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "ViperAbathurReborn", false);
+    TechTreeUnitAllow(lp_player, "DefilerMPAbathurReborn", false);
+}
+
+void libE0EAE146_gf_AbathurRebornAllowBaseUnits (int lp_player) {
+    TechTreeUnitAllow(lp_player, "ZerglingAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "BanelingAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "RoachAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "HydraliskAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "MutaliskAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "SwarmHostAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "UltraliskAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "BroodLordAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "InfestorAbathurReborn", true);
+}
+
+void libE0EAE146_gf_AbathurRebornAllowRavagerAbilities (int lp_player) {
+    TechTreeAbilityAllow(lp_player, AbilityCommand("RavagerCorrosiveBileAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("MorphRoachToRavagerAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("MorphRoachVileToRavagerAbathurReborn", 0), true);
+}
+
+void libE0EAE146_gf_AbathurRebornAllowUltimateEvolution (int lp_player) {
+    TechTreeUnitAllow(lp_player, "BrutaliskAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "BrutaliskBurrowedAbathurReborn", true);
+    TechTreeUnitAllow(lp_player, "HotSLeviathanAbathurReborn", true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskRoachAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskRoachVileAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskRavagerAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskSwarmHostAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanAbathurRebornMutalisk", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanAbathurRebornGuardianMP", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanAbathurRebornDevourer", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanAbathurRebornViper", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("BurrowBrutaliskDownAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("BurrowBrutaliskUpAbathurReborn", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("BrutaliskDeepTunnelAbathurReborn", 0), true);
+}
+
+void libE0EAE146_gf_AbathurRebornAllowSelectedVariants (int lp_player) {
+    string lv_selection;
+
+    BankLoad("cryswarmcoop", lp_player);
+
+    lv_selection = BankValueGetAsString(BankLastCreated(), "Evolutions", "Zergling");
+    if (lv_selection == "Raptorling") {
+        TechTreeUnitAllow(lp_player, "HotSRaptorAbathurReborn", true);
+    }
+    else if (lv_selection == "Swarmling") {
+        TechTreeUnitAllow(lp_player, "HotSSwarmlingAbathurReborn", true);
+    }
+    else if (lv_selection == "Pygalisk") {
+        TechTreeUnitAllow(lp_player, "PygaliskAbathurReborn", true);
+    }
+    else if (lv_selection == "Toxic") {
+        TechTreeUnitAllow(lp_player, "ZerglingToxicAbathurReborn", true);
+    }
+
+    lv_selection = BankValueGetAsString(BankLastCreated(), "Evolutions", "Baneling");
+    if (lv_selection == "Hunter") {
+        TechTreeUnitAllow(lp_player, "HotSHunterAbathurReborn", true);
+    }
+    else if (lv_selection == "Splitter") {
+        TechTreeUnitAllow(lp_player, "HotSSplitterlingBigAbathurReborn", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "HotSHaveSplitterling", 1);
+    }
+    else if (lv_selection == "Frost Fiend") {
+        TechTreeUnitAllow(lp_player, "FrostFiendAbathurReborn", true);
+    }
+    else if (lv_selection == "Bile Titan") {
+        TechTreeUnitAllow(lp_player, "BileTitanAbathurReborn", true);
+    }
+
+    lv_selection = BankValueGetAsString(BankLastCreated(), "Evolutions", "Roach");
+    if (lv_selection == "Vile") {
+        TechTreeUnitAllow(lp_player, "RoachVileAbathurReborn", true);
+    }
+    else if (lv_selection == "Corpser") {
+        TechTreeUnitAllow(lp_player, "RoachCorpserAbathurReborn", true);
+    }
+    else if (lv_selection == "Igniter") {
+        TechTreeUnitAllow(lp_player, "IgniterAbathurReborn", true);
+    }
+    else if (lv_selection == "Ravager") {
+        TechTreeUnitAllow(lp_player, "RavagerAbathurReborn", true);
+        libE0EAE146_gf_AbathurRebornAllowRavagerAbilities(lp_player);
+    }
+
+    lv_selection = BankValueGetAsString(BankLastCreated(), "Evolutions", "Hydralisk");
+    if (lv_selection == "Lurker") {
+        TechTreeUnitAllow(lp_player, "HydraliskLurkerAbathurReborn", true);
+    }
+    else if (lv_selection == "Impaler") {
+        TechTreeUnitAllow(lp_player, "HydraliskImpalerAbathurReborn", true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("MorphRoachToImpaler", 0), true);
+    }
+    else if (lv_selection == "Hunter-Killer") {
+        TechTreeUnitAllow(lp_player, "HunterKillerAbathurReborn", true);
+    }
+    else if (lv_selection == "Toxic") {
+        TechTreeUnitAllow(lp_player, "Hydralisk2AbathurReborn", true);
+    }
+
+    lv_selection = BankValueGetAsString(BankLastCreated(), "Evolutions", "Mutalisk");
+    if (lv_selection == "Char") {
+        TechTreeUnitAllow(lp_player, "MutaliskCharAbathurReborn", true);
+    }
+    else if (lv_selection == "Mamba") {
+        TechTreeUnitAllow(lp_player, "MambaAbathurReborn", true);
+    }
+    else if (lv_selection == "Ankylos") {
+        TechTreeUnitAllow(lp_player, "MutaliskAnkylosAbathurReborn", true);
+    }
+    else if (lv_selection == "Mesmer") {
+        TechTreeUnitAllow(lp_player, "MesmerAbathurReborn", true);
+    }
+
+    lv_selection = BankValueGetAsString(BankLastCreated(), "Evolutions", "Swarm Host");
+    if (lv_selection == "Carrion") {
+        TechTreeUnitAllow(lp_player, "SwarmHostSplitAAbathurReborn", true);
+    }
+    else if (lv_selection == "Creeper") {
+        TechTreeUnitAllow(lp_player, "SwarmHostSplitBAbathurReborn", true);
+    }
+    else if (lv_selection == "Bane") {
+        TechTreeUnitAllow(lp_player, "BaneHostAbathurReborn", true);
+    }
+    else if (lv_selection == "Vespid") {
+        TechTreeUnitAllow(lp_player, "VespidHostAbathurReborn", true);
+    }
+
+    lv_selection = BankValueGetAsString(BankLastCreated(), "Evolutions", "Ultralisk");
+    if (lv_selection == "Torrasque") {
+        TechTreeUnitAllow(lp_player, "HotSTorrasqueAbathurReborn", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "HotSTorrasqueAbathurReborn", 1);
+    }
+    else if (lv_selection == "Noxious") {
+        TechTreeUnitAllow(lp_player, "HotSNoxiousAbathurReborn", true);
+    }
+    else if (lv_selection == "Savage") {
+        TechTreeUnitAllow(lp_player, "UltraliskSavageAbathurReborn", true);
+    }
+    else if (lv_selection == "Indra") {
+        TechTreeUnitAllow(lp_player, "UltraliskKaldirAbathurReborn", true);
+    }
+
+    lv_selection = BankValueGetAsString(BankLastCreated(), "Evolutions", "Monstrous Flier");
+    if (lv_selection == "Guardian") {
+        TechTreeUnitAllow(lp_player, "IzshaGuardianAbathurReborn", true);
+    }
+    else if (lv_selection == "Devourer") {
+        TechTreeUnitAllow(lp_player, "DevourerAbathurReborn", true);
+    }
+    else if (lv_selection == "Kraken") {
+        TechTreeUnitAllow(lp_player, "KrakenAbathurReborn", true);
+    }
+
+    lv_selection = BankValueGetAsString(BankLastCreated(), "Evolutions", "Caster");
+    if (lv_selection == "Viper") {
+        TechTreeUnitAllow(lp_player, "ViperAbathurReborn", true);
+    }
+    else if (lv_selection == "Defiler") {
+        TechTreeUnitAllow(lp_player, "DefilerMPAbathurReborn", true);
+    }
+}
+
+void libE0EAE146_gf_AbathurRebornApplyTechWhitelist (int lp_player) {
+    libE0EAE146_gf_AbathurRebornDisableLeakUnits(lp_player);
+    libE0EAE146_gf_AbathurRebornDisableVariantUnits(lp_player);
+    libE0EAE146_gf_AbathurRebornAllowBaseEconomy(lp_player);
+    libE0EAE146_gf_AbathurRebornAllowBaseUnits(lp_player);
+    libE0EAE146_gf_AbathurRebornAllowSelectedVariants(lp_player);
+    libE0EAE146_gf_AbathurRebornAllowUltimateEvolution(lp_player);
+}
+
+string libE0EAE146_gf_AbathurRebornSelectedEvolution (int lp_player, string lp_lineage) {
+    BankLoad("cryswarmcoop", lp_player);
+    return BankValueGetAsString(BankLastCreated(), "Evolutions", lp_lineage);
+}
+
+string libE0EAE146_gf_AbathurRebornReplacementUnitForBase (int lp_player, string lp_baseUnit) {
+    string lv_selection;
+
+    if (lp_baseUnit == "ZerglingAbathurReborn") {
+        lv_selection = libE0EAE146_gf_AbathurRebornSelectedEvolution(lp_player, "Zergling");
+        if (lv_selection == "Raptorling") { return "HotSRaptorAbathurReborn"; }
+        else if (lv_selection == "Swarmling") { return "HotSSwarmlingAbathurReborn"; }
+        else if (lv_selection == "Pygalisk") { return "PygaliskAbathurReborn"; }
+        else if (lv_selection == "Toxic") { return "ZerglingToxicAbathurReborn"; }
+    }
+    else if (lp_baseUnit == "BanelingAbathurReborn") {
+        lv_selection = libE0EAE146_gf_AbathurRebornSelectedEvolution(lp_player, "Baneling");
+        if (lv_selection == "Hunter") { return "HotSHunterAbathurReborn"; }
+        else if (lv_selection == "Splitter") { return "HotSSplitterlingBigAbathurReborn"; }
+        else if (lv_selection == "Frost Fiend") { return "FrostFiendAbathurReborn"; }
+        else if (lv_selection == "Bile Titan") { return "BileTitanAbathurReborn"; }
+    }
+    else if (lp_baseUnit == "RoachAbathurReborn") {
+        lv_selection = libE0EAE146_gf_AbathurRebornSelectedEvolution(lp_player, "Roach");
+        if (lv_selection == "Vile") { return "RoachVileAbathurReborn"; }
+        else if (lv_selection == "Corpser") { return "RoachCorpserAbathurReborn"; }
+        else if (lv_selection == "Igniter") { return "IgniterAbathurReborn"; }
+        else if (lv_selection == "Ravager") { return "RavagerAbathurReborn"; }
+    }
+    else if (lp_baseUnit == "HydraliskAbathurReborn") {
+        lv_selection = libE0EAE146_gf_AbathurRebornSelectedEvolution(lp_player, "Hydralisk");
+        if (lv_selection == "Lurker") { return "HydraliskLurkerAbathurReborn"; }
+        else if (lv_selection == "Impaler") { return "HydraliskImpalerAbathurReborn"; }
+        else if (lv_selection == "Hunter-Killer") { return "HunterKillerAbathurReborn"; }
+        else if (lv_selection == "Toxic") { return "Hydralisk2AbathurReborn"; }
+    }
+    else if (lp_baseUnit == "MutaliskAbathurReborn") {
+        lv_selection = libE0EAE146_gf_AbathurRebornSelectedEvolution(lp_player, "Mutalisk");
+        if (lv_selection == "Char") { return "MutaliskCharAbathurReborn"; }
+        else if (lv_selection == "Mamba") { return "MambaAbathurReborn"; }
+        else if (lv_selection == "Ankylos") { return "MutaliskAnkylosAbathurReborn"; }
+        else if (lv_selection == "Mesmer") { return "MesmerAbathurReborn"; }
+    }
+    else if (lp_baseUnit == "SwarmHostAbathurReborn") {
+        lv_selection = libE0EAE146_gf_AbathurRebornSelectedEvolution(lp_player, "Swarm Host");
+        if (lv_selection == "Carrion") { return "SwarmHostSplitAAbathurReborn"; }
+        else if (lv_selection == "Creeper") { return "SwarmHostSplitBAbathurReborn"; }
+        else if (lv_selection == "Bane") { return "BaneHostAbathurReborn"; }
+        else if (lv_selection == "Vespid") { return "VespidHostAbathurReborn"; }
+    }
+    else if (lp_baseUnit == "UltraliskAbathurReborn") {
+        lv_selection = libE0EAE146_gf_AbathurRebornSelectedEvolution(lp_player, "Ultralisk");
+        if (lv_selection == "Torrasque") { return "HotSTorrasqueAbathurReborn"; }
+        else if (lv_selection == "Noxious") { return "HotSNoxiousAbathurReborn"; }
+        else if (lv_selection == "Savage") { return "UltraliskSavageAbathurReborn"; }
+        else if (lv_selection == "Indra") { return "UltraliskKaldirAbathurReborn"; }
+    }
+    else if (lp_baseUnit == "BroodLordAbathurReborn") {
+        lv_selection = libE0EAE146_gf_AbathurRebornSelectedEvolution(lp_player, "Monstrous Flier");
+        if (lv_selection == "Guardian") { return "IzshaGuardianAbathurReborn"; }
+        else if (lv_selection == "Devourer") { return "DevourerAbathurReborn"; }
+        else if (lv_selection == "Kraken") { return "KrakenAbathurReborn"; }
+    }
+    else if (lp_baseUnit == "InfestorAbathurReborn") {
+        lv_selection = libE0EAE146_gf_AbathurRebornSelectedEvolution(lp_player, "Caster");
+        if (lv_selection == "Viper") { return "ViperAbathurReborn"; }
+        else if (lv_selection == "Defiler") { return "DefilerMPAbathurReborn"; }
+    }
+
+    return "";
+}
+
+void libE0EAE146_gf_AbathurRebornReplaceUnitIfNeeded (unit lp_unit) {
+    string lv_unitType;
+    string lv_replacement;
+
+    if (libE0EAE146_gv_abathurRebornRuntimeInitialized == false) {
+        return;
+    }
+    if (!(libE0EAE146_gv_commander == "AbathurReborn")) {
+        return;
+    }
+    if (lp_unit == null) {
+        return;
+    }
+    if (!UnitIsValid(lp_unit)) {
+        return;
+    }
+    if (!UnitIsAlive(lp_unit)) {
+        return;
+    }
+    if (UnitGetOwner(lp_unit) != libE0EAE146_gv_abathurRebornRuntimePlayer) {
+        return;
+    }
+
+    lv_unitType = UnitGetType(lp_unit);
+    lv_replacement = libE0EAE146_gf_AbathurRebornReplacementUnitForBase(libE0EAE146_gv_abathurRebornRuntimePlayer, lv_unitType);
+    if ((lv_replacement == "") || (lv_replacement == lv_unitType)) {
+        return;
+    }
+    if (!CatalogEntryIsValid(c_gameCatalogUnit, lv_replacement)) {
+        return;
+    }
+
+    libNtve_gf_ReplaceUnit(lp_unit, lv_replacement, libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
+}
+
+void libE0EAE146_gf_AbathurRebornReplaceUnitsOfType (int lp_player, string lp_baseUnit) {
+    unitgroup lv_units;
+    unit lv_unit;
+    string lv_replacement;
+
+    lv_replacement = libE0EAE146_gf_AbathurRebornReplacementUnitForBase(lp_player, lp_baseUnit);
+    if ((lv_replacement == "") || (lv_replacement == lp_baseUnit)) {
+        return;
+    }
+    if (!CatalogEntryIsValid(c_gameCatalogUnit, lv_replacement)) {
+        return;
+    }
+
+    lv_units = UnitGroup(lp_baseUnit, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_unit = UnitGroupUnit(lv_units, 1);
+    while (lv_unit != null) {
+        if (UnitIsValid(lv_unit)) {
+            if (UnitIsAlive(lv_unit)) {
+                if (UnitGetOwner(lv_unit) == lp_player) {
+                    libNtve_gf_ReplaceUnit(lv_unit, lv_replacement, libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
+                }
+            }
+        }
+        UnitGroupRemove(lv_units, lv_unit);
+        lv_unit = UnitGroupUnit(lv_units, 1);
+    }
+}
+
+void libE0EAE146_gf_AbathurRebornReplaceExistingUnits (int lp_player) {
+    libE0EAE146_gf_AbathurRebornReplaceUnitsOfType(lp_player, "ZerglingAbathurReborn");
+    libE0EAE146_gf_AbathurRebornReplaceUnitsOfType(lp_player, "BanelingAbathurReborn");
+    libE0EAE146_gf_AbathurRebornReplaceUnitsOfType(lp_player, "RoachAbathurReborn");
+    libE0EAE146_gf_AbathurRebornReplaceUnitsOfType(lp_player, "HydraliskAbathurReborn");
+    libE0EAE146_gf_AbathurRebornReplaceUnitsOfType(lp_player, "MutaliskAbathurReborn");
+    libE0EAE146_gf_AbathurRebornReplaceUnitsOfType(lp_player, "SwarmHostAbathurReborn");
+    libE0EAE146_gf_AbathurRebornReplaceUnitsOfType(lp_player, "UltraliskAbathurReborn");
+    libE0EAE146_gf_AbathurRebornReplaceUnitsOfType(lp_player, "BroodLordAbathurReborn");
+    libE0EAE146_gf_AbathurRebornReplaceUnitsOfType(lp_player, "InfestorAbathurReborn");
+}
+
+bool libE0EAE146_gt_AbathurRebornEvolutionUnitEntered_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+    libE0EAE146_gf_AbathurRebornReplaceUnitIfNeeded(EventUnit());
+    return true;
+}
+
+bool libE0EAE146_gt_AbathurRebornEvolutionPeriodic_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+    if (libE0EAE146_gv_abathurRebornRuntimeInitialized == false) {
+        return true;
+    }
+    if (!(libE0EAE146_gv_commander == "AbathurReborn")) {
+        return true;
+    }
+    libE0EAE146_gf_AbathurRebornApplyTechWhitelist(libE0EAE146_gv_abathurRebornRuntimePlayer);
+    libE0EAE146_gf_AbathurRebornReplaceExistingUnits(libE0EAE146_gv_abathurRebornRuntimePlayer);
+    return true;
+}
+
+void libE0EAE146_gf_AbathurRebornEnsureEvolutionTriggers () {
+    if (libE0EAE146_gv_abathurRebornEvolutionTriggersReady == true) {
+        return;
+    }
+
+    libE0EAE146_gv_abathurRebornEvolutionTriggersReady = true;
+    libE0EAE146_gt_AbathurRebornEvolutionUnitEntered = TriggerCreate("libE0EAE146_gt_AbathurRebornEvolutionUnitEntered_Func");
+    TriggerAddEventUnitRegion(libE0EAE146_gt_AbathurRebornEvolutionUnitEntered, null, RegionEntireMap(), true);
+    libE0EAE146_gt_AbathurRebornEvolutionPeriodic = TriggerCreate("libE0EAE146_gt_AbathurRebornEvolutionPeriodic_Func");
+    TriggerAddEventTimePeriodic(libE0EAE146_gt_AbathurRebornEvolutionPeriodic, 2.0, c_timeGame);
+}
+
+void libE0EAE146_gf_AbathurRebornRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    unit lv_caster;
+
+    if (libE0EAE146_gv_abathurRebornRuntimeInitialized == true) {
+        return;
+    }
+
+    libE0EAE146_gv_abathurRebornRuntimeInitialized = true;
+    libE0EAE146_gv_abathurRebornRuntimePlayer = lp_player;
+    libE0EAE146_gf_AbathurRebornSeedDefaultCrysBankIfEmpty(lp_player);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "CommanderLevel", 16);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "AbathurRebornCommander", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "HaveGuardianAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "HotSHaveDefilerAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "HotSHaveDevourerAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "HotSHaveInfestorAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "HotSHaveSpineCrawlerAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "HotSHaveSporeCrawlerAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "HotSHaveSwarmHostAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "HotSHaveSwarmHostSplitAAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "HotSHaveSwarmHostSplitBAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "ImpalerGenerateCreepAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornSetUpgradeAtLeast(lp_player, "SwarmHostFakeWeaponAbathurReborn", 1);
+    libE0EAE146_gf_AbathurRebornApplyTechWhitelist(lp_player);
+    libE0EAE146_gf_AbathurRebornEnsureEvolutionTriggers();
+    libE0EAE146_gf_AbathurRebornReplaceExistingUnits(lp_player);
+    libE0EAE146_gf_InitializeAbathurBiomass(lp_player, "BiomassPickupDummyAbathurReborn");
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterAbathurReborn", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+    lv_caster = UnitLastCreated();
+    lib67C0F0E7_gf_CU_GPInit(lp_player, "AbathurReborn", lv_caster, null);
+    lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+    lib67C0F0E7_gf_ShowChooseButton();
+}

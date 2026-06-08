@@ -9,6 +9,7 @@ include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
 include "TriggerLibs/SwarmLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibB7B23F0D"
 include "LibE0EAE146"
@@ -21,6 +22,7 @@ void InitLibs () {
     libLbty_InitLib();
     libCamp_InitLib();
     libHots_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libB7B23F0D_InitLib();
     libE0EAE146_InitLib();
@@ -929,6 +931,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_p01_USER, c_playerPropMinerals, c_playerPropOperSetTo, 500);
     PlayerModifyPropertyInt(gv_p01_USER, c_playerPropVespene, c_playerPropOperSetTo, 300);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -5021,7 +5024,7 @@ bool gt_TransmissionCivilianSquishArea1Q_Func (bool testConds, bool runActions) 
 void gt_TransmissionCivilianSquishArea1Q_Init () {
     gt_TransmissionCivilianSquishArea1Q = TriggerCreate("gt_TransmissionCivilianSquishArea1Q_Func");
     TriggerAddEventUnitDied(gt_TransmissionCivilianSquishArea1Q, null);
-    TriggerAddEventUnitDamaged(gt_TransmissionCivilianSquishArea1Q, null, c_unitDamageTypeAny, c_unitDamageEither, EventUnitDamageEffect());
+    TriggerAddEventUnitDamaged(gt_TransmissionCivilianSquishArea1Q, null, c_unitDamageTypeAny, c_unitDamageEither, null);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -5061,7 +5064,7 @@ bool gt_TransmissionCivilianSquishArea2Q_Func (bool testConds, bool runActions) 
 void gt_TransmissionCivilianSquishArea2Q_Init () {
     gt_TransmissionCivilianSquishArea2Q = TriggerCreate("gt_TransmissionCivilianSquishArea2Q_Func");
     TriggerAddEventUnitDied(gt_TransmissionCivilianSquishArea2Q, null);
-    TriggerAddEventUnitDamaged(gt_TransmissionCivilianSquishArea2Q, null, c_unitDamageTypeAny, c_unitDamageEither, EventUnitDamageEffect());
+    TriggerAddEventUnitDamaged(gt_TransmissionCivilianSquishArea2Q, null, c_unitDamageTypeAny, c_unitDamageEither, null);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -5101,7 +5104,7 @@ bool gt_TransmissionCivilianSquishArea3Q_Func (bool testConds, bool runActions) 
 void gt_TransmissionCivilianSquishArea3Q_Init () {
     gt_TransmissionCivilianSquishArea3Q = TriggerCreate("gt_TransmissionCivilianSquishArea3Q_Func");
     TriggerAddEventUnitDied(gt_TransmissionCivilianSquishArea3Q, null);
-    TriggerAddEventUnitDamaged(gt_TransmissionCivilianSquishArea3Q, null, c_unitDamageTypeAny, c_unitDamageEither, EventUnitDamageEffect());
+    TriggerAddEventUnitDamaged(gt_TransmissionCivilianSquishArea3Q, null, c_unitDamageTypeAny, c_unitDamageEither, null);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -5141,7 +5144,7 @@ bool gt_TransmissionCivilianSquishArea4Q_Func (bool testConds, bool runActions) 
 void gt_TransmissionCivilianSquishArea4Q_Init () {
     gt_TransmissionCivilianSquishArea4Q = TriggerCreate("gt_TransmissionCivilianSquishArea4Q_Func");
     TriggerAddEventUnitDied(gt_TransmissionCivilianSquishArea4Q, null);
-    TriggerAddEventUnitDamaged(gt_TransmissionCivilianSquishArea4Q, null, c_unitDamageTypeAny, c_unitDamageEither, EventUnitDamageEffect());
+    TriggerAddEventUnitDamaged(gt_TransmissionCivilianSquishArea4Q, null, c_unitDamageTypeAny, c_unitDamageEither, null);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -5181,7 +5184,7 @@ bool gt_TransmissionCivilianSquishArea5Q_Func (bool testConds, bool runActions) 
 void gt_TransmissionCivilianSquishArea5Q_Init () {
     gt_TransmissionCivilianSquishArea5Q = TriggerCreate("gt_TransmissionCivilianSquishArea5Q_Func");
     TriggerAddEventUnitDied(gt_TransmissionCivilianSquishArea5Q, null);
-    TriggerAddEventUnitDamaged(gt_TransmissionCivilianSquishArea5Q, null, c_unitDamageTypeAny, c_unitDamageEither, EventUnitDamageEffect());
+    TriggerAddEventUnitDamaged(gt_TransmissionCivilianSquishArea5Q, null, c_unitDamageTypeAny, c_unitDamageEither, null);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -5666,7 +5669,7 @@ void gt_CiviliansAttackedandCower_Init () {
     gt_CiviliansAttackedandCower = TriggerCreate("gt_CiviliansAttackedandCower_Func");
     TriggerEnable(gt_CiviliansAttackedandCower, false);
     TriggerAddEventUnitDied(gt_CiviliansAttackedandCower, null);
-    TriggerAddEventUnitDamaged(gt_CiviliansAttackedandCower, null, c_unitDamageTypeAny, c_unitDamageEither, EventUnitDamageEffect());
+    TriggerAddEventUnitDamaged(gt_CiviliansAttackedandCower, null, c_unitDamageTypeAny, c_unitDamageEither, null);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -7569,6 +7572,7 @@ bool gt_MidCleanup_Func (bool testConds, bool runActions) {
     gv_inCinematic = false;
     Wait(2.0, c_timeReal);
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p03_DOMINION_SIEGE);
     TriggerExecute(gt_StartGameStage2, true, false);
     return true;
 }

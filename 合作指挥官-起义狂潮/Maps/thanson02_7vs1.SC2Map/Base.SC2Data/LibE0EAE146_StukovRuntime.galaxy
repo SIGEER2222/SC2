@@ -1,0 +1,24 @@
+void libE0EAE146_gf_StukovRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    unit lv_caster;
+    unit lv_hero;
+
+    if (libE0EAE146_gv_stukovRuntimeInitialized == true) {
+        return;
+    }
+
+    libE0EAE146_gv_stukovRuntimeInitialized = true;
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterStukov", 0, lp_player, RegionGetCenter(RegionEntireMap()));
+    lv_caster = UnitLastCreated();
+    if ((lp_createHero == true) && CatalogEntryIsValid(c_gameCatalogUnit, "InfestedStukovCoop")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "InfestedStukovCoop", 0, lp_player, lp_heroPoint);
+        lv_hero = UnitLastCreated();
+        libE0EAE146_gt_CommanderHeroDied_Init();
+        lib67C0F0E7_gf_CU_GPInit(lp_player, "Stukov", lv_hero, lv_caster);
+    }
+    else {
+        lib67C0F0E7_gf_CU_GPInit(lp_player, "Stukov", lv_caster, null);
+    }
+    lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+    lib67C0F0E7_gf_ShowChooseButton();
+    libBE3BBD9F_gf_StukovCreepEntireMap(lp_player);
+}

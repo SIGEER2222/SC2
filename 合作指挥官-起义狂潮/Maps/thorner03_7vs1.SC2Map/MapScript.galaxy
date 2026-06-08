@@ -8,6 +8,7 @@
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/LibertyLib"
 include "TriggerLibs/CampaignLib"
+include "LibA070801C"
 include "Lib67C0F0E7"
 include "LibB7B23F0D"
 include "LibDF8E6945"
@@ -21,6 +22,7 @@ void InitLibs () {
     libNtve_InitLib();
     libLbty_InitLib();
     libCamp_InitLib();
+    libA070801C_InitLib();
     lib67C0F0E7_InitLib();
     libB7B23F0D_InitLib();
     libDF8E6945_InitLib();
@@ -97,6 +99,33 @@ bool gv_midCinematicCompleted;
 unitgroup gv_midGameActors;
 bool gv_victoryCinematicCompleted;
 unitgroup gv_victoryHiddenUnitGroup;
+
+string gf_ResolveUnitTypeWithFallback3 (string lp_primary, string lp_fallbackA, string lp_fallbackB) {
+    string lv_unitType;
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_primary);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    lv_unitType = libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackA);
+    if (lv_unitType != "") {
+        return lv_unitType;
+    }
+
+    return libE0EAE146_gf_CatalogUnitOrEmpty(lp_fallbackB);
+}
+
+void gf_CreateUnitsWithDefaultFacingFallback3 (int lp_count, string lp_primary, string lp_fallbackA, string lp_fallbackB, int lp_player, point lp_spawnPoint) {
+    string lv_unitType;
+
+    lv_unitType = gf_ResolveUnitTypeWithFallback3(lp_primary, lp_fallbackA, lp_fallbackB);
+    if (lv_unitType == "") {
+        return;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(lp_count, lv_unitType, 0, lp_player, lp_spawnPoint);
+}
 
 void InitGlobals () {
     gv_raynorsRaidingForce = UnitGroup(null, gv_p01_USER, RegionFromId(8), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
@@ -375,6 +404,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_p01_USER, c_playerPropMinerals, c_playerPropOperSetTo, 300);
     PlayerModifyPropertyInt(gv_p01_USER, c_playerPropVespene, c_playerPropOperSetTo, 250);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -672,8 +702,8 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(2, "MengskMedic", 0, 1, UnitGetPosition(UnitFromId(4)));
     }
     else if (auto06F49FBE_val == "Swann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(4, "PredatorSwann", 0, 1, UnitGetPosition(UnitFromId(4)));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "MicrobotSwann", 0, 1, UnitGetPosition(UnitFromId(4)));
+        gf_CreateUnitsWithDefaultFacingFallback3(4, "PredatorSwann", "HellionTank", "Hellion", 1, UnitGetPosition(UnitFromId(4)));
+        gf_CreateUnitsWithDefaultFacingFallback3(2, "MicrobotSwann", "ScienceVesselSwann", "Medic", 1, UnitGetPosition(UnitFromId(4)));
     }
     else if (auto06F49FBE_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "GaryStetmann", 0, 1, UnitGetPosition(UnitFromId(4)));
@@ -4370,6 +4400,7 @@ bool gt_MidCleanup_Func (bool testConds, bool runActions) {
     Wait(lv_fadeDuration, c_timeReal);
     gv_inCinematic = false;
     TriggerExecute(gt_StartAI, true, false);
+    libE0EAE146_gf_MutatorRuntimeStartFromAttribute(gv_p03_DOMINION_WAREHOUSE);
     TriggerExecute(gt_StartGameEscort, true, false);
     libCamp_gf_CreateMissionAutosavePoint(StringExternal("Param/Value/837C87D2"));
     return true;

@@ -1,0 +1,117 @@
+include "TriggerLibs/NativeLib"
+include "Lib67C0F0E7"
+
+include "Lib975E2FE9_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Stetmann
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib975E2FE9_InitLibraries () {
+    libNtve_InitVariables();
+    lib67C0F0E7_InitVariables();
+}
+
+// Variable Initialization
+bool lib975E2FE9_InitVariables_completed = false;
+
+void lib975E2FE9_InitVariables () {
+    if (lib975E2FE9_InitVariables_completed) {
+        return;
+    }
+
+    lib975E2FE9_InitVariables_completed = true;
+
+}
+
+// Functions
+void lib975E2FE9_gf_PowerFieldTrigger (int lp_player, int lp_powerField) {
+    // Automatic Variable Declarations
+    // Implementation
+    lib975E2FE9_gv_powerField = lp_powerField;
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "PowerFieldEnergyRegeneration", 0);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "PowerFieldHPRegeneration", 0);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "PowerFieldMovementSpeed", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasteryStetmannStetzoneBonusesMovementSpeed", lib975E2FE9_gv_powerField);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasteryStetmannStetzoneBonusesHPRegeneration", 0);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasteryStetmannStetzoneBonusesEnergyRegeneration", 0);
+    lib67C0F0E7_gf_StetmannPanelControl(lp_player, "Speed");
+        TriggerAddEventPlayerEffectUsed(lib975E2FE9_gt_PowerField, lp_player, "PowerFieldMovementSpeedOn");
+        TriggerAddEventPlayerEffectUsed(lib975E2FE9_gt_PowerField, lp_player, "PowerFieldHPRegenerationOn");
+        TriggerAddEventPlayerEffectUsed(lib975E2FE9_gt_PowerField, lp_player, "PowerFieldEnergyRegenerationOn");
+        TriggerEnable(lib975E2FE9_gt_PowerField,true);
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: PowerField
+//--------------------------------------------------------------------------------------------------
+bool lib975E2FE9_gt_PowerField_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    string auto6279551C_val;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto6279551C_val = EventPlayerEffectUsed();
+    if (auto6279551C_val == "PowerFieldEnergyRegenerationOn") {
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "PowerFieldEnergyRegeneration", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "PowerFieldHPRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "PowerFieldMovementSpeed", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "MasteryStetmannStetzoneBonusesMovementSpeed", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "MasteryStetmannStetzoneBonusesHPRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "MasteryStetmannStetzoneBonusesEnergyRegeneration", lib975E2FE9_gv_powerField);
+        lib67C0F0E7_gf_StetmannPanelControl(EventPlayer(), "Energy");
+    }
+    else if (auto6279551C_val == "PowerFieldHPRegenerationOn") {
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "PowerFieldEnergyRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "PowerFieldHPRegeneration", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "PowerFieldMovementSpeed", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "MasteryStetmannStetzoneBonusesMovementSpeed", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "MasteryStetmannStetzoneBonusesHPRegeneration", lib975E2FE9_gv_powerField);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "MasteryStetmannStetzoneBonusesEnergyRegeneration", 0);
+        lib67C0F0E7_gf_StetmannPanelControl(EventPlayer(), "Health");
+    }
+    else if (auto6279551C_val == "PowerFieldMovementSpeedOn") {
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "PowerFieldEnergyRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "PowerFieldHPRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "PowerFieldMovementSpeed", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "MasteryStetmannStetzoneBonusesMovementSpeed", lib975E2FE9_gv_powerField);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "MasteryStetmannStetzoneBonusesHPRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), "MasteryStetmannStetzoneBonusesEnergyRegeneration", 0);
+        lib67C0F0E7_gf_StetmannPanelControl(EventPlayer(), "Speed");
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib975E2FE9_gt_PowerField_Init () {
+    lib975E2FE9_gt_PowerField = TriggerCreate("lib975E2FE9_gt_PowerField_Func");
+    TriggerEnable(lib975E2FE9_gt_PowerField, false);
+}
+
+void lib975E2FE9_InitTriggers () {
+    lib975E2FE9_gt_PowerField_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib975E2FE9_InitLib_completed = false;
+
+void lib975E2FE9_InitLib () {
+    if (lib975E2FE9_InitLib_completed) {
+        return;
+    }
+
+    lib975E2FE9_InitLib_completed = true;
+
+    lib975E2FE9_InitLibraries();
+    lib975E2FE9_InitVariables();
+    lib975E2FE9_InitTriggers();
+}
+
