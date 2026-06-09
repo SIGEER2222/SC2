@@ -31,7 +31,7 @@ param(
     [string]$AbathurPatchProfile = "Full",
     [ValidateSet("", "AbathurFusion")]
     [string]$TestSpawnPreset = "",
-    [string]$CommanderPowerProfile = "AllPositiveFusion",
+    [string]$CommanderPowerProfile = "Prestige4",
     [Alias("CommanderPowerPrestigeMask")]
     [Nullable[int]]$CommanderPowerPrestigeBonusMask = $null,
     [Alias("CommanderPowerPrestigeIndex")]

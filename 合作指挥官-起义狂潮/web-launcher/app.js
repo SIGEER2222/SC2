@@ -18,6 +18,23 @@ const SCENARIO_PRESET_KEY = "sc2-7vs1-web-launcher-scenario-presets";
 const MAX_RECENT = 6;
 const MAX_LAUNCH_HISTORY = 8;
 const MAX_SCENARIO_PRESETS = 16;
+const DEFAULT_PRESTIGE_PROFILE = "Prestige4";
+
+function normalizePrestigeProfile(value) {
+  const profile = String(value || "").trim();
+  if (profile === "" || profile === "AllPositiveFusion" || profile === "Prestige4") {
+    return DEFAULT_PRESTIGE_PROFILE;
+  }
+  return profile;
+}
+
+function formatPrestigeProfile(value) {
+  const profile = normalizePrestigeProfile(value);
+  if (profile === DEFAULT_PRESTIGE_PROFILE) {
+    return "威望4";
+  }
+  return profile;
+}
 
 const el = {
   dataStatus: document.querySelector("#dataStatus"),
@@ -780,7 +797,7 @@ function getPayloadSummaryText(payload) {
   return [
     `指挥官=${getCommanderLabel(payload.commander)}(${payload.commander})`,
     `地图=${getMapLabel(payload.map)}(${payload.map})`,
-    `融合=${payload.prestigeProfile || "AllPositiveFusion"}`,
+    `融合=${formatPrestigeProfile(payload.prestigeProfile)}`,
     `精通等级=${payload.masteryLevel}`,
     `精通=[${masteries.join(",") || "-"}]`,
     `因子=${mutators.length === 0 ? "无" : mutators.join(",")}`,
@@ -831,7 +848,7 @@ function getValidationSignature(payload = buildLaunchPayload()) {
     enableMasteries: payload.enableMasteries,
     prestigeBonusMask: payload.prestigeBonusMask,
     prestigePointIndex: -1,
-    prestigeProfile: payload.prestigeProfile || "AllPositiveFusion",
+    prestigeProfile: normalizePrestigeProfile(payload.prestigeProfile),
     masteryLevel: payload.masteryLevel,
     masteries: payload.masteries,
     mutators: [...(payload.mutators || [])].sort(),
@@ -847,7 +864,7 @@ function normalizeLaunchPayload(payload = buildLaunchPayload()) {
     enableMasteries: payload.enableMasteries,
     prestigeBonusMask: payload.prestigeBonusMask,
     prestigePointIndex: -1,
-    prestigeProfile: payload.prestigeProfile || "AllPositiveFusion",
+    prestigeProfile: normalizePrestigeProfile(payload.prestigeProfile),
     masteryLevel: payload.masteryLevel,
     masteries: [...(payload.masteries || [])],
     mutators: [...(payload.mutators || [])].sort(),
@@ -908,7 +925,7 @@ function getValidationChangeSummary(currentPayload = normalizeLaunchPayload()) {
     changes.push(`精通开关: ${previous.enableMasteries ? "开" : "关"} -> ${currentPayload.enableMasteries ? "开" : "关"}`);
   }
   if (previous.prestigeBonusMask !== currentPayload.prestigeBonusMask || previous.prestigeProfile !== currentPayload.prestigeProfile) {
-    changes.push(`融合威望: ${previous.prestigeProfile || "AllPositiveFusion"}/mask ${previous.prestigeBonusMask} -> ${currentPayload.prestigeProfile || "AllPositiveFusion"}/mask ${currentPayload.prestigeBonusMask}`);
+    changes.push(`融合威望: ${formatPrestigeProfile(previous.prestigeProfile)}/mask ${previous.prestigeBonusMask} -> ${formatPrestigeProfile(currentPayload.prestigeProfile)}/mask ${currentPayload.prestigeBonusMask}`);
   }
   if (previous.masteryLevel !== currentPayload.masteryLevel || previous.masteries.join(",") !== currentPayload.masteries.join(",")) {
     changes.push(`精通: ${previous.masteryLevel} [${previous.masteries.join(",")}] -> ${currentPayload.masteryLevel} [${currentPayload.masteries.join(",")}]`);
@@ -1068,7 +1085,7 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     el.summaryMode,
     "模式",
     payload.noLaunch ? "dry-run 安装" : "launch 启动",
-    `融合=${payload.prestigeProfile || "AllPositiveFusion"}；mask=${payload.prestigeBonusMask}；point=-1`,
+    `融合=${formatPrestigeProfile(payload.prestigeProfile)}；mask=${payload.prestigeBonusMask}；point=-1`,
   );
 }
 
@@ -1221,7 +1238,7 @@ function applyPayload(payload, options = {}) {
   el.enablePrestiges.checked = payload.enablePrestiges !== false;
   el.enableMasteries.checked = payload.enableMasteries !== false;
   el.prestigeMask.value = String(clampNumber(payload.prestigeBonusMask, 0, 7, 7));
-  el.prestigeProfile.value = String(payload.prestigeProfile || "AllPositiveFusion");
+  el.prestigeProfile.value = normalizePrestigeProfile(payload.prestigeProfile);
   el.masteryLevel.value = String(clampNumber(payload.masteryLevel, 0, 30, 30));
   el.mutatorPreset.value = String(clampNumber(payload.mutatorPreset, 0, 3, 0));
   el.dryRunToggle.checked = payload.noLaunch === true;
@@ -1267,7 +1284,7 @@ function getDefaultPayload() {
     enableMasteries: state.data.defaults.enableMasteries,
     prestigeBonusMask: state.data.defaults.prestigeBonusMask,
     prestigePointIndex: state.data.defaults.prestigePointIndex,
-    prestigeProfile: state.data.defaults.prestigeProfile || "AllPositiveFusion",
+    prestigeProfile: normalizePrestigeProfile(state.data.defaults.prestigeProfile),
     masteryLevel: state.data.defaults.masteryLevel,
     masteries: state.data.defaults.masterySlots,
     mutators: [],
@@ -1384,7 +1401,7 @@ function scenarioKey(payload) {
     payload.enablePrestiges,
     payload.enableMasteries,
     payload.prestigeBonusMask,
-    payload.prestigeProfile || "AllPositiveFusion",
+    normalizePrestigeProfile(payload.prestigeProfile),
     payload.masteryLevel,
     (payload.masteries || []).join(","),
     (payload.mutators || []).join(","),
@@ -2038,7 +2055,7 @@ function buildLaunchPayload() {
     enableMasteries: el.enableMasteries.checked,
     prestigeBonusMask: clampNumber(el.prestigeMask.value, 0, 7, 7),
     prestigePointIndex: -1,
-    prestigeProfile: el.prestigeProfile.value || "AllPositiveFusion",
+    prestigeProfile: normalizePrestigeProfile(el.prestigeProfile.value),
     masteryLevel: clampNumber(el.masteryLevel.value, 0, 30, 30),
     masteries: getMasteryValues(),
     mutators: [...state.selectedMutators],

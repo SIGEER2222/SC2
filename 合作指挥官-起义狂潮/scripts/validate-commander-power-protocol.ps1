@@ -68,6 +68,9 @@ Assert-Contains -Text $masteryDefaultBlock -Needle "return 0;" -Message "Mastery
 $masteryLevelBlock = Get-FunctionBlock -Text $profileText -Signature "int libE0EAE146_gf_CommanderPowerMasteryLevel (string lp_commander, int lp_masteryIndex)"
 Assert-Contains -Text $masteryLevelBlock -Needle "libE0EAE146_gf_CommanderPowerMasteriesEnabled(lp_commander)" -Message "Mastery slot lookup must respect EnableMasteries."
 
+$profileNameBlock = Get-FunctionBlock -Text $profileText -Signature "string libE0EAE146_gf_CommanderPowerProfileName (string lp_commander)"
+Assert-Contains -Text $profileNameBlock -Needle 'libE0EAE146_gf_CommanderPowerBankStringOrDefault(lp_commander, "Profile", "Prestige4")' -Message "Commander power profile default must be Prestige4."
+
 $prestigePointIndexBlock = Get-FunctionBlock -Text $profileText -Signature "int libE0EAE146_gf_CommanderPowerPrestigePointIndex (string lp_commander)"
 Assert-Contains -Text $prestigePointIndexBlock -Needle 'libE0EAE146_gf_CommanderPowerBankKeyExists(lp_commander, "PrestigePointIndex")' -Message "Prestige point index must honor explicit PrestigePointIndex overrides."
 Assert-Contains -Text $prestigePointIndexBlock -Needle 'libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigePointIndex", -1)' -Message "Prestige point index fallback must preserve legacy default."
@@ -76,7 +79,8 @@ Assert-Contains -Text $prestigePointIndexBlock -Needle 'libE0EAE146_gf_Commander
 $prestigeBonusMaskBlock = Get-FunctionBlock -Text $profileText -Signature "int libE0EAE146_gf_CommanderPowerPrestigeBonusMask (string lp_commander)"
 Assert-Contains -Text $prestigeBonusMaskBlock -Needle "libE0EAE146_gf_CommanderPowerPrestigesEnabled(lp_commander)" -Message "Prestige bonus mask must respect EnablePrestiges."
 Assert-Contains -Text $prestigeBonusMaskBlock -Needle 'libE0EAE146_gf_CommanderPowerBankKeyExists(lp_commander, "PrestigeBonusMask")' -Message "Prestige bonus mask must honor explicit PrestigeBonusMask overrides."
-Assert-Contains -Text $prestigeBonusMaskBlock -Needle 'libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeBonusMask", 7)' -Message "Prestige bonus mask fallback must preserve full-fusion default."
+Assert-Contains -Text $prestigeBonusMaskBlock -Needle 'lv_defaultMask = libE0EAE146_gf_CommanderPowerDefaultPrestigeBonusMask(lp_commander);' -Message "Prestige bonus mask must resolve the Prestige4 default through the helper."
+Assert-Contains -Text $prestigeBonusMaskBlock -Needle 'libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeBonusMask", lv_defaultMask)' -Message "Prestige bonus mask fallback must preserve the Prestige4 default."
 Assert-Contains -Text $prestigeBonusMaskBlock -Needle 'libE0EAE146_gf_CommanderPowerBankKeyExists(lp_commander, "PrestigeMask")' -Message "Prestige bonus mask must still accept the legacy PrestigeMask key."
 Assert-Contains -Text $prestigeBonusMaskBlock -Needle 'libE0EAE146_gf_CommanderPowerPrestigePointIndex(lp_commander)' -Message "Prestige bonus mask fallback must consult the prestige point index."
 

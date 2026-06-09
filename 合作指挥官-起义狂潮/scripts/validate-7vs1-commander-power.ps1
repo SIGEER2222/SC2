@@ -4,7 +4,7 @@ param(
     [string]$MapSource = "",
     [string]$LiveMapName = "ttosh02_7vs1.SC2Map",
     [string]$Sc2Root = "E:\SC2\SC2new\StarCraft II",
-    [string]$CommanderPowerProfile = "AllPositiveFusion",
+    [string]$CommanderPowerProfile = "Prestige4",
     [string[]]$Commanders = @(),
     [Alias("IncludePrestigeMaskMatrix")]
     [switch]$IncludePrestigeBonusMaskMatrix,

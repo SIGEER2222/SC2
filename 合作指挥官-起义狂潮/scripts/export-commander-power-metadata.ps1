@@ -432,7 +432,7 @@ $metadata = [ordered]@{
             "Mastery4",
             "Mastery5"
         )
-        default_profile = "AllPositiveFusion"
+        default_profile = "Prestige4"
         default_enable_prestiges = 1
         default_prestige_bonus_mask = 7
         default_prestige_mask = 7

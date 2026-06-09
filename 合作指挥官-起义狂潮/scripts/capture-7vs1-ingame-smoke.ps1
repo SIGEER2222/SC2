@@ -5,7 +5,7 @@ param(
     [string[]]$Commanders = @("TerranRaynor"),
     [int]$WaitSeconds = 50,
     [string]$EvidencePath = "",
-    [string]$CommanderPowerProfile = "AllPositiveFusion",
+    [string]$CommanderPowerProfile = "Prestige4",
     [Nullable[int]]$CommanderPowerPrestigeBonusMask = $null,
     [Nullable[int]]$CommanderPowerPrestigePointIndex = $null,
     [int]$CommanderPowerEnablePrestiges = 1,

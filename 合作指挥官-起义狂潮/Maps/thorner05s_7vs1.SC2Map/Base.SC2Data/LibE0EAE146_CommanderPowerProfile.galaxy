@@ -51,7 +51,7 @@ int libE0EAE146_gf_CommanderPowerClampInt (int lp_value, int lp_min, int lp_max)
 }
 
 string libE0EAE146_gf_CommanderPowerProfileName (string lp_commander) {
-    return libE0EAE146_gf_CommanderPowerBankStringOrDefault(lp_commander, "Profile", "AllPositiveFusion");
+    return libE0EAE146_gf_CommanderPowerBankStringOrDefault(lp_commander, "Profile", "Prestige4");
 }
 
 bool libE0EAE146_gf_CommanderPowerMasteriesEnabled (string lp_commander) {
@@ -145,7 +145,7 @@ int libE0EAE146_gf_CommanderPowerPrestigeMask (string lp_commander) {
 }
 
 bool libE0EAE146_gf_CommanderPowerApplyNegativePrestigeTradeoffs (string lp_commander) {
-    return (libE0EAE146_gf_CommanderPowerProfileName(lp_commander) != "AllPositiveFusion");
+    return ((libE0EAE146_gf_CommanderPowerProfileName(lp_commander) != "AllPositiveFusion") && (libE0EAE146_gf_CommanderPowerProfileName(lp_commander) != "Prestige4"));
 }
 
 void libE0EAE146_gf_CommanderPowerBeginGeneratedContext (string lp_commander) {
