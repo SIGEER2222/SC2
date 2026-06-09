@@ -2524,6 +2524,27 @@ function Stop-RunningSc2 {
     Start-Sleep -Seconds 2
 }
 
+function Clear-Sc2TextureReductionCache {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Sc2Root
+    )
+
+    $cacheRoot = Join-Path $Sc2Root "SC2Data\data"
+    if (-not (Test-Path -LiteralPath $cacheRoot)) {
+        return
+    }
+
+    foreach ($cacheName in @("data.025", "shmem")) {
+        $cachePath = Join-Path $cacheRoot $cacheName
+        if (-not (Test-Path -LiteralPath $cachePath)) {
+            continue
+        }
+
+        Remove-Item -LiteralPath $cachePath -Force -ErrorAction SilentlyContinue
+    }
+}
+
 if ([string]::IsNullOrWhiteSpace($SourceRoot)) {
     $SourceRoot = Resolve-DefaultSourceRoot
 }
@@ -2621,6 +2642,10 @@ Set-CampaignXCoreTestRunId -RunId $TestRunId
 
 if ($ForceStopSc2BeforeInstall -or (-not $NoLaunch)) {
     Stop-RunningSc2
+}
+
+if (-not $NoLaunch) {
+    Clear-Sc2TextureReductionCache -Sc2Root $Sc2Root
 }
 
 Copy-DirectoryClean -Source $mapSource -Destination $mapLive
