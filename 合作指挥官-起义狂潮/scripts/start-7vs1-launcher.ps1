@@ -482,6 +482,12 @@ function Update-CommanderDetails {
         $prestigeLines.Add(("P{0}: {1}" -f $slot, $name))
     }
     $prestigeInfo.Text = ($prestigeLines -join [Environment]::NewLine)
+
+    $defaultPrestigeMask = 7
+    if ($null -ne $record.default_prestige_bonus_mask) {
+        $defaultPrestigeMask = [Math]::Max(0, [Math]::Min(7, [int]$record.default_prestige_bonus_mask))
+    }
+    $prestigeMask.Value = $defaultPrestigeMask
 }
 
 function Get-CurrentArguments {

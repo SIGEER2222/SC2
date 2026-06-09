@@ -6,7 +6,7 @@ param(
     [int]$WaitSeconds = 50,
     [string]$EvidencePath = "",
     [string]$CommanderPowerProfile = "AllPositiveFusion",
-    [int]$CommanderPowerPrestigeBonusMask = 7,
+    [Nullable[int]]$CommanderPowerPrestigeBonusMask = $null,
     [Nullable[int]]$CommanderPowerPrestigePointIndex = $null,
     [int]$CommanderPowerEnablePrestiges = 1,
     [int]$CommanderPowerEnableMasteries = 1,
@@ -414,7 +414,9 @@ $quotedCommanders = @($Commanders | ForEach-Object { Convert-ToPsSingleQuotedLit
 $launchCommand = "& $quotedLaunchPath -MapSource $quotedMapSource -LiveMapName $quotedLiveMapName -AbathurPatchProfile $quotedAbathurPatchProfile -Commanders @(" + ($quotedCommanders -join ",") + ")"
 $launchCommand += " -TestRunId " + (Convert-ToPsSingleQuotedLiteral $runId)
 $launchCommand += " -CommanderPowerProfile $quotedCommanderPowerProfile"
-$launchCommand += " -CommanderPowerPrestigeBonusMask $CommanderPowerPrestigeBonusMask"
+if ($null -ne $CommanderPowerPrestigeBonusMask) {
+    $launchCommand += " -CommanderPowerPrestigeBonusMask $CommanderPowerPrestigeBonusMask"
+}
 if ($null -ne $CommanderPowerPrestigePointIndex) {
     $launchCommand += " -CommanderPowerPrestigePointIndex $CommanderPowerPrestigePointIndex"
 }

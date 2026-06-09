@@ -2,6 +2,7 @@ const state = {
   data: null,
   selectedMutators: new Set(),
   selectedMutatorPanelExpanded: false,
+  prestigeMaskAuto: true,
   launchPollTimer: null,
   lastLogPaths: null,
   lastValidatedSignature: "",
@@ -125,6 +126,10 @@ function clampNumber(value, min, max, fallback) {
   const parsed = Number.parseInt(value, 10);
   if (Number.isNaN(parsed)) return fallback;
   return Math.max(min, Math.min(max, parsed));
+}
+
+function getCommanderDefaultPrestigeMask(commander) {
+  return clampNumber(commander?.default_prestige_bonus_mask, 0, 7, 7);
 }
 
 function writeOutput(value) {
@@ -381,6 +386,7 @@ function pickRandom(items) {
 function selectCommander(runtime) {
   if (!runtime || !state.data?.commanders.some((item) => item.runtime === runtime)) return false;
   el.commanderSelect.value = runtime;
+  state.prestigeMaskAuto = true;
   renderCommanderDetails();
   renderQuickPickers();
   return true;
@@ -560,6 +566,9 @@ function renderCommanderDetails() {
   if (!commander) return;
 
   el.commanderId.textContent = commander.runtime;
+  if (state.prestigeMaskAuto) {
+    el.prestigeMask.value = String(getCommanderDefaultPrestigeMask(commander));
+  }
   renderPrestiges(commander);
   renderMasteries(commander);
   updateSummary();
@@ -1216,6 +1225,7 @@ function applyPayload(payload, options = {}) {
   el.masteryLevel.value = String(clampNumber(payload.masteryLevel, 0, 30, 30));
   el.mutatorPreset.value = String(clampNumber(payload.mutatorPreset, 0, 3, 0));
   el.dryRunToggle.checked = payload.noLaunch === true;
+  state.prestigeMaskAuto = options.prestigeMaskAuto === true;
 
   renderCommanderDetails();
 
@@ -1850,7 +1860,7 @@ function loadSavedConfig() {
 
 function resetConfig() {
   localStorage.removeItem(STORAGE_KEY);
-  applyPayload(getDefaultPayload());
+  applyPayload(getDefaultPayload(), { prestigeMaskAuto: true });
   el.launchState.textContent = "默认";
   writeOutput("已恢复默认配置");
 }
@@ -2069,7 +2079,7 @@ async function loadBootstrap() {
     populateQuickFilters();
     populateMutatorFilters();
     if (!loadSavedConfig()) {
-      applyPayload(getDefaultPayload());
+      applyPayload(getDefaultPayload(), { prestigeMaskAuto: true });
     }
     updateBootstrapStrip();
     renderRecentConfigs();
@@ -2368,6 +2378,7 @@ async function copyPreviewCommand() {
 }
 
 el.commanderSelect.addEventListener("change", () => {
+  state.prestigeMaskAuto = true;
   renderCommanderDetails();
   renderQuickPickers();
 });
@@ -2385,6 +2396,9 @@ el.clearQuickFilters.addEventListener("click", clearQuickFilters);
 el.enablePrestiges.addEventListener("change", updateSummary);
 el.enableMasteries.addEventListener("change", updateSummary);
 el.prestigeMask.addEventListener("change", updateSummary);
+el.prestigeMask.addEventListener("input", () => {
+  state.prestigeMaskAuto = false;
+});
   el.masteryLevel.addEventListener("change", updateSummary);
 el.mutatorSearch.addEventListener("input", renderMutators);
 el.mutatorFilter.addEventListener("change", renderMutators);
