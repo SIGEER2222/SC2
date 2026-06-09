@@ -111,6 +111,9 @@ int libE0EAE146_gf_CommanderPowerPrestigeBonusMask (string lp_commander) {
     if (!libE0EAE146_gf_CommanderPowerPrestigesEnabled(lp_commander)) {
         return 0;
     }
+    if (lp_commander == "Abathur") {
+        return 5;
+    }
     lv_defaultMask = libE0EAE146_gf_CommanderPowerDefaultPrestigeBonusMask(lp_commander);
     if (libE0EAE146_gf_CommanderPowerBankKeyExists(lp_commander, "PrestigeBonusMask")) {
         lv_prestigeMask = libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeBonusMask", lv_defaultMask);
