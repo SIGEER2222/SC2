@@ -697,9 +697,23 @@ function Set-CampaignXCoreCommanderPowerPreset {
             continue
         }
 
+        $isRebornCommander = ($selectedCommander -eq "ZergAbathurReborn")
         $commanderPrestigeBonusMask = $normalizedPrestigeBonusMask
         if ($UseCommanderDefaultPrestigeBonusMask) {
             $commanderPrestigeBonusMask = Get-CommanderPowerDefaultPrestigeBonusMask -Commander $selectedCommander -WorkspaceRoot (Get-WorkspaceRoot)
+        }
+        if ($isRebornCommander) {
+            $commanderPrestigeBonusMask = 0
+        }
+
+        $commanderEnablePrestiges = $normalizedEnablePrestiges
+        if ($isRebornCommander) {
+            $commanderEnablePrestiges = 0
+        }
+
+        $commanderPrestigePointIndex = $normalizedPrestigePointIndex
+        if ($isRebornCommander) {
+            $commanderPrestigePointIndex = -1
         }
 
         $commanderMasteryValues = @()
@@ -713,10 +727,10 @@ function Set-CampaignXCoreCommanderPowerPreset {
 
         $commanderSettings[$commanderKey] = @{
             Profile = $Profile
-            EnablePrestiges = $normalizedEnablePrestiges
+            EnablePrestiges = $commanderEnablePrestiges
             EnableMasteries = $normalizedEnableMasteries
-            PrestigePointIndex = $normalizedPrestigePointIndex
-            PrestigeIndex = $normalizedPrestigePointIndex
+            PrestigePointIndex = $commanderPrestigePointIndex
+            PrestigeIndex = $commanderPrestigePointIndex
             PrestigeBonusMask = $commanderPrestigeBonusMask
             PrestigeMask = $commanderPrestigeBonusMask
             MasteryDefault = $normalizedMasteryLevel
