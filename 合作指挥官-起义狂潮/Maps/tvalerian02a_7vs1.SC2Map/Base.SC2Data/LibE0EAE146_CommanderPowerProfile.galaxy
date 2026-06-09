@@ -96,19 +96,28 @@ int libE0EAE146_gf_CommanderPowerPrestigeIndex (string lp_commander) {
     return libE0EAE146_gf_CommanderPowerPrestigePointIndex(lp_commander);
 }
 
+int libE0EAE146_gf_CommanderPowerDefaultPrestigeBonusMask (string lp_commander) {
+    if (lp_commander == "Abathur") {
+        return 5;
+    }
+    return 7;
+}
+
 int libE0EAE146_gf_CommanderPowerPrestigeBonusMask (string lp_commander) {
     int lv_prestigePointIndex;
     int lv_prestigeMask;
+    int lv_defaultMask;
 
     if (!libE0EAE146_gf_CommanderPowerPrestigesEnabled(lp_commander)) {
         return 0;
     }
+    lv_defaultMask = libE0EAE146_gf_CommanderPowerDefaultPrestigeBonusMask(lp_commander);
     if (libE0EAE146_gf_CommanderPowerBankKeyExists(lp_commander, "PrestigeBonusMask")) {
-        lv_prestigeMask = libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeBonusMask", 7);
+        lv_prestigeMask = libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeBonusMask", lv_defaultMask);
         return libE0EAE146_gf_CommanderPowerClampInt(lv_prestigeMask, 0, 7);
     }
     if (libE0EAE146_gf_CommanderPowerBankKeyExists(lp_commander, "PrestigeMask")) {
-        lv_prestigeMask = libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeMask", 7);
+        lv_prestigeMask = libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeMask", lv_defaultMask);
         return libE0EAE146_gf_CommanderPowerClampInt(lv_prestigeMask, 0, 7);
     }
 
@@ -125,7 +134,7 @@ int libE0EAE146_gf_CommanderPowerPrestigeBonusMask (string lp_commander) {
     if (lv_prestigePointIndex == 3) {
         return 4;
     }
-    return libE0EAE146_gf_CommanderPowerClampInt(libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeMask", 7), 0, 7);
+    return libE0EAE146_gf_CommanderPowerClampInt(libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, "PrestigeMask", lv_defaultMask), 0, 7);
 }
 
 int libE0EAE146_gf_CommanderPowerPrestigeMask (string lp_commander) {
