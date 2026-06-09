@@ -27,6 +27,9 @@ void libBE3BBD9F_gf_StukovCreepAnnular (int lp_player, point lp_targetPoint, fix
     lv_roundNum = 1;
 
     // Implementation
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "SICreep") == false) {
+        return;
+    }
     lv_roundNum = lp_times;
     lv_distance = lp_radius;
     lv_distance = (lv_distance*lv_roundNum*2);
@@ -53,6 +56,9 @@ trigger auto_libBE3BBD9F_gf_StukovCreepEntireMap_Trigger = null;
 int auto_libBE3BBD9F_gf_StukovCreepEntireMap_lp_player;
 
 void libBE3BBD9F_gf_StukovCreepEntireMap (int lp_player) {
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "SICreep") == false) {
+        return;
+    }
     auto_libBE3BBD9F_gf_StukovCreepEntireMap_lp_player = lp_player;
 
     if (auto_libBE3BBD9F_gf_StukovCreepEntireMap_Trigger == null) {
@@ -72,6 +78,9 @@ bool auto_libBE3BBD9F_gf_StukovCreepEntireMap_TriggerFunc (bool testConds, bool 
     // Variable Initialization
 
     // Implementation
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "SICreep") == false) {
+        return true;
+    }
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "SICreep", 0, lp_player, PlayerStartLocation(lp_player));
     Wait(90.0, c_timeGame);
     lv_i = 1;
@@ -96,4 +105,3 @@ void libBE3BBD9F_InitLib () {
 
     libBE3BBD9F_InitLibraries();
 }
-

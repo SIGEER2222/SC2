@@ -225,6 +225,10 @@ Assert-True -Condition (@($metadata.control_schema.key_suffixes) -contains "Pres
 Assert-True -Condition ([int]$metadata.control_schema.default_prestige_bonus_mask -eq 7) -Message "CommanderPower metadata default prestige bonus mask must stay at 7."
 Assert-True -Condition ([int]$metadata.control_schema.default_prestige_point_index -eq -1) -Message "CommanderPower metadata default prestige point index must stay at -1."
 
+$abathurCommander = @($metadata.commanders | Where-Object { [string]$_.runtime_commander -eq "ZergAbathur" } | Select-Object -First 1)
+Assert-True -Condition ($abathurCommander.Count -eq 1) -Message "CommanderPower metadata must include ZergAbathur."
+Assert-True -Condition ([int]$abathurCommander[0].default_prestige_bonus_mask -eq 5) -Message "Abathur default prestige bonus mask must be 5."
+
 $seenRuntime = @{}
 $seenBank = @{}
 $seenFolder = @{}

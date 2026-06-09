@@ -12,9 +12,9 @@ void libE0EAE146_gf_NovaRuntimeInit (int lp_player, point lp_heroPoint, bool lp_
     lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
     lib67C0F0E7_gf_ShowChooseButton();
     lv_mastery = libE0EAE146_gf_CommanderPowerMasteryLevel("Nova", 1);
-    if (lv_mastery != 0) {
-        lib67C0F0E7_gf_SOAStickyLineUpg(lp_player, lv_mastery);
-    }
+    // The 7vs1 overlay does not ship the SOAStickyLine user data used by the
+    // upstream Nova UI helper. Keep the mastery level readable but do not call
+    // the missing helper, otherwise Nova aborts map initialization.
     if (lp_createHero == true) {
         lib0940FFB7_gf_InitlizeNova(lp_player);
     }

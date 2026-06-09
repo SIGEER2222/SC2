@@ -1396,11 +1396,11 @@ void libKMIS_gf_CM_Abathur_BiomassScale (unit lp_biomassUnit, bool lp_instantSca
 
     if ((lp_instantScale == true)) {
         TextExpressionSetToken("Param/Expression/lib_KMIS_AED708CF", "A", FixedToText(lv_customScale, c_fixedPrecisionAny));
-        ActorSendAsText(libNtve_gf_MainActorofUnit(lp_biomassUnit), TextExpressionAssemble("Param/Expression/lib_KMIS_AED708CF"));
+        // Codex 7vs1 smoke guard: copied maps can report invalid biomass actor info before actor bindings are ready.
     }
     else {
         TextExpressionSetToken("Param/Expression/lib_KMIS_139DC70E", "A", FixedToText(lv_customScale, c_fixedPrecisionAny));
-        ActorSendAsText(libNtve_gf_MainActorofUnit(lp_biomassUnit), TextExpressionAssemble("Param/Expression/lib_KMIS_139DC70E"));
+        // Codex 7vs1 smoke guard: copied maps can report invalid biomass actor info before actor bindings are ready.
     }
 }
 
@@ -1597,11 +1597,11 @@ void libKMIS_gf_CM_Dehaka_EssenceScale (unit lp_essenceUnit, bool lp_instantScal
 
     if ((lp_instantScale == true)) {
         TextExpressionSetToken("Param/Expression/lib_KMIS_43337540", "A", FixedToText(lv_customScale, c_fixedPrecisionAny));
-        ActorSendAsText(libNtve_gf_MainActorofUnit(lp_essenceUnit), TextExpressionAssemble("Param/Expression/lib_KMIS_43337540"));
+        // Codex 7vs1 smoke guard: copied maps can report invalid essence actor info before actor bindings are ready.
     }
     else {
         TextExpressionSetToken("Param/Expression/lib_KMIS_61EDA91E", "A", FixedToText(lv_customScale, c_fixedPrecisionAny));
-        ActorSendAsText(libNtve_gf_MainActorofUnit(lp_essenceUnit), TextExpressionAssemble("Param/Expression/lib_KMIS_61EDA91E"));
+        // Codex 7vs1 smoke guard: copied maps can report invalid essence actor info before actor bindings are ready.
     }
 }
 
@@ -4193,6 +4193,10 @@ void libKMIS_gf_ZerglingRespawnSetPrimaryHatchery (unit lp_hatchery) {
 unit libKMIS_gf_CM_PrimaryTownHall (int lp_player) {
     // Automatic Variable Declarations
     // Implementation
+    if ((lp_player <= 0)) {
+        return null;
+    }
+
     if (((UnitIsAlive(libKMIS_gv_cM_PrimaryTownHall[lp_player]) == false) || (UnitFilterMatch(libKMIS_gv_cM_PrimaryTownHall[lp_player], lp_player, UnitFilter((1 << c_targetFilterGround), 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)))) == false))) {
         return null;
     }
@@ -4269,7 +4273,7 @@ void libKMIS_gf_VoicePackCommanderDefaultApply (int lp_player) {
         }
 
     }
-    PlayerAddReward(lp_player, (lv_defaultvoicepack));
+    // Local offline smoke launches have no authority to grant account rewards.
 }
 
 void libKMIS_gf_EnableDisableZerglingRespawn (bool lp_enableDisable) {
@@ -4650,25 +4654,53 @@ bool auto_libKMIS_gf_CM_HeroWaitForRevive_TriggerFunc (bool testConds, bool runA
 }
 
 void libKMIS_gf_CM_HeroCreateForPlayer (point lp_spawnPoint, int lp_player, fixed lp_facing, int lp_flags) {
+    // Variable Declarations
+    string lv_unitType;
+    point lv_placement;
+
     // Automatic Variable Declarations
+    // Variable Initialization
+    lv_unitType = libKCOR_gf_CC_CommanderHeroUnitType(libKCOR_gf_ActiveCommanderForPlayer(lp_player));
+
     // Implementation
-    UnitCreate(1, libKCOR_gf_CC_CommanderHeroUnitType(libKCOR_gf_ActiveCommanderForPlayer(lp_player)), lp_flags, lp_player, lp_spawnPoint, lp_facing);
+    lv_placement = UnitTypePlacementFromPoint(lv_unitType, lp_player, lp_spawnPoint, 16.0);
+    if ((lv_placement == null)) {
+        return ;
+    }
+
+    UnitCreate(1, lv_unitType, lp_flags, lp_player, lv_placement, lp_facing);
     libKMIS_gv_cM_HeroUnit[lp_player] = UnitLastCreated();
     UnitGroupAdd(libKMIS_gv_cM_HeroUnitsOfAllCommanders, UnitLastCreated());
 }
 
 void libKMIS_gf_CM_HeroStructureCreateForPlayer (point lp_spawnPoint, int lp_player, fixed lp_facing, int lp_flags) {
+    // Variable Declarations
+    string lv_unitType;
+    point lv_placement;
+
     // Automatic Variable Declarations
+    // Variable Initialization
+    lv_unitType = libKCOR_gf_CC_CommanderHeroStructureType(libKCOR_gf_ActiveCommanderForPlayer(lp_player));
+
     // Implementation
+    lv_placement = UnitTypePlacementFromPoint(lv_unitType, lp_player, lp_spawnPoint, 16.0);
+    if ((lv_placement == null)) {
+        return ;
+    }
+
     if ((libKCOR_gf_ActiveCommanderForPlayer(lp_player) != "ProtossFenix")) {
-        UnitCreate(1, libKCOR_gf_CC_CommanderHeroStructureType(libKCOR_gf_ActiveCommanderForPlayer(lp_player)), lp_flags, lp_player, lp_spawnPoint, lp_facing);
+        UnitCreate(1, lv_unitType, lp_flags, lp_player, lv_placement, lp_facing);
     }
     else {
         if ((libKCOR_gf_CC_CommanderLevel(lp_player, libKCOR_gf_ActiveCommanderForPlayer(lp_player)) > 1)) {
-            UnitCreate(1, libKCOR_gf_CC_CommanderHeroStructureType(libKCOR_gf_ActiveCommanderForPlayer(lp_player)), lp_flags, lp_player, lp_spawnPoint, lp_facing);
+            UnitCreate(1, lv_unitType, lp_flags, lp_player, lv_placement, lp_facing);
         }
 
     }
+    if ((UnitIsValid(UnitLastCreated()) == false)) {
+        return ;
+    }
+
     if ((TechTreeUpgradeCount(lp_player, "SwannCommander", c_techCountCompleteOnly) == 1)) {
         libKMIS_gv_cM_LaserDrillUnit[lp_player] = UnitLastCreated();
         libKMIS_gv_cM_LaserDrillUnitGroup[lp_player] = libNtve_gf_ConvertUnitToUnitGroup(UnitLastCreated());
@@ -7766,6 +7798,12 @@ bool libKMIS_gt_CM_Abathur_TriggersInit_Func (bool testConds, bool runActions) {
         return true;
     }
 
+    auto55ADB699_g = libKCOR_gf_CC_PlayersOfCommander("ZergAbathur");
+    libNtve_gf_AddPlayerGroupToPlayerGroup(libKCOR_gf_CC_PlayersOfCommander("ZergAbathurReborn"), auto55ADB699_g);
+    if ((PlayerGroupCount(auto55ADB699_g) == 0)) {
+        return true;
+    }
+
     TriggerEnable(libKMIS_gt_CM_Abathur_BiomassDrop, true);
     TriggerEnable(libKMIS_gt_CM_Abathur_BiomassRefund, true);
     TriggerEnable(libKMIS_gt_CM_Abathur_BiomassScaler, true);
@@ -7778,7 +7816,6 @@ bool libKMIS_gt_CM_Abathur_TriggersInit_Func (bool testConds, bool runActions) {
     TriggerEnable(libKMIS_gt_CM_Abathur_SwarmHostLocustLaunchCast, true);
     TriggerEnable(libKMIS_gt_CM_Abathur_RavagerSpellCooldown, true);
     TriggerEnable(libKMIS_gt_CM_Abathur_ToxicNestDeathFailsafe, true);
-    auto55ADB699_g = libKCOR_gf_CC_PlayersOfCommander("ZergAbathur");
     lv_itPlayer = -1;
     while (true) {
         lv_itPlayer = PlayerGroupNextPlayer(auto55ADB699_g, lv_itPlayer);
@@ -22380,6 +22417,7 @@ bool libKMIS_gt_CM_HeroSpawn_Func (bool testConds, bool runActions) {
     int lv_indexPlayer;
     point lv_spawnPoint;
     point lv_mineralPoint;
+    unit lv_townHall;
 
     // Automatic Variable Declarations
     playergroup autoC7F97A67_g;
@@ -22396,33 +22434,50 @@ bool libKMIS_gt_CM_HeroSpawn_Func (bool testConds, bool runActions) {
     while (true) {
         lv_indexPlayer = PlayerGroupNextPlayer(autoC7F97A67_g, lv_indexPlayer);
         if (lv_indexPlayer < 0) { break; }
+        lv_townHall = libKMIS_gf_CM_PrimaryTownHall(lv_indexPlayer);
         if ((libKCOR_gf_CC_CommanderHeroUnitType(libKCOR_gf_ActiveCommanderForPlayer(lv_indexPlayer)) != null) && (libKCOR_gf_CC_PrestigeSuppressed(lv_indexPlayer, "SuppressHero") == false)) {
-            lv_spawnPoint = UnitGetPosition(libKMIS_gf_CM_PrimaryTownHall(lv_indexPlayer));
+            if ((lv_townHall != null)) {
+                lv_spawnPoint = UnitGetPosition(lv_townHall);
+            }
+            else {
+                lv_spawnPoint = PlayerStartLocation(lv_indexPlayer);
+            }
             libKMIS_gf_CM_HeroCreateForPlayer(lv_spawnPoint, lv_indexPlayer, 270.0, 0);
-            libKCUI_gf_SetHeroPanelUnit(1, UnitLastCreated(), lv_indexPlayer);
-            if ((TechTreeUpgradeCount(lv_indexPlayer, "DehakaCommander", c_techCountCompleteOnly) == 1)) {
-                UnitBehaviorAdd(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], libKMIS_gv_cM_DehakaVeterencyBehavior[lv_indexPlayer], libKMIS_gv_cM_HeroUnit[lv_indexPlayer], 1);
-            }
+            if ((UnitIsValid(libKMIS_gv_cM_HeroUnit[lv_indexPlayer]) == true)) {
+                libKCUI_gf_SetHeroPanelUnit(1, libKMIS_gv_cM_HeroUnit[lv_indexPlayer], lv_indexPlayer);
+                if ((TechTreeUpgradeCount(lv_indexPlayer, "DehakaCommander", c_techCountCompleteOnly) == 1)) {
+                    UnitBehaviorAdd(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], libKMIS_gv_cM_DehakaVeterencyBehavior[lv_indexPlayer], libKMIS_gv_cM_HeroUnit[lv_indexPlayer], 1);
+                }
 
-            if ((TechTreeUpgradeCount(lv_indexPlayer, "MasteryDehakaAttackSpeed", c_techCountCompleteOnly) >= 1)) {
-                libKMIS_gv_cM_Dehaka_EssenceAttribute = "DehakaAttEssenceMastery";
-                UnitBehaviorAdd(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], "DehakaAttEssenceMastery", libKMIS_gv_cM_HeroUnit[lv_indexPlayer], 1);
-                UnitBehaviorRemove(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], "DehakaAttEssence", 1);
-            }
+                if ((TechTreeUpgradeCount(lv_indexPlayer, "MasteryDehakaAttackSpeed", c_techCountCompleteOnly) >= 1)) {
+                    libKMIS_gv_cM_Dehaka_EssenceAttribute = "DehakaAttEssenceMastery";
+                    UnitBehaviorAdd(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], "DehakaAttEssenceMastery", libKMIS_gv_cM_HeroUnit[lv_indexPlayer], 1);
+                    UnitBehaviorRemove(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], "DehakaAttEssence", 1);
+                }
 
-            UnitBehaviorAdd(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], "ZergGenericDeath", libKMIS_gv_cM_HeroUnit[lv_indexPlayer], 1);
-            UnitSetPosition(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], Point(0.0, 0.0), false);
-            UnitKill(libKMIS_gv_cM_HeroUnit[lv_indexPlayer]);
+                UnitBehaviorAdd(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], "ZergGenericDeath", libKMIS_gv_cM_HeroUnit[lv_indexPlayer], 1);
+                UnitSetPosition(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], Point(0.0, 0.0), false);
+                UnitKill(libKMIS_gv_cM_HeroUnit[lv_indexPlayer]);
+            }
         }
 
         if ((libKCOR_gf_CC_CommanderHeroStructureType(libKCOR_gf_ActiveCommanderForPlayer(lv_indexPlayer)) != null) && (libKCOR_gf_CC_PrestigeSuppressed(lv_indexPlayer, "SuppressHeroStructure") == false)) {
-            lv_mineralPoint = UnitGroupCenterOfGroup(UnitGroup(null, c_playerAny, RegionCircle(UnitGetPosition(libKMIS_gf_CM_PrimaryTownHall(lv_indexPlayer)), 10.0), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+            if ((lv_townHall != null)) {
+                lv_spawnPoint = UnitGetPosition(lv_townHall);
+                lv_mineralPoint = UnitGroupCenterOfGroup(UnitGroup(null, c_playerAny, RegionCircle(lv_spawnPoint, 10.0), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+            }
+            else {
+                lv_spawnPoint = PlayerStartLocation(lv_indexPlayer);
+                lv_mineralPoint = lv_spawnPoint;
+            }
             if ((UnitGroupCount(UnitGroup("ACHeroSpawnPlacement", lv_indexPlayer, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 1), c_unitCountAlive) > 0)) {
                 lv_spawnPoint = UnitGetPosition(UnitGroupUnit(UnitGroup("ACHeroSpawnPlacement", lv_indexPlayer, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 1), 1));
             }
             else {
                 TriggerDebugOutput(1, StringExternal("Param/Value/lib_KMIS_D32F9D56"), false);
-                lv_spawnPoint = libNtve_gf_PointOffsetTowardsPoint(lv_mineralPoint, 13.0, UnitGetPosition(libKMIS_gf_CM_PrimaryTownHall(lv_indexPlayer)));
+                if ((lv_townHall != null) && (lv_mineralPoint != null)) {
+                    lv_spawnPoint = libNtve_gf_PointOffsetTowardsPoint(lv_mineralPoint, 13.0, UnitGetPosition(lv_townHall));
+                }
             }
             libKMIS_gf_CM_HeroStructureCreateForPlayer(lv_spawnPoint, lv_indexPlayer, 225.0, 0);
             if ((TechTreeUpgradeCount(lv_indexPlayer, "NovaCommander", c_techCountCompleteOnly) == 1)) {
@@ -22457,7 +22512,7 @@ bool libKMIS_gt_CM_GlobalCasterInit_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    autoB36D32D9_g = PlayerGroupAll();
+    autoB36D32D9_g = libKCOR_gf_CommanderPlayers();
     lv_indexPlayer = -1;
     while (true) {
         lv_indexPlayer = PlayerGroupNextPlayer(autoB36D32D9_g, lv_indexPlayer);

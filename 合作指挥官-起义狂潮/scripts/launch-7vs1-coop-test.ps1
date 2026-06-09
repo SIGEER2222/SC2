@@ -47,6 +47,10 @@ param(
     [Nullable[int]]$CommanderPowerMastery5 = $null,
     [string]$CommanderPowerPresetPath = "",
     [string[]]$CommanderPowerOverride = @(),
+    [string[]]$Mutators = @(),
+    [ValidateRange(0, 3)]
+    [int]$MutatorPreset = 0,
+    [string]$TestRunId = "",
     [switch]$SkipCommanderPowerPreset,
     [switch]$DisableAbathurRebornPatch,
     [switch]$ForceStopSc2BeforeInstall,
@@ -253,6 +257,39 @@ function Get-OrCreateBankKey {
     }
 
     return $key
+}
+
+function Remove-BankSectionIfPresent {
+    param(
+        [xml]$Xml,
+        [string]$SectionName
+    )
+
+    $section = $Xml.SelectSingleNode("/Bank/Section[@name='$SectionName']")
+    if ($section -and $section.ParentNode) {
+        $null = $section.ParentNode.RemoveChild($section)
+    }
+}
+
+function Remove-BankKeyIfPresent {
+    param(
+        [xml]$Xml,
+        [string]$SectionName,
+        [string]$KeyName
+    )
+
+    $section = $Xml.SelectSingleNode("/Bank/Section[@name='$SectionName']")
+    if (-not $section) {
+        return
+    }
+
+    $escapedKey = $KeyName.Replace("'", "&apos;")
+    $keys = @($section.SelectNodes("Key[@name='$escapedKey']"))
+    foreach ($key in $keys) {
+        if ($key -and $key.ParentNode) {
+            $null = $key.ParentNode.RemoveChild($key)
+        }
+    }
 }
 
 function Set-BankStringKeyValue {
@@ -616,6 +653,7 @@ function Set-CampaignXCoreCommanderPowerPreset {
         [string[]]$SelectedCommanders,
         [string]$Profile,
         [int]$PrestigeBonusMask,
+        [bool]$UseCommanderDefaultPrestigeBonusMask = $false,
         [Nullable[int]]$PrestigePointIndex,
         [int]$EnablePrestiges,
         [int]$EnableMasteries,
@@ -659,6 +697,12 @@ function Set-CampaignXCoreCommanderPowerPreset {
             continue
         }
 
+        $commanderPrestigeBonusMask = $normalizedPrestigeBonusMask
+        $commanderRecord = Resolve-CommanderPowerCommanderRecord -Commander $selectedCommander -WorkspaceRoot (Get-WorkspaceRoot)
+        if ($UseCommanderDefaultPrestigeBonusMask -and ($null -ne $commanderRecord) -and ($null -ne $commanderRecord.default_prestige_bonus_mask)) {
+            $commanderPrestigeBonusMask = [Math]::Max(0, [Math]::Min(7, [int]$commanderRecord.default_prestige_bonus_mask))
+        }
+
         $commanderMasteryValues = @()
         for ($masteryIndex = 0; $masteryIndex -le 5; $masteryIndex++) {
             $masteryValue = $normalizedMasteryLevel
@@ -674,8 +718,8 @@ function Set-CampaignXCoreCommanderPowerPreset {
             EnableMasteries = $normalizedEnableMasteries
             PrestigePointIndex = $normalizedPrestigePointIndex
             PrestigeIndex = $normalizedPrestigePointIndex
-            PrestigeBonusMask = $normalizedPrestigeBonusMask
-            PrestigeMask = $normalizedPrestigeBonusMask
+            PrestigeBonusMask = $commanderPrestigeBonusMask
+            PrestigeMask = $commanderPrestigeBonusMask
             MasteryDefault = $normalizedMasteryLevel
             Masteries = $commanderMasteryValues
         }
@@ -718,9 +762,8 @@ function Set-CampaignXCoreCommanderPowerPreset {
     foreach ($bankPath in $bankPaths) {
         [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
 
-        if ($commanderSettings.Count -gt 0) {
-            Set-BankStringKeyValue -Xml $xml -SectionName "Ach" -KeyName "Commander" -Value @($commanderSettings.Keys)[0]
-        }
+        Remove-BankSectionIfPresent -Xml $xml -SectionName "CommanderPower"
+        Remove-BankSectionIfPresent -Xml $xml -SectionName "CommanderPowerRuntime"
 
         foreach ($commanderKey in $commanderSettings.Keys) {
             $setting = $commanderSettings[$commanderKey]
@@ -745,6 +788,113 @@ function Set-CampaignXCoreCommanderPowerPreset {
             Apply-CommanderPowerOverrideEntry -Xml $xml -OverrideEntry $overrideEntry
         }
 
+        Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
+    }
+}
+
+function Set-CampaignXCoreMutatorPreset {
+    param(
+        [string[]]$SelectedMutators,
+        [int]$Preset
+    )
+
+    $bankPaths = @(Get-CampaignXCoreBankPaths)
+    if ($bankPaths.Count -eq 0) {
+        Write-Warning "CampaignXCore.SC2Bank not found; skipping mutator preset."
+        return
+    }
+
+    $allowedMutators = New-Object 'System.Collections.Generic.Dictionary[string,string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($mutator in @(
+        "Random", "WalkingInfested", "InfestedTerranSpawner", "BlackFog", "TimeWarp", "UnitSpeed",
+        "Magnificent", "Entomb", "Barrier", "Avenger", "SideStep", "FireFight", "LavaBurst",
+        "DeathAOE", "DropPods", "SpawnBroodlings", "LaserDrill", "LongRange", "ReducedVision",
+        "HybridNuke", "AllEnemiesCloaked", "LazyWorkers", "NoResources", "ConcussiveAttacks",
+        "StoneZealots", "JustDie", "TemporalField", "VoidRifts", "Tornadoes", "OrbitalStrike",
+        "PurifierBeam", "Blizzard", "Fear", "PhotonOverload", "SpiderMines", "CycleRandom",
+        "Reanimators", "Nukes", "LifeLeech", "OopsAllCasters", "OrderCosts", "MissileBarrage",
+        "Vertigo", "UndyingEvil", "Polarity", "Evolve", "UberDarkness", "TrickOrTreat",
+        "FoodHunt", "SharedSupply", "DamageBounce", "Plague", "StructureSteal", "GiftFight",
+        "KillKarma", "AfraidOfTheDark", "Insubordination", "HeroesFromTheStorm", "Inspiration",
+        "HardenedWill", "Fireworks", "RedEnvelopes", "Sluggish", "DamageReflect", "DeathPull",
+        "Propagate", "MomentOfSilence", "KillBots", "BoomBots"
+    )) {
+        $allowedMutators[$mutator] = $mutator
+    }
+
+    $normalizedMutators = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($mutatorEntry in $SelectedMutators) {
+        if ([string]::IsNullOrWhiteSpace($mutatorEntry)) {
+            continue
+        }
+
+        foreach ($mutator in ([string]$mutatorEntry -split '[,;]')) {
+            if ([string]::IsNullOrWhiteSpace($mutator)) {
+                continue
+            }
+
+            $trimmed = $mutator.Trim()
+            if (-not $allowedMutators.ContainsKey($trimmed)) {
+                throw "Unknown mutator '$trimmed'. Use internal mutator ids such as UnitSpeed, Barrier, Avenger, VoidRifts."
+            }
+
+            $canonicalMutator = $allowedMutators[$trimmed]
+            if (-not $normalizedMutators.Contains($canonicalMutator)) {
+                $normalizedMutators.Add($canonicalMutator)
+            }
+        }
+    }
+
+    $enabled = if (($Preset -gt 0) -or ($normalizedMutators.Count -gt 0)) { 1 } else { 0 }
+
+    foreach ($bankPath in $bankPaths) {
+        [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
+        Remove-BankSectionIfPresent -Xml $xml -SectionName "Mutators"
+
+        if ($enabled -gt 0) {
+            Set-BankIntKeyValue -Xml $xml -SectionName "Mutators" -KeyName "Enabled" -Value 1
+            Set-BankIntKeyValue -Xml $xml -SectionName "Mutators" -KeyName "Preset" -Value $Preset
+            foreach ($mutator in $normalizedMutators) {
+                Set-BankIntKeyValue -Xml $xml -SectionName "Mutators" -KeyName "Selected.$mutator" -Value 1
+            }
+        }
+
+        Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
+    }
+}
+
+$useCommanderDefaultPrestigeBonusMask = -not $PSBoundParameters.ContainsKey("CommanderPowerPrestigeBonusMask")
+
+function Set-CampaignXCoreTestRunId {
+    param([string]$RunId)
+
+    if ([string]::IsNullOrWhiteSpace($RunId)) {
+        return
+    }
+
+    foreach ($bankPath in @(Get-CampaignXCoreBankPaths)) {
+        [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
+        Set-BankStringKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "TestRunId" -Value $RunId
+        Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
+    }
+}
+
+function Set-CampaignXCorePrimaryCommander {
+    param([string[]]$SelectedCommanders)
+
+    if (($null -eq $SelectedCommanders) -or ($SelectedCommanders.Count -lt 1)) {
+        return
+    }
+
+    $primaryCommander = Convert-TestCommanderToCommanderPowerKey -Commander $SelectedCommanders[0]
+    if ([string]::IsNullOrWhiteSpace($primaryCommander)) {
+        throw "Cannot map test commander '$($SelectedCommanders[0])' to CampaignXCore Ach/Commander."
+    }
+
+    foreach ($bankPath in @(Get-CampaignXCoreBankPaths)) {
+        [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
+        Set-BankStringKeyValue -Xml $xml -SectionName "Ach" -KeyName "Commander" -Value $primaryCommander
+        Set-BankStringKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "PrimaryCommander" -Value $primaryCommander
         Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
     }
 }
@@ -791,7 +941,10 @@ function Remove-DirectoryWithRetry {
             return
         }
         catch {
-            if (($attempt -ge $RetryCount) -or (-not (Test-Path -LiteralPath $Path))) {
+            if (-not (Test-Path -LiteralPath $Path)) {
+                return
+            }
+            if ($attempt -ge $RetryCount) {
                 throw
             }
             Start-Sleep -Milliseconds $DelayMilliseconds
@@ -888,7 +1041,7 @@ function Set-DocumentInfoDependencies {
         $null = $dependenciesNode.AppendChild($valueNode)
     }
 
-    $insertBefore = $doc.SelectSingleNode("Screenshot|PatchNote|Preload|HowToPlayBasic|HowToPlayAdvanced")
+    $insertBefore = $doc.SelectSingleNode("PatchNote|Preload|HowToPlayBasic|HowToPlayAdvanced")
     if ($insertBefore) {
         $null = $doc.InsertBefore($dependenciesNode, $insertBefore)
     }
@@ -1689,6 +1842,111 @@ int libKMIS_gf_codex_first_abathur_player () {
     Set-FileTextWithRetry -Path $LibKMISPath -Text $kmis
 }
 
+function Apply-LiveCommanderTestPatches {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$BaseDataRoot,
+        [Parameter(Mandatory = $true)]
+        [string[]]$SelectedCommanders,
+        [Parameter(Mandatory = $true)]
+        [object[]]$StartPoints,
+        [string]$TestSpawnPreset = "",
+        [bool]$UseAbathurRebornPatch = $false,
+        [bool]$ApplySupportPatches = $true
+    )
+
+    $libKPVP = Join-Path $BaseDataRoot "LibKPVP.galaxy"
+    if (-not (Test-Path -LiteralPath $libKPVP)) {
+        return
+    }
+
+    Set-LiveCommanderTestOverride -LibPath $libKPVP -SelectedCommanders $SelectedCommanders -TestSpawnPreset $TestSpawnPreset
+    if (-not $ApplySupportPatches) {
+        return
+    }
+
+    if (Test-Path -LiteralPath $libKPVP) {
+        Add-SafeStartPointOverride -Path $libKPVP -FunctionName "libKPVP_gf_codex_start_point" -InsertionAnchor "void libKPVP_gf_apply_peace_time" -StartPoints $StartPoints
+    }
+
+    $libKCOR = Join-Path $BaseDataRoot "LibKCOR.galaxy"
+    if (Test-Path -LiteralPath $libKCOR) {
+        Add-SafeStartPointOverride -Path $libKCOR -FunctionName "libKCOR_gf_codex_start_point" -InsertionAnchor "void libKCOR_gf_CC_ApplyRaceTechZerg" -StartPoints $StartPoints
+    }
+
+    $libKMIS = Join-Path $BaseDataRoot "LibKMIS.galaxy"
+    if (Test-Path -LiteralPath $libKMIS) {
+        Add-SafeStartPointOverride -Path $libKMIS -FunctionName "libKMIS_gf_codex_start_point" -InsertionAnchor "void libKMIS_gf_CM_Zeratul_GiveProphecyHint" -StartPoints $StartPoints
+        Disable-LiveRewardGrants -Path $libKMIS
+    }
+
+    $libKCUI = Join-Path $BaseDataRoot "LibKCUI.galaxy"
+    if (Test-Path -LiteralPath $libKCUI) {
+        Patch-LiveTychusUiGuards -Path $libKCUI
+    }
+
+    if ($UseAbathurRebornPatch) {
+        foreach ($required in @($libKCOR, $libKCUI, $libKMIS)) {
+            if (-not (Test-Path -LiteralPath $required)) {
+                throw "Abathur reborn bridge requires local runtime library: $required"
+            }
+        }
+
+        Patch-LiveAbathurCommanderBridge -LibKPVPPath $libKPVP -LibKCORPath $libKCOR -LibKCUIPath $libKCUI -LibKMISPath $libKMIS
+    }
+}
+
+function Set-LiveRuntimePrimaryCommanderOverride {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$BaseDataRoot,
+        [Parameter(Mandatory = $true)]
+        [string[]]$SelectedCommanders
+    )
+
+    if (($null -eq $SelectedCommanders) -or ($SelectedCommanders.Count -lt 1)) {
+        return
+    }
+
+    $primaryCommander = Convert-TestCommanderToCommanderPowerKey -Commander $SelectedCommanders[0]
+    if ([string]::IsNullOrWhiteSpace($primaryCommander)) {
+        throw "Cannot map test commander '$($SelectedCommanders[0])' to runtime primary commander."
+    }
+
+    $runtimeSafety = Join-Path $BaseDataRoot "LibE0EAE146_RuntimeSafety.galaxy"
+    if (-not (Test-Path -LiteralPath $runtimeSafety)) {
+        return
+    }
+
+    $text = Get-Content -LiteralPath $runtimeSafety -Raw
+    $pattern = '(?s)string libE0EAE146_gf_CodexTestPrimaryCommander \(\) \{\s*return ".*?";\s*\}'
+    $replacement = "string libE0EAE146_gf_CodexTestPrimaryCommander () {`r`n    return `"$primaryCommander`";`r`n}"
+    $newText = [regex]::Replace($text, $pattern, $replacement, 1)
+    if ($newText -eq $text) {
+        throw "Could not patch runtime primary commander override in $runtimeSafety"
+    }
+
+    Set-FileTextWithRetry -Path $runtimeSafety -Text $newText
+}
+
+function Get-EffectiveLiveRuntimeLibraryPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$MapLive,
+        [Parameter(Mandatory = $true)]
+        [string]$ExtensionLive,
+        [Parameter(Mandatory = $true)]
+        [string]$LibraryName
+    )
+
+    $mapLibraryPath = Join-Path $MapLive "Base.SC2Data\$LibraryName"
+    if (Test-Path -LiteralPath $mapLibraryPath) {
+        return $mapLibraryPath
+    }
+
+    return (Join-Path $ExtensionLive "Base.SC2Data\$LibraryName")
+}
+
 function Validate-LiveAbathurRebornInstall {
     param(
         [Parameter(Mandatory = $true)]
@@ -1702,10 +1960,10 @@ function Validate-LiveAbathurRebornInstall {
     $mapInfo = Get-Content -LiteralPath (Join-Path $MapLive "DocumentInfo") -Raw
     $mapDependencies = Get-DocumentInfoDependencies -Path (Join-Path $MapLive "DocumentInfo")
     $patchInfo = Get-Content -LiteralPath (Join-Path $PatchLive "DocumentInfo") -Raw
-    $kpvp = Get-Content -LiteralPath (Join-Path $ExtensionLive "Base.SC2Data\LibKPVP.galaxy") -Raw
-    $kcor = Get-Content -LiteralPath (Join-Path $ExtensionLive "Base.SC2Data\LibKCOR.galaxy") -Raw
-    $kcui = Get-Content -LiteralPath (Join-Path $ExtensionLive "Base.SC2Data\LibKCUI.galaxy") -Raw
-    $kmis = Get-Content -LiteralPath (Join-Path $ExtensionLive "Base.SC2Data\LibKMIS.galaxy") -Raw
+    $kpvp = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKPVP.galaxy") -Raw
+    $kcor = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKCOR.galaxy") -Raw
+    $kcui = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKCUI.galaxy") -Raw
+    $kmis = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKMIS.galaxy") -Raw
 
     foreach ($required in @(
         'file:Mods/7vs1/CoopZeroPop.SC2Mod',
@@ -1745,12 +2003,17 @@ function Validate-LiveBaseTestlineInstall {
         [Parameter(Mandatory = $true)]
         [string]$MapLive,
         [Parameter(Mandatory = $true)]
-        [string]$ExtensionLive
+        [string]$ExtensionLive,
+        [Parameter(Mandatory = $true)]
+        [string[]]$SelectedCommanders
     )
 
     $mapInfo = Get-Content -LiteralPath (Join-Path $MapLive "DocumentInfo") -Raw
     $mapDependencies = Get-DocumentInfoDependencies -Path (Join-Path $MapLive "DocumentInfo")
+    $mapKpvpPath = Join-Path $MapLive "Base.SC2Data\LibKPVP.galaxy"
+    $mapKpvp = if (Test-Path -LiteralPath $mapKpvpPath) { Get-Content -LiteralPath $mapKpvpPath -Raw } else { "" }
     $kpvp = Get-Content -LiteralPath (Join-Path $ExtensionLive "Base.SC2Data\LibKPVP.galaxy") -Raw
+    $effectiveKpvp = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKPVP.galaxy") -Raw
 
     if (-not $mapInfo.Contains('file:Mods/7vs1/CoopZeroPop.SC2Mod')) {
         throw 'Live base testline dependency missing: file:Mods/7vs1/CoopZeroPop.SC2Mod'
@@ -1778,8 +2041,21 @@ function Validate-LiveBaseTestlineInstall {
         throw 'Live base testline dependency closure missing a map-side runtime dependency beyond CoopZeroPop.'
     }
 
-    if ($kpvp.Contains('libKPVP_gf_codex_init_7vs1_test_commanders') -eq $false) {
-        throw 'Live base testline missing commander test override.'
+    foreach ($pair in @(
+        @{Name='effective LibKPVP'; Text=$effectiveKpvp},
+        @{Name='extension LibKPVP'; Text=$kpvp},
+        @{Name='map LibKPVP'; Text=$mapKpvp}
+    )) {
+        if ($pair.Text.Contains('libKPVP_gf_codex_init_7vs1_test_commanders')) {
+            throw "Live base testline still contains obsolete commander init override in $($pair.Name)."
+        }
+    }
+
+    if ($effectiveKpvp.Contains('libKPVP_gf_codex_commander_attribute_for_player') -eq $false) {
+        throw 'Live base testline missing commander attribute override on the effective LibKPVP.'
+    }
+    if ($effectiveKpvp.Contains('auto814DE7B0_g = libKCOR_gf_CommanderPlayers()') -eq $false) {
+        throw 'Live base testline effective LibKPVP STARTPVP is not filtered to CommanderPlayers.'
     }
 }
 
@@ -2059,32 +2335,53 @@ function Set-LiveCommanderTestOverride {
         }
     }
 
-    $text = Get-Content -LiteralPath $LibPath -Raw
-    if ($text -match "libKPVP_gf_codex_init_7vs1_test_commanders") {
-        return
+    $attributeByCommander = @{
+        ZergAbathur       = "0001"
+        ZergAbathurReborn = "0001"
+        ProtossAlarak     = "0002"
+        ProtossArtanis    = "0003"
+        ZergDehaka        = "0004"
+        ProtossFenix      = "0005"
+        TerranHorner      = "0006"
+        ProtossKarax      = "0007"
+        ZergKerrigan      = "0008"
+        TerranMengsk      = "0019"
+        TerranNova        = "0009"
+        TerranRaynor      = "0010"
+        ZergStetmann      = "0018"
+        ZergStukov        = "0011"
+        TerranSwann       = "0012"
+        TerranTychus      = "0016"
+        ProtossVorazun    = "0013"
+        ZergZagara        = "0014"
+        ProtossZeratul    = "0017"
     }
+
+    $text = Get-Content -LiteralPath $LibPath -Raw
+    $oldCodexBlockPattern = '(?s)\r?\n//--------------------------------------------------------------------------------------------------\r?\n// Codex live test override: initialize local test commanders without Battle\.net lobby attrs\.\r?\n//--------------------------------------------------------------------------------------------------\r?\nvoid libKPVP_gf_codex_add_special_groups .*?(?=//--------------------------------------------------------------------------------------------------\r?\nvoid libKPVP_gt_player_defeated_Init)'
+    $text = [regex]::Replace($text, $oldCodexBlockPattern, "")
+    $codexBlockPattern = '(?s)\r?\n//--------------------------------------------------------------------------------------------------\r?\n// Codex live test override: force selected lobby commander attributes for local smoke tests\.\r?\n//--------------------------------------------------------------------------------------------------\r?\nstring libKPVP_gf_codex_commander_attribute_for_player .*?(?=//--------------------------------------------------------------------------------------------------\r?\nvoid libKPVP_gt_player_defeated_Init)'
+    $text = [regex]::Replace($text, $codexBlockPattern, "")
 
     $functionBlock = New-Object System.Text.StringBuilder
     [void]$functionBlock.AppendLine("")
     [void]$functionBlock.AppendLine("//--------------------------------------------------------------------------------------------------")
-    [void]$functionBlock.AppendLine("// Codex live test override: initialize local test commanders without Battle.net lobby attrs.")
+    [void]$functionBlock.AppendLine("// Codex live test override: force selected lobby commander attributes for local smoke tests.")
     [void]$functionBlock.AppendLine("//--------------------------------------------------------------------------------------------------")
-    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_add_special_groups (string lp_commander, int lp_player) {")
-    [void]$functionBlock.AppendLine("    if (lp_commander == `"ZergAbathur`") {")
-    [void]$functionBlock.AppendLine("        PlayerGroupAdd(libKPVP_gv_abathur_players, lp_player);")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"ZergDehaka`") {")
-    [void]$functionBlock.AppendLine("        PlayerGroupAdd(libKPVP_gv_dehaka_players, lp_player);")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"TerranHorner`") {")
-    [void]$functionBlock.AppendLine("        libNtve_gf_AddPlayerGroupToPlayerGroup(libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_AllyMutual, lp_player), libKPVP_gv_han_allies);")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"TerranMengsk`") {")
-    [void]$functionBlock.AppendLine("        PlayerGroupAdd(libKPVP_gv_mengsk_players, lp_player);")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    else if (lp_commander == `"TerranTychus`") {")
-    [void]$functionBlock.AppendLine("        PlayerGroupAdd(libKPVP_gv_tychus_players, lp_player);")
-    [void]$functionBlock.AppendLine("    }")
+    [void]$functionBlock.AppendLine("string libKPVP_gf_codex_commander_attribute_for_player (int lp_player) {")
+    for ($i = 0; $i -lt $SelectedCommanders.Count; $i++) {
+        $player = $i + 1
+        $attribute = $attributeByCommander[$SelectedCommanders[$i]]
+        if ($i -eq 0) {
+            [void]$functionBlock.AppendLine("    if (lp_player == $player) {")
+        }
+        else {
+            [void]$functionBlock.AppendLine("    else if (lp_player == $player) {")
+        }
+        [void]$functionBlock.AppendLine("        return `"$attribute`";")
+        [void]$functionBlock.AppendLine("    }")
+    }
+    [void]$functionBlock.AppendLine("    return GameAttributePlayerValue(`"[bnet:local/0.0/223536]1`", lp_player);")
     [void]$functionBlock.AppendLine("}")
     [void]$functionBlock.AppendLine("")
     [void]$functionBlock.AppendLine("void libKPVP_gf_codex_apply_swann_worker_tech (int lp_player) {")
@@ -2103,69 +2400,72 @@ function Set-LiveCommanderTestOverride {
     [void]$functionBlock.AppendLine("    UIDisplayMessage(PlayerGroupSingle(lp_player), c_messageAreaChat, StringToText((`"Codex test init: TerranSwann KelMorianWorker tech enabled. Workers=`" + IntToString(UnitGroupCount(UnitGroup(`"KelMorianWorker`", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive)))));")
     [void]$functionBlock.AppendLine("}")
     [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_abathur_apply_full_biomass (unit lp_unit, int lp_player, int lp_stack) {")
-    [void]$functionBlock.AppendLine("    if (lp_unit == null) {")
-    [void]$functionBlock.AppendLine("        return;")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    libKMIS_gf_CM_Abathur_BiomassSetStack(lp_unit, lp_stack);")
-    [void]$functionBlock.AppendLine("    libKMIS_gf_CM_Abathur_BiomassScale(lp_unit, true);")
-    [void]$functionBlock.AppendLine("    libKMIS_gf_CM_Abathur_BiomassMerge(lp_unit, lp_stack);")
-    [void]$functionBlock.AppendLine("}")
-    [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_spawn_abathur_fusion_units (int lp_player) {")
-    [void]$functionBlock.AppendLine("    point lv_start;")
-    [void]$functionBlock.AppendLine("    unit lv_unit;")
-    [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("    lv_start = libKPVP_gf_codex_start_point(lp_player);")
-    [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"BrutaliskAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 10.0, PointGetY(lv_start) + 6.0));")
-    [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
-    [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
-    [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"LeviathanAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 14.0, PointGetY(lv_start) + 10.0));")
-    [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
-    [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
-    [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"RavagerAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 6.0, PointGetY(lv_start) + 12.0));")
-    [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
-    [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
-    [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"MutaliskAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 2.0, PointGetY(lv_start) + 14.0));")
-    [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
-    [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
-    [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("    UIDisplayMessage(PlayerGroupSingle(lp_player), c_messageAreaChat, StringToText(`"Codex test init: Abathur fusion verification units spawned.`"));")
-    [void]$functionBlock.AppendLine("}")
-    [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_run_test_spawn_preset (int lp_player, string lp_commander) {")
     if ($TestSpawnPreset -eq "AbathurFusion") {
+        [void]$functionBlock.AppendLine("void libKPVP_gf_codex_abathur_apply_full_biomass (unit lp_unit, int lp_player, int lp_stack) {")
+        [void]$functionBlock.AppendLine("    if (lp_unit == null) {")
+        [void]$functionBlock.AppendLine("        return;")
+        [void]$functionBlock.AppendLine("    }")
+        [void]$functionBlock.AppendLine("    libKMIS_gf_CM_Abathur_BiomassSetStack(lp_unit, lp_stack);")
+        [void]$functionBlock.AppendLine("    libKMIS_gf_CM_Abathur_BiomassScale(lp_unit, true);")
+        [void]$functionBlock.AppendLine("    libKMIS_gf_CM_Abathur_BiomassMerge(lp_unit, lp_stack);")
+        [void]$functionBlock.AppendLine("}")
+        [void]$functionBlock.AppendLine("")
+        [void]$functionBlock.AppendLine("void libKPVP_gf_codex_spawn_abathur_fusion_biomass (int lp_player) {")
+        [void]$functionBlock.AppendLine("    libE0EAE146_gf_InitializeAbathurBiomass(lp_player, `"BiomassPickupDummyAbathurReborn`");")
+        [void]$functionBlock.AppendLine("    UIDisplayMessage(PlayerGroupSingle(lp_player), c_messageAreaChat, StringToText(`"Codex test init: Abathur biomass initialized at the player start.`"));")
+        [void]$functionBlock.AppendLine("}")
+        [void]$functionBlock.AppendLine("")
+        [void]$functionBlock.AppendLine("void libKPVP_gf_codex_spawn_abathur_fusion_units (int lp_player) {")
+        [void]$functionBlock.AppendLine("    point lv_start;")
+        [void]$functionBlock.AppendLine("    unit lv_unit;")
+        [void]$functionBlock.AppendLine("")
+        [void]$functionBlock.AppendLine("    lv_start = libKPVP_gf_codex_start_point(lp_player);")
+        [void]$functionBlock.AppendLine("")
+        [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"BrutaliskAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 10.0, PointGetY(lv_start) + 6.0));")
+        [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
+        [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
+        [void]$functionBlock.AppendLine("")
+        [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"LeviathanAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 14.0, PointGetY(lv_start) + 10.0));")
+        [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
+        [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
+        [void]$functionBlock.AppendLine("")
+        [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"RavagerAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 6.0, PointGetY(lv_start) + 12.0));")
+        [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
+        [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
+        [void]$functionBlock.AppendLine("")
+        [void]$functionBlock.AppendLine("    libNtve_gf_CreateUnitsWithDefaultFacing(1, `"MutaliskAbathur`", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 2.0, PointGetY(lv_start) + 14.0));")
+        [void]$functionBlock.AppendLine("    lv_unit = UnitLastCreated();")
+        [void]$functionBlock.AppendLine("    libKPVP_gf_codex_abathur_apply_full_biomass(lv_unit, lp_player, 200);")
+        [void]$functionBlock.AppendLine("")
+        [void]$functionBlock.AppendLine("    UIDisplayMessage(PlayerGroupSingle(lp_player), c_messageAreaChat, StringToText(`"Codex test init: Abathur fusion verification units spawned.`"));")
+        [void]$functionBlock.AppendLine("}")
+        [void]$functionBlock.AppendLine("")
+        [void]$functionBlock.AppendLine("void libKPVP_gf_codex_run_test_spawn_preset (int lp_player, string lp_commander) {")
         [void]$functionBlock.AppendLine("    if (lp_commander == `"ZergAbathur`") {")
+        [void]$functionBlock.AppendLine("        libKPVP_gf_codex_spawn_abathur_fusion_biomass(lp_player);")
         [void]$functionBlock.AppendLine("        libKPVP_gf_codex_spawn_abathur_fusion_units(lp_player);")
         [void]$functionBlock.AppendLine("    }")
+        [void]$functionBlock.AppendLine("}")
+        [void]$functionBlock.AppendLine("")
     }
-    [void]$functionBlock.AppendLine("}")
+    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_post_lobby_init () {")
+    [void]$functionBlock.AppendLine("    int lv_player;")
+    [void]$functionBlock.AppendLine("    string lv_commander;")
+    [void]$functionBlock.AppendLine("    playergroup autoCodexCommanders_g;")
     [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_init_test_player (int lp_player, string lp_commander) {")
-    [void]$functionBlock.AppendLine("    libKPVP_gf_reset_skins_for_player(lp_player);")
-    [void]$functionBlock.AppendLine("    libKPVP_gv_players_names[lp_player] = PlayerName(lp_player);")
-    [void]$functionBlock.AppendLine("    libKPVP_gf_set_commander_for_player(lp_commander, lp_player);")
-    [void]$functionBlock.AppendLine("    libKPVP_gf_codex_add_special_groups(lp_commander, lp_player);")
-    [void]$functionBlock.AppendLine("    if (lp_commander == `"TerranSwann`") {")
-    [void]$functionBlock.AppendLine("        libKPVP_gf_codex_apply_swann_worker_tech(lp_player);")
-    [void]$functionBlock.AppendLine("    }")
-    [void]$functionBlock.AppendLine("    if (lp_commander == `"TerranSwann`") {")
-        [void]$functionBlock.AppendLine("        libKPVP_gf_codex_apply_swann_worker_tech(lp_player);")
-    [void]$functionBlock.AppendLine("    }")
+    [void]$functionBlock.AppendLine("    autoCodexCommanders_g = libKCOR_gf_CommanderPlayers();")
+    [void]$functionBlock.AppendLine("    lv_player = -1;")
+    [void]$functionBlock.AppendLine("    while (true) {")
+    [void]$functionBlock.AppendLine("        lv_player = PlayerGroupNextPlayer(autoCodexCommanders_g, lv_player);")
+    [void]$functionBlock.AppendLine("        if (lv_player < 0) { break; }")
+    [void]$functionBlock.AppendLine("        lv_commander = libKCOR_gf_ActiveCommanderForPlayer(lv_player);")
+    [void]$functionBlock.AppendLine("        if (lv_commander == `"TerranSwann`") {")
+    [void]$functionBlock.AppendLine("            libKPVP_gf_codex_apply_swann_worker_tech(lv_player);")
+    [void]$functionBlock.AppendLine("        }")
     if (-not [string]::IsNullOrWhiteSpace($TestSpawnPreset)) {
-        [void]$functionBlock.AppendLine("    libKPVP_gf_codex_run_test_spawn_preset(lp_player, lp_commander);")
+        [void]$functionBlock.AppendLine("        libKPVP_gf_codex_run_test_spawn_preset(lv_player, lv_commander);")
     }
-    [void]$functionBlock.AppendLine("}")
-    [void]$functionBlock.AppendLine("")
-    [void]$functionBlock.AppendLine("void libKPVP_gf_codex_init_7vs1_test_commanders () {")
-    for ($i = 0; $i -lt $SelectedCommanders.Count; $i++) {
-        $player = $i + 1
-        [void]$functionBlock.AppendLine("    libKPVP_gf_codex_init_test_player($player, `"$($SelectedCommanders[$i])`");")
-    }
+    [void]$functionBlock.AppendLine("    }")
     [void]$functionBlock.AppendLine("}")
 
     $insertBefore = "//--------------------------------------------------------------------------------------------------`r`nvoid libKPVP_gt_player_defeated_Init"
@@ -2177,11 +2477,13 @@ function Set-LiveCommanderTestOverride {
     }
     $text = $text.Replace($insertBefore, ($functionBlock.ToString() + $insertBefore))
 
-    $pattern = '(?s)autoEE3370AE_g = PlayerGroupActive\(\);\s+lv_player = -1;\s+while \(true\) \{.*?\n\s+\}\s+UnitEventSetNullVariableInvalid\(true\);'
-    $replacement = "lv_with_random_ai = false;`r`n    autoEE3370AE_g = PlayerGroupActive();`r`n    libKPVP_gf_codex_init_7vs1_test_commanders();`r`n    UnitEventSetNullVariableInvalid(true);"
-    $newText = [regex]::Replace($text, $pattern, $replacement, 1)
-    if ($newText -eq $text) {
-        throw "Could not replace original commander selection loop in $LibPath"
+    $newText = $text.Replace('GameAttributePlayerValue("[bnet:local/0.0/223536]1", lv_player)', 'libKPVP_gf_codex_commander_attribute_for_player(lv_player)')
+    if (($newText -eq $text) -and ($newText.Contains('libKPVP_gf_codex_commander_attribute_for_player(lv_player)') -eq $false)) {
+        throw "Could not patch commander attribute read in $LibPath"
+    }
+
+    if ($newText -notmatch "libKPVP_gf_codex_post_lobby_init\(\);") {
+        $newText = $newText.Replace("    UnitEventSetNullVariableInvalid(true);", "    UnitEventSetNullVariableInvalid(true);`r`n    libKPVP_gf_codex_post_lobby_init();")
     }
 
     Set-FileTextWithRetry -Path $LibPath -Text $newText
@@ -2286,6 +2588,7 @@ if (-not $SkipCommanderPowerPreset) {
         -SelectedCommanders $effectiveCommanders `
         -Profile $CommanderPowerProfile `
         -PrestigeBonusMask $CommanderPowerPrestigeBonusMask `
+        -UseCommanderDefaultPrestigeBonusMask $useCommanderDefaultPrestigeBonusMask `
         -PrestigePointIndex $CommanderPowerPrestigePointIndex `
         -EnablePrestiges $CommanderPowerEnablePrestiges `
         -EnableMasteries $CommanderPowerEnableMasteries `
@@ -2299,6 +2602,9 @@ if (-not $SkipCommanderPowerPreset) {
         -PresetPath $CommanderPowerPresetPath `
         -Overrides $CommanderPowerOverride
 }
+Set-CampaignXCoreMutatorPreset -SelectedMutators $Mutators -Preset $MutatorPreset
+Set-CampaignXCorePrimaryCommander -SelectedCommanders $effectiveCommanders
+Set-CampaignXCoreTestRunId -RunId $TestRunId
 
 if ($ForceStopSc2BeforeInstall -or (-not $NoLaunch)) {
     Stop-RunningSc2
@@ -2365,9 +2671,16 @@ $installedWorkspaceDependencyMods = Install-WorkspaceModDependencyClosure `
     -Sc2Root $Sc2Root `
     -SkipDependencies $workspaceDependencySkips
 
-$liveLibKPVP = Join-Path $extensionLive "Base.SC2Data\LibKPVP.galaxy"
-Set-LiveCommanderTestOverride -LibPath $liveLibKPVP -SelectedCommanders $effectiveCommanders -TestSpawnPreset $TestSpawnPreset
-Add-SafeStartPointOverride -Path $liveLibKPVP -FunctionName "libKPVP_gf_codex_start_point" -InsertionAnchor "void libKPVP_gf_apply_peace_time" -StartPoints $effectiveStartPoints
+$extensionBaseData = Join-Path $extensionLive "Base.SC2Data"
+$effectiveRuntimeBaseData = Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryPath -MapLive $mapLive -ExtensionLive $extensionLive -LibraryName "LibKPVP.galaxy")
+Apply-LiveCommanderTestPatches `
+    -BaseDataRoot $effectiveRuntimeBaseData `
+    -SelectedCommanders $effectiveCommanders `
+    -StartPoints $effectiveStartPoints `
+    -TestSpawnPreset $TestSpawnPreset `
+    -UseAbathurRebornPatch $useAbathurRebornPatch `
+    -ApplySupportPatches $true
+Set-LiveRuntimePrimaryCommanderOverride -BaseDataRoot $effectiveRuntimeBaseData -SelectedCommanders $effectiveCommanders
 
 $liveGameData = Join-Path $extensionLive "Base.SC2Data\GameData"
 if (($effectiveCommanders -contains "TerranSwann") -and $swannSourceGameData) {
@@ -2377,20 +2690,11 @@ elseif ($effectiveCommanders -contains "TerranSwann") {
     throw "TerranSwann test requires SourceRoot with replay pkg01 GameData. Pass -SourceRoot to a replay extract root."
 }
 
-$liveLibKCOR = Join-Path $extensionLive "Base.SC2Data\LibKCOR.galaxy"
-Add-SafeStartPointOverride -Path $liveLibKCOR -FunctionName "libKCOR_gf_codex_start_point" -InsertionAnchor "void libKCOR_gf_CC_ApplyRaceTechZerg" -StartPoints $effectiveStartPoints
-
-$liveLibKMIS = Join-Path $extensionLive "Base.SC2Data\LibKMIS.galaxy"
-Add-SafeStartPointOverride -Path $liveLibKMIS -FunctionName "libKMIS_gf_codex_start_point" -InsertionAnchor "void libKMIS_gf_CM_Zeratul_GiveProphecyHint" -StartPoints $effectiveStartPoints
-Disable-LiveRewardGrants -Path $liveLibKMIS
-$liveLibKCUI = Join-Path $extensionLive "Base.SC2Data\LibKCUI.galaxy"
-Patch-LiveTychusUiGuards -Path $liveLibKCUI
 if ($useAbathurRebornPatch) {
-    Patch-LiveAbathurCommanderBridge -LibKPVPPath $liveLibKPVP -LibKCORPath $liveLibKCOR -LibKCUIPath $liveLibKCUI -LibKMISPath $liveLibKMIS
     Validate-LiveAbathurRebornInstall -MapLive $mapLive -ExtensionLive $extensionLive -PatchLive $abathurRebornPatchLive
 }
 else {
-    Validate-LiveBaseTestlineInstall -MapLive $mapLive -ExtensionLive $extensionLive
+    Validate-LiveBaseTestlineInstall -MapLive $mapLive -ExtensionLive $extensionLive -SelectedCommanders $effectiveCommanders
 }
 
 # Re-apply the CommanderPower bank preset at the end of the install path so
@@ -2413,6 +2717,9 @@ if (-not $SkipCommanderPowerPreset) {
         -PresetPath $CommanderPowerPresetPath `
         -Overrides $CommanderPowerOverride
 }
+Set-CampaignXCoreMutatorPreset -SelectedMutators $Mutators -Preset $MutatorPreset
+Set-CampaignXCorePrimaryCommander -SelectedCommanders $effectiveCommanders
+Set-CampaignXCoreTestRunId -RunId $TestRunId
 
 Write-Host "Installed map: $mapLive"
 Write-Host "Installed extension mod: $extensionLive"
@@ -2452,6 +2759,13 @@ if (-not $SkipCommanderPowerPreset) {
     if ($CommanderPowerOverride.Count -gt 0) {
         Write-Host "Commander power overrides: $($CommanderPowerOverride -join '; ')"
     }
+}
+if (($Mutators.Count -gt 0) -or ($MutatorPreset -gt 0)) {
+    Write-Host "Mutator preset: $MutatorPreset"
+    Write-Host "Mutators: $($Mutators -join ', ')"
+}
+else {
+    Write-Host "Mutators: bank disabled; lobby Attribute011/default controls apply"
 }
 
 if (-not $NoLaunch) {

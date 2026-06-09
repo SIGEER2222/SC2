@@ -341,7 +341,7 @@ function New-CommanderEntry {
         $masteryEntries += New-MasteryEntry -Mastery $progression.masteries[$index] -Slot $index
     }
 
-    return [ordered]@{
+    $entry = [ordered]@{
         runtime_commander = [string]$commander.id
         bank_commander = $bankCommander
         generated_commander = $Folder
@@ -354,6 +354,12 @@ function New-CommanderEntry {
         prestiges = $prestigeEntries
         masteries = $masteryEntries
     }
+
+    if ($Folder -eq "Abathur") {
+        $entry.default_prestige_bonus_mask = 5
+    }
+
+    return $entry
 }
 
 $workspaceRoot = Get-CommanderPowerWorkspaceRoot

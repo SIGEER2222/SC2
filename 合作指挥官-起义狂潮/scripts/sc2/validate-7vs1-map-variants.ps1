@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$MapsRoot = "",
-    [string]$SourceMapsRoot = "C:\Users\22448\Downloads\合作指挥官版起义狂潮0.81\Maps\XM",
+    [string]$SourceMapsRoot = "",
     [switch]$FailOnMismatch
 )
 
@@ -29,6 +29,28 @@ function Resolve-WorkspacePath {
     return [System.IO.Path]::GetFullPath((Join-Path $workspaceRoot $Path))
 }
 
+function Resolve-SourceMapsRoot {
+    param([string]$Path)
+
+    if (-not [string]::IsNullOrWhiteSpace($Path)) {
+        return Resolve-WorkspacePath -Path $Path
+    }
+
+    $downloadsRoot = Join-Path $env:USERPROFILE 'Downloads'
+    if (Test-Path -LiteralPath $downloadsRoot) {
+        $candidates = @(Get-ChildItem -LiteralPath $downloadsRoot -Directory -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -like '*0.81*' } |
+            ForEach-Object { Join-Path $_.FullName 'Maps\XM' } |
+            Where-Object { Test-Path -LiteralPath $_ })
+        if ($candidates.Count -gt 0) {
+            return [System.IO.Path]::GetFullPath($candidates[0])
+        }
+    }
+
+    $workspaceRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+    return [System.IO.Path]::GetFullPath((Join-Path $workspaceRoot '..\_codex_7vs1_source_root'))
+}
+
 function Get-DocumentInfoDependencies {
     param([string]$Path)
 
@@ -42,18 +64,39 @@ function Get-DocumentInfoDependencies {
     })
 }
 
-function Get-MapIncludeLibIds {
+function Get-GalaxyFileIncludeLibIds {
     param([string]$Path)
 
     if (-not (Test-Path -LiteralPath $Path)) {
         return @()
     }
 
-    return @(Select-String -Path $Path -Pattern '^include "Lib[0-9A-F]+"' | ForEach-Object {
-        if ($_.Line -match '"(Lib[0-9A-F]+)"') {
+    return @(Select-String -Path $Path -Pattern '^include "Lib[^"/]+"' | ForEach-Object {
+        if ($_.Line -match '"(Lib[^"/]+)"') {
             $matches[1]
         }
     })
+}
+
+function Get-MapIncludeLibIds {
+    param([string]$MapRoot)
+
+    $ids = New-Object System.Collections.Generic.HashSet[string]
+    $mapScript = Join-Path $MapRoot 'MapScript.galaxy'
+    foreach ($id in (Get-GalaxyFileIncludeLibIds -Path $mapScript)) {
+        $ids.Add($id) | Out-Null
+    }
+
+    $base = Join-Path $MapRoot 'Base.SC2Data'
+    if (Test-Path -LiteralPath $base) {
+        Get-ChildItem -LiteralPath $base -Filter '*.galaxy' -File -ErrorAction SilentlyContinue | ForEach-Object {
+            foreach ($id in (Get-GalaxyFileIncludeLibIds -Path $_.FullName)) {
+                $ids.Add($id) | Out-Null
+            }
+        }
+    }
+
+    return @($ids | Sort-Object)
 }
 
 function Test-SourceHasCustomAI {
@@ -174,7 +217,7 @@ if (-not (Test-Path -LiteralPath $resolvedMapsRoot)) {
     throw "MapsRoot not found: $resolvedMapsRoot"
 }
 
-$resolvedSourceMapsRoot = Resolve-WorkspacePath -Path $SourceMapsRoot
+$resolvedSourceMapsRoot = Resolve-SourceMapsRoot -Path $SourceMapsRoot
 if (-not (Test-Path -LiteralPath $resolvedSourceMapsRoot)) {
     throw "SourceMapsRoot not found: $resolvedSourceMapsRoot"
 }
@@ -227,7 +270,7 @@ foreach ($variant in $variantMaps) {
     })
     $variantScriptStats = Get-MapScriptStats -Path $variantScript
     $sourceScriptStats = if ($sourceExists) { Get-MapScriptStats -Path $sourceScript } else { Get-MapScriptStats -Path '' }
-    $includeLibIds = Get-MapIncludeLibIds -Path $variantScript
+    $includeLibIds = Get-MapIncludeLibIds -MapRoot $variant.FullName
 
     $hasCoopZeroPop = $normalizedDeps -contains $coopZeroPop
     $hasCommanderCatalog = $normalizedDeps -contains $commanderCatalog

@@ -53,18 +53,59 @@ function Get-DocumentInfoPreload {
     })
 }
 
-function Get-MapIncludeLibIds {
+function Get-GalaxyFileIncludeLibIds {
     param([string]$Path)
 
     if (-not (Test-Path -LiteralPath $Path)) {
         return @()
     }
 
-    return @(Select-String -Path $Path -Pattern '^include "Lib[0-9A-F]+"' | ForEach-Object {
-        if ($_.Line -match '"(Lib[0-9A-F]+)"') {
+    return @(Select-String -Path $Path -Pattern '^include "Lib[^"/]+"' | ForEach-Object {
+        if ($_.Line -match '"(Lib[^"/]+)"') {
             $matches[1]
         }
     })
+}
+
+function Copy-SharedLibWithHeaders {
+    param(
+        [string]$LibId,
+        [string]$SourceRoot,
+        [string]$DestinationRoot,
+        [System.Collections.Generic.HashSet[string]]$Copied
+    )
+
+    if ([string]::IsNullOrWhiteSpace($LibId)) {
+        return
+    }
+    if (($LibId -eq 'LibA070801C') -or ($LibId -like 'TriggerLibs/*')) {
+        return
+    }
+    if ($Copied.Contains($LibId)) {
+        return
+    }
+
+    $sourceLib = Join-Path $SourceRoot ($LibId + '.galaxy')
+    if (-not (Test-Path -LiteralPath $sourceLib)) {
+        throw "Shared lib missing from shared base data: $sourceLib"
+    }
+
+    Copy-Item -LiteralPath $sourceLib -Destination (Join-Path $DestinationRoot ($LibId + '.galaxy')) -Force
+    $Copied.Add($LibId) | Out-Null
+
+    $sourceHeader = Join-Path $SourceRoot ($LibId + '_h.galaxy')
+    if (Test-Path -LiteralPath $sourceHeader) {
+        Copy-Item -LiteralPath $sourceHeader -Destination (Join-Path $DestinationRoot ($LibId + '_h.galaxy')) -Force
+    }
+
+    foreach ($nestedLibId in (Get-GalaxyFileIncludeLibIds -Path $sourceLib)) {
+        Copy-SharedLibWithHeaders -LibId $nestedLibId -SourceRoot $SourceRoot -DestinationRoot $DestinationRoot -Copied $Copied
+    }
+    if (Test-Path -LiteralPath $sourceHeader) {
+        foreach ($nestedLibId in (Get-GalaxyFileIncludeLibIds -Path $sourceHeader)) {
+            Copy-SharedLibWithHeaders -LibId $nestedLibId -SourceRoot $SourceRoot -DestinationRoot $DestinationRoot -Copied $Copied
+        }
+    }
 }
 
 function Test-MapNeedsFullCommanderRuntime {
@@ -123,6 +164,18 @@ function Add-UniqueDependency {
     }
 }
 
+function Get-DependencyFileTarget {
+    param([string]$Value)
+
+    $parts = $Value.Split(',')
+    $target = $parts[$parts.Count - 1]
+    if ($target -like 'file:*') {
+        return ($target -replace '\\', '/')
+    }
+
+    return ''
+}
+
 function Test-IsUnexpected7vs1Dependency {
     param([string]$Dependency)
 
@@ -152,8 +205,10 @@ if (-not (Test-Path -LiteralPath $sharedLibBase)) {
     throw "Shared 7vs1 public lib base data not found: $sharedLibBase"
 }
 
-$libertyStory = 'bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign'
-$libertyMod = 'bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod'
+$libertyStoryName = ([string]([char]0x81EA) + [string]([char]0x7531) + [string]([char]0x4E4B) + [string]([char]0x7FFC) + [string]([char]0x5267) + [string]([char]0x60C5) + ' (' + [string]([char]0x6218) + [string]([char]0x5F79) + ')')
+$libertyModName = ([string]([char]0x81EA) + [string]([char]0x7531) + [string]([char]0x4E4B) + [string]([char]0x7FFC) + ' (Mod)')
+$libertyStory = "bnet:$libertyStoryName/0.0/999,file:Campaigns/LibertyStory.SC2Campaign"
+$libertyMod = "bnet:$libertyModName/0.0/999,file:Mods/Liberty.SC2Mod"
 $coopZeroPop = 'file:Mods/7vs1/CoopZeroPop.SC2Mod'
 $commanderCatalog = 'file:Mods/7vs1/CommanderCatalog.SC2Mod'
 $kitMutations = 'file:Mods/kit_mutations.SC2Mod'
@@ -177,7 +232,7 @@ foreach ($map in $targets) {
     $mapScriptPath = Join-Path $map.FullName 'MapScript.galaxy'
     $existingDependencies = @(Get-DocumentInfoDependencies -Path $documentInfoPath)
     $preload = Get-DocumentInfoPreload -Path $documentInfoPath
-    $includeLibIds = @(Get-MapIncludeLibIds -Path $mapScriptPath)
+    $includeLibIds = @(Get-GalaxyFileIncludeLibIds -Path $mapScriptPath)
     $needsFullCommanderRuntime = Test-MapNeedsFullCommanderRuntime -Path $mapScriptPath
     $newDependencies = New-Object System.Collections.Generic.List[string]
 
@@ -188,7 +243,12 @@ foreach ($map in $targets) {
 
     foreach ($dependency in $existingDependencies) {
         $normalized = if ($dependency -like 'file:*') { $dependency -replace '\\', '/' } else { $dependency }
+        $dependencyTarget = Get-DependencyFileTarget -Value $normalized
         if (Test-IsUnexpected7vs1Dependency -Dependency $normalized) {
+            continue
+        }
+        if (($dependencyTarget -eq 'file:Campaigns/LibertyStory.SC2Campaign') -or
+            ($dependencyTarget -eq 'file:Mods/Liberty.SC2Mod')) {
             continue
         }
         if ($normalized -eq ($coopZeroPop -replace '\\', '/')) {
@@ -222,22 +282,13 @@ foreach ($map in $targets) {
     else {
         Copy-Item -LiteralPath $templateLib67 -Destination (Join-Path $baseDataRoot 'Lib67C0F0E7.galaxy') -Force
         Copy-Item -LiteralPath $templateLibE0 -Destination (Join-Path $baseDataRoot 'LibE0EAE146.galaxy') -Force
+        $copiedLibIds = New-Object 'System.Collections.Generic.HashSet[string]'
         foreach ($libId in $includeLibIds) {
             if (($libId -eq 'Lib67C0F0E7') -or ($libId -eq 'LibE0EAE146') -or ($libId -eq 'LibA070801C')) {
                 continue
             }
 
-            $sourceLib = Join-Path $sharedLibBase ($libId + '.galaxy')
-            if (-not (Test-Path -LiteralPath $sourceLib)) {
-                throw "Shared lib missing from shared base data: $sourceLib"
-            }
-
-            Copy-Item -LiteralPath $sourceLib -Destination (Join-Path $baseDataRoot ($libId + '.galaxy')) -Force
-
-            $sourceHeader = Join-Path $sharedLibBase ($libId + '_h.galaxy')
-            if (Test-Path -LiteralPath $sourceHeader) {
-                Copy-Item -LiteralPath $sourceHeader -Destination (Join-Path $baseDataRoot ($libId + '_h.galaxy')) -Force
-            }
+            Copy-SharedLibWithHeaders -LibId $libId -SourceRoot $sharedLibBase -DestinationRoot $baseDataRoot -Copied $copiedLibIds
         }
     }
 

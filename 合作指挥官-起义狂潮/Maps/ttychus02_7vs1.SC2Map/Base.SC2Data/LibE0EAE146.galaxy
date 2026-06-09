@@ -11,6 +11,7 @@ include "Lib4B62E36B"
 include "Lib975E2FE9"
 
 include "LibE0EAE146_h"
+include "LibE0EAE146_ProgressionRewards"
 include "LibE0EAE146_MutatorRuntime"
 include "LibE0EAE146_HeroRevive"
 include "LibE0EAE146_HeroStructures"
@@ -55,6 +56,8 @@ void libE0EAE146_InitLibraries () {
 bool libE0EAE146_InitVariables_completed = false;
 
 void libE0EAE146_InitVariables () {
+    int autoFD1D4F18_i;
+
     if (libE0EAE146_InitVariables_completed) {
         return;
     }
@@ -95,6 +98,9 @@ void libE0EAE146_InitVariables () {
     libE0EAE146_gv_commanderPowerActiveCommander = "";
     libE0EAE146_gv_commanderPowerApplyTradeoffs = false;
     libE0EAE146_gv_xmProgressionTriggersReady = false;
+    for (autoFD1D4F18_i = 1; autoFD1D4F18_i <= 8; autoFD1D4F18_i += 1) {
+        libE0EAE146_gv_xmProgressionRunBlessingApplied[autoFD1D4F18_i] = false;
+    }
 }
 
 // Functions
@@ -115,6 +121,7 @@ void libE0EAE146_gf_FinishLevel () {
     BankValueSetFromInt(BankLastCreated(), "Finished", lv_map, 1);
     BankValueSetFromInt(BankLastCreated(), "Bon", lv_map, MaxI(libE0EAE146_gv_bon, BankValueGetAsInt(BankLastCreated(), "Bon", lv_map)));
     BankSave(BankLastCreated());
+    XMProgression_RecordVictory(1, lv_map, libE0EAE146_gv_commander, libE0EAE146_gv_bon, libE0EAE146_gv_commanderHeroDeathCount);
     TriggerQueueClear(c_triggerQueueRetain);
     TriggerQueuePause(true);
     UISetWorldVisible(PlayerGroupAll(), false);
@@ -160,7 +167,8 @@ void libE0EAE146_gf_Initialize (bool lp_rpg) {
     libE0EAE146_gf_RuntimeCheckpoint("Initialize.enter");
     GameSetSpeedValue(c_gameSpeedFaster);
     BankLoad("CampaignXCore", 1);
-    libE0EAE146_gv_commander = BankValueGetAsString(BankLastCreated(), "Ach", "Commander");
+    libE0EAE146_gv_commander = libE0EAE146_gf_RuntimePrimaryCommander();
+    XMProgression_Init(1);
     libE0EAE146_gf_RuntimeCheckpoint("Initialize.commander");
     autoC0933116_val = libE0EAE146_gv_commander;
     // Keep every commander on an explicit console skin path instead of falling through silently.
@@ -557,6 +565,7 @@ void libE0EAE146_gf_StartGame () {
     // Automatic Variable Declarations
     // Implementation
     libE0EAE146_gf_RuntimeCheckpoint("StartGame.enter");
+    XMBlessing_ApplySelected(1);
     UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/lib_E0EAE146_D1905078"));
     libE0EAE146_gf_RuntimeCheckpoint("StartGame.exit");
 }

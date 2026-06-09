@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+  <CEffectApplyBehavior id="StimpackMarauderRaynorApply">
+    <Behavior value="StimpackMarauderRaynor" />
+    <WhichUnit Value="Source" />
+    <Marker Link="Effect/Stimpack" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="StimpackFirebatRaynorApply">
+    <Behavior value="StimpackFirebatRaynor" />
+    <WhichUnit Value="Source" />
+    <Marker Link="Effect/Stimpack" />
+  </CEffectApplyBehavior>
+  <CEffectCreatePersistent id="InfestedStukovCoopInfestedTerrans">
+    <EditorCategories value="Race:Zerg" />
+    <PeriodCount value="4" />
+    <PeriodicEffectArray value="InfestedStukovCoopInfestedTerransLayEgg" />
+    <ValidatorArray value="CliffLevelGE1" />
+    <PeriodicPeriodArray value="0.125" />
+  </CEffectCreatePersistent>
+  <CEffectCreateUnit id="InfestedStukovCoopInfestedTerransLayEgg">
+    <EditorCategories value="Race:Zerg" />
+    <SpawnEffect value="InfestedStukovCoopInfestedTerransInitialSet" />
+    <SpawnUnit value="SIInfestedMarine" />
+    <ValidatorArray value="CliffLevelGE1" />
+    <SpawnRange value="5" />
+    <WhichLocation Value="TargetPoint" />
+    <CreateFlags index="Birth" value="0" />
+    <CreateFlags index="SetFacing" value="1" />
+  </CEffectCreateUnit>
+  <CEffectSet id="InfestedStukovCoopInfestedTerransInitialSet">
+    <EditorCategories value="Race:Zerg" />
+    <EffectArray value="KillsToCaster" />
+    <EffectArray value="InfestedStukovInfestedTerranTimedLife" />
+  </CEffectSet>
+</Catalog>

@@ -16,9 +16,17 @@ void libDA886FA0_InitLibraries () {
 void libDA886FA0_gf_InitlizeMira (int lp_player) {
     // Automatic Variable Declarations
     // Implementation
-    lib67C0F0E7_gf_SOATargetingOrder(AbilityCommand("MagneticMinesMira", 0));
-    TriggerAddEventPlayerEffectUsed(libDA886FA0_gt_BomberPlatformMira,lp_player,"BomberPlatformHangarMira");
-    TriggerEnable(libDA886FA0_gt_BomberPlatformMira,true);
+    if (libDA886FA0_gt_BomberPlatformMira == null) {
+        libDA886FA0_gt_BomberPlatformMira = TriggerCreate("libDA886FA0_gt_BomberPlatformMira_Func");
+        TriggerEnable(libDA886FA0_gt_BomberPlatformMira, false);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "MagneticMinesMira") == true) {
+        lib67C0F0E7_gf_SOATargetingOrder(AbilityCommand("MagneticMinesMira", 0));
+    }
+    if (CatalogEntryIsValid(c_gameCatalogEffect, "BomberPlatformHangarMira") == true) {
+        TriggerAddEventPlayerEffectUsed(libDA886FA0_gt_BomberPlatformMira,lp_player,"BomberPlatformHangarMira");
+        TriggerEnable(libDA886FA0_gt_BomberPlatformMira,true);
+    }
 }
 
 // Triggers
@@ -61,4 +69,3 @@ void libDA886FA0_InitLib () {
     libDA886FA0_InitLibraries();
     libDA886FA0_InitTriggers();
 }
-

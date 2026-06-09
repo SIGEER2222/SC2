@@ -1,12 +1,41 @@
 // XMFinal split module: runtime initialization safety helpers.
 
+string libE0EAE146_gf_CodexTestPrimaryCommander () {
+    return "";
+}
+
+string libE0EAE146_gf_RuntimePrimaryCommander () {
+    string lv_primaryCommander;
+
+    lv_primaryCommander = libE0EAE146_gf_CodexTestPrimaryCommander();
+    if (lv_primaryCommander != "") {
+        return lv_primaryCommander;
+    }
+
+    lv_primaryCommander = BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "PrimaryCommander");
+    if (lv_primaryCommander != "") {
+        return lv_primaryCommander;
+    }
+
+    return BankValueGetAsString(BankLastCreated(), "Ach", "Commander");
+}
+
 void libE0EAE146_gf_SeedDefaultCommanderBankIfEmpty (string lp_defaultCommander) {
+    string lv_testRunId;
+    string lv_primaryCommander;
+
     if (lp_defaultCommander == "") {
         return;
     }
 
     BankLoad("CampaignXCore", 1);
-    if (BankValueGetAsString(BankLastCreated(), "Ach", "Commander") == "") {
+    lv_testRunId = BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "TestRunId");
+    lv_primaryCommander = libE0EAE146_gf_RuntimePrimaryCommander();
+    if ((lv_testRunId != "") && (lv_primaryCommander != "")) {
+        BankValueSetFromString(BankLastCreated(), "Ach", "Commander", lv_primaryCommander);
+        BankSave(BankLastCreated());
+    }
+    else if (BankValueGetAsString(BankLastCreated(), "Ach", "Commander") == "") {
         BankValueSetFromString(BankLastCreated(), "Ach", "Commander", lp_defaultCommander);
         BankSave(BankLastCreated());
     }
@@ -16,6 +45,9 @@ void libE0EAE146_gf_RuntimeCheckpoint (string lp_phase) {
     BankLoad("CampaignXCore", 1);
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "LastPhase", lp_phase);
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "Commander", libE0EAE146_gv_commander);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RunId", BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "TestRunId"));
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "PrimaryCommander", BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "PrimaryCommander"));
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "AchCommander", BankValueGetAsString(BankLastCreated(), "Ach", "Commander"));
     BankSave(BankLastCreated());
 }
 
@@ -31,6 +63,9 @@ void libE0EAE146_gf_RuntimeBaseCheckpoint (string lp_phase, string lp_townHallUn
     BankLoad("CampaignXCore", 1);
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "LastPhase", lp_phase);
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "Commander", libE0EAE146_gv_commander);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RunId", BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "TestRunId"));
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "PrimaryCommander", BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "PrimaryCommander"));
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "AchCommander", BankValueGetAsString(BankLastCreated(), "Ach", "Commander"));
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "TownHallUnit", lp_townHallUnit);
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "WorkerUnit", lp_workerUnit);
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "SecondUnit", lp_secondUnit);
@@ -327,7 +362,7 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
 
     lv_commander = libE0EAE146_gv_commander;
     if (lv_commander == "") {
-        lv_commander = BankValueGetAsString(BankLastCreated(), "Ach", "Commander");
+        lv_commander = libE0EAE146_gf_RuntimePrimaryCommander();
     }
 
     if (libE0EAE146_gf_CommanderUsePrivateTechFilter(lv_commander)) {
@@ -568,18 +603,30 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
 
     if (lv_commander == "Swann") {
         if (lp_field == "CommandCenter") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
             lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenterSwann");
             if (lv_unit != "") {
                 return lv_unit;
             }
         }
         if (lp_field == "Worker") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
             lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCVSwann");
             if (lv_unit != "") {
                 return lv_unit;
             }
         }
         if (lp_field == "SecondUnit") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
             lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("MarineSwann");
             if (lv_unit != "") {
                 return lv_unit;

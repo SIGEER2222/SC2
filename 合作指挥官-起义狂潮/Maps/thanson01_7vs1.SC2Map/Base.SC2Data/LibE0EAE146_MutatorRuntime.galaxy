@@ -195,6 +195,7 @@ int libE0EAE146_gf_MutatorRuntimeEnableSelectedFromBank (int lp_preset) {
         if (BankKeyExists(BankLastCreated(), "Mutators", lv_key)) {
             lv_hasSelectedKey = 1;
             if (BankValueGetAsInt(BankLastCreated(), "Mutators", lv_key) > 0) {
+                libA070801C_gf_EnableDisableMutator(true, lv_mutator);
                 lv_enabledCount += 1;
             }
         }
@@ -205,6 +206,7 @@ int libE0EAE146_gf_MutatorRuntimeEnableSelectedFromBank (int lp_preset) {
         for ( ; ( lv_i <= libE0EAE146_gv_mutatorRuntimeCount ) ; lv_i += 1 ) {
             lv_mutator = libE0EAE146_gf_MutatorRuntimeId(lv_i);
             if (libE0EAE146_gf_MutatorRuntimePresetContains(lp_preset, lv_mutator) > 0) {
+                libA070801C_gf_EnableDisableMutator(true, lv_mutator);
                 lv_enabledCount += 1;
             }
         }
@@ -234,11 +236,14 @@ void libE0EAE146_gf_MutatorRuntimeStartFromBank (int lp_enemyPlayer) {
         lv_preset = 3;
     }
 
+    libE0EAE146_gf_MutatorRuntimeClearAllMutators();
+    libA070801C_gf_EnableMutatorCustomMode();
     lv_enabledCount = libE0EAE146_gf_MutatorRuntimeEnableSelectedFromBank(lv_preset);
     if (lv_enabledCount <= 0) {
         return;
     }
 
+    libA070801C_gf_StartAllEnabledMutators(lp_enemyPlayer);
     libE0EAE146_gv_mutatorRuntimeStarted = true;
     libE0EAE146_gv_mutatorRuntimePreset = lv_preset;
 }
@@ -247,6 +252,11 @@ void libE0EAE146_gf_MutatorRuntimeStartFromAttribute (int lp_enemyPlayer) {
     string lv_mutatorChoice;
     string lv_mutator;
 
+    if (libE0EAE146_gv_mutatorRuntimeStarted) {
+        return;
+    }
+
+    libE0EAE146_gf_MutatorRuntimeStartFromBank(lp_enemyPlayer);
     if (libE0EAE146_gv_mutatorRuntimeStarted) {
         return;
     }

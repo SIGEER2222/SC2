@@ -238,8 +238,10 @@ function Set-DocumentHeaderDependencies {
     [System.IO.File]::WriteAllBytes($Path, $stream.ToArray())
 }
 
-$libertyStory = 'bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign'
-$libertyMod = 'bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod'
+$libertyStoryName = ([string]([char]0x81EA) + [string]([char]0x7531) + [string]([char]0x4E4B) + [string]([char]0x7FFC) + [string]([char]0x5267) + [string]([char]0x60C5) + ' (' + [string]([char]0x6218) + [string]([char]0x5F79) + ')')
+$libertyModName = ([string]([char]0x81EA) + [string]([char]0x7531) + [string]([char]0x4E4B) + [string]([char]0x7FFC) + ' (Mod)')
+$libertyStory = "bnet:$libertyStoryName/0.0/999,file:Campaigns/LibertyStory.SC2Campaign"
+$libertyMod = "bnet:$libertyModName/0.0/999,file:Mods/Liberty.SC2Mod"
 $coopZeroPop = 'file:Mods/7vs1/CoopZeroPop.SC2Mod'
 $commanderCatalog = 'file:Mods/7vs1/CommanderCatalog.SC2Mod'
 $kitMutations = 'file:Mods/kit_mutations.SC2Mod'

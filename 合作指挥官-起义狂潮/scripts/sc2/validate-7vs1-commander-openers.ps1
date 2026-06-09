@@ -32,9 +32,12 @@ function Assert-FixedContains {
 $sharedRoot = Join-Path $WorkspaceRoot 'Shared\7vs1PublicLibs\Base.SC2Data'
 $runtimeSafetyPath = Join-Path $sharedRoot 'LibE0EAE146_RuntimeSafety.galaxy'
 $basePath = Join-Path $sharedRoot 'LibE0EAE146.galaxy'
+$stukovRuntimePath = Join-Path $sharedRoot 'LibE0EAE146_StukovRuntime.galaxy'
 $commanderCatalogGameData = Join-Path $WorkspaceRoot 'Mods\7vs1\CommanderCatalog.SC2Mod\Base.SC2Data\GameData'
 $commanderCatalogAbilDataPath = Join-Path $commanderCatalogGameData 'AbilData.xml'
 $commanderCatalogActorDataPath = Join-Path $commanderCatalogGameData 'ActorData.xml'
+$commanderCatalogButtonDataPath = Join-Path $commanderCatalogGameData 'ButtonData.xml'
+$commanderCatalogEffectDataPath = Join-Path $commanderCatalogGameData 'EffectData.xml'
 $commanderCatalogUnitDataPath = Join-Path $commanderCatalogGameData 'UnitData.xml'
 
 if (!(Test-Path -LiteralPath $runtimeSafetyPath)) {
@@ -43,9 +46,13 @@ if (!(Test-Path -LiteralPath $runtimeSafetyPath)) {
 if (!(Test-Path -LiteralPath $basePath)) {
     throw "Missing base runtime file: $basePath"
 }
+if (!(Test-Path -LiteralPath $stukovRuntimePath)) {
+    throw "Missing Stukov runtime file: $stukovRuntimePath"
+}
 
 $runtimeSafety = Get-Content -LiteralPath $runtimeSafetyPath -Raw -Encoding UTF8
 $baseRuntime = Get-Content -LiteralPath $basePath -Raw -Encoding UTF8
+$stukovRuntime = Get-Content -LiteralPath $stukovRuntimePath -Raw -Encoding UTF8
 
 Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUseOriginal7v1SharedOpeners\s*\(\)\s*\{\s*return\s+true;' 'Original 7v1 shared opener strategy must default to true.'
 Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUsePrivateTechFilter\s*\(\s*string\s+lp_commander\s*\)\s*\{\s*(?s:.*?)lp_commander\s*==\s*"Raynor"(?s:.*?)return\s+true;(?s:.*?)return\s+false;' 'Private tech filters must default to false except the currently catalog-backed Raynor private chain.'
@@ -82,16 +89,32 @@ foreach ($entry in $expectedOpeners) {
     }
 }
 
+Assert-FixedContains $stukovRuntime 'libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterStukov", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));' 'Stukov runtime must create the hidden topbar caster away from the playable center.'
+Assert-FixedContains $stukovRuntime 'libNtve_gf_CreateUnitsWithDefaultFacing(1, "InfestedStukovCoop", 0, lp_player, lp_heroPoint);' 'Stukov runtime must keep the battlefield InfestedStukovCoop hero when hero creation is enabled.'
+Assert-FixedContains $stukovRuntime 'lib67C0F0E7_gf_CU_GPInit(lp_player, "Stukov", lv_caster, null);' 'Stukov runtime must bind the Stukov topbar to CoopCasterStukov, not to a battlefield hero.'
+if ($stukovRuntime -match 'lib67C0F0E7_gf_CU_GPInit\(\s*lp_player,\s*"Stukov",\s*lv_hero') {
+    throw 'Stukov runtime must not bind the topbar to the battlefield InfestedStukovCoop hero; keep CoopCasterStukov as the topbar caster.'
+}
+
 if (!(Test-Path -LiteralPath $commanderCatalogAbilDataPath)) {
     throw "Missing CommanderCatalog Raynor ability data: $commanderCatalogAbilDataPath"
 }
 if (!(Test-Path -LiteralPath $commanderCatalogActorDataPath)) {
     throw "Missing CommanderCatalog Raynor actor data: $commanderCatalogActorDataPath"
 }
+if (!(Test-Path -LiteralPath $commanderCatalogButtonDataPath)) {
+    throw "Missing CommanderCatalog button data: $commanderCatalogButtonDataPath"
+}
+if (!(Test-Path -LiteralPath $commanderCatalogEffectDataPath)) {
+    throw "Missing CommanderCatalog effect data: $commanderCatalogEffectDataPath"
+}
 if (!(Test-Path -LiteralPath $commanderCatalogUnitDataPath)) {
     throw "Missing CommanderCatalog Raynor unit data: $commanderCatalogUnitDataPath"
 }
 $commanderCatalogAbilData = Get-Content -LiteralPath $commanderCatalogAbilDataPath -Raw -Encoding UTF8
+$commanderCatalogButtonData = Get-Content -LiteralPath $commanderCatalogButtonDataPath -Raw -Encoding UTF8
+$commanderCatalogEffectData = Get-Content -LiteralPath $commanderCatalogEffectDataPath -Raw -Encoding UTF8
+$commanderCatalogUnitData = Get-Content -LiteralPath $commanderCatalogUnitDataPath -Raw -Encoding UTF8
 foreach ($ability in @(
     'CommandCenterTrainRaynor',
     'TerranBuildRaynor',
@@ -101,6 +124,84 @@ foreach ($ability in @(
     'StarportTrainRaynor'
 )) {
     Assert-Contains $commanderCatalogAbilData ('id="' + [regex]::Escape($ability) + '"') "CommanderCatalog AbilData missing Raynor ability: $ability"
+}
+Assert-Contains $commanderCatalogAbilData 'id="InfestedStukovCoopInfestedTerrans"(?s:.*?)Effect index="0" value="InfestedStukovCoopInfestedTerrans"' 'CommanderCatalog AbilData must define Stukov hero Infested Terrans with its spawn effect.'
+foreach ($effect in @(
+    'InfestedStukovCoopInfestedTerrans',
+    'InfestedStukovCoopInfestedTerransLayEgg',
+    'InfestedStukovCoopInfestedTerransInitialSet'
+)) {
+    Assert-Contains $commanderCatalogEffectData ('id="' + [regex]::Escape($effect) + '"') "CommanderCatalog EffectData missing Stukov hero summon effect: $effect"
+}
+foreach ($button in @(
+    'SIStukovPlaceHordeRallyTopBar',
+    'SIStukovInfestStructure',
+    'SIStukovInfestStructureUpgraded',
+    'StukovSummonApocalisk',
+    'StukovSummonAleksander',
+    'InfestedStukovCoopInfestedTerrans'
+)) {
+    Assert-Contains $commanderCatalogButtonData ('id="' + [regex]::Escape($button) + '"(?s:.*?)Icon value=') "CommanderCatalog ButtonData missing icon-backed Stukov button: $button"
+}
+
+$buttonIds = [System.Collections.Generic.HashSet[string]]::new()
+[xml]$commanderCatalogButtonXml = $commanderCatalogButtonData
+foreach ($node in $commanderCatalogButtonXml.Catalog.ChildNodes) {
+    if (($node.NodeType -eq 'Element') -and ($node.Name -eq 'CButton') -and $node.HasAttribute('id')) {
+        [void]$buttonIds.Add($node.GetAttribute('id'))
+    }
+}
+$sourceButtonIds = [System.Collections.Generic.HashSet[string]]::new()
+$sourceButtonPath = Join-Path $OriginalSourceRoot 's2ma_packages\pkg01\extract\base.sc2data\GameData\ButtonData.xml'
+if (!(Test-Path -LiteralPath $sourceButtonPath)) {
+    throw "Missing original 7v1 ButtonData source: $sourceButtonPath"
+}
+[xml]$sourceButtonXml = Get-Content -LiteralPath $sourceButtonPath -Raw -Encoding UTF8
+foreach ($node in $sourceButtonXml.Catalog.ChildNodes) {
+    if (($node.NodeType -eq 'Element') -and ($node.Name -eq 'CButton') -and $node.HasAttribute('id')) {
+        [void]$sourceButtonIds.Add($node.GetAttribute('id'))
+    }
+}
+[xml]$commanderCatalogUnitXml = $commanderCatalogUnitData
+$globalCasterUnits = @(
+    'CoopCasterAbathur',
+    'CoopCasterAlarak',
+    'CoopCasterDehaka',
+    'CoopCasterHorner',
+    'CoopCasterMengsk',
+    'CoopCasterNova',
+    'CoopCasterRaynor',
+    'CoopCasterStetmann',
+    'CoopCasterStukov',
+    'CoopCasterSwann',
+    'CoopCasterZeratul',
+    'CoopCasterZeratulSpecialization',
+    'CasterDehaka',
+    'CasterMira',
+    'SoACasterArtanis',
+    'SoACasterFenix',
+    'SoACasterKarax',
+    'SoACasterVorazun'
+)
+$missingCasterButtonFaces = @()
+foreach ($casterUnit in $globalCasterUnits) {
+    $unitNode = $commanderCatalogUnitXml.Catalog.CUnit | Where-Object { [string]$_.id -eq $casterUnit } | Select-Object -First 1
+    if (!$unitNode) {
+        continue
+    }
+    foreach ($card in $unitNode.CardLayouts) {
+        foreach ($layoutButton in $card.LayoutButtons) {
+            if ($layoutButton.Face) {
+                $face = [string]$layoutButton.Face
+                if ((!$buttonIds.Contains($face)) -and $sourceButtonIds.Contains($face)) {
+                    $missingCasterButtonFaces += ("{0}/{1}" -f $casterUnit, $face)
+                }
+            }
+        }
+    }
+}
+if ($missingCasterButtonFaces.Count -gt 0) {
+    throw ("CommanderCatalog ButtonData missing source-defined global caster button faces: {0}" -f (($missingCasterButtonFaces | Sort-Object -Unique) -join ', '))
 }
 
 $commanderCatalogActorData = Get-Content -LiteralPath $commanderCatalogActorDataPath -Raw -Encoding UTF8
@@ -133,9 +234,10 @@ foreach ($actor in @('SCVRaynor', 'MarineRaynor', 'CommandCenterRaynor')) {
     Assert-FixedContains $commanderCatalogActorData ('Terms="UnitBirth.{0}" Send="Create"' -f $actor) "CommanderCatalog ActorData missing Raynor unit birth create event: $actor"
 }
 
-$commanderCatalogUnitData = Get-Content -LiteralPath $commanderCatalogUnitDataPath -Raw -Encoding UTF8
 Assert-FixedContains $commanderCatalogUnitData '<LayoutButtons index="2" Face="OrbitalCommand" Type="AbilCmd" AbilCmd="UpgradeToOrbitalRaynor,Execute" Requirements="" Row="2" Column="0" />' 'CommandCenterRaynor must expose UpgradeToOrbitalRaynor on the original fixed command-card index with no requirements.'
 Assert-FixedContains $commanderCatalogUnitData '<TechTreeProducedUnitArray value="OrbitalCommandRaynor" />' 'CommandCenterRaynor must declare OrbitalCommandRaynor as a produced morph target.'
+Assert-Contains $commanderCatalogUnitData 'CUnit id="InfestedStukovCoop"(?s:.*?)AbilArray Link="InfestedStukovCoopInfestedTerrans"(?s:.*?)AbilArray Link="SIStukovExplodeInfested" removed="1"' 'CommanderCatalog UnitData must add Stukov hero Infested Terrans and remove Explode Infested.'
+Assert-Contains $commanderCatalogUnitData 'CUnit id="InfestedStukovCoop"(?s:.*?)CardLayouts index="0" removed="1"(?s:.*?)LayoutButtons Face="InfestedStukovCoopInfestedTerrans" Type="AbilCmd" AbilCmd="InfestedStukovCoopInfestedTerrans,Execute" Row="2" Column="1"' 'CommanderCatalog UnitData must place Stukov hero Infested Terrans on the hero command card.'
 
 $filterGuards = @{
     Raynor = 'Raynor'

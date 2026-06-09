@@ -23,6 +23,12 @@ void libE0EAE146_gf_RaynorAllowAbilityIfPresent (int lp_player, string lp_abil, 
     TechTreeAbilityAllow(lp_player, AbilityCommand(lp_abil, lp_cmdIndex), true);
 }
 
+void libE0EAE146_gf_RaynorAllowAddOnAbilityIfPresent (int lp_player, string lp_abil) {
+    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, lp_abil, 0);
+    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, lp_abil, 1);
+    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, lp_abil, 3);
+}
+
 void libE0EAE146_gf_RaynorApplyFullLevelUpgrades (int lp_player) {
     libE0EAE146_gf_CommanderPowerApplyRaynorFullLevel(lp_player);
 }
@@ -165,12 +171,9 @@ void libE0EAE146_gf_RaynorApplyTechFilter (int lp_player) {
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynor", 18);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynor", 19);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynor", 0);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksAddOnsRaynor", 0);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksAddOnsRaynor", 1);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "FactoryAddOnsRaynor", 0);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "FactoryAddOnsRaynor", 1);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StarportAddOnsRaynor", 0);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StarportAddOnsRaynor", 1);
+    libE0EAE146_gf_RaynorAllowAddOnAbilityIfPresent(lp_player, "BarracksAddOnsRaynor");
+    libE0EAE146_gf_RaynorAllowAddOnAbilityIfPresent(lp_player, "FactoryAddOnsRaynor");
+    libE0EAE146_gf_RaynorAllowAddOnAbilityIfPresent(lp_player, "StarportAddOnsRaynor");
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "RaynorTechLabMorphToBarracks", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "RaynorTechLabMorphToDetached", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "RaynorTechLabMorphToFactory", 0);
@@ -186,6 +189,7 @@ void libE0EAE146_gf_RaynorApplyTechFilter (int lp_player) {
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynor", 14);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "SuperStimpackMarineRaynor", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StimpackMarauderRaynor", 0);
+    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StimpackFirebatRaynor", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "FactoryTechLabResearchRaynor", 10);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "FactoryTechLabResearchRaynor", 15);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StarportTechLabResearchRaynor", 9);

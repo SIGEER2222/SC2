@@ -348,6 +348,16 @@ if (-not (Test-Path -LiteralPath $launchScriptPath)) {
     throw "Launch script not found: $launchScriptPath"
 }
 
+$metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
+$defaultPrestigeBonusMaskByRuntime = @{}
+foreach ($commander in @($metadata.commanders)) {
+    if ($null -eq $commander.default_prestige_bonus_mask) {
+        continue
+    }
+
+    $defaultPrestigeBonusMaskByRuntime[[string]$commander.runtime_commander] = [int]$commander.default_prestige_bonus_mask
+}
+
 if ([string]::IsNullOrWhiteSpace($MapSource)) {
     $MapSource = Resolve-DefaultMapSource
 }
@@ -487,12 +497,25 @@ if ($bankPaths.Count -eq 0) {
 }
 
 foreach ($spec in $targetSpecs) {
+    $defaultPrestigeBonusMask = 7
+    if ($defaultPrestigeBonusMaskByRuntime.ContainsKey($spec.Runtime)) {
+        $defaultPrestigeBonusMask = [int]$defaultPrestigeBonusMaskByRuntime[$spec.Runtime]
+    }
+
     foreach ($scenario in $scenarios) {
-        Write-Host ("VALIDATE commander={0} scenario={1}" -f $spec.Runtime, $scenario.Name)
+        $effectiveScenario = [ordered]@{}
+        foreach ($key in $scenario.Keys) {
+            $effectiveScenario[$key] = $scenario[$key]
+        }
+        if ($scenario.Name -in @("full_fusion", "prestiges_off", "masteries_off", "mastery_override_smoke")) {
+            $effectiveScenario.PrestigeBonusMask = $defaultPrestigeBonusMask
+        }
+
+        Write-Host ("VALIDATE commander={0} scenario={1}" -f $spec.Runtime, $effectiveScenario.Name)
         $launchResult = Invoke-LaunchPresetWithRetry `
             -LaunchScriptPath $launchScriptPath `
             -CommanderRuntime $spec.Runtime `
-            -Scenario $scenario `
+            -Scenario $effectiveScenario `
             -SourceRoot $SourceRoot `
             -MapSource $MapSource `
             -LiveMapName $LiveMapName `
@@ -510,7 +533,7 @@ foreach ($spec in $targetSpecs) {
         }
         else {
             foreach ($bankPath in $bankPaths) {
-                $bankFailures = @(Test-BankScenario -BankPath $bankPath -CommanderBankKey $spec.Bank -Scenario $scenario)
+                $bankFailures = @(Test-BankScenario -BankPath $bankPath -CommanderBankKey $spec.Bank -Scenario $effectiveScenario)
                 foreach ($failure in $bankFailures) {
                     $scenarioFailures.Add(("{0} :: {1}" -f $bankPath, $failure)) | Out-Null
                 }

@@ -54,6 +54,13 @@ void libDF8E6945_gf_DehakaEssenceCreate (point lp_p, fixed lp_n) {
     unit auto775A3FB1_var;
 
     // Implementation
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "EssenceBuffPickupDehaka") == false) {
+        if (libDF8E6945_gv_dehaka != null) {
+            UnitXPAddXP(libDF8E6945_gv_dehaka, "DehakaVeterancyCoopFinal", lp_n);
+            lib67C0F0E7_gf_UnitAddAttributePoint(libDF8E6945_gv_dehaka, "DehakaAttEssence", false, FixedToInt(lp_n));
+        }
+        return;
+    }
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "EssenceBuffPickupDehaka", 0, libDF8E6945_gv_dehakaPlayer, lp_p);
     auto775A3FB1_g = UnitGroup("EssenceBuffPickupDehaka", libDF8E6945_gv_dehakaPlayer, RegionCircle(UnitGetPosition(UnitLastCreated()), 2.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     auto775A3FB1_u = UnitGroupCount(auto775A3FB1_g, c_unitCountAll);
@@ -62,7 +69,9 @@ void libDF8E6945_gf_DehakaEssenceCreate (point lp_p, fixed lp_n) {
         if (auto775A3FB1_var == null) { break; }
         if ((auto775A3FB1_var != UnitLastCreated()) && (UnitGetCustomValue(auto775A3FB1_var, 63) != 0.0)) {
             lib67C0F0E7_gf_UnitAddCustomValue(auto775A3FB1_var, 63, lp_n);
-            UnitCreateEffectUnit(UnitLastCreated(), "EssenceLMDehaka", auto775A3FB1_var);
+            if (CatalogEntryIsValid(c_gameCatalogEffect, "EssenceLMDehaka") == true) {
+                UnitCreateEffectUnit(UnitLastCreated(), "EssenceLMDehaka", auto775A3FB1_var);
+            }
             return ;
         }
 
@@ -75,9 +84,15 @@ void libDF8E6945_gf_InitializeDehakaEvent (int lp_player, unit lp_dehaka) {
     // Implementation
         libDF8E6945_gv_dehakaPlayer = lp_player;
         libDF8E6945_gv_dehaka=lp_dehaka;
-        TriggerAddEventPlayerEffectUsed(libDF8E6945_gt_DehakaExpAdd, lp_player, "EssenceBuffSetDehaka");
-        TriggerAddEventPlayerEffectUsed(libDF8E6945_gt_DehakaConsumeExecuted, lp_player, "DehakaConsumeImpactEatDamage");
-        TriggerAddEventPlayerEffectUsed(libDF8E6945_gt_DehakaRevive, lp_player, "DehakaCoopReviveEatKillSet");
+        if (CatalogEntryIsValid(c_gameCatalogEffect, "EssenceBuffSetDehaka") == true) {
+            TriggerAddEventPlayerEffectUsed(libDF8E6945_gt_DehakaExpAdd, lp_player, "EssenceBuffSetDehaka");
+        }
+        if (CatalogEntryIsValid(c_gameCatalogEffect, "DehakaConsumeImpactEatDamage") == true) {
+            TriggerAddEventPlayerEffectUsed(libDF8E6945_gt_DehakaConsumeExecuted, lp_player, "DehakaConsumeImpactEatDamage");
+        }
+        if (CatalogEntryIsValid(c_gameCatalogEffect, "DehakaCoopReviveEatKillSet") == true) {
+            TriggerAddEventPlayerEffectUsed(libDF8E6945_gt_DehakaRevive, lp_player, "DehakaCoopReviveEatKillSet");
+        }
         TriggerAddEventUnitGainLevel(libDF8E6945_gt_DehakaGainLevel,UnitRefFromVariable("libDF8E6945_gv_dehaka"));
         TriggerAddEventUnitRevive(libDF8E6945_gt_DehakaReviveActor,UnitRefFromVariable("libDF8E6945_gv_dehaka"));
         TriggerEnable(libDF8E6945_gt_DehakaExpAdd,true);
@@ -277,6 +292,13 @@ bool libDF8E6945_gt_DehakaEssenceCreate_Func (bool testConds, bool runActions) {
         return true;
     }
 
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "EssenceBuffPickupDehaka") == false) {
+        if (libDF8E6945_gv_dehaka != null) {
+            UnitXPAddXP(libDF8E6945_gv_dehaka, "DehakaVeterancyCoopFinal", lv_essence);
+            lib67C0F0E7_gf_UnitAddAttributePoint(libDF8E6945_gv_dehaka, "DehakaAttEssence", false, FixedToInt(lv_essence));
+        }
+        return true;
+    }
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "EssenceBuffPickupDehaka", 0, libDF8E6945_gv_dehakaPlayer, UnitGetPosition(EventUnit()));
     auto8B4DF474_g = UnitGroup("EssenceBuffPickupDehaka", libDF8E6945_gv_dehakaPlayer, RegionCircle(UnitGetPosition(UnitLastCreated()), 2.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     auto8B4DF474_u = UnitGroupCount(auto8B4DF474_g, c_unitCountAll);
@@ -285,7 +307,9 @@ bool libDF8E6945_gt_DehakaEssenceCreate_Func (bool testConds, bool runActions) {
         if (auto8B4DF474_var == null) { break; }
         if ((auto8B4DF474_var != UnitLastCreated()) && (UnitGetCustomValue(auto8B4DF474_var, 63) != 0.0)) {
             lib67C0F0E7_gf_UnitAddCustomValue(auto8B4DF474_var, 63, lv_essence);
-            UnitCreateEffectUnit(UnitLastCreated(), "EssenceLMDehaka", auto8B4DF474_var);
+            if (CatalogEntryIsValid(c_gameCatalogEffect, "EssenceLMDehaka") == true) {
+                UnitCreateEffectUnit(UnitLastCreated(), "EssenceLMDehaka", auto8B4DF474_var);
+            }
             return true;
         }
 
@@ -491,4 +515,3 @@ void libDF8E6945_InitLib () {
     libDF8E6945_InitVariables();
     libDF8E6945_InitTriggers();
 }
-

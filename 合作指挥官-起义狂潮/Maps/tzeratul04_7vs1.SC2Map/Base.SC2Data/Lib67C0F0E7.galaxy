@@ -462,6 +462,8 @@ void lib67C0F0E7_gf_AttackWaveCreateP (int lp_player, int lp_wave, point lp_poin
     // Variable Declarations
     int lv_i;
     unitgroup lv_uG;
+    string lv_unitType;
+    int lv_unitCount;
 
     // Automatic Variable Declarations
     // Variable Initialization
@@ -469,8 +471,12 @@ void lib67C0F0E7_gf_AttackWaveCreateP (int lp_player, int lp_wave, point lp_poin
 
     // Implementation
         for ( ;(lv_i<=lp_wave); lv_i += 1 ) {
-            libNtve_gf_CreateUnitsWithDefaultFacing(DataTableGetInt(true, ("AttackWaveN" + IntToString(lv_i) + "P" + IntToString(lp_player))), (DataTableGetString(true, ("AttackWaveU" + IntToString(lv_i) + "P" + IntToString(lp_player)))), 0, lp_player, lp_point);
-            UnitGroupAddUnitGroup(lv_uG, UnitLastCreatedGroup());
+            lv_unitCount = DataTableGetInt(true, ("AttackWaveN" + IntToString(lv_i) + "P" + IntToString(lp_player)));
+            lv_unitType = DataTableGetString(true, ("AttackWaveU" + IntToString(lv_i) + "P" + IntToString(lp_player)));
+            if ((lv_unitCount > 0) && CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType)) {
+                libNtve_gf_CreateUnitsWithDefaultFacing(lv_unitCount, lv_unitType, 0, lp_player, lp_point);
+                UnitGroupAddUnitGroup(lv_uG, UnitLastCreatedGroup());
+            }
         }
         DataTableSetUnitGroup(true, "AttackWaveC", lv_uG);
 }
@@ -725,7 +731,9 @@ void lib67C0F0E7_gf_WarpinP (unitgroup lp_unitGroup) {
             if (lv_u == null) { break; }
             UnitBehaviorAdd(lv_u, "PWarpInG", lv_u, 1);
         }
-        libNtve_gf_CreateActorAtPoint("SOAPointFinImpactSound", UnitGroupCenterOfGroup(lp_unitGroup));
+        if (CatalogEntryIsValid(c_gameCatalogActor, "SOAPointFinImpactSound")) {
+            libNtve_gf_CreateActorAtPoint("SOAPointFinImpactSound", UnitGroupCenterOfGroup(lp_unitGroup));
+        }
 }
 
 void lib67C0F0E7_gf_AIIgnoreCost (int lp_p) {
@@ -804,8 +812,10 @@ void lib67C0F0E7_gf_AIAttackWaveBase (int lp_player, string lp_race, int lp_type
             lv_u = UserDataGetUnit("AttackWave", lib67C0F0E7_gf_StrToUserinstance((lp_race + IntToString(lp_type))), lib67C0F0E7_gf_StrToUserfield(IntToString(lp_level)), lv_i);
             lv_gr = UserDataGetFixed("AttackWaveGrowth", lib67C0F0E7_gf_StrToUserinstance(lib67C0F0E7_gf_DifficultyValue()), "id", lp_level);
             lv_nu = UserDataGetInt((("AttackWave" + lp_race)), lib67C0F0E7_gf_StrToUserinstance((lv_u)), "Ratio", 1);
-            libNtve_gf_CreateUnitsWithDefaultFacing(CeilingI(((lv_nu*lv_gr)/lv_to)), lv_u, 0, lp_player, lp_tP);
-            UnitGroupAddUnitGroup(lv_uG, UnitLastCreatedGroup());
+            if (CatalogEntryIsValid(c_gameCatalogUnit, lv_u)) {
+                libNtve_gf_CreateUnitsWithDefaultFacing(CeilingI(((lv_nu*lv_gr)/lv_to)), lv_u, 0, lp_player, lp_tP);
+                UnitGroupAddUnitGroup(lv_uG, UnitLastCreatedGroup());
+            }
             Wait(0.0625, c_timeGame);
         }
         DataTableSetUnitGroup(true, "AttackWaveC", lv_uG);
@@ -1865,11 +1875,16 @@ string lib67C0F0E7_gf_SOAStickyLineUDI (int lp_player) {
 void lib67C0F0E7_gf_SOAStickyPoint (int lp_player, string lp_userDataInstanse) {
     // Variable Declarations
     abilcmd lv_ab;
+    string lv_casterUnit;
 
     // Automatic Variable Declarations
     // Variable Initialization
 
     // Implementation
+    lv_casterUnit = UserDataGetUnit("SOAStickyPoint", lp_userDataInstanse, "CasterUnit", 1);
+    if (!(CatalogEntryIsValid(c_gameCatalogUnit, lv_casterUnit))) {
+        return;
+    }
     lv_ab = UserDataGetAbilCmd("SOAStickyPoint", lp_userDataInstanse, "AbilityFin", 1);
     DataTableSetString(true, ("SPUDI" + IntToString(lp_player)), (lp_userDataInstanse));
         TriggerAddEventUnitOrder(lib67C0F0E7_gt_SOAStickyPointActive,null,UserDataGetAbilCmd("SOAStickyPoint",lp_userDataInstanse,"AbilityPre",1));
@@ -2716,15 +2731,19 @@ bool auto_lib67C0F0E7_gf_TychusSquadInitTrigger_TriggerFunc (bool testConds, boo
     lib67C0F0E7_gv_tychusMaxHeroSet = lp_maxHero;
     lib67C0F0E7_gv_tychusSquadCoolDownLink = lp_tychusSquadCoolDownLink;
     lib67C0F0E7_gv_tychusSquadData = lp_tychusSquadData;
-    TriggerAddEventPlayerEffectUsed(lib67C0F0E7_gt_TychusSquadStructureBuild,lp_player,lp_tychusSquadStructureBuild);
-    TriggerAddEventPlayerEffectUsed(lib67C0F0E7_gt_TychusSquadMainBuilding,lp_player,lp_tychusSquadMainBuilding);
+    if (CatalogEntryIsValid(c_gameCatalogEffect, lp_tychusSquadStructureBuild)) {
+        TriggerAddEventPlayerEffectUsed(lib67C0F0E7_gt_TychusSquadStructureBuild,lp_player,lp_tychusSquadStructureBuild);
+        TriggerEnable(lib67C0F0E7_gt_TychusSquadStructureBuild,true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogEffect, lp_tychusSquadMainBuilding)) {
+        TriggerAddEventPlayerEffectUsed(lib67C0F0E7_gt_TychusSquadMainBuilding,lp_player,lp_tychusSquadMainBuilding);
+        TriggerEnable(lib67C0F0E7_gt_TychusSquadMainBuilding,true);
+    }
     TriggerAddEventUpgradeLevelChanged(lib67C0F0E7_gt_TychusSquadUpgrade,lp_player);
     TriggerEnable(lib67C0F0E7_gt_TychusSquadDeath,true);
     TriggerEnable(lib67C0F0E7_gt_TychusSquadRevive,true);
-    TriggerEnable(lib67C0F0E7_gt_TychusSquadStructureBuild,true);
     TriggerEnable(lib67C0F0E7_gt_TychusSquadMember,true);
     TriggerEnable(lib67C0F0E7_gt_TychusSquadUpgrade,true);
-    TriggerEnable(lib67C0F0E7_gt_TychusSquadMainBuilding,true);
     return true;
 }
 
@@ -3674,14 +3693,21 @@ void lib67C0F0E7_gt_SOAStickyLineExit_Init () {
 // Trigger: SOAStickyPointActive
 //--------------------------------------------------------------------------------------------------
 bool lib67C0F0E7_gt_SOAStickyPointActive_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_casterUnit;
+
     // Automatic Variable Declarations
     // Actions
     if (!runActions) {
         return true;
     }
 
+    lv_casterUnit = UserDataGetUnit("SOAStickyPoint", lib67C0F0E7_gf_SOAStickyPointUDI(EventPlayer()), "CasterUnit", 1);
+    if (!(CatalogEntryIsValid(c_gameCatalogUnit, lv_casterUnit))) {
+        return true;
+    }
     libNtve_gf_StoreUnitSelection(EventPlayer(), libNtve_ge_UnitSelectionStoreOption_ClearUnitSelection);
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("SOAStickyPoint", lib67C0F0E7_gf_SOAStickyPointUDI(EventPlayer()), "CasterUnit", 1), c_unitCreateIgnorePlacement, EventPlayer(), OrderGetTargetPosition(EventUnitOrder()));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_casterUnit, c_unitCreateIgnorePlacement, EventPlayer(), OrderGetTargetPosition(EventUnitOrder()));
     DataTableSetUnitGroup(true, ("SPUG" + IntToString(EventPlayer())), libNtve_gf_ConvertUnitToUnitGroup(UnitLastCreated()));
     UISetTargetingOrder(PlayerGroupSingle(EventPlayer()), lib67C0F0E7_gf_SOAStickyPointUG(EventPlayer()), OrderTargetingPoint(UserDataGetAbilCmd("SOAStickyPoint", lib67C0F0E7_gf_SOAStickyPointUDI(EventPlayer()), "AbilityFin", 1), CameraInfoGetTarget(CameraInfoDefault())), true);
     DataTableSetBool(true, ("SPActive" + IntToString(EventPlayer())), true);
@@ -4563,4 +4589,3 @@ void lib67C0F0E7_InitLib () {
     lib67C0F0E7_InitVariables();
     lib67C0F0E7_InitTriggers();
 }
-

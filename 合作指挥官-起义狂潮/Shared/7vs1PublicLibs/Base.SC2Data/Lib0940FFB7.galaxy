@@ -16,13 +16,16 @@ void lib0940FFB7_InitLibraries () {
 void lib0940FFB7_gf_NovaCaster () {
     // Automatic Variable Declarations
     // Implementation
-    lib67C0F0E7_gf_SOAStickyLine(1, "NovaGriffinBombingRun");
-    lib67C0F0E7_gf_SOAStickyPoint(1, "NovaGriffinTransport");
+    // Nova's caster unit already owns the Griffin abilities in the 7vs1 catalog.
+    // The generic SOA sticky wrappers depend on absent UserData/placeholder abilities.
 }
 
 void lib0940FFB7_gf_InitlizeNova (int lp_player) {
     // Automatic Variable Declarations
     // Implementation
+    if ((lib0940FFB7_gt_NovaRevive == null) || (lib0940FFB7_gt_NovaReviveInstantBuyback == null)) {
+        lib0940FFB7_InitTriggers();
+    }
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "NovaCoop", c_unitCreateIgnoreBirth, lp_player, PlayerStartLocation(lp_player));
     DataTableSetUnit(true, ("NovaHero" + IntToString(lp_player)), UnitLastCreated());
     TriggerAddEventUnitDied(lib0940FFB7_gt_NovaRevive,UnitRefFromUnit(UnitLastCreated()));
@@ -33,6 +36,9 @@ void lib0940FFB7_gf_InitlizeNova (int lp_player) {
 void lib0940FFB7_gf_NovaTrigger (unit lp_u) {
     // Automatic Variable Declarations
     // Implementation
+    if ((lib0940FFB7_gt_NovaRevive == null) || (lib0940FFB7_gt_NovaReviveInstantBuyback == null)) {
+        lib0940FFB7_InitTriggers();
+    }
     DataTableSetUnit(true, ("NovaHero" + IntToString(1)), lp_u);
     TriggerAddEventUnitDied(lib0940FFB7_gt_NovaRevive,UnitRefFromUnit(lp_u));
     TriggerEnable(lib0940FFB7_gt_NovaReviveInstantBuyback,true);

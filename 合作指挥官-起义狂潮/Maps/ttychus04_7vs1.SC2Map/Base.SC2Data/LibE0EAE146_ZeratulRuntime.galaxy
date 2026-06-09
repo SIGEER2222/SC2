@@ -28,7 +28,13 @@ point libE0EAE146_gf_ZeratulArtifactPlacementPoint (int lp_player, int lp_artifa
         return lv_placement;
     }
 
-    return lv_candidate;
+    lv_candidate = MidPoint(RegionGetBoundsMin(RegionPlayableMap()), RegionGetBoundsMax(RegionPlayableMap()));
+    lv_placement = UnitTypePlacementFromPoint(libE0EAE146_gf_ZeratulArtifactUnitType(lp_artifactNumber), lp_player, lv_candidate, 64.0);
+    if (lv_placement != null) {
+        return lv_placement;
+    }
+
+    return PlayerStartLocation(lp_player);
 }
 
 void libE0EAE146_gf_ZeratulPlaceArtifact (int lp_player) {
@@ -230,5 +236,7 @@ bool libE0EAE146_gt_ZeratulProphecyCast_Func (bool testConds, bool runActions) {
 void libE0EAE146_gt_ZeratulProphecyCast_Init () {
     libE0EAE146_gt_ZeratulProphecyCast = TriggerCreate("libE0EAE146_gt_ZeratulProphecyCast_Func");
     TriggerAddEventUnitAbility(libE0EAE146_gt_ZeratulProphecyCast, null, AbilityCommand("ProphecyVision", 0), c_unitAbilStageExecute, false);
-    TriggerAddEventUnitAbility(libE0EAE146_gt_ZeratulProphecyCast, null, AbilityCommand("ProphecyVisiontzeratul01", 0), c_unitAbilStageExecute, false);
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "ProphecyVisiontzeratul01") == true) {
+        TriggerAddEventUnitAbility(libE0EAE146_gt_ZeratulProphecyCast, null, AbilityCommand("ProphecyVisiontzeratul01", 0), c_unitAbilStageExecute, false);
+    }
 }

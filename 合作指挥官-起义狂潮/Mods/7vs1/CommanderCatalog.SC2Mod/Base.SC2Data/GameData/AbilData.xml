@@ -72,6 +72,16 @@
     </InfoArray>
   </CAbilBuild>
 
+  <CAbilBuild default="1" id="RaynorTerranAddOns">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Alert value="AddOnComplete" />
+    <Type value="AddOn" />
+    <FlagArray index="InstantPlacement" value="1" />
+    <FlagArray index="PeonDisableAbils" value="1" />
+    <FlagArray index="ShowProgress" value="1" />
+    <Name value="Abil/Name/RaynorTerranAddOns" />
+  </CAbilBuild>
+
   <CAbilTrain id="BarracksTrainRaynor" parent="BarracksTrain">
     <InfoArray index="Train1" Unit="MarineRaynor" Time="18">
       <Button DefaultButtonFace="Marine" State="Available" />
@@ -86,11 +96,12 @@
       <Button DefaultButtonFace="Firebat" State="Available" />
     </InfoArray>
   </CAbilTrain>
-  <CAbilBuild id="BarracksAddOnsRaynor" parent="BarracksAddOns">
-    <InfoArray index="Build1" Unit="BarracksTechLabRaynor" Time="25">
+  <CAbilBuild id="BarracksAddOnsRaynor" parent="RaynorTerranAddOns">
+    <BuildMorphAbil value="BarracksLiftOffRaynor" />
+    <InfoArray index="Build1" Unit="BarracksTechLabRaynor" Time="25" AddOnParentCmdPriority="-1">
       <Button DefaultButtonFace="TechLabBarracks" State="Available" />
     </InfoArray>
-    <InfoArray index="Build2" Unit="BarracksReactorRaynor" Time="50">
+    <InfoArray index="Build2" Unit="BarracksReactorRaynor" Time="50" AddOnParentCmdPriority="-1">
       <Button DefaultButtonFace="Reactor" State="Available" />
     </InfoArray>
   </CAbilBuild>
@@ -114,11 +125,12 @@
       <Button DefaultButtonFace="Vulture" State="Available" />
     </InfoArray>
   </CAbilTrain>
-  <CAbilBuild id="FactoryAddOnsRaynor" parent="FactoryAddOns">
-    <InfoArray index="Build1" Unit="FactoryTechLabRaynor" Time="25">
+  <CAbilBuild id="FactoryAddOnsRaynor" parent="RaynorTerranAddOns">
+    <BuildMorphAbil value="FactoryLiftOffRaynor" />
+    <InfoArray index="Build1" Unit="FactoryTechLabRaynor" Time="25" AddOnParentCmdPriority="-1">
       <Button DefaultButtonFace="TechLabFactory" State="Available" />
     </InfoArray>
-    <InfoArray index="Build2" Unit="FactoryReactorRaynor" Time="50">
+    <InfoArray index="Build2" Unit="FactoryReactorRaynor" Time="50" AddOnParentCmdPriority="-1">
       <Button DefaultButtonFace="Reactor" State="Available" />
     </InfoArray>
   </CAbilBuild>
@@ -145,11 +157,12 @@
       <Button DefaultButtonFace="VikingFighter" State="Available" />
     </InfoArray>
   </CAbilTrain>
-  <CAbilBuild id="StarportAddOnsRaynor" parent="StarportAddOns">
-    <InfoArray index="Build1" Unit="StarportTechLabRaynor" Time="25">
+  <CAbilBuild id="StarportAddOnsRaynor" parent="RaynorTerranAddOns">
+    <BuildMorphAbil value="StarportLiftOffRaynor" />
+    <InfoArray index="Build1" Unit="StarportTechLabRaynor" Time="25" AddOnParentCmdPriority="-1">
       <Button DefaultButtonFace="TechLabStarport" State="Available" />
     </InfoArray>
-    <InfoArray index="Build2" Unit="StarportReactorRaynor" Time="50">
+    <InfoArray index="Build2" Unit="StarportReactorRaynor" Time="50" AddOnParentCmdPriority="-1">
       <Button DefaultButtonFace="Reactor" State="Available" />
     </InfoArray>
   </CAbilBuild>
@@ -187,6 +200,84 @@
       <Resource index="Minerals" value="250" />
       <Resource index="Vespene" value="250" />
       <Button DefaultButtonFace="TerranVehicleAndShipPlatingLevel5" State="Restricted" Requirements="LearnTerranVehicleAndShipArmor5" />
+    </InfoArray>
+  </CAbilResearch>
+  <CAbilResearch id="ForgeResearch">
+    <InfoArray index="Research25" Time="220" Upgrade="ProtossGroundWeaponsLevel4">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="ProtossAlarakWeaponsLevel4" State="Restricted" Requirements="LearnProtossWeapons4" />
+    </InfoArray>
+    <InfoArray index="Research26" Time="220" Upgrade="ProtossGroundWeaponsLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="ProtossAlarakWeaponsLevel5" State="Restricted" Requirements="LearnProtossWeapons5" />
+    </InfoArray>
+    <InfoArray index="Research27" Time="220" Upgrade="ProtossGroundArmorsLevel4">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="ProtossAlarakArmorLevel4" State="Restricted" Requirements="LearnProtossArmor4" />
+    </InfoArray>
+    <InfoArray index="Research28" Time="220" Upgrade="ProtossGroundArmorsLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="ProtossAlarakArmorLevel5" State="Restricted" Requirements="LearnProtossArmor5" />
+    </InfoArray>
+  </CAbilResearch>
+  <CAbilResearch id="CyberneticsCoreResearch">
+    <InfoArray index="Research24" Time="220" Upgrade="ProtossAirWeaponsLevel4">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="ProtossAirWeaponsLevel4" State="Restricted" Requirements="LearnProtossAirWeapon4" />
+    </InfoArray>
+    <InfoArray index="Research25" Time="220" Upgrade="ProtossAirWeaponsLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="ProtossAirWeaponsLevel5" State="Restricted" Requirements="LearnProtossAirWeapon5" />
+    </InfoArray>
+    <InfoArray index="Research26" Time="220" Upgrade="ProtossAirArmorsLevel4">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="ProtossAirArmorLevel4" State="Restricted" Requirements="LearnProtossAirArmor4" />
+    </InfoArray>
+    <InfoArray index="Research27" Time="220" Upgrade="ProtossAirArmorsLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="ProtossAirArmorLevel5" State="Restricted" Requirements="LearnProtossAirArmor5" />
+    </InfoArray>
+  </CAbilResearch>
+  <CAbilResearch id="evolutionchamberresearch">
+    <InfoArray index="Research16" Time="220" Upgrade="ZagaraGroundAttacksLevel4">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="ZergGroundAttacksLevel4" State="Restricted" Requirements="LearnZagaraGroundAttack4" />
+    </InfoArray>
+    <InfoArray index="Research17" Time="220" Upgrade="ZagaraGroundAttacksLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="ZergGroundAttacksLevel5" State="Restricted" Requirements="LearnZagaraGroundAttack5" />
+    </InfoArray>
+  </CAbilResearch>
+  <CAbilResearch id="SpireResearch">
+    <InfoArray index="Research16" Time="220" Upgrade="ZergFlyerWeaponsLevel4">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="zergflyerattack4" State="Restricted" Requirements="LearnZergFlyerAttack4" />
+    </InfoArray>
+    <InfoArray index="Research17" Time="220" Upgrade="ZergFlyerWeaponsLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="zergflyerattack5" State="Restricted" Requirements="LearnZergFlyerAttack5" />
+    </InfoArray>
+    <InfoArray index="Research18" Time="220" Upgrade="ZergFlyerArmorsLevel4">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="zergflyerarmor4" State="Restricted" Requirements="LearnZergFlyerArmor4" />
+    </InfoArray>
+    <InfoArray index="Research19" Time="220" Upgrade="ZergFlyerArmorsLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="zergflyerarmor5" State="Restricted" Requirements="LearnZergFlyerArmor5" />
     </InfoArray>
   </CAbilResearch>
   <CAbilResearch id="ForgeResearchZeratul">
@@ -293,13 +384,41 @@
   <CAbilMorph id="RaynorReactorMorphToDetached" parent="ReactorMorphToDetached" unit="ReactorRaynor" />
 
   <CAbilEffectInstant id="SuperStimpackMarineRaynor" parent="SuperStimpackMarine">
-    <CmdButtonArray index="Execute" DefaultButtonFace="MarineSuperStimpack" State="Available" Requirements="">
+    <CmdButtonArray index="Execute" DefaultButtonFace="MarineSuperStimpack" State="Restricted" Requirements="HaveMarineSuperStimRaynor">
       <Flags index="ToSelection" value="1" />
     </CmdButtonArray>
   </CAbilEffectInstant>
   <CAbilEffectInstant id="StimpackMarauderRaynor" parent="StimpackMarauder">
-    <CmdButtonArray index="Execute" DefaultButtonFace="StimMarauder" State="Available" Requirements="">
+    <Effect index="0" value="StimpackMarauderRaynorApply" />
+    <Cost>
+      <Vital index="Life" value="20" />
+      <Charge Link="Abil/Stimpack" />
+      <Cooldown Link="Abil/Stimpack" />
+    </Cost>
+    <CmdButtonArray index="Execute" DefaultButtonFace="StimMarauder" State="Restricted" Requirements="HaveMarineSuperStimRaynor">
       <Flags index="ToSelection" value="1" />
     </CmdButtonArray>
   </CAbilEffectInstant>
+  <CAbilEffectInstant id="StimpackFirebatRaynor" parent="StimpackMarauder">
+    <Effect index="0" value="StimpackFirebatRaynorApply" />
+    <Cost>
+      <Vital index="Life" value="20" />
+      <Charge Link="Abil/Stimpack" />
+      <Cooldown Link="Abil/Stimpack" />
+    </Cost>
+    <CmdButtonArray index="Execute" DefaultButtonFace="StimMarauder" State="Restricted" Requirements="HaveMarineSuperStimRaynor">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+  </CAbilEffectInstant>
+  <CAbilEffectTarget id="InfestedStukovCoopInfestedTerrans">
+    <EditorCategories value="Race:Zerg,AbilityorEffectType:Units" />
+    <Effect index="0" value="InfestedStukovCoopInfestedTerrans" />
+    <Cost>
+      <Vital index="Energy" value="50" />
+      <Cooldown TimeUse="15" />
+    </Cost>
+    <Range value="12" />
+    <Arc value="360" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="InfestedStukovCoopInfestedTerrans" />
+  </CAbilEffectTarget>
 </Catalog>

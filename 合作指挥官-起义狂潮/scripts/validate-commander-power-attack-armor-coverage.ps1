@@ -266,6 +266,44 @@ foreach ($tech in $zeratulTechs) {
     }
 }
 
+$genericProtossTechs = @(
+    @{ Unit = "Forge"; Ability = "ForgeResearch"; Face = "ProtossAlarakWeaponsLevel4"; Cmd = "Research25"; Upgrade = "ProtossGroundWeaponsLevel4"; Button = "ProtossAlarakWeaponsLevel4"; Requirement = "LearnProtossWeapons4"; Parent = "ProtossGroundWeaponsLevel3" },
+    @{ Unit = "Forge"; Ability = "ForgeResearch"; Face = "ProtossAlarakWeaponsLevel5"; Cmd = "Research26"; Upgrade = "ProtossGroundWeaponsLevel5"; Button = "ProtossAlarakWeaponsLevel5"; Requirement = "LearnProtossWeapons5"; Parent = "ProtossGroundWeaponsLevel4" },
+    @{ Unit = "Forge"; Ability = "ForgeResearch"; Face = "ProtossAlarakArmorLevel4"; Cmd = "Research27"; Upgrade = "ProtossGroundArmorsLevel4"; Button = "ProtossAlarakArmorLevel4"; Requirement = "LearnProtossArmor4"; Parent = "ProtossGroundArmorsLevel3" },
+    @{ Unit = "Forge"; Ability = "ForgeResearch"; Face = "ProtossAlarakArmorLevel5"; Cmd = "Research28"; Upgrade = "ProtossGroundArmorsLevel5"; Button = "ProtossAlarakArmorLevel5"; Requirement = "LearnProtossArmor5"; Parent = "ProtossGroundArmorsLevel4" },
+    @{ Unit = "CyberneticsCore"; Ability = "CyberneticsCoreResearch"; Face = "ProtossAirWeaponsLevel4"; Cmd = "Research24"; Upgrade = "ProtossAirWeaponsLevel4"; Button = "ProtossAirWeaponsLevel4"; Requirement = "LearnProtossAirWeapon4"; Parent = "ProtossAirWeaponsLevel3" },
+    @{ Unit = "CyberneticsCore"; Ability = "CyberneticsCoreResearch"; Face = "ProtossAirWeaponsLevel5"; Cmd = "Research25"; Upgrade = "ProtossAirWeaponsLevel5"; Button = "ProtossAirWeaponsLevel5"; Requirement = "LearnProtossAirWeapon5"; Parent = "ProtossAirWeaponsLevel4" },
+    @{ Unit = "CyberneticsCore"; Ability = "CyberneticsCoreResearch"; Face = "ProtossAirArmorLevel4"; Cmd = "Research26"; Upgrade = "ProtossAirArmorsLevel4"; Button = "ProtossAirArmorLevel4"; Requirement = "LearnProtossAirArmor4"; Parent = "ProtossAirArmorsLevel3" },
+    @{ Unit = "CyberneticsCore"; Ability = "CyberneticsCoreResearch"; Face = "ProtossAirArmorLevel5"; Cmd = "Research27"; Upgrade = "ProtossAirArmorsLevel5"; Button = "ProtossAirArmorLevel5"; Requirement = "LearnProtossAirArmor5"; Parent = "ProtossAirArmorsLevel4" }
+)
+
+foreach ($tech in $genericProtossTechs) {
+    Assert-LayoutButton -Xml $unitXml -UnitId $tech.Unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
+    [void](Get-CatalogNode -Xml $buttonXml -TagName "CButton" -Id $tech.Button)
+    [void](Get-CatalogNode -Xml $requirementXml -TagName "CRequirement" -Id $tech.Requirement)
+    Assert-ResearchInfo -Xml $abilXml -AbilityId $tech.Ability -Index $tech.Cmd -UpgradeId $tech.Upgrade -ButtonId $tech.Button -RequirementId $tech.Requirement
+    Assert-UpgradeParent -Xml $upgradeXml -UpgradeId $tech.Upgrade -ParentId $tech.Parent
+}
+
+$zergFiveTierTechs = @(
+    @{ Units = @("EvolutionChamber"); Ability = "evolutionchamberresearch"; Face = "ZergGroundAttacksLevel4"; Cmd = "Research16"; Upgrade = "ZagaraGroundAttacksLevel4"; Button = "ZergGroundAttacksLevel4"; Requirement = "LearnZagaraGroundAttack4"; Parent = "ZagaraGroundAttacksLevel3" },
+    @{ Units = @("EvolutionChamber"); Ability = "evolutionchamberresearch"; Face = "ZergGroundAttacksLevel5"; Cmd = "Research17"; Upgrade = "ZagaraGroundAttacksLevel5"; Button = "ZergGroundAttacksLevel5"; Requirement = "LearnZagaraGroundAttack5"; Parent = "ZagaraGroundAttacksLevel4" },
+    @{ Units = @("Spire", "GreaterSpire", "ScourgeNest"); Ability = "SpireResearch"; Face = "zergflyerattack4"; Cmd = "Research16"; Upgrade = "ZergFlyerWeaponsLevel4"; Button = "zergflyerattack4"; Requirement = "LearnZergFlyerAttack4"; Parent = "ZergFlyerWeaponsLevel3" },
+    @{ Units = @("Spire", "GreaterSpire", "ScourgeNest"); Ability = "SpireResearch"; Face = "zergflyerattack5"; Cmd = "Research17"; Upgrade = "ZergFlyerWeaponsLevel5"; Button = "zergflyerattack5"; Requirement = "LearnZergFlyerAttack5"; Parent = "ZergFlyerWeaponsLevel4" },
+    @{ Units = @("Spire", "GreaterSpire", "ScourgeNest"); Ability = "SpireResearch"; Face = "zergflyerarmor4"; Cmd = "Research18"; Upgrade = "ZergFlyerArmorsLevel4"; Button = "zergflyerarmor4"; Requirement = "LearnZergFlyerArmor4"; Parent = "ZergFlyerArmorsLevel3" },
+    @{ Units = @("Spire", "GreaterSpire", "ScourgeNest"); Ability = "SpireResearch"; Face = "zergflyerarmor5"; Cmd = "Research19"; Upgrade = "ZergFlyerArmorsLevel5"; Button = "zergflyerarmor5"; Requirement = "LearnZergFlyerArmor5"; Parent = "ZergFlyerArmorsLevel4" }
+)
+
+foreach ($tech in $zergFiveTierTechs) {
+    foreach ($unit in $tech.Units) {
+        Assert-LayoutButton -Xml $unitXml -UnitId $unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
+    }
+    [void](Get-CatalogNode -Xml $buttonXml -TagName "CButton" -Id $tech.Button)
+    [void](Get-CatalogNode -Xml $requirementXml -TagName "CRequirement" -Id $tech.Requirement)
+    Assert-ResearchInfo -Xml $abilXml -AbilityId $tech.Ability -Index $tech.Cmd -UpgradeId $tech.Upgrade -ButtonId $tech.Button -RequirementId $tech.Requirement
+    Assert-UpgradeParent -Xml $upgradeXml -UpgradeId $tech.Upgrade -ParentId $tech.Parent
+}
+
 foreach ($nodeId in @(
         "CountUpgradeTerranInfantryWeaponsLevel4CompleteOnlyRaynor",
         "CountUpgradeTerranInfantryWeaponsLevel5QueuedOrBetterRaynor",
@@ -307,7 +345,7 @@ $unexpectedSourceMissing = @($sourceMissing | Where-Object { $knownSourceMissing
 Assert-True -Condition ($unexpectedSourceMissing.Count -eq 0) -Message ("Unexpected source Level4 without Level5: {0}" -f ($unexpectedSourceMissing -join ", "))
 
 $closureLines = @($closureText -split "`n" | Where-Object { $_ -match "CommanderPowerGeneratedApply.*Closure" })
-Write-Host ("COMMANDER_POWER_ATTACK_ARMOR_COVERAGE_VALIDATE=PASS commanders={0} raynorTechs={1} genericTerranTechs={2} zeratulTechs={3} currentLevel4WithoutLevel5={4} sourceKnownLevel4WithoutLevel5={5} closureLines={6}" -f @($metadata.commanders).Count, $raynorTechs.Count, $genericTerranTechs.Count, $zeratulTechs.Count, $currentMissing.Count, $sourceMissing.Count, $closureLines.Count)
+Write-Host ("COMMANDER_POWER_ATTACK_ARMOR_COVERAGE_VALIDATE=PASS commanders={0} raynorTechs={1} genericTerranTechs={2} zeratulTechs={3} genericProtossTechs={4} zergFiveTierTechs={5} currentLevel4WithoutLevel5={6} sourceKnownLevel4WithoutLevel5={7} closureLines={8}" -f @($metadata.commanders).Count, $raynorTechs.Count, $genericTerranTechs.Count, $zeratulTechs.Count, $genericProtossTechs.Count, $zergFiveTierTechs.Count, $currentMissing.Count, $sourceMissing.Count, $closureLines.Count)
 if ($sourceMissing.Count -gt 0) {
     Write-Host ("SOURCE_LEVEL4_WITHOUT_LEVEL5_KNOWN={0}" -f ($sourceMissing -join ","))
 }

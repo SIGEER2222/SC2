@@ -4,7 +4,7 @@ param(
     [string]$LiveMapName = "ttosh02_7vs1.SC2Map",
     [string[]]$Commanders = @("TerranRaynor"),
     [int]$WaitSeconds = 50,
-    [string]$ScreenshotPath = "",
+    [string]$EvidencePath = "",
     [string]$CommanderPowerProfile = "AllPositiveFusion",
     [int]$CommanderPowerPrestigeBonusMask = 7,
     [Nullable[int]]$CommanderPowerPrestigePointIndex = $null,
@@ -63,6 +63,44 @@ function Get-LatestItem {
     return @($items | Sort-Object LastWriteTime -Descending | Select-Object -First 1)[0]
 }
 
+function Get-LogTimestampFromName {
+    param([System.IO.FileSystemInfo]$Item)
+
+    if (-not $Item) {
+        return $null
+    }
+
+    if ($Item.Name -match '^(\d{4})-(\d{2})-(\d{2}) (\d{2})\.(\d{2})\.(\d{2}) ') {
+        return [datetime]::new(
+            [int]$matches[1],
+            [int]$matches[2],
+            [int]$matches[3],
+            [int]$matches[4],
+            [int]$matches[5],
+            [int]$matches[6])
+    }
+
+    return $null
+}
+
+function Test-LogItemStartedAfter {
+    param(
+        [System.IO.FileSystemInfo]$Item,
+        [datetime]$StartedAt
+    )
+
+    if (-not $Item) {
+        return $false
+    }
+
+    $nameTimestamp = Get-LogTimestampFromName -Item $Item
+    if ($null -ne $nameTimestamp) {
+        return ($nameTimestamp -ge $StartedAt.AddSeconds(-2))
+    }
+
+    return ($Item.CreationTime -ge $StartedAt.AddSeconds(-2))
+}
+
 function Convert-ToPsSingleQuotedLiteral {
     param([string]$Value)
 
@@ -71,75 +109,249 @@ function Convert-ToPsSingleQuotedLiteral {
 
 function Stop-RunningSc2 {
     $names = @("SC2_x64", "SC2Switcher_x64", "BlizzardError")
+    $processes = @()
     foreach ($name in $names) {
-        Get-Process -Name $name -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+        $processes += @(Get-Process -Name $name -ErrorAction SilentlyContinue)
+    }
+
+    foreach ($process in $processes) {
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    }
+
+    foreach ($process in $processes) {
+        try {
+            Wait-Process -Id $process.Id -Timeout 10 -ErrorAction SilentlyContinue
+        }
+        catch {
+        }
+    }
+
+    Start-Sleep -Seconds 2
+}
+
+function Get-CampaignXCoreBankPaths {
+    $paths = New-Object System.Collections.Generic.List[string]
+
+    $liveBank = Join-Path $env:USERPROFILE "Documents\StarCraft II\Banks\CampaignXCore.SC2Bank"
+    if (Test-Path -LiteralPath $liveBank) {
+        $paths.Add((Resolve-Path -LiteralPath $liveBank).Path)
+    }
+
+    $accountsRoot = Join-Path $env:USERPROFILE "Documents\StarCraft II\Accounts"
+    if (Test-Path -LiteralPath $accountsRoot) {
+        Get-ChildItem -LiteralPath $accountsRoot -Recurse -File -Filter "CampaignXCore.SC2Bank" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -notmatch '\\backup\\' } |
+            Sort-Object LastWriteTime -Descending |
+            ForEach-Object {
+                if ($paths -notcontains $_.FullName) {
+                    $paths.Add($_.FullName)
+                }
+            }
+    }
+
+    return $paths.ToArray()
+}
+
+function Remove-BankSection {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [string]$SectionName
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    [xml]$xml = Get-Content -LiteralPath $Path -Raw
+    $section = $xml.SelectSingleNode("/Bank/Section[@name='$SectionName']")
+    if ($section) {
+        [void]$section.ParentNode.RemoveChild($section)
+        $xml.Save($Path)
     }
 }
 
-function Focus-Sc2Window {
-    Add-Type @"
-using System;
-using System.Runtime.InteropServices;
+function Clear-RuntimeDebugBankEvidence {
+    foreach ($bankPath in (Get-CampaignXCoreBankPaths)) {
+        Remove-BankSection -Path $bankPath -SectionName "XMRuntimeDebug"
+    }
+}
 
-public static class CodexUser32 {
-    [StructLayout(LayoutKind.Sequential)]
-    public struct RECT {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
+function Convert-TestCommanderToRuntimeCommander {
+    param([string]$Commander)
+
+    $value = $Commander
+    if ($value.StartsWith("Terran")) {
+        $value = $value.Substring(6)
+    }
+    elseif ($value.StartsWith("Zerg")) {
+        $value = $value.Substring(4)
+    }
+    elseif ($value.StartsWith("Protoss")) {
+        $value = $value.Substring(7)
     }
 
-    [DllImport("user32.dll")]
-    public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+    if ($value -eq "Horner") {
+        return "Mira"
+    }
+    if ($value -eq "AbathurReborn") {
+        return "AbathurReborn"
+    }
 
-    [DllImport("user32.dll")]
-    public static extern bool SetForegroundWindow(IntPtr hWnd);
-
-    [DllImport("user32.dll")]
-    public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+    return $value
 }
-"@
 
-    $process = Get-Process -Name "SC2_x64" -ErrorAction SilentlyContinue |
-        Where-Object { $_.MainWindowHandle -ne 0 } |
-        Select-Object -First 1
+function Get-BankStringValue {
+    param(
+        [Parameter(Mandatory = $true)]
+        [xml]$Xml,
+        [Parameter(Mandatory = $true)]
+        [string]$SectionName,
+        [Parameter(Mandatory = $true)]
+        [string]$KeyName
+    )
 
-    if (-not $process) {
+    if (($null -eq $Xml) -or ($null -eq $Xml.DocumentElement)) {
+        return ""
+    }
+
+    $node = $Xml.SelectSingleNode("/Bank/Section[@name='$SectionName']/Key[@name='$KeyName']/Value")
+    if (-not $node) {
+        return ""
+    }
+
+    return [string]$node.string
+}
+
+function Get-BankIntValue {
+    param(
+        [Parameter(Mandatory = $true)]
+        [xml]$Xml,
+        [Parameter(Mandatory = $true)]
+        [string]$SectionName,
+        [Parameter(Mandatory = $true)]
+        [string]$KeyName
+    )
+
+    if (($null -eq $Xml) -or ($null -eq $Xml.DocumentElement)) {
+        return ""
+    }
+
+    $node = $Xml.SelectSingleNode("/Bank/Section[@name='$SectionName']/Key[@name='$KeyName']/Value")
+    if (-not $node) {
+        return ""
+    }
+
+    return [string]$node.int
+}
+
+function Get-RuntimeDebugBankEvidence {
+    param(
+        [Parameter(Mandatory = $true)]
+        [datetime]$StartedAt,
+        [string]$RunId = ""
+    )
+
+    foreach ($bankPath in (Get-CampaignXCoreBankPaths)) {
+        $item = Get-Item -LiteralPath $bankPath -ErrorAction SilentlyContinue
+        if ((-not $item) -or ($item.LastWriteTime -lt $StartedAt.AddSeconds(-2))) {
+            continue
+        }
+
+        $rawXml = Get-Content -LiteralPath $bankPath -Raw -ErrorAction SilentlyContinue
+        if ([string]::IsNullOrWhiteSpace($rawXml)) {
+            continue
+        }
+
+        try {
+            [xml]$xml = $rawXml
+        }
+        catch {
+            continue
+        }
+
+        if (($null -eq $xml) -or ($null -eq $xml.DocumentElement)) {
+            continue
+        }
+
+        $section = $xml.SelectSingleNode("/Bank/Section[@name='XMRuntimeDebug']")
+        if (-not $section) {
+            continue
+        }
+
+        $evidenceRunId = Get-BankStringValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "RunId"
+        if ((-not [string]::IsNullOrWhiteSpace($RunId)) -and ($evidenceRunId -ne $RunId)) {
+            continue
+        }
+
+        return [pscustomobject]@{
+            Path = $bankPath
+            LastWriteTime = $item.LastWriteTime
+            RunId = $evidenceRunId
+            LastPhase = Get-BankStringValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "LastPhase"
+            Commander = Get-BankStringValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "Commander"
+            PrimaryCommander = Get-BankStringValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "PrimaryCommander"
+            AchCommander = Get-BankStringValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "AchCommander"
+            TownHallUnit = Get-BankStringValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "TownHallUnit"
+            WorkerUnit = Get-BankStringValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "WorkerUnit"
+            SecondUnit = Get-BankStringValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "SecondUnit"
+            TownHallCount = Get-BankIntValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "TownHallCount"
+            WorkerCount = Get-BankIntValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "WorkerCount"
+            SecondUnitCount = Get-BankIntValue -Xml $xml -SectionName "XMRuntimeDebug" -KeyName "SecondUnitCount"
+        }
+    }
+
+    return $null
+}
+
+function Test-RuntimeDebugBaseEvidenceComplete {
+    param([object]$Evidence)
+
+    if (-not $Evidence) {
         return $false
     }
 
-    [void][CodexUser32]::ShowWindowAsync($process.MainWindowHandle, 9)
-    Start-Sleep -Milliseconds 300
-    return [CodexUser32]::SetForegroundWindow($process.MainWindowHandle)
+    if ($Evidence.LastPhase -eq "InitializeBase.exit") {
+        return $true
+    }
+
+    return ((-not [string]::IsNullOrWhiteSpace($Evidence.TownHallUnit)) -and
+        (-not [string]::IsNullOrWhiteSpace($Evidence.WorkerUnit)) -and
+        (-not [string]::IsNullOrWhiteSpace($Evidence.TownHallCount)) -and
+        (-not [string]::IsNullOrWhiteSpace($Evidence.WorkerCount)))
 }
 
-function Get-Sc2WindowBounds {
-    $process = Get-Process -Name "SC2_x64" -ErrorAction SilentlyContinue |
-        Where-Object { $_.MainWindowHandle -ne 0 } |
-        Select-Object -First 1
+function Export-RuntimeDebugEvidence {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [object]$Evidence,
+        [Parameter(Mandatory = $true)]
+        [string[]]$ExpectedCommanders
+    )
 
-    if (-not $process) {
-        return $null
+    $payload = [ordered]@{
+        generated_at = (Get-Date).ToString("o")
+        evidence_type = "sc2_bank_runtime_debug"
+        expected_commanders = $ExpectedCommanders
+        source_bank = $Evidence.Path
+        source_bank_last_write = $Evidence.LastWriteTime.ToString("o")
+        run_id = $Evidence.RunId
+        last_phase = $Evidence.LastPhase
+        commander = $Evidence.Commander
+        primary_commander = $Evidence.PrimaryCommander
+        ach_commander = $Evidence.AchCommander
+        town_hall_unit = $Evidence.TownHallUnit
+        worker_unit = $Evidence.WorkerUnit
+        second_unit = $Evidence.SecondUnit
+        town_hall_count = $Evidence.TownHallCount
+        worker_count = $Evidence.WorkerCount
+        second_unit_count = $Evidence.SecondUnitCount
     }
 
-    $rect = New-Object CodexUser32+RECT
-    if (-not [CodexUser32]::GetWindowRect($process.MainWindowHandle, [ref]$rect)) {
-        return $null
-    }
-
-    $width = $rect.Right - $rect.Left
-    $height = $rect.Bottom - $rect.Top
-    if (($width -le 0) -or ($height -le 0)) {
-        return $null
-    }
-
-    return [pscustomobject]@{
-        X = $rect.Left
-        Y = $rect.Top
-        Width = $width
-        Height = $height
-    }
+    $payload | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $Path -Encoding UTF8
 }
 
 $workspaceRoot = Get-WorkspaceRoot
@@ -159,12 +371,16 @@ else {
     $resolvedMapSource = Resolve-WorkspacePath $MapSource
 }
 
-if ([string]::IsNullOrWhiteSpace($ScreenshotPath)) {
+if ([string]::IsNullOrWhiteSpace($EvidencePath)) {
     $safeCommander = ($Commanders -join "_") -replace "[^A-Za-z0-9_]+", "_"
-    $ScreenshotPath = Join-Path $artifactRoot ("tmp-smoke-{0}-{1}.png" -f ([System.IO.Path]::GetFileNameWithoutExtension($LiveMapName)), $safeCommander)
+    $EvidencePath = Join-Path $artifactRoot ("tmp-smoke-{0}-{1}.evidence.json" -f ([System.IO.Path]::GetFileNameWithoutExtension($LiveMapName)), $safeCommander)
 }
 else {
-    $ScreenshotPath = Resolve-WorkspacePath $ScreenshotPath
+    $EvidencePath = Resolve-WorkspacePath $EvidencePath
+}
+$evidenceDirectory = Split-Path -Parent $EvidencePath
+if (-not [string]::IsNullOrWhiteSpace($evidenceDirectory)) {
+    $null = New-Item -ItemType Directory -Path $evidenceDirectory -Force
 }
 
 $safeMapName = ([System.IO.Path]::GetFileNameWithoutExtension($LiveMapName)) -replace "[^A-Za-z0-9_]+", "_"
@@ -185,6 +401,9 @@ $beforeAlerts = Get-LatestItem -Root $logsRoot -Filter "*Alerts.txt"
 $beforeUi = Get-LatestItem -Root $logsRoot -Filter "*UI.txt"
 $beforeGraphics = Get-LatestItem -Root $logsRoot -Filter "*Graphics.txt"
 $beforeSystem = Get-LatestItem -Root $logsRoot -Filter "*SystemInfo.txt"
+Clear-RuntimeDebugBankEvidence
+$runStartedAt = Get-Date
+$runId = "{0:N}" -f ([guid]::NewGuid())
 
 $quotedLaunchPath = Convert-ToPsSingleQuotedLiteral (Join-Path $workspaceRoot "scripts\launch-7vs1-coop-test.ps1")
 $quotedMapSource = Convert-ToPsSingleQuotedLiteral $resolvedMapSource
@@ -193,6 +412,7 @@ $quotedAbathurPatchProfile = Convert-ToPsSingleQuotedLiteral $AbathurPatchProfil
 $quotedCommanderPowerProfile = Convert-ToPsSingleQuotedLiteral $CommanderPowerProfile
 $quotedCommanders = @($Commanders | ForEach-Object { Convert-ToPsSingleQuotedLiteral $_ })
 $launchCommand = "& $quotedLaunchPath -MapSource $quotedMapSource -LiveMapName $quotedLiveMapName -AbathurPatchProfile $quotedAbathurPatchProfile -Commanders @(" + ($quotedCommanders -join ",") + ")"
+$launchCommand += " -TestRunId " + (Convert-ToPsSingleQuotedLiteral $runId)
 $launchCommand += " -CommanderPowerProfile $quotedCommanderPowerProfile"
 $launchCommand += " -CommanderPowerPrestigeBonusMask $CommanderPowerPrestigeBonusMask"
 if ($null -ne $CommanderPowerPrestigePointIndex) {
@@ -231,28 +451,28 @@ $launchArgs = @(
 Stop-RunningSc2
 $launcher = Start-Process -FilePath "pwsh" -ArgumentList $launchArgs -WindowStyle Hidden -PassThru -RedirectStandardOutput $launcherStdout -RedirectStandardError $launcherStderr
 
-Start-Sleep -Seconds $WaitSeconds
-Focus-Sc2Window | Out-Null
-Start-Sleep -Milliseconds 500
+$runtimeEvidence = $null
+$latestRuntimeEvidence = $null
+$deadline = (Get-Date).AddSeconds($WaitSeconds)
+while ((Get-Date) -lt $deadline) {
+    $latestRuntimeEvidence = Get-RuntimeDebugBankEvidence -StartedAt $runStartedAt -RunId $runId
+    if (Test-RuntimeDebugBaseEvidenceComplete -Evidence $latestRuntimeEvidence) {
+        $runtimeEvidence = $latestRuntimeEvidence
+        break
+    }
 
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
-$captureBounds = Get-Sc2WindowBounds
-if ($captureBounds) {
-    $captureOrigin = New-Object System.Drawing.Point $captureBounds.X, $captureBounds.Y
-    $captureSize = New-Object System.Drawing.Size $captureBounds.Width, $captureBounds.Height
+    Start-Sleep -Seconds 2
 }
-else {
-    $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
-    $captureOrigin = $bounds.Location
-    $captureSize = $bounds.Size
+
+if ((-not $runtimeEvidence) -and $latestRuntimeEvidence) {
+    $runtimeEvidence = $latestRuntimeEvidence
 }
-$bmp = New-Object System.Drawing.Bitmap $captureSize.Width, $captureSize.Height
-$graphics = [System.Drawing.Graphics]::FromImage($bmp)
-$graphics.CopyFromScreen($captureOrigin, [System.Drawing.Point]::Empty, $captureSize)
-$bmp.Save($ScreenshotPath, [System.Drawing.Imaging.ImageFormat]::Png)
-$graphics.Dispose()
-$bmp.Dispose()
+
+if ($runtimeEvidence) {
+    Export-RuntimeDebugEvidence -Path $EvidencePath -Evidence $runtimeEvidence -ExpectedCommanders $Commanders
+}
+
+Stop-RunningSc2
 
 $afterCrashDir = Get-LatestItem -Root $logsRoot -Filter "* Crash" -Directory
 $afterScriptError = Get-LatestItem -Root $logsRoot -Filter "*ScriptError.txt"
@@ -268,7 +488,8 @@ if ($afterCrashDir) {
 
 $newScriptError = $false
 if ($afterScriptError) {
-    $newScriptError = (-not $beforeScriptError) -or ($afterScriptError.LastWriteTime -gt $beforeScriptError.LastWriteTime)
+    $newScriptError = ((-not $beforeScriptError) -or ($afterScriptError.FullName -ne $beforeScriptError.FullName) -or ($afterScriptError.LastWriteTime -gt $beforeScriptError.LastWriteTime)) -and
+        (Test-LogItemStartedAfter -Item $afterScriptError -StartedAt $runStartedAt)
 }
 
 $newAlerts = $false
@@ -292,8 +513,29 @@ if ($afterSystem) {
 }
 
 Write-Output ("SMOKE_COMMANDERS={0}" -f ($Commanders -join ","))
-Write-Output ("SMOKE_SCREENSHOT={0}" -f $ScreenshotPath)
-Write-Output ("SMOKE_CAPTURE_MODE={0}" -f $(if ($captureBounds) { "sc2_window" } else { "primary_screen" }))
+Write-Output ("SMOKE_EVIDENCE={0}" -f $EvidencePath)
+Write-Output "SMOKE_EVIDENCE_MODE=sc2_bank_runtime_debug"
+Write-Output ("SMOKE_RUN_ID={0}" -f $runId)
+$expectedRuntimeCommanders = @($Commanders | ForEach-Object { Convert-TestCommanderToRuntimeCommander -Commander $_ })
+$bankMatch = $false
+if ($runtimeEvidence) {
+    $bankMatch = @($expectedRuntimeCommanders).Contains($runtimeEvidence.Commander)
+    Write-Output ("SMOKE_BANK_SOURCE={0}" -f $runtimeEvidence.Path)
+    Write-Output ("SMOKE_BANK_RUN_ID={0}" -f $runtimeEvidence.RunId)
+    Write-Output ("SMOKE_BANK_LASTPHASE={0}" -f $runtimeEvidence.LastPhase)
+    Write-Output ("SMOKE_BANK_COMMANDER={0}" -f $runtimeEvidence.Commander)
+    Write-Output ("SMOKE_BANK_EXPECTED_COMMANDERS={0}" -f ($expectedRuntimeCommanders -join ","))
+    Write-Output ("SMOKE_BANK_PRIMARY_COMMANDER={0}" -f $runtimeEvidence.PrimaryCommander)
+    Write-Output ("SMOKE_BANK_ACH_COMMANDER={0}" -f $runtimeEvidence.AchCommander)
+    Write-Output ("SMOKE_BANK_TOWNHALL_UNIT={0}" -f $runtimeEvidence.TownHallUnit)
+    Write-Output ("SMOKE_BANK_WORKER_UNIT={0}" -f $runtimeEvidence.WorkerUnit)
+    Write-Output ("SMOKE_BANK_SECOND_UNIT={0}" -f $runtimeEvidence.SecondUnit)
+    Write-Output ("SMOKE_BANK_TOWNHALL_COUNT={0}" -f $runtimeEvidence.TownHallCount)
+    Write-Output ("SMOKE_BANK_WORKER_COUNT={0}" -f $runtimeEvidence.WorkerCount)
+    Write-Output ("SMOKE_BANK_SECOND_UNIT_COUNT={0}" -f $runtimeEvidence.SecondUnitCount)
+}
+Write-Output ("SMOKE_BANK_EVIDENCE={0}" -f ([int]($null -ne $runtimeEvidence)))
+Write-Output ("SMOKE_BANK_MATCH={0}" -f ([int]$bankMatch))
 Write-Output ("SMOKE_LAUNCH_EXITED={0}" -f ([int]$launcher.HasExited))
 if ($launcher.HasExited) {
     Write-Output ("SMOKE_LAUNCH_EXITCODE={0}" -f $launcher.ExitCode)
@@ -341,6 +583,15 @@ if ($newCrash) {
 }
 elseif ($newScriptError) {
     $suggestedStatus = "script_error"
+}
+elseif (-not $runtimeEvidence) {
+    $suggestedStatus = "no_runtime_bank_evidence"
+}
+elseif (-not (Test-RuntimeDebugBaseEvidenceComplete -Evidence $runtimeEvidence)) {
+    $suggestedStatus = "no_runtime_base_evidence"
+}
+elseif (-not $bankMatch) {
+    $suggestedStatus = "commander_mismatch"
 }
 elseif ($newAlerts) {
     $suggestedStatus = "ingame_or_alerted"

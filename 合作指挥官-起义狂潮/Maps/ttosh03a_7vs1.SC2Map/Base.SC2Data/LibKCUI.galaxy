@@ -495,6 +495,9 @@ int libKCUI_gf_CU_HeroTypeFromUnitType (string lp_unitType) {
     else if (auto066DA9BE_val == "AlarakReviveBeacon") {
         return libKCUI_ge_CampaignHeroes_AlarakReviveBeacon;
     }
+    else if (auto066DA9BE_val == "ArtanisReviveBeacon") {
+        return libKCUI_ge_CampaignHeroes_Artanis;
+    }
     else if (auto066DA9BE_val == "AlarakCoop") {
         return libKCUI_ge_CampaignHeroes_Alarak;
     }
@@ -1581,11 +1584,13 @@ void libKCUI_gf_CU_GPInit (int lp_player) {
     string auto25C94ED4_val;
 
     // Implementation
-    if ((libKCUI_gv_cU_GPInitialized[lp_player] == true)) {
+    if (!((PlayerGroupHasPlayer(libKCOR_gf_CommanderPlayers(), lp_player) == true))) {
         return ;
     }
 
-    libKCUI_gv_cU_GPInitialized[lp_player] = true;
+    if ((libKCUI_gv_cU_GPInitialized[lp_player] == true)) {
+        return ;
+    }
     if ((libKCUI_gv_cU_GPPanelHolder == c_invalidDialogControlId)) {
         DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/GlobalCastingPanel");
         libKCUI_gv_cU_GPPanelHolder = DialogControlLastCreated();
@@ -1593,6 +1598,11 @@ void libKCUI_gf_CU_GPInit (int lp_player) {
     }
 
     auto25C94ED4_val = libKCOR_gf_ActiveCommanderForPlayer(lp_player);
+    if ((auto25C94ED4_val == null) || (auto25C94ED4_val == "")) {
+        return ;
+    }
+
+    libKCUI_gv_cU_GPInitialized[lp_player] = true;
     if (auto25C94ED4_val == "ProtossArtanis") {
         libKCUI_gf_CU_GPInitProtoss(lp_player);
     }
@@ -2375,6 +2385,10 @@ void libKCUI_gf_CU_GPSetUnit (unit lp_casterUnit, int lp_player) {
     unit auto6AE23501_var;
 
     // Implementation
+    if (!((PlayerGroupHasPlayer(libKCOR_gf_CommanderPlayers(), lp_player) == true))) {
+        return ;
+    }
+
     libKCUI_gf_CU_GPInit(lp_player);
     libKCUI_gv_cU_GPUnit[lp_player] = lp_casterUnit;
     autoF6E18BBD_g = libKCUI_gv_cU_GPCasterGroup[lp_player];
@@ -2386,7 +2400,7 @@ void libKCUI_gf_CU_GPSetUnit (unit lp_casterUnit, int lp_player) {
     }
     UnitGroupAdd(libKCUI_gv_cU_GPCasterGroup[lp_player], lp_casterUnit);
     libNtve_gf_SetDialogItemUnitGroup(libKCUI_gv_cU_GPCmdPanel[lp_player], libKCUI_gv_cU_GPCasterGroup[lp_player], PlayerGroupSingle(lp_player));
-    if ((TechTreeUpgradeCount(lp_player, "FenixCommander", c_techCountCompleteOnly) == 1)) {
+    if ((TechTreeUpgradeCount(lp_player, "FenixCommander", c_techCountCompleteOnly) == 1) && (libKCUI_gv_cU_GPCmdPanelUnitStatus[lp_player] != c_invalidDialogControlId)) {
         libNtve_gf_SetDialogItemUnit(libKCUI_gv_cU_GPCmdPanelUnitStatus[lp_player], libKCUI_gv_cU_GPUnit[lp_player], PlayerGroupSingle(lp_player));
     }
 
@@ -2431,6 +2445,7 @@ void libKCUI_gf_CU_GPVisibilitySet (bool lp_showHide, int lp_player, fixed lp_du
     playergroup lv_updatePlayers;
     int lv_buttonIndex;
     int lv__2DGlobalPanel;
+    string lv_commander;
 
     // Automatic Variable Declarations
     const int autoF6F03F32_ae = 4;
@@ -2440,9 +2455,19 @@ void libKCUI_gf_CU_GPVisibilitySet (bool lp_showHide, int lp_player, fixed lp_du
 
     // Variable Initialization
     lv_updatePlayers = PlayerGroupEmpty();
-    lv__2DGlobalPanel = UserDataGetInt("PlayerCommanders", libKCOR_gf_CC_CommanderUserInstance(PlayerCommander(lp_player)), "GlobalCast2D", 1);
+    lv_commander = libKCOR_gf_ActiveCommanderForPlayer(lp_player);
+    lv__2DGlobalPanel = 0;
 
     // Implementation
+    if (!((PlayerGroupHasPlayer(libKCOR_gf_CommanderPlayers(), lp_player) == true))) {
+        return ;
+    }
+
+    if ((lv_commander == null) || (lv_commander == "")) {
+        return ;
+    }
+
+    lv__2DGlobalPanel = UserDataGetInt("PlayerCommanders", lv_commander, "GlobalCast2D", 1);
     lv_updatePlayers = PlayerGroupSingle(lp_player);
     libKCUI_gf_CU_GPInit(lp_player);
     if ((libKCUI_gv_cU_GPPanel[lp_player] == c_invalidDialogControlId)) {
@@ -4347,7 +4372,9 @@ bool libKCUI_gt_CU_TychusSquadBarUpdateProgress_Func (bool testConds, bool runAc
     while (true) {
         auto8827EE04_var = PlayerGroupNextPlayer(auto8827EE04_g, auto8827EE04_var);
         if (auto8827EE04_var < 0) { break; }
-        libNtve_gf_SetDialogItemCurrentValue(libKCUI_gv_cU_TychusSquadTrainingProgressBar[auto8827EE04_var], (100.0 - UnitGetProgressComplete(libKCUI_gv_cU_TychusSquadBar[auto8827EE04_var], 1)), PlayerGroupAll());
+        if ((libKCUI_gv_cU_TychusSquadTrainingProgressBar[auto8827EE04_var] != c_invalidDialogControlId) && (libKCUI_gv_cU_TychusSquadBar[auto8827EE04_var] != null)) {
+            libNtve_gf_SetDialogItemCurrentValue(libKCUI_gv_cU_TychusSquadTrainingProgressBar[auto8827EE04_var], (100.0 - UnitGetProgressComplete(libKCUI_gv_cU_TychusSquadBar[auto8827EE04_var], 1)), PlayerGroupAll());
+        }
     }
     return true;
 }
@@ -4798,4 +4825,5 @@ void libKCUI_InitLib () {
 include "LibKPVP"
 include "LibKCOR"
 include "LibKMIS"
+
 
