@@ -33,7 +33,7 @@ param(
     [string]$TestSpawnPreset = "",
     [string]$CommanderPowerProfile = "AllPositiveFusion",
     [Alias("CommanderPowerPrestigeMask")]
-    [int]$CommanderPowerPrestigeBonusMask = 7,
+    [Nullable[int]]$CommanderPowerPrestigeBonusMask = $null,
     [Alias("CommanderPowerPrestigeIndex")]
     [Nullable[int]]$CommanderPowerPrestigePointIndex = $null,
     [int]$CommanderPowerEnablePrestiges = 1,
@@ -698,9 +698,8 @@ function Set-CampaignXCoreCommanderPowerPreset {
         }
 
         $commanderPrestigeBonusMask = $normalizedPrestigeBonusMask
-        $commanderRecord = Resolve-CommanderPowerCommanderRecord -Commander $selectedCommander -WorkspaceRoot (Get-WorkspaceRoot)
-        if ($UseCommanderDefaultPrestigeBonusMask -and ($null -ne $commanderRecord) -and ($null -ne $commanderRecord.default_prestige_bonus_mask)) {
-            $commanderPrestigeBonusMask = [Math]::Max(0, [Math]::Min(7, [int]$commanderRecord.default_prestige_bonus_mask))
+        if ($UseCommanderDefaultPrestigeBonusMask) {
+            $commanderPrestigeBonusMask = Get-CommanderPowerDefaultPrestigeBonusMask -Commander $selectedCommander -WorkspaceRoot (Get-WorkspaceRoot)
         }
 
         $commanderMasteryValues = @()

@@ -22,6 +22,7 @@ $script:LaunchScript = Join-Path $PSScriptRoot "launch-7vs1-coop-test.ps1"
 $script:MetadataPath = Join-Path $script:WorkspaceRoot "Shared\CommanderPower\commander-power-metadata.json"
 $script:MapsRoot = Join-Path $script:WorkspaceRoot "Maps"
 $script:LogsRoot = Join-Path $script:WorkspaceRoot "logs"
+. (Join-Path $PSScriptRoot "commander-power-metadata.ps1")
 
 if (-not (Test-Path -LiteralPath $script:LaunchScript)) {
     throw "Launch script not found: $script:LaunchScript"
@@ -483,11 +484,7 @@ function Update-CommanderDetails {
     }
     $prestigeInfo.Text = ($prestigeLines -join [Environment]::NewLine)
 
-    $defaultPrestigeMask = 7
-    if ($null -ne $record.default_prestige_bonus_mask) {
-        $defaultPrestigeMask = [Math]::Max(0, [Math]::Min(7, [int]$record.default_prestige_bonus_mask))
-    }
-    $prestigeMask.Value = $defaultPrestigeMask
+    $prestigeMask.Value = Get-CommanderPowerDefaultPrestigeBonusMask -Commander ([string]$record.runtime_commander) -WorkspaceRoot $script:WorkspaceRoot
 }
 
 function Get-CurrentArguments {

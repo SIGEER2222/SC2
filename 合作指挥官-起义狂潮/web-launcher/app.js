@@ -129,7 +129,7 @@ function clampNumber(value, min, max, fallback) {
 }
 
 function getCommanderDefaultPrestigeMask(commander) {
-  return clampNumber(commander?.default_prestige_bonus_mask, 0, 7, 7);
+  return clampNumber(commander?.default_prestige_bonus_mask, 0, 7, state.data?.defaults?.prestigeBonusMask ?? 7);
 }
 
 function writeOutput(value) {

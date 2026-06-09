@@ -351,11 +351,12 @@ if (-not (Test-Path -LiteralPath $launchScriptPath)) {
 $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
 $defaultPrestigeBonusMaskByRuntime = @{}
 foreach ($commander in @($metadata.commanders)) {
-    if ($null -eq $commander.default_prestige_bonus_mask) {
+    $runtime = [string]$commander.runtime_commander
+    if ([string]::IsNullOrWhiteSpace($runtime)) {
         continue
     }
 
-    $defaultPrestigeBonusMaskByRuntime[[string]$commander.runtime_commander] = [int]$commander.default_prestige_bonus_mask
+    $defaultPrestigeBonusMaskByRuntime[$runtime] = Get-CommanderPowerDefaultPrestigeBonusMask -Commander $runtime -WorkspaceRoot $workspaceRoot
 }
 
 if ([string]::IsNullOrWhiteSpace($MapSource)) {
