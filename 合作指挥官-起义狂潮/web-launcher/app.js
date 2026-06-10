@@ -1,6 +1,7 @@
 const state = {
   data: null,
   selectedMutators: new Set(),
+  selectedCommanderOverrides: new Set(),
   selectedMutatorPanelExpanded: false,
   prestigeMaskMode: "default",
   launchPollTimer: null,
@@ -72,6 +73,7 @@ const el = {
   recentConfigs: document.querySelector("#recentConfigs"),
   clearRecentButton: document.querySelector("#clearRecentButton"),
   prestigeList: document.querySelector("#prestigeList"),
+  extraOptionList: document.querySelector("#extraOptionList"),
   masteryGrid: document.querySelector("#masteryGrid"),
   mutatorSearch: document.querySelector("#mutatorSearch"),
   mutatorPreset: document.querySelector("#mutatorPreset"),
@@ -170,6 +172,58 @@ function getCommanderDefaultPrestigeMask(commander) {
 
 function getCommanderDefaultPrestigePointIndex(commander) {
   return clampNumber(commander?.defaultPrestigePointIndex, -1, 3, state.data?.defaults?.prestigePointIndex ?? -1);
+}
+
+function getCommanderExtraOptions(commander = getCommander()) {
+  if (!commander) return [];
+  const options = [];
+  for (const prestige of commander.prestiges ?? []) {
+    for (const option of prestige.extraOptions ?? []) {
+      options.push({
+        ...option,
+        prestigeSlot: prestige.slot,
+        prestigeBitMask: prestige.bitMask,
+        prestigeName: prestige.name || prestige.id,
+        prestigeId: prestige.id,
+      });
+    }
+  }
+  return options;
+}
+
+function getCommanderExtraOptionMap(commander = getCommander()) {
+  return new Map(getCommanderExtraOptions(commander).map((option) => [option.overrideValue, option]));
+}
+
+function isCommanderExtraOptionActive(option, commander = getCommander()) {
+  if (!option || !commander) return false;
+  if (el.enablePrestiges.checked !== true) return false;
+  const requiredMask = clampNumber(option.requiresPrestigeMask, 0, 7, option.prestigeBitMask || 0);
+  const activeMask = clampNumber(el.prestigeMask.value, 0, 7, getCommanderDefaultPrestigeMask(commander));
+  return requiredMask === 0 || (activeMask & requiredMask) === requiredMask;
+}
+
+function syncCommanderOverrideSelection(commander = getCommander()) {
+  const optionMap = getCommanderExtraOptionMap(commander);
+  const activeOverrideSet = new Set(
+    getCommanderExtraOptions(commander)
+      .filter((option) => isCommanderExtraOptionActive(option, commander))
+      .map((option) => option.overrideValue),
+  );
+
+  for (const overrideValue of [...state.selectedCommanderOverrides]) {
+    if (!optionMap.has(overrideValue) || !activeOverrideSet.has(overrideValue)) {
+      state.selectedCommanderOverrides.delete(overrideValue);
+    }
+  }
+}
+
+function getCommanderOverrideLabels(overrides = [], commanderRuntime = null) {
+  const commander = commanderRuntime
+    ? state.data?.commanders?.find((item) => item.runtime === commanderRuntime) || null
+    : getCommander();
+  const optionMap = getCommanderExtraOptionMap(commander);
+  return [...overrides].map((overrideValue) => optionMap.get(overrideValue)?.name || overrideValue);
 }
 
 function getCommanderPrestigeMaskFromSelection() {
@@ -553,8 +607,7 @@ function renderPrestiges(commander) {
   summary.className = "prestige-summary-card";
   summary.innerHTML = `
     <div class="prestige-summary-copy">
-      <strong>正向效果拆分选择</strong>
-      <span>当前协议仍写入 mask；这里按单项勾选生成融合结果。页面说明仅展示正向效果，不展示官方原始缺点文案。</span>
+      <strong>威望拆分</strong>
     </div>
     <div class="prestige-summary-actions">
       <button type="button" class="mini" data-prestige-select="default">按默认整合</button>
@@ -589,13 +642,6 @@ function renderPrestiges(commander) {
     el.prestigeList.append(card);
   }
 
-  const note = document.createElement("div");
-  note.className = "prestige-footnote";
-  note.textContent = defaultPointIndex >= 0
-    ? `该指挥官 metadata 默认 point=${defaultPointIndex}，但当前页面以 mask 融合为准。`
-    : "当前页面固定走融合写法，不再把官方单威望 point 当主入口。";
-  el.prestigeList.append(note);
-
   el.prestigeList.querySelectorAll("[data-prestige-select]").forEach((button) => {
     button.addEventListener("click", () => {
       const mode = button.dataset.prestigeSelect;
@@ -613,6 +659,8 @@ function renderPrestiges(commander) {
         for (const input of inputs) input.checked = false;
         syncPrestigeMaskFromUI("custom");
       }
+      syncCommanderOverrideSelection(commander);
+      renderExtraOptions(commander);
       updateSummary();
     });
   });
@@ -620,6 +668,78 @@ function renderPrestiges(commander) {
   el.prestigeList.querySelectorAll(".prestige-toggle-input").forEach((input) => {
     input.addEventListener("change", () => {
       syncPrestigeMaskFromUI("custom");
+      syncCommanderOverrideSelection(commander);
+      renderExtraOptions(commander);
+      updateSummary();
+    });
+  });
+}
+
+function renderExtraOptions(commander = getCommander()) {
+  if (!el.extraOptionList) return;
+  el.extraOptionList.replaceChildren();
+
+  const allOptions = getCommanderExtraOptions(commander);
+  const activeOptions = allOptions.filter((option) => isCommanderExtraOptionActive(option, commander));
+
+  const header = document.createElement("div");
+  header.className = "extra-option-head";
+  header.innerHTML = `
+    <strong>额外升级</strong>
+    <span class="badge">${activeOptions.length}</span>
+  `;
+  el.extraOptionList.append(header);
+
+  if (allOptions.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "extra-option-empty";
+    empty.textContent = "当前指挥官没有可选的威望额外升级。";
+    el.extraOptionList.append(empty);
+    return;
+  }
+
+  if (activeOptions.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "extra-option-empty";
+    empty.textContent = el.enablePrestiges.checked
+      ? "当前所选威望没有额外升级。"
+      : "启用融合威望后才可选择额外升级。";
+    el.extraOptionList.append(empty);
+    return;
+  }
+
+  for (const option of activeOptions) {
+    const card = document.createElement("div");
+    card.className = "extra-option-item";
+    const checked = state.selectedCommanderOverrides.has(option.overrideValue);
+    card.innerHTML = `
+      <label class="extra-option-toggle">
+        <input class="extra-option-input" type="checkbox" data-override-value="${escapeHtml(option.overrideValue)}" ${checked ? "checked" : ""}>
+        <span class="extra-option-main">
+          <span class="extra-option-name">
+            <strong>${escapeHtml(option.name || option.id)}</strong>
+            <span class="badge">P${Number(option.prestigeSlot) + 1}</span>
+          </span>
+          <span class="extra-option-tags">
+            <em>${escapeHtml(option.prestigeName || option.prestigeId || "")}</em>
+            <em>${escapeHtml(option.id)}</em>
+          </span>
+        </span>
+      </label>
+      <div class="extra-option-desc">${escapeHtml(option.description || option.overrideValue || option.id)}</div>
+    `;
+    el.extraOptionList.append(card);
+  }
+
+  el.extraOptionList.querySelectorAll(".extra-option-input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const overrideValue = String(input.dataset.overrideValue || "");
+      if (!overrideValue) return;
+      if (input.checked) {
+        state.selectedCommanderOverrides.add(overrideValue);
+      } else {
+        state.selectedCommanderOverrides.delete(overrideValue);
+      }
       updateSummary();
     });
   });
@@ -652,6 +772,8 @@ function renderCommanderDetails() {
   }
   renderPrestiges(commander);
   renderMasteries(commander);
+  syncCommanderOverrideSelection(commander);
+  renderExtraOptions(commander);
   updateSummary();
 }
 
@@ -869,12 +991,14 @@ function getConfigSummaryText() {
 function getPayloadSummaryText(payload) {
   const masteries = Array.isArray(payload.masteries) ? payload.masteries : [];
   const mutators = Array.isArray(payload.mutators) ? payload.mutators : [];
+  const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
   return [
     `指挥官=${getCommanderLabel(payload.commander)}(${payload.commander})`,
     `地图=${getMapLabel(payload.map)}(${payload.map})`,
     `融合=${formatPrestigeProfile(payload.prestigeProfile)}`,
     `精通等级=${payload.masteryLevel}`,
     `精通=[${masteries.join(",") || "-"}]`,
+    `额外升级=${overrideLabels.length === 0 ? "无" : overrideLabels.join(",")}`,
     `因子=${mutators.length === 0 ? "无" : mutators.join(",")}`,
     `模式=${payload.noLaunch ? "dry-run" : "launch"}`,
   ].join(" | ");
@@ -926,6 +1050,7 @@ function getValidationSignature(payload = buildLaunchPayload()) {
     prestigeProfile: normalizePrestigeProfile(payload.prestigeProfile),
     masteryLevel: payload.masteryLevel,
     masteries: payload.masteries,
+    commanderOverrides: [...(payload.commanderOverrides || [])].sort(),
     mutators: [...(payload.mutators || [])].sort(),
     mutatorPreset: payload.mutatorPreset,
   });
@@ -942,6 +1067,7 @@ function normalizeLaunchPayload(payload = buildLaunchPayload()) {
     prestigeProfile: normalizePrestigeProfile(payload.prestigeProfile),
     masteryLevel: payload.masteryLevel,
     masteries: [...(payload.masteries || [])],
+    commanderOverrides: [...(payload.commanderOverrides || [])].sort(),
     mutators: [...(payload.mutators || [])].sort(),
     mutatorPreset: payload.mutatorPreset,
   };
@@ -1004,6 +1130,9 @@ function getValidationChangeSummary(currentPayload = normalizeLaunchPayload()) {
   }
   if (previous.masteryLevel !== currentPayload.masteryLevel || previous.masteries.join(",") !== currentPayload.masteries.join(",")) {
     changes.push(`精通: ${previous.masteryLevel} [${previous.masteries.join(",")}] -> ${currentPayload.masteryLevel} [${currentPayload.masteries.join(",")}]`);
+  }
+  if ((previous.commanderOverrides || []).join(",") !== (currentPayload.commanderOverrides || []).join(",")) {
+    changes.push(`额外升级: ${(previous.commanderOverrides || []).length} -> ${(currentPayload.commanderOverrides || []).length}`);
   }
   if (previous.mutatorPreset !== currentPayload.mutatorPreset) {
     changes.push(`因子 Preset: ${previous.mutatorPreset} -> ${currentPayload.mutatorPreset}`);
@@ -1141,6 +1270,7 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
   const prestigeNames = (commander?.prestiges ?? [])
     .filter((prestige) => (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask)
     .map((prestige) => `P${prestige.slot + 1} ${prestige.name || prestige.id}`);
+  const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
   setSummaryDetail(el.summaryCommander, "指挥官", getCommanderLabel(payload.commander), payload.commander);
   setSummaryDetail(el.summaryMap, "地图", getMapLabel(payload.map), payload.map);
   setSummaryDetail(
@@ -1159,7 +1289,7 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     el.summaryMode,
     "模式",
     payload.noLaunch ? "dry-run 安装" : "launch 启动",
-    `融合=${formatPrestigeProfile(payload.prestigeProfile)}；mask=${payload.prestigeBonusMask}；项=${prestigeNames.join("、") || "无"}；point=-1`,
+    `融合=${formatPrestigeProfile(payload.prestigeProfile)}；mask=${payload.prestigeBonusMask}；项=${prestigeNames.join("、") || "无"}；额外=${overrideLabels.join("、") || "无"}；point=-1`,
   );
 }
 
@@ -1178,10 +1308,11 @@ function updateSummary() {
   const commander = getCommander();
   const map = getMapLabel(el.mapSelect.value) || "-";
   const mutatorCount = state.selectedMutators.size;
+  const commanderOverrideCount = state.selectedCommanderOverrides.size;
   const selectedPrestigeCount = (commander?.prestiges ?? []).filter((prestige) =>
     (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask,
   ).length;
-  el.selectionSummary.textContent = `${commander?.displayName ?? "-"} / ${map} / ${mutatorCount} 因子`;
+  el.selectionSummary.textContent = `${commander?.displayName ?? "-"} / ${map} / ${mutatorCount} 因子 / ${commanderOverrideCount} 升级`;
   el.summaryCommander.textContent = commander?.displayName ?? "-";
   el.summaryMap.textContent = map;
   el.summaryMastery.textContent = `${payload.masteryLevel} / ${payload.masteries.join(",")}`;
@@ -1201,6 +1332,9 @@ function updateSummary() {
 
 function updateBootstrapStrip() {
   if (!state.data) return;
+  if (!el.bootstrapCommanderCount || !el.bootstrapMapCount || !el.bootstrapMutatorCount || !el.bootstrapResourcePlanText) {
+    return;
+  }
 
   el.bootstrapCommanderCount.textContent = String(state.data.counts?.commanders ?? state.data.commanders?.length ?? 0);
   el.bootstrapMapCount.textContent = String(state.data.counts?.maps ?? state.data.maps?.length ?? 0);
@@ -1244,6 +1378,7 @@ function applyPayload(payload, options = {}) {
     unknownCommander: null,
     unknownMap: null,
     unknownMutators: [],
+    unknownCommanderOverrides: [],
   };
 
   if (state.data.commanders.some((item) => item.runtime === payload.commander)) {
@@ -1277,6 +1412,7 @@ function applyPayload(payload, options = {}) {
 
   const allowedMutators = new Set(state.data.mutators.map((item) => item.id));
   state.selectedMutators.clear();
+  state.selectedCommanderOverrides.clear();
   resetSelectedMutatorView();
   if (Array.isArray(payload.mutators)) {
     for (const id of payload.mutators) {
@@ -1288,10 +1424,24 @@ function applyPayload(payload, options = {}) {
     }
   }
 
+  const allowedOverrideMap = getCommanderExtraOptionMap(getCommander());
+  if (Array.isArray(payload.commanderOverrides)) {
+    for (const overrideValue of payload.commanderOverrides) {
+      const overrideText = String(overrideValue || "");
+      const option = allowedOverrideMap.get(overrideText);
+      if (option && isCommanderExtraOptionActive(option, getCommander())) {
+        state.selectedCommanderOverrides.add(overrideText);
+      } else if (overrideText) {
+        report.unknownCommanderOverrides.push(overrideText);
+      }
+    }
+  }
+
+  renderExtraOptions(getCommander());
   renderMutators();
   renderQuickPickers();
   updateSummary();
-  if (report.unknownCommander || report.unknownMap || report.unknownMutators.length > 0) {
+  if (report.unknownCommander || report.unknownMap || report.unknownMutators.length > 0 || report.unknownCommanderOverrides.length > 0) {
     report.ok = false;
   }
   if (options.returnReport) return report;
@@ -1309,6 +1459,7 @@ function getDefaultPayload() {
     prestigeProfile: normalizePrestigeProfile(state.data.defaults.prestigeProfile),
     masteryLevel: state.data.defaults.masteryLevel,
     masteries: state.data.defaults.masterySlots,
+    commanderOverrides: [...(state.data.defaults.commanderOverrides || [])],
     mutators: [],
     mutatorPreset: state.data.defaults.mutatorPreset,
     noLaunch: false,
@@ -2017,6 +2168,7 @@ function buildLaunchPayload() {
     prestigeProfile: normalizePrestigeProfile(el.prestigeProfile.value),
     masteryLevel: parseLooseInteger(el.masteryLevel.value, 30),
     masteries: getMasteryValues(),
+    commanderOverrides: [...state.selectedCommanderOverrides].sort(),
     mutators: [...state.selectedMutators],
     mutatorPreset: clampNumber(el.mutatorPreset.value, 0, 3, 0),
     noLaunch: el.dryRunToggle.checked,

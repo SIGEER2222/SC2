@@ -223,6 +223,31 @@ function Get-RealCommanderPortraitPath {
     return ""
 }
 
+function Get-FileVersionQuery {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        return ""
+    }
+
+    $item = Get-Item -LiteralPath $Path
+    return "?v=$($item.LastWriteTimeUtc.Ticks)"
+}
+
+function Clear-StaleCommanderCache {
+    $commandersCacheRoot = Get-AssetCacheBucketPath -Bucket "commanders"
+    $staleFiles = Get-ChildItem -LiteralPath $commandersCacheRoot -File -ErrorAction SilentlyContinue |
+        Where-Object {
+            $_.Extension -ieq ".jpg" -or
+            $_.Extension -ieq ".jpeg" -or
+            $_.BaseName -match '-'
+        }
+
+    foreach ($file in $staleFiles) {
+        Remove-Item -LiteralPath $file.FullName -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function Get-PreviewAssetPath {
     param([string]$BaseName)
 
@@ -300,8 +325,9 @@ function Resolve-CommanderPortrait {
         if ($needsCopy) {
             Copy-Item -LiteralPath $portraitPath -Destination $targetPath -Force
         }
+        $versionQuery = Get-FileVersionQuery -Path $targetPath
         return [pscustomobject]@{
-            image = "/assets-cache/commanders/$([System.IO.Path]::GetFileName($targetPath))"
+            image = "/assets-cache/commanders/$([System.IO.Path]::GetFileName($targetPath))$versionQuery"
             source = "portrait-exact"
             sourceLabel = "真实头像"
         }
@@ -487,19 +513,21 @@ function Get-CommanderItems {
     $metadata = Get-Content -LiteralPath $script:MetadataPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
     return @($metadata.commanders | ForEach-Object {
-            $displayName = [string]$_.display_name
+            $commanderRecord = $_
+            $displayName = [string]$commanderRecord.display_name
             if ([string]::IsNullOrWhiteSpace($displayName)) {
-                $displayName = [string]$_.runtime_commander
+                $displayName = [string]$commanderRecord.runtime_commander
             }
-            $runtime = [string]$_.runtime_commander
+            $runtime = [string]$commanderRecord.runtime_commander
+            $bankCommander = [string]$commanderRecord.bank_commander
             $portrait = Resolve-CommanderPortrait -Runtime $runtime
             $status = Get-CommanderIntegrationStatus -Runtime $runtime
 
             [pscustomobject]@{
                 runtime = $runtime
                 displayName = $displayName
-                bankCommander = [string]$_.bank_commander
-                generatedCommander = [string]$_.generated_commander
+                bankCommander = $bankCommander
+                generatedCommander = [string]$commanderRecord.generated_commander
                 image = $portrait.image
                 imageReady = -not [string]::IsNullOrWhiteSpace($portrait.image)
                 imageSource = $portrait.source
@@ -508,19 +536,37 @@ function Get-CommanderItems {
                 integrationStatusCode = $status.code
                 integrationTone = $status.tone
                 integrationNote = $status.note
-                defaultPrestigeBonusMask = if ($null -ne $_.default_prestige_bonus_mask) { [int]$_.default_prestige_bonus_mask } else { 7 }
-                defaultPrestigePointIndex = if ($null -ne $_.default_prestige_point_index) { [int]$_.default_prestige_point_index } else { -1 }
-                prestiges = @($_.prestiges | ForEach-Object {
+                defaultPrestigeBonusMask = if ($null -ne $commanderRecord.default_prestige_bonus_mask) { [int]$commanderRecord.default_prestige_bonus_mask } else { 7 }
+                defaultPrestigePointIndex = if ($null -ne $commanderRecord.default_prestige_point_index) { [int]$commanderRecord.default_prestige_point_index } else { -1 }
+                prestiges = @($commanderRecord.prestiges | ForEach-Object {
+                        $prestigeRecord = $_
+                        $prestigeBitMask = [int]$prestigeRecord.bit_mask
                         [pscustomobject]@{
-                            slot = [int]$_.slot
-                            bitMask = [int]$_.bit_mask
-                            id = [string]$_.id
-                            name = [string]$_.name
-                            nameEn = [string]$_.name_en
-                            tooltip = ConvertFrom-SC2Text ([string]$_.tooltip)
+                            slot = [int]$prestigeRecord.slot
+                            bitMask = $prestigeBitMask
+                            id = [string]$prestigeRecord.id
+                            name = [string]$prestigeRecord.name
+                            nameEn = [string]$prestigeRecord.name_en
+                            tooltip = ConvertFrom-SC2Text ([string]$prestigeRecord.tooltip)
+                            extraOptions = @($prestigeRecord.extra_options | ForEach-Object {
+                                    $optionRecord = $_
+                                    $enabledValue = if ($null -ne $optionRecord.enabled_value) { [int]$optionRecord.enabled_value } else { 1 }
+                                    $bankKey = [string]$optionRecord.bank_key
+                                    [pscustomobject]@{
+                                        id = [string]$optionRecord.id
+                                        bankKey = $bankKey
+                                        name = [string]$optionRecord.name
+                                        description = ConvertFrom-SC2Text ([string]$optionRecord.description)
+                                        type = if ([string]::IsNullOrWhiteSpace([string]$optionRecord.type)) { "toggle" } else { [string]$optionRecord.type }
+                                        defaultEnabled = ((if ($null -ne $optionRecord.default) { [int]$optionRecord.default } else { 0 }) -gt 0)
+                                        enabledValue = $enabledValue
+                                        requiresPrestigeMask = if ($null -ne $optionRecord.requires_prestige_mask) { [int]$optionRecord.requires_prestige_mask } else { $prestigeBitMask }
+                                        overrideValue = if ([string]::IsNullOrWhiteSpace($bankKey)) { "" } else { "$bankCommander.$bankKey=$enabledValue" }
+                                    }
+                                })
                         }
                     })
-                masteries = @($_.masteries | ForEach-Object {
+                masteries = @($commanderRecord.masteries | ForEach-Object {
                         [pscustomobject]@{
                             slot = [int]$_.slot
                             category = [int]$_.category
@@ -673,6 +719,7 @@ function Get-BootstrapData {
             prestigePointIndex = -1
             enableMasteries = $true
             enablePrestiges = $true
+            commanderOverrides = @()
             mutatorPreset = 0
         }
         commanders = $commanders
@@ -734,6 +781,21 @@ function ConvertTo-LaunchArgumentList {
     $prestigePointIndex = [int]($Request.prestigePointIndex ?? -1)
     $mutatorPreset = [int]($Request.mutatorPreset ?? 0)
     $noLaunch = if ($Request.noLaunch -eq $true) { $true } else { $false }
+    $selectedCommanderOverrides = New-Object System.Collections.Generic.List[string]
+    if ($null -ne $Request.commanderOverrides) {
+        foreach ($overrideEntry in @($Request.commanderOverrides)) {
+            $overrideText = [string]$overrideEntry
+            if ([string]::IsNullOrWhiteSpace($overrideText)) {
+                continue
+            }
+            if ($overrideText -notmatch '^[^.]+\.[^=]+=.+$') {
+                throw "Invalid commander override: $overrideText"
+            }
+            if (-not $selectedCommanderOverrides.Contains($overrideText)) {
+                $selectedCommanderOverrides.Add($overrideText)
+            }
+        }
+    }
 
     $args = New-Object System.Collections.Generic.List[string]
     foreach ($entry in @(
@@ -753,6 +815,10 @@ function ConvertTo-LaunchArgumentList {
     for ($i = 0; $i -lt 6; $i++) {
         $args.Add("-CommanderPowerMastery$i")
         $args.Add([string]$masteries[$i])
+    }
+    foreach ($overrideText in $selectedCommanderOverrides) {
+        $args.Add("-CommanderPowerOverride")
+        $args.Add($overrideText)
     }
     if ($selectedMutators.Count -gt 0) {
         $args.Add("-Mutators")
@@ -1042,6 +1108,7 @@ function Invoke-Request {
 }
 
 if ($SelfTest) {
+    Clear-StaleCommanderCache
     $bootstrap = Get-BootstrapData
     $sampleRequest = [pscustomobject]@{
         commander = $bootstrap.defaults.commander
@@ -1052,6 +1119,7 @@ if ($SelfTest) {
         prestigePointIndex = -1
         masteryLevel = 15
         masteries = @(15, 15, 15, 15, 15, 15)
+        commanderOverrides = @()
         mutators = @($bootstrap.mutators | Select-Object -First 3 -ExpandProperty id)
         mutatorPreset = 0
         noLaunch = $true
@@ -1071,6 +1139,8 @@ if ($SelfTest) {
     } | ConvertTo-Json -Depth 4
     return
 }
+
+Clear-StaleCommanderCache
 
 $prefix = "http://$HostName`:$Port/"
 $listener = [System.Net.HttpListener]::new()

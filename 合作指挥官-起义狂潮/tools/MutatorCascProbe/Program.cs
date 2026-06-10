@@ -1,8 +1,9 @@
 using CascLib.NET;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
-const uint CascLocaleAll = 0xFFFFFFFF;
+BootstrapNativeDllPath();
 
 if (args.Length < 3)
 {
@@ -40,23 +41,44 @@ static int Probe(string storagePath, string[] assetPaths)
 
     using var storage = new CascStorageHandle(storagePath);
     var results = new List<object>();
-    foreach (string assetPath in assetPaths)
+
+    foreach (string rawAssetPath in assetPaths)
     {
-        string normalized = NormalizePath(assetPath);
-        bool opened = TryOpen(storage.Handle, normalized, out nint fileHandle);
-        ulong bytesCopied = 0;
+        string assetPath = NormalizePath(rawAssetPath);
+        bool opened = storage.TryOpenFile(assetPath, out nint fileHandle);
+        ulong size = 0;
+        ulong bytesRead = 0;
+        string error = "";
+
         if (opened)
         {
-            using var stream = new CascFileStream(fileHandle, normalized);
-            bytesCopied = Drain(stream);
+            try
+            {
+                size = NativeCasc.GetFileSize(fileHandle);
+                bytesRead = DrainFile(fileHandle);
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+            }
+            finally
+            {
+                NativeCasc.CascCloseFile(fileHandle);
+            }
+        }
+        else
+        {
+            error = new Win32Exception(Marshal.GetLastPInvokeError()).Message;
         }
 
         results.Add(new
         {
-            assetPath = normalized,
+            assetPath,
             opened,
             fileHandle = fileHandle.ToInt64(),
-            bytesCopied,
+            size,
+            bytesRead,
+            error,
         });
     }
 
@@ -80,55 +102,70 @@ static int Extract(string storagePath, string outputDir, string[] assetPaths)
     using var storage = new CascStorageHandle(storagePath);
     int extracted = 0;
     int missing = 0;
-    var manifest = new List<object>();
+    var entries = new List<object>();
 
     foreach (string rawAssetPath in assetPaths)
     {
         string assetPath = NormalizePath(rawAssetPath);
         string outputPath = Path.Combine(outputDir, SafeOutputName(assetPath));
-        bool opened = TryOpen(storage.Handle, assetPath, out nint fileHandle);
 
-        if (!opened)
+        if (!storage.TryOpenFile(assetPath, out nint fileHandle))
         {
             missing++;
-            manifest.Add(new
+            entries.Add(new
             {
                 assetPath,
                 opened = false,
                 outputPath = "",
                 bytesWritten = 0UL,
+                error = new Win32Exception(Marshal.GetLastPInvokeError()).Message,
             });
             continue;
         }
 
-        ulong bytesWritten;
-        using (var stream = new CascFileStream(fileHandle, assetPath))
-        using (var output = File.Create(outputPath))
+        ulong bytesWritten = 0;
+        string error = "";
+        try
         {
-            bytesWritten = CopyStream(stream, output);
+            using var output = File.Create(outputPath);
+            bytesWritten = CopyFile(fileHandle, output);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            NativeCasc.CascCloseFile(fileHandle);
         }
 
         if (bytesWritten == 0)
         {
-            File.Delete(outputPath);
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
+
             missing++;
-            manifest.Add(new
+            entries.Add(new
             {
                 assetPath,
                 opened = true,
                 outputPath = "",
                 bytesWritten,
+                error = error.Length == 0 ? "zero-byte-read" : error,
             });
             continue;
         }
 
         extracted++;
-        manifest.Add(new
+        entries.Add(new
         {
             assetPath,
             opened = true,
             outputPath,
             bytesWritten,
+            error,
         });
     }
 
@@ -138,7 +175,7 @@ static int Extract(string storagePath, string outputDir, string[] assetPaths)
         outputDir,
         extracted,
         missing,
-        entries = manifest,
+        entries,
     }, new JsonSerializerOptions
     {
         WriteIndented = true,
@@ -147,47 +184,40 @@ static int Extract(string storagePath, string outputDir, string[] assetPaths)
     return 0;
 }
 
-static bool TryOpen(nint storageHandle, string assetPath, out nint fileHandle)
-{
-    fileHandle = IntPtr.Zero;
-    return NativeCasc.CascOpenFile(storageHandle, assetPath, CascLocaleAll, 0, ref fileHandle)
-        && fileHandle != IntPtr.Zero;
-}
-
-static ulong CopyStream(Stream input, Stream output)
+static ulong CopyFile(nint fileHandle, Stream output)
 {
     byte[] buffer = new byte[1024 * 64];
     ulong total = 0;
 
     while (true)
     {
-        int read = input.Read(buffer, 0, buffer.Length);
-        if (read <= 0)
+        uint read = NativeCasc.Read(fileHandle, buffer, (uint)buffer.Length);
+        if (read == 0)
         {
             break;
         }
 
-        output.Write(buffer, 0, read);
-        total += (ulong)read;
+        output.Write(buffer, 0, (int)read);
+        total += read;
     }
 
     return total;
 }
 
-static ulong Drain(Stream input)
+static ulong DrainFile(nint fileHandle)
 {
     byte[] buffer = new byte[1024 * 64];
     ulong total = 0;
 
     while (true)
     {
-        int read = input.Read(buffer, 0, buffer.Length);
-        if (read <= 0)
+        uint read = NativeCasc.Read(fileHandle, buffer, (uint)buffer.Length);
+        if (read == 0)
         {
             break;
         }
 
-        total += (ulong)read;
+        total += read;
     }
 
     return total;
@@ -203,41 +233,79 @@ static string SafeOutputName(string assetPath)
     return assetPath.Replace('\\', '_').Replace('/', '_').Replace(':', '_');
 }
 
+static void BootstrapNativeDllPath()
+{
+    string nativeDir = Path.Combine(AppContext.BaseDirectory, "runtimes", "win-x64", "native");
+    NativeLoader.SetDllDirectory(nativeDir);
+    string currentPath = Environment.GetEnvironmentVariable("PATH") ?? "";
+    if (!currentPath.Contains(nativeDir, StringComparison.OrdinalIgnoreCase))
+    {
+        Environment.SetEnvironmentVariable("PATH", nativeDir + ";" + currentPath);
+    }
+}
+
 sealed class CascStorageHandle : IDisposable
 {
+    private nint _handle;
+    public int OpenError { get; }
+
     public CascStorageHandle(string storagePath)
     {
-        if (!NativeCasc.CascOpenStorage(storagePath, 0, ref _handle) || _handle == IntPtr.Zero)
+        if (!global::CascLib.NET.CascLib.CascOpenStorage(storagePath, 0, out _handle) || _handle == IntPtr.Zero)
         {
-            throw new InvalidOperationException($"Failed to open CASC storage: {storagePath}");
+            OpenError = Marshal.GetLastPInvokeError();
+            throw new InvalidOperationException($"CascOpenStorage failed: {storagePath}; win32={OpenError}; handle={_handle.ToInt64()}");
         }
     }
 
-    private nint _handle;
-
-    public nint Handle => _handle;
+    public bool TryOpenFile(string assetPath, out nint fileHandle)
+    {
+        bool opened = global::CascLib.NET.CascLib.CascOpenFile(_handle, assetPath, 0xFFFFFFFF, 0, out fileHandle);
+        return opened && fileHandle != IntPtr.Zero;
+    }
 
     public void Dispose()
     {
         if (_handle != IntPtr.Zero)
         {
-            NativeCasc.CascCloseStorage(_handle);
-            _handle = IntPtr.Zero;
+            global::CascLib.NET.CascLib.CascCloseStorage(_handle);
         }
+
+        _handle = IntPtr.Zero;
     }
 }
 
-static partial class NativeCasc
+static class NativeLoader
 {
-    [LibraryImport("CascLib.dll", EntryPoint = "CascOpenStorage", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [DllImport("kernel32.dll", EntryPoint = "SetDllDirectoryW", CharSet = CharSet.Unicode, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool CascOpenStorage(string storagePath, uint localeMask, ref nint storageHandle);
+    public static extern bool SetDllDirectory(string lpPathName);
+}
 
-    [LibraryImport("CascLib.dll", EntryPoint = "CascCloseStorage", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool CascCloseStorage(nint storageHandle);
+static class NativeCasc
+{
+    public static ulong GetFileSize(nint fileHandle)
+    {
+        if (!global::CascLib.NET.CascLib.CascGetFileSize64(fileHandle, out ulong size))
+        {
+            throw new InvalidOperationException($"CascGetFileSize64 failed. Win32={Marshal.GetLastPInvokeError()}");
+        }
 
-    [LibraryImport("CascLib.dll", EntryPoint = "CascOpenFile", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool CascOpenFile(nint storageHandle, string fileName, uint localeFlags, uint openFlags, ref nint fileHandle);
+        return size;
+    }
+
+    public static uint Read(nint fileHandle, byte[] buffer, uint bytesToRead)
+    {
+        if (!global::CascLib.NET.CascLib.CascReadFile(fileHandle, buffer, bytesToRead, out uint read))
+        {
+            throw new InvalidOperationException($"CascReadFile failed. Win32={Marshal.GetLastPInvokeError()}");
+        }
+
+        return read;
+    }
+
+    public static bool CascCloseFile(nint fileHandle)
+    {
+        return global::CascLib.NET.CascLib.CascCloseFile(fileHandle);
+    }
 }
