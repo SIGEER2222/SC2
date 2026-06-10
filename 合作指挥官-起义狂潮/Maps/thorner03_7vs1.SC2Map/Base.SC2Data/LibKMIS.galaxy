@@ -595,6 +595,7 @@ void libKMIS_gf_PlayerApplySkinSignal (int lp_player, string lp_skin, bool lp_ac
     string lv_modelOld;
     int lv_i;
     int lv_c;
+    int lv_activateValue;
     string lv_entry;
     actor lv_ar;
     string lv_fromPath;
@@ -608,10 +609,15 @@ void libKMIS_gf_PlayerApplySkinSignal (int lp_player, string lp_skin, bool lp_ac
     // Variable Initialization
     lv_modelOld = "";
     lv_c = (CatalogFieldValueCount(c_gameCatalogSkin, lp_skin, "ReplacementArray", c_playerAny) - 1);
+    lv_activateValue = 0;
     lv_fromPath = "From";
     lv_toPath = "To";
 
     // Implementation
+    if (lp_activateDeactivate == true) {
+        lv_activateValue = 1;
+    }
+    libE0EAE146_gf_RuntimeVisualProbe("KMIS_PlayerApplySkinSignal", lp_player, lp_skin, lp_extraMessage, lv_activateValue);
     PlayerApplySkin(lp_player, lp_skin, lp_activateDeactivate);
     if ((lp_activateDeactivate == false)) {
         lv_fromPath = "To";
@@ -22512,7 +22518,7 @@ bool libKMIS_gt_CM_GlobalCasterInit_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    autoB36D32D9_g = PlayerGroupAll();
+    autoB36D32D9_g = libKCOR_gf_CommanderPlayers();
     lv_indexPlayer = -1;
     while (true) {
         lv_indexPlayer = PlayerGroupNextPlayer(autoB36D32D9_g, lv_indexPlayer);

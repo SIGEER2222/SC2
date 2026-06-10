@@ -612,6 +612,7 @@ void libKMIS_gf_PlayerApplySkinSignal (int lp_player, string lp_skin, bool lp_ac
     lv_toPath = "To";
 
     // Implementation
+    libE0EAE146_gf_RuntimeVisualProbe("KMIS_PlayerApplySkinSignal", lp_player, lp_skin, lp_extraMessage, lp_activateDeactivate);
     PlayerApplySkin(lp_player, lp_skin, lp_activateDeactivate);
     if ((lp_activateDeactivate == false)) {
         lv_fromPath = "To";
@@ -22512,7 +22513,7 @@ bool libKMIS_gt_CM_GlobalCasterInit_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    autoB36D32D9_g = PlayerGroupAll();
+    autoB36D32D9_g = libKCOR_gf_CommanderPlayers();
     lv_indexPlayer = -1;
     while (true) {
         lv_indexPlayer = PlayerGroupNextPlayer(autoB36D32D9_g, lv_indexPlayer);

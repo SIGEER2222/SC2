@@ -51,6 +51,38 @@ void libE0EAE146_gf_RuntimeCheckpoint (string lp_phase) {
     BankSave(BankLastCreated());
 }
 
+void libE0EAE146_gf_RuntimeVisualProbe (string lp_source, int lp_player, string lp_valueA, string lp_valueB, int lp_valueInt) {
+    string lv_keyBase;
+    int lv_count;
+    int lv_playerColor;
+
+    lv_keyBase = ("XMRuntimeVisualProbe_" + lp_source);
+    lv_count = (DataTableGetInt(true, (lv_keyBase + "_Count")) + 1);
+    DataTableSetInt(true, (lv_keyBase + "_Count"), lv_count);
+    DataTableSetString(true, (lv_keyBase + "_ValueA"), lp_valueA);
+    DataTableSetString(true, (lv_keyBase + "_ValueB"), lp_valueB);
+    DataTableSetInt(true, (lv_keyBase + "_ValueInt"), lp_valueInt);
+    DataTableSetInt(true, (lv_keyBase + "_Player"), lp_player);
+    lv_playerColor = -1;
+    if (lp_player >= 0) {
+        lv_playerColor = PlayerGetColorIndex(lp_player, false);
+    }
+    DataTableSetInt(true, (lv_keyBase + "_PlayerColor"), lv_playerColor);
+    if ((lv_count <= 8) || (ModI(lv_count, 25) == 0)) {
+        BankLoad("CampaignXCore", 1);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeVisualProbe", "LastSource", lp_source);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeVisualProbe", (lp_source + "_Count"), lv_count);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeVisualProbe", (lp_source + "_Player"), lp_player);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeVisualProbe", (lp_source + "_PlayerColor"), lv_playerColor);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeVisualProbe", (lp_source + "_ValueA"), lp_valueA);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeVisualProbe", (lp_source + "_ValueB"), lp_valueB);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeVisualProbe", (lp_source + "_ValueInt"), lp_valueInt);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeVisualProbe", "RunId", BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "TestRunId"));
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeVisualProbe", "Commander", libE0EAE146_gv_commander);
+        BankSave(BankLastCreated());
+    }
+}
+
 int libE0EAE146_gf_RuntimeUnitTypeCount (string lp_unitType) {
     if (lp_unitType == "") {
         return 0;
@@ -165,6 +197,7 @@ void libE0EAE146_gf_ApplyConsoleSkinOverride (int lp_player) {
 
     lv_consoleSkin = libE0EAE146_gf_BankConsoleSkinOverride();
     if (lv_consoleSkin != "") {
+        libE0EAE146_gf_RuntimeVisualProbe("RuntimeSafety_ConsoleOverride", lp_player, lv_consoleSkin, "BankOverride", 1);
         lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(lp_player, lv_consoleSkin);
     }
 }
@@ -244,6 +277,7 @@ void libE0EAE146_gf_ApplyDefaultCommanderSkin (int lp_player, string lp_commande
 
     lv_skin = libE0EAE146_gf_CommanderDefaultSkin(lp_commander);
     if ((lv_skin != "") && CatalogEntryIsValid(c_gameCatalogSkin, lv_skin)) {
+        libE0EAE146_gf_RuntimeVisualProbe("RuntimeSafety_DefaultCommanderSkin", lp_player, lv_skin, lp_commander, 1);
         PlayerApplySkin(lp_player, lv_skin, true);
     }
 }

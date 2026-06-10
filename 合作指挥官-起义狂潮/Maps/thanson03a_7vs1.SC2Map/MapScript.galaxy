@@ -477,8 +477,8 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
 
     PlayerModifyPropertyInt(gv_pLAYER01_USER, c_playerPropMinerals, c_playerPropOperSetTo, 300);
     PlayerModifyPropertyInt(gv_pLAYER01_USER, c_playerPropVespene, c_playerPropOperSetTo, 150);
-    libE0EAE146_gf_Initialize(false);
-    libE0EAE146_gf_InitializeBase(PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0), 7, null, true);
+
+    libE0EAE146_gf_InitializeMapScenario("thanson03a_7vs1", false);
     TriggerExecute(gt_InitializePaths, true, true);
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
@@ -5113,26 +5113,30 @@ void gt_BriefingScene01_Init () {
 //--------------------------------------------------------------------------------------------------
 bool gt_BriefingScene02_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
+    bool auto17B02DBE_val;
     // Actions
     if (!runActions) {
         return true;
     }
 
-    TriggerExecute(gt_Briefing02VikingIndicators, true, false);
-    libNtve_gf_CreateUnitsAtPoint2(1, "StarportFlying", 0, gv_pLAYER01_USER, PointFromId(3258));
-    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("StarportLand", 0), PointFromId(3259)), c_orderQueueReplace);
-    libNtve_gf_CreateUnitsAtPoint2(1, "VikingFighter", 0, gv_pLAYER01_USER, PointFromId(3260));
-    gv_briefingViking1 = UnitLastCreated();
-    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(3262)), c_orderQueueReplace);
-    UnitIssueOrder(UnitLastCreated(), Order(AbilityCommand("AssaultMode", 0)), c_orderQueueAddToEnd);
-    libNtve_gf_CreateUnitsAtPoint2(1, "VikingFighter", 0, gv_pLAYER01_USER, PointFromId(3261));
-    gv_briefingViking2 = UnitLastCreated();
-    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(3263)), c_orderQueueReplace);
-    UnitIssueOrder(UnitLastCreated(), Order(AbilityCommand("AssaultMode", 0)), c_orderQueueAddToEnd);
-    libNtve_gf_CreateUnitsAtPoint2(1, "VikingFighter", 0, gv_pLAYER01_USER, PointFromId(3313));
-    gv_briefingViking3 = UnitLastCreated();
-    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(3314)), c_orderQueueReplace);
-    UnitIssueOrder(UnitLastCreated(), Order(AbilityCommand("AssaultMode", 0)), c_orderQueueAddToEnd);
+    auto17B02DBE_val = libE0EAE146_gf_SuppressPlayerCinematicUnits("thanson03a_7vs1");
+    if (!auto17B02DBE_val) {
+        TriggerExecute(gt_Briefing02VikingIndicators, true, false);
+        libNtve_gf_CreateUnitsAtPoint2(1, "StarportFlying", 0, gv_pLAYER01_USER, PointFromId(3258));
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("StarportLand", 0), PointFromId(3259)), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsAtPoint2(1, "VikingFighter", 0, gv_pLAYER01_USER, PointFromId(3260));
+        gv_briefingViking1 = UnitLastCreated();
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(3262)), c_orderQueueReplace);
+        UnitIssueOrder(UnitLastCreated(), Order(AbilityCommand("AssaultMode", 0)), c_orderQueueAddToEnd);
+        libNtve_gf_CreateUnitsAtPoint2(1, "VikingFighter", 0, gv_pLAYER01_USER, PointFromId(3261));
+        gv_briefingViking2 = UnitLastCreated();
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(3263)), c_orderQueueReplace);
+        UnitIssueOrder(UnitLastCreated(), Order(AbilityCommand("AssaultMode", 0)), c_orderQueueAddToEnd);
+        libNtve_gf_CreateUnitsAtPoint2(1, "VikingFighter", 0, gv_pLAYER01_USER, PointFromId(3313));
+        gv_briefingViking3 = UnitLastCreated();
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(3314)), c_orderQueueReplace);
+        UnitIssueOrder(UnitLastCreated(), Order(AbilityCommand("AssaultMode", 0)), c_orderQueueAddToEnd);
+    }
     CameraApplyInfo(gv_pLAYER01_USER, CameraInfoFromId(3264), 0.0, -1, 10, true);
     Wait(0.1, c_timeReal);
     CameraApplyInfo(gv_pLAYER01_USER, CameraInfoFromId(3265), 6.5, -1, 10, true);
@@ -5162,6 +5166,9 @@ bool gt_Briefing02VikingIndicators_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
     // Actions
     if (!runActions) {
+        return true;
+    }
+    if (libE0EAE146_gf_SuppressPlayerCinematicUnits("thanson03a_7vs1")) {
         return true;
     }
 
