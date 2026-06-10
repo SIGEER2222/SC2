@@ -789,7 +789,6 @@ void libKPVP_gf_set_commander_for_player (string lp_commander, int lp_player) {
         }
     }
 
-    libKCOR_gf_CC_SyncCommanderPowerToBank(lp_player);
     libKCOR_gf_CC_ApplyTech(lp_player);
     libKPVP_gf_enable_upgrades_for_player(lp_player, lp_commander);
     if ((lp_commander == "ZergKerrigan")) {
@@ -1807,9 +1806,12 @@ void libKPVP_gt_NYDUS_CREATED3_Init () {
 //--------------------------------------------------------------------------------------------------
 bool libKPVP_gt_mengsk_colors_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
+    int lv_owner;
+
     // Conditions
+    lv_owner = UnitGetOwner(EventUnitCreatedUnit());
     if (testConds) {
-        if (!((libKCOR_gf_ActiveCommanderForPlayer(UnitGetOwner(EventUnitCreatedUnit())) == "TerranMengsk"))) {
+        if (!((PlayerGroupHasPlayer(libKPVP_gv_mengsk_players, lv_owner) == true))) {
             return false;
         }
     }
@@ -1819,7 +1821,8 @@ bool libKPVP_gt_mengsk_colors_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    UnitSetTeamColorIndex(EventUnitCreatedUnit(), PlayerGetColorIndex(UnitGetOwner(EventUnitCreatedUnit()), false));
+    libE0EAE146_gf_RuntimeVisualProbe("KPVP_UnitCreateTeamColor", lv_owner, UnitGetType(EventUnitCreatedUnit()), IntToString(PlayerGetColorIndex(lv_owner, false)), UnitGetTag(EventUnitCreatedUnit()));
+    UnitSetTeamColorIndex(EventUnitCreatedUnit(), PlayerGetColorIndex(lv_owner, false));
     return true;
 }
 

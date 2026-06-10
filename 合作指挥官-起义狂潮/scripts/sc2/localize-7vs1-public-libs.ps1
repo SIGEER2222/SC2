@@ -108,14 +108,37 @@ function Copy-SharedLibWithHeaders {
     }
 }
 
-function Test-MapNeedsFullCommanderRuntime {
-    param([string]$Path)
+function Sync-SharedLibsToCoopMod {
+    param(
+        [string]$SourceRoot,
+        [string]$DestinationRoot
+    )
 
-    if (-not (Test-Path -LiteralPath $Path)) {
-        return $false
+    if (-not (Test-Path -LiteralPath $DestinationRoot)) {
+        New-Item -ItemType Directory -Path $DestinationRoot -Force | Out-Null
     }
 
-    return [bool](Select-String -Path $Path -Pattern 'libE0EAE146_gf_Initialize\(|libE0EAE146_gf_InitializeBase\(' -Quiet)
+    Get-ChildItem -LiteralPath $SourceRoot -Filter '*.galaxy' | ForEach-Object {
+        Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $DestinationRoot $_.Name) -Force
+    }
+}
+
+function Remove-MapBaseDataDuplicates {
+    param(
+        [string]$MapBaseDataRoot,
+        [string]$SharedRuntimeRoot
+    )
+
+    if (-not (Test-Path -LiteralPath $MapBaseDataRoot)) {
+        return
+    }
+
+    Get-ChildItem -LiteralPath $MapBaseDataRoot -Filter '*.galaxy' -File | ForEach-Object {
+        $sharedRuntimePath = Join-Path $SharedRuntimeRoot $_.Name
+        if (Test-Path -LiteralPath $sharedRuntimePath) {
+            Remove-Item -LiteralPath $_.FullName -Force
+        }
+    }
 }
 
 function Write-DocumentInfo {
@@ -204,6 +227,8 @@ $sharedLibBase = Join-Path $workspaceRoot 'Shared\7vs1PublicLibs\Base.SC2Data'
 if (-not (Test-Path -LiteralPath $sharedLibBase)) {
     throw "Shared 7vs1 public lib base data not found: $sharedLibBase"
 }
+$coopZeroPopBase = Join-Path $workspaceRoot 'Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data'
+Sync-SharedLibsToCoopMod -SourceRoot $sharedLibBase -DestinationRoot $coopZeroPopBase
 
 $libertyStoryName = ([string]([char]0x81EA) + [string]([char]0x7531) + [string]([char]0x4E4B) + [string]([char]0x7FFC) + [string]([char]0x5267) + [string]([char]0x60C5) + ' (' + [string]([char]0x6218) + [string]([char]0x5F79) + ')')
 $libertyModName = ([string]([char]0x81EA) + [string]([char]0x7531) + [string]([char]0x4E4B) + [string]([char]0x7FFC) + ' (Mod)')
@@ -232,8 +257,6 @@ foreach ($map in $targets) {
     $mapScriptPath = Join-Path $map.FullName 'MapScript.galaxy'
     $existingDependencies = @(Get-DocumentInfoDependencies -Path $documentInfoPath)
     $preload = Get-DocumentInfoPreload -Path $documentInfoPath
-    $includeLibIds = @(Get-GalaxyFileIncludeLibIds -Path $mapScriptPath)
-    $needsFullCommanderRuntime = Test-MapNeedsFullCommanderRuntime -Path $mapScriptPath
     $newDependencies = New-Object System.Collections.Generic.List[string]
 
     Add-UniqueDependency -Dependencies $newDependencies -Value $libertyStory
@@ -274,23 +297,7 @@ foreach ($map in $targets) {
         New-Item -ItemType Directory -Path $baseDataRoot -Force | Out-Null
     }
 
-    if ($needsFullCommanderRuntime) {
-        Get-ChildItem -LiteralPath $sharedLibBase -Filter '*.galaxy' | ForEach-Object {
-            Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $baseDataRoot $_.Name) -Force
-        }
-    }
-    else {
-        Copy-Item -LiteralPath $templateLib67 -Destination (Join-Path $baseDataRoot 'Lib67C0F0E7.galaxy') -Force
-        Copy-Item -LiteralPath $templateLibE0 -Destination (Join-Path $baseDataRoot 'LibE0EAE146.galaxy') -Force
-        $copiedLibIds = New-Object 'System.Collections.Generic.HashSet[string]'
-        foreach ($libId in $includeLibIds) {
-            if (($libId -eq 'Lib67C0F0E7') -or ($libId -eq 'LibE0EAE146') -or ($libId -eq 'LibA070801C')) {
-                continue
-            }
-
-            Copy-SharedLibWithHeaders -LibId $libId -SourceRoot $sharedLibBase -DestinationRoot $baseDataRoot -Copied $copiedLibIds
-        }
-    }
+    Remove-MapBaseDataDuplicates -MapBaseDataRoot $baseDataRoot -SharedRuntimeRoot $coopZeroPopBase
 
     Write-DocumentInfo -Path $documentInfoPath -Dependencies $newDependencies.ToArray() -Preload $preload
     & (Join-Path $PSScriptRoot 'sync-document-header-from-info.ps1') -DocumentInfoPath $documentInfoPath -DocumentHeaderPath $documentHeaderPath | Out-Null

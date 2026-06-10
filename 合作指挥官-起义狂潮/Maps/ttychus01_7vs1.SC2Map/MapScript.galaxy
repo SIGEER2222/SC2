@@ -327,17 +327,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    PlayerModifyPropertyInt(gv_p1_USER, c_playerPropMinerals, c_playerPropOperSetTo, 150);
-    PlayerModifyPropertyInt(gv_p1_USER, c_playerPropVespene, c_playerPropOperSetTo, 50);
-
-    libE0EAE146_gf_InitializeMapScenario("ttychus01_7vs1", false);
-    TriggerExecute(gt_Init01Technology, true, true);
-    TriggerExecute(gt_Init02Players, true, true);
-    TriggerExecute(gt_Init03Units, true, true);
-    TriggerExecute(gt_Init04Music, true, true);
-    TriggerExecute(gt_Init05Environment, true, true);
-    TriggerExecute(gt_Init06Difficulties, true, true);
-    TriggerExecute(gt_IntroSequence, true, false);
+    libE0EAE146_gf_InitializeConfiguredMapScenario("ttychus01_7vs1", false, null, gt_Init01Technology, true, gt_Init02Players, gt_Init03Units, gt_Init04Music, gt_Init05Environment, gt_Init06Difficulties, null, gt_IntroSequence);
     return true;
 }
 
