@@ -211,6 +211,79 @@ void libE0EAE146_gf_RaynorApplyTechFilter (int lp_player) {
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "HyperionVoidCoopYamatoCannon", 0);
 }
 
+bool libE0EAE146_gf_RaynorStructureNeedsRefresh (unit lp_unit) {
+    string lv_unitType;
+
+    if (UnitIsAlive(lp_unit) == false) {
+        return false;
+    }
+
+    if (libKCOR_gf_ActiveCommanderForPlayer(UnitGetOwner(lp_unit)) != "TerranRaynor") {
+        return false;
+    }
+
+    lv_unitType = UnitGetType(lp_unit);
+    if ((lv_unitType == "CommandCenterRaynor") || (lv_unitType == "CommandCenterFlyingRaynor") || (lv_unitType == "OrbitalCommandRaynor") || (lv_unitType == "OrbitalCommandFlyingRaynor")) {
+        return true;
+    }
+    if ((lv_unitType == "BarracksRaynor") || (lv_unitType == "BarracksFlyingRaynor")) {
+        return true;
+    }
+    if ((lv_unitType == "FactoryRaynor") || (lv_unitType == "FactoryFlyingRaynor")) {
+        return true;
+    }
+    if ((lv_unitType == "StarportRaynor") || (lv_unitType == "StarportFlyingRaynor")) {
+        return true;
+    }
+
+    return false;
+}
+
+bool libE0EAE146_gt_RaynorStructureMorphRefresh_Func (bool testConds, bool runActions) {
+    int lv_player;
+    unit lv_newUnit;
+
+    if (testConds) {
+        if (libE0EAE146_gf_RaynorStructureNeedsRefresh(EventUnit()) == false) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_player = UnitGetOwner(EventUnit());
+    Wait(0.125, c_timeGame);
+    lv_newUnit = libNtve_gf_LastReplacedUnit();
+    if ((lv_newUnit != null) && (UnitIsAlive(lv_newUnit) == true)) {
+        libNtve_gf_CopyUnitControlGroups(EventUnit(), lv_newUnit);
+        UnitCreateEffectUnit(lv_newUnit, "CopyTargetSelectionAndControlGroups", EventUnit());
+        if (UnitIsSelected(EventUnit(), lv_player) == true) {
+            UnitSelect(lv_newUnit, lv_player, true);
+        }
+    }
+    if (((lv_newUnit != null) && (libE0EAE146_gf_RaynorStructureNeedsRefresh(lv_newUnit) == true)) || (libE0EAE146_gf_RaynorStructureNeedsRefresh(EventUnit()) == true)) {
+        libE0EAE146_gf_RaynorApplyTechFilter(lv_player);
+    }
+    return true;
+}
+
+void libE0EAE146_gt_RaynorStructureMorphRefresh_Init () {
+    libE0EAE146_gt_RaynorStructureMorphRefresh = TriggerCreate("libE0EAE146_gt_RaynorStructureMorphRefresh_Func");
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("CommandCenterLiftOffRaynor", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("CommandCenterLandRaynor", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("UpgradeToOrbitalRaynor", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("OrbitalLiftOffRaynor", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("OrbitalCommandLandRaynor", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("BarracksLiftOffRaynor", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("BarracksLandRaynor", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("FactoryLiftOffRaynor", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("FactoryLandRaynor", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("StarportLiftOffRaynor", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("StarportLandRaynor", 0), c_abilMorphStageUnitEnd, false);
+}
+
 void libE0EAE146_gf_RaynorRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     unit lv_caster;
     unit lv_hero;
@@ -230,6 +303,7 @@ void libE0EAE146_gf_RaynorRuntimeInit (int lp_player, point lp_heroPoint, bool l
         libE0EAE146_gf_RaynorApplyTechFilter(lp_player);
     }
     libE0EAE146_gf_RuntimeCheckpoint("RaynorRuntime.afterTechFilter");
+    libE0EAE146_gt_RaynorStructureMorphRefresh_Init();
 
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterRaynor", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
     libE0EAE146_gf_RuntimeCheckpoint("RaynorRuntime.afterCasterCreate");

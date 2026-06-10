@@ -87,220 +87,189 @@
     </section>
 
     <main class="workspace">
-      <section class="panel setup-panel" aria-labelledby="setupTitle">
+      <section class="panel commander-panel" aria-labelledby="commanderTitle">
         <div class="panel-head">
-          <h2 id="setupTitle">配置</h2>
-          <span id="selectionSummary" class="badge">未就绪</span>
-        </div>
-
-        <div class="field-grid">
-          <label class="field">
-            <span>指挥官</span>
-            <select id="commanderSelect"></select>
-          </label>
-          <label class="field">
-            <span>地图</span>
-            <select id="mapSelect"></select>
-          </label>
-        </div>
-
-        <div class="sample-row" aria-label="随机抽样">
-          <button id="randomCommander" type="button" class="mini">随机指挥官</button>
-          <button id="randomMap" type="button" class="mini">随机地图</button>
-          <button id="randomScenario" type="button" class="mini">随机场景</button>
-        </div>
-
-        <div class="quick-pick-block">
-          <label class="search">
-            <span>快速筛选</span>
-            <input id="quickPickSearch" type="search" autocomplete="off" placeholder="输入指挥官、地图或 id">
-          </label>
-          <div class="quick-filter-row">
-            <label class="field">
-              <span>指挥官种族</span>
-              <select id="commanderRaceFilter">
-                <option value="all">全部</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>地图包</span>
-              <select id="mapPackFilter">
-                <option value="all">全部</option>
-              </select>
-            </label>
-            <button id="clearQuickFilters" type="button" class="secondary quick-clear-button" disabled>清除筛选</button>
-          </div>
-          <div class="quick-pick-columns">
-            <div>
-              <div class="quick-pick-head">
-                <span>指挥官</span>
-                <strong id="commanderQuickCount">0</strong>
-              </div>
-              <div id="commanderQuickList" class="quick-pick-list"></div>
-            </div>
-            <div>
-              <div class="quick-pick-head">
-                <span>地图</span>
-                <strong id="mapQuickCount">0</strong>
-              </div>
-              <div id="mapQuickList" class="quick-pick-list"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="scenario-block">
-          <div class="scenario-head">
-            <span>场景预设</span>
-            <button id="clearScenarioPresets" type="button" class="mini">清除</button>
-          </div>
-          <div class="scenario-controls">
-            <label class="field">
-              <span>方案名称</span>
-              <input id="scenarioPresetName" type="text" maxlength="36" autocomplete="off" placeholder="例如：凯瑞甘 + 黑死病">
-            </label>
-            <button id="saveScenarioPreset" type="button" class="secondary">保存场景</button>
-          </div>
-          <div id="scenarioPresets" class="scenario-list"></div>
-        </div>
-
-        <div class="recent-block">
-          <div class="recent-head">
-            <span>最近配置</span>
-            <button id="clearRecentButton" type="button" class="mini">清除</button>
-          </div>
-          <div id="recentConfigs" class="recent-list"></div>
-        </div>
-
-        <div class="prestige-row">
-          <label class="toggle">
-            <input id="enablePrestiges" type="checkbox" checked>
-            <span>启用融合威望</span>
-          </label>
-          <label class="toggle">
-            <input id="enableMasteries" type="checkbox" checked>
-            <span>启用精通</span>
-          </label>
-        </div>
-
-        <div class="field-grid tight">
-          <label class="field">
-            <span>融合威望 Mask</span>
-            <input id="prestigeMask" type="number" min="0" max="7" value="7">
-          </label>
-          <label class="field">
-            <span>威望4</span>
-            <select id="prestigeProfile">
-              <option value="Prestige4" selected>威望4（全正向融合）</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>精通默认等级</span>
-            <input id="masteryLevel" type="number" min="0" max="30" value="15">
-          </label>
-        </div>
-      </section>
-
-      <section class="panel mastery-panel" aria-labelledby="masteryTitle">
-        <div class="panel-head">
-          <h2 id="masteryTitle">精通加点</h2>
+          <h2 id="commanderTitle">指挥官</h2>
           <div class="mastery-head-actions">
-            <span id="masteryPairStatus" class="badge">-</span>
-            <span id="commanderId" class="badge">-</span>
+            <span id="selectionSummary" class="badge">未就绪</span>
+            <strong id="commanderQuickCount" class="badge">0</strong>
           </div>
         </div>
-        <div id="prestigeList" class="prestige-list"></div>
-        <div class="quick-row" aria-label="精通快捷操作">
-          <button id="masteryZero" type="button" class="mini">全 0</button>
-          <button id="masteryHalf" type="button" class="mini">全 15</button>
-          <button id="masteryFull" type="button" class="mini">全 30</button>
-          <button id="masteryCapPairs" type="button" class="mini">组封顶</button>
+
+        <select id="commanderSelect" class="form-fallback-hidden" aria-hidden="true" tabindex="-1"></select>
+
+        <div class="commander-gallery-block">
+          <div class="quick-pick-head">
+            <span>头像选择</span>
+            <strong>两排优先显示</strong>
+          </div>
+          <div id="commanderQuickList" class="commander-gallery"></div>
         </div>
-        <div id="masteryGrid" class="mastery-grid"></div>
       </section>
 
-      <section class="panel mutator-panel" aria-labelledby="mutatorTitle">
-        <div class="panel-head">
-          <h2 id="mutatorTitle">因子</h2>
-          <span id="mutatorCount" class="badge">0</span>
-        </div>
-        <div class="mutator-tools">
-          <label class="search">
-            <span>搜索</span>
-            <input id="mutatorSearch" type="search" autocomplete="off">
-          </label>
-          <label class="field">
-            <span>显示</span>
-            <select id="mutatorFilter">
-              <option value="all">全部</option>
-              <option value="selected">已选</option>
-              <option value="unselected">未选</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>类别</span>
-            <select id="mutatorCategoryFilter">
-              <option value="all">全部</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>强度</span>
-            <select id="mutatorTierFilter">
-              <option value="all">全部</option>
-            </select>
-          </label>
-          <label class="field preset-field">
-            <span>Preset</span>
-            <input id="mutatorPreset" type="number" min="0" max="3" value="0">
-          </label>
-          <label class="field random-field">
-            <span>随机数</span>
-            <input id="randomMutatorCount" type="number" min="1" max="10" value="3">
-          </label>
-          <button id="randomMutators" type="button" class="secondary">随机</button>
-          <button id="appendRandomMutators" type="button" class="secondary">追加随机</button>
-          <button id="randomMutators3" type="button" class="mini">3</button>
-          <button id="randomMutators5" type="button" class="mini">5</button>
-          <button id="randomMutators10" type="button" class="mini">10</button>
-          <button id="copyMutatorIds" type="button" class="secondary" disabled>复制 ID</button>
-          <button id="clearMutatorFilters" type="button" class="secondary">清除筛选</button>
-          <button id="clearMutators" type="button" class="secondary">清空</button>
-          <div id="mutatorPoolStatus" class="mutator-pool-status">随机池: 69</div>
-        </div>
-        <div class="selected-mutator-panel" aria-label="已选因子">
-          <div class="selected-mutator-tools">
-            <label class="search selected-mutator-search">
-              <span>已选筛选</span>
-              <input id="selectedMutatorSearch" type="search" autocomplete="off" placeholder="按名称或 ID">
-            </label>
-            <span id="selectedMutatorStatus" class="selected-mutator-status">未选择因子</span>
-            <button id="clearMatchedMutators" type="button" class="mini" disabled>清除匹配</button>
-            <button id="toggleSelectedMutators" type="button" class="mini" disabled>展开</button>
-          </div>
-          <div id="selectedMutators" class="selected-mutators collapsed" aria-live="polite"></div>
-        </div>
-        <div class="mutator-import-bar">
-          <label class="field mutator-import-field">
-            <span>粘贴因子 ID</span>
-            <input id="mutatorImportText" type="text" autocomplete="off" placeholder="Barrier, Avenger, BlackFog">
-          </label>
-          <button id="applyMutatorImport" type="button" class="secondary">应用 ID</button>
-          <button id="appendMutatorImport" type="button" class="secondary">追加 ID</button>
-        </div>
-        <div class="mutator-preset-bar">
-          <label class="field preset-name-field">
-            <span>组合名称</span>
-            <input id="mutatorPresetName" type="text" maxlength="32" autocomplete="off" placeholder="例如：压力测试">
-          </label>
-          <label class="field preset-select-field">
-            <span>已存组合</span>
-            <select id="savedMutatorPreset"></select>
-          </label>
-          <button id="saveMutatorPreset" type="button" class="secondary">保存组合</button>
-          <button id="applyMutatorPreset" type="button" class="secondary" disabled>套用</button>
-          <button id="deleteMutatorPreset" type="button" class="secondary" disabled>删除</button>
-        </div>
-        <div id="mutatorGrid" class="mutator-grid"></div>
+      <section class="panel map-panel" aria-label="地图选择">
+        <select id="mapSelect" class="form-fallback-hidden" aria-hidden="true" tabindex="-1"></select>
+        <div id="mapQuickList" class="quick-pick-list map-quick-list map-gallery"></div>
       </section>
+
+      <div class="content-grid">
+        <section class="panel mutator-panel" aria-labelledby="mutatorTitle">
+          <div class="panel-head">
+            <h2 id="mutatorTitle">因子</h2>
+            <span id="mutatorCount" class="badge">0</span>
+          </div>
+          <div class="mutator-tools">
+            <label class="search">
+              <span>搜索</span>
+              <input id="mutatorSearch" type="search" autocomplete="off">
+            </label>
+            <label class="field">
+              <span>显示</span>
+              <select id="mutatorFilter">
+                <option value="all">全部</option>
+                <option value="selected">已选</option>
+                <option value="unselected">未选</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>类别</span>
+              <select id="mutatorCategoryFilter">
+                <option value="all">全部</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>强度</span>
+              <select id="mutatorTierFilter">
+                <option value="all">全部</option>
+              </select>
+            </label>
+            <label class="field preset-field">
+              <span>Preset</span>
+              <input id="mutatorPreset" type="number" min="0" max="3" value="0">
+            </label>
+            <label class="field random-field">
+              <span>随机数</span>
+              <input id="randomMutatorCount" type="number" min="1" max="10" value="3">
+            </label>
+            <button id="randomMutators" type="button" class="secondary">随机</button>
+            <button id="appendRandomMutators" type="button" class="secondary">追加随机</button>
+            <button id="randomMutators3" type="button" class="mini">3</button>
+            <button id="randomMutators5" type="button" class="mini">5</button>
+            <button id="randomMutators10" type="button" class="mini">10</button>
+            <button id="copyMutatorIds" type="button" class="secondary" disabled>复制 ID</button>
+            <button id="clearMutatorFilters" type="button" class="secondary">清除筛选</button>
+            <button id="clearMutators" type="button" class="secondary">清空</button>
+            <div id="mutatorPoolStatus" class="mutator-pool-status">随机池: 69</div>
+          </div>
+          <div class="selected-mutator-panel" aria-label="已选因子">
+            <div class="selected-mutator-tools">
+              <label class="search selected-mutator-search">
+                <span>已选筛选</span>
+                <input id="selectedMutatorSearch" type="search" autocomplete="off" placeholder="按名称或 ID">
+              </label>
+              <span id="selectedMutatorStatus" class="selected-mutator-status">未选择因子</span>
+              <button id="clearMatchedMutators" type="button" class="mini" disabled>清除匹配</button>
+              <button id="toggleSelectedMutators" type="button" class="mini" disabled>展开</button>
+            </div>
+            <div id="selectedMutators" class="selected-mutators collapsed" aria-live="polite"></div>
+          </div>
+          <div class="mutator-import-bar">
+            <label class="field mutator-import-field">
+              <span>粘贴因子 ID</span>
+              <input id="mutatorImportText" type="text" autocomplete="off" placeholder="Barrier, Avenger, BlackFog">
+            </label>
+            <button id="applyMutatorImport" type="button" class="secondary">应用 ID</button>
+            <button id="appendMutatorImport" type="button" class="secondary">追加 ID</button>
+          </div>
+          <div class="mutator-preset-bar">
+            <label class="field preset-name-field">
+              <span>组合名称</span>
+              <input id="mutatorPresetName" type="text" maxlength="32" autocomplete="off" placeholder="例如：压力测试">
+            </label>
+            <label class="field preset-select-field">
+              <span>已存组合</span>
+              <select id="savedMutatorPreset"></select>
+            </label>
+            <button id="saveMutatorPreset" type="button" class="secondary">保存组合</button>
+            <button id="applyMutatorPreset" type="button" class="secondary" disabled>套用</button>
+            <button id="deleteMutatorPreset" type="button" class="secondary" disabled>删除</button>
+          </div>
+          <div id="mutatorGrid" class="mutator-grid"></div>
+        </section>
+
+        <div class="right-stack">
+          <section class="panel setup-panel" aria-labelledby="setupTitle">
+            <div class="panel-head">
+              <h2 id="setupTitle">配置</h2>
+              <span id="commanderId" class="badge">-</span>
+            </div>
+
+            <div class="prestige-row">
+              <label class="toggle">
+                <input id="enablePrestiges" type="checkbox" checked>
+                <span>启用融合威望</span>
+              </label>
+              <label class="toggle">
+                <input id="enableMasteries" type="checkbox" checked>
+                <span>启用精通</span>
+              </label>
+            </div>
+
+            <div class="field-grid tight">
+              <label class="field">
+                <span>融合结果</span>
+                <input id="prestigeMask" type="number" min="0" max="7" value="7" readonly>
+              </label>
+              <label class="field">
+                <span>融合档案</span>
+                <select id="prestigeProfile">
+                  <option value="Prestige4" selected>威望4（全正向融合）</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>精通默认等级</span>
+                <input id="masteryLevel" type="number" value="15">
+              </label>
+            </div>
+            <div id="prestigeConfigNote" class="prestige-config-note">当前按正向效果勾选生成融合结果；未整合完成的指挥官，勾选只表示请求，不保证实机完全生效。</div>
+
+            <div class="scenario-block">
+              <div class="scenario-head">
+                <span>场景预设</span>
+                <button id="clearScenarioPresets" type="button" class="mini">清除</button>
+              </div>
+              <div class="scenario-controls">
+                <label class="field">
+                  <span>方案名称</span>
+                  <input id="scenarioPresetName" type="text" maxlength="36" autocomplete="off" placeholder="例如：凯瑞甘 + 黑死病">
+                </label>
+                <button id="saveScenarioPreset" type="button" class="secondary">保存场景</button>
+              </div>
+              <div id="scenarioPresets" class="scenario-list"></div>
+            </div>
+
+            <div class="recent-block">
+              <div class="recent-head">
+                <span>最近配置</span>
+                <button id="clearRecentButton" type="button" class="mini">清除</button>
+              </div>
+              <div id="recentConfigs" class="recent-list"></div>
+            </div>
+          </section>
+
+          <section class="panel mastery-panel" aria-labelledby="masteryTitle">
+            <div class="panel-head">
+              <h2 id="masteryTitle">精通与威望</h2>
+              <div class="mastery-head-actions">
+                <span id="masteryPairStatus" class="badge">-</span>
+                <span id="prestigeFusionStatus" class="badge">-</span>
+              </div>
+            </div>
+            <div id="prestigeList" class="prestige-list"></div>
+            <div id="masteryGrid" class="mastery-grid"></div>
+          </section>
+        </div>
+      </div>
 
       <section class="panel output-panel" aria-labelledby="outputTitle">
         <div class="panel-head">

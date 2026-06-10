@@ -23,18 +23,362 @@ $script:LaunchScript = Join-Path $PSScriptRoot "launch-7vs1-coop-test.ps1"
 $script:MetadataPath = Join-Path $script:WorkspaceRoot "Shared\CommanderPower\commander-power-metadata.json"
 $script:MapsRoot = Join-Path $script:WorkspaceRoot "Maps"
 $script:WebRoot = Join-Path $script:WorkspaceRoot "web-launcher"
+$script:AssetsCacheRoot = Join-Path $script:WebRoot "assets-cache"
+$script:RealCommanderPortraitRoot = Join-Path $script:WebRoot "exported-real-commander-images"
 $script:LogsRoot = Join-Path $script:WorkspaceRoot "logs"
 $script:MutatorStringsPath = Join-Path $script:WorkspaceRoot "Mods\kit_mutations.SC2Mod\zhCN.SC2Data\LocalizedData\GameStrings.txt"
 $script:MutatorsXmlPath = Join-Path $script:WorkspaceRoot "Mods\kit_mutations.SC2Mod\Base.SC2Data\GameData\Mutators.xml"
 $script:LaunchProcesses = @{}
+$script:AssetSourceConfig = $null
+$script:CommanderExactPortraitMap = @{
+    TerranRaynor   = "TerranRaynor.png"
+    ZergKerrigan   = "ZergKerrigan.png"
+    ProtossArtanis = "ProtossArtanis.png"
+    ZergZagara     = "ZergZagara.png"
+    ProtossAlarak  = "ProtossAlarak.png"
+    TerranNova     = "TerranNova.png"
+    ProtossFenix   = "ProtossFenix.png"
+    ZergDehaka     = "ZergDehaka.png"
+    TerranTychus   = "TerranTychus.png"
+    ProtossZeratul = "ProtossZeratul.png"
+    TerranSwann    = "TerranSwann.png"
+    ZergStukov     = "ZergStukov.png"
+    TerranHorner   = "TerranHorner.png"
+    TerranMengsk   = "TerranMengsk.png"
+    ZergStetmann   = "ZergStetmann.png"
+    ZergAbathur    = "ZergAbathur.png"
+    ProtossKarax   = "ProtossKarax.png"
+    ProtossVorazun = "ProtossVorazun.png"
+}
+$script:CommanderInlineStatusMap = @{
+    TerranSwann  = "partial-inline"
+    ZergStukov   = "partial-inline"
+    TerranHorner = "partial-inline"
+    TerranNova   = "partial-inline"
+    TerranTychus = "partial-inline"
+    TerranMengsk = "partial-inline"
+    ZergStetmann = "partial-inline"
+    ZergDehaka   = "partial-inline"
+}
+$script:MutatorFallbackArtMap = @{
+    AfraidOfTheDark     = @("btn-command-move")
+    AllEnemiesCloaked   = @("btn-ability-zeratul-sentry-eclipseprotocol")
+    Avenger             = @("btn-upgrade-zerg-abathur-biomass")
+    Barrier             = @("btn-ability-zeratul-immortal-enternitybarrier")
+    BlackFog            = @("btn-ability-zeratul-sentry-eclipseprotocol")
+    Blizzard            = @("btn-ability-zeratul-disruptor-clusternova")
+    BoomBots            = @("btn-ability-hornerhan-battlecruiser-yamato")
+    ConcussiveAttacks   = @("btn-upgrade-tychus-warhound-thunderboltmissiles")
+    CycleRandom         = @("btn-command-move")
+    DamageBounce        = @("btn-upgrade-swann-defensivematrix")
+    DamageReflect       = @("btn-upgrade-swann-defensivematrix")
+    DeathAOE            = @("btn-ability-tychus-reaper-demolitioncharge")
+    DeathPull           = @("btn-ability-zeratul-stalker-vengeanceofthevoid")
+    DropPods            = @("Talent-Raynor-Level08-OrbitalDropPods")
+    Entomb              = @("btn-building-stukov-infestedcommandcenter")
+    Evolve              = @("btn-upgrade-zerg-abathur-biomass")
+    Fear                = @("btn-ability-dehaka-damagereductionwhilemoving")
+    FireFight           = @("btn-ability-mengsk-topbar-contaminatedstrike")
+    Fireworks           = @("btn-ability-stetmann-garytravelingdamageorb")
+    FoodHunt            = @("Talent-Swann-Level05-VespeneDrone")
+    GiftFight           = @("btn-ability-stetmann-scrapdrop")
+    HardenedWill        = @("btn-ability-alarak-reliquaryofsouls")
+    HeroesFromTheStorm  = @("btn-ability-alarak-reliquaryofsouls")
+    HybridNuke          = @("btn-ability-mengsk-topbar-contaminatedstrike")
+    InfestedTerranSpawner = @("btn-building-stukov-infestedbarracks")
+    Inspiration         = @("btn-ability-kerrigan-wildmutation")
+    Insubordination     = @("btn-ability-mengsk-commandcenter-drafttroopers")
+    JustDie             = @("btn-upgrade-tychus-warhound-umojanframe")
+    KillBots            = @("btn-ability-tychus-warhound-deployturret")
+    KillKarma           = @("btn-ability-mengsk-ghost-staticempblast")
+    LaserDrill          = @("btn-tips-laserdrillcontrol")
+    LavaBurst           = @("btn-ability-stetmann-garytravelingdamageorb")
+    LazyWorkers         = @("Talent-Swann-Level05-VespeneDrone")
+    LifeLeech           = @("btn-ability-zerg-dehaka-consume")
+    LongRange           = @("btn-ability-zeratul-stalker-phasebattery")
+    Magnificent         = @("btn-ability-stetmann-garymassteleport")
+    MissileBarrage      = @("btn-ability-mengsk-topbar-contaminatedstrike")
+    MomentOfSilence     = @("btn-ability-tychus-spectre-ultrasonicpulse")
+    NoResources         = @("btn-ability-mengsk-commandcenter-draftlaborers")
+    Nukes               = @("btn-ability-hornerhan-battlecruiser-yamato")
+    OopsAllCasters      = @("btn-ability-alarak-reliquaryofsouls")
+    OrbitalStrike       = @("btn-ability-mengsk-topbar-contaminatedstrike")
+    OrderCosts          = @("btn-ability-mengsk-commandcenter-draftlaborers")
+    PhotonOverload      = @("btn-upgrade-karax_solarlance")
+    Plague              = @("btn-ability-zerg-stukov-summonpsiemitter")
+    Polarity            = @("btn-ability-zeratul-darktemplar-blink")
+    Propagate           = @("btn-ability-zerg-dehaka-levelup")
+    PurifierBeam        = @("btn-upgrade-karax_solarlance")
+    Random              = @("btn-command-move")
+    Reanimators         = @("btn-ability-zerg-dehaka-levelup")
+    RedEnvelopes        = @("btn-ability-stetmann-scrapdrop")
+    ReducedVision       = @("btn-ability-zeratul-observer-sensorarray")
+    SharedSupply        = @("Talent-Swann-Level08-ImprovedSCVs")
+    SideStep            = @("btn-ability-zeratul-darktemplar-blink")
+    Sluggish            = @("btn-ability-dehaka-damagereductionwhilemoving")
+    SpawnBroodlings     = @("btn-ability-kerrigan-wildmutation")
+    SpiderMines         = @("btn-ability-tychus-warhound-deployturret")
+    StoneZealots        = @("BTN-Upgrade-Artanis-SingularityCharge")
+    StructureSteal      = @("btn-building-terran-commandcentermengsk")
+    TemporalField       = @("btn-ability-stetmann-garymassteleport")
+    TimeWarp            = @("btn-ability-stetmann-garymassteleport")
+    Tornadoes           = @("btn-ability-stetmann-garytravelingdamageorb")
+    TrickOrTreat        = @("btn-ability-stetmann-scrapdrop")
+    UberDarkness        = @("btn-ability-zeratul-sentry-eclipseprotocol")
+    UndyingEvil         = @("btn-ability-zerg-dehaka-levelup")
+    UnitSpeed           = @("btn-upgrade-tychus-tychus-sureshotnetwork")
+    Vertigo             = @("btn-ability-stetmann-garytravelingdamageorb")
+    VoidRifts           = @("btn-ability-zeratul-stalker-vengeanceofthevoid")
+    WalkingInfested     = @("btn-building-stukov-infestedbarracks")
+}
 
 foreach ($requiredPath in @($script:LaunchScript, $script:MetadataPath, $script:MapsRoot, $script:WebRoot)) {
     if (-not (Test-Path -LiteralPath $requiredPath)) {
         throw "Required path not found: $requiredPath"
     }
 }
+if (-not (Test-Path -LiteralPath $script:RealCommanderPortraitRoot)) {
+    New-Item -ItemType Directory -Path $script:RealCommanderPortraitRoot | Out-Null
+}
 if (-not (Test-Path -LiteralPath $script:LogsRoot)) {
     New-Item -ItemType Directory -Path $script:LogsRoot | Out-Null
+}
+if (-not (Test-Path -LiteralPath $script:AssetsCacheRoot)) {
+    New-Item -ItemType Directory -Path $script:AssetsCacheRoot | Out-Null
+}
+
+function Get-AssetSourceConfig {
+    if ($null -ne $script:AssetSourceConfig) {
+        return $script:AssetSourceConfig
+    }
+
+    $metadata = Get-Content -LiteralPath $script:MetadataPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $officialCommandersRoot = [string]$metadata.source.official_commanders_root
+    $officialBase = if ([string]::IsNullOrWhiteSpace($officialCommandersRoot)) {
+        ""
+    }
+    else {
+        Split-Path -Parent $officialCommandersRoot
+    }
+
+    $script:AssetSourceConfig = [pscustomobject]@{
+        officialBase = $officialBase
+        previewJpgRoot = if ($officialBase) { Join-Path $officialBase "icon-assets\preview-jpg\Assets\Textures" } else { "" }
+        previewPngRoot = if ($officialBase) { Join-Path $officialBase "icon-assets\preview-png\Assets\Textures" } else { "" }
+        mutationWingAssets = "C:\Users\22448\Downloads\因子之翼\kit_liberty_mutation_challenge.SC2Mod\Assets\Textures"
+    }
+    return $script:AssetSourceConfig
+}
+
+function Get-CommanderIntegrationStatus {
+    param([string]$Runtime)
+
+    if ($script:CommanderInlineStatusMap.ContainsKey($Runtime)) {
+        return [pscustomobject]@{
+            code = "partial-inline"
+            label = "部分内联"
+            tone = "warn"
+            note = "威望/精通协议已验证，但仍有专属初始化保留在共享内联分支。"
+        }
+    }
+
+    return [pscustomobject]@{
+        code = "verified"
+        label = "已验证"
+        tone = "ok"
+        note = "已进入 CommanderPower 校验矩阵，可作为常规测试入口。"
+    }
+}
+
+function Get-TextureBaseName {
+    param([string]$AssetRef)
+
+    if ([string]::IsNullOrWhiteSpace($AssetRef)) {
+        return ""
+    }
+    return [System.IO.Path]::GetFileNameWithoutExtension($AssetRef.Trim())
+}
+
+function Get-AssetCacheBucketPath {
+    param([string]$Bucket)
+
+    $path = Join-Path $script:AssetsCacheRoot $Bucket
+    if (-not (Test-Path -LiteralPath $path)) {
+        New-Item -ItemType Directory -Path $path | Out-Null
+    }
+    return $path
+}
+
+function Get-RealCommanderPortraitPath {
+    param([string]$FileName)
+
+    if ([string]::IsNullOrWhiteSpace($FileName)) {
+        return ""
+    }
+
+    $candidate = Join-Path $script:RealCommanderPortraitRoot $FileName
+    if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        return $candidate
+    }
+    return ""
+}
+
+function Get-PreviewAssetPath {
+    param([string]$BaseName)
+
+    if ([string]::IsNullOrWhiteSpace($BaseName)) {
+        return ""
+    }
+
+    $config = Get-AssetSourceConfig
+    foreach ($candidate in @(
+            (Join-Path $config.previewJpgRoot ($BaseName + ".jpg")),
+            (Join-Path $config.previewPngRoot ($BaseName + ".png"))
+        )) {
+        if ($candidate -and (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+            return $candidate
+        }
+    }
+    return ""
+}
+
+function Copy-AssetToCache {
+    param(
+        [string]$Bucket,
+        [string]$LogicalId,
+        [string[]]$BaseNames
+    )
+
+    $targetDir = Get-AssetCacheBucketPath -Bucket $Bucket
+    $safeId = ($LogicalId -replace '[^A-Za-z0-9_-]', '_')
+
+    foreach ($baseName in @($BaseNames | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })) {
+        $sourcePath = Get-PreviewAssetPath -BaseName $baseName
+        if (-not $sourcePath) {
+            continue
+        }
+
+        $extension = [System.IO.Path]::GetExtension($sourcePath).ToLowerInvariant()
+        $safeBaseName = ($baseName -replace '[^A-Za-z0-9_-]', '_')
+        $targetPath = Join-Path $targetDir ($safeId + "-" + $safeBaseName + $extension)
+        $needsCopy = $true
+        if (Test-Path -LiteralPath $targetPath -PathType Leaf) {
+            $sourceInfo = Get-Item -LiteralPath $sourcePath
+            $targetInfo = Get-Item -LiteralPath $targetPath
+            $needsCopy = $sourceInfo.LastWriteTimeUtc -gt $targetInfo.LastWriteTimeUtc
+        }
+        if ($needsCopy) {
+            Copy-Item -LiteralPath $sourcePath -Destination $targetPath -Force
+        }
+        return "/assets-cache/$Bucket/$([System.IO.Path]::GetFileName($targetPath))"
+    }
+
+    return ""
+}
+
+function Resolve-CommanderPortrait {
+    param([string]$Runtime)
+
+    $portraitFileName = if ($script:CommanderExactPortraitMap.ContainsKey($Runtime)) {
+        [string]$script:CommanderExactPortraitMap[$Runtime]
+    }
+    else {
+        ""
+    }
+
+    $portraitPath = Get-RealCommanderPortraitPath -FileName $portraitFileName
+    if ($portraitPath) {
+        $targetDir = Get-AssetCacheBucketPath -Bucket "commanders"
+        $targetName = "$Runtime$([System.IO.Path]::GetExtension($portraitPath).ToLowerInvariant())"
+        $targetPath = Join-Path $targetDir $targetName
+        $needsCopy = $true
+        if (Test-Path -LiteralPath $targetPath -PathType Leaf) {
+            $sourceInfo = Get-Item -LiteralPath $portraitPath
+            $targetInfo = Get-Item -LiteralPath $targetPath
+            $needsCopy = $sourceInfo.LastWriteTimeUtc -gt $targetInfo.LastWriteTimeUtc
+        }
+        if ($needsCopy) {
+            Copy-Item -LiteralPath $portraitPath -Destination $targetPath -Force
+        }
+        return [pscustomobject]@{
+            image = "/assets-cache/commanders/$([System.IO.Path]::GetFileName($targetPath))"
+            source = "portrait-exact"
+            sourceLabel = "真实头像"
+        }
+    }
+
+    return [pscustomobject]@{
+        image = ""
+        source = "missing"
+        sourceLabel = "待补头像"
+    }
+}
+
+function Get-DefaultMutatorArtNames {
+    param([string]$Category)
+
+    switch ($Category) {
+        "environment" { return @("btn-upgrade-karax_solarlance", "btn-ability-stetmann-garytravelingdamageorb") }
+        "enemy" { return @("btn-upgrade-zerg-abathur-biomass", "btn-ability-kerrigan-wildmutation") }
+        "economy" { return @("Talent-Swann-Level05-VespeneDrone", "btn-ability-mengsk-commandcenter-draftlaborers") }
+        "defense" { return @("btn-ability-zeratul-immortal-enternitybarrier", "btn-upgrade-swann-defensivematrix") }
+        "random" { return @("btn-command-move", "btn-ability-stetmann-garymassteleport") }
+        default { return @("btn-command-move", "btn-ability-kerrigan-wildmutation") }
+    }
+}
+
+function Resolve-CommanderImage {
+    param([string]$Runtime)
+
+    return (Resolve-CommanderPortrait -Runtime $Runtime).image
+}
+
+function Resolve-MutatorImage {
+    param(
+        [string]$Id,
+        [string]$Icon,
+        [string]$Category
+    )
+
+    $baseNames = New-Object System.Collections.Generic.List[string]
+    $iconBaseName = Get-TextureBaseName -AssetRef $Icon
+    if ($iconBaseName) {
+        $baseNames.Add($iconBaseName)
+    }
+
+    $exactImage = Copy-AssetToCache -Bucket "mutators" -LogicalId $Id -BaseNames @($iconBaseName)
+    if ($exactImage) {
+        return [pscustomobject]@{
+            image = $exactImage
+            source = "icon-exact"
+            sourceLabel = "游戏图标"
+        }
+    }
+
+    $fallbackBaseNames = New-Object System.Collections.Generic.List[string]
+    if ($script:MutatorFallbackArtMap.ContainsKey($Id)) {
+        foreach ($name in @($script:MutatorFallbackArtMap[$Id])) {
+            $fallbackBaseNames.Add([string]$name)
+        }
+    }
+    foreach ($name in @(Get-DefaultMutatorArtNames -Category $Category)) {
+        $fallbackBaseNames.Add([string]$name)
+    }
+
+    $fallbackImage = Copy-AssetToCache -Bucket "mutators" -LogicalId $Id -BaseNames $fallbackBaseNames.ToArray()
+    if ($fallbackImage) {
+        return [pscustomobject]@{
+            image = $fallbackImage
+            source = "icon-fallback"
+            sourceLabel = "主题回退"
+        }
+    }
+
+    return [pscustomobject]@{
+        image = ""
+        source = "missing"
+        sourceLabel = "未命中"
+    }
 }
 
 function ConvertFrom-SC2Text {
@@ -75,19 +419,38 @@ function Get-LocalizedStringMap {
 }
 
 function Get-MutatorIdsFromLaunchScript {
-    $text = Get-Content -LiteralPath $script:LaunchScript -Raw -Encoding UTF8
-    $match = [regex]::Match(
-        $text,
-        'foreach \(\$mutator in @\((?<body>.*?)\)\) \{\s*\$allowedMutators',
-        [System.Text.RegularExpressions.RegexOptions]::Singleline
-    )
-    if (-not $match.Success) {
-        throw "Could not parse mutator allow-list from $script:LaunchScript"
+    if (-not (Test-Path -LiteralPath $script:MutatorsXmlPath)) {
+        throw "Mutators.xml not found: $script:MutatorsXmlPath"
     }
 
-    return @([regex]::Matches($match.Groups["body"].Value, '"([^"]+)"') | ForEach-Object {
-            $_.Groups[1].Value
-        })
+    [xml]$xml = Get-Content -LiteralPath $script:MutatorsXmlPath -Raw -Encoding UTF8
+    $mutatorUser = @($xml.Catalog.CUser | Where-Object { $_.id -eq "Mutators" } | Select-Object -First 1)
+    if ($mutatorUser.Count -eq 0) {
+        throw "Could not find CUser id='Mutators' in $script:MutatorsXmlPath"
+    }
+
+    $ids = New-Object System.Collections.Generic.List[string]
+    foreach ($instance in @($mutatorUser[0].Instances)) {
+        $id = [string]$instance.Id
+        if ([string]::IsNullOrWhiteSpace($id) -or $id -eq "[Default]") {
+            continue
+        }
+
+        $customAllowed = $false
+        foreach ($intNode in @($instance.Int)) {
+            $field = @($intNode.Field | Where-Object { $_.Id -eq "CustomAllowed" } | Select-Object -First 1)
+            if ($field.Count -gt 0 -and [string]$intNode.Int -eq "1") {
+                $customAllowed = $true
+                break
+            }
+        }
+
+        if ($customAllowed) {
+            $ids.Add($id)
+        }
+    }
+
+    return $ids.ToArray()
 }
 
 function Get-MutatorIconMap {
@@ -128,12 +491,25 @@ function Get-CommanderItems {
             if ([string]::IsNullOrWhiteSpace($displayName)) {
                 $displayName = [string]$_.runtime_commander
             }
+            $runtime = [string]$_.runtime_commander
+            $portrait = Resolve-CommanderPortrait -Runtime $runtime
+            $status = Get-CommanderIntegrationStatus -Runtime $runtime
 
             [pscustomobject]@{
-                runtime = [string]$_.runtime_commander
+                runtime = $runtime
                 displayName = $displayName
                 bankCommander = [string]$_.bank_commander
                 generatedCommander = [string]$_.generated_commander
+                image = $portrait.image
+                imageReady = -not [string]::IsNullOrWhiteSpace($portrait.image)
+                imageSource = $portrait.source
+                imageSourceLabel = $portrait.sourceLabel
+                integrationStatus = $status.label
+                integrationStatusCode = $status.code
+                integrationTone = $status.tone
+                integrationNote = $status.note
+                defaultPrestigeBonusMask = if ($null -ne $_.default_prestige_bonus_mask) { [int]$_.default_prestige_bonus_mask } else { 7 }
+                defaultPrestigePointIndex = if ($null -ne $_.default_prestige_point_index) { [int]$_.default_prestige_point_index } else { -1 }
                 prestiges = @($_.prestiges | ForEach-Object {
                         [pscustomobject]@{
                             slot = [int]$_.slot
@@ -204,13 +580,17 @@ function Get-MutatorItems {
             $description = if ($strings.ContainsKey($descriptionKey)) { $strings[$descriptionKey] } else { "" }
             $icon = if ($icons.ContainsKey($id)) { $icons[$id] } else { "" }
             $class = Get-MutatorClass -Id $id
+            $image = Resolve-MutatorImage -Id $id -Icon $icon -Category $class.category
 
             [pscustomobject]@{
                 id = $id
                 name = $name
                 description = $description
                 icon = $icon
-                iconReady = $false
+                image = $image.image
+                iconReady = -not [string]::IsNullOrWhiteSpace($image.image)
+                imageSource = $image.source
+                imageSourceLabel = $image.sourceLabel
                 category = $class.category
                 tier = $class.tier
             }
@@ -299,9 +679,9 @@ function Get-BootstrapData {
         maps = $maps
         mutators = $mutators
         resourcePlan = [pscustomobject]@{
-            text = "GameStrings.txt 已接入"
-            icons = "当前提供 SC2 DDS 路径引用，后续转换为浏览器 PNG"
-            audio = "后续从 PreloadAssetDB/assets 索引音效引用"
+            text = "指挥官 / 因子文字与协议元数据已接入"
+            icons = "本地缓存真实 SC2 贴图；优先命中提取图标，缺失项回退到同主题游戏贴图"
+            audio = "音效仍保留为后续目标"
         }
     }
 }
@@ -683,6 +1063,8 @@ if ($SelfTest) {
         commanders = $bootstrap.counts.commanders
         maps = $bootstrap.counts.maps
         mutators = $bootstrap.counts.mutators
+        firstCommander = @($bootstrap.commanders | Select-Object -First 1)
+        firstMutator = @($bootstrap.mutators | Select-Object -First 1)
         webRoot = $script:WebRoot
         launchScript = $script:LaunchScript
         sampleArgs = $sampleArgs

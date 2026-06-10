@@ -58,7 +58,7 @@ function Get-CommanderBatches {
                 "ZergKerrigan",
                 "ProtossArtanis",
                 "TerranNova",
-                "ZergAbathurReborn",
+                "ZergAbathur",
                 "ProtossFenix",
                 "ProtossVorazun"
             )

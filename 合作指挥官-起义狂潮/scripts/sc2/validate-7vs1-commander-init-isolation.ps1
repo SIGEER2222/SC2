@@ -28,8 +28,12 @@ $captureScript = Get-Content -LiteralPath $captureScriptPath -Raw -Encoding UTF8
 
 Assert-True ($launchScript.Contains('Get-EffectiveLiveRuntimeLibraryPath -MapLive $mapLive -ExtensionLive $extensionLive -LibraryName "LibKPVP.galaxy"')) `
     'Launch script must patch the effective LibKPVP, not assume extension LibKPVP wins over map-local runtime libraries.'
-Assert-True ($launchScript.Contains('libKPVP_gf_codex_commander_attribute_for_player')) `
-    'Launch script must use commander attribute override for smoke tests.'
+Assert-True (-not $launchScript.Contains('Add-SafeStartPointOverride -Path $libKPVP')) `
+    'Launch script must not inject start point overrides into live LibKPVP.'
+Assert-True (-not $launchScript.Contains('-StartPoints $effectiveStartPoints')) `
+    'Launch script must not pass custom start point tables into live patch helpers.'
+Assert-True ($launchScript.Contains('still contains forced lobby commander attribute override')) `
+    'Launch validation must reject forced lobby commander attribute overrides.'
 Assert-True (-not $launchScript.Contains('libKPVP_gf_codex_init_7vs1_test_commanders();')) `
     'Launch script must not replace the original commander selection loop.'
 Assert-True ($launchScript.Contains('Live base testline still contains obsolete commander init override')) `

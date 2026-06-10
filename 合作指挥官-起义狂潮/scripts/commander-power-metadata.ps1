@@ -88,10 +88,6 @@ function Get-CommanderPowerDefaultPrestigeBonusMask {
         [string]$WorkspaceRoot = ""
     )
 
-    if ($Commander -eq "ZergAbathurReborn") {
-        return 0
-    }
-
     $record = Resolve-CommanderPowerCommanderRecord -Commander $Commander -WorkspaceRoot $WorkspaceRoot
     if (($null -ne $record) -and ($null -ne $record.default_prestige_bonus_mask)) {
         return [Math]::Max(0, [Math]::Min(7, [int]$record.default_prestige_bonus_mask))

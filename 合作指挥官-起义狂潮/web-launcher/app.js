@@ -2,7 +2,7 @@ const state = {
   data: null,
   selectedMutators: new Set(),
   selectedMutatorPanelExpanded: false,
-  prestigeMaskAuto: true,
+  prestigeMaskMode: "default",
   launchPollTimer: null,
   lastLogPaths: null,
   lastValidatedSignature: "",
@@ -53,21 +53,15 @@ const el = {
   bootstrapResourcePlanText: document.querySelector("#bootstrapResourcePlanText"),
   commanderSelect: document.querySelector("#commanderSelect"),
   mapSelect: document.querySelector("#mapSelect"),
-  randomCommander: document.querySelector("#randomCommander"),
-  randomMap: document.querySelector("#randomMap"),
-  randomScenario: document.querySelector("#randomScenario"),
-  quickPickSearch: document.querySelector("#quickPickSearch"),
-  commanderRaceFilter: document.querySelector("#commanderRaceFilter"),
-  mapPackFilter: document.querySelector("#mapPackFilter"),
-  clearQuickFilters: document.querySelector("#clearQuickFilters"),
   commanderQuickList: document.querySelector("#commanderQuickList"),
   commanderQuickCount: document.querySelector("#commanderQuickCount"),
   mapQuickList: document.querySelector("#mapQuickList"),
-  mapQuickCount: document.querySelector("#mapQuickCount"),
   enablePrestiges: document.querySelector("#enablePrestiges"),
   enableMasteries: document.querySelector("#enableMasteries"),
   prestigeMask: document.querySelector("#prestigeMask"),
   prestigeProfile: document.querySelector("#prestigeProfile"),
+  prestigeConfigNote: document.querySelector("#prestigeConfigNote"),
+  prestigeFusionStatus: document.querySelector("#prestigeFusionStatus"),
   masteryLevel: document.querySelector("#masteryLevel"),
   commanderId: document.querySelector("#commanderId"),
   masteryPairStatus: document.querySelector("#masteryPairStatus"),
@@ -131,10 +125,6 @@ const el = {
   copyMutatorIds: document.querySelector("#copyMutatorIds"),
   clearMutatorFilters: document.querySelector("#clearMutatorFilters"),
   mutatorPoolStatus: document.querySelector("#mutatorPoolStatus"),
-  masteryZero: document.querySelector("#masteryZero"),
-  masteryHalf: document.querySelector("#masteryHalf"),
-  masteryFull: document.querySelector("#masteryFull"),
-  masteryCapPairs: document.querySelector("#masteryCapPairs"),
   launchHistory: document.querySelector("#launchHistory"),
   clearLaunchHistory: document.querySelector("#clearLaunchHistory"),
 };
@@ -145,8 +135,59 @@ function clampNumber(value, min, max, fallback) {
   return Math.max(min, Math.min(max, parsed));
 }
 
+function parseLooseInteger(value, fallback = 0) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? fallback : parsed;
+}
+
+function normalizeText(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function getPositivePrestigeTooltipText(tooltip) {
+  const text = normalizeText(tooltip);
+  if (!text) return "";
+
+  const negativeMarkerIndex = text.search(/缺点|Disadvantage/i);
+  const positiveMarkerIndex = text.search(/优点|Advantage/i);
+  let selected = text;
+  if (negativeMarkerIndex >= 0) {
+    selected = text.slice(0, negativeMarkerIndex);
+  }
+  if (positiveMarkerIndex >= 0) {
+    selected = selected.slice(positiveMarkerIndex);
+  }
+  selected = selected
+    .replace(/^(优点|Advantage)\s*/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return selected || text;
+}
+
 function getCommanderDefaultPrestigeMask(commander) {
-  return clampNumber(commander?.default_prestige_bonus_mask, 0, 7, state.data?.defaults?.prestigeBonusMask ?? 7);
+  return clampNumber(commander?.defaultPrestigeBonusMask, 0, 7, state.data?.defaults?.prestigeBonusMask ?? 7);
+}
+
+function getCommanderDefaultPrestigePointIndex(commander) {
+  return clampNumber(commander?.defaultPrestigePointIndex, -1, 3, state.data?.defaults?.prestigePointIndex ?? -1);
+}
+
+function getCommanderPrestigeMaskFromSelection() {
+  let mask = 0;
+  document.querySelectorAll(".prestige-toggle-input").forEach((input) => {
+    if (!input.checked) return;
+    mask |= clampNumber(input.dataset.bitMask, 0, 7, 0);
+  });
+  return clampNumber(mask, 0, 7, 0);
+}
+
+function setPrestigeMaskValue(mask) {
+  el.prestigeMask.value = String(clampNumber(mask, 0, 7, 7));
+}
+
+function syncPrestigeMaskFromUI(mode = "custom") {
+  setPrestigeMaskValue(getCommanderPrestigeMaskFromSelection());
+  state.prestigeMaskMode = mode;
 }
 
 function writeOutput(value) {
@@ -292,6 +333,23 @@ function initials(text) {
   return clean.slice(0, 2);
 }
 
+function escapeHtml(text) {
+  return String(text ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function getStatusToneClass(tone) {
+  return {
+    ok: "status-ok",
+    warn: "status-warn",
+    error: "status-error",
+  }[tone] || "";
+}
+
 function populateSelect(select, items, getValue, getLabel) {
   select.replaceChildren();
   for (const item of items) {
@@ -358,25 +416,6 @@ function getMutatorTierLabel(tier) {
   }[tier] || tier;
 }
 
-function populateQuickFilters() {
-  if (!state.data) return;
-  const races = [...new Set(state.data.commanders.map((item) => getCommanderRace(item.runtime)))].sort();
-  const packs = [...new Set(state.data.maps.map((item) => getMapPack(item.id)))].sort();
-
-  populateSelect(
-    el.commanderRaceFilter,
-    ["all", ...races],
-    (item) => item,
-    (item) => (item === "all" ? "全部" : getCommanderRaceLabel(item)),
-  );
-  populateSelect(
-    el.mapPackFilter,
-    ["all", ...packs],
-    (item) => item,
-    (item) => (item === "all" ? "全部" : getMapPackLabel(item)),
-  );
-}
-
 function populateMutatorFilters() {
   if (!state.data) return;
   const categories = [...new Set(state.data.mutators.map((item) => item.category || "other"))].sort();
@@ -403,7 +442,7 @@ function pickRandom(items) {
 function selectCommander(runtime) {
   if (!runtime || !state.data?.commanders.some((item) => item.runtime === runtime)) return false;
   el.commanderSelect.value = runtime;
-  state.prestigeMaskAuto = true;
+  state.prestigeMaskMode = "default";
   renderCommanderDetails();
   renderQuickPickers();
   return true;
@@ -417,45 +456,14 @@ function selectMap(id) {
   return true;
 }
 
-function matchesQuickQuery(values, query) {
-  if (!query) return true;
-  return values.some((value) => String(value || "").toLowerCase().includes(query));
-}
-
 function getFilteredCommanders() {
   if (!state.data) return [];
-  const query = el.quickPickSearch.value.trim().toLowerCase();
-  const raceFilter = el.commanderRaceFilter.value;
-  return state.data.commanders.filter((item) =>
-    (raceFilter === "all" || getCommanderRace(item.runtime) === raceFilter) &&
-    matchesQuickQuery([item.displayName, item.runtime, item.id, getCommanderRaceLabel(getCommanderRace(item.runtime))], query),
-  );
+  return state.data.commanders;
 }
 
 function getFilteredMaps() {
   if (!state.data) return [];
-  const query = el.quickPickSearch.value.trim().toLowerCase();
-  const packFilter = el.mapPackFilter.value;
-  return state.data.maps.filter((item) =>
-    (packFilter === "all" || getMapPack(item.id) === packFilter) &&
-    matchesQuickQuery([item.displayName, item.title, item.id, getMapPackLabel(getMapPack(item.id))], query),
-  );
-}
-
-function hasActiveQuickFilter() {
-  return Boolean(
-    el.quickPickSearch.value.trim() ||
-    el.commanderRaceFilter.value !== "all" ||
-    el.mapPackFilter.value !== "all",
-  );
-}
-
-function clearQuickFilters() {
-  el.quickPickSearch.value = "";
-  el.commanderRaceFilter.value = "all";
-  el.mapPackFilter.value = "all";
-  renderQuickPickers();
-  el.launchState.textContent = "快速筛选已清除";
+  return state.data.maps;
 }
 
 function renderQuickPickers() {
@@ -467,8 +475,6 @@ function renderQuickPickers() {
   el.commanderQuickList.replaceChildren();
   el.mapQuickList.replaceChildren();
   el.commanderQuickCount.textContent = `${commanders.length}/${state.data.commanders.length}`;
-  el.mapQuickCount.textContent = `${maps.length}/${state.data.maps.length}`;
-  el.clearQuickFilters.disabled = !hasActiveQuickFilter();
 
   if (commanders.length === 0) {
     const empty = document.createElement("div");
@@ -480,12 +486,30 @@ function renderQuickPickers() {
   for (const commander of commanders) {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `quick-pick-item${commander.runtime === el.commanderSelect.value ? " selected" : ""}`;
+    button.className = `commander-card${commander.runtime === el.commanderSelect.value ? " selected" : ""}`;
+    button.title = commander.integrationNote || commander.runtime;
+    const raceLabel = getCommanderRaceLabel(getCommanderRace(commander.runtime));
+    const toneClass = getStatusToneClass(commander.integrationTone);
+    const portraitToneClass = commander.imageSource === "portrait-exact"
+      ? "status-ok"
+      : commander.imageSource === "portrait-fallback"
+        ? "status-warn"
+        : "";
+    const art = commander.image
+      ? `<img src="${escapeHtml(commander.image)}" alt="${escapeHtml(commander.displayName || commander.runtime)}">`
+      : `<span class="commander-card-fallback">${escapeHtml(initials(commander.displayName || commander.runtime))}</span>`;
     button.innerHTML = `
-      <span class="quick-pick-icon">${initials(commander.displayName || commander.runtime)}</span>
-      <span>
-        <strong>${commander.displayName || commander.runtime}</strong>
-        <em>${commander.runtime}</em>
+      <span class="commander-card-art">${art}</span>
+      <span class="commander-card-body">
+        <span class="commander-card-top">
+          <strong>${escapeHtml(commander.displayName || commander.runtime)}</strong>
+          <em>${escapeHtml(commander.runtime)}</em>
+        </span>
+        <span class="commander-card-badges">
+          <em>${escapeHtml(raceLabel)}</em>
+          <em class="${toneClass}">${escapeHtml(commander.integrationStatus || "未标记")}</em>
+          <em class="${portraitToneClass}">${escapeHtml(commander.imageSourceLabel || "未标记")}</em>
+        </span>
       </span>
     `;
     button.addEventListener("click", () => {
@@ -504,10 +528,10 @@ function renderQuickPickers() {
   for (const map of maps) {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `quick-pick-item${map.id === el.mapSelect.value ? " selected" : ""}`;
+    button.className = `quick-pick-item map-card${map.id === el.mapSelect.value ? " selected" : ""}`;
     button.innerHTML = `
-      <span class="quick-pick-icon">${initials(map.title || map.displayName || map.id)}</span>
-      <span>
+      <span class="quick-pick-icon map-card-icon">${initials(map.title || map.displayName || map.id)}</span>
+      <span class="map-card-copy">
         <strong>${map.title || map.displayName || map.id}</strong>
         <em>${map.id}</em>
       </span>
@@ -521,44 +545,89 @@ function renderQuickPickers() {
 
 function renderPrestiges(commander) {
   el.prestigeList.replaceChildren();
+  const defaultMask = getCommanderDefaultPrestigeMask(commander);
+  const defaultPointIndex = getCommanderDefaultPrestigePointIndex(commander);
+  const activeMask = clampNumber(el.prestigeMask.value, 0, 7, defaultMask);
+
+  const summary = document.createElement("div");
+  summary.className = "prestige-summary-card";
+  summary.innerHTML = `
+    <div class="prestige-summary-copy">
+      <strong>正向效果拆分选择</strong>
+      <span>当前协议仍写入 mask；这里按单项勾选生成融合结果。页面说明仅展示正向效果，不展示官方原始缺点文案。</span>
+    </div>
+    <div class="prestige-summary-actions">
+      <button type="button" class="mini" data-prestige-select="default">按默认整合</button>
+      <button type="button" class="mini" data-prestige-select="all">全选</button>
+      <button type="button" class="mini" data-prestige-select="none">全清</button>
+    </div>
+  `;
+  el.prestigeList.append(summary);
+
   for (const prestige of commander.prestiges ?? []) {
     const card = document.createElement("div");
     card.className = "prestige-item";
+    const checked = (activeMask & prestige.bitMask) === prestige.bitMask;
+    const defaultSelected = (defaultMask & prestige.bitMask) === prestige.bitMask;
+    const positiveTooltip = getPositivePrestigeTooltipText(prestige.tooltip || prestige.id);
     card.innerHTML = `
-      <div class="prestige-name">
-        <strong>P${prestige.slot + 1} ${prestige.name || prestige.id}</strong>
-        <span class="badge">mask ${prestige.bitMask}</span>
-      </div>
-      <div class="prestige-tip">${prestige.tooltip || prestige.id}</div>
+      <label class="prestige-toggle">
+        <input class="prestige-toggle-input" type="checkbox" data-slot="${prestige.slot}" data-bit-mask="${prestige.bitMask}" ${checked ? "checked" : ""}>
+        <span class="prestige-toggle-main">
+          <span class="prestige-name">
+            <strong>P${prestige.slot + 1} ${prestige.name || prestige.id}</strong>
+            <span class="badge">mask ${prestige.bitMask}</span>
+          </span>
+          <span class="prestige-tags">
+            <em class="${defaultSelected ? "status-ok" : ""}">${defaultSelected ? "默认整合内" : "默认未选"}</em>
+            <em>${prestige.id}</em>
+          </span>
+        </span>
+      </label>
+      <div class="prestige-tip">${escapeHtml(positiveTooltip || prestige.id)}</div>
     `;
     el.prestigeList.append(card);
   }
+
+  const note = document.createElement("div");
+  note.className = "prestige-footnote";
+  note.textContent = defaultPointIndex >= 0
+    ? `该指挥官 metadata 默认 point=${defaultPointIndex}，但当前页面以 mask 融合为准。`
+    : "当前页面固定走融合写法，不再把官方单威望 point 当主入口。";
+  el.prestigeList.append(note);
+
+  el.prestigeList.querySelectorAll("[data-prestige-select]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const mode = button.dataset.prestigeSelect;
+      const inputs = [...document.querySelectorAll(".prestige-toggle-input")];
+      if (mode === "default") {
+        for (const input of inputs) {
+          const bitMask = clampNumber(input.dataset.bitMask, 0, 7, 0);
+          input.checked = (defaultMask & bitMask) === bitMask;
+        }
+        syncPrestigeMaskFromUI("default");
+      } else if (mode === "all") {
+        for (const input of inputs) input.checked = true;
+        syncPrestigeMaskFromUI("custom");
+      } else if (mode === "none") {
+        for (const input of inputs) input.checked = false;
+        syncPrestigeMaskFromUI("custom");
+      }
+      updateSummary();
+    });
+  });
+
+  el.prestigeList.querySelectorAll(".prestige-toggle-input").forEach((input) => {
+    input.addEventListener("change", () => {
+      syncPrestigeMaskFromUI("custom");
+      updateSummary();
+    });
+  });
 }
 
 function renderMasteries(commander) {
   el.masteryGrid.replaceChildren();
   const masteries = [...(commander.masteries ?? [])].sort((a, b) => a.slot - b.slot);
-  const categories = new Map();
-  for (const mastery of masteries) {
-    if (!categories.has(mastery.category)) categories.set(mastery.category, []);
-    categories.get(mastery.category).push(mastery);
-  }
-
-  const categoryTools = document.createElement("div");
-  categoryTools.className = "mastery-category-tools";
-  for (const [category, items] of [...categories.entries()].sort((a, b) => a[0] - b[0])) {
-    const slots = items.map((item) => item.slot).sort((a, b) => a - b);
-    const group = document.createElement("div");
-    group.className = "mastery-category-tool";
-    group.innerHTML = `
-      <span>C${category}</span>
-      <button type="button" class="mini" data-mastery-slots="${slots.join(",")}" data-mastery-mode="left">左满</button>
-      <button type="button" class="mini" data-mastery-slots="${slots.join(",")}" data-mastery-mode="split">均分</button>
-      <button type="button" class="mini" data-mastery-slots="${slots.join(",")}" data-mastery-mode="right">右满</button>
-    `;
-    categoryTools.append(group);
-  }
-  el.masteryGrid.append(categoryTools);
 
   for (const mastery of masteries) {
     const card = document.createElement("label");
@@ -566,16 +635,10 @@ function renderMasteries(commander) {
     card.innerHTML = `
       <span class="mastery-title">${mastery.name || mastery.id}</span>
       <span class="mastery-meta">C${mastery.category} / ${mastery.id}</span>
-      <input class="mastery-input" type="number" min="0" max="30" value="30" data-slot="${mastery.slot}">
+      <input class="mastery-input" type="number" value="30" data-slot="${mastery.slot}">
     `;
     el.masteryGrid.append(card);
   }
-
-  categoryTools.querySelectorAll("button").forEach((button) => {
-    button.addEventListener("click", () => {
-      setMasteryPair(button.dataset.masterySlots || "", button.dataset.masteryMode || "split");
-    });
-  });
 }
 
 function renderCommanderDetails() {
@@ -583,8 +646,9 @@ function renderCommanderDetails() {
   if (!commander) return;
 
   el.commanderId.textContent = commander.runtime;
-  if (state.prestigeMaskAuto) {
-    el.prestigeMask.value = String(getCommanderDefaultPrestigeMask(commander));
+  el.commanderId.title = commander.integrationNote || "";
+  if (state.prestigeMaskMode === "default") {
+    setPrestigeMaskValue(getCommanderDefaultPrestigeMask(commander));
   }
   renderPrestiges(commander);
   renderMasteries(commander);
@@ -613,17 +677,28 @@ function renderMutators() {
     button.type = "button";
     button.className = `mutator-card${state.selectedMutators.has(mutator.id) ? " selected" : ""}`;
     button.title = mutator.icon || mutator.id;
+    const imageToneClass = mutator.imageSource === "icon-exact"
+      ? "status-ok"
+      : mutator.imageSource === "icon-fallback"
+        ? "status-warn"
+        : "";
+    const art = mutator.image
+      ? `<img src="${escapeHtml(mutator.image)}" alt="${escapeHtml(mutator.name || mutator.id)}">`
+      : escapeHtml(initials(mutator.name || mutator.id));
     button.innerHTML = `
-      <span class="mutator-icon">${initials(mutator.name || mutator.id)}</span>
+      <span class="mutator-icon">${art}</span>
       <span>
-        <span class="mutator-title">${mutator.name || mutator.id}</span>
-        <span class="mutator-id">${mutator.id}</span>
+        <span class="mutator-title">${escapeHtml(mutator.name || mutator.id)}</span>
+        <span class="mutator-id">${escapeHtml(mutator.id)}</span>
         <span class="mutator-tags">
-          <em>${getMutatorCategoryLabel(mutator.category || "other")}</em>
-          <em>${getMutatorTierLabel(mutator.tier || "normal")}</em>
+          <em>${escapeHtml(getMutatorCategoryLabel(mutator.category || "other"))}</em>
+          <em>${escapeHtml(getMutatorTierLabel(mutator.tier || "normal"))}</em>
         </span>
       </span>
-      <span class="mutator-desc">${mutator.description || mutator.icon || ""}</span>
+      <span class="mutator-art-status">
+        <em class="${imageToneClass}">${escapeHtml(mutator.imageSourceLabel || "未标记")}</em>
+      </span>
+      <span class="mutator-desc">${escapeHtml(mutator.description || mutator.icon || "")}</span>
     `;
     button.addEventListener("click", () => {
       if (state.selectedMutators.has(mutator.id)) {
@@ -995,13 +1070,8 @@ function getConfigIssues(payload = buildLaunchPayload()) {
   const mapExists = state.data?.maps.some((item) => item.id === payload.map);
   if (!commanderExists) issues.push(`未知指挥官: ${payload.commander || "-"}`);
   if (!mapExists) issues.push(`未知地图: ${payload.map || "-"}`);
-
-  if (payload.enableMasteries) {
-    for (const pair of getMasteryPairSums(payload.masteries)) {
-      if (pair.total > 30) {
-        issues.push(`精通 C${pair.category} 超限 ${pair.total}/30`);
-      }
-    }
+  if (payload.enablePrestiges && payload.prestigeBonusMask === 0) {
+    issues.push("已启用融合，但未选择任何正向效果");
   }
 
   return issues;
@@ -1067,6 +1137,10 @@ function setSummaryDetail(element, label, value, detail = "") {
 
 function updateSummaryDetails(payload = buildLaunchPayload()) {
   const mutatorIds = payload.mutators.length === 0 ? "无" : payload.mutators.join(", ");
+  const commander = getCommander();
+  const prestigeNames = (commander?.prestiges ?? [])
+    .filter((prestige) => (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask)
+    .map((prestige) => `P${prestige.slot + 1} ${prestige.name || prestige.id}`);
   setSummaryDetail(el.summaryCommander, "指挥官", getCommanderLabel(payload.commander), payload.commander);
   setSummaryDetail(el.summaryMap, "地图", getMapLabel(payload.map), payload.map);
   setSummaryDetail(
@@ -1085,7 +1159,7 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     el.summaryMode,
     "模式",
     payload.noLaunch ? "dry-run 安装" : "launch 启动",
-    `融合=${formatPrestigeProfile(payload.prestigeProfile)}；mask=${payload.prestigeBonusMask}；point=-1`,
+    `融合=${formatPrestigeProfile(payload.prestigeProfile)}；mask=${payload.prestigeBonusMask}；项=${prestigeNames.join("、") || "无"}；point=-1`,
   );
 }
 
@@ -1104,11 +1178,19 @@ function updateSummary() {
   const commander = getCommander();
   const map = getMapLabel(el.mapSelect.value) || "-";
   const mutatorCount = state.selectedMutators.size;
+  const selectedPrestigeCount = (commander?.prestiges ?? []).filter((prestige) =>
+    (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask,
+  ).length;
   el.selectionSummary.textContent = `${commander?.displayName ?? "-"} / ${map} / ${mutatorCount} 因子`;
   el.summaryCommander.textContent = commander?.displayName ?? "-";
   el.summaryMap.textContent = map;
   el.summaryMastery.textContent = `${payload.masteryLevel} / ${payload.masteries.join(",")}`;
   el.summaryMutators.textContent = `${mutatorCount} 个`;
+  el.prestigeFusionStatus.textContent = payload.enablePrestiges
+    ? `${state.prestigeMaskMode === "default" ? "默认整合" : "手动拆分"} / ${selectedPrestigeCount} 项 / mask ${payload.prestigeBonusMask}`
+    : "融合关闭";
+  el.prestigeFusionStatus.classList.toggle("status-ok", payload.enablePrestiges && payload.prestigeBonusMask > 0);
+  el.prestigeFusionStatus.classList.toggle("status-warn", !payload.enablePrestiges || payload.prestigeBonusMask === 0);
   updateLaunchModeLabels(payload);
   updateSummaryDetails(payload);
   el.copySummaryButton.disabled = false;
@@ -1135,7 +1217,7 @@ function getMasteryValues() {
   const values = [30, 30, 30, 30, 30, 30];
   document.querySelectorAll(".mastery-input").forEach((input) => {
     const slot = clampNumber(input.dataset.slot, 0, 5, 0);
-    values[slot] = clampNumber(input.value, 0, 30, 30);
+    values[slot] = parseLooseInteger(input.value, 30);
   });
   return values;
 }
@@ -1150,69 +1232,9 @@ function getMasteryPairSums(values = getMasteryValues()) {
 
 function updateMasteryPairStatus() {
   const pairSums = getMasteryPairSums();
-  const over = pairSums.filter((item) => item.total > 30);
-  el.masteryPairStatus.classList.toggle("status-error", over.length > 0);
-  el.masteryPairStatus.classList.toggle("status-ok", over.length === 0);
-  el.masteryPairStatus.textContent = over.length === 0
-    ? "组总和 OK"
-    : `超限 ${over.map((item) => `C${item.category}:${item.total}`).join(" ")}`;
-}
-
-function setAllMasteries(value) {
-  document.querySelectorAll(".mastery-input").forEach((input) => {
-    input.value = String(value);
-  });
-  el.masteryLevel.value = String(value);
-  updateSummary();
-}
-
-function setMasteryPair(slotText, mode) {
-  const slots = slotText
-    .split(",")
-    .map((value) => clampNumber(value, 0, 5, -1))
-    .filter((slot) => slot >= 0)
-    .sort((a, b) => a - b);
-  if (slots.length === 0) return;
-
-  const values = new Map();
-  if (mode === "left") {
-    values.set(slots[0], 30);
-    if (slots[1] !== undefined) values.set(slots[1], 0);
-  } else if (mode === "right") {
-    values.set(slots[0], 0);
-    if (slots[1] !== undefined) values.set(slots[1], 30);
-  } else {
-    for (const slot of slots) values.set(slot, 15);
-  }
-
-  document.querySelectorAll(".mastery-input").forEach((input) => {
-    const slot = clampNumber(input.dataset.slot, 0, 5, -1);
-    if (values.has(slot)) input.value = String(values.get(slot));
-  });
-  el.masteryLevel.value = String(Math.max(...getMasteryValues()));
-  updateSummary();
-}
-
-function capMasteryPairs() {
-  const values = getMasteryValues();
-  const capped = [...values];
-  for (const pair of getMasteryPairSums(values)) {
-    if (pair.total <= 30) continue;
-    const [leftSlot, rightSlot] = pair.slots;
-    const left = values[leftSlot];
-    const right = values[rightSlot];
-    const leftCapped = Math.round((left / pair.total) * 30);
-    capped[leftSlot] = leftCapped;
-    capped[rightSlot] = 30 - leftCapped;
-  }
-
-  document.querySelectorAll(".mastery-input").forEach((input) => {
-    const slot = clampNumber(input.dataset.slot, 0, 5, -1);
-    if (slot >= 0) input.value = String(capped[slot]);
-  });
-  el.masteryLevel.value = String(Math.max(...capped));
-  el.launchState.textContent = "精通已封顶";
-  updateSummary();
+  el.masteryPairStatus.classList.remove("status-error");
+  el.masteryPairStatus.classList.add("status-ok");
+  el.masteryPairStatus.textContent = pairSums.map((item) => `C${item.category}:${item.total}`).join(" / ");
 }
 
 function applyPayload(payload, options = {}) {
@@ -1237,19 +1259,19 @@ function applyPayload(payload, options = {}) {
 
   el.enablePrestiges.checked = payload.enablePrestiges !== false;
   el.enableMasteries.checked = payload.enableMasteries !== false;
-  el.prestigeMask.value = String(clampNumber(payload.prestigeBonusMask, 0, 7, 7));
+  setPrestigeMaskValue(clampNumber(payload.prestigeBonusMask, 0, 7, 7));
   el.prestigeProfile.value = normalizePrestigeProfile(payload.prestigeProfile);
-  el.masteryLevel.value = String(clampNumber(payload.masteryLevel, 0, 30, 30));
+  el.masteryLevel.value = String(parseLooseInteger(payload.masteryLevel, 30));
   el.mutatorPreset.value = String(clampNumber(payload.mutatorPreset, 0, 3, 0));
   el.dryRunToggle.checked = payload.noLaunch === true;
-  state.prestigeMaskAuto = options.prestigeMaskAuto === true;
+  state.prestigeMaskMode = options.prestigeMaskAuto === true ? "default" : "custom";
 
   renderCommanderDetails();
 
   if (Array.isArray(payload.masteries)) {
     document.querySelectorAll(".mastery-input").forEach((input) => {
       const slot = clampNumber(input.dataset.slot, 0, 5, 0);
-      input.value = String(clampNumber(payload.masteries[slot], 0, 30, 30));
+      input.value = String(parseLooseInteger(payload.masteries[slot], 30));
     });
   }
 
@@ -1984,69 +2006,6 @@ function applyMutatorImport(replace) {
   });
 }
 
-function randomizeCommander() {
-  if (!state.data) return;
-  const pool = getFilteredCommanders();
-  const commander = pickRandom(pool.length > 0 ? pool : state.data.commanders);
-  if (!commander) return;
-  selectCommander(commander.runtime);
-  el.launchState.textContent = pool.length > 0 ? "已随机指挥官" : "已随机指挥官(全量)";
-  updateSummary();
-}
-
-function randomizeMap() {
-  if (!state.data) return;
-  const pool = getFilteredMaps();
-  const map = pickRandom(pool.length > 0 ? pool : state.data.maps);
-  if (!map) return;
-  selectMap(map.id);
-  el.launchState.textContent = pool.length > 0 ? "已随机地图" : "已随机地图(全量)";
-  updateSummary();
-}
-
-function randomizeScenario() {
-  if (!state.data) return;
-  const commanderPool = getFilteredCommanders();
-  const mapPool = getFilteredMaps();
-  const commanderUsedFallback = commanderPool.length === 0;
-  const mapUsedFallback = mapPool.length === 0;
-  const commander = pickRandom(commanderUsedFallback ? state.data.commanders : commanderPool);
-  const map = pickRandom(mapUsedFallback ? state.data.maps : mapPool);
-  if (commander) selectCommander(commander.runtime);
-  if (map) selectMap(map.id);
-
-  setAllMasteries(15);
-
-  const maxCount = clampNumber(el.randomMutatorCount.value, 1, 10, 3);
-  const count = Math.floor(Math.random() * (maxCount + 1));
-  const pool = getRandomMutatorPool();
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  const picked = shuffled.slice(0, count);
-
-  state.selectedMutators.clear();
-  for (const item of picked) {
-    state.selectedMutators.add(item.id);
-  }
-  el.mutatorPreset.value = "0";
-  renderMutators();
-  updateSummary();
-  el.launchState.textContent = pool.length === 0 && hasActiveMutatorFilter()
-    ? "已随机场景(无因子)"
-    : "已随机场景";
-  writeOutput({
-    randomScenario: buildLaunchPayload(),
-    commanderPool: commanderUsedFallback ? "all" : "filtered",
-    mapPool: mapUsedFallback ? "all" : "filtered",
-    mutatorPool: hasActiveMutatorFilter() ? "filtered" : "all",
-    mutatorPoolSize: pool.length,
-    requestedMutatorCount: count,
-    pickedMutators: picked.map((item) => `${getMutatorLabel(item.id)} (${item.id})`),
-    notes: pool.length === 0 && hasActiveMutatorFilter()
-      ? "当前因子筛选池为空；随机场景未回退到全量因子。"
-      : "",
-  });
-}
-
 function buildLaunchPayload() {
   return {
     commander: el.commanderSelect.value,
@@ -2056,7 +2015,7 @@ function buildLaunchPayload() {
     prestigeBonusMask: clampNumber(el.prestigeMask.value, 0, 7, 7),
     prestigePointIndex: -1,
     prestigeProfile: normalizePrestigeProfile(el.prestigeProfile.value),
-    masteryLevel: clampNumber(el.masteryLevel.value, 0, 30, 30),
+    masteryLevel: parseLooseInteger(el.masteryLevel.value, 30),
     masteries: getMasteryValues(),
     mutators: [...state.selectedMutators],
     mutatorPreset: clampNumber(el.mutatorPreset.value, 0, 3, 0),
@@ -2093,8 +2052,7 @@ async function loadBootstrap() {
       (item) => item.displayName,
     );
 
-    populateQuickFilters();
-    populateMutatorFilters();
+  populateMutatorFilters();
     if (!loadSavedConfig()) {
       applyPayload(getDefaultPayload(), { prestigeMaskAuto: true });
     }
@@ -2395,7 +2353,7 @@ async function copyPreviewCommand() {
 }
 
 el.commanderSelect.addEventListener("change", () => {
-  state.prestigeMaskAuto = true;
+  state.prestigeMaskMode = "default";
   renderCommanderDetails();
   renderQuickPickers();
 });
@@ -2403,20 +2361,9 @@ el.mapSelect.addEventListener("change", () => {
   updateSummary();
   renderQuickPickers();
 });
-el.randomCommander.addEventListener("click", randomizeCommander);
-el.randomMap.addEventListener("click", randomizeMap);
-el.randomScenario.addEventListener("click", randomizeScenario);
-el.quickPickSearch.addEventListener("input", renderQuickPickers);
-el.commanderRaceFilter.addEventListener("change", renderQuickPickers);
-el.mapPackFilter.addEventListener("change", renderQuickPickers);
-el.clearQuickFilters.addEventListener("click", clearQuickFilters);
 el.enablePrestiges.addEventListener("change", updateSummary);
 el.enableMasteries.addEventListener("change", updateSummary);
-el.prestigeMask.addEventListener("change", updateSummary);
-el.prestigeMask.addEventListener("input", () => {
-  state.prestigeMaskAuto = false;
-});
-  el.masteryLevel.addEventListener("change", updateSummary);
+el.masteryLevel.addEventListener("change", updateSummary);
 el.mutatorSearch.addEventListener("input", renderMutators);
 el.mutatorFilter.addEventListener("change", renderMutators);
 el.mutatorCategoryFilter.addEventListener("change", renderMutators);
@@ -2484,10 +2431,6 @@ el.randomMutators3.addEventListener("click", () => randomizeMutators(3));
 el.randomMutators5.addEventListener("click", () => randomizeMutators(5));
 el.randomMutators10.addEventListener("click", () => randomizeMutators(10));
 el.copyMutatorIds.addEventListener("click", copySelectedMutatorIds);
-el.masteryZero.addEventListener("click", () => setAllMasteries(0));
-el.masteryHalf.addEventListener("click", () => setAllMasteries(15));
-el.masteryFull.addEventListener("click", () => setAllMasteries(30));
-el.masteryCapPairs.addEventListener("click", capMasteryPairs);
 el.masteryGrid.addEventListener("input", (event) => {
   if (event.target?.classList?.contains("mastery-input")) {
     updateSummary();
