@@ -558,7 +558,7 @@ function Get-CommanderItems {
                                         name = [string]$optionRecord.name
                                         description = ConvertFrom-SC2Text ([string]$optionRecord.description)
                                         type = if ([string]::IsNullOrWhiteSpace([string]$optionRecord.type)) { "toggle" } else { [string]$optionRecord.type }
-                                        defaultEnabled = ((if ($null -ne $optionRecord.default) { [int]$optionRecord.default } else { 0 }) -gt 0)
+                                        defaultEnabled = ($(if ($null -ne $optionRecord.default) { [int]$optionRecord.default } else { 0 }) -gt 0)
                                         enabledValue = $enabledValue
                                         requiresPrestigeMask = if ($null -ne $optionRecord.requires_prestige_mask) { [int]$optionRecord.requires_prestige_mask } else { $prestigeBitMask }
                                         overrideValue = if ([string]::IsNullOrWhiteSpace($bankKey)) { "" } else { "$bankCommander.$bankKey=$enabledValue" }

@@ -1577,6 +1577,7 @@ function scenarioKey(payload) {
     normalizePrestigeProfile(payload.prestigeProfile),
     payload.masteryLevel,
     (payload.masteries || []).join(","),
+    (payload.commanderOverrides || []).join(","),
     (payload.mutators || []).join(","),
     payload.mutatorPreset,
     payload.noLaunch,
@@ -2513,7 +2514,11 @@ el.mapSelect.addEventListener("change", () => {
   updateSummary();
   renderQuickPickers();
 });
-el.enablePrestiges.addEventListener("change", updateSummary);
+el.enablePrestiges.addEventListener("change", () => {
+  syncCommanderOverrideSelection(getCommander());
+  renderExtraOptions(getCommander());
+  updateSummary();
+});
 el.enableMasteries.addEventListener("change", updateSummary);
 el.masteryLevel.addEventListener("change", updateSummary);
 el.mutatorSearch.addEventListener("input", renderMutators);

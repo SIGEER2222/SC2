@@ -1,3 +1,55 @@
+bool libE0EAE146_gf_StukovP2BansheeMarineOptionEnabled () {
+    return (libE0EAE146_gf_CommanderPowerBankFlagEnabled("Stukov", "P2SpawnInfestedMarineInBanshee") && lib67C0F0E7_gf_BitMaskTrueIndexIs(libE0EAE146_gf_CommanderPowerPrestigeMask("Stukov"), 1));
+}
+
+void libE0EAE146_gf_StukovSpawnInfestedMarineIntoBanshees (int lp_player) {
+    int lv_unitCount;
+    unit lv_banshee;
+    unitgroup lv_banshees;
+
+    if ((!CatalogEntryIsValid(c_gameCatalogUnit, "StukovInfestedBanshee")) || (!CatalogEntryIsValid(c_gameCatalogUnit, "SIInfestedMarine"))) {
+        return;
+    }
+
+    lv_banshees = UnitGroup("StukovInfestedBanshee", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "StukovInfestedBansheeBurrowed")) {
+        UnitGroupAddUnitGroup(lv_banshees, UnitGroup("StukovInfestedBansheeBurrowed", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    }
+
+    lv_unitCount = UnitGroupCount(lv_banshees, c_unitCountAlive);
+    for (;; lv_unitCount -= 1) {
+        lv_banshee = UnitGroupUnitFromEnd(lv_banshees, lv_unitCount);
+        if (lv_banshee == null) { break; }
+        if ((UnitCargoValue(lv_banshee, c_unitCargoSpaceFree) > 0)) {
+            UnitCargoCreate(lv_banshee, "SIInfestedMarine", 1);
+        }
+    }
+}
+
+bool libE0EAE146_gt_StukovBansheeMarinePeriodic_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+    if (!libE0EAE146_gf_StukovP2BansheeMarineOptionEnabled()) {
+        return true;
+    }
+
+    libE0EAE146_gf_StukovSpawnInfestedMarineIntoBanshees(libE0EAE146_gv_stukovRuntimePlayer);
+    return true;
+}
+
+void libE0EAE146_gf_StukovStartBansheeMarinePeriodic (int lp_player) {
+    trigger lv_trigger;
+
+    if (!libE0EAE146_gf_StukovP2BansheeMarineOptionEnabled()) {
+        return;
+    }
+
+    libE0EAE146_gv_stukovRuntimePlayer = lp_player;
+    lv_trigger = TriggerCreate("libE0EAE146_gt_StukovBansheeMarinePeriodic_Func");
+    TriggerAddEventTimePeriodic(lv_trigger, 10.0, c_timeGame);
+}
+
 void libE0EAE146_gf_StukovRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     unit lv_caster;
     unit lv_hero;
@@ -18,4 +70,5 @@ void libE0EAE146_gf_StukovRuntimeInit (int lp_player, point lp_heroPoint, bool l
     lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
     lib67C0F0E7_gf_ShowChooseButton();
     libBE3BBD9F_gf_StukovCreepEntireMap(lp_player);
+    libE0EAE146_gf_StukovStartBansheeMarinePeriodic(lp_player);
 }

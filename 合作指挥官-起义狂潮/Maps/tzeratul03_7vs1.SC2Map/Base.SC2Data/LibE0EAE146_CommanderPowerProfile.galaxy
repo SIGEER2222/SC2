@@ -40,6 +40,10 @@ bool libE0EAE146_gf_CommanderPowerBankKeyExists (string lp_commander, string lp_
     return BankKeyExists(BankLastCreated(), "CommanderPower", (lp_commander + "." + lp_key));
 }
 
+bool libE0EAE146_gf_CommanderPowerBankFlagEnabled (string lp_commander, string lp_key) {
+    return (libE0EAE146_gf_CommanderPowerBankIntOrDefault(lp_commander, lp_key, 0) > 0);
+}
+
 int libE0EAE146_gf_CommanderPowerClampInt (int lp_value, int lp_min, int lp_max) {
     if (lp_value < lp_min) {
         return lp_min;
