@@ -48,6 +48,7 @@ param(
     [string]$CommanderPowerPresetPath = "",
     [string[]]$CommanderPowerOverride = @(),
     [string[]]$Mutators = @(),
+    [string[]]$GenericBonuses = @(),
     [ValidateRange(0, 3)]
     [int]$MutatorPreset = 0,
     [string]$TestRunId = "",
@@ -1076,6 +1077,7 @@ if (-not $SkipCommanderPowerPreset) {
         -Overrides $CommanderPowerOverride
 }
 Set-CampaignXCoreMutatorPreset -SelectedMutators $Mutators -Preset $MutatorPreset
+Set-CampaignXCoreGenericBonuses -SelectedBonuses $GenericBonuses
 Set-CampaignXCorePrimaryCommander -SelectedCommanders $effectiveCommanders
 Set-CampaignXCoreTestRunId -RunId $TestRunId
 
@@ -1163,6 +1165,7 @@ if (-not $SkipCommanderPowerPreset) {
         -Overrides $CommanderPowerOverride
 }
 Set-CampaignXCoreMutatorPreset -SelectedMutators $Mutators -Preset $MutatorPreset
+Set-CampaignXCoreGenericBonuses -SelectedBonuses $GenericBonuses
 Set-CampaignXCorePrimaryCommander -SelectedCommanders $effectiveCommanders
 Set-CampaignXCoreTestRunId -RunId $TestRunId
 
@@ -1203,6 +1206,9 @@ if (($Mutators.Count -gt 0) -or ($MutatorPreset -gt 0)) {
 }
 else {
     Write-Host "Mutators: bank disabled; lobby Attribute011/default controls apply"
+}
+if ($GenericBonuses.Count -gt 0) {
+    Write-Host "Generic bonuses: $($GenericBonuses -join ', ')"
 }
 
 if (-not $NoLaunch) {

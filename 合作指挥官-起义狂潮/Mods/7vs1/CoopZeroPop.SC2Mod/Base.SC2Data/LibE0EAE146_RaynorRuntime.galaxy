@@ -1,3 +1,54 @@
+bool libE0EAE146_gv_raynorTrainProbeInitialized;
+int libE0EAE146_gv_raynorTrainProbePlayer;
+unit libE0EAE146_gv_raynorTrainProbeBarracks;
+int libE0EAE146_gv_raynorTrainProbeState;
+int libE0EAE146_gv_raynorTrainProbeTicks;
+int libE0EAE146_gv_raynorTrainProbeMedicRaynorStart;
+int libE0EAE146_gv_raynorTrainProbeMedicStart;
+int libE0EAE146_gv_raynorTrainProbeFirebatRaynorStart;
+int libE0EAE146_gv_raynorTrainProbeFirebatStart;
+trigger libE0EAE146_gt_RaynorTrainProbePeriodic;
+
+int libE0EAE146_gf_RaynorRuntimeUnitTypeCount (int lp_player, string lp_unitType) {
+    if ((lp_unitType == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unitType))) {
+        return 0;
+    }
+
+    return UnitGroupCount(UnitGroup(lp_unitType, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
+}
+
+void libE0EAE146_gf_RaynorTrainProbeWriteInt (string lp_key, int lp_value) {
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", lp_key, lp_value);
+    BankSave(BankLastCreated());
+}
+
+void libE0EAE146_gf_RaynorTrainProbeWriteString (string lp_key, string lp_value) {
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", lp_key, lp_value);
+    BankSave(BankLastCreated());
+}
+
+int libE0EAE146_gf_RaynorBoolToInt (bool lp_value) {
+    if (lp_value) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void libE0EAE146_gf_RaynorTrainProbeWriteOrderValidity (unit lp_unit, string lp_abil, int lp_maxCmdIndex, string lp_keyPrefix) {
+    int lv_cmdIndex;
+    order lv_order;
+
+    lv_cmdIndex = 0;
+    while ((lv_cmdIndex <= lp_maxCmdIndex)) {
+        lv_order = Order(AbilityCommand(lp_abil, lv_cmdIndex));
+        libE0EAE146_gf_RaynorTrainProbeWriteInt(lp_keyPrefix + IntToString(lv_cmdIndex) + "Valid", libE0EAE146_gf_RaynorBoolToInt(UnitOrderIsValid(lp_unit, lv_order)));
+        lv_cmdIndex += 1;
+    }
+}
+
 void libE0EAE146_gf_RaynorSetUpgradeAtLeast (int lp_player, string lp_upgrade, int lp_level) {
     libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, lp_upgrade, lp_level);
 }
@@ -157,6 +208,8 @@ void libE0EAE146_gf_RaynorApplyTechFilter (int lp_player) {
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksTrainRaynor", 1);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksTrainRaynor", 2);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksTrainRaynor", 3);
+    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksTrainRaynor", 4);
+    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksTrainRaynor", 5);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksLiftOffRaynor", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksLandRaynor", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "FactoryTrainRaynor", 0);
@@ -265,9 +318,177 @@ bool libE0EAE146_gf_RaynorStructureNeedsRefresh (unit lp_unit) {
     return false;
 }
 
+bool libE0EAE146_gf_RaynorRuntimeHasTestRun () {
+    BankLoad("CampaignXCore", 1);
+    return (BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "TestRunId") != "");
+}
+
+void libE0EAE146_gf_RaynorProbeTrainCatalog (int lp_player) {
+    int lv_train5UnitCount;
+    int lv_train6UnitCount;
+    string lv_train5Unit0;
+    string lv_train5Unit1;
+    string lv_train6Unit0;
+    string lv_train6Unit1;
+    string lv_ccTrain1Unit0;
+
+    if (!libE0EAE146_gf_RaynorRuntimeHasTestRun()) {
+        return;
+    }
+
+    lv_train5UnitCount = CatalogFieldValueCount(c_gameCatalogAbil, "BarracksTrainRaynor", "InfoArray[Train5].Unit", lp_player);
+    lv_train6UnitCount = CatalogFieldValueCount(c_gameCatalogAbil, "BarracksTrainRaynor", "InfoArray[Train6].Unit", lp_player);
+    lv_train5Unit0 = CatalogFieldValueGet(c_gameCatalogAbil, "BarracksTrainRaynor", "InfoArray[Train5].Unit[0]", lp_player);
+    lv_train6Unit0 = CatalogFieldValueGet(c_gameCatalogAbil, "BarracksTrainRaynor", "InfoArray[Train6].Unit[0]", lp_player);
+    lv_ccTrain1Unit0 = CatalogFieldValueGet(c_gameCatalogAbil, "CommandCenterTrainRaynor", "InfoArray[Train1].Unit[0]", lp_player);
+    lv_train5Unit1 = "";
+    lv_train6Unit1 = "";
+    if (lv_train5UnitCount > 1) {
+        lv_train5Unit1 = CatalogFieldValueGet(c_gameCatalogAbil, "BarracksTrainRaynor", "InfoArray[Train5].Unit[1]", lp_player);
+    }
+    if (lv_train6UnitCount > 1) {
+        lv_train6Unit1 = CatalogFieldValueGet(c_gameCatalogAbil, "BarracksTrainRaynor", "InfoArray[Train6].Unit[1]", lp_player);
+    }
+
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "RaynorTrain5UnitCount", lv_train5UnitCount);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "RaynorTrain6UnitCount", lv_train6UnitCount);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RaynorTrain5Unit0", lv_train5Unit0);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RaynorTrain5Unit1", lv_train5Unit1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RaynorTrain6Unit0", lv_train6Unit0);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RaynorTrain6Unit1", lv_train6Unit1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RaynorCCTrain1Unit0", lv_ccTrain1Unit0);
+    BankSave(BankLastCreated());
+}
+
+bool libE0EAE146_gt_RaynorTrainProbePeriodic_Func (bool testConds, bool runActions) {
+    int lv_medicRaynorCount;
+    int lv_medicCount;
+    int lv_firebatRaynorCount;
+    int lv_firebatCount;
+
+    if (testConds) {
+        if (!libE0EAE146_gf_RaynorRuntimeHasTestRun()) {
+            return false;
+        }
+        if (libE0EAE146_gv_raynorTrainProbeInitialized == false) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    if ((libE0EAE146_gv_raynorTrainProbeState <= 0) || (libE0EAE146_gv_raynorTrainProbeBarracks == null)) {
+        return true;
+    }
+
+    libE0EAE146_gv_raynorTrainProbeTicks += 1;
+    lv_medicRaynorCount = libE0EAE146_gf_RaynorRuntimeUnitTypeCount(libE0EAE146_gv_raynorTrainProbePlayer, "MedicRaynor");
+    lv_medicCount = libE0EAE146_gf_RaynorRuntimeUnitTypeCount(libE0EAE146_gv_raynorTrainProbePlayer, "Medic");
+    lv_firebatRaynorCount = libE0EAE146_gf_RaynorRuntimeUnitTypeCount(libE0EAE146_gv_raynorTrainProbePlayer, "FirebatRaynor");
+    lv_firebatCount = libE0EAE146_gf_RaynorRuntimeUnitTypeCount(libE0EAE146_gv_raynorTrainProbePlayer, "Firebat");
+
+    if ((libE0EAE146_gv_raynorTrainProbeState == 10) && ((UnitBehaviorCount(libE0EAE146_gv_raynorTrainProbeBarracks, "BarracksTechLab") > 0) || (libE0EAE146_gv_raynorTrainProbeTicks >= 100))) {
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrainProbeTechLabAttached", libE0EAE146_gf_RaynorBoolToInt(UnitBehaviorCount(libE0EAE146_gv_raynorTrainProbeBarracks, "BarracksTechLab") > 0));
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrainProbeTechLabTimeout", libE0EAE146_gf_RaynorBoolToInt(libE0EAE146_gv_raynorTrainProbeTicks >= 100));
+        libE0EAE146_gf_RaynorTrainProbeWriteOrderValidity(libE0EAE146_gv_raynorTrainProbeBarracks, "BarracksTrainRaynor", 7, "RaynorTrainTechLabCmd");
+        libE0EAE146_gv_raynorTrainProbeMedicRaynorStart = lv_medicRaynorCount;
+        libE0EAE146_gv_raynorTrainProbeMedicStart = lv_medicCount;
+        libE0EAE146_gv_raynorTrainProbeFirebatRaynorStart = lv_firebatRaynorCount;
+        libE0EAE146_gv_raynorTrainProbeFirebatStart = lv_firebatCount;
+        libE0EAE146_gv_raynorTrainProbeTicks = 0;
+        if (UnitBehaviorCount(libE0EAE146_gv_raynorTrainProbeBarracks, "BarracksTechLab") > 0) {
+            libE0EAE146_gv_raynorTrainProbeState = 1;
+            libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain5IssuedCmd", 4);
+            if (UnitIsAlive(libE0EAE146_gv_raynorTrainProbeBarracks) == true) {
+                UnitIssueOrder(libE0EAE146_gv_raynorTrainProbeBarracks, Order(AbilityCommand("BarracksTrainRaynor", 4)), c_orderQueueReplace);
+            }
+        }
+        else {
+            libE0EAE146_gv_raynorTrainProbeState = 0;
+        }
+        return true;
+    }
+
+    if ((libE0EAE146_gv_raynorTrainProbeState == 1) && (((lv_medicRaynorCount + lv_medicCount) > (libE0EAE146_gv_raynorTrainProbeMedicRaynorStart + libE0EAE146_gv_raynorTrainProbeMedicStart)) || (libE0EAE146_gv_raynorTrainProbeTicks >= 75))) {
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain5MedicRaynorDelta", (lv_medicRaynorCount - libE0EAE146_gv_raynorTrainProbeMedicRaynorStart));
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain5MedicDelta", (lv_medicCount - libE0EAE146_gv_raynorTrainProbeMedicStart));
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain5Timeout", libE0EAE146_gf_RaynorBoolToInt(libE0EAE146_gv_raynorTrainProbeTicks >= 75));
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain5BarracksHasReactor", 0);
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain5BarracksHasTechLab", UnitBehaviorCount(libE0EAE146_gv_raynorTrainProbeBarracks, "BarracksTechLab"));
+
+        libE0EAE146_gv_raynorTrainProbeFirebatRaynorStart = lv_firebatRaynorCount;
+        libE0EAE146_gv_raynorTrainProbeFirebatStart = lv_firebatCount;
+        libE0EAE146_gv_raynorTrainProbeTicks = 0;
+        libE0EAE146_gv_raynorTrainProbeState = 2;
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain6IssuedCmd", 5);
+        if (UnitIsAlive(libE0EAE146_gv_raynorTrainProbeBarracks) == true) {
+            UnitIssueOrder(libE0EAE146_gv_raynorTrainProbeBarracks, Order(AbilityCommand("BarracksTrainRaynor", 5)), c_orderQueueReplace);
+        }
+        return true;
+    }
+
+    if ((libE0EAE146_gv_raynorTrainProbeState == 2) && (((lv_firebatRaynorCount + lv_firebatCount) > (libE0EAE146_gv_raynorTrainProbeFirebatRaynorStart + libE0EAE146_gv_raynorTrainProbeFirebatStart)) || (libE0EAE146_gv_raynorTrainProbeTicks >= 75))) {
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain6FirebatRaynorDelta", (lv_firebatRaynorCount - libE0EAE146_gv_raynorTrainProbeFirebatRaynorStart));
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain6FirebatDelta", (lv_firebatCount - libE0EAE146_gv_raynorTrainProbeFirebatStart));
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain6Timeout", libE0EAE146_gf_RaynorBoolToInt(libE0EAE146_gv_raynorTrainProbeTicks >= 75));
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain6BarracksHasReactor", 0);
+        libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrain6BarracksHasTechLab", UnitBehaviorCount(libE0EAE146_gv_raynorTrainProbeBarracks, "BarracksTechLab"));
+        libE0EAE146_gv_raynorTrainProbeState = 0;
+        return true;
+    }
+
+    return true;
+}
+
+void libE0EAE146_gt_RaynorTrainProbePeriodic_Init () {
+    if (libE0EAE146_gt_RaynorTrainProbePeriodic != null) {
+        return;
+    }
+
+    libE0EAE146_gt_RaynorTrainProbePeriodic = TriggerCreate("libE0EAE146_gt_RaynorTrainProbePeriodic_Func");
+    TriggerAddEventTimePeriodic(libE0EAE146_gt_RaynorTrainProbePeriodic, 0.5, c_timeGame);
+}
+
+void libE0EAE146_gf_RaynorStartTrainProbe (int lp_player) {
+    point lv_point;
+
+    if (!libE0EAE146_gf_RaynorRuntimeHasTestRun()) {
+        return;
+    }
+    if (libE0EAE146_gv_raynorTrainProbeInitialized == true) {
+        return;
+    }
+
+    libE0EAE146_gv_raynorTrainProbeInitialized = true;
+    libE0EAE146_gv_raynorTrainProbePlayer = lp_player;
+    PlayerModifyPropertyInt(lp_player, c_playerPropMinerals, c_playerPropOperAdd, 1000);
+    PlayerModifyPropertyInt(lp_player, c_playerPropVespene, c_playerPropOperAdd, 1000);
+    lv_point = PointWithOffsetPolar(PlayerStartLocation(lp_player), 6.0, 225.0);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "BarracksRaynor", 0, lp_player, lv_point);
+    libE0EAE146_gv_raynorTrainProbeBarracks = UnitLastCreated();
+    libE0EAE146_gv_raynorTrainProbeMedicRaynorStart = libE0EAE146_gf_RaynorRuntimeUnitTypeCount(lp_player, "MedicRaynor");
+    libE0EAE146_gv_raynorTrainProbeMedicStart = libE0EAE146_gf_RaynorRuntimeUnitTypeCount(lp_player, "Medic");
+    libE0EAE146_gv_raynorTrainProbeFirebatRaynorStart = libE0EAE146_gf_RaynorRuntimeUnitTypeCount(lp_player, "FirebatRaynor");
+    libE0EAE146_gv_raynorTrainProbeFirebatStart = libE0EAE146_gf_RaynorRuntimeUnitTypeCount(lp_player, "Firebat");
+    libE0EAE146_gv_raynorTrainProbeState = 10;
+    libE0EAE146_gv_raynorTrainProbeTicks = 0;
+
+    libE0EAE146_gf_RaynorTrainProbeWriteString("RaynorTrainProbeBarracksType", UnitGetType(libE0EAE146_gv_raynorTrainProbeBarracks));
+    libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrainProbeBarracksHasReactor", 0);
+    libE0EAE146_gf_RaynorTrainProbeWriteInt("RaynorTrainProbeBarracksHasTechLab", UnitBehaviorCount(libE0EAE146_gv_raynorTrainProbeBarracks, "BarracksTechLab"));
+    libE0EAE146_gf_RaynorTrainProbeWriteOrderValidity(libE0EAE146_gv_raynorTrainProbeBarracks, "BarracksTrainRaynor", 7, "RaynorTrainCmd");
+    libE0EAE146_gf_RaynorTrainProbeWriteOrderValidity(libE0EAE146_gv_raynorTrainProbeBarracks, "BarracksAddOnsRaynor", 3, "RaynorAddOnCmd");
+    UnitIssueOrder(libE0EAE146_gv_raynorTrainProbeBarracks, Order(AbilityCommand("BarracksAddOnsRaynor", 0)), c_orderQueueReplace);
+}
+
 bool libE0EAE146_gt_RaynorStructureMorphRefresh_Func (bool testConds, bool runActions) {
     int lv_player;
     unit lv_newUnit;
+    unitgroup lv_selectedUnits;
+    bool lv_wasSelected;
 
     if (testConds) {
         if (libE0EAE146_gf_RaynorStructureNeedsRefresh(EventUnit()) == false) {
@@ -280,13 +501,19 @@ bool libE0EAE146_gt_RaynorStructureMorphRefresh_Func (bool testConds, bool runAc
     }
 
     lv_player = UnitGetOwner(EventUnit());
+    lv_selectedUnits = UnitGroupSelected(lv_player);
+    lv_wasSelected = UnitIsSelected(EventUnit(), lv_player);
     Wait(0.125, c_timeGame);
     lv_newUnit = libNtve_gf_LastReplacedUnit();
     if ((lv_newUnit != null) && (UnitIsAlive(lv_newUnit) == true)) {
         libNtve_gf_CopyUnitControlGroups(EventUnit(), lv_newUnit);
         UnitCreateEffectUnit(lv_newUnit, "CopyTargetSelectionAndControlGroups", EventUnit());
-        if (UnitIsSelected(EventUnit(), lv_player) == true) {
-            UnitSelect(lv_newUnit, lv_player, true);
+        if (lv_wasSelected == true) {
+            UnitGroupRemove(lv_selectedUnits, EventUnit());
+            UnitGroupAdd(lv_selectedUnits, lv_newUnit);
+            UnitClearSelection(lv_player);
+            Wait(0.0625, c_timeGame);
+            UnitGroupSelect(lv_selectedUnits, lv_player, true);
         }
     }
     if (((lv_newUnit != null) && (libE0EAE146_gf_RaynorStructureNeedsRefresh(lv_newUnit) == true)) || (libE0EAE146_gf_RaynorStructureNeedsRefresh(EventUnit()) == true)) {
@@ -331,7 +558,10 @@ void libE0EAE146_gf_RaynorRuntimeInit (int lp_player, point lp_heroPoint, bool l
         libE0EAE146_gf_RaynorApplyTechFilter(lp_player);
     }
     libE0EAE146_gf_RuntimeCheckpoint("RaynorRuntime.afterTechFilter");
+    libE0EAE146_gf_RaynorProbeTrainCatalog(lp_player);
     libE0EAE146_gt_RaynorStructureMorphRefresh_Init();
+    libE0EAE146_gt_RaynorTrainProbePeriodic_Init();
+    libE0EAE146_gf_RaynorStartTrainProbe(lp_player);
 
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterRaynor", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
     libE0EAE146_gf_RuntimeCheckpoint("RaynorRuntime.afterCasterCreate");

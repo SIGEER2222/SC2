@@ -916,8 +916,21 @@ unit gf_GetClosestProbeToNode (int lp_canisterHarvestTargetIndex) {
 
     }
     lv_probe01 = UnitGroupRandomUnit(UnitGroup("Probe", c_playerAny, RegionFromId(36), UnitFilter(0, 0, 0, 0), 0), c_unitCountAlive);
+    if (lv_probe01 == null) {
+        lv_probe01 = UnitGroupRandomUnit(UnitGroup("Probe", c_playerAny, RegionFromId(38), UnitFilter(0, 0, 0, 0), 0), c_unitCountAlive);
+    }
+    if (lv_canisterHarvestTarget == null) {
+        return lv_probe01;
+    }
+    if (lv_probe01 == null) {
+        lv_probe02 = UnitGroupRandomUnit(UnitGroup("Probe", c_playerAny, RegionFromId(38), UnitFilter(0, 0, 0, 0), 0), c_unitCountAlive);
+        return lv_probe02;
+    }
     lv_probe01DistanceToCanister = DistanceBetweenPoints(UnitGetPosition(lv_probe01), UnitGetPosition(lv_canisterHarvestTarget));
     lv_probe02 = UnitGroupRandomUnit(UnitGroup("Probe", c_playerAny, RegionFromId(38), UnitFilter(0, 0, 0, 0), 0), c_unitCountAlive);
+    if (lv_probe02 == null) {
+        return lv_probe01;
+    }
     lv_probe02DistanceToCanister = DistanceBetweenPoints(UnitGetPosition(lv_probe02), UnitGetPosition(lv_canisterHarvestTarget));
     if ((lv_probe01DistanceToCanister <= lv_probe02DistanceToCanister)) {
         return lv_probe01;

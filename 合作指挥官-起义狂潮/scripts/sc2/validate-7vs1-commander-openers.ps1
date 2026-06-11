@@ -29,7 +29,7 @@ function Assert-FixedContains {
     }
 }
 
-$sharedRoot = Join-Path $WorkspaceRoot 'Shared\7vs1PublicLibs\Base.SC2Data'
+$sharedRoot = Join-Path $WorkspaceRoot 'Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data'
 $runtimeSafetyPath = Join-Path $sharedRoot 'LibE0EAE146_RuntimeSafety.galaxy'
 $basePath = Join-Path $sharedRoot 'LibE0EAE146.galaxy'
 $stukovRuntimePath = Join-Path $sharedRoot 'LibE0EAE146_StukovRuntime.galaxy'

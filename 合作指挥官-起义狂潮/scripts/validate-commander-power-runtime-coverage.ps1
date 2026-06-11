@@ -29,7 +29,7 @@ function Get-CommanderSpecs {
 }
 
 $workspaceRoot = Get-WorkspaceRoot
-$generatedPath = Join-Path $workspaceRoot "Shared\7vs1PublicLibs\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
+$generatedPath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
 $bridgePath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibKCOR.galaxy"
 $launchPath = Join-Path $workspaceRoot "scripts\validate-7vs1-commander-power.ps1"
 
@@ -54,10 +54,10 @@ foreach ($spec in $specs) {
     Assert-Contains -Text $bridgeText -Needle ('.PrestigeBonusMask"), lv_prestigeMask, -1') -Message ("Lobby bridge missing prestige bonus mask write for '{0}'." -f $spec.Bank)
 }
 
-$achBitHits = Get-ChildItem -LiteralPath (Join-Path $workspaceRoot "Shared\7vs1PublicLibs\Base.SC2Data") -Filter "LibE0EAE146*.galaxy" |
+$achBitHits = Get-ChildItem -LiteralPath (Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data") -Filter "LibE0EAE146*.galaxy" |
     Select-String -Pattern "AchBit"
 $allowedAchBitPaths = @(
-    (Join-Path $workspaceRoot "Shared\7vs1PublicLibs\Base.SC2Data\LibE0EAE146.galaxy")
+    (Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146.galaxy")
 )
 
 foreach ($hit in $achBitHits) {

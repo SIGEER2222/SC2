@@ -146,10 +146,10 @@ $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
 $catalogGameData = Join-Path $workspaceRoot "Mods\7vs1\CommanderCatalog.SC2Mod\Base.SC2Data\GameData"
 $unitXml = Read-CatalogXml -Path (Join-Path $catalogGameData "UnitData.xml")
 $overlayUpgradeXml = Read-CatalogXml -Path (Join-Path $catalogGameData "UpgradeData.xml")
-$generatedGalaxyPath = Join-Path $workspaceRoot "Shared\7vs1PublicLibs\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
+$generatedGalaxyPath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
 Assert-True -Condition (Test-Path -LiteralPath $generatedGalaxyPath) -Message "Generated CommanderPower Galaxy not found: $generatedGalaxyPath"
 $generatedGalaxy = Get-Content -LiteralPath $generatedGalaxyPath -Encoding UTF8 -Raw
-$profileGalaxyPath = Join-Path $workspaceRoot "Shared\7vs1PublicLibs\Base.SC2Data\LibE0EAE146_CommanderPowerProfile.galaxy"
+$profileGalaxyPath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerProfile.galaxy"
 Assert-True -Condition (Test-Path -LiteralPath $profileGalaxyPath) -Message "CommanderPower profile Galaxy not found: $profileGalaxyPath"
 $profileGalaxy = Get-Content -LiteralPath $profileGalaxyPath -Encoding UTF8 -Raw
 $runtimeGalaxy = $generatedGalaxy + "`n" + $profileGalaxy

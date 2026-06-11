@@ -720,6 +720,7 @@ function Get-BootstrapData {
             enableMasteries = $true
             enablePrestiges = $true
             commanderOverrides = @()
+            genericBonuses = @()
             mutatorPreset = 0
         }
         commanders = $commanders
@@ -760,6 +761,16 @@ function ConvertTo-LaunchArgumentList {
     }
 
     $selectedMutators = New-Object System.Collections.Generic.List[string]
+    $allowedGenericBonuses = @(
+        "DoubleMinerals",
+        "DoubleVespene",
+        "RichResources",
+        "GuardianShell",
+        "CreepRegeneration",
+        "MechanicalRepair",
+        "ChronoBoost"
+    )
+    $selectedGenericBonuses = New-Object System.Collections.Generic.List[string]
     if ($null -ne $Request.mutators) {
         foreach ($mutator in @($Request.mutators)) {
             $mutatorId = [string]$mutator
@@ -771,6 +782,20 @@ function ConvertTo-LaunchArgumentList {
             }
             if (-not $selectedMutators.Contains($mutatorId)) {
                 $selectedMutators.Add($mutatorId)
+            }
+        }
+    }
+    if ($null -ne $Request.genericBonuses) {
+        foreach ($bonus in @($Request.genericBonuses)) {
+            $bonusId = [string]$bonus
+            if ([string]::IsNullOrWhiteSpace($bonusId)) {
+                continue
+            }
+            if ($allowedGenericBonuses -notcontains $bonusId) {
+                throw "Unknown generic bonus: $bonusId"
+            }
+            if (-not $selectedGenericBonuses.Contains($bonusId)) {
+                $selectedGenericBonuses.Add($bonusId)
             }
         }
     }
@@ -823,6 +848,10 @@ function ConvertTo-LaunchArgumentList {
     if ($selectedMutators.Count -gt 0) {
         $args.Add("-Mutators")
         $args.Add(($selectedMutators.ToArray() -join ","))
+    }
+    if ($selectedGenericBonuses.Count -gt 0) {
+        $args.Add("-GenericBonuses")
+        $args.Add(($selectedGenericBonuses.ToArray() -join ","))
     }
     $args.Add("-MutatorPreset")
     $args.Add([string]$mutatorPreset)
@@ -1120,6 +1149,7 @@ if ($SelfTest) {
         masteryLevel = 15
         masteries = @(15, 15, 15, 15, 15, 15)
         commanderOverrides = @()
+        genericBonuses = @()
         mutators = @($bootstrap.mutators | Select-Object -First 3 -ExpandProperty id)
         mutatorPreset = 0
         noLaunch = $true

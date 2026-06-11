@@ -55,7 +55,7 @@ function Assert-Contains {
 }
 
 $workspaceRoot = Get-WorkspaceRoot
-$profilePath = Join-Path $workspaceRoot "Shared\7vs1PublicLibs\Base.SC2Data\LibE0EAE146_CommanderPowerProfile.galaxy"
+$profilePath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerProfile.galaxy"
 $bridgePath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibKCOR.galaxy"
 
 $profileText = Get-Content -LiteralPath $profilePath -Raw

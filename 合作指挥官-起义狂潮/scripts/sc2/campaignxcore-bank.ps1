@@ -575,6 +575,68 @@ function Set-CampaignXCoreMutatorPreset {
     }
 }
 
+function Set-CampaignXCoreGenericBonuses {
+    param(
+        [string[]]$SelectedBonuses
+    )
+
+    $bankPaths = @(Get-CampaignXCoreBankPaths)
+    if ($bankPaths.Count -eq 0) {
+        Write-Warning "CampaignXCore.SC2Bank not found; skipping generic bonuses preset."
+        return
+    }
+
+    $allowedBonuses = New-Object 'System.Collections.Generic.Dictionary[string,string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($bonus in @(
+        "DoubleMinerals",
+        "DoubleVespene",
+        "RichResources",
+        "GuardianShell",
+        "CreepRegeneration",
+        "MechanicalRepair",
+        "ChronoBoost"
+    )) {
+        $allowedBonuses[$bonus] = $bonus
+    }
+
+    $normalizedBonuses = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($bonusEntry in $SelectedBonuses) {
+        if ([string]::IsNullOrWhiteSpace($bonusEntry)) {
+            continue
+        }
+
+        foreach ($bonus in ([string]$bonusEntry -split '[,;]')) {
+            if ([string]::IsNullOrWhiteSpace($bonus)) {
+                continue
+            }
+
+            $trimmed = $bonus.Trim()
+            if (-not $allowedBonuses.ContainsKey($trimmed)) {
+                throw "Unknown generic bonus '$trimmed'. Allowed ids: $($allowedBonuses.Keys -join ', ')"
+            }
+
+            $canonicalBonus = $allowedBonuses[$trimmed]
+            if (-not $normalizedBonuses.Contains($canonicalBonus)) {
+                $normalizedBonuses.Add($canonicalBonus)
+            }
+        }
+    }
+
+    foreach ($bankPath in $bankPaths) {
+        [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
+        Remove-BankSectionIfPresent -Xml $xml -SectionName "GenericBonuses"
+
+        if ($normalizedBonuses.Count -gt 0) {
+            Set-BankIntKeyValue -Xml $xml -SectionName "GenericBonuses" -KeyName "Enabled" -Value 1
+            foreach ($bonus in $normalizedBonuses) {
+                Set-BankIntKeyValue -Xml $xml -SectionName "GenericBonuses" -KeyName "Selected.$bonus" -Value 1
+            }
+        }
+
+        Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
+    }
+}
+
 function Set-CampaignXCoreTestRunId {
     param([string]$RunId)
 

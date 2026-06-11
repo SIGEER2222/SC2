@@ -53,80 +53,10 @@ function Get-DocumentInfoPreload {
     })
 }
 
-function Get-GalaxyFileIncludeLibIds {
-    param([string]$Path)
-
-    if (-not (Test-Path -LiteralPath $Path)) {
-        return @()
-    }
-
-    return @(Select-String -Path $Path -Pattern '^include "Lib[^"/]+"' | ForEach-Object {
-        if ($_.Line -match '"(Lib[^"/]+)"') {
-            $matches[1]
-        }
-    })
-}
-
-function Copy-SharedLibWithHeaders {
-    param(
-        [string]$LibId,
-        [string]$SourceRoot,
-        [string]$DestinationRoot,
-        [System.Collections.Generic.HashSet[string]]$Copied
-    )
-
-    if ([string]::IsNullOrWhiteSpace($LibId)) {
-        return
-    }
-    if (($LibId -eq 'LibA070801C') -or ($LibId -like 'TriggerLibs/*')) {
-        return
-    }
-    if ($Copied.Contains($LibId)) {
-        return
-    }
-
-    $sourceLib = Join-Path $SourceRoot ($LibId + '.galaxy')
-    if (-not (Test-Path -LiteralPath $sourceLib)) {
-        throw "Shared lib missing from shared base data: $sourceLib"
-    }
-
-    Copy-Item -LiteralPath $sourceLib -Destination (Join-Path $DestinationRoot ($LibId + '.galaxy')) -Force
-    $Copied.Add($LibId) | Out-Null
-
-    $sourceHeader = Join-Path $SourceRoot ($LibId + '_h.galaxy')
-    if (Test-Path -LiteralPath $sourceHeader) {
-        Copy-Item -LiteralPath $sourceHeader -Destination (Join-Path $DestinationRoot ($LibId + '_h.galaxy')) -Force
-    }
-
-    foreach ($nestedLibId in (Get-GalaxyFileIncludeLibIds -Path $sourceLib)) {
-        Copy-SharedLibWithHeaders -LibId $nestedLibId -SourceRoot $SourceRoot -DestinationRoot $DestinationRoot -Copied $Copied
-    }
-    if (Test-Path -LiteralPath $sourceHeader) {
-        foreach ($nestedLibId in (Get-GalaxyFileIncludeLibIds -Path $sourceHeader)) {
-            Copy-SharedLibWithHeaders -LibId $nestedLibId -SourceRoot $SourceRoot -DestinationRoot $DestinationRoot -Copied $Copied
-        }
-    }
-}
-
-function Sync-SharedLibsToCoopMod {
-    param(
-        [string]$SourceRoot,
-        [string]$DestinationRoot
-    )
-
-    if (-not (Test-Path -LiteralPath $DestinationRoot)) {
-        New-Item -ItemType Directory -Path $DestinationRoot -Force | Out-Null
-    }
-
-    Get-ChildItem -LiteralPath $SourceRoot -Filter '*.galaxy' | ForEach-Object {
-        Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $DestinationRoot $_.Name) -Force
-    }
-}
-
 function Remove-MapBaseDataDuplicates {
     param(
         [string]$MapBaseDataRoot,
-        [string]$SharedRuntimeRoot
+        [string]$CanonicalRuntimeRoot
     )
 
     if (-not (Test-Path -LiteralPath $MapBaseDataRoot)) {
@@ -134,7 +64,7 @@ function Remove-MapBaseDataDuplicates {
     }
 
     Get-ChildItem -LiteralPath $MapBaseDataRoot -Filter '*.galaxy' -File | ForEach-Object {
-        $sharedRuntimePath = Join-Path $SharedRuntimeRoot $_.Name
+        $sharedRuntimePath = Join-Path $CanonicalRuntimeRoot $_.Name
         if (Test-Path -LiteralPath $sharedRuntimePath) {
             Remove-Item -LiteralPath $_.FullName -Force
         }
@@ -212,23 +142,11 @@ if (-not (Test-Path -LiteralPath $templateRoot)) {
     throw "Template map not found: $templateRoot"
 }
 
-$templateBase = Join-Path $templateRoot 'Base.SC2Data'
-$templateLib67 = Join-Path $templateBase 'Lib67C0F0E7.galaxy'
-$templateLibE0 = Join-Path $templateBase 'LibE0EAE146.galaxy'
-if (-not (Test-Path -LiteralPath $templateLib67)) {
-    throw "Template public lib missing: $templateLib67"
-}
-if (-not (Test-Path -LiteralPath $templateLibE0)) {
-    throw "Template public lib missing: $templateLibE0"
-}
-
 $workspaceRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$sharedLibBase = Join-Path $workspaceRoot 'Shared\7vs1PublicLibs\Base.SC2Data'
-if (-not (Test-Path -LiteralPath $sharedLibBase)) {
-    throw "Shared 7vs1 public lib base data not found: $sharedLibBase"
-}
 $coopZeroPopBase = Join-Path $workspaceRoot 'Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data'
-Sync-SharedLibsToCoopMod -SourceRoot $sharedLibBase -DestinationRoot $coopZeroPopBase
+if (-not (Test-Path -LiteralPath $coopZeroPopBase)) {
+    throw "CoopZeroPop base data not found: $coopZeroPopBase"
+}
 
 $libertyStoryName = ([string]([char]0x81EA) + [string]([char]0x7531) + [string]([char]0x4E4B) + [string]([char]0x7FFC) + [string]([char]0x5267) + [string]([char]0x60C5) + ' (' + [string]([char]0x6218) + [string]([char]0x5F79) + ')')
 $libertyModName = ([string]([char]0x81EA) + [string]([char]0x7531) + [string]([char]0x4E4B) + [string]([char]0x7FFC) + ' (Mod)')
@@ -297,7 +215,7 @@ foreach ($map in $targets) {
         New-Item -ItemType Directory -Path $baseDataRoot -Force | Out-Null
     }
 
-    Remove-MapBaseDataDuplicates -MapBaseDataRoot $baseDataRoot -SharedRuntimeRoot $coopZeroPopBase
+    Remove-MapBaseDataDuplicates -MapBaseDataRoot $baseDataRoot -CanonicalRuntimeRoot $coopZeroPopBase
 
     Write-DocumentInfo -Path $documentInfoPath -Dependencies $newDependencies.ToArray() -Preload $preload
     & (Join-Path $PSScriptRoot 'sync-document-header-from-info.ps1') -DocumentInfoPath $documentInfoPath -DocumentHeaderPath $documentHeaderPath | Out-Null

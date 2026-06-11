@@ -104,7 +104,7 @@ function Get-BankString {
 }
 
 $workspaceRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$sharedBase = Join-Path $workspaceRoot 'Shared\7vs1PublicLibs\Base.SC2Data'
+$sharedBase = Join-Path $workspaceRoot 'Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data'
 $sharedMainPath = Join-Path $sharedBase 'LibE0EAE146.galaxy'
 $sharedHeaderPath = Join-Path $sharedBase 'LibE0EAE146_h.galaxy'
 $sharedRewardsPath = Join-Path $sharedBase 'LibE0EAE146_ProgressionRewards.galaxy'

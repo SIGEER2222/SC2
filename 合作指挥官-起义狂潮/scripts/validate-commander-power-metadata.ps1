@@ -190,7 +190,7 @@ $rebornRoots = @(Get-RebornWorkRepoRoots)
 $discoveryRoots = @($workspaceRoot) + $rebornRoots
 $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
 $metadataPath = Get-CommanderPowerMetadataPath -WorkspaceRoot $workspaceRoot
-$runtimeCoveragePath = Join-Path $workspaceRoot "Shared\7vs1PublicLibs\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
+$runtimeCoveragePath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
 $bridgePath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibKCOR.galaxy"
 $launchPath = Join-Path $workspaceRoot "scripts\launch-7vs1-coop-test.ps1"
 

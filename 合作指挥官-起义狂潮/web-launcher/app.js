@@ -2,6 +2,7 @@ const state = {
   data: null,
   selectedMutators: new Set(),
   selectedCommanderOverrides: new Set(),
+  selectedGenericBonuses: new Set(),
   selectedMutatorPanelExpanded: false,
   prestigeMaskMode: "default",
   launchPollTimer: null,
@@ -20,6 +21,15 @@ const MAX_RECENT = 6;
 const MAX_LAUNCH_HISTORY = 8;
 const MAX_SCENARIO_PRESETS = 16;
 const DEFAULT_PRESTIGE_PROFILE = "Prestige4";
+const GENERIC_BONUS_OPTIONS = [
+  { id: "DoubleMinerals", name: "矿物储量翻倍", description: "所有矿点当前与上限储量翻倍。" },
+  { id: "DoubleVespene", name: "瓦斯储量翻倍", description: "所有气矿当前与上限储量翻倍。" },
+  { id: "RichResources", name: "高产矿脉与瓦斯", description: "资源节点切换为高产形态，并保留当前储量。" },
+  { id: "GuardianShell", name: "守护者之壳", description: "获得阿塔尼斯的守护者之壳被动。" },
+  { id: "CreepRegeneration", name: "菌毯回血", description: "获得凯瑞甘菌毯回血效果。" },
+  { id: "MechanicalRepair", name: "机械维修", description: "机械单位周期性自我修复。" },
+  { id: "ChronoBoost", name: "时空加速", description: "基地旁控制建筑获得一次全图时空加速主动技能。" },
+];
 
 function normalizePrestigeProfile(value) {
   const profile = String(value || "").trim();
@@ -74,6 +84,7 @@ const el = {
   clearRecentButton: document.querySelector("#clearRecentButton"),
   prestigeList: document.querySelector("#prestigeList"),
   extraOptionList: document.querySelector("#extraOptionList"),
+  genericBonusList: document.querySelector("#genericBonusList"),
   masteryGrid: document.querySelector("#masteryGrid"),
   mutatorSearch: document.querySelector("#mutatorSearch"),
   mutatorPreset: document.querySelector("#mutatorPreset"),
@@ -385,6 +396,59 @@ function initials(text) {
   const ascii = clean.match(/[A-Za-z0-9]/g);
   if (ascii && ascii.length > 0) return ascii.slice(0, 2).join("").toUpperCase();
   return clean.slice(0, 2);
+}
+
+function getGenericBonusMap() {
+  return new Map(GENERIC_BONUS_OPTIONS.map((item) => [item.id, item]));
+}
+
+function getGenericBonusLabel(id) {
+  return getGenericBonusMap().get(id)?.name || id;
+}
+
+function renderGenericBonuses() {
+  if (!el.genericBonusList) return;
+  el.genericBonusList.replaceChildren();
+
+  const header = document.createElement("div");
+  header.className = "extra-option-head";
+  header.innerHTML = `
+    <strong>通用加成</strong>
+    <span class="badge">${state.selectedGenericBonuses.size}</span>
+  `;
+  el.genericBonusList.append(header);
+
+  for (const option of GENERIC_BONUS_OPTIONS) {
+    const checked = state.selectedGenericBonuses.has(option.id);
+    const card = document.createElement("div");
+    card.className = "extra-option-item";
+    card.innerHTML = `
+      <label class="extra-option-toggle">
+        <input class="generic-bonus-input" type="checkbox" data-bonus-id="${escapeHtml(option.id)}" ${checked ? "checked" : ""}>
+        <span class="extra-option-main">
+          <span class="extra-option-name">
+            <strong>${escapeHtml(option.name)}</strong>
+            <span class="badge">${escapeHtml(option.id)}</span>
+          </span>
+        </span>
+      </label>
+      <div class="extra-option-desc">${escapeHtml(option.description)}</div>
+    `;
+    el.genericBonusList.append(card);
+  }
+
+  el.genericBonusList.querySelectorAll(".generic-bonus-input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const bonusId = String(input.dataset.bonusId || "");
+      if (!bonusId) return;
+      if (input.checked) {
+        state.selectedGenericBonuses.add(bonusId);
+      } else {
+        state.selectedGenericBonuses.delete(bonusId);
+      }
+      updateSummary();
+    });
+  });
 }
 
 function escapeHtml(text) {
@@ -991,6 +1055,7 @@ function getConfigSummaryText() {
 function getPayloadSummaryText(payload) {
   const masteries = Array.isArray(payload.masteries) ? payload.masteries : [];
   const mutators = Array.isArray(payload.mutators) ? payload.mutators : [];
+  const genericBonuses = Array.isArray(payload.genericBonuses) ? payload.genericBonuses : [];
   const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
   return [
     `指挥官=${getCommanderLabel(payload.commander)}(${payload.commander})`,
@@ -999,6 +1064,7 @@ function getPayloadSummaryText(payload) {
     `精通等级=${payload.masteryLevel}`,
     `精通=[${masteries.join(",") || "-"}]`,
     `额外升级=${overrideLabels.length === 0 ? "无" : overrideLabels.join(",")}`,
+    `通用加成=${genericBonuses.length === 0 ? "无" : genericBonuses.map((id) => getGenericBonusLabel(id)).join(",")}`,
     `因子=${mutators.length === 0 ? "无" : mutators.join(",")}`,
     `模式=${payload.noLaunch ? "dry-run" : "launch"}`,
   ].join(" | ");
@@ -1051,6 +1117,7 @@ function getValidationSignature(payload = buildLaunchPayload()) {
     masteryLevel: payload.masteryLevel,
     masteries: payload.masteries,
     commanderOverrides: [...(payload.commanderOverrides || [])].sort(),
+    genericBonuses: [...(payload.genericBonuses || [])].sort(),
     mutators: [...(payload.mutators || [])].sort(),
     mutatorPreset: payload.mutatorPreset,
   });
@@ -1068,6 +1135,7 @@ function normalizeLaunchPayload(payload = buildLaunchPayload()) {
     masteryLevel: payload.masteryLevel,
     masteries: [...(payload.masteries || [])],
     commanderOverrides: [...(payload.commanderOverrides || [])].sort(),
+    genericBonuses: [...(payload.genericBonuses || [])].sort(),
     mutators: [...(payload.mutators || [])].sort(),
     mutatorPreset: payload.mutatorPreset,
   };
@@ -1133,6 +1201,9 @@ function getValidationChangeSummary(currentPayload = normalizeLaunchPayload()) {
   }
   if ((previous.commanderOverrides || []).join(",") !== (currentPayload.commanderOverrides || []).join(",")) {
     changes.push(`额外升级: ${(previous.commanderOverrides || []).length} -> ${(currentPayload.commanderOverrides || []).length}`);
+  }
+  if ((previous.genericBonuses || []).join(",") !== (currentPayload.genericBonuses || []).join(",")) {
+    changes.push(`通用加成: ${(previous.genericBonuses || []).length} -> ${(currentPayload.genericBonuses || []).length}`);
   }
   if (previous.mutatorPreset !== currentPayload.mutatorPreset) {
     changes.push(`因子 Preset: ${previous.mutatorPreset} -> ${currentPayload.mutatorPreset}`);
@@ -1266,6 +1337,7 @@ function setSummaryDetail(element, label, value, detail = "") {
 
 function updateSummaryDetails(payload = buildLaunchPayload()) {
   const mutatorIds = payload.mutators.length === 0 ? "无" : payload.mutators.join(", ");
+  const genericBonusLabels = (payload.genericBonuses || []).map((id) => getGenericBonusLabel(id));
   const commander = getCommander();
   const prestigeNames = (commander?.prestiges ?? [])
     .filter((prestige) => (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask)
@@ -1282,14 +1354,14 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
   setSummaryDetail(
     el.summaryMutators,
     "因子",
-    `${payload.mutators.length} 个`,
-    `preset=${payload.mutatorPreset}；ids=${mutatorIds}`,
+    `${payload.mutators.length} 个 / ${genericBonusLabels.length} 加成`,
+    `preset=${payload.mutatorPreset}；ids=${mutatorIds}；加成=${genericBonusLabels.join("、") || "无"}`,
   );
   setSummaryDetail(
     el.summaryMode,
     "模式",
     payload.noLaunch ? "dry-run 安装" : "launch 启动",
-    `融合=${formatPrestigeProfile(payload.prestigeProfile)}；mask=${payload.prestigeBonusMask}；项=${prestigeNames.join("、") || "无"}；额外=${overrideLabels.join("、") || "无"}；point=-1`,
+    `融合=${formatPrestigeProfile(payload.prestigeProfile)}；mask=${payload.prestigeBonusMask}；项=${prestigeNames.join("、") || "无"}；额外=${overrideLabels.join("、") || "无"}；通用=${genericBonusLabels.join("、") || "无"}；point=-1`,
   );
 }
 
@@ -1309,14 +1381,15 @@ function updateSummary() {
   const map = getMapLabel(el.mapSelect.value) || "-";
   const mutatorCount = state.selectedMutators.size;
   const commanderOverrideCount = state.selectedCommanderOverrides.size;
+  const genericBonusCount = state.selectedGenericBonuses.size;
   const selectedPrestigeCount = (commander?.prestiges ?? []).filter((prestige) =>
     (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask,
   ).length;
-  el.selectionSummary.textContent = `${commander?.displayName ?? "-"} / ${map} / ${mutatorCount} 因子 / ${commanderOverrideCount} 升级`;
+  el.selectionSummary.textContent = `${commander?.displayName ?? "-"} / ${map} / ${mutatorCount} 因子 / ${genericBonusCount} 加成 / ${commanderOverrideCount} 升级`;
   el.summaryCommander.textContent = commander?.displayName ?? "-";
   el.summaryMap.textContent = map;
   el.summaryMastery.textContent = `${payload.masteryLevel} / ${payload.masteries.join(",")}`;
-  el.summaryMutators.textContent = `${mutatorCount} 个`;
+  el.summaryMutators.textContent = `${mutatorCount} / ${genericBonusCount}`;
   el.prestigeFusionStatus.textContent = payload.enablePrestiges
     ? `${state.prestigeMaskMode === "default" ? "默认整合" : "手动拆分"} / ${selectedPrestigeCount} 项 / mask ${payload.prestigeBonusMask}`
     : "融合关闭";
@@ -1379,6 +1452,7 @@ function applyPayload(payload, options = {}) {
     unknownMap: null,
     unknownMutators: [],
     unknownCommanderOverrides: [],
+    unknownGenericBonuses: [],
   };
 
   if (state.data.commanders.some((item) => item.runtime === payload.commander)) {
@@ -1411,8 +1485,10 @@ function applyPayload(payload, options = {}) {
   }
 
   const allowedMutators = new Set(state.data.mutators.map((item) => item.id));
+  const allowedGenericBonuses = new Set(GENERIC_BONUS_OPTIONS.map((item) => item.id));
   state.selectedMutators.clear();
   state.selectedCommanderOverrides.clear();
+  state.selectedGenericBonuses.clear();
   resetSelectedMutatorView();
   if (Array.isArray(payload.mutators)) {
     for (const id of payload.mutators) {
@@ -1420,6 +1496,15 @@ function applyPayload(payload, options = {}) {
         state.selectedMutators.add(id);
       } else {
         report.unknownMutators.push(id);
+      }
+    }
+  }
+  if (Array.isArray(payload.genericBonuses)) {
+    for (const id of payload.genericBonuses) {
+      if (allowedGenericBonuses.has(id)) {
+        state.selectedGenericBonuses.add(id);
+      } else {
+        report.unknownGenericBonuses.push(id);
       }
     }
   }
@@ -1438,10 +1523,11 @@ function applyPayload(payload, options = {}) {
   }
 
   renderExtraOptions(getCommander());
+  renderGenericBonuses();
   renderMutators();
   renderQuickPickers();
   updateSummary();
-  if (report.unknownCommander || report.unknownMap || report.unknownMutators.length > 0 || report.unknownCommanderOverrides.length > 0) {
+  if (report.unknownCommander || report.unknownMap || report.unknownMutators.length > 0 || report.unknownCommanderOverrides.length > 0 || report.unknownGenericBonuses.length > 0) {
     report.ok = false;
   }
   if (options.returnReport) return report;
@@ -1460,6 +1546,7 @@ function getDefaultPayload() {
     masteryLevel: state.data.defaults.masteryLevel,
     masteries: state.data.defaults.masterySlots,
     commanderOverrides: [...(state.data.defaults.commanderOverrides || [])],
+    genericBonuses: [...(state.data.defaults.genericBonuses || [])],
     mutators: [],
     mutatorPreset: state.data.defaults.mutatorPreset,
     noLaunch: false,
@@ -1578,6 +1665,7 @@ function scenarioKey(payload) {
     payload.masteryLevel,
     (payload.masteries || []).join(","),
     (payload.commanderOverrides || []).join(","),
+    (payload.genericBonuses || []).join(","),
     (payload.mutators || []).join(","),
     payload.mutatorPreset,
     payload.noLaunch,
@@ -1620,6 +1708,7 @@ function renderRecentConfigs() {
       ${renderRowBadges([
         { text: getPayloadModeBadge(payload), className: payload.noLaunch ? "status-warn" : "" },
         { text: getPayloadMutatorBadge(payload) },
+        { text: `${(payload.genericBonuses || []).length} 加成` },
         { text: getPayloadMasteryBadge(payload) },
       ])}
     `;
@@ -1672,7 +1761,8 @@ function defaultScenarioName(payload) {
   const commander = getCommanderLabel(payload.commander);
   const map = getMapLabel(payload.map);
   const mutatorCount = (payload.mutators || []).length;
-  return `${commander} / ${map} / ${mutatorCount} 因子`;
+  const genericBonusCount = (payload.genericBonuses || []).length;
+  return `${commander} / ${map} / ${mutatorCount} 因子 / ${genericBonusCount} 加成`;
 }
 
 function saveScenarioPreset() {
@@ -1723,6 +1813,7 @@ function renderScenarioPresets() {
       ${renderRowBadges([
         { text: getPayloadModeBadge(payload), className: payload.noLaunch ? "status-warn" : "" },
         { text: getPayloadMutatorBadge(payload) },
+        { text: `${(payload.genericBonuses || []).length} 加成` },
         { text: getPayloadMasteryBadge(payload) },
       ])}
     `;
@@ -1958,6 +2049,7 @@ function renderLaunchHistory() {
   for (const item of items) {
     const payload = item.payload || {};
     const mutators = payload.mutators || [];
+    const genericBonuses = payload.genericBonuses || [];
     const row = document.createElement("div");
     row.className = "history-item";
 
@@ -1971,6 +2063,7 @@ function renderLaunchHistory() {
         { text: getLaunchHistoryStatusLabel(item), className: getHistoryStatusClass(item) },
         { text: getPayloadModeBadge(payload), className: payload.noLaunch ? "status-warn" : "" },
         { text: `${mutators.length} 因子` },
+        { text: `${genericBonuses.length} 加成` },
       ])}
     `;
     setButtonDetail(main, ["启动历史", getLaunchHistoryStatusLabel(item), formatTime(item.launchedAt), getPayloadSummaryText(payload)]);
@@ -2003,6 +2096,7 @@ function renderLaunchHistory() {
         commander: payload.commander,
         map: payload.map,
         mutators: mutators.map((id) => `${getMutatorLabel(id)} (${id})`),
+        genericBonuses: genericBonuses.map((id) => `${getGenericBonusLabel(id)} (${id})`),
         result: item.result,
         finalStatus: item.result?.finalStatus || null,
         logPaths,
@@ -2170,6 +2264,7 @@ function buildLaunchPayload() {
     masteryLevel: parseLooseInteger(el.masteryLevel.value, 30),
     masteries: getMasteryValues(),
     commanderOverrides: [...state.selectedCommanderOverrides].sort(),
+    genericBonuses: [...state.selectedGenericBonuses].sort(),
     mutators: [...state.selectedMutators],
     mutatorPreset: clampNumber(el.mutatorPreset.value, 0, 3, 0),
     noLaunch: el.dryRunToggle.checked,
@@ -2191,6 +2286,7 @@ async function loadBootstrap() {
     if (!response.ok) throw new Error(`bootstrap ${response.status}`);
     state.data = await response.json();
     state.selectedMutators.clear();
+    state.selectedGenericBonuses.clear();
 
     populateSelect(
       el.commanderSelect,

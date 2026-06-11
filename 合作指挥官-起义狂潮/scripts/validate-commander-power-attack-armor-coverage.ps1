@@ -159,8 +159,8 @@ function Assert-UpgradeParent {
 $workspaceRoot = Get-WorkspaceRoot
 $repoRoot = Split-Path -Parent $workspaceRoot
 $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
-$generatedPath = Join-Path $workspaceRoot "Shared\7vs1PublicLibs\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
-$closurePath = Join-Path $workspaceRoot "Shared\7vs1PublicLibs\Base.SC2Data\LibE0EAE146_CommanderPowerGeneratedClosure.galaxy"
+$generatedPath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
+$closurePath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerGeneratedClosure.galaxy"
 $generatedText = Get-Content -LiteralPath $generatedPath -Encoding UTF8 -Raw
 $closureText = Get-Content -LiteralPath $closurePath -Encoding UTF8 -Raw
 
