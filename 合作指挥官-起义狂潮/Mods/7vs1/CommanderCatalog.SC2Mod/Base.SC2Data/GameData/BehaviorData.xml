@@ -18,4 +18,64 @@
     </Modification>
     <BehaviorCategories index="Fast" value="1" />
   </CBehaviorBuff>
+  <CBehaviorBuff id="AbathurMendInitialHeal">
+    <InfoIcon value="Assets\Textures\btn-ability-zerg-transfusion-color.dds"/>
+    <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+    <Duration value="0.07"/>
+    <Period value="0.0625"/>
+    <PeriodCount value="1"/>
+    <PeriodicEffect value="AbathurMendInitialHealer"/>
+    <FinalEffect value="AbathurMendPeriodicHeal"/>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="AbathurMendPeriodicHeal">
+    <InfoIcon value="Assets\Textures\btn-ability-zerg-transfusion-color.dds"/>
+    <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+    <Duration value="10"/>
+    <Period value="1"/>
+    <PeriodicEffect value="AbathurMendSecondaryHealer"/>
+    <PeriodCount value="9"/>
+    <InitialEffect value="AbathurMendSecondaryHealer"/>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="InfestedStukovCoopRegenAura">
+    <InfoFlags index="Hidden" value="1"/>
+    <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+    <Period value="2"/>
+    <PeriodicEffect value="InfestedStukovCoopRegenAuraSearch"/>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="InfestedStukovCoopRegenAuraTarget">
+    <Alignment value="Positive"/>
+    <InfoIcon value="Assets\Textures\btn-ability-zerg-transfusion.dds"/>
+    <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+    <Duration value="2.1"/>
+    <Modification>
+      <VitalRegenArray index="Life" value="3"/>
+    </Modification>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="SIStukovMassNeuralParasiteDebuff">
+    <Alignment value="Negative"/>
+    <InfoIcon value="Assets\Textures\BTN-Ability-Zerg-NeuralParasite.dds"/>
+    <RemoveValidatorArray value="EnemyTarget"/>
+    <DamageResponse Fatal="1" Handled="SIStukovMassNeuralParasiteTargetSet" ModifyFraction="0">
+      <Chance value="1"/>
+    </DamageResponse>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="SIStukovMassNeuralParasiteTarget">
+    <Alignment value="Negative"/>
+    <InfoIcon value="Assets\Textures\BTN-Ability-Zerg-NeuralParasite.dds"/>
+    <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+    <DisplayDuration index="Self" value="1"/>
+    <DisplayDuration index="Enemy" value="1"/>
+    <Modification>
+      <AbilLinkDisableArray value="ArchonWarp"/>
+      <AbilLinkDisableArray value="SprayProtoss"/>
+      <AbilLinkDisableArray value="SprayTerran"/>
+      <AbilLinkDisableArray value="SprayZerg"/>
+      <AbilLinkDisableArray value="Clone"/>
+    </Modification>
+    <RemoveValidatorArray value="NotHidden"/>
+    <RemoveValidatorArray value="NotFrenzied"/>
+    <RemoveValidatorArray value="NotVortexd"/>
+    <RemoveValidatorArray value="NotOracleStasisTrappedCombine"/>
+    <InitialEffect value="ChangeOwnerToCaster"/>
+  </CBehaviorBuff>
 </Catalog>

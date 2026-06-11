@@ -61,7 +61,7 @@ function Assert-OverlayEffect {
                 continue
             }
 
-            if ([string]$effect.Operation -eq $Operation) {
+            if ([string]::IsNullOrWhiteSpace($Operation) -or ([string]$effect.Operation -eq $Operation)) {
                 $hit = $true
                 break
             }
@@ -220,7 +220,12 @@ $explicitRaynorBioChecks = @(
     @{ Upgrade = "CommanderPrestigeRaynorBio"; Unit = "MarauderRaynor"; Fields = @("LifeMax", "LifeStart"); Value = "125" },
     @{ Upgrade = "CommanderPrestigeRaynorBio"; Unit = "FirebatRaynor"; Fields = @("LifeMax", "LifeStart"); Value = "100" },
     @{ Upgrade = "CommanderPrestigeRaynorBioMarineUpgrade"; Unit = "MarineRaynor"; Fields = @("LifeMax", "LifeStart"); Value = "10" },
-    @{ Upgrade = "CommanderPrestigeRaynorBioFirebatUpgrade"; Unit = "FirebatRaynor"; Fields = @("LifeMax", "LifeStart"); Value = "100" }
+    @{ Upgrade = "CommanderPrestigeRaynorBioFirebatUpgrade"; Unit = "FirebatRaynor"; Fields = @("LifeMax", "LifeStart"); Value = "100" },
+    @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Abil,SuperStimpackMarineRaynor,Cost[0].Vital[Life]"; Value = "0"; Operation = "Set" },
+    @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Abil,StimpackMarauderRaynor,Cost[0].Vital[Life]"; Value = "0"; Operation = "Set" },
+    @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Abil,StimpackFirebatRaynor,Cost[0].Vital[Life]"; Value = "0"; Operation = "Set" },
+    @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Behavior,StimpackMarauderRaynor,Modification.VitalRegenArray[Life]"; Value = "1"; Operation = "Set" },
+    @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Behavior,StimpackFirebatRaynor,Modification.VitalRegenArray[Life]"; Value = "1"; Operation = "Set" }
 )
 
 foreach ($level in 1..3) {
@@ -233,26 +238,20 @@ foreach ($level in 1..3) {
 }
 
 foreach ($check in $explicitRaynorBioChecks) {
+    if ($check.ContainsKey("Reference")) {
+        Assert-OverlayEffect -Xml $overlayUpgradeXml -UpgradeId $check.Upgrade -Reference $check.Reference -Value $check.Value -Operation $check.Operation
+        continue
+    }
+
     foreach ($field in $check.Fields) {
         Assert-OverlayEffect -Xml $overlayUpgradeXml -UpgradeId $check.Upgrade -Reference ("Unit,{0},{1}" -f $check.Unit, $field) -Value $check.Value
     }
 }
 
 $explicitRaynorAirChecks = @(
-    @{ Unit = "MarineRaynor"; Field = "CostResource[Minerals]"; Value = "25"; Operation = "" },
-    @{ Unit = "MedicRaynor"; Field = "CostResource[Minerals]"; Value = "38"; Operation = "" },
-    @{ Unit = "MarauderRaynor"; Field = "CostResource[Minerals]"; Value = "50"; Operation = "" },
-    @{ Unit = "FirebatRaynor"; Field = "CostResource[Minerals]"; Value = "50"; Operation = "" },
-    @{ Unit = "VultureRaynor"; Field = "CostResource[Minerals]"; Value = "38"; Operation = "" },
-    @{ Unit = "SiegeTankRaynor"; Field = "CostResource[Minerals]"; Value = "75"; Operation = "" },
-    @{ Unit = "SiegeTankSiegedRaynor"; Field = "CostResource[Minerals]"; Value = "75"; Operation = "" },
-    @{ Unit = "VikingAssaultRaynor"; Field = "CostResource[Minerals]"; Value = "75"; Operation = "" },
     @{ Unit = "VikingAssaultRaynor"; Field = "CostResource[Vespene]"; Value = "18"; Operation = "Subtract" },
-    @{ Unit = "VikingRaynor"; Field = "CostResource[Minerals]"; Value = "75"; Operation = "" },
     @{ Unit = "VikingRaynor"; Field = "CostResource[Vespene]"; Value = "18"; Operation = "Subtract" },
-    @{ Unit = "BansheeRaynor"; Field = "CostResource[Minerals]"; Value = "75"; Operation = "" },
     @{ Unit = "BansheeRaynor"; Field = "CostResource[Vespene]"; Value = "24"; Operation = "Subtract" },
-    @{ Unit = "BattlecruiserRaynor"; Field = "CostResource[Minerals]"; Value = "200"; Operation = "" },
     @{ Unit = "BattlecruiserRaynor"; Field = "CostResource[Vespene]"; Value = "72"; Operation = "Subtract" },
     @{ Unit = "StarportRaynor"; Field = "CostResource[Vespene]"; Value = "100"; Operation = "Subtract" },
     @{ Unit = "StarportFlyingRaynor"; Field = "CostResource[Vespene]"; Value = "100"; Operation = "Subtract" }

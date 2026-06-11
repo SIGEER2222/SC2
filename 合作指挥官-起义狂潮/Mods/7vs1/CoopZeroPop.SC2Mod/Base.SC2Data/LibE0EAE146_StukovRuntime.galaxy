@@ -2,6 +2,32 @@ bool libE0EAE146_gf_StukovP2BansheeMarineOptionEnabled () {
     return (libE0EAE146_gf_CommanderPowerBankFlagEnabled("Stukov", "P2SpawnInfestedMarineInBanshee") && lib67C0F0E7_gf_BitMaskTrueIndexIs(libE0EAE146_gf_CommanderPowerPrestigeMask("Stukov"), 1));
 }
 
+void libE0EAE146_gf_StukovSpawnInfestedMarineIntoOneBanshee (unit lp_banshee) {
+    unit lv_newUnit;
+    fixed lv_energy;
+
+    if ((lp_banshee == null)) {
+        return;
+    }
+
+    if ((UnitCargoValue(lp_banshee, c_unitCargoSpaceFree) <= 0)) {
+        return;
+    }
+
+    lv_energy = UnitGetPropertyFixed(lp_banshee, c_unitPropEnergy, c_unitPropCurrent);
+    if ((lv_energy < 20.0)) {
+        return;
+    }
+
+    UnitSetPropertyFixed(lp_banshee, c_unitPropEnergy, MaxF((lv_energy - 20.0), 0.0));
+    UnitCargoCreate(lp_banshee, "SIInfestedMarine", 1);
+    lv_newUnit = UnitCargoLastCreated();
+    if ((lv_newUnit != null)) {
+        UnitSetState(lv_newUnit, c_unitStateUsingSupply, false);
+        UnitBehaviorAdd(lv_newUnit, "InfestedStukovInfestedTerranTimedLife", lv_newUnit, 1);
+    }
+}
+
 void libE0EAE146_gf_StukovSpawnInfestedMarineIntoBanshees (int lp_player) {
     int lv_unitCount;
     unit lv_banshee;
@@ -20,9 +46,7 @@ void libE0EAE146_gf_StukovSpawnInfestedMarineIntoBanshees (int lp_player) {
     for (;; lv_unitCount -= 1) {
         lv_banshee = UnitGroupUnitFromEnd(lv_banshees, lv_unitCount);
         if (lv_banshee == null) { break; }
-        if ((UnitCargoValue(lv_banshee, c_unitCargoSpaceFree) > 0)) {
-            UnitCargoCreate(lv_banshee, "SIInfestedMarine", 1);
-        }
+        libE0EAE146_gf_StukovSpawnInfestedMarineIntoOneBanshee(lv_banshee);
     }
 }
 

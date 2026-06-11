@@ -5,6 +5,8 @@ const state = {
   selectedGenericBonuses: new Set(),
   selectedMutatorPanelExpanded: false,
   prestigeMaskMode: "default",
+  activeSheet: DEFAULT_ACTIVE_SHEET,
+  autosaveTimer: null,
   launchPollTimer: null,
   lastLogPaths: null,
   lastValidatedSignature: "",
@@ -17,10 +19,13 @@ const RECENT_KEY = "sc2-7vs1-web-launcher-recent";
 const MUTATOR_PRESET_KEY = "sc2-7vs1-web-launcher-mutator-presets";
 const LAUNCH_HISTORY_KEY = "sc2-7vs1-web-launcher-launch-history";
 const SCENARIO_PRESET_KEY = "sc2-7vs1-web-launcher-scenario-presets";
+const UI_STATE_KEY = "sc2-7vs1-web-launcher-ui-state";
 const MAX_RECENT = 6;
 const MAX_LAUNCH_HISTORY = 8;
 const MAX_SCENARIO_PRESETS = 16;
 const DEFAULT_PRESTIGE_PROFILE = "Prestige4";
+const DEFAULT_ACTIVE_SHEET = "mutators";
+const SHEET_IDS = new Set(["mutators", "prestige", "bonuses", "output"]);
 const GENERIC_BONUS_OPTIONS = [
   { id: "DoubleMinerals", name: "矿物储量翻倍", description: "所有矿点当前与上限储量翻倍。" },
   { id: "DoubleVespene", name: "瓦斯储量翻倍", description: "所有气矿当前与上限储量翻倍。" },
@@ -47,6 +52,37 @@ function formatPrestigeProfile(value) {
   return profile;
 }
 
+function normalizeActiveSheet(value) {
+  const sheet = String(value || "").trim();
+  return SHEET_IDS.has(sheet) ? sheet : DEFAULT_ACTIVE_SHEET;
+}
+
+function syncActiveSheetUI() {
+  const activeSheet = normalizeActiveSheet(state.activeSheet);
+  state.activeSheet = activeSheet;
+  for (const tab of el.sheetTabs) {
+    const sheet = normalizeActiveSheet(tab.dataset.sheetTab);
+    const selected = sheet === activeSheet;
+    tab.classList.toggle("active", selected);
+    tab.setAttribute("aria-selected", selected ? "true" : "false");
+    tab.tabIndex = selected ? 0 : -1;
+  }
+  for (const panel of el.sheetPanels) {
+    const sheet = normalizeActiveSheet(panel.dataset.sheetPanel);
+    panel.hidden = sheet !== activeSheet;
+  }
+}
+
+function setActiveSheet(sheet, options = {}) {
+  const nextSheet = normalizeActiveSheet(sheet);
+  const changed = state.activeSheet !== nextSheet;
+  state.activeSheet = nextSheet;
+  syncActiveSheetUI();
+  if (options.persist !== false && changed) {
+    writeUiState({ activeSheet: state.activeSheet });
+  }
+}
+
 const el = {
   dataStatus: document.querySelector("#dataStatus"),
   selectionSummary: document.querySelector("#selectionSummary"),
@@ -58,6 +94,8 @@ const el = {
   summaryValidation: document.querySelector("#summaryValidation"),
   copySummaryButton: document.querySelector("#copySummaryButton"),
   configIssues: document.querySelector("#configIssues"),
+  sheetTabs: [...document.querySelectorAll("[data-sheet-tab]")],
+  sheetPanels: [...document.querySelectorAll("[data-sheet-panel]")],
   bootstrapCommanderCount: document.querySelector("#bootstrapCommanderCount"),
   bootstrapMapCount: document.querySelector("#bootstrapMapCount"),
   bootstrapMutatorCount: document.querySelector("#bootstrapMutatorCount"),
@@ -253,6 +291,7 @@ function setPrestigeMaskValue(mask) {
 function syncPrestigeMaskFromUI(mode = "custom") {
   setPrestigeMaskValue(getCommanderPrestigeMaskFromSelection());
   state.prestigeMaskMode = mode;
+  scheduleAutosave();
 }
 
 function writeOutput(value) {
@@ -265,6 +304,43 @@ function writeOutput(value) {
   }
   el.outputLog.textContent = `[${stamp}]\n${text}`;
   el.copyOutputButton.disabled = false;
+}
+
+function readUiState() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(UI_STATE_KEY) || "{}");
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    localStorage.removeItem(UI_STATE_KEY);
+    return {};
+  }
+}
+
+function writeUiState(partial) {
+  localStorage.setItem(UI_STATE_KEY, JSON.stringify({
+    ...readUiState(),
+    ...partial,
+  }));
+}
+
+function scheduleAutosave() {
+  if (!state.data) return;
+  if (state.autosaveTimer) {
+    clearTimeout(state.autosaveTimer);
+  }
+  state.autosaveTimer = setTimeout(() => {
+    state.autosaveTimer = null;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(buildLaunchPayload()));
+      writeUiState({
+        selectedMutatorPanelExpanded: state.selectedMutatorPanelExpanded,
+        prestigeMaskMode: state.prestigeMaskMode,
+        activeSheet: state.activeSheet,
+      });
+    } catch (error) {
+      writeOutput(`自动保存失败：${error.message}`);
+    }
+  }, 100);
 }
 
 function setPayloadStatus(text, kind = "") {
@@ -413,7 +489,7 @@ function renderGenericBonuses() {
   const header = document.createElement("div");
   header.className = "extra-option-head";
   header.innerHTML = `
-    <strong>通用加成</strong>
+    <strong>已选加成</strong>
     <span class="badge">${state.selectedGenericBonuses.size}</span>
   `;
   el.genericBonusList.append(header);
@@ -447,6 +523,7 @@ function renderGenericBonuses() {
         state.selectedGenericBonuses.delete(bonusId);
       }
       updateSummary();
+      scheduleAutosave();
     });
   });
 }
@@ -805,6 +882,7 @@ function renderExtraOptions(commander = getCommander()) {
         state.selectedCommanderOverrides.delete(overrideValue);
       }
       updateSummary();
+      scheduleAutosave();
     });
   });
 }
@@ -1039,6 +1117,7 @@ function clearMatchedSelectedMutators() {
   }
   renderMutators();
   updateSummary();
+  scheduleAutosave();
   el.launchState.textContent = `已清除 ${matched.length} 个匹配因子`;
 }
 
@@ -1401,6 +1480,7 @@ function updateSummary() {
   updateMasteryPairStatus();
   updateValidationSummary();
   updateConfigIssues();
+  scheduleAutosave();
 }
 
 function updateBootstrapStrip() {
@@ -1527,6 +1607,9 @@ function applyPayload(payload, options = {}) {
   renderMutators();
   renderQuickPickers();
   updateSummary();
+  if (options.persist !== false) {
+    scheduleAutosave();
+  }
   if (report.unknownCommander || report.unknownMap || report.unknownMutators.length > 0 || report.unknownCommanderOverrides.length > 0 || report.unknownGenericBonuses.length > 0) {
     report.ok = false;
   }
@@ -1622,6 +1705,11 @@ function clearPayloadJson() {
 function saveConfig() {
   const payload = buildLaunchPayload();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  writeUiState({
+    selectedMutatorPanelExpanded: state.selectedMutatorPanelExpanded,
+    prestigeMaskMode: state.prestigeMaskMode,
+    activeSheet: state.activeSheet,
+  });
   addRecentConfig(payload);
   el.launchState.textContent = "已保存";
   writeOutput({ saved: payload });
@@ -2145,7 +2233,12 @@ function loadSavedConfig() {
 
 function resetConfig() {
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(UI_STATE_KEY);
   applyPayload(getDefaultPayload(), { prestigeMaskAuto: true });
+  state.selectedMutatorPanelExpanded = false;
+  state.prestigeMaskMode = "default";
+  state.activeSheet = DEFAULT_ACTIVE_SHEET;
+  syncActiveSheetUI();
   el.launchState.textContent = "默认";
   writeOutput("已恢复默认配置");
 }
@@ -2181,6 +2274,7 @@ function randomizeMutators(countOverride = null, append = false) {
 
   renderMutators();
   updateSummary();
+  scheduleAutosave();
   el.launchState.textContent = append
     ? `追加 ${picked.length} 因子`
     : `随机 ${picked.length} 因子`;
@@ -2244,6 +2338,7 @@ function applyMutatorImport(replace) {
   }
   renderMutators();
   updateSummary();
+  scheduleAutosave();
   el.launchState.textContent = unknown.length > 0 ? "部分未识别" : "因子已导入";
   writeOutput({
     importedMutators: matched.map((id) => `${getMutatorLabel(id)} (${id})`),
@@ -2301,10 +2396,15 @@ async function loadBootstrap() {
       (item) => item.displayName,
     );
 
-  populateMutatorFilters();
+    populateMutatorFilters();
+    const uiState = readUiState();
+    state.selectedMutatorPanelExpanded = uiState.selectedMutatorPanelExpanded === true;
+    state.prestigeMaskMode = uiState.prestigeMaskMode || "default";
+    state.activeSheet = normalizeActiveSheet(uiState.activeSheet);
     if (!loadSavedConfig()) {
       applyPayload(getDefaultPayload(), { prestigeMaskAuto: true });
     }
+    syncActiveSheetUI();
     updateBootstrapStrip();
     renderRecentConfigs();
     renderScenarioPresets();
@@ -2605,30 +2705,51 @@ el.commanderSelect.addEventListener("change", () => {
   state.prestigeMaskMode = "default";
   renderCommanderDetails();
   renderQuickPickers();
+  scheduleAutosave();
 });
 el.mapSelect.addEventListener("change", () => {
   updateSummary();
   renderQuickPickers();
+  scheduleAutosave();
 });
 el.enablePrestiges.addEventListener("change", () => {
   syncCommanderOverrideSelection(getCommander());
   renderExtraOptions(getCommander());
   updateSummary();
+  scheduleAutosave();
 });
-el.enableMasteries.addEventListener("change", updateSummary);
-el.masteryLevel.addEventListener("change", updateSummary);
+el.enableMasteries.addEventListener("change", () => {
+  updateSummary();
+  scheduleAutosave();
+});
+el.masteryLevel.addEventListener("change", () => {
+  updateSummary();
+  scheduleAutosave();
+});
 el.mutatorSearch.addEventListener("input", renderMutators);
 el.mutatorFilter.addEventListener("change", renderMutators);
 el.mutatorCategoryFilter.addEventListener("change", renderMutators);
 el.mutatorTierFilter.addEventListener("change", renderMutators);
-el.mutatorPreset.addEventListener("change", updateSummary);
+el.mutatorPreset.addEventListener("change", () => {
+  updateSummary();
+  scheduleAutosave();
+});
+for (const tab of el.sheetTabs) {
+  tab.addEventListener("click", () => {
+    setActiveSheet(tab.dataset.sheetTab);
+  });
+}
 el.selectedMutatorSearch.addEventListener("input", renderSelectedMutators);
 el.clearMatchedMutators.addEventListener("click", clearMatchedSelectedMutators);
 el.toggleSelectedMutators.addEventListener("click", () => {
   state.selectedMutatorPanelExpanded = !state.selectedMutatorPanelExpanded;
   renderSelectedMutators();
+  scheduleAutosave();
 });
-el.dryRunToggle.addEventListener("change", updateSummary);
+el.dryRunToggle.addEventListener("change", () => {
+  updateSummary();
+  scheduleAutosave();
+});
 el.clearMutatorFilters.addEventListener("click", clearMutatorFilters);
 el.applyMutatorImport.addEventListener("click", () => applyMutatorImport(true));
 el.appendMutatorImport.addEventListener("click", () => applyMutatorImport(false));
@@ -2643,6 +2764,7 @@ el.clearMutators.addEventListener("click", () => {
   resetSelectedMutatorView();
   renderMutators();
   updateSummary();
+  scheduleAutosave();
 });
 el.clearRecentButton.addEventListener("click", () => writeRecentConfigs([]));
 el.saveScenarioPreset.addEventListener("click", saveScenarioPreset);
@@ -2687,6 +2809,7 @@ el.copyMutatorIds.addEventListener("click", copySelectedMutatorIds);
 el.masteryGrid.addEventListener("input", (event) => {
   if (event.target?.classList?.contains("mastery-input")) {
     updateSummary();
+    scheduleAutosave();
   }
 });
 

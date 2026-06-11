@@ -93,8 +93,15 @@
         <div id="mapQuickList" class="quick-pick-list map-quick-list map-gallery"></div>
       </section>
 
-      <div class="content-grid">
-        <section class="panel mutator-panel" aria-labelledby="mutatorTitle">
+      <nav class="sheet-bar" role="tablist" aria-label="功能页切换">
+        <button type="button" class="sheet-tab active" data-sheet-tab="mutators" aria-selected="true">因子</button>
+        <button type="button" class="sheet-tab" data-sheet-tab="prestige" aria-selected="false">威望</button>
+        <button type="button" class="sheet-tab" data-sheet-tab="bonuses" aria-selected="false">通用加成</button>
+        <button type="button" class="sheet-tab" data-sheet-tab="output" aria-selected="false">输出</button>
+      </nav>
+
+      <div class="sheet-panels">
+        <section class="panel mutator-panel sheet-panel" data-sheet-panel="mutators" aria-labelledby="mutatorTitle">
           <div class="panel-head">
             <h2 id="mutatorTitle">因子</h2>
             <span id="mutatorCount" class="badge">0</span>
@@ -178,10 +185,11 @@
           <div id="mutatorGrid" class="mutator-grid"></div>
         </section>
 
-        <div class="right-stack">
-          <section class="panel mastery-panel" aria-labelledby="masteryTitle">
+        <section class="sheet-panel" data-sheet-panel="prestige" aria-labelledby="prestigeSheetTitle" hidden>
+          <div class="right-stack">
+          <section class="panel mastery-panel" aria-labelledby="prestigeSheetTitle">
             <div class="panel-head">
-              <h2 id="masteryTitle">精通与威望</h2>
+              <h2 id="prestigeSheetTitle">精通与威望</h2>
               <div class="mastery-head-actions">
                 <span id="masteryPairStatus" class="badge">-</span>
                 <span id="prestigeFusionStatus" class="badge">-</span>
@@ -226,8 +234,6 @@
               </label>
             </div>
 
-            <div id="genericBonusList" class="generic-bonus-list"></div>
-
             <div class="scenario-block">
               <div class="scenario-head">
                 <span>场景预设</span>
@@ -251,46 +257,58 @@
               <div id="recentConfigs" class="recent-list"></div>
             </div>
           </section>
-        </div>
-      </div>
+          </div>
+        </section>
 
-      <section class="panel output-panel" aria-labelledby="outputTitle">
-        <div class="panel-head">
-          <h2 id="outputTitle">输出</h2>
-          <div class="output-actions">
-            <button id="copyCommandButton" type="button" class="mini" disabled>复制命令</button>
-            <button id="copyLogPathsButton" type="button" class="mini" disabled>复制日志路径</button>
-            <button id="copyOutputButton" type="button" class="mini" disabled>复制输出</button>
-            <button id="clearOutputButton" type="button" class="mini">清空输出</button>
-            <span id="launchState" class="badge">空闲</span>
-          </div>
-        </div>
-        <div class="config-io-block">
-          <div class="config-io-head">
-            <span>完整配置 JSON</span>
-            <div class="config-io-actions">
-              <button id="exportPayloadButton" type="button" class="mini" disabled>导出当前</button>
-              <button id="copyPayloadButton" type="button" class="mini" disabled>复制 JSON</button>
-              <button id="applyPayloadButton" type="button" class="mini" disabled>应用 JSON</button>
-              <button id="clearPayloadButton" type="button" class="mini">清空</button>
+        <section class="sheet-panel" data-sheet-panel="bonuses" aria-labelledby="genericBonusTitle" hidden>
+          <section class="panel generic-bonus-panel">
+            <div class="panel-head">
+              <h2 id="genericBonusTitle">通用加成</h2>
+              <span class="badge">可选</span>
             </div>
-          </div>
-          <textarea id="payloadText" class="payload-text" spellcheck="false" placeholder="粘贴 buildLaunchPayload JSON，可从文档或日志回灌"></textarea>
-          <div id="payloadStatus" class="payload-status">等待配置</div>
-        </div>
-        <div class="log-path-strip" aria-label="当前日志路径">
-          <span id="stdoutPathText">stdout: -</span>
-          <span id="stderrPathText">stderr: -</span>
-        </div>
-        <pre id="outputLog" class="output-log">等待操作</pre>
-        <div class="history-block">
-          <div class="history-head">
-            <span>启动历史</span>
-            <button id="clearLaunchHistory" type="button" class="mini">清除</button>
-          </div>
-          <div id="launchHistory" class="history-list"></div>
-        </div>
-      </section>
+            <div id="genericBonusList" class="generic-bonus-list"></div>
+          </section>
+        </section>
+        <section class="sheet-panel" data-sheet-panel="output" aria-labelledby="outputTitle" hidden>
+          <section class="panel output-panel">
+            <div class="panel-head">
+              <h2 id="outputTitle">输出</h2>
+              <div class="output-actions">
+                <button id="copyCommandButton" type="button" class="mini" disabled>复制命令</button>
+                <button id="copyLogPathsButton" type="button" class="mini" disabled>复制日志路径</button>
+                <button id="copyOutputButton" type="button" class="mini" disabled>复制输出</button>
+                <button id="clearOutputButton" type="button" class="mini">清空输出</button>
+                <span id="launchState" class="badge">空闲</span>
+              </div>
+            </div>
+            <div class="config-io-block">
+              <div class="config-io-head">
+                <span>完整配置 JSON</span>
+                <div class="config-io-actions">
+                  <button id="exportPayloadButton" type="button" class="mini" disabled>导出当前</button>
+                  <button id="copyPayloadButton" type="button" class="mini" disabled>复制 JSON</button>
+                  <button id="applyPayloadButton" type="button" class="mini" disabled>应用 JSON</button>
+                  <button id="clearPayloadButton" type="button" class="mini">清空</button>
+                </div>
+              </div>
+              <textarea id="payloadText" class="payload-text" spellcheck="false" placeholder="粘贴 buildLaunchPayload JSON，可从文档或日志回灌"></textarea>
+              <div id="payloadStatus" class="payload-status">等待配置</div>
+            </div>
+            <div class="log-path-strip" aria-label="当前日志路径">
+              <span id="stdoutPathText">stdout: -</span>
+              <span id="stderrPathText">stderr: -</span>
+            </div>
+            <pre id="outputLog" class="output-log">等待操作</pre>
+            <div class="history-block">
+              <div class="history-head">
+                <span>启动历史</span>
+                <button id="clearLaunchHistory" type="button" class="mini">清除</button>
+              </div>
+              <div id="launchHistory" class="history-list"></div>
+            </div>
+          </section>
+        </section>
+      </div>
     </main>
   </div>
 
