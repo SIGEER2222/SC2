@@ -5,6 +5,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+. (Join-Path $PSScriptRoot 'catalog-xml.ps1')
+
 function Assert-Contains {
     param(
         [string]$Text,
@@ -38,7 +40,7 @@ $commanderCatalogAbilDataPath = Join-Path $commanderCatalogGameData 'AbilData.xm
 $commanderCatalogActorDataPath = Join-Path $commanderCatalogGameData 'ActorData.xml'
 $commanderCatalogButtonDataPath = Join-Path $commanderCatalogGameData 'ButtonData.xml'
 $commanderCatalogEffectDataPath = Join-Path $commanderCatalogGameData 'EffectData.xml'
-$commanderCatalogUnitDataPath = Join-Path $commanderCatalogGameData 'UnitData.xml'
+$commanderCatalogUnitDataPaths = Get-CatalogXmlPaths -GameDataRoot $commanderCatalogGameData -BaseName 'UnitData'
 
 if (!(Test-Path -LiteralPath $runtimeSafetyPath)) {
     throw "Missing runtime safety file: $runtimeSafetyPath"
@@ -108,13 +110,14 @@ if (!(Test-Path -LiteralPath $commanderCatalogButtonDataPath)) {
 if (!(Test-Path -LiteralPath $commanderCatalogEffectDataPath)) {
     throw "Missing CommanderCatalog effect data: $commanderCatalogEffectDataPath"
 }
-if (!(Test-Path -LiteralPath $commanderCatalogUnitDataPath)) {
-    throw "Missing CommanderCatalog Raynor unit data: $commanderCatalogUnitDataPath"
+if ($commanderCatalogUnitDataPaths.Count -eq 0) {
+    throw "Missing CommanderCatalog Raynor unit data: $commanderCatalogGameData\UnitData*.xml"
 }
 $commanderCatalogAbilData = Get-Content -LiteralPath $commanderCatalogAbilDataPath -Raw -Encoding UTF8
 $commanderCatalogButtonData = Get-Content -LiteralPath $commanderCatalogButtonDataPath -Raw -Encoding UTF8
 $commanderCatalogEffectData = Get-Content -LiteralPath $commanderCatalogEffectDataPath -Raw -Encoding UTF8
-$commanderCatalogUnitData = Get-Content -LiteralPath $commanderCatalogUnitDataPath -Raw -Encoding UTF8
+$commanderCatalogUnitData = ($commanderCatalogUnitDataPaths | ForEach-Object { Get-Content -LiteralPath $_ -Raw -Encoding UTF8 }) -join "`n"
+$commanderCatalogUnitXmls = Read-CatalogXmlSet -GameDataRoot $commanderCatalogGameData -BaseName 'UnitData'
 foreach ($ability in @(
     'CommandCenterTrainRaynor',
     'TerranBuildRaynor',
@@ -162,7 +165,6 @@ foreach ($node in $sourceButtonXml.Catalog.ChildNodes) {
         [void]$sourceButtonIds.Add($node.GetAttribute('id'))
     }
 }
-[xml]$commanderCatalogUnitXml = $commanderCatalogUnitData
 $globalCasterUnits = @(
     'CoopCasterAbathur',
     'CoopCasterAlarak',
@@ -185,10 +187,11 @@ $globalCasterUnits = @(
 )
 $missingCasterButtonFaces = @()
 foreach ($casterUnit in $globalCasterUnits) {
-    $unitNode = $commanderCatalogUnitXml.Catalog.CUnit | Where-Object { [string]$_.id -eq $casterUnit } | Select-Object -First 1
-    if (!$unitNode) {
+    $unitNodes = @(Get-CatalogNodesById -Xmls $commanderCatalogUnitXmls -TagName 'CUnit' -Id $casterUnit)
+    if ($unitNodes.Count -eq 0) {
         continue
     }
+    $unitNode = $unitNodes[$unitNodes.Count - 1]
     foreach ($card in $unitNode.CardLayouts) {
         foreach ($layoutButton in $card.LayoutButtons) {
             if ($layoutButton.Face) {

@@ -1,3 +1,6 @@
+const DEFAULT_ACTIVE_SHEET = "mutators";
+const SHEET_IDS = new Set(["mutators", "prestige", "bonuses", "output"]);
+
 const state = {
   data: null,
   selectedMutators: new Set(),
@@ -24,8 +27,6 @@ const MAX_RECENT = 6;
 const MAX_LAUNCH_HISTORY = 8;
 const MAX_SCENARIO_PRESETS = 16;
 const DEFAULT_PRESTIGE_PROFILE = "Prestige4";
-const DEFAULT_ACTIVE_SHEET = "mutators";
-const SHEET_IDS = new Set(["mutators", "prestige", "bonuses", "output"]);
 const GENERIC_BONUS_OPTIONS = [
   { id: "DoubleMinerals", name: "矿物储量翻倍", description: "所有矿点当前与上限储量翻倍。" },
   { id: "DoubleVespene", name: "瓦斯储量翻倍", description: "所有气矿当前与上限储量翻倍。" },

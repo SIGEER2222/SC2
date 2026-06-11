@@ -4,6 +4,7 @@ param()
 $ErrorActionPreference = "Stop"
 
 . (Join-Path $PSScriptRoot "commander-power-metadata.ps1")
+. (Join-Path $PSScriptRoot "sc2\catalog-xml.ps1")
 
 function Get-WorkspaceRoot {
     return (Split-Path -Parent $PSScriptRoot)
@@ -48,6 +49,16 @@ function Get-CatalogNode {
     $nodes = @($Xml.SelectNodes("/Catalog/$TagName[@id='$Id']"))
     Assert-True -Condition ($nodes.Count -gt 0) -Message "$TagName '$Id' not found."
     return $nodes[$nodes.Count - 1]
+}
+
+function Get-CombinedCatalogNode {
+    param(
+        [xml[]]$Xmls,
+        [string]$TagName,
+        [string]$Id
+    )
+
+    return (Get-CatalogNodeById -Xmls $Xmls -TagName $TagName -Id $Id)
 }
 
 function Get-UpgradeIdsInFiles {
@@ -109,13 +120,13 @@ function Assert-ResearchInfo {
 
 function Assert-LayoutButton {
     param(
-        [xml]$Xml,
+        [xml[]]$Xmls,
         [string]$UnitId,
         [string]$Face,
         [string]$AbilCmd
     )
 
-    $unit = Get-CatalogNode -Xml $Xml -TagName "CUnit" -Id $UnitId
+    $unit = Get-CombinedCatalogNode -Xmls $Xmls -TagName "CUnit" -Id $UnitId
     $button = @($unit.CardLayouts.LayoutButtons | Where-Object {
             ([string]$_.Face -eq $Face) -and ([string]$_.AbilCmd -eq $AbilCmd)
         } | Select-Object -First 1)
@@ -196,7 +207,7 @@ $abilXml = Read-CatalogXml -Path (Join-Path $catalogGameData "AbilData.xml")
 $buttonXml = Read-CatalogXml -Path (Join-Path $catalogGameData "ButtonData.xml")
 $requirementXml = Read-CatalogXml -Path (Join-Path $catalogGameData "RequirementData.xml")
 $requirementNodeXml = Read-CatalogXml -Path (Join-Path $catalogGameData "RequirementNodeData.xml")
-$unitXml = Read-CatalogXml -Path (Join-Path $catalogGameData "UnitData.xml")
+$unitXmls = Read-CatalogXmlSet -GameDataRoot $catalogGameData -BaseName "UnitData"
 $upgradeXml = Read-CatalogXml -Path (Join-Path $catalogGameData "UpgradeData.xml")
 
 $raynorTechs = @(
@@ -223,7 +234,7 @@ $raynorTechs = @(
 )
 
 foreach ($tech in $raynorTechs) {
-    Assert-LayoutButton -Xml $unitXml -UnitId $tech.Unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
+    Assert-LayoutButton -Xmls $unitXmls -UnitId $tech.Unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
     if (-not [string]::IsNullOrWhiteSpace($tech.Button)) {
         [void](Get-CatalogNode -Xml $buttonXml -TagName "CButton" -Id $tech.Button)
         [void](Get-CatalogNode -Xml $requirementXml -TagName "CRequirement" -Id $tech.Requirement)
@@ -240,7 +251,7 @@ $genericTerranTechs = @(
 )
 
 foreach ($tech in $genericTerranTechs) {
-    Assert-LayoutButton -Xml $unitXml -UnitId $tech.Unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
+    Assert-LayoutButton -Xmls $unitXmls -UnitId $tech.Unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
     [void](Get-CatalogNode -Xml $buttonXml -TagName "CButton" -Id $tech.Button)
     [void](Get-CatalogNode -Xml $requirementXml -TagName "CRequirement" -Id $tech.Requirement)
     Assert-ResearchInfo -Xml $abilXml -AbilityId $tech.Ability -Index $tech.Cmd -UpgradeId $tech.Upgrade -ButtonId $tech.Button -RequirementId $tech.Requirement
@@ -257,7 +268,7 @@ $zeratulTechs = @(
 )
 
 foreach ($tech in $zeratulTechs) {
-    Assert-LayoutButton -Xml $unitXml -UnitId $tech.Unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
+    Assert-LayoutButton -Xmls $unitXmls -UnitId $tech.Unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
     [void](Get-CatalogNode -Xml $buttonXml -TagName "CButton" -Id $tech.Button)
     [void](Get-CatalogNode -Xml $requirementXml -TagName "CRequirement" -Id $tech.Requirement)
     Assert-ResearchInfo -Xml $abilXml -AbilityId $tech.Ability -Index $tech.Cmd -UpgradeId $tech.Upgrade -ButtonId $tech.Button -RequirementId $tech.Requirement
@@ -278,7 +289,7 @@ $genericProtossTechs = @(
 )
 
 foreach ($tech in $genericProtossTechs) {
-    Assert-LayoutButton -Xml $unitXml -UnitId $tech.Unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
+    Assert-LayoutButton -Xmls $unitXmls -UnitId $tech.Unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
     [void](Get-CatalogNode -Xml $buttonXml -TagName "CButton" -Id $tech.Button)
     [void](Get-CatalogNode -Xml $requirementXml -TagName "CRequirement" -Id $tech.Requirement)
     Assert-ResearchInfo -Xml $abilXml -AbilityId $tech.Ability -Index $tech.Cmd -UpgradeId $tech.Upgrade -ButtonId $tech.Button -RequirementId $tech.Requirement
@@ -296,7 +307,7 @@ $zergFiveTierTechs = @(
 
 foreach ($tech in $zergFiveTierTechs) {
     foreach ($unit in $tech.Units) {
-        Assert-LayoutButton -Xml $unitXml -UnitId $unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
+        Assert-LayoutButton -Xmls $unitXmls -UnitId $unit -Face $tech.Face -AbilCmd ("{0},{1}" -f $tech.Ability, $tech.Cmd)
     }
     [void](Get-CatalogNode -Xml $buttonXml -TagName "CButton" -Id $tech.Button)
     [void](Get-CatalogNode -Xml $requirementXml -TagName "CRequirement" -Id $tech.Requirement)

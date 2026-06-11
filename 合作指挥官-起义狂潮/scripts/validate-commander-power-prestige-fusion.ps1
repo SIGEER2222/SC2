@@ -4,6 +4,7 @@ param()
 $ErrorActionPreference = "Stop"
 
 . (Join-Path $PSScriptRoot "commander-power-metadata.ps1")
+. (Join-Path $PSScriptRoot "sc2\catalog-xml.ps1")
 
 function Get-WorkspaceRoot {
     return (Split-Path -Parent $PSScriptRoot)
@@ -144,7 +145,7 @@ $workspaceRoot = Get-WorkspaceRoot
 $repoRoot = Split-Path -Parent $workspaceRoot
 $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
 $catalogGameData = Join-Path $workspaceRoot "Mods\7vs1\CommanderCatalog.SC2Mod\Base.SC2Data\GameData"
-$unitXml = Read-CatalogXml -Path (Join-Path $catalogGameData "UnitData.xml")
+$unitXmls = Read-CatalogXmlSet -GameDataRoot $catalogGameData -BaseName "UnitData"
 $overlayUpgradeXml = Read-CatalogXml -Path (Join-Path $catalogGameData "UpgradeData.xml")
 $generatedGalaxyPath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
 Assert-True -Condition (Test-Path -LiteralPath $generatedGalaxyPath) -Message "Generated CommanderPower Galaxy not found: $generatedGalaxyPath"
@@ -168,10 +169,13 @@ foreach ($path in $sourceUpgradePaths) {
     }
 }
 
-$abathurLockLayoutNodes = @(
-    $unitXml.SelectNodes("//LayoutButtons[@Face='CommanderPrestigeAbathurBrutaliskLocked' or @Face='CommanderPrestigeAbathurLeviathanLocked'][@Requirements='CommanderPrestigeAbathurBiomass']")
-)
-Assert-True -Condition ($abathurLockLayoutNodes.Count -eq 0) -Message "Abathur biomass prestige lock overlays must not remain bound in UnitData.xml."
+$abathurLockLayoutNodes = New-Object System.Collections.Generic.List[object]
+foreach ($xml in $unitXmls) {
+    foreach ($node in @($xml.SelectNodes("//LayoutButtons[@Face='CommanderPrestigeAbathurBrutaliskLocked' or @Face='CommanderPrestigeAbathurLeviathanLocked'][@Requirements='CommanderPrestigeAbathurBiomass']"))) {
+        $abathurLockLayoutNodes.Add($node) | Out-Null
+    }
+}
+Assert-True -Condition ($abathurLockLayoutNodes.Count -eq 0) -Message "Abathur biomass prestige lock overlays must not remain bound in UnitData*.xml."
 
 $missingRuntimePrestigeApplications = New-Object System.Collections.Generic.List[object]
 $missingPrestigeDefinitions = New-Object System.Collections.Generic.List[object]
@@ -200,18 +204,20 @@ Assert-True -Condition ($missingRuntimePrestigeApplications.Count -eq 0) -Messag
 Assert-True -Condition ($missingPrestigeDefinitions.Count -eq 0) -Message ("Metadata prestige upgrades missing catalog/source definitions:`n{0}" -f (($missingPrestigeDefinitions | Sort-Object Commander, Upgrade | Format-Table -AutoSize | Out-String).Trim()))
 
 $childrenByParent = @{}
-foreach ($unit in @($unitXml.Catalog.CUnit)) {
-    $id = [string]$unit.id
-    $parent = [string]$unit.parent
-    if ([string]::IsNullOrWhiteSpace($id) -or [string]::IsNullOrWhiteSpace($parent) -or ($id -eq $parent)) {
-        continue
-    }
+foreach ($xml in $unitXmls) {
+    foreach ($unit in @($xml.Catalog.CUnit)) {
+        $id = [string]$unit.id
+        $parent = [string]$unit.parent
+        if ([string]::IsNullOrWhiteSpace($id) -or [string]::IsNullOrWhiteSpace($parent) -or ($id -eq $parent)) {
+            continue
+        }
 
-    if (-not $childrenByParent.ContainsKey($parent)) {
-        $childrenByParent[$parent] = New-Object System.Collections.Generic.List[string]
-    }
+        if (-not $childrenByParent.ContainsKey($parent)) {
+            $childrenByParent[$parent] = New-Object System.Collections.Generic.List[string]
+        }
 
-    $childrenByParent[$parent].Add($id) | Out-Null
+        $childrenByParent[$parent].Add($id) | Out-Null
+    }
 }
 
 $explicitRaynorBioChecks = @(
