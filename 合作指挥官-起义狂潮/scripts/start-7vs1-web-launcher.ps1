@@ -27,7 +27,8 @@ $script:AssetsCacheRoot = Join-Path $script:WebRoot "assets-cache"
 $script:RealCommanderPortraitRoot = Join-Path $script:WebRoot "exported-real-commander-images"
 $script:LogsRoot = Join-Path $script:WorkspaceRoot "logs"
 $script:MutatorStringsPath = Join-Path $script:WorkspaceRoot "Mods\kit_mutations.SC2Mod\zhCN.SC2Data\LocalizedData\GameStrings.txt"
-$script:MutatorsXmlPath = Join-Path $script:WorkspaceRoot "Mods\kit_mutations.SC2Mod\Base.SC2Data\GameData\Mutators.xml"
+$script:MutatorsGameDataPath = Join-Path $script:WorkspaceRoot "Mods\kit_mutations.SC2Mod\Base.SC2Data\GameData.xml"
+$script:MutatorsGameDataRoot = Join-Path $script:WorkspaceRoot "Mods\kit_mutations.SC2Mod\Base.SC2Data\GameData"
 $script:LaunchProcesses = @{}
 $script:AssetSourceConfig = $null
 $script:CommanderExactPortraitMap = @{
@@ -445,34 +446,44 @@ function Get-LocalizedStringMap {
 }
 
 function Get-MutatorIdsFromLaunchScript {
-    if (-not (Test-Path -LiteralPath $script:MutatorsXmlPath)) {
-        throw "Mutators.xml not found: $script:MutatorsXmlPath"
+    if (-not (Test-Path -LiteralPath $script:MutatorsGameDataPath)) {
+        throw "Mutators GameData entry not found: $script:MutatorsGameDataPath"
     }
 
-    [xml]$xml = Get-Content -LiteralPath $script:MutatorsXmlPath -Raw -Encoding UTF8
-    $mutatorUser = @($xml.Catalog.CUser | Where-Object { $_.id -eq "Mutators" } | Select-Object -First 1)
-    if ($mutatorUser.Count -eq 0) {
-        throw "Could not find CUser id='Mutators' in $script:MutatorsXmlPath"
+    [xml]$gameData = Get-Content -LiteralPath $script:MutatorsGameDataPath -Raw -Encoding UTF8
+    $paths = @($gameData.Includes.Catalog | ForEach-Object { [string]$_.path }) | Where-Object { $_ }
+    if ($paths.Count -eq 0) {
+        throw "No mutator catalog includes found in $script:MutatorsGameDataPath"
     }
 
     $ids = New-Object System.Collections.Generic.List[string]
-    foreach ($instance in @($mutatorUser[0].Instances)) {
-        $id = [string]$instance.Id
-        if ([string]::IsNullOrWhiteSpace($id) -or $id -eq "[Default]") {
-            continue
+    foreach ($relativePath in $paths) {
+        $catalogPath = Join-Path $script:MutatorsGameDataRoot ($relativePath -replace '^GameData/', '')
+        if (-not (Test-Path -LiteralPath $catalogPath)) {
+            throw "Mutator catalog not found: $catalogPath"
         }
 
-        $customAllowed = $false
-        foreach ($intNode in @($instance.Int)) {
-            $field = @($intNode.Field | Where-Object { $_.Id -eq "CustomAllowed" } | Select-Object -First 1)
-            if ($field.Count -gt 0 -and [string]$intNode.Int -eq "1") {
-                $customAllowed = $true
-                break
+        [xml]$xml = Get-Content -LiteralPath $catalogPath -Raw -Encoding UTF8
+        foreach ($mutatorUser in @($xml.Catalog.CUser | Where-Object { $_.id -eq "Mutators" })) {
+            foreach ($instance in @($mutatorUser.Instances)) {
+                $id = [string]$instance.Id
+                if ([string]::IsNullOrWhiteSpace($id) -or $id -eq "[Default]") {
+                    continue
+                }
+
+                $customAllowed = $false
+                foreach ($intNode in @($instance.Int)) {
+                    $field = @($intNode.Field | Where-Object { $_.Id -eq "CustomAllowed" } | Select-Object -First 1)
+                    if ($field.Count -gt 0 -and [string]$intNode.Int -eq "1") {
+                        $customAllowed = $true
+                        break
+                    }
+                }
+
+                if ($customAllowed) {
+                    $ids.Add($id)
+                }
             }
-        }
-
-        if ($customAllowed) {
-            $ids.Add($id)
         }
     }
 
@@ -481,27 +492,33 @@ function Get-MutatorIdsFromLaunchScript {
 
 function Get-MutatorIconMap {
     $map = New-Object 'System.Collections.Generic.Dictionary[string,string]' ([System.StringComparer]::OrdinalIgnoreCase)
-    if (-not (Test-Path -LiteralPath $script:MutatorsXmlPath)) {
+    if (-not (Test-Path -LiteralPath $script:MutatorsGameDataPath)) {
         return $map
     }
 
-    [xml]$xml = Get-Content -LiteralPath $script:MutatorsXmlPath -Raw -Encoding UTF8
-    $mutatorUser = @($xml.Catalog.CUser | Where-Object { $_.id -eq "Mutators" } | Select-Object -First 1)
-    if ($mutatorUser.Count -eq 0) {
-        return $map
-    }
-
-    foreach ($instance in @($mutatorUser[0].Instances)) {
-        $id = [string]$instance.Id
-        if ([string]::IsNullOrWhiteSpace($id) -or $id -eq "[Default]") {
+    [xml]$gameData = Get-Content -LiteralPath $script:MutatorsGameDataPath -Raw -Encoding UTF8
+    foreach ($relativePath in @($gameData.Includes.Catalog | ForEach-Object { [string]$_.path }) | Where-Object { $_ }) {
+        $catalogPath = Join-Path $script:MutatorsGameDataRoot ($relativePath -replace '^GameData/', '')
+        if (-not (Test-Path -LiteralPath $catalogPath)) {
             continue
         }
 
-        foreach ($image in @($instance.Image)) {
-            $field = @($image.Field | Where-Object { $_.Id -eq "Icon" } | Select-Object -First 1)
-            if ($field.Count -gt 0 -and -not [string]::IsNullOrWhiteSpace([string]$image.Image)) {
-                $map[$id] = [string]$image.Image
-                break
+        [xml]$xml = Get-Content -LiteralPath $catalogPath -Raw -Encoding UTF8
+        $mutatorUsers = @($xml.Catalog.CUser | Where-Object { $_.id -eq "Mutators" })
+        foreach ($mutatorUser in $mutatorUsers) {
+            foreach ($instance in @($mutatorUser.Instances)) {
+                $id = [string]$instance.Id
+                if ([string]::IsNullOrWhiteSpace($id) -or $id -eq "[Default]") {
+                    continue
+                }
+
+                foreach ($image in @($instance.Image)) {
+                    $field = @($image.Field | Where-Object { $_.Id -eq "Icon" } | Select-Object -First 1)
+                    if ($field.Count -gt 0 -and -not [string]::IsNullOrWhiteSpace([string]$image.Image)) {
+                        $map[$id] = [string]$image.Image
+                        break
+                    }
+                }
             }
         }
     }
@@ -768,7 +785,8 @@ function ConvertTo-LaunchArgumentList {
         "GuardianShell",
         "CreepRegeneration",
         "MechanicalRepair",
-        "ChronoBoost"
+        "ChronoBoost",
+        "MaxSupply50"
     )
     $selectedGenericBonuses = New-Object System.Collections.Generic.List[string]
     if ($null -ne $Request.mutators) {

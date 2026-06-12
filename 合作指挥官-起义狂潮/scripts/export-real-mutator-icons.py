@@ -11,7 +11,8 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MUTATORS_XML_PATH = ROOT / "Mods" / "kit_mutations.SC2Mod" / "Base.SC2Data" / "GameData" / "Mutators.xml"
+MUTATORS_GAMEDATA_PATH = ROOT / "Mods" / "kit_mutations.SC2Mod" / "Base.SC2Data" / "GameData.xml"
+MUTATORS_GAMEDATA_ROOT = ROOT / "Mods" / "kit_mutations.SC2Mod" / "Base.SC2Data" / "GameData"
 ZH_STRINGS_PATH = ROOT / "Mods" / "kit_mutations.SC2Mod" / "zhCN.SC2Data" / "LocalizedData" / "GameStrings.txt"
 EN_STRINGS_PATH = ROOT / "Mods" / "kit_mutations.SC2Mod" / "enUS.SC2Data" / "LocalizedData" / "GameStrings.txt"
 
@@ -78,42 +79,50 @@ def clean_output_dir(output_dir: Path) -> None:
 
 
 def parse_mutators() -> list[dict[str, str]]:
-    tree = ET.parse(MUTATORS_XML_PATH)
-    root = tree.getroot()
-    mutators_user = None
-    for user in root.findall("CUser"):
-        if user.attrib.get("id") == "Mutators":
-            mutators_user = user
-            break
-    if mutators_user is None:
-        raise RuntimeError(f"Could not find CUser id='Mutators' in {MUTATORS_XML_PATH}")
-
     results: list[dict[str, str]] = []
-    for instance in mutators_user.findall("Instances"):
-        instance_id = instance.attrib.get("Id", "")
-        if not instance_id or instance_id == "[Default]":
+    game_data_tree = ET.parse(MUTATORS_GAMEDATA_PATH)
+    includes = game_data_tree.getroot().findall("Catalog")
+    if not includes:
+        raise RuntimeError(f"No catalog includes found in {MUTATORS_GAMEDATA_PATH}")
+
+    for include in includes:
+        rel = include.attrib.get("path", "")
+        if not rel:
+            continue
+        catalog_path = MUTATORS_GAMEDATA_ROOT / rel.replace("GameData/", "", 1)
+        if not catalog_path.exists():
             continue
 
-        icon_ref = ""
-        name_key = ""
-        description_key = ""
-        for child in instance:
-            if child.tag == "Image":
-                icon_ref = child.attrib.get("Image", "")
-            elif child.tag == "Text":
-                text_key = child.attrib.get("Text", "")
-                if text_key.endswith("_Name"):
-                    name_key = text_key
-                elif text_key.endswith("_Description"):
-                    description_key = text_key
+        tree = ET.parse(catalog_path)
+        root = tree.getroot()
+        for mutators_user in root.findall("CUser"):
+            if mutators_user.attrib.get("id") != "Mutators":
+                continue
+            for instance in mutators_user.findall("Instances"):
+                instance_id = instance.attrib.get("Id", "")
+                if not instance_id or instance_id == "[Default]":
+                    continue
 
-        results.append({
-            "id": instance_id,
-            "icon_ref": icon_ref,
-            "name_key": name_key,
-            "description_key": description_key,
-            "base_name": Path(icon_ref.replace("\\", "/")).name if icon_ref else "",
-        })
+                icon_ref = ""
+                name_key = ""
+                description_key = ""
+                for child in instance:
+                    if child.tag == "Image":
+                        icon_ref = child.attrib.get("Image", "")
+                    elif child.tag == "Text":
+                        text_key = child.attrib.get("Text", "")
+                        if text_key.endswith("_Name"):
+                            name_key = text_key
+                        elif text_key.endswith("_Description"):
+                            description_key = text_key
+
+                results.append({
+                    "id": instance_id,
+                    "icon_ref": icon_ref,
+                    "name_key": name_key,
+                    "description_key": description_key,
+                    "base_name": Path(icon_ref.replace("\\", "/")).name if icon_ref else "",
+                })
 
     return results
 

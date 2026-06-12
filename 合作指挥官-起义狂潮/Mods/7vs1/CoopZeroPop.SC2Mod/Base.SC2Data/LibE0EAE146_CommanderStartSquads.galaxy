@@ -205,6 +205,32 @@ int libE0EAE146_gf_AbathurUnitBiomassStacks (unit lp_unit) {
     }
     return ((UnitBehaviorCount(lp_unit, "BiomassBuff100") * 100) + (UnitBehaviorCount(lp_unit, "BiomassBuff10") * 10) + UnitBehaviorCount(lp_unit, "BiomassBuff1"));
 }
+bool libE0EAE146_gf_AbathurIsUltimateBiomassUnit (unit lp_unit) {
+    string lv_unitType;
+
+    if ((lp_unit == null)) {
+        return false;
+    }
+    lv_unitType = UnitGetType(lp_unit);
+    return (((lv_unitType == "BrutaliskAbathur") || (lv_unitType == "LeviathanAbathur")) || ((lv_unitType == "BrutaliskAbathurReborn") || ((lv_unitType == "HotSLeviathanAbathurReborn") || (lv_unitType == "SS_LeviathanAbathurReborn"))));
+}
+int libE0EAE146_gf_AbathurBiomassMaxStacksForUnit (unit lp_unit) {
+    int lv_max;
+    int lv_bonus;
+
+    lv_max = libE0EAE146_gf_AbathurBiomassMaxStacks();
+    if (!((lp_unit != null) && (libE0EAE146_gf_AbathurIsUltimateBiomassUnit(lp_unit) == true))) {
+        return lv_max;
+    }
+    if ((TechTreeUpgradeCount(UnitGetOwner(lp_unit), "CommanderPrestigeAbathurBiomassUltimate", c_techCountCompleteOnly) <= 0)) {
+        return lv_max;
+    }
+    lv_bonus = CatalogFieldValueGetAsInt(c_gameCatalogEffect, "AbathurBiomassUltimateMaxStacksDummy", "Amount", UnitGetOwner(lp_unit));
+    if ((lv_bonus <= 0)) {
+        lv_bonus = 100;
+    }
+    return (lv_max + lv_bonus);
+}
 int libE0EAE146_gf_AbathurAddBiomassStacks (unit lp_unit, int lp_amount) {
     int lv_max;
     int lv_current;
@@ -221,7 +247,7 @@ int libE0EAE146_gf_AbathurAddBiomassStacks (unit lp_unit, int lp_amount) {
         return 0;
     }
 
-    lv_max = libE0EAE146_gf_AbathurBiomassMaxStacks();
+    lv_max = libE0EAE146_gf_AbathurBiomassMaxStacksForUnit(lp_unit);
     lv_current = libE0EAE146_gf_AbathurUnitBiomassStacks(lp_unit);
     lv_applied = lp_amount;
     if (((lv_current + lv_applied) > lv_max)) {
@@ -261,7 +287,7 @@ void libE0EAE146_gf_AbathurSetUnitFullBiomass (unit lp_unit) {
     if ((UnitTypeTestAttribute(UnitGetType(lp_unit), c_unitAttributeStructure) == true)) {
         return;
     }
-    lv_applied = libE0EAE146_gf_AbathurAddBiomassStacks(lp_unit, libE0EAE146_gf_AbathurBiomassMaxStacks());
+    lv_applied = libE0EAE146_gf_AbathurAddBiomassStacks(lp_unit, libE0EAE146_gf_AbathurBiomassMaxStacksForUnit(lp_unit));
     if ((lv_applied > 0)) {
         lib67C0F0E7_gf_UnitAddCustomValue(lp_unit, 62, IntToFixed(lv_applied));
     }
@@ -309,7 +335,7 @@ void libE0EAE146_gf_AbathurCargoCreateWithFullBiomass (unit lp_container, string
 }
 
 bool libE0EAE146_gf_AbathurHasUltimateUnlock () {
-    return (TechTreeUpgradeCount(1, "AbathurUnlockUltimateEvolutions", c_techCountCompleteOnly) > 0);
+    return (TechTreeUpgradeCount(libE0EAE146_gv_abathurBiomassPlayer, "AbathurUnlockUltimateEvolutions", c_techCountCompleteOnly) > 0);
 }
 
 void libE0EAE146_gf_AbathurEarlySnapshot (string lp_phase) {

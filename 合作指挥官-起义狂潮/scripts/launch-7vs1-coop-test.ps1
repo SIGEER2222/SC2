@@ -784,6 +784,36 @@ function Get-EffectiveLiveRuntimeLibraryPath {
     return (Join-Path $ExtensionLive "Base.SC2Data\$LibraryName")
 }
 
+function Assert-GeneratedLibraryIncludeCoverage {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Text,
+        [Parameter(Mandatory = $true)]
+        [string]$Context
+    )
+
+    $referencedPrefixes = @(
+        [regex]::Matches($Text, '(?m)(?<![A-Za-z0-9_])lib([A-F0-9]{8})_') |
+            ForEach-Object { $_.Groups[1].Value } |
+            Sort-Object -Unique
+    )
+    $includedNames = @(
+        [regex]::Matches($Text, '(?m)^\s*include\s+"([^"]+)"') |
+            ForEach-Object { $_.Groups[1].Value } |
+            Sort-Object -Unique
+    )
+
+    foreach ($prefix in $referencedPrefixes) {
+        $mainInclude = "Lib$prefix"
+        $headerInclude = "Lib${prefix}_h"
+        if (($includedNames -contains $mainInclude) -or ($includedNames -contains $headerInclude)) {
+            continue
+        }
+
+        throw "$Context references lib$prefix helpers but is missing include `"$mainInclude`" or `"$headerInclude`"."
+    }
+}
+
 function Validate-LiveAbathurRebornInstall {
     param(
         [Parameter(Mandatory = $true)]
@@ -833,6 +863,8 @@ function Validate-LiveAbathurRebornInstall {
             throw "$($pair.Name) bridge missing: $($pair.Needle)"
         }
     }
+
+    Assert-GeneratedLibraryIncludeCoverage -Text $kmis -Context 'Live AbathurReborn LibKMIS'
 }
 
 function Validate-LiveBaseTestlineInstall {
@@ -851,7 +883,7 @@ function Validate-LiveBaseTestlineInstall {
     $mapKpvp = if (Test-Path -LiteralPath $mapKpvpPath) { Get-Content -LiteralPath $mapKpvpPath -Raw } else { "" }
     $kpvp = Get-Content -LiteralPath (Join-Path $ExtensionLive "Base.SC2Data\LibKPVP.galaxy") -Raw
     $effectiveKpvp = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKPVP.galaxy") -Raw
-
+    $effectiveKmis = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKMIS.galaxy") -Raw
     if (-not $mapInfo.Contains('file:Mods/7vs1/CoopZeroPop.SC2Mod')) {
         throw 'Live base testline dependency missing: file:Mods/7vs1/CoopZeroPop.SC2Mod'
     }
@@ -903,6 +935,12 @@ function Validate-LiveBaseTestlineInstall {
     if ($effectiveKpvp.Contains('auto814DE7B0_g = libKCOR_gf_CommanderPlayers()') -eq $false) {
         throw 'Live base testline effective LibKPVP STARTPVP is not filtered to CommanderPlayers.'
     }
+
+    if (($effectiveKmis -match 'libE0EAE146_') -and (-not $effectiveKmis.Contains('include "LibE0EAE146_h"'))) {
+        throw 'Live base testline effective LibKMIS references libE0EAE146 helpers but is missing include "LibE0EAE146_h".'
+    }
+
+    Assert-GeneratedLibraryIncludeCoverage -Text $effectiveKmis -Context 'Live base testline LibKMIS'
 }
 
 function Set-AbathurRebornPatchProfile {

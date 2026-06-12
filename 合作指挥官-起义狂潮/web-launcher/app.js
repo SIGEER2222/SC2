@@ -35,6 +35,7 @@ const GENERIC_BONUS_OPTIONS = [
   { id: "CreepRegeneration", name: "菌毯回血", description: "获得凯瑞甘菌毯回血效果。" },
   { id: "MechanicalRepair", name: "机械维修", description: "机械单位周期性自我修复。" },
   { id: "ChronoBoost", name: "时空加速", description: "基地旁控制建筑获得一次全图时空加速主动技能。" },
+  { id: "MaxSupply50", name: "人口上限+50", description: "人口上限额外增加 50。" },
 ];
 
 function normalizePrestigeProfile(value) {

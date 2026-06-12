@@ -4,6 +4,7 @@ include "TriggerLibs/VoidLib"
 include "LibKPVP_h"
 include "LibKCOR_h"
 include "LibKCUI_h"
+include "LibE0EAE146_h"
 
 include "LibKMIS_h"
 
@@ -4031,6 +4032,10 @@ void libKMIS_gf_CM_SoATargetingCancel (int lp_player) {
 
     UnitBehaviorRemove(libKMIS_gv_cM_SoACasterUnit[lp_player], libKMIS_gv_cM_SoATargetingBehavior[lp_player], 1);
     libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lp_player] = true;
+    CameraSetData(PlayerGroupSingle(lp_player), "Dflt");
+    CameraSetValue(lp_player, c_cameraValueDistance, 34.0, 0.0, -1, 10.0);
+    CameraSetValue(lp_player, c_cameraValuePitch, 56.0, 0.0, -1, 10.0);
+    VisResetFoWAlpha(lp_player);
 }
 
 void libKMIS_gf_CM_SoATimeFreezeApply (int lp_castingPlayer) {
@@ -8039,7 +8044,7 @@ bool libKMIS_gt_CM_Abathur_BiomassPickup_Func (bool testConds, bool runActions) 
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_biomassMaxStacks = CatalogFieldValueGetAsInt(c_gameCatalogEffect, "AbathurBiomassMaxStacksDummy", "Amount", EventPlayer());
+    lv_biomassMaxStacks = libE0EAE146_gf_AbathurBiomassMaxStacksForUnit(EventPlayerEffectUsedUnit(c_effectUnitTarget));
     lv_biomassCountStored = FixedToInt(UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 63));
     lv_biomassCountStoredTemp = FixedToInt(UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 63));
 
@@ -8261,7 +8266,7 @@ bool libKMIS_gt_CM_Abathur_BiomassScaler_Func (bool testConds, bool runActions) 
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_biomassMaxStacks = CatalogFieldValueGetAsInt(c_gameCatalogEffect, "AbathurBiomassMaxStacksDummy", "Amount", UnitGetOwner(EventUnit()));
+    lv_biomassMaxStacks = libE0EAE146_gf_AbathurBiomassMaxStacksForUnit(EventUnit());
 
     // Conditions
     if (testConds) {
