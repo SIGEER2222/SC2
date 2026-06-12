@@ -276,7 +276,7 @@ void libE0EAE146_gf_ApplyDefaultCommanderSkin (int lp_player, string lp_commande
     string lv_skin;
 
     lv_skin = libE0EAE146_gf_CommanderDefaultSkin(lp_commander);
-    if ((lv_skin != "") && CatalogEntryIsValid(c_gameCatalogSkin, lv_skin)) {
+    if (((lv_skin != "") && CatalogEntryIsValid(c_gameCatalogSkin, lv_skin)) && (libE0EAE146_gf_ShouldApplyPlayerSkins() == true)) {
         libE0EAE146_gf_RuntimeVisualProbe("RuntimeSafety_DefaultCommanderSkin", lp_player, lv_skin, lp_commander, 1);
         PlayerApplySkin(lp_player, lv_skin, true);
     }

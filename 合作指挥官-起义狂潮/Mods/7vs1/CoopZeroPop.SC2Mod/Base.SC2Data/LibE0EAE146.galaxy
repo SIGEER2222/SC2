@@ -257,6 +257,7 @@ void libE0EAE146_gf_InitializeMapScenario (string lp_mapId, bool lp_rpg) {
     point lv_secondBase;
     bool lv_createHero;
 
+    libE0EAE146_gv_currentMapId = lp_mapId;
     lv_secondUnit = PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0);
     lv_worker = 7;
     lv_secondBase = null;
@@ -375,12 +376,14 @@ void libE0EAE146_gf_RunMapInitializationSequence (trigger lp_preInit, trigger lp
 }
 
 void libE0EAE146_gf_InitializeStandardMapScenario (string lp_mapId, bool lp_rpg, int lp_player, int lp_minerals, int lp_vespene, int lp_suppliesMade, trigger lp_preInit, trigger lp_init01, bool lp_init01WaitUntilDone, trigger lp_init02, trigger lp_init03, trigger lp_init04, trigger lp_init05, trigger lp_init06, trigger lp_postInit, trigger lp_intro) {
+    libE0EAE146_gv_currentMapId = lp_mapId;
     libE0EAE146_gf_ApplyMapStartResources(lp_player, lp_minerals, lp_vespene, lp_suppliesMade);
     libE0EAE146_gf_InitializeMapScenario(lp_mapId, lp_rpg);
     libE0EAE146_gf_RunMapInitializationSequence(lp_preInit, lp_init01, lp_init01WaitUntilDone, lp_init02, lp_init03, lp_init04, lp_init05, lp_init06, lp_postInit, lp_intro);
 }
 
 void libE0EAE146_gf_InitializeConfiguredMapScenario (string lp_mapId, bool lp_rpg, trigger lp_preInit, trigger lp_init01, bool lp_init01WaitUntilDone, trigger lp_init02, trigger lp_init03, trigger lp_init04, trigger lp_init05, trigger lp_init06, trigger lp_postInit, trigger lp_intro) {
+    libE0EAE146_gv_currentMapId = lp_mapId;
     if (libE0EAE146_gf_MapNeedsPreInitializeRpg(lp_mapId)) {
         libE0EAE146_gf_Initialize(true);
     }
@@ -392,11 +395,41 @@ void libE0EAE146_gf_InitializeConfiguredMapScenario (string lp_mapId, bool lp_rp
     libE0EAE146_gf_RunMapInitializationSequence(lp_preInit, lp_init01, lp_init01WaitUntilDone, lp_init02, lp_init03, lp_init04, lp_init05, lp_init06, lp_postInit, lp_intro);
 }
 
+bool libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly (string lp_mapId) {
+    if (lp_mapId == "thanson01_7vs1") {
+        return true;
+    }
+    if (lp_mapId == "thanson03a_7vs1") {
+        return true;
+    }
+    return false;
+}
+
+bool libE0EAE146_gf_ShouldApplyPlayerSkins () {
+    string lv_mapId;
+
+    lv_mapId = libE0EAE146_gv_currentMapId;
+    if (lv_mapId == "") {
+        lv_mapId = GameMapPath();
+        if ((StringContains(lv_mapId, "thanson01_7vs1", c_stringAnywhere, c_stringCase) == true)) {
+            return false;
+        }
+        if ((StringContains(lv_mapId, "thanson03a_7vs1", c_stringAnywhere, c_stringCase) == true)) {
+            return false;
+        }
+        return true;
+    }
+    if ((libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly(lv_mapId) == true)) {
+        return false;
+    }
+    return true;
+}
+
 bool libE0EAE146_gf_SuppressPlayerCinematicUnits (string lp_mapId) {
     if (lp_mapId == "thanson02_7vs1") {
         return true;
     }
-    if (lp_mapId == "thanson03a_7vs1") {
+    if ((libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly(lp_mapId) == true)) {
         return true;
     }
     return false;

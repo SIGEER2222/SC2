@@ -3,6 +3,7 @@ include "TriggerLibs/LibertyLib"
 include "LibKPVP_h"
 include "LibKMIS_h"
 include "LibKCUI_h"
+include "LibE0EAE146_h"
 
 include "LibKCOR_h"
 
@@ -560,8 +561,10 @@ void libKCOR_gf_CC_PlayerPrestigeEnable (int lp_player, string lp_prestige) {
     for ( ; ( (autoE6A4272A_ai >= 0 && lv_index <= autoE6A4272A_ae) || (autoE6A4272A_ai < 0 && lv_index >= autoE6A4272A_ae) ) ; lv_index += autoE6A4272A_ai ) {
         libKCOR_gf_CC_PlayerResponseEnable(lp_player, UserDataGetUserInstance("PlayerPrestige", lp_prestige, "PlayerResponses", lv_index), true);
     }
-    libE0EAE146_gf_RuntimeVisualProbe("KCOR_PrestigeSkin", lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "Skin", 1), lp_prestige, 1);
-    PlayerApplySkin(lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "Skin", 1), true);
+    if ((libE0EAE146_gf_ShouldApplyPlayerSkins() == true)) {
+        libE0EAE146_gf_RuntimeVisualProbe("KCOR_PrestigeSkin", lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "Skin", 1), lp_prestige, 1);
+        PlayerApplySkin(lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "Skin", 1), true);
+    }
 }
 
 void libKCOR_gf_CC_ApplyPrestigeTech (int lp_player) {
@@ -1387,8 +1390,10 @@ void libKCOR_gf_CC_ApplyCommanderTech (int lp_player) {
     }
     libKCOR_gf_CC_ApplyMasteryTech(lp_player);
     if ((libKCOR_gf_CC_CommanderSkin(lv_playerCommander) != "")) {
-        libE0EAE146_gf_RuntimeVisualProbe("KCOR_CommanderSkin", lp_player, libKCOR_gf_CC_CommanderSkin(lv_playerCommander), lv_playerCommander, 1);
-        PlayerApplySkin(lp_player, libKCOR_gf_CC_CommanderSkin(lv_playerCommander), true);
+        if ((libE0EAE146_gf_ShouldApplyPlayerSkins() == true)) {
+            libE0EAE146_gf_RuntimeVisualProbe("KCOR_CommanderSkin", lp_player, libKCOR_gf_CC_CommanderSkin(lv_playerCommander), lv_playerCommander, 1);
+            PlayerApplySkin(lp_player, libKCOR_gf_CC_CommanderSkin(lv_playerCommander), true);
+        }
     }
 
 }
@@ -2614,8 +2619,10 @@ void libKCOR_gf_EnableDisableCampaignPerk (bool lp_enableDisable, string lp_perk
         lv_allowDisallow = true;
         lv_upgradeLevel = 1;
         if ((UserDataGetGameLink("CampaignPerk", lp_perk, "CampaignPerkSkin", 1) != "")) {
-            libE0EAE146_gf_RuntimeVisualProbe("KCOR_CampaignPerkSkin", lp_player, UserDataGetGameLink("CampaignPerk", lp_perk, "CampaignPerkSkin", 1), lp_perk, 1);
-            PlayerApplySkin(lp_player, UserDataGetGameLink("CampaignPerk", lp_perk, "CampaignPerkSkin", 1), true);
+            if ((libE0EAE146_gf_ShouldApplyPlayerSkins() == true)) {
+                libE0EAE146_gf_RuntimeVisualProbe("KCOR_CampaignPerkSkin", lp_player, UserDataGetGameLink("CampaignPerk", lp_perk, "CampaignPerkSkin", 1), lp_perk, 1);
+                PlayerApplySkin(lp_player, UserDataGetGameLink("CampaignPerk", lp_perk, "CampaignPerkSkin", 1), true);
+            }
         }
 
     }
@@ -3278,8 +3285,10 @@ void libKCOR_gf_EnableCampaignTechUnit (bool lp_enableDisable, string lp_techUni
         libKCOR_gf_CC_EnableUpgradeAndAbilityCommandForTech(lp_enableDisable, c_gameCatalogArmyUnit, (lv_armyCategory2), null, null, lp_player);
         if ((lp_enableDisable == true)) {
             CatalogLinkReplace(lp_player, c_gameCatalogUnit, (libKCOR_gf_CC_ArmyCategoryUnitType(libKCOR_gf_CC_ArmyCategoryOfArmyUnit(lv_armyCategory2))), (libKCOR_gf_CC_StoryArmyUnitUnitType(lv_armyCategory2)));
-            libE0EAE146_gf_RuntimeVisualProbe("KCOR_ArmyUnitSkin", lp_player, libKCOR_gf_CC_ArmyUnitSkin(lv_armyCategory2), lv_armyCategory2, 1);
-            PlayerApplySkin(lp_player, libKCOR_gf_CC_ArmyUnitSkin(lv_armyCategory2), true);
+            if ((libE0EAE146_gf_ShouldApplyPlayerSkins() == true)) {
+                libE0EAE146_gf_RuntimeVisualProbe("KCOR_ArmyUnitSkin", lp_player, libKCOR_gf_CC_ArmyUnitSkin(lv_armyCategory2), lv_armyCategory2, 1);
+                PlayerApplySkin(lp_player, libKCOR_gf_CC_ArmyUnitSkin(lv_armyCategory2), true);
+            }
         }
 
     }

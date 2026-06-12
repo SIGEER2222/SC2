@@ -506,9 +506,6 @@ bool gt_Init03Units_Func (bool testConds, bool runActions) {
     unitgroup autoA69D9812_g;
     int autoA69D9812_u;
     unit autoA69D9812_var;
-    unitgroup auto089A9E6A_g;
-    int auto089A9E6A_u;
-    unit auto089A9E6A_var;
 
     // Actions
     if (!runActions) {
@@ -561,14 +558,6 @@ bool gt_Init03Units_Func (bool testConds, bool runActions) {
     UnitIssueOrder(UnitFromId(2243), OrderSetAutoCast(AbilityCommand("Repair", 0), true), c_orderQueueReplace);
     AISetUnitScriptControlled(UnitFromId(2243), false);
     AISetUnitScriptControlled(UnitFromId(2242), false);
-    auto089A9E6A_g = UnitGroup(null, gv_p01_USER, RegionFromId(3), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
-    auto089A9E6A_u = UnitGroupCount(auto089A9E6A_g, c_unitCountAll);
-    for (;; auto089A9E6A_u -= 1) {
-        auto089A9E6A_var = UnitGroupUnitFromEnd(auto089A9E6A_g, auto089A9E6A_u);
-        if (auto089A9E6A_var == null) { break; }
-        libNtve_gf_PauseUnit(auto089A9E6A_var, true);
-        libNtve_gf_ShowHideUnit(auto089A9E6A_var, false);
-    }
     UnitIssueOrder(UnitFromId(1789120446), Order(AbilityCommand("ExtendingBridgeDirtyNEShort10", 0)), c_orderQueueReplace);
     libNtve_gf_PauseUnit(UnitFromId(1789120446), true);
     return true;
@@ -646,7 +635,6 @@ void gt_Init06Difficulty_Init () {
 //--------------------------------------------------------------------------------------------------
 bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
-    string auto06F49FBE_val;
     unitgroup autoBA160EAB_g;
     int autoBA160EAB_u;
     unit autoBA160EAB_var;
@@ -661,45 +649,7 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/0051ACE2"), 3, false, 0, 0);
     lib67C0F0E7_gf_ObjectiveNew(false, StringExternal("Param/Value/5F775286"), 1, true, 0, 3);
     lib67C0F0E7_gf_ObjectiveNew(false, StringExternal("Param/Value/6AFB51F6"), 2, false, 0, 3);
-    auto06F49FBE_val = libE0EAE146_gv_commander;
-    if (auto06F49FBE_val == "Stukov") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "InfestedBunkerNeutUprooted", 0, 1, UnitGetPosition(UnitFromId(4)));
-        UnitCargoCreate(UnitLastCreated(), "SIInfestedTrooper", 6);
-    }
-    else if (auto06F49FBE_val == "Tychus") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "TychusCoop", 0, 1, UnitGetPosition(UnitFromId(4)));
-        lib67C0F0E7_gf_TychusSquadSetMember(UnitLastCreated());
-    }
-    else if (auto06F49FBE_val == "Mira") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(6, "ReaperMira", 0, 1, UnitGetPosition(UnitFromId(4)));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "MedicMira", 0, 1, UnitGetPosition(UnitFromId(4)));
-    }
-    else if (auto06F49FBE_val == "Dehaka") {
-        BankLoad("CampaignXCore", 1);
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "DehakaCoop", 0, 1, UnitGetPosition(UnitFromId(4)));
-        libDF8E6945_gf_InitializeDehakaEvent(1, UnitLastCreated());
-        if ((lib67C0F0E7_gf_BitMaskTrueIndexIs(BankValueGetAsInt(BankLastCreated(), libE0EAE146_gv_commander, "AchBit"), 0) == true)) {
-            libDF8E6945_gf_DehakaBroodbrother();
-        }
-
-    }
-    else if (auto06F49FBE_val == "Nova") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "NovaCoop", 0, 1, UnitGetPosition(UnitFromId(4)));
-        lib0940FFB7_gf_NovaTrigger(UnitLastCreated());
-    }
-    else if (auto06F49FBE_val == "Mengsk") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(6, "TrooperMengskImproved", 0, 1, UnitGetPosition(UnitFromId(4)));
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "MengskMedic", 0, 1, UnitGetPosition(UnitFromId(4)));
-    }
-    else if (auto06F49FBE_val == "Swann") {
-        gf_CreateUnitsWithDefaultFacingFallback3(4, "PredatorSwann", "HellionTank", "Hellion", 1, UnitGetPosition(UnitFromId(4)));
-        gf_CreateUnitsWithDefaultFacingFallback3(2, "MicrobotSwann", "ScienceVesselSwann", "Medic", 1, UnitGetPosition(UnitFromId(4)));
-    }
-    else if (auto06F49FBE_val == "Stetmann") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "GaryStetmann", 0, 1, UnitGetPosition(UnitFromId(4)));
-    }
-    else {
-    }
+    // 7vs1 hybrid: let CoopZeroPop own the playable commander opener on this map.
     CinematicFade(false, 0.0, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, false);
     libNtve_gf_CinematicMode(true, PlayerGroupAll(), 0.0);
     libNtve_gf_GlobalCinematicSetting(true);

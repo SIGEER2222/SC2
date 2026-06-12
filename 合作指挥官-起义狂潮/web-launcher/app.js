@@ -495,7 +495,22 @@ function getCommander() {
 }
 
 function normalizeMapBankId(mapId) {
-  return String(mapId || "").replace(/\.SC2Map$/i, "");
+  const value = String(mapId || "").trim().replace(/\\/g, "/");
+  if (!value) return "";
+  const withoutFileExt = value.replace(/\.SC2Map$/i, "");
+  const segments = withoutFileExt.split("/").filter(Boolean);
+  return segments.length > 0 ? segments[segments.length - 1] : withoutFileExt;
+}
+
+function normalizeCommanderMapClearKey(key) {
+  const value = String(key || "").trim();
+  if (!value) return "";
+  const separatorIndex = value.indexOf(":");
+  if (separatorIndex < 0) return value;
+  const commander = value.slice(0, separatorIndex).trim();
+  const mapId = normalizeMapBankId(value.slice(separatorIndex + 1));
+  if (!commander || !mapId) return value;
+  return `${commander}:${mapId}`;
 }
 
 function getMapCompletionState(mapId, commander = getCommander()) {
@@ -510,8 +525,8 @@ function getMapCompletionState(mapId, commander = getCommander()) {
   }
   const bankCommander = commander?.bankCommander || "";
   const commanderMapKey = bankCommander ? `${bankCommander}:${normalizedMapId}` : "";
-  const mapClearIds = new Set(completion?.mapClearIds || []);
-  const commanderClearKeys = new Set(completion?.commanderClearKeys || []);
+  const mapClearIds = new Set((completion?.mapClearIds || []).map((item) => normalizeMapBankId(item)));
+  const commanderClearKeys = new Set((completion?.commanderClearKeys || []).map((item) => normalizeCommanderMapClearKey(item)));
   const mapCleared = mapClearIds.has(normalizedMapId);
   const commanderCleared = commanderMapKey ? commanderClearKeys.has(commanderMapKey) : false;
 

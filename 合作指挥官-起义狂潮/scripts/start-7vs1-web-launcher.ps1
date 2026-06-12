@@ -679,6 +679,44 @@ function Get-BankStringValue {
     return [string]$node.GetAttribute("string")
 }
 
+function Normalize-BankMapId {
+    param([string]$MapId)
+
+    $value = [string]$MapId
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        return ""
+    }
+
+    $value = $value.Trim() -replace '\\', '/'
+    if ($value.Contains('/')) {
+        $value = ($value -split '/')[-1]
+    }
+    $value = $value -replace '\.SC2Map$', ''
+    return $value
+}
+
+function Normalize-CommanderClearKey {
+    param([string]$KeyName)
+
+    $value = [string]$KeyName
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        return ""
+    }
+
+    $separatorIndex = $value.IndexOf(':')
+    if ($separatorIndex -lt 0) {
+        return $value.Trim()
+    }
+
+    $commander = $value.Substring(0, $separatorIndex).Trim()
+    $mapId = Normalize-BankMapId $value.Substring($separatorIndex + 1)
+    if ([string]::IsNullOrWhiteSpace($commander) -or [string]::IsNullOrWhiteSpace($mapId)) {
+        return $value.Trim()
+    }
+
+    return "${commander}:$mapId"
+}
+
 function Get-CompletionSnapshot {
     $bankPaths = @(Get-CampaignXCoreBankPaths)
     if ($bankPaths.Count -eq 0) {
@@ -693,33 +731,50 @@ function Get-CompletionSnapshot {
         }
     }
 
-    $bankPath = $bankPaths[0]
-    [xml]$xml = Get-Content -LiteralPath $bankPath -Raw -Encoding UTF8
     $mapClearIds = New-Object System.Collections.Generic.List[string]
     $commanderClearKeys = New-Object System.Collections.Generic.List[string]
+    $selectedBankPath = ""
+    $selectedBankWriteTime = $null
+    $lastMap = ""
+    $lastCommander = ""
 
-    foreach ($key in @($xml.SelectNodes("/Bank/Section[@name='MapClear']/Key"))) {
-        $keyName = [string]$key.GetAttribute("name")
-        $value = Get-BankIntValue -Xml $xml -SectionName "MapClear" -KeyName $keyName
-        if (($value -gt 0) -and -not [string]::IsNullOrWhiteSpace($keyName)) {
-            $mapClearIds.Add($keyName)
+    foreach ($bankPath in $bankPaths) {
+        [xml]$xml = Get-Content -LiteralPath $bankPath -Raw -Encoding UTF8
+        $bankItem = Get-Item -LiteralPath $bankPath
+        if (($null -eq $selectedBankWriteTime) -or ($bankItem.LastWriteTime -gt $selectedBankWriteTime)) {
+            $selectedBankPath = $bankPath
+            $selectedBankWriteTime = $bankItem.LastWriteTime
+            $lastMap = Get-BankStringValue -Xml $xml -SectionName "Progression" -KeyName "LastMap"
+            $lastCommander = Get-BankStringValue -Xml $xml -SectionName "Progression" -KeyName "LastCommander"
         }
-    }
 
-    foreach ($key in @($xml.SelectNodes("/Bank/Section[@name='CommanderClear']/Key"))) {
-        $keyName = [string]$key.GetAttribute("name")
-        $value = Get-BankIntValue -Xml $xml -SectionName "CommanderClear" -KeyName $keyName
-        if (($value -gt 0) -and -not [string]::IsNullOrWhiteSpace($keyName)) {
-            $commanderClearKeys.Add($keyName)
+        foreach ($sectionName in @("MapClear", "Finished")) {
+            foreach ($key in @($xml.SelectNodes("/Bank/Section[@name='$sectionName']/Key"))) {
+                $keyName = [string]$key.GetAttribute("name")
+                $value = Get-BankIntValue -Xml $xml -SectionName $sectionName -KeyName $keyName
+                $normalizedMapId = Normalize-BankMapId $keyName
+                if (($value -gt 0) -and -not [string]::IsNullOrWhiteSpace($normalizedMapId)) {
+                    $mapClearIds.Add($normalizedMapId)
+                }
+            }
+        }
+
+        foreach ($key in @($xml.SelectNodes("/Bank/Section[@name='CommanderClear']/Key"))) {
+            $keyName = [string]$key.GetAttribute("name")
+            $value = Get-BankIntValue -Xml $xml -SectionName "CommanderClear" -KeyName $keyName
+            $normalizedKey = Normalize-CommanderClearKey $keyName
+            if (($value -gt 0) -and -not [string]::IsNullOrWhiteSpace($normalizedKey)) {
+                $commanderClearKeys.Add($normalizedKey)
+            }
         }
     }
 
     [pscustomobject]@{
         bankFound = $true
-        bankPath = $bankPath
-        bankLastWriteTime = (Get-Item -LiteralPath $bankPath).LastWriteTime.ToString("o")
-        lastMap = Get-BankStringValue -Xml $xml -SectionName "Progression" -KeyName "LastMap"
-        lastCommander = Get-BankStringValue -Xml $xml -SectionName "Progression" -KeyName "LastCommander"
+        bankPath = $selectedBankPath
+        bankLastWriteTime = if ($selectedBankWriteTime) { $selectedBankWriteTime.ToString("o") } else { $null }
+        lastMap = Normalize-BankMapId $lastMap
+        lastCommander = $lastCommander
         mapClearIds = @($mapClearIds | Sort-Object -Unique)
         commanderClearKeys = @($commanderClearKeys | Sort-Object -Unique)
     }

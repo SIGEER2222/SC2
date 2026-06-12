@@ -619,6 +619,9 @@ void libKMIS_gf_PlayerApplySkinSignal (int lp_player, string lp_skin, bool lp_ac
     if (lp_activateDeactivate == true) {
         lv_activateValue = 1;
     }
+    if ((libE0EAE146_gf_ShouldApplyPlayerSkins() == false)) {
+        return;
+    }
     libE0EAE146_gf_RuntimeVisualProbe("KMIS_PlayerApplySkinSignal", lp_player, lp_skin, lp_extraMessage, lv_activateValue);
     PlayerApplySkin(lp_player, lp_skin, lp_activateDeactivate);
     if ((lp_activateDeactivate == false)) {

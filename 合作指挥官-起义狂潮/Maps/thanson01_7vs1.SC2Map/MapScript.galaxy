@@ -573,7 +573,16 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    libE0EAE146_gf_InitializeConfiguredMapScenario("thanson01_7vs1", false, null, gt_Init01Technology, false, gt_Init02Players, gt_Init03VariablesUnits, gt_Init04Music, gt_Init05Environment, gt_Init06Difficulty, null, gt_IntroSequence);
+    PlayerModifyPropertyInt(gv_p1_USER, c_playerPropMinerals, c_playerPropOperSetTo, 200);
+    PlayerModifyPropertyInt(gv_p1_USER, c_playerPropVespene, c_playerPropOperSetTo, 50);
+    libE0EAE146_gf_Initialize(false);
+    TriggerExecute(gt_Init01Technology, true, false);
+    TriggerExecute(gt_Init02Players, true, true);
+    TriggerExecute(gt_Init03VariablesUnits, true, true);
+    TriggerExecute(gt_Init04Music, true, true);
+    TriggerExecute(gt_Init05Environment, true, true);
+    TriggerExecute(gt_Init06Difficulty, true, true);
+    TriggerExecute(gt_IntroSequence, true, false);
     return true;
 }
 
@@ -1425,9 +1434,7 @@ bool gt_StartHansonEscortPhase_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    // 7vs1 hybrid: keep XM runtime + commander selection state, but avoid
-
-    // spawning the legacy XM base because CoopZeroPop owns the playable start.
+    libE0EAE146_gf_InitializeBase(PointFromId(821873986), 10, PointFromId(1838561176), false);
     TriggerExecute(gt_P7Patrols, true, false);
     TriggerExecute(gt_P2Attack, true, false);
     TriggerExecute(gt_P3Attack, true, false);
