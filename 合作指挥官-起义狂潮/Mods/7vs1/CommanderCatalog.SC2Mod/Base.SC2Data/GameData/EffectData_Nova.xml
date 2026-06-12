@@ -1,0 +1,1216 @@
+<Catalog>
+  <CEffectApplyBehavior id="NovaBoombotsKillCredit">
+    <EditorCategories value="Race:Terran" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="NovaCoopDecoyTimedLife">
+    <EditorCategories value="Race:Terran" />
+  </CEffectApplyBehavior>
+  <CEffectTeleport id="NovaArmorBlinkSuitBlink">
+    <TeleportEffect value="" />
+  </CEffectTeleport>
+  <CEffectDamage id="NovaEradicatorMissileDamage">
+    <Amount value="45" />
+  </CEffectDamage>
+  <CEffectDamage id="NovaEradicatorRailgunDamage">
+    <Amount value="75" />
+  </CEffectDamage>
+  <CEffectEnumArea id="NovaEradicatorRailgunSearch">
+    <TargetSorts RequestCount="5">
+      <SortArray value="TSDistance" />
+    </TargetSorts>
+    <AreaArray index="0" RectangleHeight="15" />
+  </CEffectEnumArea>
+  <CEffectModifyUnit id="NovaGriffinGCD">
+    <EditorCategories value="Race:Terran" />
+    <Cost Abil="NovaGriffinTransportLoadUnits,Execute" CooldownOperation="Max" CooldownTimeUse="5" />
+    <Cost Abil="NovaGriffinBombingRunActivate,On" CooldownOperation="Max" CooldownTimeUse="5" />
+    <Cost Abil="NovaReviveInstantBuyback,Execute" CooldownOperation="Max" CooldownTimeUse="5" />
+    <ImpactUnit Value="Caster" />
+  </CEffectModifyUnit>
+  <CEffectSet id="NovaGriffinTransportCancelUnloadSet">
+    <EffectArray value="NovaGriffinTransportUnloadUnitsIssueOrder" />
+    <EffectArray value="NovaGriffinTransportCancelUnloadSearch" />
+    <EffectArray value="NovaGriffinTransportUnloadUnitsDespawnDelayAB" />
+  </CEffectSet>
+  <CEffectEnumArea id="NovaGriffinTransportCancelUnloadSearch">
+    <EditorCategories value="Race:Terran" />
+    <SearchFilters value="-;Neutral,Enemy,Structure,User1,Worker,Missile,Item,Stasis,Dead,Hidden" />
+    <AreaArray Radius="8" Effect="NovaGriffinTransportUnhideUnitsSet" />
+  </CEffectEnumArea>
+  <CEffectSet id="NovaGriffinTransportUnloadUnitsDespawnDelayTimeOut">
+    <EditorCategories value="Race:Terran" />
+  </CEffectSet>
+  <CEffectEnumArea id="NovaWeaponHellfireShotgunBlastSearch">
+    <SearchFilters value="Ground;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable" />
+  </CEffectEnumArea>
+  <CEffectApplyBehavior id="NovaBoombotBurrowDelay">
+    <EditorCategories value="Race:Terran" />
+  </CEffectApplyBehavior>
+  <CEffectSet id="NovaCombatSuitInitialSet">
+    <EditorCategories value="Race:Terran" />
+    <EffectArray value="NovaFullEnergy" />
+    <EffectArray value="NovaDoubleDamage" />
+  </CEffectSet>
+  <CEffectSet id="NovaStealthSuitInitialSet">
+    <EditorCategories value="Race:Terran" />
+    <Marker Link="Effect/NovaCombatSuitInitialSet" />
+    <EffectArray value="NovaFullEnergy" />
+    <EffectArray value="NovaInvulnerability" />
+  </CEffectSet>
+  <CEffectCreateUnit id="NovaDefensiveMatrixDrone">
+    <EditorCategories value="Race:Terran" />
+    <WhichLocation Value="TargetPoint" />
+    <SpawnUnit value="NovaDefensiveMatrixDrone" />
+  </CEffectCreateUnit>
+  <CEffectApplyBehavior id="NovaDoubleDamage">
+    <ValidatorArray value="HaveNovaStanceDance" />
+    <EditorCategories value="Race:Terran" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="NovaInvulnerability">
+    <ValidatorArray value="HaveNovaStanceDance" />
+    <EditorCategories value="Race:Terran" />
+  </CEffectApplyBehavior>
+  <CEffectCreateUnit id="NovaStunDrone">
+    <EditorCategories value="Race:Terran" />
+    <WhichLocation Value="TargetPoint" />
+    <SpawnUnit value="NovaStunDrone" />
+  </CEffectCreateUnit>
+  <CEffectSet id="NovaGriffinBombingRunCreateTargeter">
+    <EditorCategories value="Race:Terran" />
+    <TargetLocationType value="Point" />
+  </CEffectSet>
+  <CEffectSet id="NovaGriffinBombingRunTargetingDummy">
+    <EditorCategories value="Race:Terran" />
+    <TargetLocationType value="Point" />
+  </CEffectSet>
+  <CEffectSet id="NovaGriffinBombingRunInitialSet">
+    <EffectArray value="NovaGriffinBombingRunCreateStrafer" />
+    <EffectArray value="SuicideRemove" />
+    <TargetLocationType value="Point" />
+    <EditorCategories value="Race:Terran" />
+  </CEffectSet>
+  <CEffectCreateUnit id="NovaGriffinBombingRunCreateStrafer">
+    <EditorCategories value="Race:Terran" />
+    <CreateFlags index="Placement" value="0" />
+    <CreateFlags index="UseFood" value="0" />
+    <SpawnEffect value="NovaGriffinBombingRunAB" />
+    <SpawnUnit value="NovaGriffinBombingRunStrafer" />
+    <SpawnRange value="0" />
+    <WhichLocation Value="SourcePoint" />
+  </CEffectCreateUnit>
+  <CEffectApplyBehavior id="NovaGriffinBombingRunAB">
+    <EditorCategories value="Race:Terran" />
+    <WhichUnit Value="TargetOuter" />
+    <Behavior value="NovaGriffinBombingRun" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="NovaGriffinBombingRunDespawnAB">
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaGriffinBombingRunDespawn" />
+  </CEffectApplyBehavior>
+  <CEffectCreatePersistent id="NovaGriffinBombingRunInitialCP">
+    <EditorCategories value="Race:Terran" />
+    <WhichLocation Value="TargetUnit" />
+    <OffsetVectorStartLocation Value="TargetUnit" />
+    <OffsetVectorEndLocation Value="TargetUnit" />
+    <InitialEffect value="NovaGriffinBombingRunExecuteSet" />
+  </CEffectCreatePersistent>
+  <CEffectSet id="NovaGriffinBombingRunExecuteSet">
+    <EditorCategories value="Race:Terran" />
+    <EffectArray value="NovaGriffinBombingRunLM" />
+    <EffectArray value="NovaGriffinBombingRunExecuteCP" />
+  </CEffectSet>
+  <CEffectLaunchMissile id="NovaGriffinBombingRunLM">
+    <EditorCategories value="Race:Zerg" />
+    <ImpactLocation Effect="NovaGriffinBombingRunInitialSet" Value="TargetPoint" />
+    <Movers Link="NovaGriffinBombingRunGriffinMover" />
+    <DeathType value="Unknown" />
+  </CEffectLaunchMissile>
+  <CEffectCreatePersistent id="NovaGriffinBombingRunExecuteCP">
+    <EditorCategories value="Race:Terran" />
+    <Marker>
+      <MatchFlags index="Id" value="1" />
+    </Marker>
+    <WhichLocation Value="OriginPoint" />
+    <TimeScaleSource Value="Caster" />
+    <OffsetVectorStartLocation Value="OriginPoint" />
+    <InitialDelay value="0.5" />
+    <PeriodCount value="10" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunEndPoint" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
+    <PeriodicOffsetArray value="0,-16,0" />
+    <PeriodicOffsetArray value="0,0.05,0" />
+    <PeriodicOffsetArray value="0,-2,0" />
+    <PeriodicOffsetArray value="0,-4,0" />
+    <PeriodicOffsetArray value="0,-6,0" />
+    <PeriodicOffsetArray value="0,-8,0" />
+    <PeriodicOffsetArray value="0,-10,0" />
+    <PeriodicOffsetArray value="0,-12,0" />
+    <PeriodicOffsetArray value="0,-14,0" />
+    <PeriodicOffsetArray value="0,-16,0" />
+    <PeriodicPeriodArray value="0.125" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="NovaGriffinBombingRunEndPoint">
+    <PeriodCount value="1" />
+    <EditorCategories value="Race:Terran" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="NovaGriffinBombingRunDelayCP">
+    <EditorCategories value="Race:Terran" />
+    <OffsetVectorStartLocation Value="OriginPoint" />
+    <PeriodCount value="1" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunSearch" />
+    <PeriodicPeriodArray value="3" />
+  </CEffectCreatePersistent>
+  <CEffectSet id="NovaGriffinBombingRunRandomPointSet">
+    <EffectArray value="NovaGriffinBombingRunRandomPointCPRightSide" />
+    <EffectArray value="NovaGriffinBombingRunRandomPointCPLeftSide" />
+    <TargetLocationType value="Point" />
+    <EditorCategories value="Race:Terran" />
+  </CEffectSet>
+  <CEffectCreatePersistent id="NovaGriffinBombingRunStraferDummyLMCP">
+    <EditorCategories value="Race:Terran" />
+    <WhichLocation Value="SourcePoint" />
+    <Flags index="RandomOffset" value="1" />
+    <PeriodCount value="30" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunRandomPointSet" />
+    <PeriodicPeriodArray value="0.05" />
+    <InitialDelay value="0.1" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="NovaGriffinBombingRunRandomPointCPRightSide">
+    <EditorCategories value="Race:Terran" />
+    <WhichLocation Value="SourcePoint" />
+    <Flags index="RandomOffset" value="1" />
+    <PeriodCount value="1" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDummyLMRightSide" />
+    <PeriodicOffsetArray value="2.5,-6.5,0" />
+    <PeriodicOffsetArray value="2.2,-6.5,0" />
+    <PeriodicOffsetArray value="1.9,-6.5,0" />
+    <PeriodicOffsetArray value="1.6,-6.5,0" />
+    <PeriodicOffsetArray value="1.3,-6.5,0" />
+    <PeriodicOffsetArray value="1,-6.5,0" />
+    <PeriodicOffsetArray value="0.7,-6.5,0" />
+    <PeriodicOffsetArray value="0.4,-6.5,0" />
+    <PeriodicOffsetArray value="0.1,-6.5,0" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="NovaGriffinBombingRunRandomPointCPLeftSide">
+    <EditorCategories value="Race:Terran" />
+    <WhichLocation Value="SourcePoint" />
+    <Flags index="RandomOffset" value="1" />
+    <PeriodCount value="1" />
+    <PeriodicEffectArray value="NovaGriffinBombingRunDummyLMLeftSide" />
+    <PeriodicOffsetArray value="-2.5,-6.5,0" />
+    <PeriodicOffsetArray value="-2.2,-6.5,0" />
+    <PeriodicOffsetArray value="-1.9,-6.5,0" />
+    <PeriodicOffsetArray value="-1.6,-6.5,0" />
+    <PeriodicOffsetArray value="-1.3,-6.5,0" />
+    <PeriodicOffsetArray value="-1,-6.5,0" />
+    <PeriodicOffsetArray value="-0.7,-6.5,0" />
+    <PeriodicOffsetArray value="-0.4,-6.5,0" />
+    <PeriodicOffsetArray value="-0.1,-6.5,0" />
+    <PeriodicPeriodArray value="0.1" />
+  </CEffectCreatePersistent>
+  <CEffectLaunchMissile id="NovaGriffinBombingRunDummyLMRightSide">
+    <EditorCategories value="Race:Zerg" />
+    <FinishEffect value="NovaGriffinBombingRunDummyLocationSearch" />
+    <Movers Link="NovaGriffinBombingRunDummyAttackMissileRight" />
+    <ImpactLocation Value="TargetPoint" />
+    <Chance value="0.75" />
+    <AmmoUnit value="NovaGriffinBombingRunDummyLMWeapon" />
+  </CEffectLaunchMissile>
+  <CEffectLaunchMissile id="NovaGriffinBombingRunDummyLMLeftSide">
+    <EditorCategories value="Race:Zerg" />
+    <FinishEffect value="NovaGriffinBombingRunDummyLocationSearch" />
+    <Movers Link="NovaGriffinBombingRunDummyAttackMissileLeft" />
+    <ImpactLocation Value="TargetPoint" />
+    <Chance value="0.75" />
+    <AmmoUnit value="NovaGriffinBombingRunDummyAltLMWeapon" />
+  </CEffectLaunchMissile>
+  <CEffectDamage id="NovaGriffinBombingRunDummyLocation" />
+  <CEffectEnumArea id="NovaGriffinBombingRunDummyLocationSearch">
+    <EditorCategories value="Race:Terran" />
+    <SearchFilters value="-;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable" />
+    <AreaArray Radius="1" Effect="NovaGriffinBombingRunDummyLocation" />
+    <RevealerParams Duration="1" ShapeExpansion="0.5">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
+    <ImpactLocation Value="TargetPoint" />
+    <LaunchLocation Value="OriginPoint" />
+  </CEffectEnumArea>
+  <CEffectDamage id="NovaGriffinBombingRunRemoveStrafer">
+    <ImpactLocation Value="TargetUnit" />
+    <Visibility value="Hidden" />
+    <Flags index="Kill" value="1" />
+    <Flags index="NoKillCredit" value="1" />
+    <Death value="Remove" />
+    <EditorCategories value="Race:Terran" />
+  </CEffectDamage>
+  <CEffectEnumArea id="NovaGriffinBombingRunDummySearch">
+    <EditorCategories value="Race:Terran" />
+    <SearchFilters value="-;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable" />
+    <AreaArray RectangleWidth="6" RectangleHeight="16" Effect="NovaGriffinBombingRunDamage" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="NovaGriffinBombingRunSearch">
+    <EditorCategories value="Race:Terran" />
+    <SearchFilters value="-;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable" />
+    <AreaArray RectangleWidth="6" RectangleHeight="2" Effect="NovaGriffinBombingRunDamage" />
+    <RevealerParams Duration="1" ShapeExpansion="0.5">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
+    <ImpactLocation Value="TargetPoint" />
+    <LaunchLocation Value="OriginPoint" />
+  </CEffectEnumArea>
+  <CEffectDamage id="NovaGriffinBombingRunDamage">
+    <EditorCategories value="Race:Terran" />
+    <Amount value="500" />
+    <Flags index="Notification" value="1" />
+    <Death value="Blast" />
+    <ValidatorArray value="noMarkers" />
+    <SearchFlags index="SameCliff" value="0" />
+  </CEffectDamage>
+  <CEffectApplyBehavior id="NovaGriffinBombingRunStraferDummyLMAB">
+    <EditorCategories value="Race:Terran" />
+    <WhichUnit Value="Caster" />
+    <Behavior value="NovaGriffinBombingRunStraferDummyLM" />
+  </CEffectApplyBehavior>
+  <CEffectSet id="NovaGriffinTransportUnitsInitialSet">
+    <EffectArray value="NovaGriffinTransportUnitsSpawnGriffin" />
+    <TargetLocationType value="Point" />
+    <ValidatorArray value="NovaTransportPickupMinimum" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="NovaGriffinTransportActivateAB">
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaGriffinTransportActivate" />
+  </CEffectApplyBehavior>
+  <CEffectCreateUnit id="NovaGriffinTransportUnitsSpawnGriffin">
+    <EditorCategories value="Race:Terran" />
+    <WhichLocation Value="TargetPoint" />
+    <SpawnEffect value="NovaGriffinTransportUnitSpawnSet" />
+    <SpawnUnit value="NovaGriffinTransportUnit" />
+    <CreateFlags index="SetFacing" value="1" />
+  </CEffectCreateUnit>
+  <CEffectSet id="NovaGriffinTransportUnitSpawnSet">
+    <EffectArray value="NovaGriffinTransportAirUnitsSearch" />
+    <EffectArray value="NovaGriffinTransportActivateAB" />
+    <EffectArray value="NovaGriffinTransportUnitsLoadGroundUnitsSearch" />
+  </CEffectSet>
+  <CEffectEnumArea id="NovaGriffinTransportUnitsSearch">
+    <EditorCategories value="Terran" />
+    <SearchFilters value="Ground;Ally,Neutral,Enemy,Structure,User1,Worker,Missile,Item,Dead,Hidden" />
+    <AreaArray Radius="8" Effect="NovaGriffinTransportUnitsLoadIssueOrder" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="NovaGriffinTransportUnitsSearchDummy">
+    <EditorCategories value="" />
+    <SearchFilters value="-;Neutral,Enemy,Structure,User1,Worker,Missile,Item,Dead,Hidden" />
+    <AreaArray Radius="8" Effect="NovaGriffinTransportUnitsSearchDummySet" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="NovaGriffinTransportUnloadUnitsSearchDummy">
+    <EditorCategories value="" />
+    <SearchFilters value="-;Player,Ally,Neutral,Enemy,Structure,User1,Worker,Missile,Item,Dead,Hidden" />
+    <AreaArray Radius="8" Effect="NovaGriffinTransportUnitsSearchDummySet" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="NovaGriffinTransportAirUnitsSearch">
+    <EditorCategories value="" />
+    <SearchFilters value="Air;Self,Neutral,Enemy,Structure,User1,Missile,Item,Dead,Invulnerable" />
+    <AreaArray Radius="8" Effect="NovaGriffinTransportAirUnitsAB" />
+  </CEffectEnumArea>
+  <CEffectApplyBehavior id="NovaGriffinTransportAirUnitsAB">
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaGriffinTransportAirUnits" />
+    <ValidatorArray value="IsNotEgg" />
+    <ValidatorArray value="TargetIsNotNonCommanderAlly" />
+    <ValidatorArray value="NotColossus" />
+    <ValidatorArray value="NotSlaynElementalCocooned" />
+    <ValidatorArray value="TargetNotUndergoingMassTransport" />
+  </CEffectApplyBehavior>
+  <CEffectSet id="NovaGriffinTransportUnitsSearchDummySet">
+    <ValidatorArray value="TargetIsCommanderSelfOrAlly" />
+    <ValidatorArray value="NotLarva" />
+    <ValidatorArray value="IsNotEgg" />
+    <ValidatorArray value="TargetIsNotNonCommanderAlly" />
+    <ValidatorArray value="NotSlaynElementalCocooned" />
+  </CEffectSet>
+  <CEffectIssueOrder id="NovaGriffinTransportUnitsLoadIssueOrder">
+    <Abil value="GriffinTransport" />
+    <WhichUnit Effect="NovaGriffinTransportUnitsSearch" />
+    <Target Value="TargetOuterUnit" />
+    <ValidatorArray value="TargetIsCommanderSelfOrAlly" />
+  </CEffectIssueOrder>
+  <CEffectEnumArea id="NovaGriffinTransportUnitsLoadGroundUnitsSearch">
+    <EditorCategories value="" />
+    <SearchFilters value="Ground;Self,Neutral,Enemy,Structure,User1,Worker,Missile,Item,Dead,Hidden" />
+    <AreaArray Radius="8" Effect="NovaGriffinTransportUnitsLoadGroundUnitsAB" />
+  </CEffectEnumArea>
+  <CEffectApplyBehavior id="NovaGriffinTransportUnitsLoadGroundUnitsAB">
+    <ValidatorArray value="TargetIsCommanderSelfOrAlly" />
+    <ValidatorArray value="NotLarva" />
+    <ValidatorArray value="NotLarvaStetmann" />
+    <ValidatorArray value="IsNotEgg" />
+    <ValidatorArray value="NotSlaynElementalCocooned" />
+    <ValidatorArray value="TargetNotUndergoingMassTransport" />
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaGriffinTransportGroundUnits" />
+  </CEffectApplyBehavior>
+  <CEffectCreatePersistent id="NovaGriffinTransportUnloadUnitsInitialCP">
+    <FinalEffect value="NovaGriffinTransportUnloadUnitsTP" />
+    <PeriodicValidator value="HaveNovaGriffinTransportDelay" />
+    <ValidatorArray value="Pathable" />
+    <InitialEffect value="NovaGriffinTransportTeleportOut" />
+    <PeriodCount value="2" />
+    <PeriodicPeriodArray value="15" />
+  </CEffectCreatePersistent>
+  <CEffectApplyBehavior id="NovaGriffinTransportTeleportOut">
+    <EditorCategories value="Race:Terran" />
+    <WhichUnit Value="Caster" />
+    <Behavior value="Griffin_TeleportOut_COOP" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="NovaGriffinTransportTeleportIn">
+    <EditorCategories value="Race:Terran" />
+    <WhichUnit Value="Caster" />
+    <Behavior value="Griffin_TeleportIn_COOP" />
+  </CEffectApplyBehavior>
+  <CEffectTeleport id="NovaGriffinTransportUnloadUnitsTP">
+    <WhichUnit Value="Caster" />
+    <PlacementArc value="360" />
+    <PlacementAround Effect="NovaGriffinTransportUnloadUnitsInitialCP" />
+    <SourceLocation Effect="NovaGriffinTransportUnloadUnitsInitialCP" />
+    <TargetLocation Effect="NovaGriffinTransportUnloadUnitsInitialCP" Value="TargetPoint" />
+    <TeleportEffect value="NovaGriffinTransportUnloadUnitsCompletionSet" />
+  </CEffectTeleport>
+  <CEffectApplyBehavior id="NovaGriffinTransportUnloadUnitsDespawnDelayAB">
+    <EditorCategories value="Race:Terran" />
+    <WhichUnit Value="Caster" />
+    <Behavior value="NovaGriffinTransportUnloadUnitsDespawnDelay" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="NovaGriffinTransportUnloadUnitsDespawnAB">
+    <EditorCategories value="Race:Terran" />
+    <WhichUnit Value="Caster" />
+    <Behavior value="NovaGriffinTransportUnloadUnitsDespawn" />
+  </CEffectApplyBehavior>
+  <CEffectRemoveBehavior id="NovaGriffinTransportUnloadUnitsInstantBR">
+    <EditorCategories value="Race:Terran" />
+    <WhichUnit Value="Caster" />
+    <BehaviorLink value="NovaGriffinTransportDelay" />
+  </CEffectRemoveBehavior>
+  <CEffectRemoveBehavior id="NovaGriffinTransportUnloadUnitsRemoveFallback">
+    <EditorCategories value="Race:Terran" />
+    <WhichUnit Value="Caster" />
+    <BehaviorLink value="NovaGriffinTransportFallbackLocation" />
+    <Count value="1" />
+  </CEffectRemoveBehavior>
+  <CEffectEnumArea id="NovaGriffinTransportUnloadUnitsFallbackSearch">
+    <EditorCategories value="Terran" />
+    <SearchFilters value="Ground,Structure;Ally,Neutral,Enemy,User1,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <AreaArray Radius="500" Effect="NovaGriffinTransportUnloadUnitsTP" />
+  </CEffectEnumArea>
+  <CEffectLaunchMissile id="NovaGriffinTransportUnloadUnitsFallbackLM">
+    <DeathType value="Unknown" />
+    <EditorCategories value="Race:Zerg" />
+    <FinishEffect value="NovaGriffinTransportUnloadUnitsIssueOrder" />
+    <Movers Link="NovaGriffinTransportUnloadUnitsLM" />
+    <LaunchLocation Value="CasterUnit" />
+    <ImpactLocation Value="TargetPoint" />
+    <ValidatorArray index="0" value="HasZerglingRespawnPrimary" />
+  </CEffectLaunchMissile>
+  <CEffectSet id="NovaGriffinTransportUnloadUnitsCompletionSet">
+    <EffectArray value="NovaGriffinTransportUnloadUnitsIssueOrder" />
+    <EffectArray value="NovaGriffinTransportUnloadUnitsDespawnDelayAB" />
+  </CEffectSet>
+  <CEffectEnumArea id="NovaGriffinTransportTeleportAirUnitsSearch">
+    <EditorCategories value="" />
+    <ImpactLocation Effect="NovaGriffinTransportUnloadUnitsInitialCP" Value="CasterPoint" />
+    <SearchFilters value="Air;Neutral,Enemy,Structure,User1,Worker,Missile,Item,Dead,Hidden" />
+    <AreaArray Radius="8" Effect="NovaGriffinTransportTeleportAirUnitsTP" />
+  </CEffectEnumArea>
+  <CEffectDamage id="NovaGriffinTransportTeleportAirUnitsDamageTest" />
+  <CEffectTeleport id="NovaGriffinTransportTeleportAirUnitsTP">
+    <PlacementArc value="360" />
+    <SourceLocation Effect="NovaGriffinTransportTeleportAirUnitsSearch" Value="SourcePoint" />
+    <TargetLocation Effect="NovaGriffinTransportTeleportAirUnitsSearch" Value="TargetPoint" />
+    <WhichUnit Value="TargetOuter" />
+    <ValidatorArray value="TargetIsCommanderSelfOrAlly" />
+    <TeleportEffect value="NovaGriffinTransportAirUnitsRB" />
+  </CEffectTeleport>
+  <CEffectEnumArea id="NovaGriffinTransportTeleportGroundUnitSearch">
+    <EditorCategories value="" />
+    <ImpactLocation Effect="NovaGriffinTransportUnloadUnitsInitialCP" Value="CasterPoint" />
+    <SearchFilters value="-;Neutral,Enemy,Structure,User1,Worker,Missile,Item,Stasis,Dead,Hidden" />
+    <AreaArray Radius="8" Effect="NovaGriffinTransportTeleportGroundUnitsTP" />
+  </CEffectEnumArea>
+  <CEffectTeleport id="NovaGriffinTransportTeleportGroundUnitsTP">
+    <ValidatorArray value="TargetIsCommanderSelfOrAlly" />
+    <ValidatorArray value="NotLarva" />
+    <ValidatorArray value="IsNotEgg" />
+    <WhichUnit Value="TargetOuter" />
+    <PlacementArc value="360" />
+    <SourceLocation Effect="NovaGriffinTransportTeleportGroundUnitSearch" Value="SourcePoint" />
+    <TargetLocation Effect="NovaGriffinTransportTeleportGroundUnitSearch" Value="TargetPoint" />
+    <TeleportEffect value="NovaGriffinTransportUnhideUnitsSet" />
+  </CEffectTeleport>
+  <CEffectSet id="NovaGriffinTransportUnhideUnitsSet">
+    <EffectArray value="NovaGriffinTransportUnitsLoadAlliesRB" />
+    <EffectArray value="NovaGriffinTransportAirUnitsRB" />
+    <ValidatorArray value="TargetIsNotNonCommanderAlly" />
+  </CEffectSet>
+  <CEffectRemoveBehavior id="NovaGriffinTransportUnitsLoadAlliesRB">
+    <EditorCategories value="Race:Terran" />
+    <BehaviorLink value="NovaGriffinTransportGroundUnits" />
+    <Count value="1" />
+  </CEffectRemoveBehavior>
+  <CEffectRemoveBehavior id="NovaGriffinTransportAirUnitsRB">
+    <EditorCategories value="Race:Terran" />
+    <BehaviorLink value="NovaGriffinTransportAirUnits" />
+    <Count value="1" />
+  </CEffectRemoveBehavior>
+  <CEffectIssueOrder id="NovaGriffinTransportUnloadUnitsIssueOrder">
+    <Abil value="GriffinTransport" />
+    <AbilCmdIndex value="1" />
+    <WhichUnit Value="Caster" />
+    <Target Value="CasterUnit" />
+    <Player Value="Caster" />
+  </CEffectIssueOrder>
+  <CEffectDamage id="NovaGriffinTransportUnloadUnitsDespawn">
+    <ImpactLocation Value="CasterUnit" />
+    <Flags index="Kill" value="1" />
+  </CEffectDamage>
+  <CEffectModifyUnit id="NovaFullEnergy">
+    <ValidatorArray value="HaveNovaStanceDance" />
+    <EditorCategories value="Race:Terran" />
+    <VitalArray index="Energy">
+      <ChangeFraction value="1" />
+    </VitalArray>
+  </CEffectModifyUnit>
+  <CEffectDamage id="NovaACLaserTurret" parent="DU_WEAP_MISSILE">
+    <EditorCategories value="Race:Terran" />
+    <Amount value="30" />
+  </CEffectDamage>
+  <CEffectSet id="NovaCoopCasterStunGrenadeABSet">
+    <EffectArray value="NovaCoopCasterStunGrenadeApplyBehavior" />
+    <EffectArray value="NovaCoopCasterStunGrenadeApplyBehaviorSlow" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="NovaCoopCasterStunGrenadeApplyBehaviorSlow">
+    <ValidatorArray index="0" value="NotFrenzied" />
+    <ValidatorArray value="TargetIsNotUnstoppable" />
+    <ValidatorArray value="NotStructureorIsStructureandNotDetector" />
+    <ValidatorArray value="IsNotHerculesCombined" />
+    <ValidatorArray value="IsHeroic" />
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaCoopCasterStunGrenadeSlow" />
+  </CEffectApplyBehavior>
+  <CEffectCreateUnit id="NovaCoopCasterSummonOdin">
+    <EditorCategories value="Race:Terran" />
+    <WhichLocation Value="TargetPoint" />
+    <SpawnEffect value="NovaOdinCreationSet" />
+    <SpawnUnit value="Odin" />
+  </CEffectCreateUnit>
+  <CEffectSet id="NovaCreateBoomBotsIssueOrderSet">
+    <EditorCategories value="Race:Terran" />
+    <EffectArray value="NovaCreateBoomBotsMoveOrder" />
+    <EffectArray value="NovaCreateBoomBotsBurrowOrder" />
+    <EffectArray value="NovaBoombotsKillCredit" />
+  </CEffectSet>
+  <CEffectIssueOrder id="NovaCreateBoomBotsMoveOrder">
+    <EditorCategories value="Race:Terran" />
+    <Abil value="move" />
+    <Target Effect="NovaCreateBoomBotsSet" Value="TargetPoint" />
+  </CEffectIssueOrder>
+  <CEffectIssueOrder id="NovaCreateBoomBotsBurrowOrder">
+    <EditorCategories value="Race:Terran" />
+    <Marker Link="Effect/NovaCreateBoomBotsMoveOrder" />
+    <Abil value="NovaBoombotBurrow" />
+    <CmdFlags index="Queued" value="1" />
+    <Target Effect="NovaCreateBoomBotsSet" Value="TargetPoint" />
+  </CEffectIssueOrder>
+  <CEffectCreatePersistent id="NovaOdinAnnihilateInitialCreatePersistent">
+    <EditorCategories value="" />
+    <Marker>
+      <MatchFlags index="Id" value="1" />
+    </Marker>
+    <WhichLocation Value="CasterPoint" />
+    <PeriodCount value="8" />
+    <PeriodicEffectArray value="NovaOdinAnnihilateSearch" />
+    <PeriodicOffsetArray value="0,-2,0" />
+    <PeriodicOffsetArray value="0,-3,0" />
+    <PeriodicOffsetArray value="0,-4,0" />
+    <PeriodicOffsetArray value="0,-5,0" />
+    <PeriodicOffsetArray value="0,-6,0" />
+    <PeriodicOffsetArray value="0,-7,0" />
+    <PeriodicOffsetArray value="0,-8,0" />
+    <PeriodicOffsetArray value="0,-9,0" />
+    <PeriodicPeriodArray value="0" />
+    <PeriodicPeriodArray value="0.1" />
+    <PeriodicPeriodArray value="0.1" />
+    <PeriodicPeriodArray value="0.1" />
+    <PeriodicPeriodArray value="0.1" />
+    <PeriodicPeriodArray value="0.1" />
+    <PeriodicPeriodArray value="0.1" />
+    <PeriodicPeriodArray value="0.1" />
+    <Flags index="Channeled" value="1" />
+  </CEffectCreatePersistent>
+  <CEffectEnumArea id="NovaOdinAnnihilateSearch">
+    <EditorCategories value="" />
+    <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Invulnerable" />
+    <AreaArray Radius="3" Effect="NovaOdinAnnihilateDamage" />
+  </CEffectEnumArea>
+  <CEffectSet id="NovaOdinCreationSet">
+    <EditorCategories value="Race:Terran" />
+    <EffectArray value="NovaOdinTimedLife" />
+    <EffectArray value="FactoryDropTrainSet" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="NovaOdinTimedLife">
+    <EditorCategories value="Race:Terran" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="NovaOdinUnderConstruction">
+    <EditorCategories value="Race:Terran" />
+  </CEffectApplyBehavior>
+  <CEffectCreatePersistent id="NovaBoombotDeselectNovaDelay">
+    <EditorCategories value="Race:Terran" />
+    <ExpireEffect value="NovaBoombotDeselectNova" />
+    <ExpireDelay value="2" />
+  </CEffectCreatePersistent>
+  <CEffectSet id="NovaBoombotsTimedLifeExpireSet">
+    <EditorCategories value="Race:Terran" />
+    <EffectArray value="CasterBurrowDown" />
+    <EffectArray value="SuicideIfHidden" />
+    <EffectArray value="BoombotSuicideIfNotBurrowing" />
+    <EffectArray value="NovaBoombotBurrowDelay" />
+  </CEffectSet>
+  <CEffectModifyUnit id="NovaBoombotDeselectNova">
+    <EditorCategories value="Race:Terran" />
+    <SelectTransferUnit Effect="NovaCreateBoomBots" Value="Caster" />
+    <SelectTransferFlags index="DeselectSource" value="1" />
+    <ImpactUnit Effect="NovaCreateBoomBots" />
+  </CEffectModifyUnit>
+  <CEffectSet id="NovaCreateBoomBotsSet">
+    <EditorCategories value="Race:Terran" />
+    <EffectArray value="NovaCreateBoomBotsA" />
+    <TargetLocationType value="Point" />
+  </CEffectSet>
+  <CEffectCreateUnit id="NovaCreateBoomBotsA">
+    <EditorCategories value="Race:Terran" />
+    <CreateFlags index="Placement" value="0" />
+    <CreateFlags index="PlacementIgnoreBlockers" value="1" />
+    <CreateFlags index="ProvideFood" value="0" />
+    <CreateFlags index="SetFacing" value="1" />
+    <CreateFlags index="TechComplete" value="0" />
+    <CreateFlags index="UseFood" value="0" />
+    <SpawnEffect value="NovaCreateBoomBotsIssueOrderSet" />
+    <SpawnUnit value="NovaBoombot" />
+    <WhichLocation Value="CasterPoint" />
+  </CEffectCreateUnit>
+  <CEffectCreateUnit id="NovaCreateBoomBotsB">
+    <EditorCategories value="Race:Terran" />
+    <CreateFlags index="SetFacing" value="1" />
+    <SpawnUnit value="NovaBoombot" />
+    <SelectUnit Value="Caster" />
+  </CEffectCreateUnit>
+  <CEffectCreateUnit id="NovaCoopDecoy">
+    <EditorCategories value="Race:Terran" />
+    <CreateFlags index="SetFacing" value="1" />
+    <SpawnUnit value="NovaCoopDecoy" />
+    <WhichLocation Value="TargetPoint" />
+    <SpawnEffect value="NovaCoopDecoyTimedLife" />
+  </CEffectCreateUnit>
+  <CEffectRemoveBehavior id="NovaRemoveAllEquippedWeapon">
+    <EditorCategories value="Race:Terran" />
+    <BehaviorCategories index="User9" value="1" />
+  </CEffectRemoveBehavior>
+  <CEffectRemoveBehavior id="NovaRemoveAllEquippedGadget">
+    <EditorCategories value="Race:Terran" />
+    <BehaviorCategories index="User10" value="1" />
+  </CEffectRemoveBehavior>
+  <CEffectSet id="NovaBoombotBoomSet">
+    <EditorCategories value="Race:Terran" />
+    <EffectArray value="NovaBoombotBoomDamage" />
+    <EffectArray value="Suicide" />
+  </CEffectSet>
+  <CEffectDamage id="NovaBoombotBoomDamage" parent="DU_WEAP_SPLASH">
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Spell" />
+    <Amount value="200" />
+    <Death value="Blast" />
+    <AreaArray Radius="4" Fraction="1" />
+    <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFlags index="ExtendByUnitRadius" value="1" />
+    <AttributeBonus index="Structure" value="200" />
+    <ArmorReduction value="0" />
+    <DisplayFlags index="DisplayRounded" value="1" />
+  </CEffectDamage>
+  <CEffectDamage id="NovaWeaponCanisterRifleCloaked">
+    <Amount value="20" />
+  </CEffectDamage>
+  <CEffectDamage id="NovaWeaponCanisterRifleUncloaked">
+    <Amount value="20" />
+  </CEffectDamage>
+  <CEffectApplyBehavior id="NovaStunResistanceAB">
+    <Behavior value="NovaStunResistance" />
+    <ValidatorArray index="0" value="IsNovaCoopCommander" />
+  </CEffectApplyBehavior>
+  <CEffectSet id="NovaWeaponCanisterRifleABSet">
+    <EffectArray index="0" value="NovaRemoveAllEquippedWeapon" />
+    <EffectArray index="1" value="NovaWeaponCanisterRifleAB" />
+    <EffectArray index="2" removed="1" />
+    <EffectArray index="3" removed="1" />
+    <EffectArray index="4" removed="1" />
+    <EffectArray index="5" removed="1" />
+  </CEffectSet>
+  <CEffectSet id="NovaWeaponImprovedCanisterRifleABSet">
+    <EffectArray value="NovaRemoveAllEquippedWeapon" />
+    <EffectArray value="NovaWeaponImprovedCanisterRifleAB" />
+  </CEffectSet>
+  <CEffectSet id="NovaWeaponHellfireShotgunABSet">
+    <EffectArray index="0" value="NovaRemoveAllEquippedWeapon" />
+    <EffectArray index="1" value="NovaWeaponHellfireShotgunAB" />
+    <EffectArray index="2" removed="1" />
+    <EffectArray index="3" removed="1" />
+    <EffectArray index="4" removed="1" />
+    <EffectArray index="5" removed="1" />
+  </CEffectSet>
+  <CEffectSet id="NovaWeaponInvictusLongshotABSet">
+    <EffectArray index="0" value="NovaRemoveAllEquippedWeapon" />
+    <EffectArray index="1" value="NovaWeaponInvictusLongshotAB" />
+    <EffectArray index="2" removed="1" />
+    <EffectArray index="3" removed="1" />
+    <EffectArray index="4" removed="1" />
+    <EffectArray index="5" removed="1" />
+  </CEffectSet>
+  <CEffectSet id="NovaWeaponPsiRifleABSet">
+    <EffectArray index="0" value="NovaRemoveAllEquippedWeapon" />
+    <EffectArray index="1" value="NovaWeaponPsiRifleAB" />
+    <EffectArray index="2" removed="1" />
+    <EffectArray index="3" removed="1" />
+    <EffectArray index="4" removed="1" />
+    <EffectArray index="5" removed="1" />
+  </CEffectSet>
+  <CEffectSet id="NovaWeaponPsiBladeABSet">
+    <EffectArray index="0" value="NovaRemoveAllEquippedWeapon" />
+    <EffectArray index="1" value="NovaWeaponPsiBladeAB" />
+    <EffectArray index="2" removed="1" />
+    <EffectArray index="3" removed="1" />
+    <EffectArray index="4" removed="1" />
+    <EffectArray index="5" removed="1" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="NovaWeaponImprovedCanisterRifleAB">
+    <Behavior value="NovaWeaponImprovedCanisterRifle" />
+  </CEffectApplyBehavior>
+  <CEffectRemoveBehavior id="NovaWeaponImprovedCanisterRifleRB">
+    <BehaviorLink value="NovaWeaponImprovedCanisterRifle" />
+  </CEffectRemoveBehavior>
+  <CEffectSet id="NovaGadgetRBAllSet">
+    <EffectArray value="NovaRemoveAllEquippedGadget" />
+  </CEffectSet>
+  <CEffectEnumArea id="NovaWeaponCanisterRifleSwapSearch">
+    <EditorCategories value="Race:Zerg" />
+    <SearchFilters value="Visible;Self,Ally,Neutral,Enemy,Missile,Stasis,Hidden" />
+    <AreaArray Radius="500" Effect="NovaWeaponCanisterRifleABSet" />
+    <ImpactLocation Value="SourceUnit" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="NovaWeaponImprovedCanisterRifleSwapSearch">
+    <EditorCategories value="Race:Zerg" />
+    <SearchFilters value="Visible;Self,Ally,Neutral,Enemy,Missile,Stasis,Hidden" />
+    <AreaArray Radius="500" Effect="NovaWeaponImprovedCanisterRifleABSet" />
+    <ImpactLocation Value="SourceUnit" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="NovaWeaponHellfireShotgunSwapSearch">
+    <EditorCategories value="Race:Zerg" />
+    <SearchFilters value="Visible;Self,Ally,Neutral,Enemy,Missile,Stasis,Hidden" />
+    <AreaArray Radius="500" Effect="NovaWeaponHellfireShotgunABSet" />
+    <ImpactLocation Value="SourceUnit" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="NovaWeaponInvictusLongshotSwapSearch">
+    <EditorCategories value="Race:Zerg" />
+    <SearchFilters value="Visible;Self,Ally,Neutral,Enemy,Missile,Stasis,Hidden" />
+    <AreaArray Radius="500" Effect="NovaWeaponInvictusLongshotABSet" />
+    <ImpactLocation Value="SourceUnit" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="NovaWeaponPsiBladeSwapSearch">
+    <EditorCategories value="Race:Zerg" />
+    <SearchFilters value="Visible;Self,Ally,Neutral,Enemy,Missile,Stasis,Hidden" />
+    <AreaArray Radius="500" Effect="NovaWeaponPsiBladeABSet" />
+    <ImpactLocation Value="SourceUnit" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="NovaWeaponPsiRifleSwapSearch">
+    <EditorCategories value="Race:Zerg" />
+    <SearchFilters value="Visible;Self,Ally,Neutral,Enemy,Missile,Stasis,Hidden" />
+    <AreaArray Radius="500" Effect="NovaWeaponPsiRifleABSet" />
+    <ImpactLocation Value="SourceUnit" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="NovaGadgetFlashbangGrenadesSwapSearch">
+    <EditorCategories value="Race:Zerg" />
+    <SearchFilters value="Visible;Self,Ally,Neutral,Enemy,Missile,Stasis,Hidden" />
+    <AreaArray Radius="500" Effect="NovaGadgetFlashbangGrenadesABSet" />
+    <ImpactLocation Value="SourceUnit" />
+  </CEffectEnumArea>
+  <CEffectSet id="NovaGadgetFlashbangGrenadesABSet">
+    <EffectArray value="NovaRemoveAllEquippedGadget" />
+    <EffectArray value="NovaGadgetFlashbangGrenadesAB" />
+  </CEffectSet>
+  <CEffectRemoveBehavior id="NovaGadgetPulseGrenadesRB">
+    <BehaviorLink value="NovaGadgetPulseGrenades" />
+  </CEffectRemoveBehavior>
+  <CEffectApplyBehavior id="NovaGadgetFlashbangGrenadesAB">
+    <Behavior value="NovaGadgetFlashbangGrenades" />
+  </CEffectApplyBehavior>
+  <CEffectEnumArea id="NovaGadgetPulseGrenadesSwapSearch">
+    <EditorCategories value="Race:Zerg" />
+    <SearchFilters value="Visible;Self,Ally,Neutral,Enemy,Missile,Stasis,Hidden" />
+    <AreaArray Radius="500" Effect="NovaGadgetPulseGrenadesABSet" />
+    <ImpactLocation Value="SourceUnit" />
+  </CEffectEnumArea>
+  <CEffectSet id="NovaGadgetPulseGrenadesABSet">
+    <EffectArray value="NovaRemoveAllEquippedGadget" />
+    <EffectArray value="NovaGadgetPulseGrenadesAB" />
+  </CEffectSet>
+  <CEffectRemoveBehavior id="NovaGadgetFlashbangGrenadesRB">
+    <BehaviorLink value="NovaGadgetFlashbangGrenades" />
+  </CEffectRemoveBehavior>
+  <CEffectApplyBehavior id="NovaGadgetPulseGrenadesAB">
+    <Behavior value="NovaGadgetPulseGrenades" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="NovaGadgetSuperStimAB">
+    <Behavior value="NovaGadgetSuperStim" />
+  </CEffectApplyBehavior>
+  <CEffectRemoveBehavior id="NovaGadgetSuperStimRB">
+    <BehaviorLink value="NovaGadgetSuperStim" />
+  </CEffectRemoveBehavior>
+  <CEffectSet id="NovaGadgetSuperStimABSet">
+    <EffectArray value="NovaRemoveAllEquippedGadget" />
+    <EffectArray value="NovaGadgetSuperStimAB" />
+  </CEffectSet>
+  <CEffectRemoveBehavior id="NovaGadgetBoombotsRB">
+    <BehaviorLink value="NovaGadgetBoombots" />
+  </CEffectRemoveBehavior>
+  <CEffectApplyBehavior id="NovaGadgetBoombotsAB">
+    <Behavior value="NovaGadgetBoombots" />
+  </CEffectApplyBehavior>
+  <CEffectSet id="NovaGadgetBoombotsABSet">
+    <EffectArray value="NovaRemoveAllEquippedGadget" />
+    <EffectArray value="NovaGadgetBoombotsAB" />
+  </CEffectSet>
+  <CEffectLaunchMissile id="NovaUnitSmokeGrenadeLM">
+    <ValidatorArray index="0" value="HasVision" />
+    <EditorCategories value="Race:Terran" />
+    <ImpactLocation Value="TargetPoint" />
+    <ImpactEffect value="NovaUnitSmokeGrenadeCP" />
+    <AmmoUnit value="NovaUnitSmokeGrenadeMissile" />
+  </CEffectLaunchMissile>
+  <CEffectCreatePersistent id="NovaUnitSmokeGrenadeCP">
+    <PeriodCount value="30" />
+    <PeriodicEffectArray value="NovaUnitSmokeGrenadeSearch" />
+    <PeriodicPeriodArray value="0.5" />
+  </CEffectCreatePersistent>
+  <CEffectEnumArea id="NovaUnitSmokeGrenadeSearch">
+    <EditorCategories value="Race:Terran" />
+    <ImpactLocation Value="TargetPoint" />
+    <SearchFilters value="-;Neutral,Enemy,Structure,Missile,Dead,Hidden,Invulnerable" />
+    <AreaArray Radius="4" Effect="NovaUnitSmokeGrenadeAB" />
+  </CEffectEnumArea>
+  <CEffectApplyBehavior id="NovaUnitSmokeGrenadeAB">
+    <ValidatorArray index="0" value="NotFrenzied" />
+    <ValidatorArray value="TargetIsNotUnstoppable" />
+    <ValidatorArray value="NotStructureorIsStructureandNotDetector" />
+    <ValidatorArray value="IsNotHerculesCombined" />
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaUnitSmokeGrenade" />
+  </CEffectApplyBehavior>
+  <CEffectSet id="NovaUnitLockdownSet">
+    <EffectArray value="NovaUnitLockdownLM" />
+    <EffectArray value="NovaUnitLockdownDummyAB" />
+    <ValidatorArray value="noMarkers" />
+  </CEffectSet>
+  <CEffectLaunchMissile id="NovaUnitLockdownLM">
+    <EditorCategories value="Race:Terran" />
+    <ImpactEffect value="NovaUnitLockdownAB" />
+    <AmmoUnit value="NovaUnitLockdownMissile" />
+    <ValidatorArray value="noMarkers" />
+  </CEffectLaunchMissile>
+  <CEffectApplyBehavior id="NovaUnitLockdownAB">
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaUnitLockdown" />
+    <ValidatorArray value="HaveNovaUnitLockdown" />
+    <ValidatorArray value="IsMechanical" />
+    <ValidatorArray value="NotStructure" />
+    <ValidatorArray value="NoPreventKnockback" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="NovaUnitLockdownDummyAB">
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaUnitLockdownDummy" />
+  </CEffectApplyBehavior>
+  <CEffectEnumArea id="NovaCoopCasterDefensiveMatrixSearch">
+    <ImpactLocation Value="TargetPoint" />
+    <SearchFilters value="-;Neutral,Enemy,Structure,Missile,Item,Stasis,Dead,Hidden" />
+    <AreaArray Radius="1.5" Effect="NovaCoopCasterDefensiveMatrixApplyBehavior" />
+    <MinCount value="1" />
+  </CEffectEnumArea>
+  <CEffectRemoveBehavior id="NovaDefensiveMatrixRemoveDummyBehavior">
+    <EditorCategories value="Race:Terran" />
+    <BehaviorLink value="NovaDefensiveMatrixDummy" />
+  </CEffectRemoveBehavior>
+  <CEffectApplyBehavior id="NovaDefensiveMatrixApplyDummyBehavior">
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaDefensiveMatrixDummy" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="NovaCoopCasterDefensiveMatrixApplyBehavior">
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaCoopCasterDefensiveMatrix" />
+    <ValidatorArray value="UnitIsBiologicalOrMechanical" />
+    <ValidatorArray value="TargetIsNotNonCommanderAlly" />
+    <ValidatorArray value="NotUnrepairable" />
+  </CEffectApplyBehavior>
+  <CEffectEnumArea id="NovaCoopCasterAdvancedOpticsSearch">
+    <SearchFilters value="-;Neutral,Enemy,Structure,Missile,Item,Stasis,Dead,Hidden" />
+    <AreaArray Radius="4" Effect="NovaCoopCasterAdvancedOpticsApplyBehavior" />
+  </CEffectEnumArea>
+  <CEffectApplyBehavior id="NovaCoopCasterAdvancedOpticsApplyBehavior">
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaCoopCasterAdvancedOptics" />
+  </CEffectApplyBehavior>
+  <CEffectCreatePersistent id="NovaUnitSmokeGrenadeGrantChargeCP">
+    <WhichLocation Value="CasterUnit" />
+    <Flags index="Channeled" value="1" />
+    <PeriodCount value="1" />
+    <PeriodicEffectArray value="NovaUnitSmokeGrenadeGrantCharge" />
+    <PeriodicPeriodArray value="30" />
+  </CEffectCreatePersistent>
+  <CEffectModifyPlayer id="NovaUnitSmokeGrenadeGrantCharge">
+    <WhichPlayer Value="Caster" />
+    <Cost Abil="NovaUnitSmokeGrenade">
+      <Charge>
+        <CountMax value="5" />
+        <CountUse value="-1" />
+        <Link value="Abil/NovaUnitSmokeGrenade" />
+        <Location value="Player" />
+        <Flags index="EnableChargeTimeQueuing" value="1" />
+      </Charge>
+    </Cost>
+  </CEffectModifyPlayer>
+  <CEffectModifyPlayer id="NovaUnitDefensiveMatrixGrantCharge">
+    <WhichPlayer Value="Caster" />
+    <Cost Abil="NovaCoopCasterDefensiveMatrix">
+      <Charge>
+        <CountMax value="5" />
+        <CountUse value="-1" />
+        <Link value="Abil/NovaUnitDefensiveMatrix" />
+        <Location value="Player" />
+        <Flags index="EnableChargeTimeQueuing" value="1" />
+      </Charge>
+    </Cost>
+  </CEffectModifyPlayer>
+  <CEffectModifyPlayer id="NovaUnitLockdownGrantCharge">
+    <WhichPlayer Value="Caster" />
+    <Cost Abil="NovaUnitLockdown">
+      <Charge>
+        <CountMax value="5" />
+        <CountUse value="-1" />
+        <Link value="Abil/NovaUnitLockdown" />
+        <Location value="Player" />
+        <Flags index="EnableChargeTimeQueuing" value="1" />
+      </Charge>
+    </Cost>
+  </CEffectModifyPlayer>
+  <CEffectModifyPlayer id="NovaUnitFlashBangGrantCharge">
+    <WhichPlayer Value="Caster" />
+    <Cost Abil="NovaGadgetFlashBangGrenadesCharge">
+      <Charge>
+        <CountMax value="5" />
+        <CountUse value="-1" />
+        <Link value="Abil/NovaUnitFlashbang" />
+        <Location value="Player" />
+      </Charge>
+    </Cost>
+  </CEffectModifyPlayer>
+  <CEffectModifyPlayer id="NovaGadgetBoombotsCharge">
+    <WhichPlayer Value="Caster" />
+    <Cost Abil="NovaGadgetBoombotsCharge">
+      <Charge>
+        <CountMax value="65535" />
+        <CountUse value="-1" />
+        <Link value="NovaGadgetBoombots" />
+        <Location value="Player" />
+      </Charge>
+    </Cost>
+  </CEffectModifyPlayer>
+  <CEffectDamage id="NovaWeaponCanisterRifle" parent="DU_WEAP">
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Ranged" />
+    <Amount value="10" />
+  </CEffectDamage>
+  <CEffectSwitch id="NovaWeaponImprovedCanisterRifleCloakedSwitch">
+    <EditorCategories value="Race:Terran" />
+    <CaseArray Validator="CasterIsCloaked" Effect="NovaWeaponImprovedCanisterRifleCloaked" />
+    <CaseDefault value="NovaWeaponImprovedCanisterRifleUncloaked" />
+  </CEffectSwitch>
+  <CEffectDamage id="NovaWeaponImprovedCanisterRifleCloaked" parent="DU_WEAP">
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Ranged" />
+    <Amount value="30" />
+  </CEffectDamage>
+  <CEffectDamage id="NovaWeaponImprovedCanisterRifleUncloaked" parent="DU_WEAP">
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Ranged" />
+    <Amount value="50" />
+  </CEffectDamage>
+  <CEffectCreatePersistent id="NovaPenetratorRoundInitialCP">
+    <EditorCategories value="Race:Protoss" />
+    <WhichLocation Value="SourcePoint" />
+    <InitialEffect value="NovaPenetratorRoundLM" />
+    <InitialOffset value="0,-13,0" />
+    <PeriodCount value="1" />
+  </CEffectCreatePersistent>
+  <CEffectLaunchMissile id="NovaPenetratorRoundLM">
+    <EditorCategories value="" />
+    <ImpactLocation Value="TargetPoint" />
+    <LaunchEffect value="NovaPenetratorRoundDelayCP" />
+    <AmmoUnit value="NovaPenetratorRoundMissile" />
+  </CEffectLaunchMissile>
+  <CEffectCreatePersistent id="NovaPenetratorRoundDelayCP">
+    <EditorCategories value="Race:Protoss" />
+    <InitialDelay value="0.125" />
+    <InitialEffect value="NovaPenetratorRoundAB" />
+  </CEffectCreatePersistent>
+  <CEffectApplyBehavior id="NovaPenetratorRoundAB">
+    <Behavior value="NovaPenetratorRound" />
+    <WhichUnit Value="Source" />
+  </CEffectApplyBehavior>
+  <CEffectEnumArea id="NovaPenetratorRoundSearch">
+    <EditorCategories value="Race:Terran" />
+    <SearchFilters value="Ground,Visible;Self,Player,Ally,Missile,Invulnerable" />
+    <AreaArray Radius="1" Effect="NovaPenetratorRoundDamage" />
+  </CEffectEnumArea>
+  <CEffectDamage id="NovaPenetratorRoundDamage">
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Ranged" />
+    <Amount value="300" />
+    <Death value="Silentkill" />
+    <ValidatorArray value="noMarkers" />
+    <ResponseFlags index="Acquire" value="1" />
+    <ResponseFlags index="Flee" value="1" />
+    <Flags index="Notification" value="1" />
+  </CEffectDamage>
+  <CEffectDamage id="NovaSnipeDamage">
+    <EditorCategories value="Race:Protoss" />
+    <Amount value="500" />
+  </CEffectDamage>
+  <CEffectSet id="NovaSnipeTargetingDummy">
+    <EditorCategories value="Race:Protoss" />
+    <TargetLocationType value="Point" />
+  </CEffectSet>
+  <CEffectDamage id="NovaWeaponPsiRifle" parent="DU_WEAP">
+    <EditorCategories value="Race:Terran" />
+    <AttributeBonus index="Biological" value="25" />
+    <Kind value="Ranged" />
+    <Amount value="15" />
+  </CEffectDamage>
+  <CEffectDamage id="NovaWeaponHellfireShotgun" parent="DU_WEAP">
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Ranged" />
+    <KindSplash value="Splash" />
+    <Amount value="20" />
+    <AttributeBonus index="Light" value="20" />
+    <Death value="Blast" />
+    <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+    <AreaArray Radius="1.5" Fraction="1" />
+    <ExcludeArray Value="Target" />
+    <SearchFlags index="OffsetByUnitRadius" value="0" />
+  </CEffectDamage>
+  <CEffectDamage id="NovaWeaponInvictusLongshot" parent="DU_WEAP">
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Ranged" />
+    <Amount value="25" />
+  </CEffectDamage>
+  <CEffectEnumArea id="NovaWeaponPsiBladeSearch">
+    <AreaArray Arc="119.9926" Radius="2" Effect="NovaWeaponPsiBladeSecondaryDamage" />
+    <ExcludeArray Value="Target" />
+  </CEffectEnumArea>
+  <CEffectDamage id="NovaWeaponPsiBladeDamage" parent="DU_WEAP">
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Ranged" />
+    <KindSplash value="Splash" />
+    <Amount value="100" />
+    <Death value="Eviscerate" />
+  </CEffectDamage>
+  <CEffectDamage id="NovaWeaponPsiBladeSecondaryDamage" parent="DU_WEAP">
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Ranged" />
+    <KindSplash value="Splash" />
+    <Amount value="45" />
+    <Death value="Eviscerate" />
+  </CEffectDamage>
+  <CEffectSet id="NovaWeaponImprovedCanisterRifleSnipeSet">
+    <EffectArray value="NovaWeaponImprovedCanisterRifleSnipeRefundAB" />
+    <EffectArray value="NovaWeaponImprovedCanisterRifleSnipe" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="NovaWeaponImprovedCanisterRifleSnipeRefundAB">
+    <Behavior value="NovaWeaponImprovedCanisterRifleSnipeRefund" />
+    <ValidatorArray index="0" value="HaveNovaSnipeRefund" />
+  </CEffectApplyBehavior>
+  <CEffectCreatePersistent id="NovaWeaponImprovedCanisterRifleSnipeRefundCP">
+    <FinalEffect value="NovaWeaponImprovedCanisterRifleSnipeRefund" />
+    <PeriodCount value="1" />
+    <PeriodicPeriodArray value="0.0625" />
+  </CEffectCreatePersistent>
+  <CEffectModifyUnit id="NovaWeaponImprovedCanisterRifleSnipeRefund">
+    <VitalArray index="Energy">
+      <Change value="25" />
+    </VitalArray>
+    <ImpactUnit Value="Caster" />
+  </CEffectModifyUnit>
+  <CEffectDamage id="NovaWeaponImprovedCanisterRifleSnipe" parent="DU_WEAP">
+    <ImpactLocation Value="TargetUnit" />
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Spell" />
+    <Amount value="200" />
+    <Death value="Silentkill" />
+    <ArmorReduction value="0" />
+  </CEffectDamage>
+  <CEffectCreatePersistent id="NovaWeaponHellfireShotgunBlast">
+    <PeriodicEffectArray value="NovaWeaponHellfireShotgunBlastSearch" />
+    <PeriodicOffsetArray value="0,-2.5,0" />
+    <PeriodicPeriodArray value="0" />
+  </CEffectCreatePersistent>
+  <CEffectDamage id="NovaWeaponHellfireShotgunBlastDamage" parent="DU_WEAP">
+    <EditorCategories value="Race:Terran" />
+    <Kind value="Ranged" />
+    <KindSplash value="Splash" />
+    <Amount value="50" />
+    <Death value="Blast" />
+    <AttributeBonus index="Light" value="50" />
+    <ArmorReduction value="0" />
+  </CEffectDamage>
+  <CEffectDamage id="NovaGadgetPulseGrenadesDamage">
+    <AreaArray Radius="2.5" Fraction="1" />
+    <SearchFilters value="Ground;Self,Player,Ally,Missile,Stasis,Dead,Invulnerable" />
+  </CEffectDamage>
+  <CEffectEnumArea id="NovaGadgetFlashBangGrenadeSearch">
+    <SearchFilters value="Biological;Self,Player,Ally,Neutral,Structure,Missile,Dead,Hidden,Invulnerable" />
+    <AreaArray Radius="4" Effect="NovaGadgetFlashBangGrenadeApplyBehavior" />
+  </CEffectEnumArea>
+  <CEffectCreatePersistent id="NovaCoopCasterDisableDetectorCP">
+    <EditorCategories value="Race:Protoss" />
+    <InitialEffect value="NovaCoopCasterDisableDetectorSearch" />
+    <PeriodCount value="120" />
+    <PeriodicEffectArray value="NovaCoopCasterDisableDetectorSearch" />
+    <PeriodicPeriodArray value="0.25" />
+  </CEffectCreatePersistent>
+  <CEffectEnumArea id="NovaCoopCasterDisableDetectorSearch">
+    <EditorCategories value="Race:Terran" />
+    <ImpactLocation Value="TargetPoint" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Dead,Invulnerable,Unstoppable" />
+    <AreaArray Radius="8" Effect="NovaCoopCasterDisableDetectorAB" />
+  </CEffectEnumArea>
+  <CEffectApplyBehavior id="NovaCoopCasterDisableDetectorAB">
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaCoopCasterDisableDetectors" />
+  </CEffectApplyBehavior>
+  <CEffectLaunchMissile id="NovaCoopCasterStunGrenadeLaunchMissile">
+    <ValidatorArray index="0" value="HasVision" />
+    <EditorCategories value="Race:Terran" />
+    <ImpactLocation Value="TargetPoint" />
+    <ImpactEffect value="NovaCoopCasterStunGrenadeSearch" />
+    <AmmoUnit value="NovaCoopCasterStunGrenadeWeapon" />
+  </CEffectLaunchMissile>
+  <CEffectEnumArea id="NovaCoopCasterStunGrenadeSearch">
+    <EditorCategories value="Race:Terran" />
+    <ImpactLocation Value="CasterUnit" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,Structure,Missile,Dead,Hidden,Invulnerable,Unstoppable" />
+    <AreaArray Radius="3" Effect="NovaCoopCasterStunGrenadeSet" />
+    <MinCount value="1" />
+    <SearchFlags index="OffsetByUnitRadius" value="1" />
+  </CEffectEnumArea>
+  <CEffectSet id="NovaCoopCasterStunGrenadeSet">
+    <EditorCategories value="Race:Terran" />
+    <EffectArray value="NovaCoopCasterStunGrenadeApplyBehavior" />
+    <EffectArray value="NovaCoopCasterStunGrenadeSlowAB" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="NovaCoopCasterStunGrenadeApplyBehavior">
+    <ValidatorArray index="0" value="NotFrenzied" />
+    <ValidatorArray value="TargetIsNotUnstoppable" />
+    <ValidatorArray value="NotStructureorIsStructureandNotDetector" />
+    <ValidatorArray value="IsNotHerculesCombined" />
+    <ValidatorArray value="NotHeroic" />
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaCoopCasterStunGrenade" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="NovaCoopCasterStunGrenadeSlowAB">
+    <ValidatorArray index="0" value="TargetNotStunned" />
+    <EditorCategories value="Race:Terran" />
+    <Behavior value="NovaCoopCasterStunGrenadeSlow" />
+  </CEffectApplyBehavior>
+  <CEffectSet id="NovaBlinkSet">
+    <EditorCategories value="" />
+    <EffectArray value="NovaBlinkAbsorbAB" />
+    <EffectArray value="NovaArmorBlinkSuitBlink" />
+    <TargetLocationType value="Point" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="NovaBlinkAbsorbAB">
+    <WhichUnit Value="Caster" />
+    <Behavior value="NovaBlinkAbsorb" />
+  </CEffectApplyBehavior>
+  <CEffectTeleport id="NovaReviveBeaconTeleport">
+    <EditorCategories value="Race:Terran" />
+    <WhichUnit Value="Caster" />
+    <ClearQueuedOrders value="0" />
+    <TargetLocation Value="TargetPoint" />
+    <PlacementRange value="2" />
+    <TeleportFlags index="TestCliff" value="1" />
+  </CEffectTeleport>
+  <CEffectCreatePersistent id="NovaReviveInstantBuybackDummy">
+    <OffsetVectorStartLocation Value="TargetPoint" />
+    <InitialEffect value="NovaGriffinGCD" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="NovaCoopCasterNukePersistent">
+    <EditorCategories value="Race:Terran" />
+    <ExpireDelay value="4.75" />
+    <InitialEffect value="NovaCoopCasterNukeLaunchSearch" />
+    <ExpireEffect value="NovaCoopCasterNukeDetonate" />
+    <Flags index="Channeled" value="1" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="NovaCoopCasterNukeDetonate">
+    <EditorCategories value="Race:Terran" />
+    <InitialDelay value="1.25" />
+    <InitialEffect value="NovaCoopCasterNukeDamage" />
+    <ExpireDelay value="8.25" />
+    <RevealRadius value="8" />
+    <RevealFlags index="Unfog" value="1" />
+  </CEffectCreatePersistent>
+  <CEffectDamage id="NovaCoopCasterNukeDamage">
+    <EditorCategories value="Race:Terran" />
+    <Amount value="600" />
+    <SearchFilters value="-;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable" />
+    <AreaArray Radius="8" Fraction="1" />
+    <AINotifyFlags index="HurtFriend" value="1" />
+    <AINotifyFlags index="HurtEnemy" value="1" />
+    <SearchFlags index="CallForHelp" value="1" />
+    <SearchFlags index="SameCliff" value="0" />
+    <ResponseFlags index="Acquire" value="1" />
+    <ResponseFlags index="Flee" value="1" />
+    <LaunchLocation Value="TargetPoint" />
+  </CEffectDamage>
+  <CEffectEnumArea id="NovaCoopCasterNukeLaunchSearch">
+    <EditorCategories value="Race:Protoss" />
+    <SearchFilters value="-;Self,Neutral,Missile" />
+    <AreaArray Radius="500" Effect="NovaCoopCasterNukeLaunchDummy" />
+    <MaxCount value="1" />
+  </CEffectEnumArea>
+  <CEffectModifyUnit id="NovaCoopCasterNukeLaunchDummy">
+    <EditorCategories value="Race:Terran" />
+    <ValidatorArray value="IsGhostAcademyNova" />
+    <ValidatorArray value="TargetIsNotNonCommanderAlly" />
+  </CEffectModifyUnit>
+  <CEffectSet id="NovaOdinAASet">
+    <EffectArray value="OdinAADamage" />
+    <EffectArray value="NovaOdinAADisableAB" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="NovaOdinAADisableAB">
+    <ValidatorArray index="0" value="NoGroundEnemiesNearby" />
+    <WhichUnit Value="Caster" />
+    <Behavior value="NovaOdinAADisable" />
+  </CEffectApplyBehavior>
+  <CEffectModifyPlayer id="NovaConcussiveShells" parent="Upgrade" />
+</Catalog>

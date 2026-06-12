@@ -1,0 +1,1288 @@
+<Catalog>
+  <CActorModel id="NovaACLaserTurretBuild" parent="TerranBuildingBuildSmall" />
+  <CActorSound id="NovaAC_Griffin_Load_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Load" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Transport_FlyIn_LFE_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Transport_FlyIn_LFE" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Transport_FlyIn_Low_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Transport_FlyIn_Low" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Transport_FlyOut_Low_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Transport_FlyOut_Low" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Unload_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Unload" />
+  </CActorSound>
+  <CActorUnit id="NovaEradicator">
+    <On Terms="Effect.EradicatorLockOnCP.Start; At Caster" Send="Create EradicatorLockOnTrackingBeam" />
+    <On Terms="Effect.EradicatorLockOnAirCP.Start; At Caster" Send="Create EradicatorLockOnTrackingBeam" />
+    <CantSelectUncontrollableTooltip value="" />
+  </CActorUnit>
+  <CActorAction id="NovaEradicatorMissileAttack">
+    <ImpactModel value="NovaEradicatorMissileAttackImpact" />
+    <ImpactSound value="NovaEradicatorMissileAttackImpactSound" />
+  </CActorAction>
+  <CActorModel id="NovaEradicatorMissileAttackImpact" parent="GenericAttackImpactModel">
+    <Inherits index="Visibility" value="0" />
+    <FogVisibility value="Hidden" />
+  </CActorModel>
+  <CActorSound id="NovaEradicatorMissileAttackImpactSound" parent="GenericAttackImpactSound">
+    <Inherits index="Visibility" value="0" />
+    <FogVisibility value="Hidden" />
+  </CActorSound>
+  <CActorMissile id="NovaEradicatorMissileAttackMissile">
+    <Inherits index="Visibility" value="1" />
+  </CActorMissile>
+  <CActorModel id="NovaEradicatorMissileAttackTargetingUI">
+    <FogVisibility value="Hidden" />
+  </CActorModel>
+  <CActorAction id="NovaEradicatorRailgunAttack">
+    <Inherits index="Visibility" value="1" />
+  </CActorAction>
+  <CActorModel id="NovaEradicatorRailgunBeamLeft">
+    <FogVisibility value="Hidden" />
+  </CActorModel>
+  <CActorModel id="NovaEradicatorRailgunBeamRight">
+    <FogVisibility value="Hidden" />
+  </CActorModel>
+  <CActorQuad id="NovaEradicatorRailgunPreview">
+    <FogVisibility value="Visible" />
+  </CActorQuad>
+  <CActorModel id="NovaGriffinBombingRunBomb">
+    <Flags index="SuppressSaveLoad" value="1" />
+    <HostSiteOps Ops="SOpTargetPointStationary SOpShadow" />
+  </CActorModel>
+  <CActorMissile id="NovaGriffinBombingRunDummyMissile" unitName="NovaGriffinBombingRunDummyLMWeapon">
+    <Model value="Invisible" />
+    <Aliases value="_Unit" />
+    <Aliases value="_Missile" />
+    <PreHost value="_ActorAction" />
+    <On Terms="UnitBirth.NovaGriffinBombingRunDummyLMWeapon" Send="Create" />
+    <On Terms="UnitDeath" Send="Destroy" />
+    <On Terms="ActorOrphan" Send="Destroy" />
+    <On Terms="ActorCreation" Send="Create NovaGriffinBombingRunDummyMissileAttachment" />
+  </CActorMissile>
+  <CActorModel id="NovaGriffinBombingRunDummyMissileAttachment">
+    <Model value="NovaGriffinBombingRunBomb" />
+    <Host Subject="_Unit" />
+    <On Terms="ActorCreation" Send="$Birth" />
+    <On Terms="ActorCreation" Send="TimerSet 0.100000 DelayRotation" />
+    <On Terms="AnimDone; AnimName Birth" Send="HostSiteOpsSet ::Host {SOpAttachCenter SOp2DRotation NovaGriffinBombingRunBombRandomRotation}" />
+    <On Terms="AnimDone; AnimName Birth" Send="AnimPlay ParachuteDeploy Stand,Work,Start" />
+    <On Terms="AnimDone; AnimName ParachuteDeploy" Send="AnimPlay Parachute Stand,Work 0 -1.000000 -1.000000 1.800000 AsDuration" />
+    <On Terms="AnimDone; AnimName Parachute" Send="AnimPlay ParachuteEnd Stand,Work,End" />
+    <On Terms="AnimDone; AnimName Parachute" Send="Create NovaGriffinBombingRunStraferAttackImpact" />
+    <On Terms="ActorOrphan" Send="Destroy" />
+    <HostSiteOps Ops="SOpAttachCenter SOp2DRotation SOpForwardGriffin SOpForwardGriffinRotation" HoldRotation="1" />
+  </CActorModel>
+  <CActorModel id="NovaUnitLockDownReaction" parent="GenericAttackImpactModelReaction">
+    <Terms value="ValidateUnit NovaUnitLockDownTarget" />
+  </CActorModel>
+  <CActorSound id="Nova_ShotgunAuto_TailsSound">
+    <Layers index="0" VolumeSource="Actor">
+      <Volume index="0" value="-13.000000,-13.000000" />
+    </Layers>
+    <Layers index="1" VolumeSource="Actor">
+      <Volume index="0" value="-13.000000,-13.000000" />
+    </Layers>
+  </CActorSound>
+  <CActorModel id="Nova_Upgrade_SnipeRefund" parent="ModelAnimationStyleOneShot">
+    <On Terms="Effect.NovaWeaponImprovedCanisterRifleSnipeRefund.Start; At Caster" Send="Create" />
+    <HostSiteOps Ops="SOpAttachCenter" />
+  </CActorModel>
+  <CActorMissile id="NovaGriffinBombingRunDummyMissileAlt" unitName="NovaGriffinBombingRunDummyAltLMWeapon">
+    <Model value="Invisible" />
+    <Aliases value="_Unit" />
+    <Aliases value="_Missile" />
+    <PreHost value="_ActorAction" />
+    <On Terms="UnitBirth.NovaGriffinBombingRunDummyAltLMWeapon" Send="Create" />
+    <On Terms="UnitDeath" Send="Destroy" />
+    <On Terms="ActorOrphan" Send="Destroy" />
+    <On Terms="ActorCreation" Send="Create NovaGriffinBombingRunDummyMissileAttachmentAlt" />
+  </CActorMissile>
+  <CActorModel id="NovaGriffinBombingRunDummyMissileAttachmentAlt">
+    <Model value="NovaGriffinBombingRunBomb" />
+    <Host Subject="_Unit" />
+    <On Terms="ActorCreation" Send="$Birth" />
+    <On Terms="ActorCreation" Send="TimerSet 0.200000 DelayRotation" />
+    <On Terms="AnimDone; AnimName Birth" Send="HostSiteOpsSet ::Host {SOpAttachCenter SOp2DRotation NovaGriffinBombingRunBombRandomRotation}" />
+    <On Terms="AnimDone; AnimName Birth" Send="AnimPlay ParachuteDeploy Stand,Work,Start" />
+    <On Terms="AnimDone; AnimName ParachuteDeploy" Send="AnimPlay Parachute Stand,Work 0 -1.000000 -1.000000 1.700000 AsDuration" />
+    <On Terms="AnimDone; AnimName Parachute" Send="AnimPlay ParachuteEnd Stand,Work,End" />
+    <On Terms="AnimDone; AnimName Parachute" Send="Create NovaGriffinBombingRunStraferAttackImpact" />
+    <On Terms="ActorOrphan" Send="Destroy" />
+    <HostSiteOps Ops="SOpAttachCenter SOp2DRotation SOpForwardGriffin SOpForwardGriffinRotationAlt" HoldRotation="1" />
+  </CActorModel>
+  <CActorAction id="NovaGriffinBombingRunDummyMissileAttack" parent="GenericAttack" effectImpact="NovaGriffinBombingRunDummyLocationSearch" effectLaunch="NovaGriffinBombingRunDummyLMRightSide">
+    <Missile value="NovaGriffinBombingRunDummyMissile" />
+    <LaunchAttachQuery Methods="AMFilterWeaponSetA AMRandomUniform" />
+    <LaunchAssets Model="NovaGriffinBombingRunStraferAttackLaunch" />
+    <ImpactPointSiteOps Ops="SOpTargetPointStationary SOpShadow" />
+  </CActorAction>
+  <CActorAction id="NovaGriffinBombingRunDummyMissileAttackLeftSide" parent="GenericAttack" effectImpact="NovaGriffinBombingRunDummyLocationSearch" effectLaunch="NovaGriffinBombingRunDummyLMLeftSide">
+    <Missile value="NovaGriffinBombingRunDummyMissileAlt" />
+    <LaunchAttachQuery Methods="AMFilterWeaponSetB AMRandomUniform" />
+    <LaunchAssets Model="NovaGriffinBombingRunStraferAttackLaunch" />
+    <ImpactPointSiteOps Ops="SOpTargetPointStationary SOpShadow" />
+  </CActorAction>
+  <CActorSiteOpRotationRandom id="NovaGriffinBombingRunBombRandomRotation">
+    <YawHalfAngle value="180.000000" />
+  </CActorSiteOpRotationRandom>
+  <CActorModel id="NovaGriffinBombingRunBombExplosion" parent="ModelAnimationStyleOneShot">
+    <Model value="ACPirateCapitalShipBombingRunExplosion" />
+    <HostSiteOps Ops="SOpAttachCenter SOpShadow SOpRandomPointInSphereDot5" />
+  </CActorModel>
+  <CActorSplat id="NovaGriffinTransportUnloadUnitTargetingSplat" parent="ProtossCursorSplat" abil="NovaGriffinTransportUnloadUnits">
+    <EditorCategories value="" />
+    <Model value="TerranAOECursorSplat" />
+  </CActorSplat>
+  <CActorAction id="NovaDefensiveMatrixAttack" parent="GenericAttack" effectAttack="DefensiveMatrixTargetDroneMU">
+    <BeamScope value="Caster" />
+    <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance VoidRaySOpForwardLaunch" />
+    <LaunchAttachQuery Methods="" Fallback="Origin" />
+  </CActorAction>
+  <CActorBeamSimple id="NovaDefensiveMatrixAttackBeam" parent="BeamSimpleAnimationStyleOneShot">
+    <On Terms="AnimBracketStart" Send="AnimSetTimeScale BSD 3.000000" />
+    <On Terms="ActorCreation" Send="Create Nova_DefensiveMatrix_AttackBeam_AS" />
+  </CActorBeamSimple>
+  <CActorSound id="Nova_DefensiveMatrix_AttackBeam_AS" parent="SoundOneShot">
+    <Sound value="Nova_DefensiveMatrix_AttackBeam" />
+  </CActorSound>
+  <CActorRange id="NovaDefensiveMatrixDroneRange" abil="DefensiveMatrixTargetDrone">
+    <On Terms="UnitBirth.NovaDefensiveMatrixDrone" Send="Create" />
+    <Abil Link="DefensiveMatrixTargetDrone" />
+  </CActorRange>
+  <CActorSound id="Nova_DefensiveMatrix_Loop_AS" parent="SoundContinuous">
+    <Sound value="Nova_DefensiveMatrix_Loop" />
+    <On Terms="Behavior.NovaCoopCasterDefensiveMatrix.On" Send="Create" />
+    <On Terms="Behavior.NovaCoopCasterDefensiveMatrix.Off" Send="Destroy" />
+  </CActorSound>
+  <CActorModel id="NovaStunDronePlaceholderModel" parent="PointDefenseDronePlacementModel">
+    <On Terms="ActorCreation" Send="Create NovaStunDroneRange" />
+    <On Terms="Abil.NovaStunDrone.Guide" Send="Create" />
+    <Model value="NovaStunDronePlacement" />
+  </CActorModel>
+  <CActorModel id="NovaDefensiveMatrixDronePlaceholderModel" parent="PointDefenseDronePlacementModel">
+    <On Terms="ActorCreation" Send="Create NovaDefensiveMatrixDroneRange" />
+    <On Terms="Abil.NovaDefensiveMatrixDrone.Guide" Send="Create" />
+    <Model value="Defensive_Matrix_Drone_Placement" />
+  </CActorModel>
+  <CActorModel id="NovaBoombotPlaceholderModel" parent="PointDefenseDronePlacementModel">
+    <On Terms="ActorCreation" Send="Create NovaBoombotBoomRange" />
+    <On Terms="ActorCreation" Send="AnimBracketStart Burrow Burrow {} {} OpeningPlayForever,Instant" />
+  </CActorModel>
+  <CActorRange id="NovaStunDroneRange">
+    <On Terms="UnitBirth.NovaStunDrone" Send="Create" />
+    <Range value="3.000000" />
+  </CActorRange>
+  <CActorUnit id="NovaDefensiveMatrixDrone" parent="GenericUnitBase" unitName="NovaDefensiveMatrixDrone">
+    <On Terms="Abil.DefensiveMatrixTargetDrone.SourceCastStart; !AnimPlaying Birth" Send="AnimPlay Spell Attack 0 -1.000000 -1.000000 0.250000 AsDuration" />
+    <On Terms="AnimPlay; AnimPlaying Birth" Send="Create NovaDefensiveMatrixDronePlaceholderModel" />
+    <On Terms="AnimDone; AnimPlaying Birth" Target="NovaDefensiveMatrixDronePlaceholderModel" Send="Destroy" />
+    <DeathArray index="Normal" ModelLink="Defensive_Matrix_Drone_Death" SoundLink="DefensiveMatrix_Death_Launch" />
+    <DeathArray index="Timeout" AnimProps="Death" ModelLink="Defensive_Matrix_Drone" />
+    <PlacementModel value="Defensive_Matrix_Drone_Placement" />
+    <PlacementSound value="Terran_BuildingPlacement" />
+    <PlacementActorModel value="NovaDefensiveMatrixDronePlaceholderModel" />
+    <PlaceholderActorModel value="NovaDefensiveMatrixDronePlaceholderModel" />
+    <PortraitModel value="AdjutantPortrait" />
+    <BarOffset value="20" />
+    <BarWidth value="36" />
+    <GroupIcon>
+      <Image value="Assets\Textures\Wireframe-Terran-PointDefenseDrone.dds" />
+    </GroupIcon>
+    <HeroIcon value="Assets\Textures\btn-upgrade-terran-nova-defensivedrone.dds" />
+    <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds" />
+    <SoundArray index="What" value="Defensive_MatrixDrone_What" />
+    <UnitIcon value="Assets\Textures\btn-upgrade-terran-nova-defensivedrone.dds" />
+    <Wireframe>
+      <Image value="Assets\Textures\Wireframe-Terran-PointDefenseDrone.dds" />
+    </Wireframe>
+    <Model value="Defensive_Matrix_Drone" />
+    <BuildModel value="Defensive_Matrix_Drone" />
+    <ModelFlags index="OutlineEmitter" value="1" />
+  </CActorUnit>
+  <CActorRange id="NovaACLaserTurretAttackRange" parent="RangeWeapon" weapon="LaserTurret">
+    <Flags index="SuppressSaveLoad" value="1" />
+    <Abil Link="BuildAutoTurret_BlackOps" />
+    <Icon value="Assets\Textures\RadarIcon2.dds" />
+    <IconArcLength value="3.250000" />
+  </CActorRange>
+  <CActorModel id="NovaACLaserTurretPlacementModel" parent="PlacementModel">
+    <On Terms="ActorCreation; ModelName LaserTurretPlacementNova" Send="Create NovaACLaserTurretAttackRange" />
+    <On Terms="ActorCreation; ModelName LaserTurretNova; ModelIsLowQuality" Send="Create NovaACLaserTurretAttackRange" />
+    <On Terms="ActorDestruction" Target="NovaACLaserTurretAttackRange" Send="Destroy" />
+  </CActorModel>
+  <CActorUnit id="NovaACLaserTurret" parent="TerranBuilding" unitName="NovaACLaserTurret">
+    <Aliases value="_CreepEngulfable" />
+    <Aliases value="_UnitMedium" />
+    <On Terms="Behavior.Precursor.Off" Send="Create AutoTurretReleaseMissileImpact" />
+    <On Terms="Behavior.Precursor.Off" Send="AnimPlay BirthSummon Birth" />
+    <On Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth" />
+    <On Terms="WeaponStart.*.AttackStart; AnimPlaying BirthSummon" Send="AnimClear BirthSummon" />
+    <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready" />
+    <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart RealAttack Spell,D" />
+    <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop RealAttack" />
+    <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready" />
+    <On Terms="UnitBirth" Send="AnimClear Birth 0.000000" />
+    <Remove Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack" />
+    <Remove Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack" />
+    <Model value="LaserTurretNova" />
+    <ModelFlags index="OutlineEmitter" value="1" />
+    <CreepHeightClass value="Small" />
+    <BuildModel value="LaserTurretNova" />
+    <DeathArray index="Normal" ModelLink="LaserTurretDeath" SoundLink="NovaAC_LaserTurretExplode" />
+    <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="NovaAC_LaserTurretExplode" />
+    <PlacementModel value="LaserTurretPlacementNova" />
+    <PlacementSound value="Terran_BuildingPlacement" />
+    <PortraitModel value="AdjutantPortrait" />
+    <BarOffset value="50" />
+    <ErrorArray Error="CantBuildLocationInvalid" Sound="Raven_Pissed" />
+    <GroupIcon>
+      <Image value="Assets\Textures\wireframe-terran-nova-autoturret.dds" />
+    </GroupIcon>
+    <HeroIcon value="Assets\Textures\btn-unit-terran-autoturretblackops.dds" />
+    <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds" />
+    <SoundArray index="Birth" value="LaserTurretBirht" />
+    <SoundArray index="Ready" value="NovaAC_LaserTurret_Ready" />
+    <SoundArray index="What" value="NovaAC_LaserTurret_What" />
+    <UnitFlags index="ShowBlobShadow" value="0" />
+    <UnitIcon value="Assets\Textures\btn-unit-terran-autoturretblackops.dds" />
+    <Wireframe>
+      <Image value="Assets\Textures\wireframe-terran-nova-autoturret.dds" />
+    </Wireframe>
+    <PlacementActorModel value="NovaACLaserTurretPlacementModel" />
+  </CActorUnit>
+  <CActorBeamSimple id="NovaACLaserTurretAttackBeam">
+    <Flags index="SuppressSaveLoad" value="1" />
+    <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth {} Death ContentPlayOnce" />
+    <On Terms="ActorOrphan" Send="AnimBracketStop BSD" />
+    <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy" />
+  </CActorBeamSimple>
+  <CActorModel id="NovaBoombotExpoldeModel" parent="ModelAnimationStyleOneShotNoOrphan">
+    <On Terms="Effect.NovaBoombotBoomDamage.Start" Send="Create" />
+    <Model value="NovaBoombotAttack" />
+  </CActorModel>
+  <CActorSound id="NovaCoopDecoyBirth_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Holographic_Assault_Decoy_Birth" />
+    <Layers>
+      <Sound value="NovaCoopDecoy_Ready" />
+      <PitchSource value="Sound" />
+      <PlayDelaySource value="Actor" />
+      <VolumeSource value="Sound" />
+      <Chance value="100" />
+      <Pitch value="0.000000,0.000000" />
+      <PlayDelay value="250,250" />
+      <Volume value="0.000000,0.000000" />
+    </Layers>
+  </CActorSound>
+  <CActorSound id="NovaCoopDecoyDeath_ActorSound" parent="SoundOneShot">
+    <Sound value="Nova_Holographic_Decoy_Death" />
+    <On Terms="Behavior.NovaCoopDecoyTimedLife.Off" Send="Create" />
+  </CActorSound>
+  <CActorSound id="NovaCoopDecoyDeath2_ActorSound" parent="SoundOneShot">
+    <Sound value="Nova_Holographic_Decoy_Death2" />
+    <On Terms="Behavior.NovaCoopDecoyTimedLife.Off" Send="Create" />
+  </CActorSound>
+  <CActorSound id="NovaCoopDecoyDeath3_ActorSound" parent="SoundOneShot">
+    <Sound value="Nova_Holographic_Decoy_Death3" />
+    <On Terms="Behavior.NovaCoopDecoyTimedLife.Off" Send="Create" />
+  </CActorSound>
+  <CActorModel id="NovaCoopDecoyBirth" parent="ModelAnimationStyleOneShot">
+    <Inherits index="BaseModelScale" value="1" />
+    <Inherits index="Scale" value="1" />
+    <On Terms="Behavior.NovaCoopDecoyTimedLife.On" Send="Create" />
+    <On Terms="ActorCreation" Send="Create NovaCoopDecoyBirth_ActorSound" />
+    <Host Subject="_Selectable" />
+    <HostSiteOps Ops="SOpAttachCenter" />
+    <Model value="HallucinationBirth2" />
+    <AutoScaleFactor value="1.000000" />
+  </CActorModel>
+  <CActorMissile id="NovaCoopDecoy" parent="GenericUnitBase" unitName="NovaCoopDecoy">
+    <Aliases value="_UnitSmall" />
+    <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready" />
+    <On Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth" />
+    <On Terms="WeaponStart.NovaWeaponPsiBlade.AttackStart" Send="AnimBlendTimeApply 0.090000" />
+    <On Terms="WeaponStart.NovaWeaponPsiBlade.AttackStart" Send="AnimBracketStart Attack Attack" />
+    <On Terms="WeaponStop.NovaWeaponPsiBlade.AttackStop" Send="AnimBracketStop Attack" />
+    <On Terms="WeaponStop.NovaWeaponPsiBlade.AttackStop" Send="AnimBlendTimeApply" />
+    <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready" />
+    <On Terms="ActorCreation" Send="AnimGroupApply C" />
+    <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Spell" />
+    <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Spell" />
+    <On Terms="UnitMovementUpdate.*.Walk; IsStatus Charging 0" Send="AnimClear Charge" />
+    <On Terms="ModelEvent; ModelEventName WalkingCheck; UnitWalking" Send="AnimClear Charge" />
+    <On Terms="AnimDone; AnimName SpellE; IsStatus Nuking 1" Send="AnimPlay SpellF Spell,F PlayForever" />
+    <On Terms="UnitMovementUpdate.*.Walk; AnimPlaying SpellG" Send="AnimClear SpellG" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.On" Send="AnimBracketStart Charge {} Spell,D Spell,D,End" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.Off" Send="AnimBracketStop Charge" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.On" Send="StatusSet Charging 1" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.Off" Send="StatusSet Charging 0" />
+    <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Spell" />
+    <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Spell" />
+    <On Terms="UnitMovementUpdate.*.Walk; IsStatus Charging 0" Send="AnimClear Charge" />
+    <On Terms="ModelEvent; ModelEventName WalkingCheck; UnitWalking" Send="AnimClear Charge" />
+    <Model value="Nova_Holographic_Decoy_Coop" />
+    <ModelFlags index="OutlineEmitter" value="1" />
+    <PortraitActor value="SMX3_NovaPortrait" />
+    <PortraitModel value="SMX3_NovaPortrait" />
+    <WalkAnimMoveSpeed value="3" />
+    <AbilSoundArray AbilCmd="HeroNuclearStrike,Execute" Sound="HeroNovaMP1_Nuclear_Strike" />
+    <BarOffset value="80" />
+    <BarWidth value="36" />
+    <GroupIcon>
+      <Image value="Assets\Textures\WireFrame-NovaEx3-Sword.dds" />
+    </GroupIcon>
+    <HeroIcon value="Assets\Textures\ui-heroicon-nova.dds" />
+    <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds" />
+    <SoundArray index="Birth" value="HeroNovaMP2HD_Birth" />
+    <SoundArray index="Ready" value="HeroNovaMP2HD_Ready" />
+    <SoundArray index="Help" value="HeroNovaMP2HD_Help" />
+    <SoundArray index="What" value="HeroNovaMP2HD_What" />
+    <SoundArray index="Yes" value="HeroNovaMP2HD_Yes" />
+    <SoundArray index="Attack" value="HeroNovaMP2HD_Attack" />
+    <UnitBorderNormalColor value="150,150,150" />
+    <UnitBorderSubgroupColor value="255,255,255" />
+    <UnitIcon value="Assets\Textures\BTN-Unit-Terran-Nova.dds" />
+    <UnitKillRank Text="UnitKillRank/Nova" />
+    <Wireframe>
+      <Image value="Assets\Textures\WireFrame-NovaEx3-Sword.dds" />
+    </Wireframe>
+    <DeathArray index="Normal" ModelLink="NovaHoloDecoyDeath" SoundLink="" />
+    <ImpactSoundActor value="Nova_Holographic_Decoy_Impact_Sound" />
+  </CActorMissile>
+  <CActorRange id="NovaCoopDecoyTargetRange" parent="RangeAbil" abil="NovaCoopDecoyTarget" />
+  <CActorUnit id="NovaStunDrone" parent="GenericUnitBase" unitName="NovaStunDrone">
+    <On Terms="ActorCreation" Send="SetTintColor 255,128,0" />
+    <On Terms="ActorCreation" Send="AnimBracketStart Intro Work,Start Work Work,End ClosingFull,ContentPlayOnce,Instant" />
+    <On Terms="UnitBirth" Send="AnimClear Birth" />
+    <DeathArray index="Normal" ModelLink="PointDefenseDroneDeath" SoundLink="Raven_TargetingDroneExplode" />
+    <PlacementModel value="NovaStunDronePlacement" />
+    <PlacementSound value="Terran_BuildingPlacement" />
+    <PlacementActorModel value="NovaStunDronePlaceholderModel" />
+    <PlaceholderActorModel value="NovaStunDronePlaceholderModel" />
+    <PortraitModel value="AdjutantPortrait" />
+    <BarOffset value="20" />
+    <BarWidth value="36" />
+    <GroupIcon>
+      <Image value="Assets\Textures\Wireframe-Terran-PointDefenseDrone.dds" />
+    </GroupIcon>
+    <HeroIcon value="Assets\Textures\btn-unit-terran-targetingdrone.dds" />
+    <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds" />
+    <SoundArray index="What" value="Raven_PointDefenseDroneWhat" />
+    <UnitIcon value="Assets\Textures\btn-unit-terran-targetingdrone.dds" />
+    <Wireframe>
+      <Image value="Assets\Textures\Wireframe-Terran-PointDefenseDrone.dds" />
+    </Wireframe>
+  </CActorUnit>
+  <CActorRange id="NovaBoombotBoomRange">
+    <On Terms="Behavior.NovaBoombotBurrowedBoomDelay.On" Send="Create" />
+    <On Terms="Behavior.NovaBoombotBurrowedBoomDelay.Off" Send="Destroy" />
+    <On Terms="UnitBirth.NovaBoombot" Send="Create" />
+    <On Terms="UnitBirth.NovaBoombotBurrowed" Send="Create" />
+    <Range value="4.000000" />
+    <IconArcLength value="1.125000" />
+  </CActorRange>
+  <CActorAction id="NovaBoombotExplodeAttack" parent="GenericAttack" effectAttack="NovaBoombotBoomDamage">
+    <ImpactMap index="None" Model="NovaBoombotAttackImpact" Sound="WidowMine_Death" />
+    <ShieldFlashType value="Full" />
+  </CActorAction>
+  <CActorForceSphere id="NovaBoomBotAttackForceUp">
+    <HostSiteOps Ops="SOpShadow SOpRotVariancerUp35" />
+    <Field value="Directional" />
+    <Duration value="0.150000" />
+    <Magnitude value="22.000000,10.000000" />
+    <Radius value="500000.000000,0.300000" />
+  </CActorForceSphere>
+  <CActorForceSphere id="NovaBoomBotAttackForce">
+    <HostSiteOps Ops="SOpShadow SOpRandomPointInCircleDot25" />
+    <Magnitude value="40.000000,8.000000" />
+    <Radius value="5.000000,0.300000" />
+    <Duration value="0.300000" />
+    <On Terms="Effect.NovaBoombotBoomDamage.Start; At Caster" Send="Create" />
+    <On Terms="ActorCreation" Send="Create NovaBoomBotAttackForceUp" />
+  </CActorForceSphere>
+  <CActorSplat id="NovaBoombotBurrowedSplat" parent="BurrowedSplat" unitName="NovaBoombot">
+    <Inherits index="Visibility" value="0" />
+    <HostSiteOps Ops="SOpAttachHardPoint" />
+    <Model value="WidowMineBurrowedSplat" />
+  </CActorSplat>
+  <CActorSplat id="NovaGadgetBoombotsCursorSplat" parent="TerranCursorSplat" abil="NovaGadgetBoombots" />
+  <CActorUnit id="NovaBoombot" parent="GenericUnitBase" unitName="NovaBoombot">
+    <Aliases value="_UnitSmall" />
+    <On Terms="UnitBirth.NovaBoombotBurrowed" Send="Create" />
+    <On Terms="UnitBirth.NovaBoombotBurrowed" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End ClosingFull" />
+    <On Terms="ActorCreation" Send="StatusSet Fired 0" />
+    <On Terms="UnitBirth.NovaBoombot" Send="AnimBracketStart Burrow Burrow {} {} OpeningPlayForever,Instant" />
+    <On Terms="AbilMorph.*.Start; MorphTo NovaBoombotBurrowed" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End ClosingFull" />
+    <On Terms="AbilMorph.*.Start; MorphTo NovaBoombotBurrowed" Send="AnimClear Burrow" />
+    <On Terms="AbilMorph.*.Start; MorphTo NovaBoombot" Send="AnimPlay Unburrow Unburrow" />
+    <On Terms="AbilMorph.*.Finish; MorphTo Boombot" Send="AnimClear Unburrow" />
+    <On Terms="UnitHeightUpdate.*.Land" Send="Create WidowMine_Land" />
+    <On Terms="UnitBirth.NovaBoombotBurrowed" Send="Create WidowMine_ArmedBeep" />
+    <On Terms="AbilMorph.*.Finish; MorphTo NovaBoombotBurrowed" Send="Create WidowMine_ArmedBeep" />
+    <On Terms="UnitBirth.NovaBoombot" Send="AnimPlay BoombotBirth Unload,End NonLooping" />
+    <On Terms="UnitBirth.NovaBoombot" Send="Create NovaBoombot_Drone_Deploy_AS" />
+    <Model value="Sabotage_Drone" />
+    <ModelFlags index="OutlineEmitter" value="1" />
+    <BuildModel value="Sabotage_Drone" />
+    <DeathArray index="Normal" ModelLink="NovaBoombotDeath" SoundLink="NovaBoombot_Drone_Death" />
+    <PlacementModel value="Sabotage_Drone" />
+    <PlacementActorModel value="NovaBoombotPlaceholderModel" />
+    <PlaceholderActorModel value="NovaBoombotPlaceholderModel" />
+    <PortraitModel value="NovaBoombotPortrait" />
+    <TerrainSquibs>
+      <MovementDistance value="0.150000,0.150000" />
+      <IdlePeriod value="0.100000,0.250000" />
+      <RangeUp value="1.000000" />
+      <RangeDown value="1.000000" />
+      <AttachQuery Methods="AMFilterCenter" />
+      <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleLargeVehicle" />
+    </TerrainSquibs>
+    <BarOffset value="35" />
+    <BarWidth value="42" />
+    <GroupIcon>
+      <Image value="Assets\Textures\wireframe-terran-widowmine.dds" />
+    </GroupIcon>
+    <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds" />
+    <NameOffset value="10" />
+    <SoundArray index="Birth" value="WidowMine_Birth" />
+    <SoundArray index="Ready" value="WidowMine_Ready" />
+    <SoundArray index="Help" value="WidowMine_Help" />
+    <SoundArray index="What" value="Defensive_MatrixDrone_What" />
+    <SoundArray index="Yes" value="WidowMine_Yes" />
+    <SoundArray index="Attack" value="WidowMine_Attack" />
+    <SoundArray index="Pissed" value="WidowMine_Pissed" />
+    <SoundArray index="Movement" value="WidowMine_Movement" />
+    <SoundArray index="Turning" value="WidowMine_Turning" />
+    <SoundArray index="Board" value="WidowMine_Board" />
+    <SoundArray index="Click" value="WidowMine_Click" />
+    <SoundArray index="ClickError" value="WidowMine_ClickError" />
+    <SoundArray index="Highlight" value="WidowMine_Highlight" />
+    <StatusBarOn index="Duration" value="1" />
+    <UnitIcon value="Assets\Textures\btn-unit-terran-sabotagedroneblackops.dds" />
+    <Wireframe>
+      <Image value="Assets\Textures\wireframe-nova-sabotagedrone.dds" />
+    </Wireframe>
+  </CActorUnit>
+  <CActorSound id="NovaBoombot_Drone_Deploy_AS" parent="SoundOneShot">
+    <EditorCategories value="" />
+    <Sound value="NovaBoombot_Drone_Deploy" />
+  </CActorSound>
+  <CActorSound id="NovaCommander_ReviveVO" parent="SoundOneShot">
+    <Sound value="NovaCommander_Revive" />
+  </CActorSound>
+  <CActorSound id="NovaCommander_BlinkRangedVO_ActorSound" parent="SoundOneShot">
+    <Host Subject="_Unit" />
+    <Sound value="NovaCommander_BlinkRangedVO" />
+  </CActorSound>
+  <CActorMissile id="NovaCoop" parent="GenericUnitBase" unitName="NovaCoop">
+    <Model value="Nova_COOP" />
+    <Macros value="UnloadDropAnim" />
+    <Macros value="SnowVisualUnitMacro" />
+    <On Terms="Behavior.NovaCombatSuit.On" Send="SetWireframe 0 Assets\Textures\wireframe-novaex3-shotgun.dds" />
+    <On Terms="Behavior.NovaCombatSuit.Off" Send="SetWireframe 0 Assets\Textures\wireframe-terran-nova.dds" />
+    <On Terms="Abil.TacNukeStrike.SourceCastStart" Send="AnimBracketStart Spell Work,Start Work Work,End" />
+    <On Terms="Abil.TacNukeStrike.SourceFinishStart" Send="AnimBracketStop Spell" />
+    <On Terms="Abil.TacNukeStrike.SourceCancel" Send="AnimBracketStop Spell" />
+    <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready" />
+    <On Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth" />
+    <On Terms="WeaponStart.NovaWeaponCanisterRifle.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior" />
+    <On Terms="WeaponStart.NovaWeaponCanisterRifle.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior" />
+    <On Terms="WeaponStart.NovaWeaponCanisterRifle.AttackStart" Send="AnimBracketStart Attack Attack" />
+    <On Terms="WeaponStop.NovaWeaponCanisterRifle.AttackStop" Send="AnimBracketStop Attack" />
+    <On Terms="WeaponStart.NovaWeaponImprovedCanisterRifle.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior" />
+    <On Terms="WeaponStart.NovaWeaponImprovedCanisterRifle.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior" />
+    <On Terms="WeaponStart.NovaWeaponImprovedCanisterRifle.AttackStart" Send="AnimBracketStart Attack Attack" />
+    <On Terms="WeaponStop.NovaWeaponImprovedCanisterRifle.AttackStop" Send="AnimBracketStop Attack" />
+    <On Terms="WeaponStart.NovaWeaponHellfireShotgun.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior" />
+    <On Terms="WeaponStart.NovaWeaponHellfireShotgun.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior" />
+    <On Terms="WeaponStart.NovaWeaponHellfireShotgun.AttackStart" Send="AnimBracketStart Attack Attack" />
+    <On Terms="WeaponStop.NovaWeaponHellfireShotgun.AttackStop" Send="AnimBracketStop Attack" />
+    <On Terms="WeaponStart.NovaWeaponInvictusLongshot.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior" />
+    <On Terms="WeaponStart.NovaWeaponInvictusLongshot.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior" />
+    <On Terms="WeaponStart.NovaWeaponInvictusLongshot.AttackStart" Send="AnimBracketStart Attack Attack" />
+    <On Terms="WeaponStop.NovaWeaponInvictusLongshot.AttackStop" Send="AnimBracketStop Attack" />
+    <On Terms="WeaponStart.NovaWeaponPsiRifle.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior" />
+    <On Terms="WeaponStart.NovaWeaponPsiRifle.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior" />
+    <On Terms="WeaponStart.NovaWeaponPsiRifle.AttackStart" Send="AnimBracketStart Attack Attack" />
+    <On Terms="WeaponStop.NovaWeaponPsiRifle.AttackStop" Send="AnimBracketStop Attack" />
+    <On Terms="WeaponStart.NovaWeaponPsiBlade.AttackStart" Send="AnimBlendTimeApply 0.090000" />
+    <On Terms="WeaponStart.NovaWeaponPsiBlade.AttackStart" Send="AnimBracketStart Attack Attack" />
+    <On Terms="WeaponStop.NovaWeaponPsiBlade.AttackStop" Send="AnimBracketStop Attack" />
+    <On Terms="WeaponStop.NovaWeaponPsiBlade.AttackStop" Send="AnimBlendTimeApply" />
+    <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready" />
+    <On Terms="Behavior.NovaWeaponCanisterRifle.On" Send="AnimGroupApply A" />
+    <On Terms="Behavior.NovaWeaponCanisterRifle.On" Send="AnimGroupRemove B" />
+    <On Terms="Behavior.NovaWeaponCanisterRifle.On" Send="AnimGroupRemove C" />
+    <On Terms="ActorCreation; ValidatePlayer HaveNovaWeaponCanisterRifleBehavior" Send="AnimGroupApply A" />
+    <On Terms="UnitRevive.NovaCoop; ValidateUnit HaveNovaWeaponCanisterRifleBehavior" Send="AnimGroupApply A" />
+    <On Terms="Behavior.NovaWeaponImprovedCanisterRifle.On" Send="AnimGroupApply A" />
+    <On Terms="Behavior.NovaWeaponImprovedCanisterRifle.On" Send="AnimGroupRemove B" />
+    <On Terms="Behavior.NovaWeaponImprovedCanisterRifle.On" Send="AnimGroupRemove C" />
+    <On Terms="ActorCreation; ValidatePlayer HaveNovaWeaponImprovedCanisterRifleBehavior" Send="AnimGroupApply A" />
+    <On Terms="UnitRevive.NovaCoop; ValidateUnit HaveNovaWeaponImprovedCanisterRifleBehavior" Send="AnimGroupApply A" />
+    <On Terms="Behavior.NovaWeaponHellfireShotgun.On" Send="AnimGroupApply B" />
+    <On Terms="Behavior.NovaWeaponHellfireShotgun.On" Send="AnimGroupRemove A" />
+    <On Terms="Behavior.NovaWeaponHellfireShotgun.On" Send="AnimGroupRemove C" />
+    <On Terms="ActorCreation; ValidatePlayer HaveNovaWeaponHellfireShotgunBehavior" Send="AnimGroupApply B" />
+    <On Terms="UnitRevive.NovaCoop; ValidateUnit HaveNovaWeaponHellfireShotgunBehavior" Send="AnimGroupApply B" />
+    <On Terms="Behavior.NovaWeaponInvictusLongshot.On" Send="AnimGroupApply A" />
+    <On Terms="Behavior.NovaWeaponInvictusLongshot.On" Send="AnimGroupRemove B" />
+    <On Terms="Behavior.NovaWeaponInvictusLongshot.On" Send="AnimGroupRemove C" />
+    <On Terms="ActorCreation; ValidatePlayer HaveNovaWeaponInvictusLongshotBehavior" Send="AnimGroupApply A" />
+    <On Terms="UnitRevive.NovaCoop; ValidateUnit HaveNovaWeaponInvictusLongshotBehavior" Send="AnimGroupApply A" />
+    <On Terms="Behavior.NovaWeaponPsiRifle.On" Send="AnimGroupApply A" />
+    <On Terms="Behavior.NovaWeaponPsiRifle.On" Send="AnimGroupRemove B" />
+    <On Terms="Behavior.NovaWeaponPsiRifle.On" Send="AnimGroupRemove C" />
+    <On Terms="ActorCreation; ValidatePlayer HaveNovaWeaponPsiRifle" Send="AnimGroupApply A" />
+    <On Terms="UnitRevive.NovaCoop; ValidateUnit HaveNovaWeaponPsiRifle" Send="AnimGroupApply A" />
+    <On Terms="Behavior.NovaWeaponPsiBlade.On" Send="AnimGroupApply C" />
+    <On Terms="Behavior.NovaWeaponPsiBlade.On" Send="AnimGroupRemove A" />
+    <On Terms="Behavior.NovaWeaponPsiBlade.On" Send="AnimGroupRemove B" />
+    <On Terms="ActorCreation; ValidatePlayer HaveNovaWeaponPsiRifle" Send="AnimGroupApply C" />
+    <On Terms="UnitRevive.NovaCoop; ValidateUnit HaveNovaWeaponPsiRifle" Send="AnimGroupApply C" />
+    <On Terms="Abil.NovaWeaponCanisterRifleSnipe.SourcePrepStart" Send="Create Nova_Snipe_Kneel_ActorSound" />
+    <On Terms="Abil.NovaWeaponCanisterRifleSnipe.SourceCastStart" Send="AnimBracketStart Spell Spell,E Spell,F Spell,G" />
+    <On Terms="Abil.NovaWeaponCanisterRifleSnipe.SourceCastStop" Send="AnimBracketStop Spell" />
+    <On Terms="Abil.NovaWeaponImprovedCanisterRifleSnipe.SourcePrepStart" Send="Create Nova_Snipe_Kneel_ActorSound" />
+    <On Terms="Abil.NovaWeaponImprovedCanisterRifleSnipe.SourceCastStart" Send="AnimBracketStart Spell Spell,E Spell,F Spell,G" />
+    <On Terms="Abil.NovaWeaponImprovedCanisterRifleSnipe.SourceCastStop" Send="AnimBracketStop Spell" />
+    <On Terms="Abil.NovaWeaponHellfireShotgunBlast.SourceCastStart" Send="$Spell,H 0 -1.000000 -1.000000 1.000000 AsTimeScale" />
+    <On Terms="Abil.NovaWeaponInvictusLongshotLockdown.SourceCastStart" Send="AnimBracketStart Spell,E Spell,F Spell,G" />
+    <On Terms="Abil.NovaWeaponInvictusLongshotLockdown.SourceCastStop" Send="AnimBracketStop Spell" />
+    <On Terms="Abil.NovaGadgetSwarmGrenades.SourcePrepStart" Send="$Spell 0 -1.000000 -1.000000 1.000000 AsTimeScale" />
+    <On Terms="Abil.NovaGadgetPulseGrenades.SourcePrepStart" Send="$Spell 0 -1.000000 -1.000000 1.000000 AsTimeScale" />
+    <On Terms="Abil.NovaGadgetFlashBangGrenades.SourcePrepStart" Send="$Spell 0 -1.000000 -1.000000 1.000000 AsTimeScale" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.On" Send="AnimBracketStart Charge {} Spell,D Spell,D,End" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.Off" Send="AnimBracketStop Charge" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.On" Send="StatusSet Charging 1" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.Off" Send="StatusSet Charging 0" />
+    <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Spell" />
+    <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Spell" />
+    <On Terms="UnitMovementUpdate.*.Walk; IsStatus Charging 0" Send="AnimClear Charge" />
+    <On Terms="ModelEvent; ModelEventName WalkingCheck; UnitWalking" Send="AnimClear Charge" />
+    <On Terms="ActorCreation; ValidateUnit HaveNovaVoice1" Send="SetSoundSuffix _N1" />
+    <On Terms="Upgrade.NovaVoice1.Add" Send="SetSoundSuffix _N1" />
+    <On Terms="ActorCreation; ValidateUnit HaveNovaVoice2" Send="SetSoundSuffix _N2" />
+    <On Terms="Upgrade.NovaVoice2.Add" Send="SetSoundSuffix _N2" />
+    <On Terms="ActorCreation; ValidateUnit HaveNovaVoice3" Send="SetSoundSuffix _N3" />
+    <On Terms="Upgrade.NovaVoice3.Add" Send="SetSoundSuffix _N3" />
+    <On Terms="Abil.NovaGadgetBoombots.SourceCastStart" Send="AnimBracketStart CreateBoomBots Stand,Dialogue,Start {} Stand,Dialogue,End ContentPlayOnce" />
+    <On Terms="Abil.NovaCoopDecoyTarget.SourceCastStart" Send="AnimBracketStart CreateBoomBots Stand,Dialogue,Start {} Stand,Dialogue,End ContentPlayOnce" />
+    <On Terms="UnitDeathCustomize; ValidateUnit HasZergGenericDeath" Send="DeathCustomize Detached" />
+    <On Terms="Abil.NovaCoopCasterNuke.SourceCastStart" Send="StatusSet Nuking 1" />
+    <On Terms="Abil.NovaCoopCasterNuke.SourceCastStart" Send="AnimPlay SpellE Spell,E 0 -1.000000 -1.000000 1.000000 AsTimeScale" />
+    <On Terms="AnimDone; AnimName SpellE; IsStatus Nuking 1" Send="AnimPlay SpellF Spell,F PlayForever" />
+    <On Terms="Abil.NovaCoopCasterNuke.SourceChannelStop" Send="StatusSet Nuking 0" />
+    <On Terms="Abil.NovaCoopCasterNuke.SourceChannelStop" Send="AnimClear SpellF" />
+    <On Terms="Abil.NovaCoopCasterNuke.SourceFinishStart" Send="AnimPlay SpellG Spell,G 0 -1.000000 -1.000000 1.000000 AsTimeScale" />
+    <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear SpellG" />
+    <On Terms="UnitRevive.NovaCoop; ValidateUnit HasTargetedRevive" Send="Create NovaReviveGriffinDropOff" />
+    <On Terms="UnitRevive.NovaCoop; ValidateUnit HasTargetedRevive" Send="SetVisibility" />
+    <On Terms="UnitRevive.NovaCoop; ValidateUnit HasTargetedRevive" Send="TimerSet 0.500000 Revive" />
+    <On Terms="TimerExpired; TimerName Revive" Send="SetVisibility 1" />
+    <On Terms="TimerExpired; TimerName Revive" Send="AnimPlay Buyback Unload,End,Cover 0 0.000000" />
+    <On Terms="Abil.NovaBlink.SourceCastStart; ValidateUnit NovaBlinkRangeCheck; !ScopeContains NovaCommander_BlinkRangedVO_ActorSound" Send="Create NovaCommander_BlinkRangedVO_ActorSound" />
+    <On Terms="Behavior.NovaCombatSuit.On" Send="SetGroupIcon 0 Assets\Textures\wireframe-novaex3-shotgun.dds" />
+    <On Terms="Behavior.NovaCombatSuit.Off" Send="SetGroupIcon 0 Assets\Textures\wireframe-terran-nova.dds" />
+    <DeathCustoms ModelLink="Invisible" SoundLink="Silent" Name="Detached" />
+    <DeathArray index="Normal" ModelLink="NovaHeroDeath" SoundLink="Nova_Death" />
+    <PortraitActor value="SMX3_NovaPortrait" />
+    <PortraitModel value="SMX3_NovaPortrait" />
+    <WalkAnimMoveSpeed value="3" />
+    <BarOffset value="40" />
+    <BarWidth value="36" />
+    <CustomUnitStatusFrame value="Coop_UnitStatus/NovaCoopStatusFrameTemplate" />
+    <GroupIcon>
+      <Image value="Assets\Textures\Wireframe-Terran-Nova.dds" />
+    </GroupIcon>
+    <HeroIcon value="Assets\Textures\ui-heroicon-nova.dds" />
+    <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds" />
+    <StatusBarOn index="Shields" value="1" />
+    <StatusBarOn index="Life" value="1" />
+    <StatusBarOn index="Energy" value="1" />
+    <StatusBarOn index="Progress" value="1" />
+    <StatusBarOn index="Duration" value="1" />
+    <StatusBarOn index="Custom" value="1" />
+    <SoundArray index="Ready" value="HeroNovaMP_Ready" />
+    <SoundArray index="Help" value="HeroNovaMP1_Help" />
+    <SoundArray index="What" value="HeroNovaMP1_What" />
+    <SoundArray index="Yes" value="HeroNovaMP1_Yes" />
+    <SoundArray index="Attack" value="HeroNovaMP1_Attack" />
+    <SoundArray index="Pissed" value="HeroNovaMP1_Pissed" />
+    <UnitBorderNormalColor value="150,150,150" />
+    <UnitBorderSubgroupColor value="255,255,255" />
+    <UnitFlags index="SuppressDefaultStatusBar" value="1" />
+    <UnitIcon value="Assets\Textures\BTN-Unit-Terran-Nova.dds" />
+    <UnitKillRank Text="UnitKillRank/Nova" />
+    <Wireframe>
+      <Image value="Assets\Textures\Wireframe-Terran-Nova.dds" />
+    </Wireframe>
+    <ModelFlags index="OutlineEmitter" value="1" />
+    <MinimapIcon value="Assets\Textures\btn-ac-terran-novamapicon.dds" />
+    <MinimapIconScale value="0.700000" />
+    <MinimapTooltip value="Unit/Name/NovaCoop" />
+    <MinimapUseSelfColor value="0" />
+    <MinimapUseSelectionColor value="0" />
+    <MinimapRenderPriority value="Hero" />
+    <ImpactSoundActor value="Nova_COOP_Impact_Sound" />
+    <AbilSoundArray AbilCmd="NovaBlink,Execute" Sound="HeroNova_DummyVO" />
+    <AbilSoundArray AbilCmd="NovaGadgetBoombots,Execute" Sound="NovaCommander_SabotageDrone" />
+    <AbilSoundArray AbilCmd="NovaKitSwap,Off" Sound="NovaCommander_StealthMode" />
+    <AbilSoundArray AbilCmd="NovaKitSwap,On" Sound="NovaCommander_AssaultMode" />
+    <AbilSoundArray AbilCmd="NovaCoopDecoyTarget,Execute" Sound="NovaCommander_HoloDecoy" />
+    <AbilSoundArray AbilCmd="NovaCoopCasterNuke,Execute" Sound="NovaCommander_Nuke" />
+    <AbilSoundArray AbilCmd="NovaWeaponHellfireShotgunBlast,Execute" Sound="HeroNova_DummyVO" />
+    <AbilSoundArray AbilCmd="NovaWeaponImprovedCanisterRifleSnipe,Execute" Sound="NovaCommander_SnipeVO" />
+  </CActorMissile>
+  <CActorRange id="NovaHelmetGhostVisorDetectorRadar">
+    <RangeFlags index="Minimap" value="1" />
+    <On Terms="Behavior.NovaHelmetGhostVisorDetector.On" Send="Create" />
+    <On Terms="Behavior.NovaHelmetGhostVisorDetector.Off" Send="Destroy" />
+    <Inherits index="Visibility" value="0" />
+    <FogVisibility value="Visible" />
+    <Behavior value="NovaHelmetGhostVisorDetector" />
+  </CActorRange>
+  <CActorSound id="NovaReviveCocoon_Birth_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaReviveCocoon_Birth" />
+  </CActorSound>
+  <CActorSound id="NovaReviveCocoon_Death_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaReviveCocoon_Death" />
+    <FogVisibility value="Visible" />
+  </CActorSound>
+  <CActorSound id="NovaReviveCocoon_IdleLoop_ActorSound" parent="SoundContinuous">
+    <Sound value="NovaReviveCocoon_IdleLoop" />
+  </CActorSound>
+  <CActorUnit id="NovaReviveCocoon" parent="GenericUnitMorph" unitName="NovaReviveBeacon">
+    <On Terms="ActorCreation" Send="$Birth" />
+    <On Terms="AnimDone; AnimName Birth; ValidateUnit HaveNovaReviveTimerInitial" Send="$Stand 0 0.500000 0.500000 241.500000 AsDuration" />
+    <On Terms="AnimDone; AnimName Birth; !ValidateUnit HaveNovaReviveTimerInitial" Send="$Stand 0 0.500000 0.500000 89.500000 AsDuration" />
+    <On Terms="AnimDone; AnimName Stand" Send="AnimPlay FakeDeath Death PlayForever" />
+    <On Terms="ActorCreation" Send="TimerSet 0.500000 DelayCreate" />
+    <On Terms="TimerExpired; TimerName DelayCreate; ValidateUnit HaveNovaReviveTimerInitial" Send="Create NovaReviveCocoonNovaInitial" />
+    <On Terms="TimerExpired; TimerName DelayCreate; !ValidateUnit HaveNovaReviveTimerInitial" Send="Create NovaReviveCocoonNova" />
+    <On Terms="ActorCreation" Send="Create NovaReviveCocoon_Birth_ActorSound" />
+    <On Terms="ActorCreation" Send="Create NovaReviveCocoon_IdleLoop_ActorSound" />
+    <On Terms="UnitDeath" Target="NovaReviveCocoon_IdleLoop_ActorSound" Send="Destroy" />
+    <On Terms="UnitDeath" Send="Create NovaReviveCocoon_Death_ActorSound" />
+    <Model value="NovaReviveCocoon" />
+    <DeathActorModel value="UnitDeathModelReviveCocoon" />
+    <DeathActorModelLow value="UnitDeathModelReviveCocoon" />
+    <PortraitActor value="SMX3_NovaPortrait" />
+    <PortraitModel value="SMX3_NovaPortrait" />
+    <BarOffset value="60" />
+    <BarWidth value="78" />
+    <GroupIcon>
+      <Image value="Assets\Textures\WireFrame-Terran-NovaStasisCell.dds" />
+    </GroupIcon>
+    <HeroIcon value="Assets\Textures\btn-upgrade-nova-novarespawn.dds" />
+    <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds" />
+    <SoundArray index="What" value="NovaReviveCocoon_What" />
+    <UnitIcon value="Assets\Textures\btn-upgrade-nova-novarespawn.dds" />
+    <Wireframe>
+      <Image value="Assets\Textures\WireFrame-Terran-NovaStasisCell.dds" />
+    </Wireframe>
+  </CActorUnit>
+  <CActorModel id="NovaReviveCocoonNova">
+    <On Terms="ActorCreation" Send="$Birth 0 -1.000000 -1.000000 90.400009 AsDuration" />
+    <On Terms="ActorOrphan" Send="Destroy" />
+    <On Terms="AnimDone; AnimName Birth" Send="Destroy" />
+  </CActorModel>
+  <CActorModel id="NovaReviveCocoonNovaInitial">
+    <Model value="NovaReviveCocoonNova" />
+    <On Terms="ActorCreation" Send="$Birth 0 -1.000000 -1.000000 242.399994 AsDuration" />
+    <On Terms="ActorOrphan" Send="Destroy" />
+    <On Terms="AnimDone; AnimName Birth" Send="Destroy" />
+  </CActorModel>
+  <CActorModel id="NovaCliffJumpLandDownModel" parent="ModelAnimationStyleOneShot">
+    <Model value="ReaperJumpLandDownModel" />
+    <Host Subject="_Selectable" />
+    <HostSiteOps Ops="SOpAttachCenter SOpShadow" />
+    <On Terms="Behavior.NovaCliffJump.LandDown" Send="Create" />
+    <On Terms="Behavior.NovaCliffJump.LandUp" Send="Create" />
+    <On Terms="Behavior.NovaCliffJump.LandDown" Send="TimerSet 0.300000 TriggerSound" />
+    <On Terms="TimerExpired; TimerName TriggerSound" Send="Create ReaperJumpLandSound" />
+    <Inherits index="CloakEffect" value="1" />
+  </CActorModel>
+  <CActorSound id="NovaCliffJumpLandSound" parent="SoundOneShot">
+    <Sound value="Reaper_JumpLand" />
+    <On Terms="Behavior.NovaCliffJump.LandUp" Send="Create" />
+  </CActorSound>
+  <CActorModel id="NovaCliffJumpLaunchModel" parent="ModelAnimationStyleOneShot">
+    <Model value="ReaperJumpLaunchModel" />
+    <On Terms="Behavior.NovaCliffJump.Launch" Send="Create" />
+    <Host Subject="_Selectable" />
+    <HostSiteOps Ops="SOpAttachCenter SOpShadow" HoldPosition="1" HoldRotation="1" />
+    <Inherits index="CloakEffect" value="1" />
+  </CActorModel>
+  <CActorSound id="NovaCliffJumpLaunchSound" parent="SoundOneShot">
+    <Sound value="Reaper_JumpLaunch" />
+    <On Terms="Behavior.NovaCliffJump.Launch" Send="Create" />
+  </CActorSound>
+  <CActorAction id="NovaPenetratorRoundAttack" parent="GenericAttack" effectImpact="NovaPenetratorRoundDamage" effectLaunch="NovaPenetratorRoundLM">
+    <EditorCategories value="" />
+    <LaunchAssets Sound="HighTemplar_PsionicOrbLaunch" />
+    <Missile value="NovaPenetratorRoundMissile" />
+    <ImpactPointSiteOps Ops="SOpTargetPointStationary SOpShadow AlarakPsiOrbImpactOffset" />
+    <ImpactMap index="None" Model="VoidHighTemplarPsiOrbFinalImpactModel" Sound="HighTemplar_PsionicOrbImpact" />
+    <ImpactModel value="VoidHighTemplarPsiOrbAttackImpactModel" />
+  </CActorAction>
+  <CActorMissile id="NovaPenetratorRoundMissile" parent="GenericAttackMissile" unitName="NovaPenetratorRoundMissile">
+    <Macros value="GlobalLoopMacro" />
+    <Model value="ImmortalShakurasShadowCannonMissile" />
+  </CActorMissile>
+  <CActorQuad id="NovaPenetratorRoundGuide" parent="ZergGuideVisualQuadDown" abil="NovaPenetratorRound">
+    <HostSiteOps Ops="SOpAttachOrigin" />
+    <Height value="13.000000" />
+    <Width value="2.000000" />
+    <LaunchActor value="ProtossGuideVisualQuadSolarLanceLaunch" />
+    <CenterActor value="ProtossGuideVisualQuadSolarLanceCenter" />
+    <ImpactActor value="ProtossGuideVisualQuadSolarLanceImpact" />
+  </CActorQuad>
+  <CActorSound id="NovaCommander_SniperBoomyTailSound" parent="SoundOneShot">
+    <Sound value="Nova_SniperRifleTail_Dummy" />
+    <Layers>
+      <Sound value="Nova_SniperRifle_AttackLaunch_BoomySweetener" />
+      <PitchSource value="Sound" />
+      <PlayDelaySource value="Sound" />
+      <VolumeSource value="Actor" />
+      <Chance value="100" />
+      <Pitch value="0.000000,0.000000" />
+      <PlayDelay value="0,0" />
+      <Volume value="-6.000000,-6.000000" />
+    </Layers>
+    <Layers>
+      <Sound value="NovaCommander_SniperRifleTail" />
+      <PitchSource value="Sound" />
+      <PlayDelaySource value="Sound" />
+      <VolumeSource value="Sound" />
+      <Chance value="100" />
+      <Pitch value="0.000000,0.000000" />
+      <PlayDelay value="0,0" />
+      <Volume value="0.000000,0.000000" />
+    </Layers>
+  </CActorSound>
+  <CActorSound id="NovaCommander_SniperMechyTailSound" parent="SoundOneShot">
+    <Sound value="Nova_SniperRifleTail_Dummy" />
+    <Layers>
+      <Sound value="Nova_SniperRifle_AttackLaunch_MechySweetener" />
+      <PitchSource value="Sound" />
+      <PlayDelaySource value="Sound" />
+      <VolumeSource value="Actor" />
+      <Chance value="100" />
+      <Pitch value="0.000000,0.000000" />
+      <PlayDelay value="0,0" />
+      <Volume value="-6.000000,-6.000000" />
+    </Layers>
+    <Layers>
+      <Sound value="NovaCommander_SniperRifleTail" />
+      <PitchSource value="Sound" />
+      <PlayDelaySource value="Sound" />
+      <VolumeSource value="Sound" />
+      <Chance value="100" />
+      <Pitch value="0.000000,0.000000" />
+      <PlayDelay value="0,0" />
+      <Volume value="0.000000,0.000000" />
+    </Layers>
+  </CActorSound>
+  <CActorAction id="NovaWeaponCanisterRifleAttack" parent="GenericAttack" effectAttack="NovaWeaponImprovedCanisterRifleUncloaked">
+    <ImpactMap index="None" Model="GhostAttackImpact" Sound="Nova_SniperRifle_AttackImpact" />
+    <LaunchAssets Model="GhostAttackLaunch" Sound="Nova_SniperRifle_AttackLaunch_Boomy" />
+    <LaunchSound value="NovaCommander_SniperMechyTailSound" />
+  </CActorAction>
+  <CActorAction id="NovaWeaponImprovedCanisterRifleAttack" parent="GenericAttack" effectAttack="NovaWeaponImprovedCanisterRifleCloaked">
+    <ImpactMap index="None" Model="GhostAttackImpact" Sound="Nova_SniperRifle_AttackImpact" />
+    <LaunchAssets Model="GhostAttackLaunch" Sound="Nova_SniperRifle_AttackLaunch_Mechy" />
+    <LaunchSound value="NovaCommander_SniperBoomyTailSound" />
+  </CActorAction>
+  <CActorSound id="NovaCommander_Snipe_TailExteriorSound" parent="SoundOneShot">
+    <Sound value="Nova_SniperRifleTail_Dummy" />
+    <Layers>
+      <Sound value="NovaCommander_Snipe_TailExterior" />
+      <PitchSource value="Sound" />
+      <PlayDelaySource value="Sound" />
+      <VolumeSource value="Sound" />
+      <Chance value="100" />
+      <Pitch value="0.000000,0.000000" />
+      <PlayDelay value="0,0" />
+      <Volume value="0.000000,0.000000" />
+    </Layers>
+  </CActorSound>
+  <CActorAction id="NovaWeaponCanisterRifleSnipeAttack" parent="GenericAttack" effectAttack="NovaWeaponCanisterRifleSnipe">
+    <LaunchSiteOps Ops="SOpAttachHarnessStationary" />
+    <LaunchAssets Sound="Nova_Snipe_AttackLaunch" />
+    <LaunchSound value="NovaCommander_Snipe_TailExteriorSound" />
+    <ImpactMap index="None" Sound="Nova_Snipe_AttackImpact" />
+  </CActorAction>
+  <CActorRange id="NovaWeaponImprovedCanisterRifleSnipeRange" parent="RangeAbil" abil="NovaWeaponImprovedCanisterRifleSnipe" />
+  <CActorAction id="NovaWeaponImprovedCanisterRifleSnipeAttack" parent="GenericAttack" effectAttack="NovaWeaponImprovedCanisterRifleSnipe">
+    <LaunchSiteOps Ops="SOpAttachHarnessStationary" />
+    <LaunchAssets Sound="Nova_Snipe_AttackLaunch" />
+    <LaunchSound value="NovaCommander_Snipe_TailExteriorSound" />
+    <ImpactMap index="None" Sound="Nova_Snipe_AttackImpact" />
+  </CActorAction>
+  <CActorBeamSimple id="NovaWeaponImprovedCanisterRifleSnipeAttackBeam" parent="GenericAttackBeam" />
+  <CActorAction id="NovaWeaponHellfireShotgunAttack" parent="GenericAttack" effectAttack="NovaWeaponHellfireShotgun">
+    <ImpactSiteOps Ops="SOpActionCenter SOpTargetUnitZ" HoldPosition="1" />
+    <ImpactMap index="None" Model="SiegeTankAttackImpact" Sound="SiegeTank_SiegedAttackImpact" />
+    <DamageModel value="SiegeTankAttackDamageModel" />
+    <DamageSiteOps Ops="SOpAttachHarness" />
+    <ShieldFlashType value="Full" />
+    <LaunchAttachQuery Methods="AMFilterWeapon01" />
+  </CActorAction>
+  <CActorForceCylinder id="NovaDashAttackForce">
+    <HostSiteOps Ops="SOpAttachCenter SOpMoveBackBy2" />
+    <HostEndSiteOps Ops="SOpAttachCenter SOpMoveBy1" />
+    <Magnitude value="36.000000,6.000000" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.On" Send="Create" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.Off" Send="Destroy" />
+  </CActorForceCylinder>
+  <CActorQuad id="NovaPsiStrikeGuide" parent="ZergGuideVisualQuadDown" abil="NovaPsiStrike">
+    <Height value="8.000000" />
+    <Width value="2.500000" />
+    <LaunchActor value="TerranGuideVisualQuadLaunch" />
+    <CenterActor value="TerranGuideVisualQuadCenter" />
+    <ImpactActor value="TerranGuideVisualQuadImpact" />
+  </CActorQuad>
+  <CActorModel id="NovaPsiStrikeModel" parent="ModelAnimationStyleContinuous">
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.On" Send="Create" />
+    <On Terms="Behavior.NovaPsiStrikeWalkSpeed.Off" Send="AnimBracketStop BSD" />
+    <Host Subject="_Selectable" />
+    <HostSiteOps Ops="SOpAttachOrigin" />
+    <ModelFlags index="AllowHitTest" value="0" />
+  </CActorModel>
+  <CActorSound id="NovaPsiStrikeLaunchSound" parent="SoundOneShot">
+    <Sound value="NovaPsiBlade_Q_DashStrike" />
+    <On Terms="Abil.NovaPsiStrike.SourceCastStart" Send="Create" />
+  </CActorSound>
+  <CActorModel id="NovaWeaponPsiStrikeImpact" parent="ModelAnimationStyleOneShot">
+    <On Terms="Effect.NovaPsiStrikeDamage.Start; At Target" Send="Create" />
+    <Host Subject="_Selectable" />
+    <HostSiteOps Ops="SOpAttachCenter" />
+    <ModelFlags index="AutomateGlobalLoops" value="1" />
+  </CActorModel>
+  <CActorAction id="NovaGadgetPulseGrenadesAttack" parent="GenericAttack" effectImpact="NovaGadgetPulseGrenadesDamage" effectLaunch="NovaGadgetPulseGrenadesLaunchMissile">
+    <LaunchAttachQuery Methods="Weapon 2" />
+    <ImpactMap index="None" Sound="Ghost_EMPAttackImpact" />
+  </CActorAction>
+  <CActorMissile id="NovaCoopCasterStunGrenadeAttackMissile" parent="GenericAttackMissile" unitName="NovaCoopCasterStunGrenadeWeapon" />
+  <CActorAction id="NovaGadgetFlashBangGrenadesAttack" parent="GenericAttack" effectImpact="NovaGadgetFlashBangGrenadeSearch" effectLaunch="NovaGadgetFlashBangGrenadeLaunchMissile">
+    <LaunchAttachQuery Methods="Weapon 2" />
+    <ImpactMap index="None" Sound="Ghost_EMPAttackImpact" />
+  </CActorAction>
+  <CActorModel id="NovaCoopCasterStunGrenadeImpact" parent="ModelAnimationStyleContinuous">
+    <On Terms="Behavior.NovaCoopCasterStunGrenade.On" Send="Create" />
+    <On Terms="Behavior.NovaCoopCasterStunGrenade.Off" Send="Destroy" />
+    <Host Subject="_Selectable" />
+    <HostSiteOps Ops="SOpAttachOverhead" />
+    <AutoScaleFactor value="1.000000" />
+    <Model value="NovaCoopCasterFlashBangStun" />
+  </CActorModel>
+  <CActorAction id="NovaUnitSmokeGrenadeAttack" parent="GenericAttack" effectImpact="NovaUnitSmokeGrenadeSearch" effectLaunch="NovaUnitSmokeGrenadeLM">
+    <LaunchAttachQuery Methods="Weapon 2" />
+    <ImpactMap index="None" Sound="Ghost_EMPAttackImpact" />
+  </CActorAction>
+  <CActorMissile id="NovaUnitSmokeGrenadeAttackMissile" parent="GenericAttackMissile" unitName="NovaUnitSmokeGrenadeMissile">
+    <Model value="NovaUnitSmokeGrenadeWeapon" />
+  </CActorMissile>
+  <CActorSplat id="NovaUnitSmokeGrenadeCursorSplat" parent="TerranCursorSplat" abil="NovaUnitSmokeGrenade" />
+  <CActorSplat id="NovaUnitFlashbangCursorSplat" parent="TerranCursorSplat" abil="NovaCoopCasterStunGrenade" />
+  <CActorSound id="NovaCoopCasterDefensiveMatrixBirth" parent="SoundOneShot">
+    <On Terms="Behavior.NovaBlinkAbsorb.On" Send="Create" />
+    <On Terms="Behavior.NovaBlinkAbsorb.Off" Send="Destroy" />
+    <Sound value="NovaAC_Blink_Birth" />
+  </CActorSound>
+  <CActorSound id="NovaCoopCasterDefensiveMatrixDeath" parent="SoundOneShot">
+    <On Terms="Behavior.NovaBlinkAbsorb.Off" Send="Create" />
+    <Sound value="NovaAC_Blink_Death" />
+  </CActorSound>
+  <CActorModel id="NovaCoopCasterDefensiveMatrixModel" parent="ModelAddition">
+    <Inherits index="TintColor" value="0" />
+    <On Terms="ActorCreation; ValidateUnit IsHyperionVoidCoop" Send="SetScale 0.600000,0.750000,0.500000" />
+    <On Terms="ActorCreation; ValidateUnit IsColossus" Send="SetScale 1.000000,1.000000,3.000000" />
+    <On Terms="ActorCreation; ValidateUnit IsVoidRay" Send="SetScale 1.200000,1.600000,1.200000" />
+    <On Terms="ActorCreation; ValidateUnit IsBattlecruiser" Send="SetScale 1.200000,1.500000,1.000000" />
+    <On Terms="ActorCreation; ValidateUnit IsThor" Send="SetScale 1.400000,1.200000,1.200000" />
+    <On Terms="ActorCreation; ValidateUnit IsHerculesCombine" Send="SetScale 1.100000,1.700000,1.100000" />
+    <On Terms="ActorCreation; ValidateUnit IsGoliath" Send="SetScale 1.300000" />
+    <On Terms="ActorCreation; ValidateUnit IsGoliathBlackOps" Send="SetScale 1.700000,1.500000,3.000000" />
+    <On Terms="Behavior.NovaCoopCasterDefensiveMatrix.On" Send="Create" />
+    <On Terms="Behavior.NovaCoopCasterDefensiveMatrix.Off" Send="AnimBracketStop BSD" />
+    <HostSiteOps Ops="SOpAttachCenter" />
+    <AutoScaleFactor value="1.500000" />
+  </CActorModel>
+  <CActorModel id="Nova_Blink_Shield" parent="ModelAnimationStyleContinuous">
+    <On Terms="Behavior.NovaBlinkAbsorb.On" Send="Create" />
+    <On Terms="Behavior.NovaBlinkAbsorb.Off" Send="AnimBracketStop BSD" />
+    <On Terms="Behavior.NovaGriffinTransportGroundUnits.On" Send="SetVisibility" />
+    <On Terms="Behavior.NovaGriffinTransportGroundUnits.Off" Send="SetVisibility 1" />
+    <Host Subject="_Selectable" />
+    <HostSiteOps Ops="SOpAttachCenter" />
+    <ModelFlags index="AllowHitTest" value="0" />
+    <ModelFlags index="AutomateGlobalLoops" value="1" />
+  </CActorModel>
+  <CActorRange id="NovaUnitSmokeGrenadeRange" parent="RangeAbil" abil="NovaUnitSmokeGrenade" />
+  <CActorModel id="NovaUnitSmokeGrenadeSmoke" parent="ModelAnimationStyleContinuous">
+    <On Terms="ActorCreation" Send="AnimBracketStart GL_BSD GLbirth GLstand GLdeath" />
+    <On Terms="ActorOrphan" Send="Destroy" />
+    <On Terms="Effect.NovaUnitSmokeGrenadeCP.Start" Send="Create" />
+    <On Terms="ActorCreation" Send="AnimBracketStart $BSD" />
+    <On Terms="Effect.NovaUnitSmokeGrenadeCP.Stop" Send="Destroy" />
+  </CActorModel>
+  <CActorSplat id="NovaUnitDefensiveMatrixSplat" parent="TerranCursorSplat" abil="NovaCoopCasterDefensiveMatrix" />
+  <CActorSplat id="NovaCoopCasterAdvancedOpticsSplat" parent="TerranCursorSplat" abil="NovaCoopCasterAdvancedOptics" />
+  <CActorMissile id="NovaUnitLockdownAttackMissile" parent="GenericAttackMissile" unitName="NovaUnitLockdownMissile">
+    <Model value="EMP2Weapon" />
+  </CActorMissile>
+  <CActorAction id="NovaUnitLockdownAttack" parent="GenericAttack" effectImpact="NovaUnitLockdownAB" effectLaunch="NovaUnitLockdownLM">
+    <LaunchAssets Sound="Ghost_EMPAttackLaunch" />
+    <ImpactMap index="None" Sound="Ghost_EMPAttackImpact" />
+    <ImpactPointSiteOps Ops="SOpTargetPointStationary SOpShadow GhostEMPOffset" />
+  </CActorAction>
+  <CActorModel id="NovaUnitLockdownTarget" parent="ModelAnimationStyleContinuous">
+    <Model value="Goliath_Lockdown" />
+    <On Terms="Behavior.NovaUnitLockdown.On" Send="Create" />
+    <On Terms="Behavior.NovaUnitLockdown.Off" Send="AnimBracketStop BSD" />
+    <HostSiteOps Ops="SOpAttachCenter" />
+  </CActorModel>
+  <CActorModel id="NovaCoopCasteStunGrenadesAttackImpact" parent="ModelAnimationStyleOneShot">
+    <On Terms="Effect.NovaCoopCasterStunGrenadeSearch.Start" Send="Create" />
+    <Model value="NovaCoopCasterStunGrenadesAttackImpact" />
+  </CActorModel>
+  <CActorModel id="NovaCoopCasterAdvancedOptics" parent="ModelAnimationStyleContinuous">
+    <Terms value="Cap 1" />
+    <Host Subject="_Unit" />
+    <HostSiteOps Ops="SOpAttachOverhead" />
+    <On Terms="Behavior.NovaCoopCasterAdvancedOptics.On" Send="Create" />
+    <On Terms="Behavior.NovaCoopCasterAdvancedOptics.Off" Send="Destroy" />
+    <Inherits index="CloakEffect" value="1" />
+    <Inherits index="Visibility" value="1" />
+  </CActorModel>
+  <CActorRange id="NovaCoopCasterNukeRange" parent="RangeAbil" abil="NovaCoopCasterNuke">
+    <Icon value="Assets\Textures\RadarIcon2.dds" />
+  </CActorRange>
+  <CActorModel id="NovaCoopCasterNukeDrop">
+    <On Terms="Effect.NovaCoopCasterNukeDetonate.Start" Send="Create" />
+    <On Terms="Effect.NovaCoopCasterNukeDetonate.Start" Send="$Birth" />
+    <On Terms="Effect.NovaCoopCasterNukeDamage.Start" Send="Destroy" />
+    <HostSiteOps Ops="SOpTargetPointStationary SOpShadow" />
+  </CActorModel>
+  <CActorSound id="NovaCoopCasterNukeDropSound" parent="SoundContinuous">
+    <On Terms="Effect.NovaCoopCasterNukeDetonate.Start" Send="Create" />
+    <On Terms="Effect.NovaCoopCasterNukeDamage.Start" Send="Destroy" />
+    <Sound value="Ghost_NukeDrop" />
+  </CActorSound>
+  <CActorSquib id="NovaCoopCasterNukeExplode">
+    <On Terms="Effect.NovaCoopCasterNukeDamage.Start; At Effect" Send="Create" />
+    <HostSiteOps Ops="SOpTargetPointStationary SOpShadow" />
+    <Map index="None" Sound="Ghost_NukeExplode" />
+  </CActorSquib>
+  <CActorFoliageFXSpawner id="NovaCoopCasterNukeFoliageFXSpawner" parent="FoliageFXSpawnerFire">
+    <Radius value="5.000000" />
+    <On Terms="Effect.NovaCoopCasterNukeDamage.Start" Send="Create" />
+  </CActorFoliageFXSpawner>
+  <CActorModel id="NovaCoopCasterNukeIndicator">
+    <On Terms="Effect.NovaCoopCasterNukePersistent.Start" Send="Create" />
+    <On Terms="AnimDone; AnimName Stand" Send="$Death" />
+    <On Terms="AnimDone; AnimName Death" Send="Destroy" />
+    <On Terms="ActorCreation" Send="AnimSetTimeScaleGlobal 1.200000 Stand" />
+    <On Terms="ActorCreation" Send="$Stand 0 -1.000000 -1.000000 8.650000 AsDuration" />
+    <On Terms="ActorOrphan" Send="Destroy" />
+    <On Terms="ActorCreation; ValidatePlayer HaveUnfriendlyNukeIndicator" Send="SetFilter Enemy" />
+  </CActorModel>
+  <CActorSound id="NovaCoopCasterNukeSeek" parent="SoundContinuous">
+    <Sound value="Ghost_NukeLaunch" />
+    <On Terms="Effect.NovaCoopCasterNukeLaunchDummy.Start; At Target" Send="Create" />
+    <On Terms="ActorCreation" Send="TimerSet 5.000000 DelayDestroy" />
+    <On Terms="TimerExpired; TimerName DelayDestroy" Send="Destroy" />
+  </CActorSound>
+  <CActorModel id="NovaCoopCasterNukeTarget" parent="ModelAnimationStyleOneShot">
+    <Filter index="Self" value="1" />
+    <Filter index="Ally" value="1" />
+    <On Terms="Effect.NovaCoopCasterNukePersistent.Start" Send="Create" />
+    <On Terms="Effect.NovaCoopCasterNukePersistent.Stop" Send="AnimBracketStop BSD" />
+  </CActorModel>
+  <CActorSquib id="NovaCoopCasterNukeLaunch">
+    <Map index="None" Sound="" />
+    <On Terms="Effect.NovaCoopCasterNukeLaunchDummy.Start; At Target" Send="Create" />
+  </CActorSquib>
+  <CActorSplat id="NovaCoopCasterNukeCursorSplat" parent="TerranCursorSplat" abil="NovaCoopCasterNuke">
+    <Model value="nukeCursorSplat" />
+  </CActorSplat>
+  <CActorRegionCircle id="NovaCoopCasterNukeTreeKiller">
+    <Radius value="8.000000" />
+    <On Terms="Effect.NovaCoopCasterNukeDamage.Start; At Effect" Send="Create" />
+    <On Terms="ActorCreation" Send="QueryRegion ::Self TreeBurnQuery AgainstCenter" />
+    <On Terms="ActorCreation" Send="QueryRegion ::Self NukedQuery AgainstCenter" />
+    <On Terms="Effect.NovaCoopCasterNukeDamage.Start; At Effect" Send="Destroy" />
+  </CActorRegionCircle>
+  <CActorModel id="NovaCoopCasterDisableDetector" parent="ModelAnimationStyleContinuous">
+    <On Terms="Effect.NovaCoopCasterDisableDetectorCP.Start" Send="Create" />
+    <On Terms="ActorCreation" Send="SetOpacity 0.450000" />
+    <On Terms="ActorCreation" Send="SetScale 0.200000" />
+    <On Terms="ActorCreation" Send="SetScale 1.000000 0.250000" />
+    <On Terms="Effect.NovaCoopCasterDisableDetectorCP.Stop" Send="AnimBracketStop BSD" />
+    <HostSiteOps Ops="SOpShadow" />
+    <ModelFlags index="AutomateGlobalLoops" value="1" />
+  </CActorModel>
+  <CActorUnit id="NovaGriffinBombingRunTargeter" parent="GenericUnitBase" unitName="NovaGriffinBombingRunTargeter">
+    <Model value="Invisible" />
+    <On Terms="Effect.NovaGriffinBombingRunCreateStrafer.Start" Target="NovaGriffinBombingRunTargetingGuide" Send="Destroy" />
+  </CActorUnit>
+  <CActorSplat id="NovaGriffinBombingRunAoECursor" parent="ProtossCursorSplat" abil="NovaGriffinBombingRunTargetingDummy">
+    <EditorCategories value="" />
+    <Model value="TerranAOECursorSplat" />
+    <Scale value="1.500000" />
+  </CActorSplat>
+  <CActorModel id="NovaGriffinBombingRunTargetingModel">
+    <On Terms="ActorCreation" Send="$Stand PlayForever" />
+    <On Terms="Signal.*.Destroy" Send="Destroy" />
+    <Model value="Invisible" />
+    <HostSiteOps Ops="SOpShadow" />
+  </CActorModel>
+  <CActorQuad id="NovaGriffinBombingRunGuide" parent="ZergGuideVisualQuadDown" abil="NovaGriffinBombingRunExecute">
+    <Height value="18.000000" />
+    <Width value="6.000000" />
+    <FogVisibility value="Visible" />
+    <LaunchActor value="TerranGuideVisualQuadLaunch" />
+    <CenterActor value="TerranGuideVisualQuadCenter" />
+    <ImpactActor value="TerranGuideVisualQuadImpact" />
+    <HostSiteOps Ops="SOpAttachOrigin SOpMoveBackBy1" />
+  </CActorQuad>
+  <CActorUnit id="NovaGriffinBombingRunStrafer" parent="GenericUnitStandard" unitName="NovaGriffinBombingRunStrafer">
+    <Aliases value="_UnitLarge" />
+    <Macros value="TerrainSquibAnimations" />
+    <Macros value="PhysicsDeathsSwarmAir" />
+    <Macros value="PhysicsDeathsVoidAir" />
+    <HostSiteOps Ops="SOpBankerMedivac NovaGriffinBombingRunStraferOffset" />
+    <ModelFlags index="OutlineEmitter" value="1" />
+    <Baselines index="Walk" BlendIn="1.500000" BlendOut="2.000000" />
+    <PhysicsMatchKeysOrdered value="BasicAir,Basic" />
+    <PortraitModel value="MedivacPortrait" />
+    <TerrainSquibs>
+      <MovementDistance value="0.150000,0.150000" />
+      <IdlePeriod value="0.250000,0.500000" />
+      <RangeDown value="5.000000" />
+      <RangeDownFade value="1.000000" />
+      <AttachQuery Methods="AMFilterCenter" />
+      <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleMassive15" />
+    </TerrainSquibs>
+    <GroupIcon>
+      <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds" />
+    </GroupIcon>
+    <HeroIcon value="Assets\Textures\btn-unit-terran-medivac.dds" />
+    <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds" />
+    <NameOffset value="50" />
+    <UnitIcon value="Assets\Textures\btn-unit-terran-medivac.dds" />
+    <Wireframe>
+      <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds" />
+    </Wireframe>
+    <On Terms="ActorCreation" Send="AnimPlay Entry Stand,Work,Start 0 0.000000" />
+    <On Terms="AnimDone; AnimName Entry" Send="AnimPlay Bomb Stand,Work PlayForever" />
+    <On Terms="AnimDone; AnimName Entry" Send="TimerSet 1.800000 BombingRun" />
+    <On Terms="TimerExpired; TimerName BombingRun" Send="AnimPlay TakeOff Stand,Work,End 0 -1.000000 -1.000000 0.500000 AsTimeScale" />
+  </CActorUnit>
+  <CActorSiteOpLocalOffset id="NovaGriffinBombingRunStraferOffset">
+    <LocalOffset value="0.000000,7.000000,-2.000000" />
+  </CActorSiteOpLocalOffset>
+  <CActorSound id="NovaAC_Griffin_Transport_FlyIn_High_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Transport_FlyIn_High" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Transport_FlyOut_High_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Transport_FlyOut_High" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Transport_FlyOut_Rear_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Transport_FlyOut_Rear" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Transport_IdleLoop_ActorSound" parent="SoundContinuous">
+    <Sound value="NovaAC_Griffin_Transport_IdleLoop" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Transport_Teleport_In_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Transport_Teleport" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Transport_Teleport_Out_ActorSound" parent="SoundOneShot">
+    <On Terms="Behavior.Griffin_TeleportOut_COOP.On" Send="Create" />
+    <Sound value="NovaAC_Griffin_Transport_Teleport" />
+    <Host Subject="_Unit" />
+    <HostSiteOps Ops="SOpAttachOriginStationary" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Transport_Cloak_On_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Transport_Cloak_On" />
+  </CActorSound>
+  <CActorSound id="NovaAC_Griffin_Transport_Cloak_Off_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Griffin_Transport_Cloak_Off" />
+  </CActorSound>
+  <CActorUnit id="NovaGriffinTransportUnit" parent="GenericUnitStandard" unitName="NovaGriffinTransportUnit">
+    <Aliases value="_UnitLarge" />
+    <Macros value="MedivacTransportAnim" />
+    <Macros value="TerrainSquibAnimations" />
+    <Macros value="PhysicsDeathsSwarmAir" />
+    <Macros value="PhysicsDeathsVoidAir" />
+    <HostSiteOps Ops="SOpBankerMedivac SOpMoveDownBy2" />
+    <ModelFlags index="OutlineEmitter" value="1" />
+    <Baselines index="Walk" BlendIn="1.500000" BlendOut="2.000000" />
+    <PhysicsMatchKeysOrdered value="BasicAir,Basic" />
+    <PortraitModel value="MedivacPortrait" />
+    <TerrainSquibs>
+      <MovementDistance value="0.150000,0.150000" />
+      <IdlePeriod value="0.250000,0.500000" />
+      <RangeDown value="5.000000" />
+      <RangeDownFade value="1.000000" />
+      <AttachQuery Methods="AMFilterCenter" />
+      <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleMassive15" />
+    </TerrainSquibs>
+    <BarOffset value="50" />
+    <BarWidth value="80" />
+    <GroupIcon>
+      <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds" />
+    </GroupIcon>
+    <HeroIcon value="Assets\Textures\btn-unit-terran-medivac.dds" />
+    <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds" />
+    <NameOffset value="50" />
+    <UnitIcon value="Assets\Textures\btn-unit-terran-medivac.dds" />
+    <Wireframe>
+      <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds" />
+    </Wireframe>
+    <On Terms="ActorCreation" Send="AnimPlay Work Stand,Work,Start 0 0.000000" />
+    <On Terms="AnimDone; AnimName Work" Send="AnimPlay Work Stand,Work,B" />
+    <On Terms="Behavior.NovaGriffinTransportUnloadUnitsDespawn.On" Send="TimerSet 0.500000 Despawn" />
+    <On Terms="TimerExpired; TimerName Despawn" Send="AnimPlay Work Stand,Work,End,B 0 -1.000000 -1.000000 1.500000 AsDuration" />
+    <On Terms="Abil.NovaGriffinTransportUnloadUnits.SourceCastStart" Send="Create Griffin_TeleportOut_COOP" />
+    <On Terms="Behavior.Griffin_TeleportIn_COOP.On" Send="Create Griffin_TeleportIn_COOP" />
+    <On Terms="Behavior.Griffin_TeleportIn_COOP.Off" Send="SetOpacity 1.000000" />
+    <On Terms="Behavior.Griffin_TeleportOut_COOP.On" Send="SetOpacity" />
+    <On Terms="Behavior.Griffin_TeleportOut_COOP.On" Send="Create Griffin_TeleportOut_COOP" />
+    <On Terms="ActorCreation" Send="Create NovaAC_Griffin_Transport_FlyIn_High_ActorSound" />
+    <On Terms="ActorCreation" Send="Create NovaAC_Griffin_Transport_FlyIn_Low_ActorSound" />
+    <On Terms="ActorCreation" Send="Create NovaAC_Griffin_Transport_FlyIn_LFE_ActorSound" />
+    <On Terms="ActorCreation" Send="Create NovaAC_Griffin_Load_ActorSound" />
+    <On Terms="ActorCreation" Send="Create NovaAC_Griffin_Transport_Cloak_Off_ActorSound" />
+    <On Terms="ActorCreation" Send="Create NovaAC_Griffin_Transport_IdleLoop_ActorSound" />
+    <On Terms="Behavior.Griffin_TeleportIn_COOP.On" Send="Create NovaAC_Griffin_Transport_Teleport_In_ActorSound" />
+    <On Terms="Behavior.NovaGriffinTransportUnloadUnitsDespawn.On" Target="NovaAC_Griffin_Transport_IdleLoop_ActorSound" Send="Destroy" />
+    <On Terms="Behavior.NovaGriffinTransportUnloadUnitsDespawn.On" Target="NovaAC_Griffin_Transport_FlyIn_High_ActorSound" Send="Destroy" />
+    <On Terms="Behavior.NovaGriffinTransportUnloadUnitsDespawn.On" Send="Create NovaAC_Griffin_Transport_FlyOut_High_ActorSound" />
+    <On Terms="Behavior.NovaGriffinTransportUnloadUnitsDespawn.On" Send="Create NovaAC_Griffin_Transport_FlyOut_Low_ActorSound" />
+    <On Terms="Behavior.NovaGriffinTransportUnloadUnitsDespawn.On" Send="Create NovaAC_Griffin_Transport_FlyOut_Rear_ActorSound" />
+    <On Terms="Behavior.Griffin_TeleportOut_COOP.On" Send="Create NovaAC_Griffin_Transport_Cloak_On_ActorSound" />
+    <On Terms="Behavior.NovaGriffinTransportUnloadUnitsDespawn.On" Send="Create NovaAC_Griffin_Transport_Cloak_On_ActorSound" />
+    <On Terms="Behavior.NovaGriffinTransportUnloadUnitsDespawn.On" Target="NovaAC_Griffin_Load_ActorSound" Send="Destroy" />
+    <On Terms="Behavior.NovaGriffinTransportUnloadUnitsDespawn.On" Send="Create NovaAC_Griffin_Unload_ActorSound" />
+    <StatusBarFlags index="Life" value="0" />
+    <StatusBarFlags index="Cargo" value="0" />
+    <StatusBarOn index="Duration" value="1" />
+  </CActorUnit>
+  <CActorSplat id="NovaGriffinTransportUnitTargetingSplat" parent="ProtossCursorSplat" abil="NovaGriffinTransportLoadUnits">
+    <EditorCategories value="" />
+    <Model value="TerranAOECursorSplat" />
+  </CActorSplat>
+  <CActorModel id="NovaGriffinBombingRunStraferAttackLaunch" parent="ModelAnimationStyleOneShot">
+    <Flags index="SuppressCreationErrors" value="1" />
+  </CActorModel>
+  <CActorModel id="NovaGriffinBombingRunStraferAttackImpact" parent="ModelAnimationStyleOneShot">
+    <Flags index="SuppressCreationErrors" value="1" />
+    <HostSiteOps HoldPosition="1" HoldRotation="1" />
+  </CActorModel>
+  <CActorQuad id="NovaOdinAnnihilateGuide" parent="GuideVisualQuadDown" abil="NovaOdinAnnihilate">
+    <Height value="12.000000" />
+    <Width value="6.000000" />
+  </CActorQuad>
+  <CActorRange id="NovaOdinAnnihilateRange">
+    <Flags index="SuppressSaveLoad" value="1" />
+    <On Terms="Abil.NovaOdinAnnihilate.TargetOn" Send="Create" />
+    <On Terms="Abil.NovaOdinAnnihilate.TargetOff" Send="Destroy" />
+    <Range value="10.500000" />
+  </CActorRange>
+  <CActorSound id="NovaOdinAnnihilate_Cast_ActorSound" parent="SoundOneShot">
+    <On Terms="Effect.NovaOdinAnnihilateInitialCreatePersistent.Start" Send="Create" />
+    <Sound value="Marauder_AttackLaunch" />
+  </CActorSound>
+  <CActorSound id="NovaOdinAnnihilate_Impact_ActorSound" parent="SoundOneShot">
+    <On Terms="Effect.NovaOdinAnnihilateDamage.Start" Send="Create" />
+    <Sound value="Marauder_AttackImpact" />
+  </CActorSound>
+  <CActorModel id="NovaOdinAnnihilateImpact" parent="ModelAnimationStyleOneShot">
+    <On Terms="Effect.NovaOdinAnnihilateDamage.Start; At TargetOuter" Send="Create" />
+    <HostSiteOps Ops="SOpAttachOrigin" />
+    <Model value="HellionTankAttackFireAddition" />
+  </CActorModel>
+  <CActorModel id="NovaOdinAnnihilate" parent="ModelAnimationStyleOneShot">
+    <On Terms="Effect.NovaOdinAnnihilateSearch.Start" Send="Create" />
+  </CActorModel>
+  <CActorModel id="NovaCoopCasterDefensiveMatrixLaunchModel" parent="ModelAnimationStyleOneShot">
+    <On Terms="Effect.NovaCoopCasterDefensiveMatrixSearch.Start" Send="Create" />
+    <On Terms="ActorCreation" Send="AnimSetTimeScale BSD 3.000000" />
+    <Model value="SOAOrbitalStrikeMissile" />
+  </CActorModel>
+  <CActorModel id="NovaCoopCasterStunGrenadeLaunchModel" parent="ModelAnimationStyleOneShot">
+    <On Terms="ActorCreation" Send="AnimSetTimeScale BSD 3.000000" />
+    <Model value="SOAOrbitalStrikeMissile" />
+  </CActorModel>
+  <CActorModel id="NovaCoopCasterAssaultInvulnerable" parent="ModelAnimationStyleContinuous">
+    <Inherits index="BaseModelScale" value="1" />
+    <Inherits index="CloakEffect" value="1" />
+    <Inherits index="Scale" value="1" />
+    <Inherits index="Visibility" value="1" />
+    <On Terms="Behavior.NovaInvulnerability.On" Send="Create" />
+    <On Terms="Behavior.NovaInvulnerability.Off" Send="Destroy" />
+    <Host Subject="_Unit" />
+    <HostSiteOps Ops="SOpAttachOrigin" />
+    <AutoScaleFactor value="1.300000" />
+    <ModelFlags index="AutomateGlobalLoops" value="1" />
+  </CActorModel>
+  <CActorSound id="NovaAC_Mode_Assault_AS" parent="SoundOneShot">
+    <On Terms="Behavior.NovaDoubleDamage.On" Send="Create" />
+    <On Terms="Behavior.NovaDoubleDamage.Off" Send="Destroy" />
+    <Sound value="NovaAC_Mode_Assault" />
+  </CActorSound>
+  <CActorModel id="NovaCoopCasterStealthDamage" parent="ModelAnimationStyleContinuous">
+    <Host Subject="_Unit" />
+    <HostSiteOps Ops="SOpAttachOrigin" />
+    <On Terms="Behavior.NovaDoubleDamage.On" Send="Create" />
+    <On Terms="Behavior.NovaDoubleDamage.Off" Send="Destroy" />
+    <Inherits index="BaseModelScale" value="1" />
+    <Inherits index="CloakEffect" value="1" />
+    <Inherits index="Scale" value="1" />
+    <Inherits index="Visibility" value="1" />
+    <AutoScaleFactor value="1.300000" />
+  </CActorModel>
+  <CActorSound id="NovaAC_Mode_Stealth_AS" parent="SoundOneShot">
+    <On Terms="Behavior.NovaInvulnerability.On" Send="Create" />
+    <On Terms="Behavior.NovaInvulnerability.Off" Send="Destroy" />
+    <Sound value="NovaAC_Mode_Stealth" />
+    <Layers>
+      <Sound value="NovaCoop_CloakOn" />
+      <PitchSource value="Sound" />
+      <PlayDelaySource value="Sound" />
+      <VolumeSource value="Sound" />
+      <Chance value="100" />
+      <Pitch value="0.000000,0.000000" />
+      <PlayDelay value="0,0" />
+      <Volume value="0.000000,0.000000" />
+    </Layers>
+  </CActorSound>
+  <CActorModel id="NovaReviveGriffinDropOff">
+    <On Terms="ActorCreation" Send="AnimPlay Dropoff Stand,Work,01" />
+    <On Terms="AnimDone" Send="Destroy" />
+    <HostSiteOps Ops="SOpShadow" />
+  </CActorModel>
+  <CActorSound id="Nova_BuyBack_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Instant_Revive" />
+    <HostSiteOps Ops="SOpTargetPoint" />
+  </CActorSound>
+  <CActorSound id="Nova_BuyBack_High_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Instant_Revive_High" />
+    <HostSiteOps Ops="SOpTargetPoint" />
+  </CActorSound>
+  <CActorSound id="Nova_BuyBack_Low_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Instant_Revive_Low" />
+    <HostSiteOps Ops="SOpTargetPoint" />
+  </CActorSound>
+  <CActorSound id="Nova_BuyBack_Rear_ActorSound" parent="SoundOneShot">
+    <Sound value="NovaAC_Instant_Revive_Rear" />
+    <HostSiteOps Ops="SOpTargetPoint" />
+  </CActorSound>
+</Catalog>

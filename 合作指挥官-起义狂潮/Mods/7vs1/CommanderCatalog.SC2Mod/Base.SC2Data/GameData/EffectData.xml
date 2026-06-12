@@ -122,199 +122,205 @@
   <CEffectSet id="SIStukovMassNeuralParasiteTargetExpireSet">
     <EffectArray value="Suicide" />
   </CEffectSet>
-  <CEffectSet id="NovaGriffinBombingRunDummyLocationSearch">
-    <EditorCategories value="" />
-    <TargetLocationType value="Point" />
-  </CEffectSet>
-  <CEffectSet id="NovaGriffinBombingRunTargetingDummy">
-    <EditorCategories value="Race:Terran" />
-    <TargetLocationType value="Point" />
-  </CEffectSet>
-  <CEffectSet id="NovaGriffinBombingRunDummySearch">
-    <EditorCategories value="Race:Terran" />
-    <SearchFilters value="-;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable" />
-    <AreaArray RectangleWidth="6" RectangleHeight="16" Effect="NovaGriffinBombingRunDamage" />
-  </CEffectSet>
-  <CEffectSet id="NovaGriffinBombingRunInitialSet">
-    <EffectArray value="NovaGriffinBombingRunCreateStrafer" />
-    <EffectArray value="SuicideRemove" />
-    <TargetLocationType value="Point" />
-    <EditorCategories value="Race:Terran" />
-  </CEffectSet>
-  <CEffectCreateUnit id="NovaGriffinBombingRunCreateStrafer">
-    <EditorCategories value="Race:Terran" />
-    <CreateFlags index="Placement" value="0" />
-    <CreateFlags index="UseFood" value="0" />
-    <SpawnEffect value="NovaGriffinBombingRunAB" />
-    <SpawnUnit value="NovaGriffinBombingRunStrafer" />
-    <SpawnRange value="0" />
-    <WhichLocation Value="SourcePoint" />
-  </CEffectCreateUnit>
-  <CEffectApplyBehavior id="NovaGriffinBombingRunAB">
-    <EditorCategories value="Race:Terran" />
-    <WhichUnit Value="TargetOuter" />
-    <Behavior value="NovaGriffinBombingRun" />
-  </CEffectApplyBehavior>
-  <CEffectApplyBehavior id="NovaGriffinBombingRunDespawnAB">
-    <EditorCategories value="Race:Terran" />
-    <Behavior value="NovaGriffinBombingRunDespawn" />
-  </CEffectApplyBehavior>
-  <CEffectCreatePersistent id="NovaGriffinBombingRunInitialCP">
-    <EditorCategories value="Race:Terran" />
-    <WhichLocation Value="TargetUnit" />
-    <OffsetVectorStartLocation Value="TargetUnit" />
-    <OffsetVectorEndLocation Value="TargetUnit" />
-    <InitialEffect value="NovaGriffinBombingRunExecuteSet" />
-  </CEffectCreatePersistent>
-  <CEffectSet id="NovaGriffinBombingRunExecuteSet">
-    <EditorCategories value="Race:Terran" />
-    <EffectArray value="NovaGriffinBombingRunLM" />
-    <EffectArray value="NovaGriffinBombingRunExecuteCP" />
-  </CEffectSet>
-  <CEffectLaunchMissile id="NovaGriffinBombingRunLM">
-    <EditorCategories value="Race:Zerg" />
-    <ImpactLocation Effect="NovaGriffinBombingRunInitialSet" Value="TargetPoint" />
-    <Movers Link="NovaGriffinBombingRunGriffinMover" />
-    <DeathType value="Unknown" />
-  </CEffectLaunchMissile>
-  <CEffectCreatePersistent id="NovaGriffinBombingRunExecuteCP">
-    <EditorCategories value="Race:Terran" />
-    <Marker>
-      <MatchFlags index="Id" value="1" />
-    </Marker>
-    <WhichLocation Value="OriginPoint" />
-    <TimeScaleSource Value="Caster" />
-    <OffsetVectorStartLocation Value="OriginPoint" />
-    <InitialDelay value="0.5" />
-    <PeriodCount value="10" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunEndPoint" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDelayCP" />
-    <PeriodicOffsetArray value="0,-16,0" />
-    <PeriodicOffsetArray value="0,0.05,0" />
-    <PeriodicOffsetArray value="0,-2,0" />
-    <PeriodicOffsetArray value="0,-4,0" />
-    <PeriodicOffsetArray value="0,-6,0" />
-    <PeriodicOffsetArray value="0,-8,0" />
-    <PeriodicOffsetArray value="0,-10,0" />
-    <PeriodicOffsetArray value="0,-12,0" />
-    <PeriodicOffsetArray value="0,-14,0" />
-    <PeriodicOffsetArray value="0,-16,0" />
-    <PeriodicPeriodArray value="0.125" />
-  </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="NovaGriffinBombingRunEndPoint">
-    <PeriodCount value="1" />
-    <EditorCategories value="Race:Terran" />
-  </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="NovaGriffinBombingRunDelayCP">
-    <EditorCategories value="Race:Terran" />
-    <OffsetVectorStartLocation Value="OriginPoint" />
-    <PeriodCount value="1" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunSearch" />
-    <PeriodicPeriodArray value="3" />
-  </CEffectCreatePersistent>
-  <CEffectSet id="NovaGriffinBombingRunRandomPointSet">
-    <EffectArray value="NovaGriffinBombingRunRandomPointCPRightSide" />
-    <EffectArray value="NovaGriffinBombingRunRandomPointCPLeftSide" />
-    <TargetLocationType value="Point" />
-    <EditorCategories value="Race:Terran" />
-  </CEffectSet>
-  <CEffectCreatePersistent id="NovaGriffinBombingRunStraferDummyLMCP">
-    <EditorCategories value="Race:Terran" />
-    <WhichLocation Value="SourcePoint" />
-    <Flags index="RandomOffset" value="1" />
-    <PeriodCount value="30" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunRandomPointSet" />
-    <PeriodicPeriodArray value="0.05" />
-    <InitialDelay value="0.1" />
-  </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="NovaGriffinBombingRunRandomPointCPRightSide">
-    <EditorCategories value="Race:Terran" />
-    <WhichLocation Value="SourcePoint" />
-    <Flags index="RandomOffset" value="1" />
-    <PeriodCount value="1" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDummyLMRightSide" />
-    <PeriodicOffsetArray value="2.5,-6.5,0" />
-    <PeriodicOffsetArray value="2.2,-6.5,0" />
-    <PeriodicOffsetArray value="1.9,-6.5,0" />
-    <PeriodicOffsetArray value="1.6,-6.5,0" />
-    <PeriodicOffsetArray value="1.3,-6.5,0" />
-    <PeriodicOffsetArray value="1,-6.5,0" />
-    <PeriodicOffsetArray value="0.7,-6.5,0" />
-    <PeriodicOffsetArray value="0.4,-6.5,0" />
-    <PeriodicOffsetArray value="0.1,-6.5,0" />
-    <PeriodicOffsetArray value="-0.2,-6.5,0" />
-  </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="NovaGriffinBombingRunRandomPointCPLeftSide">
-    <EditorCategories value="Race:Terran" />
-    <WhichLocation Value="SourcePoint" />
-    <Flags index="RandomOffset" value="1" />
-    <PeriodCount value="1" />
-    <PeriodicEffectArray value="NovaGriffinBombingRunDummyLMLeftSide" />
-    <PeriodicOffsetArray value="-2.5,-6.5,0" />
-    <PeriodicOffsetArray value="-2.2,-6.5,0" />
-    <PeriodicOffsetArray value="-1.9,-6.5,0" />
-    <PeriodicOffsetArray value="-1.6,-6.5,0" />
-    <PeriodicOffsetArray value="-1.3,-6.5,0" />
-    <PeriodicOffsetArray value="-1,-6.5,0" />
-    <PeriodicOffsetArray value="-0.7,-6.5,0" />
-    <PeriodicOffsetArray value="-0.4,-6.5,0" />
-    <PeriodicOffsetArray value="-0.1,-6.5,0" />
-    <PeriodicOffsetArray value="0.2,-6.5,0" />
-  </CEffectCreatePersistent>
-  <CEffectLaunchMissile id="NovaGriffinBombingRunDummyLMRightSide">
-    <EditorCategories value="Race:Terran" />
-    <FinishEffect value="NovaGriffinBombingRunDummyLocationSearch" />
-    <Movers Link="NovaGriffinBombingRunDummyAttackMissileRight" />
-    <AmmoUnit value="NovaGriffinBombingRunDummyLMWeapon" />
-  </CEffectLaunchMissile>
-  <CEffectLaunchMissile id="NovaGriffinBombingRunDummyLMLeftSide">
-    <EditorCategories value="Race:Terran" />
-    <FinishEffect value="NovaGriffinBombingRunDummyLocationSearch" />
-    <Movers Link="NovaGriffinBombingRunDummyAttackMissileLeft" />
-    <AmmoUnit value="NovaGriffinBombingRunDummyAltLMWeapon" />
-  </CEffectLaunchMissile>
-  <CEffectDamage id="NovaGriffinBombingRunRemoveStrafer">
-    <ImpactLocation Value="TargetUnit" />
-    <Visibility value="Hidden" />
-    <Flags index="Kill" value="1" />
-    <Flags index="NoKillCredit" value="1" />
-    <Death value="Remove" />
-    <EditorCategories value="Race:Terran" />
-  </CEffectDamage>
-  <CEffectEnumArea id="NovaGriffinBombingRunDummySearch">
-    <EditorCategories value="Race:Terran" />
-    <SearchFilters value="-;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable" />
-    <AreaArray RectangleWidth="6" RectangleHeight="16" Effect="NovaGriffinBombingRunDamage" />
-  </CEffectEnumArea>
-  <CEffectEnumArea id="NovaGriffinBombingRunSearch">
-    <EditorCategories value="Race:Terran" />
-    <SearchFilters value="-;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable" />
-    <AreaArray RectangleWidth="6" RectangleHeight="2" Effect="NovaGriffinBombingRunDamage" />
-    <RevealerParams Duration="1" ShapeExpansion="0.5">
-      <RevealFlags index="Unfog" value="1" />
-    </RevealerParams>
-    <ImpactLocation Value="TargetPoint" />
-    <LaunchLocation Value="OriginPoint" />
-  </CEffectEnumArea>
-  <CEffectDamage id="NovaGriffinBombingRunDamage">
-    <EditorCategories value="Race:Terran" />
-    <Amount value="500" />
-    <Flags index="Notification" value="1" />
-    <Death value="Blast" />
-    <ValidatorArray value="noMarkers" />
-    <SearchFlags index="SameCliff" value="0" />
-  </CEffectDamage>
-  <CEffectApplyBehavior id="NovaGriffinBombingRunStraferDummyLMAB">
-    <EditorCategories value="Race:Terran" />
-    <WhichUnit Value="Caster" />
-    <Behavior value="NovaGriffinBombingRunStraferDummyLM" />
-  </CEffectApplyBehavior>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </Catalog>

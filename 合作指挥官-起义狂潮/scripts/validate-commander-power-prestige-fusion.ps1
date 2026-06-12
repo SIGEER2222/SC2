@@ -156,7 +156,6 @@ $profileGalaxy = Get-Content -LiteralPath $profileGalaxyPath -Encoding UTF8 -Raw
 $runtimeGalaxy = $generatedGalaxy + "`n" + $profileGalaxy
 
 $sourceUpgradePaths = @(
-    (Join-Path $workspaceRoot "Mods\7vs1\7v1AbathurRebornPatch.SC2Mod\Base.SC2Data\GameData\UpgradeData.xml"),
     (Join-Path $repoRoot "_codex_7vs1_source_root\s2ma_packages\pkg01\extract\base.sc2data\GameData\UpgradeData.xml"),
     (Join-Path $repoRoot "_codex_7vs1_source_root\s2ma_packages\pkg01\extract\base.sc2data\GameData\Commanders\CommanderTychus.xml"),
     (Join-Path $repoRoot "_codex_7vs1_source_root\s2ma_packages\pkg01\extract\base.sc2data\GameData\Commanders\FutureCommanders.xml")

@@ -1379,6 +1379,11 @@ bool gt_StartGame_Func (bool testConds, bool runActions) {
     }
 
     libE0EAE146_gf_StartGame();
+    if ((PlayerCommander(gv_p1_USER) == "Abathur")) {
+        libE0EAE146_gv_abathurBiomassTestPickupCreated = true;
+        libE0EAE146_gf_InitializeAbathurBiomass(gv_p1_USER, "BiomassPickupDummy");
+        libE0EAE146_gf_CreateAbathurBiomassPickup(PointWithOffsetPolar(PlayerStartLocation(gv_p1_USER), 4.0, 0.0), 200);
+    }
     libNtve_gf_ShareVisionofUnit(UnitFromId(34), true, gv_p1_USER);
     TimerStart(gv_protossAggroTimer, 180.0, false, c_timeGame);
     lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/3675CDE7"), 1, true, 0, 7);

@@ -1,0 +1,644 @@
+<Catalog>
+  <CAbilEffectTarget id="NovaCoopCasterNuke">
+    <Alignment value="Negative" />
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaCoopCasterNukePersistent" />
+    <Cost>
+      <Charge>
+        <CountMax value="1" />
+        <CountUse value="1" />
+        <Link value="Unit/NovaDecoy" />
+        <Location value="Global" />
+        <TimeStart value="600" />
+        <TimeUse value="420" />
+      </Charge>
+    </Cost>
+    <Range value="13" />
+    <Arc value="360" />
+    <CancelableArray index="Channel" value="1" />
+    <UninterruptibleArray index="Channel" value="1" />
+    <UninterruptibleArray index="Finish" value="1" />
+    <ValidatedArray index="Channel" value="0" />
+    <AlertArray index="Cast" value="CalldownLaunch" />
+    <CursorEffect value="NovaCoopCasterNukeDamage" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaCoopCasterNuke" State="Restricted" Requirements="HaveShadowOpsandNovaStealthSuit" />
+    <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel" />
+  </CAbilEffectTarget>
+  <CAbilEffectInstant id="NovaCoopCasterStunGrenadeInstant">
+    <EditorCategories value="AbilityorEffectType:Units,Race:Terran" />
+    <Effect index="0" value="NovaCoopCasterStunGrenadeSearch" />
+    <CursorEffect value="NovaGadgetFlashBangGrenadeSearch" />
+    <AINotifyEffect value="NovaCoopCasterStunGrenade" />
+    <Flags index="AutoCast" value="1" />
+    <Flags index="AutoCastOn" value="1" />
+    <Cost>
+      <Vital index="Energy" value="50" />
+      <Cooldown TimeUse="3" />
+    </Cost>
+    <AutoCastRange value="3" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaCoopCasterStunGrenades" />
+  </CAbilEffectInstant>
+  <CAbilEffectTarget id="NovaCoopDecoyTarget">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaCoopDecoy" />
+    <Cost>
+      <Cooldown>
+        <Link value="Unit/NovaDecoy" />
+        <Location value="Global" />
+        <TimeStart value="600" />
+        <TimeUse value="420" />
+      </Cooldown>
+    </Cost>
+    <Range value="6" />
+    <ProducedUnitArray value="NovaCoopDecoy" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaCoopDecoy" Requirements="HaveNovaCombatSuit" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaCoopDecoyCooldownDummy">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaCoopDecoy" />
+    <Cost>
+      <Cooldown>
+        <Link value="Unit/NovaDecoy" />
+        <Location value="Global" />
+        <TimeStart value="600" />
+        <TimeUse value="420" />
+      </Cooldown>
+    </Cost>
+    <Range value="6" />
+    <ProducedUnitArray value="NovaCoopDecoy" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaCoopDecoy" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaGadgetBoombots">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaCreateBoomBotsSet" />
+    <Flags index="RequireTargetVision" value="0" />
+    <Cost>
+      <Vital index="Energy" value="100" />
+      <Charge Link="NovaGadgetBoombots" />
+      <Cooldown TimeUse="45" />
+    </Cost>
+    <Range value="500" />
+    <AINotifyEffect value="NovaCreateBoomBots" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaGadgetBoombots" Requirements="HaveNovaStealthSuit" />
+    <ProducedUnitArray value="NovaBoombot" />
+    <CursorEffect value="NovaBoombotBoomDamage" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaOdinAnnihilate">
+    <EditorCategories value="AbilityorEffectType:Units" />
+    <Arc value="90" />
+    <Effect index="0" value="NovaOdinAnnihilateInitialCreatePersistent" />
+    <Range value="500" />
+    <UninterruptibleArray index="Cast" value="1" />
+    <UninterruptibleArray index="Channel" value="1" />
+    <CursorEffect value="NovaOdinAnnihilateSearch" />
+    <Cost>
+      <Cooldown TimeUse="15" />
+    </Cost>
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaOdinAnnihilate">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+  </CAbilEffectTarget>
+  <CAbilMorph id="NovaBoombotBurrow">
+    <AbilSetId value="BrwD" />
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaBoombotBurrow">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+    <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel" />
+    <ActorKey value="BurrowDown" />
+    <Flags index="IgnoreFacing" value="1" />
+    <Flags index="IgnorePlacement" value="0" />
+    <Flags index="SuppressMovement" value="1" />
+    <Flags index="WaitUntilStopped" value="0" />
+    <InfoArray Unit="NovaBoombotBurrowed" RandomDelayMax="0.5">
+      <SectionArray index="Actor">
+        <DurationArray index="Duration" value="3" />
+      </SectionArray>
+      <SectionArray index="Collide">
+        <DurationArray index="Delay" value="0.5556" />
+      </SectionArray>
+      <SectionArray index="Stats">
+        <DurationArray index="Delay" value="3" />
+      </SectionArray>
+    </InfoArray>
+  </CAbilMorph>
+  <CAbilEffectTarget id="NovaPenetratorRound">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaPenetratorRoundInitialCP" />
+    <Cost>
+      <Cooldown TimeUse="20" />
+    </Cost>
+    <Range value="12" />
+    <CastIntroTime value="0.66" />
+    <FinishTime value="1.66" />
+    <UninterruptibleArray index="Cast" value="1" />
+    <UninterruptibleArray index="Finish" value="1" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaPenetratorRound" />
+  </CAbilEffectTarget>
+  <CAbilRevive id="NovaRevive" parent="ReviveSelf">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <CmdButtonArray index="Revive1" DefaultButtonFace="KerriganRevive" />
+    <CmdButtonArray index="ReviveAtTarget1" DefaultButtonFace="KerriganRevivePlacement" />
+    <Flags index="UnitOrderQueue" value="1" />
+    <BaseInfo>
+      <Cooldown Location="Player" TimeUse="0.1" />
+    </BaseInfo>
+    <Effect value="KerriganReviveHeal" />
+    <Offset value="0,0" />
+    <Range value="10" />
+    <Alert value="KerriganReviveComplete" />
+  </CAbilRevive>
+  <CAbilEffectTarget id="NovaReviveBeaconTeleport">
+    <Flags index="Smart" value="1" />
+    <Cost>
+      <Cooldown TimeStart="0.5" TimeUse="0.5" />
+    </Cost>
+    <Range value="500" />
+    <Arc value="360" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaReviveBeaconTeleport" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaReviveInstantBuyback">
+    <Cost>
+      <Resource index="Minerals" value="500" />
+      <Cooldown TimeUse="0.1" />
+    </Cost>
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaReviveInstantBuyback" Requirements="NovaBuybackRequirement" />
+    <Effect index="0" value="NovaReviveInstantBuybackDummy" />
+    <Range value="500" />
+    <Arc value="360" />
+  </CAbilEffectTarget>
+  <CAbilRevive id="NovaReviveTarget" parent="ReviveSelfAtTarget">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <CmdButtonArray index="Revive1" DefaultButtonFace="KerriganRevive" />
+    <CmdButtonArray index="ReviveAtTarget1" DefaultButtonFace="KerriganRevivePlacement" />
+    <Flags index="UnitOrderQueue" value="1" />
+    <BaseInfo>
+      <Cooldown Location="Player" TimeUse="0.1" />
+    </BaseInfo>
+    <Effect value="KerriganReviveHeal" />
+    <Range value="10" />
+    <Alert value="KerriganReviveComplete" />
+  </CAbilRevive>
+  <CAbilEffectTarget id="NovaBlink">
+    <EditorCategories value="Race:Protoss,AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaBlinkSet" />
+    <Flags index="BestUnit" value="0" />
+    <Flags index="RequireTargetVision" value="0" />
+    <Cost>
+      <Charge>
+        <CountMax value="3" />
+        <CountStart value="3" />
+        <CountUse value="1" />
+        <TimeStart value="8" />
+        <TimeUse value="8" />
+      </Charge>
+    </Cost>
+    <Range value="500" />
+    <Arc value="360" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="BlinkNova" Requirements="HaveNovaCombatSuit">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+  </CAbilEffectTarget>
+  <CAbilBehavior id="NovaSnipeActive">
+    <EditorCategories value="Race:Protoss,AbilityorEffectType:Units" />
+    <CmdButtonArray index="On" DefaultButtonFace="NovaSnipe" />
+    <CmdButtonArray index="Off" DefaultButtonFace="Cancel" />
+    <Flags index="Toggle" value="1" />
+    <BehaviorArray value="NovaSnipeActive" />
+  </CAbilBehavior>
+  <CAbilEffectTarget id="NovaSnipeExecute">
+    <EditorCategories value="Race:Protoss,AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaSnipeDamage" />
+    <Range value="500" />
+    <Arc value="360" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaSnipe" />
+    <PrepTime value="0.125" />
+    <Flags index="RequireTargetVision" value="0" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaSnipeTargetingDummy">
+    <EditorCategories value="Race:Protoss,AbilityorEffectType:Units" />
+    <Range value="500" />
+    <Arc value="360" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaSnipe" />
+    <Flags index="Transient" value="1" />
+    <CursorEffect value="SOAOrbitalStrikeImpactSearch" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaWeaponImprovedCanisterRifleSnipe">
+    <EditorCategories value="AbilityorEffectType:Units,Race:Terran" />
+    <Cost>
+      <Vital index="Energy" value="50" />
+    </Cost>
+    <TargetFilters value="Visible;Self,Player,Ally,Structure,Destructible,Stasis,Dead,Hidden,Invulnerable" />
+    <Range value="10" />
+    <CastIntroTime value="0.5" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaWeaponImprovedCanisterRifleSnipe" Requirements="HaveNovaStealthSuit" />
+    <Effect index="0" value="NovaWeaponImprovedCanisterRifleSnipeSet" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaWeaponHellfireShotgunBlast">
+    <Cost index="0">
+      <Cooldown TimeUse="0" />
+    </Cost>
+    <CmdButtonArray index="Execute" Requirements="HaveNovaCombatSuit" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaPsiStrike">
+    <CmdButtonArray index="Execute" Requirements="" />
+    <Flags index="AutoCast" value="1" />
+    <Flags index="AutoCastOn" value="1" />
+    <Flags index="TransientPreferred" value="1" />
+    <Cost index="0">
+      <Vital index="Energy" value="0" />
+      <Cooldown TimeUse="5" />
+    </Cost>
+    <AutoCastRange value="20" />
+    <AutoCastValidatorArray value="NovaBladeDanceCheck" />
+    <UninterruptibleArray index="Cast" value="1" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaGadgetPulseGrenades">
+    <CmdButtonArray index="Execute" Requirements="HaveNovaGadgetPulseGrenadesEquipped" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaGadgetFlashBangGrenades">
+    <CmdButtonArray index="Execute" Requirements="HaveNovaGadgetFlashBangGrenadesEquipped" />
+    <Cost index="0">
+      <Vital index="Energy" value="0" />
+      <Charge>
+        <CountMax value="65535" />
+        <CountUse value="1" />
+        <Link value="NovaGadgetFlashBangGrenades" />
+        <Location value="Player" />
+      </Charge>
+      <Cooldown TimeUse="0" />
+    </Cost>
+  </CAbilEffectTarget>
+  <CAbilEffectInstant id="NovaGadgetSuperStim">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <InfoTooltipPriority value="1" />
+    <Effect index="0" value="SuperStimpackNovaSet" />
+    <Flags index="Transient" value="1" />
+    <Cost>
+      <Cooldown TimeUse="25" />
+    </Cost>
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaGadgetSuperStim" Requirements="HaveNovaGadgetSuperStim">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+  </CAbilEffectInstant>
+  <CAbilSpecialize id="NovaEquipmentSwap">
+    <InfoArray index="Specialize1" Effect="NovaWeaponImprovedCanisterRifleABSet">
+      <Cooldown Link="Abil/NovaWeaponSwap" Location="Unit" TimeUse="60" />
+      <Button DefaultButtonFace="NovaWeaponImprovedCanisterRifleSwap" Requirements="HaveNovaWeaponImprovedCanisterRifleUse" />
+    </InfoArray>
+    <InfoArray index="Specialize2" Effect="NovaWeaponHellfireShotgunABSet">
+      <Cooldown Link="Abil/NovaWeaponSwap" Location="Unit" TimeUse="60" />
+      <Button DefaultButtonFace="NovaWeaponHellfireShotgunSwap" Requirements="HaveNovaWeaponHellfireShotgunUse" />
+    </InfoArray>
+    <InfoArray index="Specialize3" Effect="NovaWeaponInvictusLongshotABSet">
+      <Cooldown Link="Abil/NovaWeaponSwap" Location="Unit" TimeUse="60" />
+      <Button DefaultButtonFace="NovaWeaponInvictusLongshotSwap" Requirements="HaveNovaWeaponInvictusLongshotButNotEquipped" />
+    </InfoArray>
+    <InfoArray index="Specialize4" Effect="NovaWeaponPsiRifleABSet">
+      <Cooldown Link="Abil/NovaWeaponSwap" Location="Unit" TimeUse="60" />
+      <Button DefaultButtonFace="NovaWeaponPsiRifleSwap" Requirements="HaveNovaWeaponPsiRifleButNotEquipped" />
+    </InfoArray>
+    <InfoArray index="Specialize5" Effect="NovaWeaponPsiBladeABSet">
+      <Cooldown Link="Abil/NovaWeaponSwap" Location="Unit" TimeUse="60" />
+      <Button DefaultButtonFace="NovaWeaponPsiBladeSwap" Requirements="HaveNovaWeaponPsiBladeUse" />
+    </InfoArray>
+    <InfoArray index="Specialize6" Effect="NovaGadgetFlashbangGrenadesABSet">
+      <Cooldown Link="Abil/NovaGadgetSwap" Location="Unit" TimeUse="60" />
+      <Button DefaultButtonFace="NovaGadgetEquipFlashbangGrenades" Requirements="HaveNovaGadgetFlashBangGrenadesUse" />
+    </InfoArray>
+    <InfoArray index="Specialize7" Effect="NovaGadgetPulseGrenadesABSet">
+      <Cooldown Link="Abil/NovaGadgetSwap" Location="Unit" TimeUse="60" />
+      <Button DefaultButtonFace="NovaGadgetEquipPulseGrenades" Requirements="HaveNovaGadgetPulseGrenadesUse" />
+    </InfoArray>
+    <InfoArray index="Specialize8" Effect="NovaGadgetSuperStimABSet">
+      <Cooldown Link="Abil/NovaGadgetSwap" Location="Unit" TimeUse="60" />
+      <Button DefaultButtonFace="NovaGadgetEquipSuperStim" Requirements="HaveNovaGadgetSuperStimUse" />
+    </InfoArray>
+    <InfoArray index="Specialize9" Effect="NovaGadgetBoombotsABSet">
+      <Cooldown Link="Abil/NovaGadgetSwap" Location="Unit" TimeUse="60" />
+      <Button DefaultButtonFace="NovaGadgetBoombots" Requirements="HaveNovaGadgetBoombotsUse" />
+    </InfoArray>
+    <InfoArray index="Specialize10">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+    <InfoArray index="Specialize11">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+    <InfoArray index="Specialize12">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+    <InfoArray index="Specialize13">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+    <InfoArray index="Specialize14">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+    <InfoArray index="Specialize15">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+    <InfoArray index="Specialize16">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+    <InfoArray index="Specialize17">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+    <InfoArray index="Specialize18">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+    <InfoArray index="Specialize19">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+    <InfoArray index="Specialize20">
+      <Cooldown Location="Unit" TimeUse="60" />
+    </InfoArray>
+  </CAbilSpecialize>
+  <CAbilBehavior id="NovaKitSwap">
+    <Alignment value="Positive" />
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <CmdButtonArray index="On" DefaultButtonFace="NovaArmorCombatSuit" State="Restricted">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+    <CmdButtonArray index="Off" DefaultButtonFace="NovaArmorStealthSuit" State="Restricted">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+    <Flags index="Toggle" value="1" />
+    <Flags index="Transient" value="1" />
+    <Cost>
+      <Charge Link="Abil/NovaCloakSuit" />
+      <Cooldown Link="Abil/NovaSuitSwap" Location="Unit" TimeUse="45" />
+    </Cost>
+    <OffCost>
+      <Charge Link="Abil/NovaCloakSuit" />
+      <Cooldown Link="Abil/NovaSuitSwap" Location="Unit" TimeUse="45" />
+    </OffCost>
+    <BehaviorArray value="NovaCombatSuit" />
+  </CAbilBehavior>
+  <CAbilEffectTarget id="NovaUnitSmokeGrenade">
+    <EditorCategories value="AbilityorEffectType:Units,Race:Terran" />
+    <Effect index="0" value="NovaUnitSmokeGrenadeLM" />
+    <Range value="500" />
+    <Arc value="360" />
+    <CursorEffect value="NovaUnitSmokeGrenadeSearch" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaUnitSmokeGrenade" />
+    <Cost>
+      <Charge CountMax="5" CountUse="1" Location="Player" />
+    </Cost>
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaCoopCasterStunGrenade">
+    <EditorCategories value="AbilityorEffectType:Units,Race:Terran" />
+    <Effect index="0" value="NovaCoopCasterStunGrenadeLaunchMissile" />
+    <Cost>
+      <Resource index="Minerals" value="100" />
+      <Charge>
+        <CountMax value="3" />
+        <CountUse value="1" />
+        <Location value="Player" />
+        <TimeStart value="60" />
+        <TimeUse value="60" />
+      </Charge>
+    </Cost>
+    <Range value="500" />
+    <Arc value="360" />
+    <CursorEffect value="NovaGadgetFlashBangGrenadeSearch" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaCoopCasterStunGrenades" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaCoopCasterAdvancedOptics">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaCoopCasterAdvancedOpticsSearch" />
+    <Flags index="AllowMovement" value="1" />
+    <Flags index="BestUnit" value="0" />
+    <Flags index="NoDeceleration" value="1" />
+    <Flags index="Transient" value="1" />
+    <Cost>
+      <Resource index="Minerals" value="100" />
+      <Charge>
+        <CountMax value="3" />
+        <CountUse value="1" />
+        <Location value="Player" />
+        <TimeStart value="60" />
+        <TimeUse value="60" />
+      </Charge>
+    </Cost>
+    <AINotifyEffect value="AdvancedOptics" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaCoopCasterAdvancedOptics" />
+    <Range value="500" />
+    <Arc value="360" />
+    <CursorEffect value="NovaCoopCasterAdvancedOpticsSearch" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaCoopCasterDefensiveMatrix">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaCoopCasterDefensiveMatrixSearch" />
+    <Flags index="AllowMovement" value="1" />
+    <Flags index="BestUnit" value="0" />
+    <Flags index="NoDeceleration" value="1" />
+    <Flags index="Transient" value="1" />
+    <Cost>
+      <Resource index="Minerals" value="100" />
+      <Charge>
+        <CountMax value="3" />
+        <CountUse value="1" />
+        <Location value="Player" />
+        <TimeStart value="60" />
+        <TimeUse value="60" />
+      </Charge>
+    </Cost>
+    <Range value="500" />
+    <Arc value="360" />
+    <CursorEffect value="NovaCoopCasterDefensiveMatrixSearch" />
+    <AINotifyEffect value="DefensiveMatrix" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaCoopCasterDefensiveMatrix" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaStunDrone">
+    <EditorCategories value="AbilityorEffectType:Units,Race:Terran" />
+    <Cost>
+      <Resource index="Minerals" value="100" />
+      <Charge>
+        <CountMax value="3" />
+        <CountUse value="1" />
+        <Location value="Player" />
+        <TimeStart value="90" />
+        <TimeUse value="90" />
+      </Charge>
+    </Cost>
+    <Range value="500" />
+    <Arc value="360" />
+    <CursorEffect value="NovaGadgetFlashBangGrenadeSearch" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaStunDrone" />
+    <Flags index="RequireTargetVision" value="0" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaDefensiveMatrixDrone">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Flags index="Transient" value="1" />
+    <Cost>
+      <Resource index="Minerals" value="100" />
+      <Charge>
+        <CountMax value="3" />
+        <CountUse value="1" />
+        <Location value="Player" />
+        <TimeStart value="90" />
+        <TimeUse value="90" />
+      </Charge>
+    </Cost>
+    <Range value="500" />
+    <Arc value="360" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaDefensiveMatrixDrone" />
+    <SharedFlags index="TargetCursorVisibleInBlackMask" value="1" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaCoopCasterDisableDetector">
+    <EditorCategories value="AbilityorEffectType:Units,Race:Terran" />
+    <Effect index="0" value="NovaCoopCasterDisableDetectorCP" />
+    <Cost>
+      <Resource index="Minerals" value="100" />
+      <Charge>
+        <CountMax value="3" />
+        <CountUse value="1" />
+        <Location value="Player" />
+        <TimeStart value="60" />
+        <TimeUse value="60" />
+      </Charge>
+    </Cost>
+    <Range value="500" />
+    <Arc value="360" />
+    <CursorEffect value="NovaCoopCasterDisableDetectorSearch" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaCoopCasterDisableDetection" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaCoopCasterSummonOdin">
+    <EditorCategories value="AbilityorEffectType:Units,Race:Terran" />
+    <Placeholder value="Odin" />
+    <Range value="500" />
+    <Arc value="360" />
+    <CursorEffect value="NovaCoopCasterSummonOdin" />
+    <ProducedUnitArray value="Odin" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaCoopCasterSummonOdin" />
+    <PlaceUnit value="Odin" />
+    <Cost>
+      <Cooldown TimeStart="600" TimeUse="240" />
+    </Cost>
+  </CAbilEffectTarget>
+  <CAbilBehavior id="NovaGriffinBombingRunActivate">
+    <EditorCategories value="AbilityorEffectType:Units" />
+    <CmdButtonArray index="On" DefaultButtonFace="NovaGriffinBombingRun" />
+    <CmdButtonArray index="Off" DefaultButtonFace="Cancel" />
+    <Flags index="Toggle" value="1" />
+    <Cost>
+      <Resource index="Minerals" value="1000" />
+      <Cooldown TimeStart="120" TimeUse="30" />
+    </Cost>
+    <BehaviorArray value="NovaGriffinBombingRunActivate" />
+  </CAbilBehavior>
+  <CAbilEffectTarget id="NovaGriffinBombingRunTargetingDummy">
+    <EditorCategories value="AbilityorEffectType:Units" />
+    <Range value="500" />
+    <Arc value="360" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaGriffinBombingRun" />
+    <Cost>
+      <Cooldown TimeUse="0.25" />
+    </Cost>
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaGriffinBombingRunExecute">
+    <EditorCategories value="AbilityorEffectType:Units" />
+    <SharedFlags index="TargetCursorVisibleInBlackMask" value="1" />
+    <Effect index="0" value="NovaGriffinBombingRunInitialSet" />
+    <Flags index="ReExecutable" value="1" />
+    <Flags index="RequireTargetVision" value="0" />
+    <Range value="500" />
+    <Arc value="360" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaGriffinBombingRun" />
+    <CursorEffect value="NovaGriffinBombingRunDummySearch" />
+    <Cost>
+      <Cooldown TimeUse="0.25" />
+    </Cost>
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaGriffinTransportLoadUnits">
+    <EditorCategories value="AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaGriffinTransportUnitsInitialSet" />
+    <Flags index="ReExecutable" value="1" />
+    <Flags index="RequireTargetVision" value="0" />
+    <Range value="500" />
+    <Arc value="360" />
+    <Cost>
+      <Resource index="Minerals" value="200" />
+      <Cooldown TimeStart="120" TimeUse="120" />
+    </Cost>
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaGriffinTransportUnits" />
+    <CursorEffect value="NovaGriffinTransportUnitsSearchDummy" />
+    <TargetMessage value="Abil/TargetMessage/GriffinTransportLoad" />
+  </CAbilEffectTarget>
+  <CAbilEffectTarget id="NovaGriffinTransportUnloadUnits">
+    <EditorCategories value="AbilityorEffectType:Units" />
+    <SharedFlags index="TargetCursorVisibleInBlackMask" value="1" />
+    <Effect index="0" value="NovaGriffinTransportUnloadUnitsInitialCP" />
+    <Flags index="ReExecutable" value="1" />
+    <Range value="500" />
+    <Arc value="360" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaGriffinTransportUnits" />
+    <CursorEffect value="NovaGriffinTransportUnloadUnitsSearchDummy" />
+    <TargetMessage value="Abil/TargetMessage/GriffinTransportUnload" />
+  </CAbilEffectTarget>
+  <CAbilEffectInstant id="NovaGriffinTransportUnloadUnitsInstant">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Effect index="0" value="NovaGriffinTransportUnloadUnitsInstantBR" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaGriffinTransportUnitsInstant" />
+  </CAbilEffectInstant>
+  <CAbilEffectTarget id="NovaUnitLockdown">
+    <EditorCategories value="AbilityorEffectType:Units,Race:Terran" />
+    <Effect index="0" value="NovaUnitLockdownSet" />
+    <TargetFilters value="Mechanical,Visible;Player,Ally,Structure,Heroic,Missile,Stasis,Dead,Invulnerable,Summoned" />
+    <Range value="11" />
+    <Cost>
+      <Cooldown TimeUse="30" />
+    </Cost>
+    <CastIntroTime value="0.25" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="NovaUnitLockdown" />
+    <Flags index="AutoCast" value="1" />
+    <Flags index="AutoCastOn" value="1" />
+    <TargetSorts>
+      <SortArray value="TSLifeLargestFirst" />
+    </TargetSorts>
+    <AutoCastRange value="11" />
+    <AutoCastValidatorArray value="TargetNotStunned" />
+    <AutoCastValidatorArray value="NotHaveNovaUnitLockdownDummy" />
+  </CAbilEffectTarget>
+  <CAbilSpecialize id="NovaUnitGadgetGrantCharge">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Activity value="UI/Building" />
+    <InfoArray index="Specialize1" Time="15" Effect="NovaUnitSmokeGrenadeGrantCharge">
+      <Resource index="Minerals" value="100" />
+      <Charge CountMax="5" Link="Abil/NovaUnitSmokeGrenade" Location="Player" />
+      <Button DefaultButtonFace="NovaUnitSmokeGrenadeGrantCharge" Requirements="NovaSmokeGrenade" />
+    </InfoArray>
+    <InfoArray index="Specialize2" Time="15" Effect="NovaUnitDefensiveMatrixGrantCharge">
+      <Resource index="Minerals" value="100" />
+      <Charge CountMax="5" Link="Abil/NovaUnitDefensiveMatrix" Location="Player" />
+      <Button DefaultButtonFace="NovaUnitDefensiveMatrixGrantCharge" />
+    </InfoArray>
+    <InfoArray index="Specialize3" Time="15" Effect="NovaUnitFlashBangGrantCharge">
+      <Resource index="Minerals" value="100" />
+      <Charge CountMax="5" Link="Abil/NovaUnitFlashbang" Location="Player" />
+      <Button DefaultButtonFace="NovaGadgetFlashBangGrenadesCharge" />
+    </InfoArray>
+    <Alert value="BuildComplete" />
+  </CAbilSpecialize>
+  <CAbilSpecialize id="NovaGadgetFlashBangGrenadesCharge">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Activity value="UI/Building" />
+    <InfoArray index="Specialize1" Time="30" Effect="NovaUnitFlashBangGrantCharge">
+      <Resource index="Minerals" value="50" />
+      <Resource index="Vespene" value="50" />
+      <Charge CountMax="65535" Link="NovaGadgetFlashBangGrenades" Location="Player" />
+      <Button DefaultButtonFace="NovaGadgetFlashBangGrenadesCharge" />
+    </InfoArray>
+    <Alert value="BuildComplete" />
+  </CAbilSpecialize>
+  <CAbilSpecialize id="NovaGadgetBoombotsCharge">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Activity value="UI/Building" />
+    <InfoArray index="Specialize1" Time="30" Effect="NovaGadgetBoombotsCharge">
+      <Resource index="Minerals" value="50" />
+      <Resource index="Vespene" value="50" />
+      <Charge CountMax="65535" Link="NovaGadgetBoombots" Location="Player" />
+      <Button DefaultButtonFace="NovaGadgetBoombotsCharge" />
+    </InfoArray>
+    <Alert value="BuildComplete" />
+  </CAbilSpecialize>
+</Catalog>

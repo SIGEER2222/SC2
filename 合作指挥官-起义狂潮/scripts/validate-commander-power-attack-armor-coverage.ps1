@@ -329,8 +329,7 @@ foreach ($nodeId in @(
 }
 
 $currentUpgradePaths = @(
-    (Join-Path $catalogGameData "UpgradeData.xml"),
-    (Join-Path $workspaceRoot "Mods\7vs1\7v1AbathurRebornPatch.SC2Mod\Base.SC2Data\GameData\UpgradeData.xml")
+    (Join-Path $catalogGameData "UpgradeData.xml")
 )
 $sourceUpgradePaths = @(
     (Join-Path $repoRoot "_codex_7vs1_source_root\s2ma_packages\pkg01\extract\base.sc2data\GameData\UpgradeData.xml"),

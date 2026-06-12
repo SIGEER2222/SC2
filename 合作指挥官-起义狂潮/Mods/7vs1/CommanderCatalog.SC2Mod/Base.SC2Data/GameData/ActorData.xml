@@ -334,20 +334,8 @@
     <ModelFlags index="AllowHitTest" value="0"/>
     <ModelFlags index="AutomateGlobalLoops" value="1"/>
   </CActorModel>
-  <CActorModel id="NovaGriffinBombingRunBomb">
-    <Flags index="SuppressSaveLoad" value="1" />
-    <HostSiteOps Ops="SOpTargetPointStationary SOpShadow" />
-  </CActorModel>
-  <CActorMissile id="NovaGriffinBombingRunDummyMissile" unitName="NovaGriffinBombingRunDummyLMWeapon">
-    <Model value="Invisible" />
-    <Aliases value="_Unit" />
-    <Aliases value="_Missile" />
-    <PreHost value="_ActorAction" />
-    <On Terms="UnitBirth.NovaGriffinBombingRunDummyLMWeapon" Send="Create" />
-    <On Terms="UnitDeath" Send="Destroy" />
-    <On Terms="ActorOrphan" Send="Destroy" />
-    <On Terms="ActorCreation" Send="Create NovaGriffinBombingRunDummyMissileAttachment" />
-  </CActorMissile>
+  
+  
   <CActorSiteOpRotationExplicit id="SOpForwardGriffinRotation">
     <Forward value="1.000000,0.000000,0.000000" />
     <IsLocal value="1" />
@@ -355,121 +343,166 @@
   <CActorSiteOpForward id="SOpForwardGriffin">
     <HostForward Subject="NovaGriffinBombingRunStrafer" />
   </CActorSiteOpForward>
-  <CActorModel id="NovaGriffinBombingRunDummyMissileAttachment">
-    <Model value="NovaGriffinBombingRunBomb" />
-    <Host Subject="_Unit" />
-    <On Terms="ActorCreation" Send="$Birth" />
-    <On Terms="ActorCreation" Send="TimerSet 0.100000 DelayRotation" />
-    <On Terms="AnimDone; AnimName Birth" Send="HostSiteOpsSet ::Host {SOpAttachCenter SOp2DRotation NovaGriffinBombingRunBombRandomRotation}" />
-    <On Terms="AnimDone; AnimName Birth" Send="AnimPlay ParachuteDeploy Stand,Work,Start" />
-    <On Terms="AnimDone; AnimName ParachuteDeploy" Send="AnimPlay Parachute Stand,Work 0 -1.000000 -1.000000 1.800000 AsDuration" />
-    <On Terms="AnimDone; AnimName Parachute" Send="AnimPlay ParachuteEnd Stand,Work,End" />
-    <On Terms="AnimDone; AnimName Parachute" Send="Create NovaGriffinBombingRunStraferAttackImpact" />
-    <On Terms="ActorOrphan" Send="Destroy" />
-    <HostSiteOps Ops="SOpAttachCenter SOp2DRotation SOpForwardGriffin SOpForwardGriffinRotation" HoldRotation="1" />
-  </CActorModel>
-  <CActorMissile id="NovaGriffinBombingRunDummyMissileAlt" unitName="NovaGriffinBombingRunDummyAltLMWeapon">
-    <Model value="Invisible" />
-    <Aliases value="_Unit" />
-    <Aliases value="_Missile" />
-    <PreHost value="_ActorAction" />
-    <On Terms="UnitBirth.NovaGriffinBombingRunDummyAltLMWeapon" Send="Create" />
-    <On Terms="UnitDeath" Send="Destroy" />
-    <On Terms="ActorOrphan" Send="Destroy" />
-    <On Terms="ActorCreation" Send="Create NovaGriffinBombingRunDummyMissileAttachmentAlt" />
-  </CActorMissile>
+  
+  
   <CActorSiteOpRotationExplicit id="SOpForwardGriffinRotationAlt">
     <Forward value="-1.000000,0.000000,0.000000" />
     <IsLocal value="1" />
   </CActorSiteOpRotationExplicit>
-  <CActorModel id="NovaGriffinBombingRunDummyMissileAttachmentAlt">
-    <Model value="NovaGriffinBombingRunBomb" />
-    <Host Subject="_Unit" />
-    <On Terms="ActorCreation" Send="$Birth" />
-    <On Terms="ActorCreation" Send="TimerSet 0.200000 DelayRotation" />
-    <On Terms="AnimDone; AnimName Birth" Send="HostSiteOpsSet ::Host {SOpAttachCenter SOp2DRotation NovaGriffinBombingRunBombRandomRotation}" />
-    <On Terms="AnimDone; AnimName Birth" Send="AnimPlay ParachuteDeploy Stand,Work,Start" />
-    <On Terms="AnimDone; AnimName ParachuteDeploy" Send="AnimPlay Parachute Stand,Work 0 -1.000000 -1.000000 1.700000 AsDuration" />
-    <On Terms="AnimDone; AnimName Parachute" Send="AnimPlay ParachuteEnd Stand,Work,End" />
-    <On Terms="AnimDone; AnimName Parachute" Send="Create NovaGriffinBombingRunStraferAttackImpact" />
-    <On Terms="ActorOrphan" Send="Destroy" />
-    <HostSiteOps Ops="SOpAttachCenter SOp2DRotation SOpForwardGriffin SOpForwardGriffinRotationAlt" HoldRotation="1" />
-  </CActorModel>
-  <CActorAction id="NovaGriffinBombingRunDummyMissileAttack" parent="GenericAttack" effectImpact="NovaGriffinBombingRunDummyLocationSearch" effectLaunch="NovaGriffinBombingRunDummyLMRightSide">
-    <Missile value="NovaGriffinBombingRunDummyMissile" />
-    <LaunchAttachQuery Methods="AMFilterWeaponSetA AMRandomUniform" />
-    <LaunchAssets Model="NovaGriffinBombingRunStraferAttackLaunch" />
-    <ImpactPointSiteOps Ops="SOpTargetPointStationary SOpShadow" />
-  </CActorAction>
-  <CActorAction id="NovaGriffinBombingRunDummyMissileAttackLeftSide" parent="GenericAttack" effectImpact="NovaGriffinBombingRunDummyLocationSearch" effectLaunch="NovaGriffinBombingRunDummyLMLeftSide">
-    <Missile value="NovaGriffinBombingRunDummyMissileAlt" />
-    <LaunchAttachQuery Methods="AMFilterWeaponSetB AMRandomUniform" />
-    <LaunchAssets Model="NovaGriffinBombingRunStraferAttackLaunch" />
-    <ImpactPointSiteOps Ops="SOpTargetPointStationary SOpShadow" />
-  </CActorAction>
-  <CActorSiteOpRotationRandom id="NovaGriffinBombingRunBombRandomRotation">
-    <YawHalfAngle value="180.000000" />
-  </CActorSiteOpRotationRandom>
-  <CActorModel id="NovaGriffinBombingRunBombExplosion" parent="ModelAnimationStyleOneShot">
-    <Model value="ACPirateCapitalShipBombingRunExplosion" />
-    <HostSiteOps Ops="SOpAttachCenter SOpShadow SOpRandomPointInSphereDot5" />
-  </CActorModel>
-  <CActorUnit id="NovaGriffinBombingRunTargeter" parent="GenericUnitBase" unitName="NovaGriffinBombingRunTargeter">
-    <Model value="Invisible" />
-    <On Terms="Effect.NovaGriffinBombingRunCreateStrafer.Start" Target="NovaGriffinBombingRunTargetingGuide" Send="Destroy" />
-  </CActorUnit>
-  <CActorSplat id="NovaGriffinBombingRunAoECursor" parent="ProtossCursorSplat" abil="NovaGriffinBombingRunTargetingDummy">
-    <EditorCategories value="" />
-    <Model value="TerranAOECursorSplat" />
-    <Scale value="1.500000" />
-  </CActorSplat>
-  <CActorModel id="NovaGriffinBombingRunTargetingModel">
-    <On Terms="ActorCreation" Send="$Stand PlayForever" />
-    <On Terms="Signal.*.Destroy" Send="Destroy" />
-    <Model value="Invisible" />
-    <HostSiteOps Ops="SOpShadow" />
-  </CActorModel>
-  <CActorUnit id="NovaGriffinBombingRunStrafer" parent="GenericUnitStandard" unitName="NovaGriffinBombingRunStrafer">
-    <Aliases value="_UnitLarge" />
-    <Macros value="TerrainSquibAnimations" />
-    <Macros value="PhysicsDeathsSwarmAir" />
-    <Macros value="PhysicsDeathsVoidAir" />
-    <HostSiteOps Ops="SOpBankerMedivac NovaGriffinBombingRunStraferOffset" />
-    <ModelFlags index="OutlineEmitter" value="1" />
-    <Baselines index="Walk" BlendIn="1.500000" BlendOut="2.000000" />
-    <PhysicsMatchKeysOrdered value="BasicAir,Basic" />
-    <PortraitModel value="MedivacPortrait" />
-    <TerrainSquibs>
-      <MovementDistance value="0.150000,0.150000" />
-      <IdlePeriod value="0.250000,0.500000" />
-      <RangeDown value="5.000000" />
-      <RangeDownFade value="1.000000" />
-      <AttachQuery Methods="AMFilterCenter" />
-      <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleMassive15" />
-    </TerrainSquibs>
-    <GroupIcon>
-      <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds" />
-    </GroupIcon>
-    <HeroIcon value="Assets\Textures\btn-unit-terran-medivac.dds" />
-    <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds" />
-    <NameOffset value="50" />
-    <UnitIcon value="Assets\Textures\btn-unit-terran-medivac.dds" />
-    <Wireframe>
-      <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds" />
-    </Wireframe>
-    <On Terms="ActorCreation" Send="AnimPlay Entry Stand,Work,Start 0 0.000000" />
-    <On Terms="AnimDone; AnimName Entry" Send="AnimPlay Bomb Stand,Work PlayForever" />
-    <On Terms="AnimDone; AnimName Entry" Send="TimerSet 1.800000 BombingRun" />
-    <On Terms="TimerExpired; TimerName BombingRun" Send="AnimPlay TakeOff Stand,Work,End 0 -1.000000 -1.000000 0.500000 AsTimeScale" />
-  </CActorUnit>
-  <CActorSiteOpLocalOffset id="NovaGriffinBombingRunStraferOffset">
-    <LocalOffset value="0.000000,7.000000,-2.000000" />
-  </CActorSiteOpLocalOffset>
-  <CActorModel id="NovaGriffinBombingRunStraferAttackLaunch" parent="ModelAnimationStyleOneShot">
-    <Flags index="SuppressCreationErrors" value="1" />
-  </CActorModel>
-  <CActorModel id="NovaGriffinBombingRunStraferAttackImpact" parent="ModelAnimationStyleOneShot">
-    <Flags index="SuppressCreationErrors" value="1" />
-    <HostSiteOps HoldPosition="1" HoldRotation="1" />
-  </CActorModel>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </Catalog>
