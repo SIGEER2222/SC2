@@ -109,6 +109,8 @@
     <Remove Terms="UnitConstruction.*.Start" Send="Create" />
     <On Terms="UnitConstruction.CommandCenterRaynor.Start" Send="Create" />
     <On Terms="UnitBirth.CommandCenterRaynor" Send="Create" />
+    <On Terms="AbilMorph.CommandCenterLiftOffRaynor.Finish; MorphFrom CommandCenterRaynor; MorphTo CommandCenterFlyingRaynor" Send="Destroy" />
+    <On Terms="AbilMorph.CommandCenterLandRaynor.Finish; MorphFrom CommandCenterFlyingRaynor; MorphTo CommandCenterRaynor" Send="Create" />
     <On Terms="AbilMorph.UpgradeToOrbitalRaynor.Start; MorphFrom CommandCenterRaynor; MorphTo OrbitalCommandRaynor" Send="AnimGroupApply B" />
     <On Terms="AbilMorph.UpgradeToOrbitalRaynor.Start; MorphFrom CommandCenterRaynor; MorphTo OrbitalCommandRaynor" Send="AnimBaselineStop" />
     <On Terms="AbilMorph.UpgradeToOrbitalRaynor.Start; MorphFrom CommandCenterRaynor; MorphTo OrbitalCommandRaynor" Send="AnimPlay Morph Morph 0 0.000000" />
@@ -118,17 +120,23 @@
     <Remove Terms="UnitBirth.*.Normal" Send="$Birth" />
     <Remove Terms="UnitBirth.*.Normal" Send="Create" />
     <On Terms="UnitBirth.CommandCenterFlyingRaynor" Send="Create" />
+    <On Terms="AbilMorph.CommandCenterLiftOffRaynor.Finish; MorphFrom CommandCenterRaynor; MorphTo CommandCenterFlyingRaynor" Send="Create" />
+    <On Terms="AbilMorph.CommandCenterLandRaynor.Finish; MorphFrom CommandCenterFlyingRaynor; MorphTo CommandCenterRaynor" Send="Destroy" />
   </CActorUnit>
   <CActorUnit id="OrbitalCommandRaynor" parent="OrbitalCommand" unitName="OrbitalCommandRaynor">
     <Remove Terms="UnitBirth.*.Normal" Send="$Birth" />
     <Remove Terms="UnitBirth.*.Normal" Send="Create" />
     <On Terms="UnitBirth.OrbitalCommandRaynor" Send="Create" />
+    <On Terms="AbilMorph.OrbitalLiftOffRaynor.Finish; MorphFrom OrbitalCommandRaynor; MorphTo OrbitalCommandFlyingRaynor" Send="Destroy" />
+    <On Terms="AbilMorph.OrbitalCommandLandRaynor.Finish; MorphFrom OrbitalCommandFlyingRaynor; MorphTo OrbitalCommandRaynor" Send="Create" />
     <On Terms="AbilMorph.UpgradeToOrbitalRaynor.Finish; MorphFrom CommandCenterRaynor; MorphTo OrbitalCommandRaynor" Send="Create" />
   </CActorUnit>
   <CActorUnit id="OrbitalCommandFlyingRaynor" parent="OrbitalCommandFlying" unitName="OrbitalCommandFlyingRaynor">
     <Remove Terms="UnitBirth.*.Normal" Send="$Birth" />
     <Remove Terms="UnitBirth.*.Normal" Send="Create" />
     <On Terms="UnitBirth.OrbitalCommandFlyingRaynor" Send="Create" />
+    <On Terms="AbilMorph.OrbitalLiftOffRaynor.Finish; MorphFrom OrbitalCommandRaynor; MorphTo OrbitalCommandFlyingRaynor" Send="Create" />
+    <On Terms="AbilMorph.OrbitalCommandLandRaynor.Finish; MorphFrom OrbitalCommandFlyingRaynor; MorphTo OrbitalCommandRaynor" Send="Destroy" />
   </CActorUnit>
   <CActorUnit id="BarracksRaynor" parent="Barracks" unitName="BarracksRaynor">
     <Remove Terms="UnitBirth.*.Normal" Send="$Birth" />

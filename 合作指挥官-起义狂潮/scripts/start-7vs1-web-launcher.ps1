@@ -616,6 +616,115 @@ function Get-MapDisplayName {
     return [System.IO.Path]::GetFileName($MapPath)
 }
 
+function Get-CampaignXCoreBankPaths {
+    $paths = New-Object System.Collections.Generic.List[string]
+
+    $liveBank = Join-Path $env:USERPROFILE "Documents\StarCraft II\Banks\CampaignXCore.SC2Bank"
+    if (Test-Path -LiteralPath $liveBank) {
+        $paths.Add((Resolve-Path -LiteralPath $liveBank).Path)
+    }
+
+    $accountsRoot = Join-Path $env:USERPROFILE "Documents\StarCraft II\Accounts"
+    if (Test-Path -LiteralPath $accountsRoot) {
+        $accountBanks = Get-ChildItem -LiteralPath $accountsRoot -Recurse -File -Filter "CampaignXCore.SC2Bank" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -notmatch '\\backup\\' } |
+            Sort-Object LastWriteTime -Descending
+        foreach ($bank in $accountBanks) {
+            if ($paths -notcontains $bank.FullName) {
+                $paths.Add($bank.FullName)
+            }
+        }
+    }
+
+    return $paths.ToArray()
+}
+
+function Get-BankIntValue {
+    param(
+        [xml]$Xml,
+        [string]$SectionName,
+        [string]$KeyName
+    )
+
+    $node = $Xml.SelectSingleNode("/Bank/Section[@name='$SectionName']/Key[@name='$KeyName']/Value")
+    if (-not $node) {
+        return $null
+    }
+
+    $raw = [string]$node.GetAttribute("int")
+    if ([string]::IsNullOrWhiteSpace($raw)) {
+        return $null
+    }
+
+    $parsed = 0
+    if ([int]::TryParse($raw, [ref]$parsed)) {
+        return $parsed
+    }
+
+    return $null
+}
+
+function Get-BankStringValue {
+    param(
+        [xml]$Xml,
+        [string]$SectionName,
+        [string]$KeyName
+    )
+
+    $node = $Xml.SelectSingleNode("/Bank/Section[@name='$SectionName']/Key[@name='$KeyName']/Value")
+    if (-not $node) {
+        return ""
+    }
+
+    return [string]$node.GetAttribute("string")
+}
+
+function Get-CompletionSnapshot {
+    $bankPaths = @(Get-CampaignXCoreBankPaths)
+    if ($bankPaths.Count -eq 0) {
+        return [pscustomobject]@{
+            bankFound = $false
+            bankPath = ""
+            bankLastWriteTime = $null
+            lastMap = ""
+            lastCommander = ""
+            mapClearIds = @()
+            commanderClearKeys = @()
+        }
+    }
+
+    $bankPath = $bankPaths[0]
+    [xml]$xml = Get-Content -LiteralPath $bankPath -Raw -Encoding UTF8
+    $mapClearIds = New-Object System.Collections.Generic.List[string]
+    $commanderClearKeys = New-Object System.Collections.Generic.List[string]
+
+    foreach ($key in @($xml.SelectNodes("/Bank/Section[@name='MapClear']/Key"))) {
+        $keyName = [string]$key.GetAttribute("name")
+        $value = Get-BankIntValue -Xml $xml -SectionName "MapClear" -KeyName $keyName
+        if (($value -gt 0) -and -not [string]::IsNullOrWhiteSpace($keyName)) {
+            $mapClearIds.Add($keyName)
+        }
+    }
+
+    foreach ($key in @($xml.SelectNodes("/Bank/Section[@name='CommanderClear']/Key"))) {
+        $keyName = [string]$key.GetAttribute("name")
+        $value = Get-BankIntValue -Xml $xml -SectionName "CommanderClear" -KeyName $keyName
+        if (($value -gt 0) -and -not [string]::IsNullOrWhiteSpace($keyName)) {
+            $commanderClearKeys.Add($keyName)
+        }
+    }
+
+    [pscustomobject]@{
+        bankFound = $true
+        bankPath = $bankPath
+        bankLastWriteTime = (Get-Item -LiteralPath $bankPath).LastWriteTime.ToString("o")
+        lastMap = Get-BankStringValue -Xml $xml -SectionName "Progression" -KeyName "LastMap"
+        lastCommander = Get-BankStringValue -Xml $xml -SectionName "Progression" -KeyName "LastCommander"
+        mapClearIds = @($mapClearIds | Sort-Object -Unique)
+        commanderClearKeys = @($commanderClearKeys | Sort-Object -Unique)
+    }
+}
+
 function Get-MapItems {
     return @(Get-ChildItem -LiteralPath $script:MapsRoot -Directory -Filter "*_7vs1.SC2Map" |
         Sort-Object Name |
@@ -717,6 +826,7 @@ function Get-BootstrapData {
     $commanders = @(Get-CommanderItems)
     $maps = @(Get-MapItems)
     $mutators = @(Get-MutatorItems)
+    $completion = Get-CompletionSnapshot
 
     return [pscustomobject]@{
         generatedAt = (Get-Date).ToString("o")
@@ -743,6 +853,7 @@ function Get-BootstrapData {
         commanders = $commanders
         maps = $maps
         mutators = $mutators
+        completion = $completion
         resourcePlan = [pscustomobject]@{
             text = "指挥官 / 因子文字与协议元数据已接入"
             icons = "本地缓存真实 SC2 贴图；优先命中提取图标，缺失项回退到同主题游戏贴图"

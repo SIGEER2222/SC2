@@ -1359,9 +1359,32 @@ void libKMIS_gf_CM_DetectionUpgradesApply () {
 }
 
 void libKMIS_gf_CM_Abathur_BiomassSetStack (unit lp_biomass, int lp_stack) {
+    int lv_biomassBuff100Count;
+    int lv_biomassBuff10Count;
+    int lv_biomassBuff1Count;
+    int lv_stackRemainder;
+
     // Automatic Variable Declarations
     // Implementation
     UnitSetCustomValue(lp_biomass, 63, IntToFixed(lp_stack));
+    UnitBehaviorRemove(lp_biomass, "BiomassBuff100", c_unitBehaviorCountAll);
+    UnitBehaviorRemove(lp_biomass, "BiomassBuff10", c_unitBehaviorCountAll);
+    UnitBehaviorRemove(lp_biomass, "BiomassBuff1", c_unitBehaviorCountAll);
+    lv_stackRemainder = MaxI(lp_stack, 0);
+    lv_biomassBuff100Count = TruncI((lv_stackRemainder / 100));
+    lv_stackRemainder -= (lv_biomassBuff100Count * 100);
+    lv_biomassBuff10Count = TruncI((lv_stackRemainder / 10));
+    lv_stackRemainder -= (lv_biomassBuff10Count * 10);
+    lv_biomassBuff1Count = lv_stackRemainder;
+    if (lv_biomassBuff100Count > 0) {
+        UnitBehaviorAdd(lp_biomass, "BiomassBuff100", lp_biomass, lv_biomassBuff100Count);
+    }
+    if (lv_biomassBuff10Count > 0) {
+        UnitBehaviorAdd(lp_biomass, "BiomassBuff10", lp_biomass, lv_biomassBuff10Count);
+    }
+    if (lv_biomassBuff1Count > 0) {
+        UnitBehaviorAdd(lp_biomass, "BiomassBuff1", lp_biomass, lv_biomassBuff1Count);
+    }
     TextExpressionSetToken("Param/Expression/lib_KMIS_9DEC6D4D", "Stack", IntToText(lp_stack));
     UnitSetInfoTip(lp_biomass, TextExpressionAssemble("Param/Expression/lib_KMIS_9DEC6D4D"));
 }
@@ -22457,6 +22480,7 @@ bool libKMIS_gt_CM_HeroSpawn_Func (bool testConds, bool runActions) {
             if ((UnitIsValid(libKMIS_gv_cM_HeroUnit[lv_indexPlayer]) == true)) {
                 libKCUI_gf_SetHeroPanelUnit(1, libKMIS_gv_cM_HeroUnit[lv_indexPlayer], lv_indexPlayer);
                 if ((TechTreeUpgradeCount(lv_indexPlayer, "DehakaCommander", c_techCountCompleteOnly) == 1)) {
+                    libDF8E6945_gf_InitializeDehakaEvent(lv_indexPlayer, libKMIS_gv_cM_HeroUnit[lv_indexPlayer]);
                     UnitBehaviorAdd(libKMIS_gv_cM_HeroUnit[lv_indexPlayer], libKMIS_gv_cM_DehakaVeterencyBehavior[lv_indexPlayer], libKMIS_gv_cM_HeroUnit[lv_indexPlayer], 1);
                 }
 
@@ -23429,4 +23453,3 @@ void libKMIS_InitLib () {
 include "LibKPVP"
 include "LibKCOR"
 include "LibKCUI"
-

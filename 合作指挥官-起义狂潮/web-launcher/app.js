@@ -1,3 +1,28 @@
+import { renderQuickPickers as renderQuickPickersComponent } from "./components/quick-pickers.js";
+import {
+  renderMutatorGrid as renderMutatorGridComponent,
+  renderSelectedMutatorPanel as renderSelectedMutatorPanelComponent,
+} from "./components/mutator-panels.js";
+import {
+  renderExtraOptionPanel as renderExtraOptionPanelComponent,
+  renderGenericBonusPanel as renderGenericBonusPanelComponent,
+  renderMasteryGridPanel as renderMasteryGridPanelComponent,
+  renderPrestigePanel as renderPrestigePanelComponent,
+} from "./components/commander-panels.js";
+import {
+  renderLaunchHistoryPanel as renderLaunchHistoryPanelComponent,
+  renderMutatorPresetOptionsPanel as renderMutatorPresetOptionsPanelComponent,
+  renderRecentConfigsPanel as renderRecentConfigsPanelComponent,
+  renderScenarioPresetsPanel as renderScenarioPresetsPanelComponent,
+} from "./components/list-panels.js";
+import {
+  updateBootstrapStripPanel as updateBootstrapStripPanelComponent,
+  updateMasteryPairStatusPanel as updateMasteryPairStatusPanelComponent,
+  updateSummaryDetailPanel as updateSummaryDetailPanelComponent,
+  updateSummaryPanel as updateSummaryPanelComponent,
+} from "./components/summary-panels.js";
+import { escapeHtml, getStatusToneClass, initials } from "./lib/ui-helpers.js";
+
 const DEFAULT_ACTIVE_SHEET = "mutators";
 const SHEET_IDS = new Set(["mutators", "prestige", "bonuses", "output"]);
 
@@ -101,6 +126,7 @@ const el = {
   bootstrapCommanderCount: document.querySelector("#bootstrapCommanderCount"),
   bootstrapMapCount: document.querySelector("#bootstrapMapCount"),
   bootstrapMutatorCount: document.querySelector("#bootstrapMutatorCount"),
+  bootstrapCompletionStatus: document.querySelector("#bootstrapCompletionStatus"),
   bootstrapResourcePlanText: document.querySelector("#bootstrapResourcePlanText"),
   commanderSelect: document.querySelector("#commanderSelect"),
   mapSelect: document.querySelector("#mapSelect"),
@@ -468,12 +494,46 @@ function getCommander() {
   return state.data.commanders.find((item) => item.runtime === el.commanderSelect.value) ?? null;
 }
 
-function initials(text) {
-  const clean = (text || "").trim();
-  if (!clean) return "?";
-  const ascii = clean.match(/[A-Za-z0-9]/g);
-  if (ascii && ascii.length > 0) return ascii.slice(0, 2).join("").toUpperCase();
-  return clean.slice(0, 2);
+function normalizeMapBankId(mapId) {
+  return String(mapId || "").replace(/\.SC2Map$/i, "");
+}
+
+function getMapCompletionState(mapId, commander = getCommander()) {
+  const completion = state.data?.completion;
+  const normalizedMapId = normalizeMapBankId(mapId);
+  if (completion?.bankFound !== true) {
+    return {
+      label: "未读取存档",
+      tone: "warn",
+      detail: "未找到 CampaignXCore.SC2Bank，当前无法判断这张地图是否已通关。",
+    };
+  }
+  const bankCommander = commander?.bankCommander || "";
+  const commanderMapKey = bankCommander ? `${bankCommander}:${normalizedMapId}` : "";
+  const mapClearIds = new Set(completion?.mapClearIds || []);
+  const commanderClearKeys = new Set(completion?.commanderClearKeys || []);
+  const mapCleared = mapClearIds.has(normalizedMapId);
+  const commanderCleared = commanderMapKey ? commanderClearKeys.has(commanderMapKey) : false;
+
+  if (commanderCleared) {
+    return {
+      label: "当前指挥官已通关",
+      tone: "ok",
+      detail: `来自 CommanderClear：${commanderMapKey}`,
+    };
+  }
+  if (mapCleared) {
+    return {
+      label: "地图已通关",
+      tone: "warn",
+      detail: `来自 MapClear：${normalizedMapId}。当前地图有通关记录，但未找到当前指挥官专属通关标记。`,
+    };
+  }
+  return {
+    label: "未通关",
+    tone: "error",
+    detail: `Bank 已读取，但未找到 ${normalizedMapId} 或 ${commanderMapKey || "当前指挥官"} 的通关标记。`,
+  };
 }
 
 function getGenericBonusMap() {
@@ -485,66 +545,21 @@ function getGenericBonusLabel(id) {
 }
 
 function renderGenericBonuses() {
-  if (!el.genericBonusList) return;
-  el.genericBonusList.replaceChildren();
-
-  const header = document.createElement("div");
-  header.className = "extra-option-head";
-  header.innerHTML = `
-    <strong>已选加成</strong>
-    <span class="badge">${state.selectedGenericBonuses.size}</span>
-  `;
-  el.genericBonusList.append(header);
-
-  for (const option of GENERIC_BONUS_OPTIONS) {
-    const checked = state.selectedGenericBonuses.has(option.id);
-    const card = document.createElement("div");
-    card.className = "extra-option-item";
-    card.innerHTML = `
-      <label class="extra-option-toggle">
-        <input class="generic-bonus-input" type="checkbox" data-bonus-id="${escapeHtml(option.id)}" ${checked ? "checked" : ""}>
-        <span class="extra-option-main">
-          <span class="extra-option-name">
-            <strong>${escapeHtml(option.name)}</strong>
-            <span class="badge">${escapeHtml(option.id)}</span>
-          </span>
-        </span>
-      </label>
-      <div class="extra-option-desc">${escapeHtml(option.description)}</div>
-    `;
-    el.genericBonusList.append(card);
-  }
-
-  el.genericBonusList.querySelectorAll(".generic-bonus-input").forEach((input) => {
-    input.addEventListener("change", () => {
-      const bonusId = String(input.dataset.bonusId || "");
+  renderGenericBonusPanelComponent({
+    container: el.genericBonusList,
+    options: GENERIC_BONUS_OPTIONS,
+    selectedBonusIds: state.selectedGenericBonuses,
+    onToggleBonus: (bonusId, checked) => {
       if (!bonusId) return;
-      if (input.checked) {
+      if (checked) {
         state.selectedGenericBonuses.add(bonusId);
       } else {
         state.selectedGenericBonuses.delete(bonusId);
       }
       updateSummary();
       scheduleAutosave();
-    });
+    },
   });
-}
-
-function escapeHtml(text) {
-  return String(text ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function getStatusToneClass(tone) {
-  return {
-    ok: "status-ok",
-    warn: "status-warn",
-    error: "status-error",
-  }[tone] || "";
 }
 
 function populateSelect(select, items, getValue, getLabel) {
@@ -555,23 +570,6 @@ function populateSelect(select, items, getValue, getLabel) {
     option.textContent = getLabel(item);
     select.append(option);
   }
-}
-
-function getCommanderRace(runtime) {
-  const text = String(runtime || "");
-  if (text.startsWith("Terran")) return "Terran";
-  if (text.startsWith("Protoss")) return "Protoss";
-  if (text.startsWith("Zerg")) return "Zerg";
-  return "Other";
-}
-
-function getCommanderRaceLabel(race) {
-  return {
-    Terran: "人族",
-    Protoss: "神族",
-    Zerg: "虫族",
-    Other: "其他",
-  }[race] || race;
 }
 
 function getMapPack(id) {
@@ -665,129 +663,31 @@ function getFilteredMaps() {
 
 function renderQuickPickers() {
   if (!state.data) return;
-
-  const commanders = getFilteredCommanders();
-  const maps = getFilteredMaps();
-
-  el.commanderQuickList.replaceChildren();
-  el.mapQuickList.replaceChildren();
-  el.commanderQuickCount.textContent = `${commanders.length}/${state.data.commanders.length}`;
-
-  if (commanders.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "quick-pick-empty";
-    empty.textContent = "无匹配指挥官";
-    el.commanderQuickList.append(empty);
-  }
-
-  for (const commander of commanders) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = `commander-card${commander.runtime === el.commanderSelect.value ? " selected" : ""}`;
-    button.title = commander.integrationNote || commander.runtime;
-    const raceLabel = getCommanderRaceLabel(getCommanderRace(commander.runtime));
-    const toneClass = getStatusToneClass(commander.integrationTone);
-    const portraitToneClass = commander.imageSource === "portrait-exact"
-      ? "status-ok"
-      : commander.imageSource === "portrait-fallback"
-        ? "status-warn"
-        : "";
-    const art = commander.image
-      ? `<img src="${escapeHtml(commander.image)}" alt="${escapeHtml(commander.displayName || commander.runtime)}">`
-      : `<span class="commander-card-fallback">${escapeHtml(initials(commander.displayName || commander.runtime))}</span>`;
-    button.innerHTML = `
-      <span class="commander-card-art">${art}</span>
-      <span class="commander-card-body">
-        <span class="commander-card-top">
-          <strong>${escapeHtml(commander.displayName || commander.runtime)}</strong>
-          <em>${escapeHtml(commander.runtime)}</em>
-        </span>
-        <span class="commander-card-badges">
-          <em>${escapeHtml(raceLabel)}</em>
-          <em class="${toneClass}">${escapeHtml(commander.integrationStatus || "未标记")}</em>
-          <em class="${portraitToneClass}">${escapeHtml(commander.imageSourceLabel || "未标记")}</em>
-        </span>
-      </span>
-    `;
-    button.addEventListener("click", () => {
-      selectCommander(commander.runtime);
-    });
-    el.commanderQuickList.append(button);
-  }
-
-  if (maps.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "quick-pick-empty";
-    empty.textContent = "无匹配地图";
-    el.mapQuickList.append(empty);
-  }
-
-  for (const map of maps) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = `quick-pick-item map-card${map.id === el.mapSelect.value ? " selected" : ""}`;
-    button.innerHTML = `
-      <span class="quick-pick-icon map-card-icon">${initials(map.title || map.displayName || map.id)}</span>
-      <span class="map-card-copy">
-        <strong>${map.title || map.displayName || map.id}</strong>
-        <em>${map.id}</em>
-      </span>
-    `;
-    button.addEventListener("click", () => {
-      selectMap(map.id);
-    });
-    el.mapQuickList.append(button);
-  }
+  renderQuickPickersComponent({
+    commanderContainer: el.commanderQuickList,
+    mapContainer: el.mapQuickList,
+    commanderCountElement: el.commanderQuickCount,
+    commanders: getFilteredCommanders(),
+    allCommandersCount: state.data.commanders.length,
+    maps: getFilteredMaps(),
+    selectedCommanderRuntime: el.commanderSelect.value,
+    selectedMapId: el.mapSelect.value,
+    getMapCompletionState,
+    onSelectCommander: selectCommander,
+    onSelectMap: selectMap,
+  });
 }
 
 function renderPrestiges(commander) {
-  el.prestigeList.replaceChildren();
   const defaultMask = getCommanderDefaultPrestigeMask(commander);
-  const defaultPointIndex = getCommanderDefaultPrestigePointIndex(commander);
   const activeMask = clampNumber(el.prestigeMask.value, 0, 7, defaultMask);
-
-  const summary = document.createElement("div");
-  summary.className = "prestige-summary-card";
-  summary.innerHTML = `
-    <div class="prestige-summary-copy">
-      <strong>威望拆分</strong>
-    </div>
-    <div class="prestige-summary-actions">
-      <button type="button" class="mini" data-prestige-select="default">按默认整合</button>
-      <button type="button" class="mini" data-prestige-select="all">全选</button>
-      <button type="button" class="mini" data-prestige-select="none">全清</button>
-    </div>
-  `;
-  el.prestigeList.append(summary);
-
-  for (const prestige of commander.prestiges ?? []) {
-    const card = document.createElement("div");
-    card.className = "prestige-item";
-    const checked = (activeMask & prestige.bitMask) === prestige.bitMask;
-    const defaultSelected = (defaultMask & prestige.bitMask) === prestige.bitMask;
-    const positiveTooltip = getPositivePrestigeTooltipText(prestige.tooltip || prestige.id);
-    card.innerHTML = `
-      <label class="prestige-toggle">
-        <input class="prestige-toggle-input" type="checkbox" data-slot="${prestige.slot}" data-bit-mask="${prestige.bitMask}" ${checked ? "checked" : ""}>
-        <span class="prestige-toggle-main">
-          <span class="prestige-name">
-            <strong>P${prestige.slot + 1} ${prestige.name || prestige.id}</strong>
-            <span class="badge">mask ${prestige.bitMask}</span>
-          </span>
-          <span class="prestige-tags">
-            <em class="${defaultSelected ? "status-ok" : ""}">${defaultSelected ? "默认整合内" : "默认未选"}</em>
-            <em>${prestige.id}</em>
-          </span>
-        </span>
-      </label>
-      <div class="prestige-tip">${escapeHtml(positiveTooltip || prestige.id)}</div>
-    `;
-    el.prestigeList.append(card);
-  }
-
-  el.prestigeList.querySelectorAll("[data-prestige-select]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const mode = button.dataset.prestigeSelect;
+  renderPrestigePanelComponent({
+    container: el.prestigeList,
+    commander,
+    activeMask,
+    defaultMask,
+    getPositivePrestigeTooltipText,
+    onSelectMode: (mode) => {
       const inputs = [...document.querySelectorAll(".prestige-toggle-input")];
       if (mode === "default") {
         for (const input of inputs) {
@@ -805,104 +705,43 @@ function renderPrestiges(commander) {
       syncCommanderOverrideSelection(commander);
       renderExtraOptions(commander);
       updateSummary();
-    });
-  });
-
-  el.prestigeList.querySelectorAll(".prestige-toggle-input").forEach((input) => {
-    input.addEventListener("change", () => {
+    },
+    onTogglePrestige: () => {
       syncPrestigeMaskFromUI("custom");
       syncCommanderOverrideSelection(commander);
       renderExtraOptions(commander);
       updateSummary();
-    });
+    },
   });
 }
 
 function renderExtraOptions(commander = getCommander()) {
-  if (!el.extraOptionList) return;
-  el.extraOptionList.replaceChildren();
-
   const allOptions = getCommanderExtraOptions(commander);
   const activeOptions = allOptions.filter((option) => isCommanderExtraOptionActive(option, commander));
-
-  const header = document.createElement("div");
-  header.className = "extra-option-head";
-  header.innerHTML = `
-    <strong>额外升级</strong>
-    <span class="badge">${activeOptions.length}</span>
-  `;
-  el.extraOptionList.append(header);
-
-  if (allOptions.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "extra-option-empty";
-    empty.textContent = "当前指挥官没有可选的威望额外升级。";
-    el.extraOptionList.append(empty);
-    return;
-  }
-
-  if (activeOptions.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "extra-option-empty";
-    empty.textContent = el.enablePrestiges.checked
-      ? "当前所选威望没有额外升级。"
-      : "启用融合威望后才可选择额外升级。";
-    el.extraOptionList.append(empty);
-    return;
-  }
-
-  for (const option of activeOptions) {
-    const card = document.createElement("div");
-    card.className = "extra-option-item";
-    const checked = state.selectedCommanderOverrides.has(option.overrideValue);
-    card.innerHTML = `
-      <label class="extra-option-toggle">
-        <input class="extra-option-input" type="checkbox" data-override-value="${escapeHtml(option.overrideValue)}" ${checked ? "checked" : ""}>
-        <span class="extra-option-main">
-          <span class="extra-option-name">
-            <strong>${escapeHtml(option.name || option.id)}</strong>
-            <span class="badge">P${Number(option.prestigeSlot) + 1}</span>
-          </span>
-          <span class="extra-option-tags">
-            <em>${escapeHtml(option.prestigeName || option.prestigeId || "")}</em>
-            <em>${escapeHtml(option.id)}</em>
-          </span>
-        </span>
-      </label>
-      <div class="extra-option-desc">${escapeHtml(option.description || option.overrideValue || option.id)}</div>
-    `;
-    el.extraOptionList.append(card);
-  }
-
-  el.extraOptionList.querySelectorAll(".extra-option-input").forEach((input) => {
-    input.addEventListener("change", () => {
-      const overrideValue = String(input.dataset.overrideValue || "");
+  renderExtraOptionPanelComponent({
+    container: el.extraOptionList,
+    allOptions,
+    activeOptions,
+    selectedOverrideValues: state.selectedCommanderOverrides,
+    prestigeEnabled: el.enablePrestiges.checked,
+    onToggleOverride: (overrideValue, checked) => {
       if (!overrideValue) return;
-      if (input.checked) {
+      if (checked) {
         state.selectedCommanderOverrides.add(overrideValue);
       } else {
         state.selectedCommanderOverrides.delete(overrideValue);
       }
       updateSummary();
       scheduleAutosave();
-    });
+    },
   });
 }
 
 function renderMasteries(commander) {
-  el.masteryGrid.replaceChildren();
-  const masteries = [...(commander.masteries ?? [])].sort((a, b) => a.slot - b.slot);
-
-  for (const mastery of masteries) {
-    const card = document.createElement("label");
-    card.className = "mastery-card";
-    card.innerHTML = `
-      <span class="mastery-title">${mastery.name || mastery.id}</span>
-      <span class="mastery-meta">C${mastery.category} / ${mastery.id}</span>
-      <input class="mastery-input" type="number" value="30" data-slot="${mastery.slot}">
-    `;
-    el.masteryGrid.append(card);
-  }
+  renderMasteryGridPanelComponent({
+    container: el.masteryGrid,
+    commander,
+  });
 }
 
 function renderCommanderDetails() {
@@ -930,53 +769,22 @@ function renderMutators() {
   const appendableRandomPoolCount = randomPool.filter((item) => !state.selectedMutators.has(item.id)).length;
   const hasFilter = hasActiveMutatorFilter();
 
-  el.mutatorGrid.replaceChildren();
-  if (mutators.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "empty-state";
-    empty.textContent = "没有匹配的因子";
-    el.mutatorGrid.append(empty);
-  }
-
-  for (const mutator of mutators) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = `mutator-card${state.selectedMutators.has(mutator.id) ? " selected" : ""}`;
-    button.title = mutator.icon || mutator.id;
-    const imageToneClass = mutator.imageSource === "icon-exact"
-      ? "status-ok"
-      : mutator.imageSource === "icon-fallback"
-        ? "status-warn"
-        : "";
-    const art = mutator.image
-      ? `<img src="${escapeHtml(mutator.image)}" alt="${escapeHtml(mutator.name || mutator.id)}">`
-      : escapeHtml(initials(mutator.name || mutator.id));
-    button.innerHTML = `
-      <span class="mutator-icon">${art}</span>
-      <span>
-        <span class="mutator-title">${escapeHtml(mutator.name || mutator.id)}</span>
-        <span class="mutator-id">${escapeHtml(mutator.id)}</span>
-        <span class="mutator-tags">
-          <em>${escapeHtml(getMutatorCategoryLabel(mutator.category || "other"))}</em>
-          <em>${escapeHtml(getMutatorTierLabel(mutator.tier || "normal"))}</em>
-        </span>
-      </span>
-      <span class="mutator-art-status">
-        <em class="${imageToneClass}">${escapeHtml(mutator.imageSourceLabel || "未标记")}</em>
-      </span>
-      <span class="mutator-desc">${escapeHtml(mutator.description || mutator.icon || "")}</span>
-    `;
-    button.addEventListener("click", () => {
-      if (state.selectedMutators.has(mutator.id)) {
-        state.selectedMutators.delete(mutator.id);
+  renderMutatorGridComponent({
+    container: el.mutatorGrid,
+    mutators,
+    selectedMutatorIds: state.selectedMutators,
+    getMutatorCategoryLabel,
+    getMutatorTierLabel,
+    onToggleMutator: (mutatorId) => {
+      if (state.selectedMutators.has(mutatorId)) {
+        state.selectedMutators.delete(mutatorId);
       } else {
-        state.selectedMutators.add(mutator.id);
+        state.selectedMutators.add(mutatorId);
       }
       renderMutators();
       updateSummary();
-    });
-    el.mutatorGrid.append(button);
-  }
+    },
+  });
 
   el.mutatorCount.textContent = `${state.selectedMutators.size}/${state.data.mutators.length} · 显示 ${mutators.length}`;
   el.mutatorPoolStatus.textContent = randomPoolCount === 0
@@ -1037,51 +845,25 @@ function clearMutatorFilters() {
 }
 
 function renderSelectedMutators() {
-  el.selectedMutators.replaceChildren();
   const selected = getSelectedMutatorRecords();
   const matched = getMatchedSelectedMutators(selected);
   const query = getSelectedMutatorQuery();
-
-  el.selectedMutators.classList.toggle("collapsed", !state.selectedMutatorPanelExpanded);
-  el.selectedMutatorStatus.textContent = state.selectedMutators.size === 0
-    ? "未选择因子"
-    : query
-      ? `匹配 ${matched.length}/${state.selectedMutators.size}`
-      : `已选 ${state.selectedMutators.size}`;
-  el.selectedMutatorSearch.disabled = state.selectedMutators.size === 0;
-  el.clearMatchedMutators.disabled = !query || matched.length === 0;
-  el.toggleSelectedMutators.disabled = state.selectedMutators.size <= 8 && !query;
-  el.toggleSelectedMutators.textContent = state.selectedMutatorPanelExpanded ? "收起" : "展开";
-
-  if (state.selectedMutators.size === 0) {
-    const empty = document.createElement("span");
-    empty.className = "selected-empty";
-    empty.textContent = "未选择因子";
-    el.selectedMutators.append(empty);
-    return;
-  }
-
-  if (matched.length === 0) {
-    const empty = document.createElement("span");
-    empty.className = "selected-empty";
-    empty.textContent = "已选因子中没有匹配项";
-    el.selectedMutators.append(empty);
-    return;
-  }
-
-  for (const { id, mutator } of matched) {
-    const chip = document.createElement("button");
-    chip.type = "button";
-    chip.className = "mutator-chip";
-    chip.title = id;
-    chip.innerHTML = `<span>${mutator?.name ?? id}</span><strong>×</strong>`;
-    chip.addEventListener("click", () => {
-      state.selectedMutators.delete(id);
+  renderSelectedMutatorPanelComponent({
+    container: el.selectedMutators,
+    statusElement: el.selectedMutatorStatus,
+    searchElement: el.selectedMutatorSearch,
+    clearMatchedButton: el.clearMatchedMutators,
+    toggleButton: el.toggleSelectedMutators,
+    selectedMutatorIds: state.selectedMutators,
+    matchedMutators: matched,
+    query,
+    expanded: state.selectedMutatorPanelExpanded,
+    onRemoveMutator: (mutatorId) => {
+      state.selectedMutators.delete(mutatorId);
       renderMutators();
       updateSummary();
-    });
-    el.selectedMutators.append(chip);
-  }
+    },
+  });
 }
 
 function getSelectedMutatorRecords() {
@@ -1170,20 +952,6 @@ function getHistoryStatusClass(item) {
   if (result.exitCode === 0) return "status-ok";
   if (result.exitCode !== null && result.exitCode !== undefined) return "status-error";
   return "status-warn";
-}
-
-function renderRowBadges(badges) {
-  return `
-      <span class="row-badges">
-        ${badges.map((badge) => `<em class="${badge.className || ""}">${badge.text}</em>`).join("")}
-      </span>
-    `;
-}
-
-function setButtonDetail(button, lines) {
-  const text = lines.filter(Boolean).join("\n");
-  button.title = text;
-  button.setAttribute("aria-label", text);
 }
 
 function getValidationSignature(payload = buildLaunchPayload()) {
@@ -1410,12 +1178,6 @@ async function copyConfigSummary() {
   el.launchState.textContent = "摘要已复制";
 }
 
-function setSummaryDetail(element, label, value, detail = "") {
-  const text = [label, value, detail].filter(Boolean).join("\n");
-  element.title = text;
-  element.setAttribute("aria-label", text);
-}
-
 function updateSummaryDetails(payload = buildLaunchPayload()) {
   const mutatorIds = payload.mutators.length === 0 ? "无" : payload.mutators.join(", ");
   const genericBonusLabels = (payload.genericBonuses || []).map((id) => getGenericBonusLabel(id));
@@ -1424,26 +1186,30 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     .filter((prestige) => (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask)
     .map((prestige) => `P${prestige.slot + 1} ${prestige.name || prestige.id}`);
   const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
-  setSummaryDetail(el.summaryCommander, "指挥官", getCommanderLabel(payload.commander), payload.commander);
-  setSummaryDetail(el.summaryMap, "地图", getMapLabel(payload.map), payload.map);
-  setSummaryDetail(
-    el.summaryMastery,
-    "精通",
-    `等级 ${payload.masteryLevel}`,
-    `启用=${payload.enableMasteries ? "是" : "否"}；加点=[${payload.masteries.join(",")}]`,
-  );
-  setSummaryDetail(
-    el.summaryMutators,
-    "因子",
-    `${payload.mutators.length} 个 / ${genericBonusLabels.length} 加成`,
-    `preset=${payload.mutatorPreset}；ids=${mutatorIds}；加成=${genericBonusLabels.join("、") || "无"}`,
-  );
-  setSummaryDetail(
-    el.summaryMode,
-    "模式",
-    payload.noLaunch ? "dry-run 安装" : "launch 启动",
-    `融合=${formatPrestigeProfile(payload.prestigeProfile)}；mask=${payload.prestigeBonusMask}；项=${prestigeNames.join("、") || "无"}；额外=${overrideLabels.join("、") || "无"}；通用=${genericBonusLabels.join("、") || "无"}；point=-1`,
-  );
+  updateSummaryDetailPanelComponent({
+    summaryCommanderElement: el.summaryCommander,
+    summaryMapElement: el.summaryMap,
+    summaryMasteryElement: el.summaryMastery,
+    summaryMutatorsElement: el.summaryMutators,
+    summaryModeElement: el.summaryMode,
+    commanderLabel: getCommanderLabel(payload.commander),
+    commanderId: payload.commander,
+    mapLabel: getMapLabel(payload.map),
+    mapId: payload.map,
+    masteryLevel: payload.masteryLevel,
+    masteryValues: payload.masteries,
+    enableMasteries: payload.enableMasteries,
+    mutatorCount: payload.mutators.length,
+    genericBonusCount: genericBonusLabels.length,
+    mutatorPreset: payload.mutatorPreset,
+    mutatorIdsText: mutatorIds,
+    genericBonusLabels,
+    modeLabel: payload.noLaunch ? "dry-run 安装" : "launch 启动",
+    prestigeProfileLabel: formatPrestigeProfile(payload.prestigeProfile),
+    prestigeBonusMask: payload.prestigeBonusMask,
+    prestigeNames,
+    overrideLabels,
+  });
 }
 
 function updateSummary() {
@@ -1466,19 +1232,28 @@ function updateSummary() {
   const selectedPrestigeCount = (commander?.prestiges ?? []).filter((prestige) =>
     (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask,
   ).length;
-  el.selectionSummary.textContent = `${commander?.displayName ?? "-"} / ${map} / ${mutatorCount} 因子 / ${genericBonusCount} 加成 / ${commanderOverrideCount} 升级`;
-  el.summaryCommander.textContent = commander?.displayName ?? "-";
-  el.summaryMap.textContent = map;
-  el.summaryMastery.textContent = `${payload.masteryLevel} / ${payload.masteries.join(",")}`;
-  el.summaryMutators.textContent = `${mutatorCount} / ${genericBonusCount}`;
-  el.prestigeFusionStatus.textContent = payload.enablePrestiges
-    ? `${state.prestigeMaskMode === "default" ? "默认整合" : "手动拆分"} / ${selectedPrestigeCount} 项 / mask ${payload.prestigeBonusMask}`
-    : "融合关闭";
-  el.prestigeFusionStatus.classList.toggle("status-ok", payload.enablePrestiges && payload.prestigeBonusMask > 0);
-  el.prestigeFusionStatus.classList.toggle("status-warn", !payload.enablePrestiges || payload.prestigeBonusMask === 0);
+  updateSummaryPanelComponent({
+    selectionSummaryElement: el.selectionSummary,
+    summaryCommanderElement: el.summaryCommander,
+    summaryMapElement: el.summaryMap,
+    summaryMasteryElement: el.summaryMastery,
+    summaryMutatorsElement: el.summaryMutators,
+    prestigeFusionStatusElement: el.prestigeFusionStatus,
+    copySummaryButton: el.copySummaryButton,
+    commanderLabel: commander?.displayName ?? "-",
+    mapLabel: map,
+    mutatorCount,
+    genericBonusCount,
+    commanderOverrideCount,
+    masteryLevel: payload.masteryLevel,
+    masteryValues: payload.masteries,
+    prestigeMaskMode: state.prestigeMaskMode,
+    selectedPrestigeCount,
+    prestigeBonusMask: payload.prestigeBonusMask,
+    enablePrestiges: payload.enablePrestiges,
+  });
   updateLaunchModeLabels(payload);
   updateSummaryDetails(payload);
-  el.copySummaryButton.disabled = false;
   updateMasteryPairStatus();
   updateValidationSummary();
   updateConfigIssues();
@@ -1487,19 +1262,41 @@ function updateSummary() {
 
 function updateBootstrapStrip() {
   if (!state.data) return;
-  if (!el.bootstrapCommanderCount || !el.bootstrapMapCount || !el.bootstrapMutatorCount || !el.bootstrapResourcePlanText) {
+  if (!el.bootstrapCommanderCount || !el.bootstrapMapCount || !el.bootstrapMutatorCount || !el.bootstrapCompletionStatus || !el.bootstrapResourcePlanText) {
     return;
   }
 
-  el.bootstrapCommanderCount.textContent = String(state.data.counts?.commanders ?? state.data.commanders?.length ?? 0);
-  el.bootstrapMapCount.textContent = String(state.data.counts?.maps ?? state.data.maps?.length ?? 0);
-  el.bootstrapMutatorCount.textContent = String(state.data.counts?.mutators ?? state.data.mutators?.length ?? 0);
+  const completion = state.data.completion || {};
+  const completionStatus = [];
+  if (completion.bankFound) {
+    completionStatus.push(`已读取 Bank`);
+    if (completion.lastCommander || completion.lastMap) {
+      completionStatus.push(`最近进度 ${completion.lastCommander || "-"}/${completion.lastMap || "-"}`);
+    }
+    if (completion.bankLastWriteTime) {
+      completionStatus.push(`更新时间 ${formatShortTime(completion.bankLastWriteTime)}`);
+    }
+  } else {
+    completionStatus.push("未找到 CampaignXCore.SC2Bank");
+  }
   const resourcePlan = state.data.resourcePlan || {};
-  el.bootstrapResourcePlanText.textContent = [
+  updateBootstrapStripPanelComponent({
+    commanderCountElement: el.bootstrapCommanderCount,
+    mapCountElement: el.bootstrapMapCount,
+    mutatorCountElement: el.bootstrapMutatorCount,
+    completionStatusElement: el.bootstrapCompletionStatus,
+    resourcePlanElement: el.bootstrapResourcePlanText,
+    commanderCount: state.data.counts?.commanders ?? state.data.commanders?.length ?? 0,
+    mapCount: state.data.counts?.maps ?? state.data.maps?.length ?? 0,
+    mutatorCount: state.data.counts?.mutators ?? state.data.mutators?.length ?? 0,
+    completion,
+    completionStatusText: completionStatus.join(" · "),
+    resourcePlanText: [
     resourcePlan.text || "数据索引已就绪",
     resourcePlan.icons || "",
     resourcePlan.audio || "",
-  ].filter(Boolean).join(" · ");
+  ].filter(Boolean).join(" · "),
+  });
 }
 
 function getMasteryValues() {
@@ -1520,10 +1317,10 @@ function getMasteryPairSums(values = getMasteryValues()) {
 }
 
 function updateMasteryPairStatus() {
-  const pairSums = getMasteryPairSums();
-  el.masteryPairStatus.classList.remove("status-error");
-  el.masteryPairStatus.classList.add("status-ok");
-  el.masteryPairStatus.textContent = pairSums.map((item) => `C${item.category}:${item.total}`).join(" / ");
+  updateMasteryPairStatusPanelComponent({
+    element: el.masteryPairStatus,
+    pairSums: getMasteryPairSums(),
+  });
 }
 
 function applyPayload(payload, options = {}) {
@@ -1773,66 +1570,30 @@ function addRecentConfig(payload) {
 }
 
 function renderRecentConfigs() {
-  el.recentConfigs.replaceChildren();
   const items = readRecentConfigs();
-
-  if (items.length === 0) {
-    const empty = document.createElement("span");
-    empty.className = "recent-empty";
-    empty.textContent = "暂无";
-    el.recentConfigs.append(empty);
-    return;
-  }
-
-  for (const item of items) {
-    const payload = item.payload || {};
-    const row = document.createElement("div");
-    row.className = "recent-item";
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "recent-main";
-    button.innerHTML = `
-      <strong>${getCommanderLabel(payload.commander)} / ${getMapLabel(payload.map)}</strong>
-      <span>${formatTime(item.savedAt)}</span>
-      ${renderRowBadges([
-        { text: getPayloadModeBadge(payload), className: payload.noLaunch ? "status-warn" : "" },
-        { text: getPayloadMutatorBadge(payload) },
-        { text: `${(payload.genericBonuses || []).length} 加成` },
-        { text: getPayloadMasteryBadge(payload) },
-      ])}
-    `;
-    setButtonDetail(button, ["最近配置", formatTime(item.savedAt), getPayloadSummaryText(payload)]);
-    button.addEventListener("click", () => {
+  renderRecentConfigsPanelComponent({
+    container: el.recentConfigs,
+    items,
+    getCommanderLabel,
+    getMapLabel,
+    getPayloadModeBadge,
+    getPayloadMutatorBadge,
+    getPayloadMasteryBadge,
+    formatTime,
+    getPayloadSummaryText,
+    onApply: (payload) => {
       applyPayload(payload);
       el.launchState.textContent = "已套用";
       writeOutput({ appliedRecent: payload });
-    });
-
-    const validate = document.createElement("button");
-    validate.type = "button";
-    validate.className = "mini row-submit-action";
-    validate.textContent = "验证";
-    validate.addEventListener("click", async () => {
+    },
+    onValidate: async (payload) => {
       await validatePayload(payload, "最近验证");
-    });
-
-    const json = document.createElement("button");
-    json.type = "button";
-    json.className = "mini";
-    json.textContent = "JSON";
-    json.addEventListener("click", () => {
+    },
+    onExportJson: (payload) => {
       exportPayloadToEditor(payload, "已导出最近配置");
       writeOutput({ exportedRecent: payload });
-    });
-
-    const actions = document.createElement("div");
-    actions.className = "row-actions";
-    actions.append(validate, json);
-
-    row.append(button, actions);
-    el.recentConfigs.append(row);
-  }
+    },
+  });
   updateRowSubmitButtons();
 }
 
@@ -1877,86 +1638,40 @@ function saveScenarioPreset() {
 }
 
 function renderScenarioPresets() {
-  if (!el.scenarioPresets) return;
-
-  el.scenarioPresets.replaceChildren();
   const items = readScenarioPresets();
-  if (items.length === 0) {
-    const empty = document.createElement("span");
-    empty.className = "scenario-empty";
-    empty.textContent = "暂无";
-    el.scenarioPresets.append(empty);
-    return;
-  }
-
-  for (const item of items) {
-    const payload = item.payload || {};
-    const row = document.createElement("div");
-    row.className = "scenario-item";
-
-    const main = document.createElement("button");
-    main.type = "button";
-    main.className = "scenario-main";
-    main.innerHTML = `
-      <strong>${item.name || defaultScenarioName(payload)}</strong>
-      <span>${getCommanderLabel(payload.commander)} · ${getMapLabel(payload.map)}</span>
-      ${renderRowBadges([
-        { text: getPayloadModeBadge(payload), className: payload.noLaunch ? "status-warn" : "" },
-        { text: getPayloadMutatorBadge(payload) },
-        { text: `${(payload.genericBonuses || []).length} 加成` },
-        { text: getPayloadMasteryBadge(payload) },
-      ])}
-    `;
-    setButtonDetail(main, ["场景预设", item.name || defaultScenarioName(payload), formatTime(item.savedAt), getPayloadSummaryText(payload)]);
-    main.addEventListener("click", () => {
+  renderScenarioPresetsPanelComponent({
+    container: el.scenarioPresets,
+    items,
+    defaultScenarioName,
+    getCommanderLabel,
+    getMapLabel,
+    getPayloadModeBadge,
+    getPayloadMutatorBadge,
+    getPayloadMasteryBadge,
+    getPayloadSummaryText,
+    formatTime,
+    onApply: (item, payload) => {
       applyPayload(payload);
       el.launchState.textContent = "场景已套用";
       writeOutput({ appliedScenarioPreset: item.name, payload });
-    });
-
-    const launch = document.createElement("button");
-    launch.type = "button";
-    launch.className = "mini row-submit-action";
-    launch.textContent = "启动";
-    launch.addEventListener("click", async () => {
+    },
+    onLaunch: async (payload) => {
       if (applyPayload(payload)) {
         await launchGame();
       }
-    });
-
-    const validate = document.createElement("button");
-    validate.type = "button";
-    validate.className = "mini row-submit-action";
-    validate.textContent = "验证";
-    validate.addEventListener("click", async () => {
+    },
+    onValidate: async (payload) => {
       await validatePayload(payload, "场景验证");
-    });
-
-    const json = document.createElement("button");
-    json.type = "button";
-    json.className = "mini";
-    json.textContent = "JSON";
-    json.addEventListener("click", () => {
+    },
+    onExportJson: (item, payload) => {
       exportPayloadToEditor(payload, "已导出场景配置");
       writeOutput({ exportedScenarioPreset: item.name, payload });
-    });
-
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "mini";
-    remove.textContent = "删除";
-    remove.addEventListener("click", () => {
+    },
+    onRemove: (item) => {
       writeScenarioPresets(readScenarioPresets().filter((candidate) => candidate.id !== item.id));
       el.launchState.textContent = "场景已删除";
-    });
-
-    const actions = document.createElement("div");
-    actions.className = "row-actions";
-    actions.append(launch, validate, json, remove);
-
-    row.append(main, actions);
-    el.scenarioPresets.append(row);
-  }
+    },
+  });
   updateRowSubmitButtons();
 }
 
@@ -1973,30 +1688,12 @@ function writeMutatorPresets(items) {
 
 function renderMutatorPresets() {
   if (!el.savedMutatorPreset) return;
-
-  const presets = readMutatorPresets();
-  const previous = el.savedMutatorPreset.value;
-  el.savedMutatorPreset.replaceChildren();
-
-  const emptyOption = document.createElement("option");
-  emptyOption.value = "";
-  emptyOption.textContent = presets.length === 0 ? "暂无组合" : "选择组合";
-  el.savedMutatorPreset.append(emptyOption);
-
-  for (const preset of presets) {
-    const option = document.createElement("option");
-    option.value = preset.id;
-    option.textContent = `${preset.name} (${preset.mutators.length})`;
-    el.savedMutatorPreset.append(option);
-  }
-
-  if (presets.some((item) => item.id === previous)) {
-    el.savedMutatorPreset.value = previous;
-  }
-
-  const hasSelection = Boolean(el.savedMutatorPreset.value);
-  el.applyMutatorPreset.disabled = !hasSelection;
-  el.deleteMutatorPreset.disabled = !hasSelection;
+  renderMutatorPresetOptionsPanelComponent({
+    selectElement: el.savedMutatorPreset,
+    applyButton: el.applyMutatorPreset,
+    deleteButton: el.deleteMutatorPreset,
+    presets: readMutatorPresets(),
+  });
 }
 
 function saveCurrentMutatorPreset() {
@@ -2124,40 +1821,19 @@ function isSuccessfulHistoryValidation(result = {}) {
 }
 
 function renderLaunchHistory() {
-  if (!el.launchHistory) return;
-
-  el.launchHistory.replaceChildren();
   const items = readLaunchHistory();
-  if (items.length === 0) {
-    const empty = document.createElement("span");
-    empty.className = "history-empty";
-    empty.textContent = "暂无";
-    el.launchHistory.append(empty);
-    return;
-  }
-
-  for (const item of items) {
-    const payload = item.payload || {};
-    const mutators = payload.mutators || [];
-    const genericBonuses = payload.genericBonuses || [];
-    const row = document.createElement("div");
-    row.className = "history-item";
-
-    const main = document.createElement("button");
-    main.type = "button";
-    main.className = "history-main";
-    main.innerHTML = `
-      <strong>${getCommanderLabel(payload.commander)} / ${getMapLabel(payload.map)}</strong>
-      <span>${formatTime(item.launchedAt)}</span>
-      ${renderRowBadges([
-        { text: getLaunchHistoryStatusLabel(item), className: getHistoryStatusClass(item) },
-        { text: getPayloadModeBadge(payload), className: payload.noLaunch ? "status-warn" : "" },
-        { text: `${mutators.length} 因子` },
-        { text: `${genericBonuses.length} 加成` },
-      ])}
-    `;
-    setButtonDetail(main, ["启动历史", getLaunchHistoryStatusLabel(item), formatTime(item.launchedAt), getPayloadSummaryText(payload)]);
-    main.addEventListener("click", () => {
+  renderLaunchHistoryPanelComponent({
+    container: el.launchHistory,
+    items,
+    getCommanderLabel,
+    getMapLabel,
+    formatTime,
+    getLaunchHistoryStatusLabel,
+    getHistoryStatusClass,
+    getPayloadModeBadge,
+    getPayloadSummaryText,
+    getHistoryLogPaths,
+    onApply: (item, payload) => {
       applyPayload(payload);
       if (isSuccessfulHistoryValidation(item.result || {})) {
         setValidatedConfig(buildLaunchPayload(), item.result || {}, item.result?.finalStatus || null, "历史验证");
@@ -2166,19 +1842,8 @@ function renderLaunchHistory() {
       }
       el.launchState.textContent = "历史已套用";
       writeOutput({ appliedLaunchHistory: payload, result: item.result });
-    });
-
-    const detail = document.createElement("button");
-    detail.type = "button";
-    detail.className = "mini";
-    detail.textContent = "日志";
-    const historyLogPaths = getHistoryLogPaths(item.result || {});
-    setButtonDetail(detail, [
-      "日志",
-      historyLogPaths.stdout ? `stdout=${historyLogPaths.stdout}` : "",
-      historyLogPaths.stderr ? `stderr=${historyLogPaths.stderr}` : "",
-    ]);
-    detail.addEventListener("click", () => {
+    },
+    onShowLogs: (item, payload, mutators, genericBonuses) => {
       const logPaths = getHistoryLogPaths(item.result || {});
       setLastLogPaths(logPaths.stdout, logPaths.stderr);
       writeOutput({
@@ -2192,32 +1857,15 @@ function renderLaunchHistory() {
         logPaths,
       });
       el.launchState.textContent = "历史日志已载入";
-    });
-
-    const validate = document.createElement("button");
-    validate.type = "button";
-    validate.className = "mini row-submit-action";
-    validate.textContent = "验证";
-    validate.addEventListener("click", async () => {
+    },
+    onValidate: async (payload) => {
       await validatePayload(payload, "历史验证");
-    });
-
-    const json = document.createElement("button");
-    json.type = "button";
-    json.className = "mini";
-    json.textContent = "JSON";
-    json.addEventListener("click", () => {
+    },
+    onExportJson: (item, payload) => {
       exportPayloadToEditor(payload, "已导出历史配置");
       writeOutput({ exportedLaunchHistory: item.launchedAt, payload, result: item.result });
-    });
-
-    const actions = document.createElement("div");
-    actions.className = "row-actions";
-    actions.append(detail, validate, json);
-
-    row.append(main, actions);
-    el.launchHistory.append(row);
-  }
+    },
+  });
   updateRowSubmitButtons();
 }
 
@@ -2427,6 +2075,7 @@ async function loadBootstrap() {
       workspaceRoot: state.data.workspaceRoot,
       launchScript: state.data.launchScript,
       resourcePlan: state.data.resourcePlan,
+      completion: state.data.completion,
     });
   } catch (error) {
     setStatus(error.message, "status-error");

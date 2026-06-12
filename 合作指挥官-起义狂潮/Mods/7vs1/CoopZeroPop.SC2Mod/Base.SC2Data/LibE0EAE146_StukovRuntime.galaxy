@@ -76,7 +76,6 @@ void libE0EAE146_gf_StukovStartBansheeMarinePeriodic (int lp_player) {
 
 void libE0EAE146_gf_StukovRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     unit lv_caster;
-    unit lv_hero;
 
     if (libE0EAE146_gv_stukovRuntimeInitialized == true) {
         return;
@@ -86,8 +85,6 @@ void libE0EAE146_gf_StukovRuntimeInit (int lp_player, point lp_heroPoint, bool l
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterStukov", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
     lv_caster = UnitLastCreated();
     if ((lp_createHero == true) && CatalogEntryIsValid(c_gameCatalogUnit, "InfestedStukovCoop")) {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "InfestedStukovCoop", 0, lp_player, lp_heroPoint);
-        lv_hero = UnitLastCreated();
         libE0EAE146_gt_CommanderHeroDied_Init();
     }
     lib67C0F0E7_gf_CU_GPInit(lp_player, "Stukov", lv_caster, null);

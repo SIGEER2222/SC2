@@ -280,22 +280,14 @@ void libE0EAE146_gf_KerriganRuntimeInit (int lp_player, point lp_heroPoint, bool
     }
     libE0EAE146_gf_KerriganEconDropInit(lp_player);
 
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterKerrigan", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+    lv_caster = UnitLastCreated();
+
     if (lp_createHero == true) {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "K5Kerrigan", 0, lp_player, lp_heroPoint);
-        lv_caster = UnitLastCreated();
-        libE0EAE146_gv_kerriganHero[lp_player] = lv_caster;
         libE0EAE146_gt_CommanderHeroDied_Init();
-    }
-    else {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterKerrigan", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
-        lv_caster = UnitLastCreated();
     }
 
     lib67C0F0E7_gf_CU_GPInit(lp_player, "Kerrigan", lv_caster, null);
     lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
     lib67C0F0E7_gf_ShowChooseButton();
-
-    if (lp_createHero == true) {
-        libE0EAE146_gf_KerriganStartInReviveFlow(lp_player, lv_caster);
-    }
 }
