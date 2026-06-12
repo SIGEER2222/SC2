@@ -36,84 +36,68 @@
       </div>
     </header>
 
-    <section class="summary-strip" aria-label="当前配置概览">
-      <div class="summary-items">
-        <div class="summary-item">
-          <span>指挥官</span>
-          <strong id="summaryCommander">-</strong>
-        </div>
-        <div class="summary-item">
-          <span>地图</span>
-          <strong id="summaryMap">-</strong>
-        </div>
-        <div class="summary-item">
-          <span>精通</span>
-          <strong id="summaryMastery">-</strong>
-        </div>
-        <div class="summary-item">
-          <span>因子</span>
-          <strong id="summaryMutators">0</strong>
-        </div>
-        <div class="summary-item">
-          <span>模式</span>
-          <strong id="summaryMode">启动</strong>
-        </div>
-        <div class="summary-item">
-          <span>验证</span>
-          <strong id="summaryValidation">未验证</strong>
-        </div>
-      </div>
-      <button id="copySummaryButton" type="button" class="mini" disabled>复制摘要</button>
-      <div id="configIssues" class="config-issues status-ok" aria-live="polite">配置可启动</div>
-    </section>
-
-    <section class="bootstrap-strip" aria-label="启动数据概览">
-      <div class="bootstrap-metric">
-        <span>指挥官</span>
-        <strong id="bootstrapCommanderCount">0</strong>
-      </div>
-      <div class="bootstrap-metric">
-        <span>地图</span>
-        <strong id="bootstrapMapCount">0</strong>
-      </div>
-      <div class="bootstrap-metric">
-        <span>因子</span>
-        <strong id="bootstrapMutatorCount">0</strong>
-      </div>
-      <div class="bootstrap-resource">
-        <span>通关进度</span>
-        <strong id="bootstrapCompletionStatus">等待读取</strong>
-      </div>
-      <div class="bootstrap-resource">
-        <span>资源状态</span>
-        <strong id="bootstrapResourcePlanText">等待读取</strong>
-      </div>
-    </section>
-
     <main class="workspace">
-      <section class="panel commander-panel" aria-labelledby="commanderTitle">
-        <div class="panel-head">
-          <h2 id="commanderTitle">指挥官</h2>
-          <div class="mastery-head-actions">
-            <span id="selectionSummary" class="badge">未就绪</span>
-            <strong id="commanderQuickCount" class="badge">0</strong>
+      <section class="setup-grid">
+        <section class="panel commander-panel" aria-labelledby="commanderTitle">
+          <div class="panel-head">
+            <h2 id="commanderTitle">指挥官</h2>
+            <div class="mastery-head-actions">
+              <span id="selectionSummary" class="badge">未就绪</span>
+              <strong id="commanderQuickCount" class="badge">0</strong>
+            </div>
           </div>
-        </div>
 
-        <select id="commanderSelect" class="form-fallback-hidden" aria-hidden="true" tabindex="-1"></select>
+          <select id="commanderSelect" class="form-fallback-hidden" aria-hidden="true" tabindex="-1"></select>
 
-        <div class="commander-gallery-block">
-          <div class="quick-pick-head">
-            <span>头像选择</span>
-            <strong>两排优先显示</strong>
+          <div class="commander-gallery-block">
+            <div id="commanderQuickList" class="commander-gallery"></div>
           </div>
-          <div id="commanderQuickList" class="commander-gallery"></div>
-        </div>
-      </section>
+        </section>
 
-      <section class="panel map-panel" aria-label="地图选择">
-        <select id="mapSelect" class="form-fallback-hidden" aria-hidden="true" tabindex="-1"></select>
-        <div id="mapQuickList" class="quick-pick-list map-quick-list map-gallery"></div>
+        <div class="setup-side">
+          <section class="panel summary-panel" aria-label="当前配置概览">
+            <div class="panel-head">
+              <h2>当前配置</h2>
+              <div class="summary-actions">
+                <span id="summaryValidation" class="badge">未验证</span>
+                <button id="copySummaryButton" type="button" class="mini" disabled>复制摘要</button>
+              </div>
+            </div>
+            <div class="summary-strip">
+              <div class="summary-items">
+                <div class="summary-item">
+                  <span>指挥官</span>
+                  <strong id="summaryCommander">-</strong>
+                </div>
+                <div class="summary-item">
+                  <span>地图</span>
+                  <strong id="summaryMap">-</strong>
+                </div>
+                <div class="summary-item">
+                  <span>精通</span>
+                  <strong id="summaryMastery">-</strong>
+                </div>
+                <div class="summary-item">
+                  <span>因子</span>
+                  <strong id="summaryMutators">0</strong>
+                </div>
+                <div class="summary-item">
+                  <span>模式</span>
+                  <strong id="summaryMode">启动</strong>
+                </div>
+              </div>
+              <div id="configIssues" class="config-issues status-ok" aria-live="polite">配置可启动</div>
+            </div>
+          </section>
+
+          <section class="panel map-panel" aria-label="地图选择">
+            <div class="panel-head">
+              <h2>地图</h2>
+            </div>
+            <select id="mapSelect" class="form-fallback-hidden" aria-hidden="true" tabindex="-1"></select>
+            <div id="mapQuickList" class="quick-pick-list map-quick-list map-gallery"></div>
+          </section>
+        </div>
       </section>
 
       <nav class="sheet-bar" role="tablist" aria-label="功能页切换">
@@ -333,6 +317,29 @@
         </section>
       </div>
     </main>
+
+    <section class="bootstrap-strip" aria-label="启动数据概览">
+      <div class="bootstrap-metric">
+        <span>指挥官</span>
+        <strong id="bootstrapCommanderCount">0</strong>
+      </div>
+      <div class="bootstrap-metric">
+        <span>地图</span>
+        <strong id="bootstrapMapCount">0</strong>
+      </div>
+      <div class="bootstrap-metric">
+        <span>因子</span>
+        <strong id="bootstrapMutatorCount">0</strong>
+      </div>
+      <div class="bootstrap-resource">
+        <span>通关进度</span>
+        <strong id="bootstrapCompletionStatus">等待读取</strong>
+      </div>
+      <div class="bootstrap-resource">
+        <span>资源状态</span>
+        <strong id="bootstrapResourcePlanText">等待读取</strong>
+      </div>
+    </section>
   </div>
 
   <script type="module" src="/app.js"></script>

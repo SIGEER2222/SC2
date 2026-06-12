@@ -1202,7 +1202,10 @@ void libKPVP_gf_apply_kerrigan_creep_bonus (int lp_player) {
 void libKPVP_gf_reset_skins_for_player (int lp_player) {
     // Automatic Variable Declarations
     // Implementation
-    PlayerApplySkin(lp_player, "Carrier", true);
+    // Commander skin should have a single owner. Resetting every user player to
+    // Carrier here causes campaign ally presentation units on shared player slots
+    // to bounce between multiple skins before KCOR applies the final commander skin.
+    return;
 }
 
 void libKPVP_gf_set_difficulty_for_all_players () {

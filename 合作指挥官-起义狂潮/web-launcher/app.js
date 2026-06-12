@@ -991,7 +991,7 @@ function normalizeLaunchPayload(payload = buildLaunchPayload()) {
 }
 
 function setValidationSummary(text, className = "") {
-  el.summaryValidation.className = className;
+  el.summaryValidation.className = ["badge", className].filter(Boolean).join(" ");
   el.summaryValidation.textContent = text;
 }
 

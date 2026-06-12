@@ -76,6 +76,7 @@ $includeLines = @(
     'include "LibKPVP_h"'
     'include "LibKCOR_h"'
     'include "LibKCUI_h"'
+    'include "LibDF8E6945_h"'
     'include "LibE0EAE146_h"'
     'include "LibKMIS_h"'
 ) + ($chunkNames | ForEach-Object { 'include "{0}"' -f $_.Substring(0, $_.Length - 7) })

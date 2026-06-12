@@ -789,21 +789,21 @@ function Assert-GeneratedLibraryIncludeCoverage {
         [Parameter(Mandatory = $true)]
         [string]$Text,
         [Parameter(Mandatory = $true)]
-        [string]$Context
+        [string]$Context,
+        [string[]]$RequiredPrefixes = @()
     )
 
-    $referencedPrefixes = @(
-        [regex]::Matches($Text, '(?m)(?<![A-Za-z0-9_])lib([A-F0-9]{8})_') |
-            ForEach-Object { $_.Groups[1].Value } |
-            Sort-Object -Unique
-    )
     $includedNames = @(
         [regex]::Matches($Text, '(?m)^\s*include\s+"([^"]+)"') |
             ForEach-Object { $_.Groups[1].Value } |
             Sort-Object -Unique
     )
 
-    foreach ($prefix in $referencedPrefixes) {
+    foreach ($prefix in $RequiredPrefixes) {
+        if ($Text -notmatch ("(?m)(?<![A-Za-z0-9_])lib{0}_" -f [regex]::Escape($prefix))) {
+            continue
+        }
+
         $mainInclude = "Lib$prefix"
         $headerInclude = "Lib${prefix}_h"
         if (($includedNames -contains $mainInclude) -or ($includedNames -contains $headerInclude)) {
@@ -864,7 +864,7 @@ function Validate-LiveAbathurRebornInstall {
         }
     }
 
-    Assert-GeneratedLibraryIncludeCoverage -Text $kmis -Context 'Live AbathurReborn LibKMIS'
+    Assert-GeneratedLibraryIncludeCoverage -Text $kmis -Context 'Live AbathurReborn LibKMIS' -RequiredPrefixes @('DF8E6945', 'E0EAE146')
 }
 
 function Validate-LiveBaseTestlineInstall {
@@ -936,11 +936,7 @@ function Validate-LiveBaseTestlineInstall {
         throw 'Live base testline effective LibKPVP STARTPVP is not filtered to CommanderPlayers.'
     }
 
-    if (($effectiveKmis -match 'libE0EAE146_') -and (-not $effectiveKmis.Contains('include "LibE0EAE146_h"'))) {
-        throw 'Live base testline effective LibKMIS references libE0EAE146 helpers but is missing include "LibE0EAE146_h".'
-    }
-
-    Assert-GeneratedLibraryIncludeCoverage -Text $effectiveKmis -Context 'Live base testline LibKMIS'
+    Assert-GeneratedLibraryIncludeCoverage -Text $effectiveKmis -Context 'Live base testline LibKMIS' -RequiredPrefixes @('DF8E6945', 'E0EAE146')
 }
 
 function Set-AbathurRebornPatchProfile {

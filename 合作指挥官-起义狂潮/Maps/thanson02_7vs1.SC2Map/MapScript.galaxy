@@ -2598,9 +2598,6 @@ bool gt_IntroHellions_Func (bool testConds, bool runActions) {
     region lv_pickedRegion;
     unitgroup lv_introHellionGroup;
 
-    // Automatic Variable Declarations
-    string auto1B27F4F2_val;
-
     // Variable Initialization
     lv_introHellionGroup = UnitGroupEmpty();
 
@@ -2616,13 +2613,7 @@ bool gt_IntroHellions_Func (bool testConds, bool runActions) {
     }
     Wait(4.0, c_timeGame);
     if (!libE0EAE146_gf_SuppressPlayerCinematicUnits("thanson02_7vs1")) {
-        auto1B27F4F2_val = libE0EAE146_gv_commander;
-        if (auto1B27F4F2_val == "Mira") {
-            libNtve_gf_CreateUnitsWithDefaultFacing(3, "HellionMira", 0, 1, PointFromId(930));
-        }
-        else {
-            libNtve_gf_CreateUnitsWithDefaultFacing(3, "Hellion", 0, 1, PointFromId(930));
-        }
+        libE0EAE146_gf_CreateCommanderCinematicDropSquad("light", 1, PointFromId(930));
     }
     SoundtrackPlay(PlayerGroupAll(), c_soundtrackCategoryMusic, "THanson02MusicSwann", c_soundtrackCueAny, c_soundtrackIndexAny, false);
     TriggerExecute(gt_TransmissionHellionIntroQ, true, true);
