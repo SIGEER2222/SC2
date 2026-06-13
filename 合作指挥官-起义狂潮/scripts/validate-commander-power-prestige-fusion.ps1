@@ -93,6 +93,9 @@ function Get-CommanderPrestigeUpgradeIds {
     $upgradeIds = New-Object System.Collections.Generic.HashSet[string]([System.StringComparer]::OrdinalIgnoreCase)
     foreach ($prestige in @($Commander.prestiges)) {
         Add-PrestigeUpgradeId -Set $upgradeIds -UpgradeId ([string]$prestige.primary_upgrade)
+        if ($null -ne $prestige.PSObject.Properties["fusion_primary_upgrade"]) {
+            Add-PrestigeUpgradeId -Set $upgradeIds -UpgradeId ([string]$prestige.fusion_primary_upgrade)
+        }
         foreach ($supplement in @($prestige.upgrade_supplements)) {
             foreach ($supplementUpgrade in @($supplement.supplement_upgrades)) {
                 Add-PrestigeUpgradeId -Set $upgradeIds -UpgradeId ([string]$supplementUpgrade)
@@ -145,8 +148,10 @@ $workspaceRoot = Get-WorkspaceRoot
 $repoRoot = Split-Path -Parent $workspaceRoot
 $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
 $catalogGameData = Join-Path $workspaceRoot "Mods\7vs1\CommanderCatalog.SC2Mod\Base.SC2Data\GameData"
+$coopZeroPopGameData = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\GameData"
 $unitXmls = Read-CatalogXmlSet -GameDataRoot $catalogGameData -BaseName "UnitData"
 $overlayUpgradeXml = Read-CatalogXml -Path (Join-Path $catalogGameData "UpgradeData.xml")
+$coopZeroPopUpgradeXml = Read-CatalogXml -Path (Join-Path $coopZeroPopGameData "UpgradeData.xml")
 $generatedGalaxyPath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
 Assert-True -Condition (Test-Path -LiteralPath $generatedGalaxyPath) -Message "Generated CommanderPower Galaxy not found: $generatedGalaxyPath"
 $generatedGalaxy = Get-Content -LiteralPath $generatedGalaxyPath -Encoding UTF8 -Raw
@@ -187,7 +192,7 @@ foreach ($commander in $metadata.commanders) {
                 }) | Out-Null
         }
 
-        $nodes = @(Get-UpgradeNodes -Xmls ($sourceUpgradeXmls + @($overlayUpgradeXml)) -UpgradeId $upgradeId)
+        $nodes = @(Get-UpgradeNodes -Xmls ($sourceUpgradeXmls + @($overlayUpgradeXml, $coopZeroPopUpgradeXml)) -UpgradeId $upgradeId)
         if ($nodes.Count -eq 0) {
             $missingPrestigeDefinitions.Add([pscustomobject]@{
                     Commander = [string]$commander.bank_commander

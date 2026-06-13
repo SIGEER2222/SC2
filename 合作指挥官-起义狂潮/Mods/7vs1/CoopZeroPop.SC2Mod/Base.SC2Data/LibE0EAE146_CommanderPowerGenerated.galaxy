@@ -512,7 +512,12 @@ void libE0EAE146_gf_CommanderPowerGeneratedApplyNovaPrestiges (int lp_player) {
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeNovaAirlift", 1);
     }
     if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 2)) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeNovaSuperCloak", 1);
+        if (libE0EAE146_gf_CommanderPowerApplyNegativePrestigeTradeoffs("Nova")) {
+            libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeNovaSuperCloak", 1);
+        }
+        else {
+            libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPowerNovaSuperCloakFusion", 1);
+        }
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeNovaSuperCloakMastery", 1);
     }
 }

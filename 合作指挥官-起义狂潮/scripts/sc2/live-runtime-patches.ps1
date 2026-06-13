@@ -302,6 +302,9 @@ function Set-LiveRuntimePrimaryCommanderOverride {
     $replacement = "string libE0EAE146_gf_CodexTestPrimaryCommander () {`r`n    return `"$primaryCommander`";`r`n}"
     $newText = [regex]::Replace($text, $pattern, $replacement, 1)
     if ($newText -eq $text) {
+        if ($text -match [regex]::Escape($replacement)) {
+            return
+        }
         throw "Could not patch runtime primary commander override in $runtimeSafety"
     }
 

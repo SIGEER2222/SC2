@@ -576,6 +576,9 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(gv_p1_USER, c_playerPropMinerals, c_playerPropOperSetTo, 200);
     PlayerModifyPropertyInt(gv_p1_USER, c_playerPropVespene, c_playerPropOperSetTo, 50);
     libE0EAE146_gf_Initialize(false);
+    libE0EAE146_gv_currentMapId = "thanson01_7vs1";
+    libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitization("thanson01_7vs1");
+    libE0EAE146_gf_EnsureSharedPlayerCampaignAllySanitizer("thanson01_7vs1");
     TriggerExecute(gt_Init01Technology, true, false);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03VariablesUnits, true, true);
@@ -822,7 +825,6 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     }
 
     TriggerExecute(gt_FirebatDropshipAction, true, false);
-    libE0EAE146_gf_RunSharedPlayerCampaignAllyDuplicateCleanup("thanson01_7vs1");
     CinematicFade(false, 0.0, c_fadeStyleNormal, ColorWithAlpha(0.00, 0.00, 0.00, 0.00), 0.0, false);
     libNtve_gf_CinematicMode(true, PlayerGroupAll(), 0.0);
     libNtve_gf_GlobalCinematicSetting(true);

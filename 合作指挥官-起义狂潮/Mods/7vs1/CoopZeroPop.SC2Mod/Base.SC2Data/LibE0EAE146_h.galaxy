@@ -73,7 +73,15 @@ bool libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly (string lp_mapId);
 bool libE0EAE146_gf_ShouldApplyPlayerSkins ();
 bool libE0EAE146_gf_SuppressPlayerCinematicUnits (string lp_mapId);
 int libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer (int lp_player, fixed lp_radius);
+void libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer (int lp_player, string lp_unitType, string lp_arrayField, string lp_link, int lp_maxIndex);
+void libE0EAE146_gf_ClearUnitCatalogFieldIfMatchesForPlayer (int lp_player, string lp_unitType, string lp_fieldPath, string lp_value);
+void libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitizationForPlayer (string lp_mapId, int lp_player);
+void libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitization (string lp_mapId);
 void libE0EAE146_gf_RunSharedPlayerCampaignAllyDuplicateCleanup (string lp_mapId);
+bool libE0EAE146_gf_IsSharedPlayerCampaignAllyPlayer (string lp_mapId, int lp_player);
+int libE0EAE146_gf_SanitizeSharedPlayerCampaignAllyUnit (unit lp_unit, string lp_mapId);
+int libE0EAE146_gf_RunSharedPlayerCampaignAllySanitization (string lp_mapId);
+void libE0EAE146_gf_EnsureSharedPlayerCampaignAllySanitizer (string lp_mapId);
 string libE0EAE146_gf_CatalogUnitOrEmpty (string lp_unitType);
 bool libE0EAE146_gf_IsAllowedConsoleSkin (string lp_consoleSkin);
 string libE0EAE146_gf_BankConsoleSkinOverride ();
@@ -246,6 +254,7 @@ trigger libE0EAE146_gt_XMProgressionPhaseRepair;
 trigger libE0EAE146_gt_XMProgressionCreepRegen;
 trigger libE0EAE146_gt_GenericBonusMechanicalRepair;
 trigger libE0EAE146_gt_GenericBonusCreepRegen;
+trigger libE0EAE146_gt_SharedPlayerCampaignAllySanitizer;
 trigger libE0EAE146_gt_RaynorStructureMorphRefresh;
 
 // Library Initialization

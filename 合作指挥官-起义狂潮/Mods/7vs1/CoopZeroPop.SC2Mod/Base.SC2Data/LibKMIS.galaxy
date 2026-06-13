@@ -21377,6 +21377,7 @@ bool libKMIS_gt_CM_SoATargetingDeactivated_Func (bool testConds, bool runActions
 
     lv_casterPlayer = UnitGetOwner(EventUnit());
     UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoACasterGroup[lv_casterPlayer], null, false);
+    UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoATargetingDirectionGroup[lv_casterPlayer], null, false);
     libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer] = 0;
     libKMIS_gf_CM_SoATargetingModeExit(lv_casterPlayer);
     return true;
@@ -21509,6 +21510,10 @@ bool libKMIS_gt_CM_SoATargetingDirectionChosen_Func (bool testConds, bool runAct
     libNtve_gf_CreateActorAtPoint("SOATargetingModeConfirmationSound", lv_targetPoint);
     ActorSend(libKMIS_gv_cM_SoATargetingActors[libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]][lv_casterPlayer], "Signal Destroy");
     if ((UnitIsValid(libKMIS_gv_cM_SoATargetingUnit[libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]][lv_casterPlayer]) == false)) {
+        UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoATargetingDirectionGroup[lv_casterPlayer], null, false);
+        libKMIS_gf_CM_SoATargetingCleanupActorsAndUnits(lv_casterPlayer);
+        libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer] = 0;
+        UnitBehaviorRemove(libKMIS_gv_cM_SoACasterUnit[lv_casterPlayer], libKMIS_gv_cM_SoATargetingBehavior[lv_casterPlayer], 1);
         return true;
     }
 

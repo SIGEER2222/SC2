@@ -105,6 +105,7 @@ void libE0EAE146_InitVariables () {
     libE0EAE146_gv_genericBonusController = null;
     libE0EAE146_gt_GenericBonusMechanicalRepair = null;
     libE0EAE146_gt_GenericBonusCreepRegen = null;
+    libE0EAE146_gt_SharedPlayerCampaignAllySanitizer = null;
     for (autoFD1D4F18_i = 1; autoFD1D4F18_i <= 8; autoFD1D4F18_i += 1) {
         libE0EAE146_gv_xmProgressionRunBlessingApplied[autoFD1D4F18_i] = false;
     }
@@ -384,6 +385,7 @@ void libE0EAE146_gf_InitializeStandardMapScenario (string lp_mapId, bool lp_rpg,
 
 void libE0EAE146_gf_InitializeConfiguredMapScenario (string lp_mapId, bool lp_rpg, trigger lp_preInit, trigger lp_init01, bool lp_init01WaitUntilDone, trigger lp_init02, trigger lp_init03, trigger lp_init04, trigger lp_init05, trigger lp_init06, trigger lp_postInit, trigger lp_intro) {
     libE0EAE146_gv_currentMapId = lp_mapId;
+    libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitization(lp_mapId);
     if (libE0EAE146_gf_MapNeedsPreInitializeRpg(lp_mapId)) {
         libE0EAE146_gf_Initialize(true);
     }
@@ -483,6 +485,80 @@ int libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer (int lp_player, fixed lp
     return lv_removed;
 }
 
+void libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer (int lp_player, string lp_unitType, string lp_arrayField, string lp_link, int lp_maxIndex) {
+    int lv_index;
+    string lv_path;
+
+    if ((lp_player <= 0) || (lp_unitType == "") || (lp_arrayField == "") || (lp_link == "") || (lp_maxIndex <= 0)) {
+        return;
+    }
+
+    for (lv_index = 0; lv_index < lp_maxIndex; lv_index += 1) {
+        lv_path = (lp_arrayField + "[" + IntToString(lv_index) + "].Link");
+        if (CatalogFieldValueGet(c_gameCatalogUnit, lp_unitType, lv_path, lp_player) == lp_link) {
+            CatalogFieldValueSet(c_gameCatalogUnit, lp_unitType, lv_path, lp_player, "");
+        }
+    }
+}
+
+void libE0EAE146_gf_ClearUnitCatalogFieldIfMatchesForPlayer (int lp_player, string lp_unitType, string lp_fieldPath, string lp_value) {
+    if ((lp_player <= 0) || (lp_unitType == "") || (lp_fieldPath == "") || (lp_value == "")) {
+        return;
+    }
+
+    if (CatalogFieldValueGet(c_gameCatalogUnit, lp_unitType, lp_fieldPath, lp_player) == lp_value) {
+        CatalogFieldValueSet(c_gameCatalogUnit, lp_unitType, lp_fieldPath, lp_player, "");
+    }
+}
+
+void libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitizationForPlayer (string lp_mapId, int lp_player) {
+    if (libE0EAE146_gf_IsSharedPlayerCampaignAllyPlayer(lp_mapId, lp_player) == false) {
+        return;
+    }
+
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "Marine", "BehaviorArray", "AllUnitBehaviorController", 6);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "Marauder", "BehaviorArray", "AllUnitBehaviorController", 6);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "Hellion", "BehaviorArray", "AllUnitBehaviorController", 6);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "SCV", "BehaviorArray", "AllUnitBehaviorController", 8);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "Goliath", "BehaviorArray", "AllUnitBehaviorController", 6);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "ScienceVessel", "BehaviorArray", "AllUnitBehaviorController", 6);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "Vulture", "BehaviorArray", "AllUnitBehaviorController", 6);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "SiegeTank", "BehaviorArray", "AllUnitBehaviorController", 6);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "SiegeTankSieged", "BehaviorArray", "AllUnitBehaviorController", 6);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "VikingFighter", "BehaviorArray", "AllUnitBehaviorController", 6);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "VikingAssault", "BehaviorArray", "AllUnitBehaviorController", 6);
+
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "SCV", "AbilArray", "SprayTerran", 8);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "ScienceVessel", "AbilArray", "ScienceVesselNanoRepairDouble", 8);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "ScienceVessel", "AbilArray", "CommanderPrestigeSwannHerculesScienceVesselTacticalJump", 8);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "Vulture", "AbilArray", "VehicleAfterburners", 8);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "SiegeTank", "AbilArray", "VehicleAfterburners", 8);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "SiegeTankSieged", "AbilArray", "VehicleAfterburners", 8);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "VikingFighter", "AbilArray", "VehicleAfterburners", 8);
+    libE0EAE146_gf_ClearUnitCatalogArrayLinkForPlayer(lp_player, "VikingAssault", "AbilArray", "VehicleAfterburners", 8);
+
+    libE0EAE146_gf_ClearUnitCatalogFieldIfMatchesForPlayer(lp_player, "VikingFighter", "EffectArray[Create]", "CommanderPrestigeRaynorAirTriggerAdd");
+    libE0EAE146_gf_ClearUnitCatalogFieldIfMatchesForPlayer(lp_player, "VikingFighter", "EffectArray[Death]", "CommanderPrestigeRaynorAirTriggerRemove");
+    libE0EAE146_gf_ClearUnitCatalogFieldIfMatchesForPlayer(lp_player, "VikingAssault", "EffectArray[Create]", "CommanderPrestigeRaynorAirTriggerAdd");
+    libE0EAE146_gf_ClearUnitCatalogFieldIfMatchesForPlayer(lp_player, "VikingAssault", "EffectArray[Death]", "CommanderPrestigeRaynorAirTriggerRemove");
+}
+
+void libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitization (string lp_mapId) {
+    int lv_player;
+
+    if ((lp_mapId == "") || (libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly(lp_mapId) == false)) {
+        return;
+    }
+    if (DataTableGetBool(true, ("XMSharedAllyCatalogSanitized_" + lp_mapId)) == true) {
+        return;
+    }
+
+    DataTableSetBool(true, ("XMSharedAllyCatalogSanitized_" + lp_mapId), true);
+    for (lv_player = 1; lv_player <= 15; lv_player += 1) {
+        libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitizationForPlayer(lp_mapId, lv_player);
+    }
+}
+
 void libE0EAE146_gf_RunSharedPlayerCampaignAllyDuplicateCleanup (string lp_mapId) {
     int lv_removed;
     int lv_player;
@@ -519,6 +595,159 @@ void libE0EAE146_gf_RunSharedPlayerCampaignAllyDuplicateCleanup (string lp_mapId
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "SharedAllyDuplicateCleanupMap", lp_mapId);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "SharedAllyDuplicateCleanupRemoved", lv_removed);
     BankSave(BankLastCreated());
+}
+
+bool libE0EAE146_gf_IsSharedPlayerCampaignAllyPlayer (string lp_mapId, int lp_player) {
+    if (lp_mapId == "thanson03a_7vs1") {
+        return ((lp_player == 2) || (lp_player == 3) || (lp_player == 4) || (lp_player == 5) || (lp_player == 6) || (lp_player == 8) || (lp_player == 9) || (lp_player == 10) || (lp_player == 11) || (lp_player == 12) || (lp_player == 13));
+    }
+    if (lp_mapId == "thanson01_7vs1") {
+        return ((lp_player >= 2) && (lp_player <= 10));
+    }
+    return false;
+}
+
+int libE0EAE146_gf_SanitizeSharedPlayerCampaignAllyUnit (unit lp_unit, string lp_mapId) {
+    int lv_removed;
+
+    if ((lp_unit == null) || (UnitIsAlive(lp_unit) == false)) {
+        return 0;
+    }
+    if (libE0EAE146_gf_IsSharedPlayerCampaignAllyPlayer(lp_mapId, UnitGetOwner(lp_unit)) == false) {
+        return 0;
+    }
+
+    lv_removed = 0;
+    lv_removed += UnitBehaviorCount(lp_unit, "AllUnitBehaviorController");
+    UnitBehaviorRemove(lp_unit, "AllUnitBehaviorController", c_unitBehaviorCountAll);
+    lv_removed += UnitBehaviorCount(lp_unit, "VorazunCloakedShieldRegenPermanent");
+    UnitBehaviorRemove(lp_unit, "VorazunCloakedShieldRegenPermanent", c_unitBehaviorCountAll);
+    lv_removed += UnitBehaviorCount(lp_unit, "CorsairPermanentCloak");
+    UnitBehaviorRemove(lp_unit, "CorsairPermanentCloak", c_unitBehaviorCountAll);
+    lv_removed += UnitBehaviorCount(lp_unit, "BansheeBlackOpsPermanentCloak");
+    UnitBehaviorRemove(lp_unit, "BansheeBlackOpsPermanentCloak", c_unitBehaviorCountAll);
+    lv_removed += UnitBehaviorCount(lp_unit, "KerriganAssimilationLifesteal");
+    UnitBehaviorRemove(lp_unit, "KerriganAssimilationLifesteal", c_unitBehaviorCountAll);
+    lv_removed += UnitBehaviorCount(lp_unit, "GenerateCreepHealingBehavior");
+    UnitBehaviorRemove(lp_unit, "GenerateCreepHealingBehavior", c_unitBehaviorCountAll);
+    return lv_removed;
+}
+
+int libE0EAE146_gf_RunSharedPlayerCampaignAllySanitization (string lp_mapId) {
+    unitgroup lv_units;
+    int lv_player;
+    int lv_count;
+    unit lv_unit;
+    int lv_removed;
+
+    if ((lp_mapId == "") || (libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly(lp_mapId) == false)) {
+        return 0;
+    }
+
+    lv_removed = 0;
+    for (lv_player = 1; lv_player <= 15; lv_player += 1) {
+        if (libE0EAE146_gf_IsSharedPlayerCampaignAllyPlayer(lp_mapId, lv_player) == false) {
+            continue;
+        }
+        lv_units = UnitGroup(null, lv_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        for ( ; (lv_count >= 1) ; lv_count -= 1) {
+            lv_unit = UnitGroupUnitFromEnd(lv_units, lv_count);
+            lv_removed += libE0EAE146_gf_SanitizeSharedPlayerCampaignAllyUnit(lv_unit, lp_mapId);
+        }
+    }
+    return lv_removed;
+}
+
+bool libE0EAE146_gt_SharedPlayerCampaignAllySanitizer_Func (bool testConds, bool runActions) {
+    string lv_mapId;
+    int lv_removed;
+    unitgroup lv_units;
+    unitgroup lv_nearbyUnits;
+    int lv_player;
+    int lv_count;
+    int lv_nearbyCount;
+    int lv_overlapCount;
+    int lv_sampleCount;
+    unit lv_unit;
+    unit lv_nearbyUnit;
+    string lv_sample;
+    string lv_prefix;
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_mapId = libE0EAE146_gv_currentMapId;
+    if (lv_mapId == "") {
+        return true;
+    }
+    if (libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly(lv_mapId) == false) {
+        return true;
+    }
+
+    lv_removed = libE0EAE146_gf_RunSharedPlayerCampaignAllySanitization(lv_mapId);
+    if (lv_removed > 0) {
+        DataTableSetInt(true, ("XMSharedAllySanitizerLastRemoved_" + lv_mapId), lv_removed);
+    }
+    lv_overlapCount = 0;
+    lv_sampleCount = 0;
+    for (lv_player = 1; lv_player <= 15; lv_player += 1) {
+        if (libE0EAE146_gf_IsSharedPlayerCampaignAllyPlayer(lv_mapId, lv_player) == false) {
+            continue;
+        }
+        lv_units = UnitGroup(null, lv_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        for ( ; (lv_count >= 1) ; lv_count -= 1) {
+            lv_unit = UnitGroupUnitFromEnd(lv_units, lv_count);
+            if ((lv_unit == null) || (UnitIsAlive(lv_unit) == false)) {
+                continue;
+            }
+            lv_nearbyUnits = UnitGroupSearch(null, c_playerAny, UnitGetPosition(lv_unit), 0.20, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+            lv_nearbyCount = UnitGroupCount(lv_nearbyUnits, c_unitCountAll);
+            for ( ; (lv_nearbyCount >= 1) ; lv_nearbyCount -= 1) {
+                lv_nearbyUnit = UnitGroupUnitFromEnd(lv_nearbyUnits, lv_nearbyCount);
+                if ((lv_nearbyUnit == null) || (UnitGetTag(lv_nearbyUnit) == UnitGetTag(lv_unit))) {
+                    continue;
+                }
+                if ((UnitGetOwner(lv_nearbyUnit) == UnitGetOwner(lv_unit)) && (UnitGetType(lv_nearbyUnit) == UnitGetType(lv_unit))) {
+                    continue;
+                }
+                lv_overlapCount += 1;
+                if (lv_sampleCount < 6) {
+                    lv_sampleCount += 1;
+                    lv_sample = ("A[p" + IntToString(UnitGetOwner(lv_unit)) + ":" + UnitGetType(lv_unit) + "#" + IntToString(UnitGetTag(lv_unit)) + "] B[p" + IntToString(UnitGetOwner(lv_nearbyUnit)) + ":" + UnitGetType(lv_nearbyUnit) + "#" + IntToString(UnitGetTag(lv_nearbyUnit)) + "]");
+                    DataTableSetString(true, ("XMSharedAllyOverlapSample_" + lv_mapId + "_" + IntToString(lv_sampleCount)), lv_sample);
+                }
+            }
+        }
+    }
+    lv_prefix = ("XMSharedAllyOverlap_" + lv_mapId);
+    if ((DataTableGetInt(true, (lv_prefix + "_LastCount")) != lv_overlapCount) || (DataTableGetBool(true, (lv_prefix + "_Saved")) == false)) {
+        DataTableSetInt(true, (lv_prefix + "_LastCount"), lv_overlapCount);
+        DataTableSetBool(true, (lv_prefix + "_Saved"), true);
+        BankLoad("CampaignXCore", 1);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "SharedAllyOverlapMap", lv_mapId);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "SharedAllyOverlapCount", lv_overlapCount);
+        for (lv_count = 1; lv_count <= 6; lv_count += 1) {
+            BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", ("SharedAllyOverlapSample" + IntToString(lv_count)), DataTableGetString(true, ("XMSharedAllyOverlapSample_" + lv_mapId + "_" + IntToString(lv_count))));
+        }
+        BankSave(BankLastCreated());
+    }
+    return true;
+}
+
+void libE0EAE146_gf_EnsureSharedPlayerCampaignAllySanitizer (string lp_mapId) {
+    if ((lp_mapId == "") || (libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly(lp_mapId) == false)) {
+        return;
+    }
+    if (libE0EAE146_gt_SharedPlayerCampaignAllySanitizer == null) {
+        libE0EAE146_gt_SharedPlayerCampaignAllySanitizer = TriggerCreate("libE0EAE146_gt_SharedPlayerCampaignAllySanitizer_Func");
+        TriggerAddEventTimePeriodic(libE0EAE146_gt_SharedPlayerCampaignAllySanitizer, 0.50, c_timeGame);
+        TriggerEnable(libE0EAE146_gt_SharedPlayerCampaignAllySanitizer, false);
+    }
+    TriggerEnable(libE0EAE146_gt_SharedPlayerCampaignAllySanitizer, true);
+    libE0EAE146_gf_RunSharedPlayerCampaignAllySanitization(lp_mapId);
 }
 
 int libE0EAE146_gf_GenericBonusBankInt (string lp_key) {

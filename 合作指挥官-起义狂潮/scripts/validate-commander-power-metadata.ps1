@@ -289,6 +289,13 @@ foreach ($commander in $metadata.commanders) {
         Assert-True -Condition ([string]$metadataPrestige.button_id -eq $buttonId) -Message ("Prestige button id mismatch for {0} slot {1}" -f $officialFolder, $slot)
         Assert-True -Condition ([string]$metadataPrestige.id -eq [string]$officialPrestige.id) -Message ("Prestige payload mismatch for {0} slot {1}" -f $officialFolder, $slot)
         Assert-True -Condition ([string]$metadataPrestige.primary_upgrade -eq [string]$officialPrestige.primary_upgrade) -Message ("Prestige primary upgrade mismatch for {0} slot {1}" -f $officialFolder, $slot)
+        if (($officialFolder -eq "Nova") -and ($slot -eq 2)) {
+            $fusionPrimaryUpgrade = ""
+            if ($null -ne $metadataPrestige.PSObject.Properties["fusion_primary_upgrade"]) {
+                $fusionPrimaryUpgrade = [string]$metadataPrestige.fusion_primary_upgrade
+            }
+            Assert-True -Condition ($fusionPrimaryUpgrade -eq "CommanderPowerNovaSuperCloakFusion") -Message "Nova slot 2 must declare fusion_primary_upgrade=CommanderPowerNovaSuperCloakFusion."
+        }
         Assert-True -Condition ([string]$metadataPrestige.name_key -eq $expectedNameKey) -Message ("Prestige name key mismatch for {0} slot {1}" -f $officialFolder, $slot)
         Assert-True -Condition ([string]$metadataPrestige.tooltip_key -eq $expectedTooltipKey) -Message ("Prestige tooltip key mismatch for {0} slot {1}" -f $officialFolder, $slot)
         Assert-True -Condition ($zhMap.ContainsKey($expectedNameKey)) -Message ("Missing zhCN prestige name for {0} slot {1}" -f $officialFolder, $slot)
@@ -305,5 +312,6 @@ foreach ($commander in $metadata.commanders) {
 }
 
 Assert-True -Condition ($launchText.Contains("Convert-TestCommanderToCommanderPowerKey")) -Message "Launch script must route commander names through CommanderPower metadata helpers."
+Assert-True -Condition ($generatedText.Contains('"CommanderPowerNovaSuperCloakFusion"')) -Message "Generated runtime must reference CommanderPowerNovaSuperCloakFusion for Nova fusion prestige."
 
 Write-Host ("COMMANDER_POWER_METADATA_VALIDATE=PASS commanders={0} metadata={1}" -f @($metadata.commanders).Count, $metadataPath)

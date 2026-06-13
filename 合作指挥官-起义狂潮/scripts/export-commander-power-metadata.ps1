@@ -247,7 +247,8 @@ function New-PrestigeEntry {
         [int]$Slot,
         [string]$ButtonId,
         [hashtable]$ZhMap,
-        [hashtable]$EnMap
+        [hashtable]$EnMap,
+        [pscustomobject]$ExistingPrestige = $null
     )
 
     $nameKeyCandidates = @(
@@ -270,7 +271,7 @@ function New-PrestigeEntry {
         }
     }
 
-    return [ordered]@{
+    $entry = [ordered]@{
         slot = $Slot
         bit_mask = [int][math]::Pow(2, $Slot)
         id = [string]$Prestige.id
@@ -292,6 +293,38 @@ function New-PrestigeEntry {
         upgrade_supplement_ids = @($Prestige.upgrade_supplement_ids)
         upgrade_supplements = $supplements
     }
+
+    if (($null -ne $ExistingPrestige) -and ($null -ne $ExistingPrestige.PSObject.Properties["fusion_primary_upgrade"])) {
+        $entry.fusion_primary_upgrade = [string]$ExistingPrestige.fusion_primary_upgrade
+    }
+
+    return $entry
+}
+
+function Get-ExistingPrestigeOverride {
+    param(
+        [pscustomobject]$ExistingMetadata,
+        [string]$OfficialFolder,
+        [int]$Slot
+    )
+
+    if ($null -eq $ExistingMetadata) {
+        return $null
+    }
+
+    $existingCommander = @($ExistingMetadata.commanders | Where-Object {
+            [string]$_.official_folder -eq $OfficialFolder
+        } | Select-Object -First 1)
+    if ($existingCommander.Count -eq 0) {
+        return $null
+    }
+
+    $existingPrestiges = @($existingCommander[0].prestiges)
+    if (($Slot -lt 0) -or ($Slot -ge $existingPrestiges.Count)) {
+        return $null
+    }
+
+    return $existingPrestiges[$Slot]
 }
 
 function New-MasteryEntry {
@@ -320,7 +353,8 @@ function New-CommanderEntry {
         [string]$OfficialCommandersRoot,
         [xml]$CommanderDataXml,
         [hashtable]$ZhMap,
-        [hashtable]$EnMap
+        [hashtable]$EnMap,
+        [pscustomobject]$ExistingMetadata = $null
     )
 
     $commanderRoot = Join-Path $OfficialCommandersRoot $Folder
@@ -333,7 +367,8 @@ function New-CommanderEntry {
     $prestigeEntries = @()
     for ($index = 0; $index -lt @($prestiges).Count; $index++) {
         $buttonId = if ($index -lt $prestigeButtonIds.Count) { $prestigeButtonIds[$index] } else { [string]$prestiges[$index].id }
-        $prestigeEntries += New-PrestigeEntry -Prestige $prestiges[$index] -Slot $index -ButtonId $buttonId -ZhMap $ZhMap -EnMap $EnMap
+        $existingPrestige = Get-ExistingPrestigeOverride -ExistingMetadata $ExistingMetadata -OfficialFolder $Folder -Slot $index
+        $prestigeEntries += New-PrestigeEntry -Prestige $prestiges[$index] -Slot $index -ButtonId $buttonId -ZhMap $ZhMap -EnMap $EnMap -ExistingPrestige $existingPrestige
     }
 
     $masteryEntries = @()
@@ -395,6 +430,10 @@ else {
 $zhMap = Read-LocalizedStringMap -Path $resolvedLocalizedZhRoot
 $enMap = Read-LocalizedStringMap -Path $resolvedLocalizedEnRoot
 [xml]$commanderDataXml = Get-Content -LiteralPath $resolvedCommanderDataPath -Encoding UTF8 -Raw
+$existingMetadata = $null
+if (Test-Path -LiteralPath $resolvedOutputPath) {
+    $existingMetadata = Get-Content -LiteralPath $resolvedOutputPath -Encoding UTF8 -Raw | ConvertFrom-Json
+}
 
 $commanderEntries = @()
 foreach ($folder in Get-CommanderOrder) {
@@ -403,7 +442,8 @@ foreach ($folder in Get-CommanderOrder) {
         -OfficialCommandersRoot $resolvedOfficialCommandersRoot `
         -CommanderDataXml $commanderDataXml `
         -ZhMap $zhMap `
-        -EnMap $enMap
+        -EnMap $enMap `
+        -ExistingMetadata $existingMetadata
 }
 
 $metadata = [ordered]@{
