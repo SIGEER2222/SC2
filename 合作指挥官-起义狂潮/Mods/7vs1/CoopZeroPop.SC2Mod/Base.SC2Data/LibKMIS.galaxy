@@ -3810,6 +3810,10 @@ point libKMIS_gf_CM_Zeratul_GetArtifactPlacementOrigin (string lp_artifactPlacem
 int libKMIS_gf_CM_Zeratul_GetArtifactLimit (int lp_zeratulPlayer) {
     // Automatic Variable Declarations
     // Implementation
+    if ((TechTreeUpgradeCount(lp_zeratulPlayer, "CommanderPrestigeZeratulArtifactFragmentsUnlimitedUpgrade", c_techCountCompleteOnly) >= 1)) {
+        return 9999;
+    }
+
     return RoundI(libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogEffect, "ZeratulArtifactLimitDummy", "Amount", lp_zeratulPlayer));
 }
 
@@ -20039,7 +20043,7 @@ bool libKMIS_gt_CM_Zeratul_ProphecyArtifactPickedUp_Func (bool testConds, bool r
         return true;
     }
 
-    if ((lv_artfactNumber >= libKMIS_gf_CM_Zeratul_GetArtifactLimit(libKMIS_gf_CM_ZeratulProphecyEventGetPlayer()))) {
+    if ((lv_artfactNumber >= libKMIS_gf_CM_Zeratul_GetArtifactLimit(libKMIS_gf_CM_ZeratulProphecyEventGetPlayer())) && (TechTreeUpgradeCount(libKMIS_gf_CM_ZeratulProphecyEventGetPlayer(), "CommanderPrestigeZeratulArtifactFragmentsUnlimitedUpgrade", c_techCountCompleteOnly) == 0)) {
         libNtve_gf_SetUpgradeLevelForPlayer(libKMIS_gf_CM_ZeratulProphecyEventGetPlayer(), "ProphecyArtifactsDiscovered", 1);
     }
 
