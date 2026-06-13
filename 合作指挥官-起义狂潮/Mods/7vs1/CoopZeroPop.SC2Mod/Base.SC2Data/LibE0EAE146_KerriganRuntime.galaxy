@@ -32,6 +32,16 @@ void libE0EAE146_gf_KerriganAllowAbilityIfPresent (int lp_player, string lp_abil
     TechTreeAbilityAllow(lp_player, AbilityCommand(lp_abil, lp_cmdIndex), true);
 }
 
+void libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent (int lp_player, string lp_unit, string lp_alias) {
+    if ((lp_unit == "") || (lp_alias == "")) {
+        return;
+    }
+    if (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unit)) {
+        return;
+    }
+    CatalogFieldValueSet(c_gameCatalogUnit, lp_unit, "TechAliasArray[0]", lp_player, lp_alias);
+}
+
 void libE0EAE146_gf_KerriganApplyFullLevelUpgrades (int lp_player) {
     libE0EAE146_gf_KerriganSetUpgradeAtLeast(lp_player, "CommanderLevel", 16);
     libE0EAE146_gf_KerriganSetUpgradeAtLeast(lp_player, "KerriganCommander", 16);
@@ -80,6 +90,16 @@ void libE0EAE146_gf_KerriganApplyTechFilter (int lp_player) {
     TechTreeUnitAllow(lp_player, "NydusNetwork", false);
     TechTreeUnitAllow(lp_player, "GreaterNydusWorm", false);
 
+    // Kerrigan private tech uses generic larva requirements such as HaveSpire and
+    // HaveUltraliskCavern. Rebind the private structures to the shared aliases so
+    // larva buttons stay visible when the correct Kerrigan tech is built.
+    libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent(lp_player, "HatcheryKerrigan", "Alias_Hatchery");
+    libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent(lp_player, "LairKerrigan", "Alias_Lair");
+    libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent(lp_player, "HiveKerrigan", "Alias_Hive");
+    libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent(lp_player, "HydraliskDenKerrigan", "Alias_HydraliskDen");
+    libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent(lp_player, "SpireKerrigan", "Alias_Spire");
+    libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent(lp_player, "UltraliskCavernKerrigan", "Alias_UltraliskCavern");
+
     libE0EAE146_gf_KerriganAllowUnitIfPresent(lp_player, "K5Kerrigan");
     libE0EAE146_gf_KerriganAllowUnitIfPresent(lp_player, "K5KerriganBurrowed");
     libE0EAE146_gf_KerriganAllowUnitIfPresent(lp_player, "K5KerriganPsiStrike");
@@ -123,6 +143,12 @@ void libE0EAE146_gf_KerriganApplyTechFilter (int lp_player) {
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "KerriganVoidCoopEconDrop", 0);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "K5KerriganBurrow", 0);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "K5KerriganUnburrow", 0);
+    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrain", 0);
+    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrainSwarm", 0);
+    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "TrainQueen", 0);
+    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "UpgradeToLair", 0);
+    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "UpgradeToHive", 0);
+    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "MorphToOverseer", 0);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "BuildNydusCanalKerrigan", 0);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "BuildNydusCanalKerrigan", 1);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "BuildNydusCanalKerrigan", 2);
