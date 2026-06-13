@@ -367,6 +367,40 @@ function getCommanderPrestigeMaskFromSelection() {
   return clampNumber(mask, 0, 7, 0);
 }
 
+function getCommanderPrestigeSelectionsFromUI(commander = getCommander()) {
+  const selections = [];
+  const byBitMask = new Map((commander?.prestiges ?? []).map((prestige) => [clampNumber(prestige.bitMask, 0, 7, 0), prestige]));
+  document.querySelectorAll(".prestige-toggle-input").forEach((input) => {
+    if (!input.checked) return;
+    const bitMask = clampNumber(input.dataset.bitMask, 0, 7, 0);
+    const prestige = byBitMask.get(bitMask);
+    selections.push({
+      slot: clampNumber(input.dataset.slot, 0, 7, 0),
+      bitMask,
+      id: prestige?.id || "",
+      name: prestige?.name || prestige?.id || "",
+    });
+  });
+  return selections.sort((a, b) => a.slot - b.slot);
+}
+
+function setCommanderPrestigeSelectionState(selections = []) {
+  const selectedSlots = new Set();
+  const selectedBitMasks = new Set();
+  for (const selection of selections || []) {
+    const slot = clampNumber(selection?.slot, 0, 7, -1);
+    const bitMask = clampNumber(selection?.bitMask, 0, 7, 0);
+    if (slot >= 0) selectedSlots.add(slot);
+    if (bitMask > 0) selectedBitMasks.add(bitMask);
+  }
+
+  document.querySelectorAll(".prestige-toggle-input").forEach((input) => {
+    const slot = clampNumber(input.dataset.slot, 0, 7, 0);
+    const bitMask = clampNumber(input.dataset.bitMask, 0, 7, 0);
+    input.checked = selectedSlots.has(slot) || selectedBitMasks.has(bitMask);
+  });
+}
+
 function setPrestigeMaskValue(mask) {
   el.prestigeMask.value = String(clampNumber(mask, 0, 7, 7));
 }
@@ -1452,6 +1486,10 @@ function applyPayload(payload, options = {}) {
   state.prestigeMaskMode = options.prestigeMaskAuto === true ? "default" : "custom";
 
   renderCommanderDetails();
+  if (Array.isArray(payload.prestigeSelections)) {
+    setCommanderPrestigeSelectionState(payload.prestigeSelections);
+    setPrestigeMaskValue(getCommanderPrestigeMaskFromSelection());
+  }
 
   if (Array.isArray(payload.masteries)) {
     document.querySelectorAll(".mastery-input").forEach((input) => {
@@ -2109,11 +2147,13 @@ function applyMutatorImport(replace) {
 }
 
 function buildLaunchPayload() {
+  const commander = getCommander();
   return {
     commander: el.commanderSelect.value,
     map: el.mapSelect.value,
     enablePrestiges: el.enablePrestiges.checked,
     enableMasteries: el.enableMasteries.checked,
+    prestigeSelections: getCommanderPrestigeSelectionsFromUI(commander),
     prestigeBonusMask: clampNumber(el.prestigeMask.value, 0, 7, 7),
     prestigePointIndex: -1,
     prestigeProfile: normalizePrestigeProfile(el.prestigeProfile.value),
