@@ -31,6 +31,10 @@ const state = {
   selectedMutators: new Set(),
   selectedCommanderOverrides: new Set(),
   selectedGenericBonuses: new Set(),
+  genericBonusLevels: {
+    DoubleMinerals: 0,
+    DoubleVespene: 0,
+  },
   selectedMutatorPanelExpanded: false,
   prestigeMaskMode: "default",
   activeSheet: DEFAULT_ACTIVE_SHEET,
@@ -53,15 +57,66 @@ const MAX_LAUNCH_HISTORY = 8;
 const MAX_SCENARIO_PRESETS = 16;
 const DEFAULT_PRESTIGE_PROFILE = "Prestige4";
 const GENERIC_BONUS_OPTIONS = [
-  { id: "DoubleMinerals", name: "矿物储量翻倍", description: "所有矿点当前与上限储量翻倍。" },
-  { id: "DoubleVespene", name: "瓦斯储量翻倍", description: "所有气矿当前与上限储量翻倍。" },
-  { id: "RichResources", name: "高产矿脉与瓦斯", description: "资源节点切换为高产形态，并保留当前储量。" },
+  { id: "DoubleMinerals", name: "矿物储量翻倍", description: "每加 1 点，所有矿点当前与上限储量再翻一倍。", maxLevel: 9 },
+  { id: "DoubleVespene", name: "瓦斯储量翻倍", description: "每加 1 点，所有气矿当前与上限储量再翻一倍。", maxLevel: 9 },
+  { id: "RichResources", name: "高产矿脉与瓦斯", description: "提高资源采集效率并保留当前储量，晶体矿脉与瓦斯节点替换为高产模型。" },
   { id: "GuardianShell", name: "守护者之壳", description: "获得阿塔尼斯的守护者之壳被动。" },
   { id: "CreepRegeneration", name: "菌毯回血", description: "获得凯瑞甘菌毯回血效果。" },
   { id: "MechanicalRepair", name: "机械维修", description: "机械单位周期性自我修复。" },
   { id: "ChronoBoost", name: "时空加速", description: "基地旁控制建筑获得一次全图时空加速主动技能。" },
   { id: "MaxSupply50", name: "人口上限+50", description: "人口上限额外增加 50。" },
 ];
+const LEVELABLE_GENERIC_BONUS_IDS = new Set(
+  GENERIC_BONUS_OPTIONS.filter((item) => Number.isFinite(item.maxLevel) && item.maxLevel > 0).map((item) => item.id),
+);
+
+function createDefaultGenericBonusLevels() {
+  return {
+    DoubleMinerals: 0,
+    DoubleVespene: 0,
+  };
+}
+
+function clampGenericBonusLevel(id, value) {
+  const option = GENERIC_BONUS_OPTIONS.find((item) => item.id === id);
+  const maxLevel = Number.isFinite(option?.maxLevel) ? option.maxLevel : 0;
+  return clampNumber(value, 0, maxLevel, 0);
+}
+
+function normalizeGenericBonusLevels(levels = {}, genericBonuses = []) {
+  const normalized = createDefaultGenericBonusLevels();
+  for (const id of LEVELABLE_GENERIC_BONUS_IDS) {
+    if (Object.prototype.hasOwnProperty.call(levels || {}, id)) {
+      normalized[id] = clampGenericBonusLevel(id, levels[id]);
+    } else if ((genericBonuses || []).includes(id)) {
+      normalized[id] = 1;
+    }
+  }
+  return normalized;
+}
+
+function getSelectedGenericBonusIds(selectedBonusIds = state.selectedGenericBonuses, genericBonusLevels = state.genericBonusLevels) {
+  const ids = new Set(selectedBonusIds || []);
+  for (const id of LEVELABLE_GENERIC_BONUS_IDS) {
+    if (clampGenericBonusLevel(id, genericBonusLevels?.[id] ?? 0) > 0) {
+      ids.add(id);
+    } else {
+      ids.delete(id);
+    }
+  }
+  return [...ids].sort();
+}
+
+function getGenericBonusDisplayName(id, genericBonusLevels = state.genericBonusLevels) {
+  const label = getGenericBonusLabel(id);
+  if (LEVELABLE_GENERIC_BONUS_IDS.has(id)) {
+    const level = clampGenericBonusLevel(id, genericBonusLevels?.[id] ?? 0);
+    if (level > 0) {
+      return `${label} Lv${level}`;
+    }
+  }
+  return label;
+}
 
 function normalizePrestigeProfile(value) {
   const profile = String(value || "").trim();
@@ -564,13 +619,33 @@ function renderGenericBonuses() {
     container: el.genericBonusList,
     options: GENERIC_BONUS_OPTIONS,
     selectedBonusIds: state.selectedGenericBonuses,
+    levelValues: state.genericBonusLevels,
     onToggleBonus: (bonusId, checked) => {
       if (!bonusId) return;
       if (checked) {
         state.selectedGenericBonuses.add(bonusId);
+        if (LEVELABLE_GENERIC_BONUS_IDS.has(bonusId) && clampGenericBonusLevel(bonusId, state.genericBonusLevels[bonusId]) === 0) {
+          state.genericBonusLevels[bonusId] = 1;
+        }
+      } else {
+        state.selectedGenericBonuses.delete(bonusId);
+        if (LEVELABLE_GENERIC_BONUS_IDS.has(bonusId)) {
+          state.genericBonusLevels[bonusId] = 0;
+        }
+      }
+      updateSummary();
+      scheduleAutosave();
+    },
+    onSetBonusLevel: (bonusId, nextLevel) => {
+      if (!bonusId || !LEVELABLE_GENERIC_BONUS_IDS.has(bonusId)) return;
+      const level = clampGenericBonusLevel(bonusId, nextLevel);
+      state.genericBonusLevels[bonusId] = level;
+      if (level > 0) {
+        state.selectedGenericBonuses.add(bonusId);
       } else {
         state.selectedGenericBonuses.delete(bonusId);
       }
+      renderGenericBonuses();
       updateSummary();
       scheduleAutosave();
     },
@@ -934,6 +1009,7 @@ function getPayloadSummaryText(payload) {
   const masteries = Array.isArray(payload.masteries) ? payload.masteries : [];
   const mutators = Array.isArray(payload.mutators) ? payload.mutators : [];
   const genericBonuses = Array.isArray(payload.genericBonuses) ? payload.genericBonuses : [];
+  const genericBonusLevels = normalizeGenericBonusLevels(payload.genericBonusLevels || {}, genericBonuses);
   const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
   return [
     `指挥官=${getCommanderLabel(payload.commander)}(${payload.commander})`,
@@ -942,7 +1018,7 @@ function getPayloadSummaryText(payload) {
     `精通等级=${payload.masteryLevel}`,
     `精通=[${masteries.join(",") || "-"}]`,
     `额外升级=${overrideLabels.length === 0 ? "无" : overrideLabels.join(",")}`,
-    `通用加成=${genericBonuses.length === 0 ? "无" : genericBonuses.map((id) => getGenericBonusLabel(id)).join(",")}`,
+    `通用加成=${genericBonuses.length === 0 ? "无" : genericBonuses.map((id) => getGenericBonusDisplayName(id, genericBonusLevels)).join(",")}`,
     `因子=${mutators.length === 0 ? "无" : mutators.join(",")}`,
     `模式=${payload.noLaunch ? "dry-run" : "launch"}`,
   ].join(" | ");
@@ -982,6 +1058,7 @@ function getValidationSignature(payload = buildLaunchPayload()) {
     masteries: payload.masteries,
     commanderOverrides: [...(payload.commanderOverrides || [])].sort(),
     genericBonuses: [...(payload.genericBonuses || [])].sort(),
+    genericBonusLevels: normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []),
     mutators: [...(payload.mutators || [])].sort(),
     mutatorPreset: payload.mutatorPreset,
   });
@@ -1000,6 +1077,7 @@ function normalizeLaunchPayload(payload = buildLaunchPayload()) {
     masteries: [...(payload.masteries || [])],
     commanderOverrides: [...(payload.commanderOverrides || [])].sort(),
     genericBonuses: [...(payload.genericBonuses || [])].sort(),
+    genericBonusLevels: normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []),
     mutators: [...(payload.mutators || [])].sort(),
     mutatorPreset: payload.mutatorPreset,
   };
@@ -1068,6 +1146,9 @@ function getValidationChangeSummary(currentPayload = normalizeLaunchPayload()) {
   }
   if ((previous.genericBonuses || []).join(",") !== (currentPayload.genericBonuses || []).join(",")) {
     changes.push(`通用加成: ${(previous.genericBonuses || []).length} -> ${(currentPayload.genericBonuses || []).length}`);
+  }
+  if (JSON.stringify(previous.genericBonusLevels || {}) !== JSON.stringify(currentPayload.genericBonusLevels || {})) {
+    changes.push(`资源倍率点数: ${JSON.stringify(previous.genericBonusLevels || {})} -> ${JSON.stringify(currentPayload.genericBonusLevels || {})}`);
   }
   if (previous.mutatorPreset !== currentPayload.mutatorPreset) {
     changes.push(`因子 Preset: ${previous.mutatorPreset} -> ${currentPayload.mutatorPreset}`);
@@ -1195,7 +1276,8 @@ async function copyConfigSummary() {
 
 function updateSummaryDetails(payload = buildLaunchPayload()) {
   const mutatorIds = payload.mutators.length === 0 ? "无" : payload.mutators.join(", ");
-  const genericBonusLabels = (payload.genericBonuses || []).map((id) => getGenericBonusLabel(id));
+  const genericBonusLevels = normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []);
+  const genericBonusLabels = (payload.genericBonuses || []).map((id) => getGenericBonusDisplayName(id, genericBonusLevels));
   const commander = getCommander();
   const prestigeNames = (commander?.prestiges ?? [])
     .filter((prestige) => (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask)
@@ -1243,7 +1325,7 @@ function updateSummary() {
   const map = getMapLabel(el.mapSelect.value) || "-";
   const mutatorCount = state.selectedMutators.size;
   const commanderOverrideCount = state.selectedCommanderOverrides.size;
-  const genericBonusCount = state.selectedGenericBonuses.size;
+  const genericBonusCount = (payload.genericBonuses || []).length;
   const selectedPrestigeCount = (commander?.prestiges ?? []).filter((prestige) =>
     (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask,
   ).length;
@@ -1383,6 +1465,7 @@ function applyPayload(payload, options = {}) {
   state.selectedMutators.clear();
   state.selectedCommanderOverrides.clear();
   state.selectedGenericBonuses.clear();
+  state.genericBonusLevels = createDefaultGenericBonusLevels();
   resetSelectedMutatorView();
   if (Array.isArray(payload.mutators)) {
     for (const id of payload.mutators) {
@@ -1400,6 +1483,15 @@ function applyPayload(payload, options = {}) {
       } else {
         report.unknownGenericBonuses.push(id);
       }
+    }
+  }
+  state.genericBonusLevels = normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []);
+  for (const id of LEVELABLE_GENERIC_BONUS_IDS) {
+    const level = clampGenericBonusLevel(id, state.genericBonusLevels[id]);
+    if (level > 0) {
+      state.selectedGenericBonuses.add(id);
+    } else {
+      state.selectedGenericBonuses.delete(id);
     }
   }
 
@@ -1444,6 +1536,7 @@ function getDefaultPayload() {
     masteries: state.data.defaults.masterySlots,
     commanderOverrides: [...(state.data.defaults.commanderOverrides || [])],
     genericBonuses: [...(state.data.defaults.genericBonuses || [])],
+    genericBonusLevels: normalizeGenericBonusLevels(state.data.defaults.genericBonusLevels || {}, state.data.defaults.genericBonuses || []),
     mutators: [],
     mutatorPreset: state.data.defaults.mutatorPreset,
     noLaunch: false,
@@ -1557,6 +1650,7 @@ function recentKey(payload) {
 }
 
 function scenarioKey(payload) {
+  const genericBonusLevels = normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []);
   return [
     payload.commander,
     payload.map,
@@ -1568,6 +1662,7 @@ function scenarioKey(payload) {
     (payload.masteries || []).join(","),
     (payload.commanderOverrides || []).join(","),
     (payload.genericBonuses || []).join(","),
+    JSON.stringify(genericBonusLevels),
     (payload.mutators || []).join(","),
     payload.mutatorPreset,
     payload.noLaunch,
@@ -1627,7 +1722,7 @@ function defaultScenarioName(payload) {
   const commander = getCommanderLabel(payload.commander);
   const map = getMapLabel(payload.map);
   const mutatorCount = (payload.mutators || []).length;
-  const genericBonusCount = (payload.genericBonuses || []).length;
+  const genericBonusCount = getSelectedGenericBonusIds(new Set(payload.genericBonuses || []), normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || [])).length;
   return `${commander} / ${map} / ${mutatorCount} 因子 / ${genericBonusCount} 加成`;
 }
 
@@ -1861,12 +1956,13 @@ function renderLaunchHistory() {
     onShowLogs: (item, payload, mutators, genericBonuses) => {
       const logPaths = getHistoryLogPaths(item.result || {});
       setLastLogPaths(logPaths.stdout, logPaths.stderr);
+      const genericBonusLevels = normalizeGenericBonusLevels(payload.genericBonusLevels || {}, genericBonuses || []);
       writeOutput({
         launchedAt: item.launchedAt,
         commander: payload.commander,
         map: payload.map,
         mutators: mutators.map((id) => `${getMutatorLabel(id)} (${id})`),
-        genericBonuses: genericBonuses.map((id) => `${getGenericBonusLabel(id)} (${id})`),
+        genericBonuses: genericBonuses.map((id) => `${getGenericBonusDisplayName(id, genericBonusLevels)} (${id})`),
         result: item.result,
         finalStatus: item.result?.finalStatus || null,
         logPaths,
@@ -2024,7 +2120,8 @@ function buildLaunchPayload() {
     masteryLevel: parseLooseInteger(el.masteryLevel.value, 30),
     masteries: getMasteryValues(),
     commanderOverrides: [...state.selectedCommanderOverrides].sort(),
-    genericBonuses: [...state.selectedGenericBonuses].sort(),
+    genericBonuses: getSelectedGenericBonusIds(),
+    genericBonusLevels: normalizeGenericBonusLevels(state.genericBonusLevels, getSelectedGenericBonusIds()),
     mutators: [...state.selectedMutators],
     mutatorPreset: clampNumber(el.mutatorPreset.value, 0, 3, 0),
     noLaunch: el.dryRunToggle.checked,
@@ -2047,6 +2144,7 @@ async function loadBootstrap() {
     state.data = await response.json();
     state.selectedMutators.clear();
     state.selectedGenericBonuses.clear();
+    state.genericBonusLevels = createDefaultGenericBonusLevels();
 
     populateSelect(
       el.commanderSelect,

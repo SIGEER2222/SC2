@@ -903,6 +903,7 @@ function Get-BootstrapData {
             enablePrestiges = $true
             commanderOverrides = @()
             genericBonuses = @()
+            genericBonusLevels = @{}
             mutatorPreset = 0
         }
         commanders = $commanders
@@ -954,7 +955,9 @@ function ConvertTo-LaunchArgumentList {
         "ChronoBoost",
         "MaxSupply50"
     )
+    $levelableGenericBonuses = @("DoubleMinerals", "DoubleVespene")
     $selectedGenericBonuses = New-Object System.Collections.Generic.List[string]
+    $selectedGenericBonusLevels = New-Object 'System.Collections.Generic.Dictionary[string,int]' ([System.StringComparer]::OrdinalIgnoreCase)
     if ($null -ne $Request.mutators) {
         foreach ($mutator in @($Request.mutators)) {
             $mutatorId = [string]$mutator
@@ -981,6 +984,47 @@ function ConvertTo-LaunchArgumentList {
             if (-not $selectedGenericBonuses.Contains($bonusId)) {
                 $selectedGenericBonuses.Add($bonusId)
             }
+        }
+    }
+    if ($null -ne $Request.genericBonusLevels) {
+        $levelEntries = @()
+        if ($Request.genericBonusLevels -is [System.Collections.IDictionary]) {
+            foreach ($bonusKey in $Request.genericBonusLevels.Keys) {
+                $levelEntries += [pscustomobject]@{
+                    Name = [string]$bonusKey
+                    Value = $Request.genericBonusLevels[$bonusKey]
+                }
+            }
+        }
+        else {
+            $levelEntries = @($Request.genericBonusLevels.PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' })
+        }
+        foreach ($property in $levelEntries) {
+            $bonusId = [string]$property.Name
+            if ([string]::IsNullOrWhiteSpace($bonusId)) {
+                continue
+            }
+            if ($allowedGenericBonuses -notcontains $bonusId) {
+                throw "Unknown generic bonus level target: $bonusId"
+            }
+            if ($levelableGenericBonuses -notcontains $bonusId) {
+                throw "Generic bonus '$bonusId' does not support levels."
+            }
+            $level = [Math]::Max(0, [Math]::Min(9, [int]$property.Value))
+            if ($level -gt 0) {
+                $selectedGenericBonusLevels[$bonusId] = $level
+                if (-not $selectedGenericBonuses.Contains($bonusId)) {
+                    $selectedGenericBonuses.Add($bonusId)
+                }
+            }
+            elseif ($selectedGenericBonusLevels.ContainsKey($bonusId)) {
+                $selectedGenericBonusLevels.Remove($bonusId) | Out-Null
+            }
+        }
+    }
+    foreach ($bonusId in $levelableGenericBonuses) {
+        if ($selectedGenericBonuses.Contains($bonusId) -and (-not $selectedGenericBonusLevels.ContainsKey($bonusId))) {
+            $selectedGenericBonusLevels[$bonusId] = 1
         }
     }
 
@@ -1035,7 +1079,15 @@ function ConvertTo-LaunchArgumentList {
     }
     if ($selectedGenericBonuses.Count -gt 0) {
         $args.Add("-GenericBonuses")
-        $args.Add(($selectedGenericBonuses.ToArray() -join ","))
+        $serializedGenericBonuses = foreach ($bonusId in $selectedGenericBonuses) {
+            if ($selectedGenericBonusLevels.ContainsKey($bonusId)) {
+                "{0}={1}" -f $bonusId, $selectedGenericBonusLevels[$bonusId]
+            }
+            else {
+                $bonusId
+            }
+        }
+        $args.Add(($serializedGenericBonuses -join ","))
     }
     $args.Add("-MutatorPreset")
     $args.Add([string]$mutatorPreset)
@@ -1334,6 +1386,7 @@ if ($SelfTest) {
         masteries = @(15, 15, 15, 15, 15, 15)
         commanderOverrides = @()
         genericBonuses = @()
+        genericBonusLevels = @{}
         mutators = @($bootstrap.mutators | Select-Object -First 3 -ExpandProperty id)
         mutatorPreset = 0
         noLaunch = $true

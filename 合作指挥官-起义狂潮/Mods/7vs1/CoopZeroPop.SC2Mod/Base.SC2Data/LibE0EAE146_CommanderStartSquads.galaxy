@@ -1273,6 +1273,97 @@ void libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4 (int lp_count, stri
     libNtve_gf_CreateUnitsWithDefaultFacing(lp_count, lv_unitType, 0, lp_player, lp_point);
 }
 
+void libE0EAE146_gf_CreateCommanderSupportSquad (int lp_player, point lp_point) {
+    string lv_commander;
+
+    if (lp_point == null) {
+        return;
+    }
+
+    lv_commander = libE0EAE146_gv_commander;
+    if (lv_commander == "Raynor") {
+        libE0EAE146_gf_RaynorCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Kerrigan") {
+        libE0EAE146_gf_KerriganCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
+    if ((lv_commander == "Abathur") || (lv_commander == "AbathurCustom") || (lv_commander == "AbathurReborn")) {
+        libE0EAE146_gf_AbathurCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Zagara") {
+        libE0EAE146_gf_ZagaraCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Alarak") {
+        libE0EAE146_gf_AlarakCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Fenix") {
+        libE0EAE146_gf_FenixCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Vorazun") {
+        libE0EAE146_gf_VorazunCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Karax") {
+        libE0EAE146_gf_KaraxCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Artanis") {
+        libE0EAE146_gf_ArtanisCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Zeratul") {
+        libE0EAE146_gf_ZeratulCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Swann") {
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(2, "MicrobotSwann", "ScienceVesselSwann", "Medic", "", lp_player, lp_point);
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(2, "GoliathSwann", "Goliath", "Marauder", "", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Stukov") {
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(4, "SIInfestedMarine", "InfestedMarine", "SIInfestedTrooper", "Marine", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Dehaka") {
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(4, "PrimalZergling", "Zergling", "", "", lp_player, lp_point);
+        return;
+    }
+    if ((lv_commander == "Mira") || (lv_commander == "Horner") || (lv_commander == "HanHorner") || (lv_commander == "HanAndHorner")) {
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(3, "ReaperMira", "HellionMira", "Reaper", "Hellion", lp_player, lp_point);
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(1, "MedicMira", "Medic", "", "", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Tychus") {
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(3, "Marine", "Marauder", "", "", lp_player, lp_point);
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(1, "Medic", "", "", "", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Nova") {
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(4, "Marine_BlackOps", "Marine", "", "", lp_player, lp_point);
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(2, "Marauder_BlackOps", "Marauder", "", "", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Mengsk") {
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(1, "MarauderMengsk", "TrooperMengsk", "Marine", "", lp_player, lp_point);
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(2, "TrooperMengsk", "Marine", "", "", lp_player, lp_point);
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(1, "MengskMedic", "Medic", "", "", lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "Stetmann") {
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(4, "ZerglingStetmann", "Zergling", "", "", lp_player, lp_point);
+        libE0EAE146_gf_CommanderStartSquadsCreateUnitsResolved4(2, "HydraliskStetmann", "Hydralisk", "", "", lp_player, lp_point);
+        return;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Marine", 0, lp_player, lp_point);
+}
+
 void libE0EAE146_gf_CreateCommanderCinematicDropSquad (string lp_kind, int lp_player, point lp_point) {
     string lv_commander;
 

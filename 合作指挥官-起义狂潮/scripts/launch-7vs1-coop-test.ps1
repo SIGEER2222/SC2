@@ -257,11 +257,34 @@ function Wait-PathAvailable {
     throw "Path not found after wait: $Path"
 }
 
+function Normalize-DelimitedStringArray {
+    param([string[]]$Values)
+
+    $normalized = New-Object System.Collections.Generic.List[string]
+    foreach ($value in @($Values)) {
+        if ([string]::IsNullOrWhiteSpace($value)) {
+            continue
+        }
+
+        foreach ($item in ([string]$value -split '[,;]')) {
+            $trimmed = $item.Trim()
+            if (-not [string]::IsNullOrWhiteSpace($trimmed)) {
+                $normalized.Add($trimmed)
+            }
+        }
+    }
+
+    return $normalized.ToArray()
+}
+
 function Convert-TestCommanderToCommanderPowerKey {
     param([string]$Commander)
 
     return (Convert-CommanderPowerCommanderToBankKey -Commander $Commander -WorkspaceRoot (Get-WorkspaceRoot))
 }
+
+$Mutators = Normalize-DelimitedStringArray -Values $Mutators
+$GenericBonuses = Normalize-DelimitedStringArray -Values $GenericBonuses
 
 function Resolve-CommanderPowerPresetPath {
     param([string]$Path)

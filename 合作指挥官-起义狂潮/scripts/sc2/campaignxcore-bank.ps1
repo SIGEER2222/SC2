@@ -599,8 +599,11 @@ function Set-CampaignXCoreGenericBonuses {
     )) {
         $allowedBonuses[$bonus] = $bonus
     }
+    $levelableBonuses = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    [void]$levelableBonuses.Add("DoubleMinerals")
+    [void]$levelableBonuses.Add("DoubleVespene")
 
-    $normalizedBonuses = New-Object 'System.Collections.Generic.List[string]'
+    $normalizedBonuses = New-Object 'System.Collections.Generic.Dictionary[string,int]' ([System.StringComparer]::OrdinalIgnoreCase)
     foreach ($bonusEntry in $SelectedBonuses) {
         if ([string]::IsNullOrWhiteSpace($bonusEntry)) {
             continue
@@ -612,13 +615,28 @@ function Set-CampaignXCoreGenericBonuses {
             }
 
             $trimmed = $bonus.Trim()
-            if (-not $allowedBonuses.ContainsKey($trimmed)) {
-                throw "Unknown generic bonus '$trimmed'. Allowed ids: $($allowedBonuses.Keys -join ', ')"
+            $bonusId = $trimmed
+            $bonusLevel = 1
+            if ($trimmed -match '^(?<id>[^=]+)=(?<level>-?\d+)$') {
+                $bonusId = $matches['id'].Trim()
+                $bonusLevel = [int]$matches['level']
             }
 
-            $canonicalBonus = $allowedBonuses[$trimmed]
-            if (-not $normalizedBonuses.Contains($canonicalBonus)) {
-                $normalizedBonuses.Add($canonicalBonus)
+            if (-not $allowedBonuses.ContainsKey($bonusId)) {
+                throw "Unknown generic bonus '$bonusId'. Allowed ids: $($allowedBonuses.Keys -join ', ')"
+            }
+
+            $canonicalBonus = $allowedBonuses[$bonusId]
+            if ($levelableBonuses.Contains($canonicalBonus)) {
+                $bonusLevel = [Math]::Max(0, [Math]::Min(9, $bonusLevel))
+                if ($bonusLevel -gt 0) {
+                    $normalizedBonuses[$canonicalBonus] = $bonusLevel
+                }
+            }
+            else {
+                if ($bonusLevel -gt 0) {
+                    $normalizedBonuses[$canonicalBonus] = 1
+                }
             }
         }
     }
@@ -629,8 +647,8 @@ function Set-CampaignXCoreGenericBonuses {
 
         if ($normalizedBonuses.Count -gt 0) {
             Set-BankIntKeyValue -Xml $xml -SectionName "GenericBonuses" -KeyName "Enabled" -Value 1
-            foreach ($bonus in $normalizedBonuses) {
-                Set-BankIntKeyValue -Xml $xml -SectionName "GenericBonuses" -KeyName "Selected.$bonus" -Value 1
+            foreach ($bonus in $normalizedBonuses.Keys) {
+                Set-BankIntKeyValue -Xml $xml -SectionName "GenericBonuses" -KeyName "Selected.$bonus" -Value $normalizedBonuses[$bonus]
             }
         }
 
