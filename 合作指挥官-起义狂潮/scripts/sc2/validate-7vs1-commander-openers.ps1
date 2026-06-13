@@ -57,7 +57,7 @@ $baseRuntime = Get-Content -LiteralPath $basePath -Raw -Encoding UTF8
 $stukovRuntime = Get-Content -LiteralPath $stukovRuntimePath -Raw -Encoding UTF8
 
 Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUseOriginal7v1SharedOpeners\s*\(\)\s*\{\s*return\s+true;' 'Original 7v1 shared opener strategy must default to true.'
-Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUsePrivateTechFilter\s*\(\s*string\s+lp_commander\s*\)\s*\{\s*(?s:.*?)lp_commander\s*==\s*"Raynor"(?s:.*?)return\s+true;(?s:.*?)return\s+false;' 'Private tech filters must default to false except the currently catalog-backed Raynor private chain.'
+Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUsePrivateTechFilter\s*\(\s*string\s+lp_commander\s*\)\s*\{\s*return\s+false;\s*\}' 'Private tech filters must default to false while opener tech stays catalog-backed.'
 
 $openerTechCalls = ([regex]::Matches($baseRuntime, 'libE0EAE146_gf_ApplyOriginal7v1OpenerTech\(1,\s*libE0EAE146_gv_commander\);')).Count
 if ($openerTechCalls -lt 2) {
@@ -66,8 +66,8 @@ if ($openerTechCalls -lt 2) {
 
 $expectedOpeners = @(
     @{ Commander = 'Raynor'; TownHall = 'CommandCenterRaynor'; Worker = 'SCVRaynor'; Second = 'MarineRaynor' },
-    @{ Commander = 'Swann'; TownHall = 'CommandCenter'; Worker = 'SCV'; Second = 'Marine' },
-    @{ Commander = 'Nova'; TownHall = 'CommandCenter'; Worker = 'SCV'; Second = 'Marine' },
+    @{ Commander = 'Swann'; TownHall = 'CommandCenterSwann'; Worker = 'SCVSwann'; Second = 'Marine' },
+    @{ Commander = 'Nova'; TownHall = 'CommandCenterNova'; Worker = 'SCVNova'; Second = 'MarineNova' },
     @{ Commander = 'Mengsk'; TownHall = 'CommandCenter'; Worker = 'SCV'; Second = 'Marine' },
     @{ Commander = 'Horner'; TownHall = 'HHCommandCenter'; Worker = 'HHSCV'; Second = 'Reaper' },
     @{ Commander = 'Tychus'; TownHall = 'TychusCommandCenter'; Worker = 'TychusSCV'; Second = 'Marine' },
