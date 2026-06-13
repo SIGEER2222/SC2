@@ -13,6 +13,9 @@ string libE0EAE146_gf_CommanderHeroReviveUnitType (string lp_commander) {
     else if (lp_commander == "Artanis") {
         return "ArtanisReviveBeacon";
     }
+    else if (lp_commander == "Vorazun") {
+        return "ArtanisReviveBeacon";
+    }
     else if (lp_commander == "Zeratul") {
         return "ZeratulCoopReviveBeacon";
     }
@@ -42,6 +45,9 @@ string libE0EAE146_gf_CommanderHeroReviveFirstBehavior (string lp_commander) {
     else if (lp_commander == "Artanis") {
         return "AlarakInitialReviveTimer";
     }
+    else if (lp_commander == "Vorazun") {
+        return "AlarakInitialReviveTimer";
+    }
     else if (lp_commander == "Zeratul") {
         return "ZeratulInitialReviveTimer";
     }
@@ -69,6 +75,9 @@ string libE0EAE146_gf_CommanderHeroReviveNormalBehavior (string lp_commander) {
         return "AlarakReviveTimer";
     }
     else if (lp_commander == "Artanis") {
+        return "AlarakReviveTimer";
+    }
+    else if (lp_commander == "Vorazun") {
         return "AlarakReviveTimer";
     }
     else if (lp_commander == "Zeratul") {
@@ -106,6 +115,9 @@ bool libE0EAE146_gf_CommanderHeroReviveMatches (string lp_commander, unit lp_her
     }
     else if (lp_commander == "Artanis") {
         return lv_unitType == "ArtanisVoid";
+    }
+    else if (lp_commander == "Vorazun") {
+        return lv_unitType == "VorazunChampion";
     }
     else if (lp_commander == "Zeratul") {
         return lv_unitType == "ZeratulCoop";
@@ -160,6 +172,9 @@ unit libE0EAE146_gf_CommanderPrimaryTownHall (int lp_player, string lp_commander
     }
     else if (lp_commander == "Artanis") {
         return libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "NexusArtanis");
+    }
+    else if (lp_commander == "Vorazun") {
+        return libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "NexusVorazun");
     }
     else if (lp_commander == "Zeratul") {
         return libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "NexusZeratul");
@@ -296,6 +311,9 @@ bool libE0EAE146_gt_CommanderHeroDied_Func (bool testConds, bool runActions) {
         else if (libE0EAE146_gf_CommanderHeroReviveMatches("Artanis", lv_hero) == true) {
             lv_commander = "Artanis";
         }
+        else if (libE0EAE146_gf_CommanderHeroReviveMatches("Vorazun", lv_hero) == true) {
+            lv_commander = "Vorazun";
+        }
         else if (libE0EAE146_gf_CommanderHeroReviveMatches("Zeratul", lv_hero) == true) {
             lv_commander = "Zeratul";
         }
@@ -328,6 +346,9 @@ bool libE0EAE146_gt_CommanderHeroDied_Func (bool testConds, bool runActions) {
     }
     else if (libE0EAE146_gf_CommanderHeroReviveMatches("Artanis", lv_hero) == true) {
         lv_commander = "Artanis";
+    }
+    else if (libE0EAE146_gf_CommanderHeroReviveMatches("Vorazun", lv_hero) == true) {
+        lv_commander = "Vorazun";
     }
     else if (libE0EAE146_gf_CommanderHeroReviveMatches("Zeratul", lv_hero) == true) {
         lv_commander = "Zeratul";

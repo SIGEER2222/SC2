@@ -431,7 +431,22 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
                 return "OverlordAbathurReborn";
             }
         }
-        if ((lv_commander == "Raynor") || (lv_commander == "Swann") || (lv_commander == "Nova") || (lv_commander == "Mengsk")) {
+        if (lv_commander == "Mengsk") {
+            if (lp_field == "CommandCenter") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenterMengsk");
+                if (lv_unit != "") { return lv_unit; }
+                return libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
+            }
+            if (lp_field == "Worker") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCVMengsk");
+                if (lv_unit != "") { return lv_unit; }
+                return libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
+            }
+            if (lp_field == "SecondUnit") {
+                return libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
+            }
+        }
+        if ((lv_commander == "Raynor") || (lv_commander == "Swann") || (lv_commander == "Nova")) {
             if (lp_field == "CommandCenter") {
                 return libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
             }
@@ -637,31 +652,31 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
 
     if (lv_commander == "Swann") {
         if (lp_field == "CommandCenter") {
-            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenterSwann");
             if (lv_unit != "") {
                 return lv_unit;
             }
-            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenterSwann");
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
             if (lv_unit != "") {
                 return lv_unit;
             }
         }
         if (lp_field == "Worker") {
-            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCVSwann");
             if (lv_unit != "") {
                 return lv_unit;
             }
-            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCVSwann");
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
             if (lv_unit != "") {
                 return lv_unit;
             }
         }
         if (lp_field == "SecondUnit") {
-            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("MarineSwann");
             if (lv_unit != "") {
                 return lv_unit;
             }
-            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("MarineSwann");
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
             if (lv_unit != "") {
                 return lv_unit;
             }
@@ -670,6 +685,10 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
 
     if (lv_commander == "Stukov") {
         if (lp_field == "CommandCenter") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SICommandCenter");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
             lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("InfestedCommandCenter");
             if (lv_unit != "") {
                 return lv_unit;
@@ -834,9 +853,21 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
 
     if (((lv_commander == "Raynor") || (lv_commander == "Swann") || (lv_commander == "Nova") || (lv_commander == "Mengsk") || (lv_commander == "Tychus") || (lv_commander == "Mira") || (lv_commander == "Horner") || (lv_commander == "HanHorner") || (lv_commander == "HanAndHorner"))) {
         if (lp_field == "CommandCenter") {
+            if (lv_commander == "Mengsk") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenterMengsk");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
             return libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
         }
         if (lp_field == "Worker") {
+            if (lv_commander == "Mengsk") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCVMengsk");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
             return libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
         }
         if (lp_field == "SecondUnit") {
@@ -846,24 +877,186 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
 
     if (((lv_commander == "Kerrigan") || (lv_commander == "Zagara") || (lv_commander == "Abathur") || (lv_commander == "Stukov") || (lv_commander == "Dehaka") || (lv_commander == "Stetmann"))) {
         if (lp_field == "CommandCenter") {
+            if (lv_commander == "Kerrigan") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HatcheryKerrigan");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Zagara") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HatcheryZagara");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Abathur") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HatcheryAbathur");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Stukov") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SICommandCenter");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
             return libE0EAE146_gf_CatalogUnitOrEmpty("Hatchery");
         }
         if (lp_field == "Worker") {
+            if (lv_commander == "Kerrigan") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("DroneKerrigan");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Zagara") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("DroneZagara");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Abathur") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("DroneAbathur");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
             return libE0EAE146_gf_CatalogUnitOrEmpty("Drone");
         }
         if (lp_field == "SecondUnit") {
+            if (lv_commander == "Kerrigan") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("OverlordKerrigan");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Zagara") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("OverlordZagara");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Abathur") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("OverlordAbathur");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
             return libE0EAE146_gf_CatalogUnitOrEmpty("Overlord");
         }
     }
 
     if (((lv_commander == "Artanis") || (lv_commander == "Karax") || (lv_commander == "Vorazun") || (lv_commander == "Alarak") || (lv_commander == "Fenix") || (lv_commander == "Zeratul"))) {
         if (lp_field == "CommandCenter") {
+            if (lv_commander == "Artanis") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("NexusArtanis");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Karax") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("NexusKarax");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Vorazun") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("NexusVorazun");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Alarak") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("NexusAlarak");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Fenix") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("NexusFenix");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Zeratul") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("NexusZeratul");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
             return libE0EAE146_gf_CatalogUnitOrEmpty("Nexus");
         }
         if (lp_field == "Worker") {
+            if (lv_commander == "Artanis") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ProbeArtanis");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Karax") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ProbeKarax");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Vorazun") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ProbeVorazun");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Alarak") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ProbeAlarak");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Fenix") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ProbeFenix");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Zeratul") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ProbeZeratul");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
             return libE0EAE146_gf_CatalogUnitOrEmpty("Probe");
         }
         if (lp_field == "SecondUnit") {
+            if (lv_commander == "Artanis") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ZealotAiur");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if ((lv_commander == "Karax") || (lv_commander == "Fenix")) {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ZealotPurifier");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Vorazun") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ZealotShakuras");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Alarak") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("Supplicant");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
+            if (lv_commander == "Zeratul") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ZeratulSummonZealot");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
+            }
             return libE0EAE146_gf_CatalogUnitOrEmpty("Zealot");
         }
     }
