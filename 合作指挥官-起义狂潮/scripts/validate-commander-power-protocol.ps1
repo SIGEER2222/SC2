@@ -56,7 +56,7 @@ function Assert-Contains {
 
 $workspaceRoot = Get-WorkspaceRoot
 $profilePath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerProfile.galaxy"
-$bridgePath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibKCOR.galaxy"
+$bridgePath = Join-Path $workspaceRoot "scripts\sc2\campaignxcore-bank.ps1"
 
 $profileText = Get-Content -LiteralPath $profilePath -Raw
 $bridgeText = Get-Content -LiteralPath $bridgePath -Raw
@@ -84,14 +84,19 @@ Assert-Contains -Text $prestigeBonusMaskBlock -Needle 'libE0EAE146_gf_CommanderP
 Assert-Contains -Text $prestigeBonusMaskBlock -Needle 'libE0EAE146_gf_CommanderPowerBankKeyExists(lp_commander, "PrestigeMask")' -Message "Prestige bonus mask must still accept the legacy PrestigeMask key."
 Assert-Contains -Text $prestigeBonusMaskBlock -Needle 'libE0EAE146_gf_CommanderPowerPrestigePointIndex(lp_commander)' -Message "Prestige bonus mask fallback must consult the prestige point index."
 
+if ($prestigeBonusMaskBlock.Contains('if (lp_commander == "Abathur")')) {
+    throw "Prestige bonus mask default must not special-case Abathur."
+}
+
 $prestigeMaskBlock = Get-FunctionBlock -Text $profileText -Signature "int libE0EAE146_gf_CommanderPowerPrestigeMask (string lp_commander)"
 Assert-Contains -Text $prestigeMaskBlock -Needle 'libE0EAE146_gf_CommanderPowerPrestigeBonusMask(lp_commander)' -Message "Prestige mask compatibility wrapper must delegate to the bonus-mask helper."
 
-$bridgeBlock = Get-FunctionBlock -Text $bridgeText -Signature "void libKCOR_gf_CC_SyncCommanderPowerToBank (int lp_player)"
-Assert-Contains -Text $bridgeBlock -Needle "lv_prestigeMask = 7;" -Message "Lobby bridge must default enabled prestige fusion to all-positive mask."
-Assert-Contains -Text $bridgeBlock -Needle '(lv_bankCommander + ".PrestigePointIndex"), lv_prestigeIndex, -1' -Message "Lobby bridge must write the computed prestige point index."
-Assert-Contains -Text $bridgeBlock -Needle '(lv_bankCommander + ".PrestigeBonusMask"), lv_prestigeMask, -1' -Message "Lobby bridge must write the computed prestige bonus mask."
-Assert-Contains -Text $bridgeBlock -Needle '(lv_bankCommander + ".PrestigeIndex"), lv_prestigeIndex, -1' -Message "Lobby bridge must keep the legacy prestige index key."
-Assert-Contains -Text $bridgeBlock -Needle '(lv_bankCommander + ".PrestigeMask"), lv_prestigeMask, -1' -Message "Lobby bridge must keep the legacy prestige mask key."
+$bridgeBlock = Get-FunctionBlock -Text $bridgeText -Signature "function Set-CampaignXCoreCommanderPowerPreset"
+Assert-Contains -Text $bridgeBlock -Needle '$commanderPrestigeBonusMask = $normalizedPrestigeBonusMask' -Message "Commander power preset must start from the normalized prestige mask."
+Assert-Contains -Text $bridgeBlock -Needle 'Get-CommanderPowerDefaultPrestigeBonusMask -Commander $selectedCommander' -Message "Commander power preset must honor commander-specific default prestige masks when requested."
+Assert-Contains -Text $bridgeBlock -Needle 'PrestigePointIndex = $commanderPrestigePointIndex' -Message "Commander power preset must write the computed prestige point index."
+Assert-Contains -Text $bridgeBlock -Needle 'PrestigeIndex = $commanderPrestigePointIndex' -Message "Commander power preset must keep the legacy prestige index key."
+Assert-Contains -Text $bridgeBlock -Needle 'PrestigeBonusMask = $commanderPrestigeBonusMask' -Message "Commander power preset must write the computed prestige bonus mask."
+Assert-Contains -Text $bridgeBlock -Needle 'PrestigeMask = $commanderPrestigeBonusMask' -Message "Commander power preset must keep the legacy prestige mask key."
 
 Write-Host "COMMANDER_POWER_PROTOCOL_VALIDATE=PASS"

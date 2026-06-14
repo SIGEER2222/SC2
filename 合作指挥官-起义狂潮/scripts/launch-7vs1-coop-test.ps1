@@ -27,8 +27,6 @@ param(
     [string]$SwitcherPath = "",
     [string[]]$Commanders = @(),
     [string]$Preset = "Default",
-    [ValidateSet("Full", "NoVisuals", "CoreOnly")]
-    [string]$AbathurPatchProfile = "Full",
     [ValidateSet("", "AbathurFusion")]
     [string]$TestSpawnPreset = "",
     [string]$CommanderPowerProfile = "Prestige4",
@@ -53,7 +51,6 @@ param(
     [int]$MutatorPreset = 0,
     [string]$TestRunId = "",
     [switch]$SkipCommanderPowerPreset,
-    [switch]$DisableAbathurRebornPatch,
     [switch]$ForceStopSc2BeforeInstall,
     [switch]$NoLaunch
 )
@@ -837,59 +834,6 @@ function Assert-GeneratedLibraryIncludeCoverage {
     }
 }
 
-function Validate-LiveAbathurRebornInstall {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$MapLive,
-        [Parameter(Mandatory = $true)]
-        [string]$ExtensionLive,
-        [Parameter(Mandatory = $true)]
-        [string]$PatchLive
-    )
-
-    $mapInfo = Get-Content -LiteralPath (Join-Path $MapLive "DocumentInfo") -Raw
-    $mapDependencies = Get-DocumentInfoDependencies -Path (Join-Path $MapLive "DocumentInfo")
-    $patchInfo = Get-Content -LiteralPath (Join-Path $PatchLive "DocumentInfo") -Raw
-    $kpvp = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKPVP.galaxy") -Raw
-    $kcor = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKCOR.galaxy") -Raw
-    $kcui = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKCUI.galaxy") -Raw
-    $kmis = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKMIS.galaxy") -Raw
-
-    foreach ($required in @(
-        'file:Mods/7vs1/CoopZeroPop.SC2Mod',
-        'file:Mods/7vs1/CommanderCatalog.SC2Mod',
-        'file:Mods/7vs1/7v1AbathurRebornPatch.SC2Mod'
-    )) {
-        if (-not $mapInfo.Contains($required)) {
-            throw "Live map dependency missing: $required"
-        }
-    }
-
-    foreach ($required in @(
-        'file:Mods/7vs1/CoopZeroPop.SC2Mod',
-        'bnet:Co-op Mission/0.0/999,file:Mods/StarCoop/StarCoop.SC2Mod'
-    )) {
-        if (-not $patchInfo.Contains($required)) {
-            throw "Live patch dependency missing: $required"
-        }
-    }
-
-    foreach ($pair in @(
-        @{Name='LibKPVP'; Text=$kpvp; Needle='ZergAbathurReborn'},
-        @{Name='LibKCOR'; Text=$kcor; Needle='ZergAbathurReborn'},
-        @{Name='LibKCUI'; Text=$kcui; Needle='ZergAbathurReborn'},
-        @{Name='LibKMIS'; Text=$kmis; Needle='AbathurRebornCommander'},
-        @{Name='LibKMIS'; Text=$kmis; Needle='BiomassPickupDummyAbathurReborn'},
-        @{Name='LibKMIS'; Text=$kmis; Needle='RavagerCorrosiveBileAoeLaunchSetAbathurReborn'}
-    )) {
-        if (-not $pair.Text.Contains($pair.Needle)) {
-            throw "$($pair.Name) bridge missing: $($pair.Needle)"
-        }
-    }
-
-    Assert-GeneratedLibraryIncludeCoverage -Text $kmis -Context 'Live AbathurReborn LibKMIS' -RequiredPrefixes @('DF8E6945', 'E0EAE146')
-}
-
 function Validate-LiveBaseTestlineInstall {
     param(
         [Parameter(Mandatory = $true)]
@@ -960,66 +904,6 @@ function Validate-LiveBaseTestlineInstall {
     }
 
     Assert-GeneratedLibraryIncludeCoverage -Text $effectiveKmis -Context 'Live base testline LibKMIS' -RequiredPrefixes @('DF8E6945', 'E0EAE146')
-}
-
-function Set-AbathurRebornPatchProfile {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$PatchRoot,
-        [Parameter(Mandatory = $true)]
-        [string]$Profile
-    )
-
-    if ($Profile -eq "Full") {
-        return
-    }
-
-    $gameDataRoot = Join-Path $PatchRoot "Base.SC2Data\GameData"
-    if (-not (Test-Path -LiteralPath $gameDataRoot)) {
-        throw "Abathur patch GameData directory not found: $gameDataRoot"
-    }
-
-    $keep = @("GameData.xml")
-    if ($Profile -eq "NoVisuals") {
-        $keep += @(
-            "AbilData.xml",
-            "BehaviorData.xml",
-            "ButtonData.xml",
-            "CommanderData.xml",
-            "EffectData.xml",
-            "RequirementData.xml",
-            "RequirementNodeData.xml",
-            "UnitData.xml",
-            "UpgradeData.xml",
-            "UserData.xml",
-            "ValidatorData.xml",
-            "WeaponData.xml"
-        )
-    }
-    elseif ($Profile -eq "CoreOnly") {
-        $keep += @(
-            "AbilData.xml",
-            "ButtonData.xml",
-            "CommanderData.xml",
-            "EffectData.xml",
-            "RequirementData.xml",
-            "RequirementNodeData.xml",
-            "UnitData.xml",
-            "UpgradeData.xml",
-            "UserData.xml",
-            "ValidatorData.xml"
-        )
-    }
-    else {
-        throw "Unknown Abathur patch profile: $Profile"
-    }
-
-    foreach ($file in Get-ChildItem -LiteralPath $gameDataRoot -File) {
-        if ($keep -contains $file.Name) {
-            continue
-        }
-        Remove-Item -LiteralPath $file.FullName -Force
-    }
 }
 
 function Stop-RunningSc2 {

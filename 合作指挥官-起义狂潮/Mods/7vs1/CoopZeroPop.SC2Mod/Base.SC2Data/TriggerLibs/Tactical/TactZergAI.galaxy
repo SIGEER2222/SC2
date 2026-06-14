@@ -1388,6 +1388,62 @@ order SwarmHostSpawnLocust (int player, unit aiUnit, unitgroup scanGroup) {
 }
 
 //---------------------------------------------------------------------------------------------
+order SwarmHostEvolutionSpawnLocust (int player, unit aiUnit, unitgroup scanGroup, string abilId) {
+    order ord;
+    unitgroup targetGroup;
+    int count;
+
+    ord = AICreateOrder(player, abilId, 0);
+    if (!UnitOrderIsValid(aiUnit, ord)) {
+        return null;
+    }
+
+    targetGroup = UnitGroupFilterPlane(scanGroup, c_planeGround, 0);
+    count = UnitGroupCount(targetGroup, c_unitCountAll);
+    if (count == 0) {
+        return null;
+    }
+
+    OrderSetTargetUnit(ord, UnitGroupUnit(targetGroup, RandomInt(1, count)));
+    if (!UnitOrderIsValid(aiUnit, ord)) {
+        ord = AIUnitGroupGetValidOrder(targetGroup, ord, aiUnit, c_forwards);
+    }
+    return ord;
+}
+
+//---------------------------------------------------------------------------------------------
+void AIThinkSwarmHostSplitA (int player, unit aiUnit, unitgroup scanGroup) {
+    order ord;
+    unitgroup targetGroup;
+
+    if (AIEvalTacticalData(aiUnit, null)) {
+        return;
+    }
+
+    ord = SwarmHostEvolutionSpawnLocust(player, aiUnit, scanGroup, "LocustFlyingLaunch");
+    if (ord != null) {
+        AICast(aiUnit, ord, c_noMarker, c_castHold);
+        return;
+    }
+
+    targetGroup = UnitGroupFilterPlane(scanGroup, c_planeGround, 0);
+    if (UnitGroupCount(targetGroup, c_unitCountAll) == 0) {
+        return;
+    }
+
+    ord = AICreateOrder(player, "MorphToSwarmHostSplitARooted", 0);
+    if (UnitOrderIsValid(aiUnit, ord)) {
+        AICast(aiUnit, ord, c_noMarker, c_castHold);
+        return;
+    }
+
+    ord = AICreateOrder(player, "MorphToSwarmHostSplitABurrowed", 0);
+    if (UnitOrderIsValid(aiUnit, ord)) {
+        AICast(aiUnit, ord, c_noMarker, c_castHold);
+    }
+}
+
+//---------------------------------------------------------------------------------------------
 void AIThinkSwarmHostMP (int player, unit aiUnit, unitgroup scanGroup) {
     order ord;
 

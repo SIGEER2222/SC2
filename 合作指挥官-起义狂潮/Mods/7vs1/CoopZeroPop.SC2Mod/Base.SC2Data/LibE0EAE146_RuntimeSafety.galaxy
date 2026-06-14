@@ -227,7 +227,7 @@ string libE0EAE146_gf_CommanderOfficialPlayerCommanderInstance (string lp_comman
     if (lp_commander == "Zagara") {
         return "ZergZagara";
     }
-    if ((lp_commander == "Abathur") || (lp_commander == "AbathurCustom") || (lp_commander == "AbathurReborn")) {
+    if ((lp_commander == "Abathur") || (lp_commander == "AbathurCustom")) {
         return "ZergAbathur";
     }
     if (lp_commander == "Stukov") {
@@ -288,9 +288,6 @@ string libE0EAE146_gf_CommanderShortName (string lp_commander) {
     }
     if (lp_commander == "ZergAbathur") {
         return "Abathur";
-    }
-    if (lp_commander == "ZergAbathurReborn") {
-        return "AbathurReborn";
     }
     if (lp_commander == "ZergStukov") {
         return "Stukov";
@@ -548,17 +545,6 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
     }
 
     if (libE0EAE146_gf_CommanderUseOriginal7v1SharedOpeners()) {
-        if (lv_commander == "AbathurReborn") {
-            if (lp_field == "CommandCenter") {
-                return "HatcheryAbathurReborn";
-            }
-            if (lp_field == "Worker") {
-                return "DroneAbathurReborn";
-            }
-            if (lp_field == "SecondUnit") {
-                return "OverlordAbathurReborn";
-            }
-        }
         if (lv_commander == "Mengsk") {
             if (lp_field == "CommandCenter") {
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenterMengsk");
@@ -886,18 +872,6 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
             if (lv_unit != "") {
                 return lv_unit;
             }
-        }
-    }
-
-    if (lv_commander == "AbathurReborn") {
-        if (lp_field == "CommandCenter") {
-            return "HatcheryAbathurReborn";
-        }
-        if (lp_field == "Worker") {
-            return "DroneAbathurReborn";
-        }
-        if (lp_field == "SecondUnit") {
-            return "OverlordAbathurReborn";
         }
     }
 

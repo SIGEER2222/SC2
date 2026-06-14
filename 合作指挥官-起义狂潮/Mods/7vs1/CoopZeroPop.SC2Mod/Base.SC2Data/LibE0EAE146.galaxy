@@ -16,7 +16,6 @@ include "LibE0EAE146_MutatorRuntime"
 include "LibE0EAE146_HeroRevive"
 include "LibE0EAE146_HeroStructures"
 include "LibE0EAE146_AbathurRuntime"
-include "LibE0EAE146_AbathurRebornRuntime"
 include "LibE0EAE146_AlarakRuntime"
 include "LibE0EAE146_ArtanisRuntime"
 include "LibE0EAE146_FenixRuntime"
@@ -71,9 +70,6 @@ void libE0EAE146_InitVariables () {
     libE0EAE146_gv_zeratulRuntimeInitialized = false;
     libE0EAE146_gv_zeratulRuntimePlayer = 0;
     libE0EAE146_gv_abathurRuntimeInitialized = false;
-    libE0EAE146_gv_abathurRebornRuntimeInitialized = false;
-    libE0EAE146_gv_abathurRebornEvolutionTriggersReady = false;
-    libE0EAE146_gv_abathurRebornRuntimePlayer = 0;
     libE0EAE146_gv_alarakRuntimeInitialized = false;
     libE0EAE146_gv_artanisRuntimeInitialized = false;
     libE0EAE146_gv_fenixRuntimeInitialized = false;
@@ -186,7 +182,7 @@ void libE0EAE146_gf_Initialize (bool lp_rpg) {
     else if (autoC0933116_val == "Kerrigan") {
         lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleZerg_Default");
     }
-    else if (((autoC0933116_val == "Abathur") || (autoC0933116_val == "AbathurCustom") || (autoC0933116_val == "AbathurReborn"))) {
+    else if (((autoC0933116_val == "Abathur") || (autoC0933116_val == "AbathurCustom"))) {
         lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleZerg_Abathur");
     }
     else if (autoC0933116_val == "Zagara") {
@@ -1316,9 +1312,6 @@ void libE0EAE146_gf_InitializeBase (point lp_secondUnit, int lp_worker, point lp
     }
     else if (((auto09490B45_val == "Abathur") || (auto09490B45_val == "AbathurCustom"))) {
         libE0EAE146_gf_AbathurRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "AbathurReborn") {
-        libE0EAE146_gf_AbathurRebornRuntimeInit(1, lp_secondUnit, lp_createHero);
     }
     else if (auto09490B45_val == "Kerrigan") {
         libE0EAE146_gf_KerriganRuntimeInit(1, lp_secondUnit, lp_createHero);

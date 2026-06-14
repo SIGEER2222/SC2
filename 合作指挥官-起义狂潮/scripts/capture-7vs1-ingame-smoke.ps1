@@ -195,10 +195,6 @@ function Convert-TestCommanderToRuntimeCommander {
     if ($value -eq "Horner") {
         return "Mira"
     }
-    if ($value -eq "AbathurReborn") {
-        return "AbathurReborn"
-    }
-
     return $value
 }
 

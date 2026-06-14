@@ -1468,6 +1468,7 @@ void libKMIS_gf_CM_Abathur_BiomassMerge (unit lp_biomassUnit, int lp_biomassUnit
         libKMIS_gf_CM_Abathur_BiomassSetStack(lv_nearbyBiomassMaxCountUnit, FixedToInt((UnitGetCustomValue(lv_nearbyBiomassMaxCountUnit, 63) + lp_biomassUnitCount)));
         UnitBehaviorAdd(lp_biomassUnit, "BiomassTravelling", lp_biomassUnit, 1);
         UnitCreateEffectUnit(lp_biomassUnit, "BiomassPickupFullLM", lv_nearbyBiomassMaxCountUnit);
+        UnitKill(lp_biomassUnit);
         libKMIS_gf_CM_Abathur_BiomassScale(lv_nearbyBiomassMaxCountUnit, false);
     }
 
@@ -7841,7 +7842,6 @@ bool libKMIS_gt_CM_Abathur_TriggersInit_Func (bool testConds, bool runActions) {
     }
 
     auto55ADB699_g = libKCOR_gf_CC_PlayersOfCommander("ZergAbathur");
-    libNtve_gf_AddPlayerGroupToPlayerGroup(libKCOR_gf_CC_PlayersOfCommander("ZergAbathurReborn"), auto55ADB699_g);
     if ((PlayerGroupCount(auto55ADB699_g) == 0)) {
         return true;
     }
@@ -7851,7 +7851,6 @@ bool libKMIS_gt_CM_Abathur_TriggersInit_Func (bool testConds, bool runActions) {
     TriggerEnable(libKMIS_gt_CM_Abathur_BiomassScaler, true);
     TriggerEnable(libKMIS_gt_CM_Abathur_BiomassTrain, true);
     TriggerEnable(libKMIS_gt_CM_Abathur_BiomassPickup, true);
-    TriggerEnable(libKMIS_gt_CM_Abathur_BiomassManualUpdate, true);
     TriggerEnable(libKMIS_gt_CM_DebugAbathurBiomassLost, true);
     TriggerEnable(libKMIS_gt_CM_Abathur_MeleeBonusUpgrade, true);
     TriggerEnable(libKMIS_gt_CM_Abathur_ToxicNest, true);
@@ -7988,6 +7987,10 @@ bool libKMIS_gt_CM_Abathur_BiomassDrop_Func (bool testConds, bool runActions) {
             return false;
         }
 
+        if (!((UnitGetType(EventUnit()) != "BiomassPickup"))) {
+            return false;
+        }
+
         if (!((EventUnitDamageDeathCheck(c_deathTypeRemove) == false))) {
             return false;
         }
@@ -8112,6 +8115,7 @@ bool libKMIS_gt_CM_Abathur_BiomassPickup_Func (bool testConds, bool runActions) 
     else {
         UnitBehaviorAdd(EventPlayerEffectUsedUnit(c_effectUnitCaster), "BiomassTravelling", EventPlayerEffectUsedUnit(c_effectUnitCaster), 1);
         UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitCaster), "BiomassPickupFullLM", EventPlayerEffectUsedUnit(c_effectUnitTarget));
+        UnitKill(EventPlayerEffectUsedUnit(c_effectUnitCaster));
         UnitBehaviorAdd(EventPlayerEffectUsedUnit(c_effectUnitTarget), "BiomassBuff100PlusLife", EventPlayerEffectUsedUnit(c_effectUnitTarget), lv_biomass100Stacks);
         UnitBehaviorAdd(EventPlayerEffectUsedUnit(c_effectUnitTarget), "BiomassBuff10PlusLife", EventPlayerEffectUsedUnit(c_effectUnitTarget), lv_biomass10Stacks);
         UnitBehaviorAdd(EventPlayerEffectUsedUnit(c_effectUnitTarget), "BiomassBuff1", EventPlayerEffectUsedUnit(c_effectUnitTarget), lv_biomass1Stacks);
@@ -8150,7 +8154,7 @@ bool libKMIS_gt_CM_Abathur_BiomassRefund_Func (bool testConds, bool runActions) 
 
     // Conditions
     if (testConds) {
-        if (!(((UnitGetType(EventUnit()) != "Locust") && (libKCOR_gf_ActiveCommanderForPlayer(lv_killedPlayer) == "ZergAbathur") && ((UnitHasBehavior2(EventUnit(), "BiomassBuff1") == true) || (UnitHasBehavior2(EventUnit(), "BiomassBuff10") == true) || (UnitHasBehavior2(EventUnit(), "BiomassBuff100") == true)) && (UnitFilterMatch(EventUnit(), 1, UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), 0)) == true) && ((libNtve_gf_UnitIsHidden(EventUnit()) == false) || (EventUnitDamageEffect() == libKMIS_gv_cM_CargoDeathKillEffect)) && (lv_biomassRefundChance > 0.0)))) {
+        if (!(((UnitGetType(EventUnit()) != "Locust") && (UnitGetType(EventUnit()) != "BiomassPickup") && (libKCOR_gf_ActiveCommanderForPlayer(lv_killedPlayer) == "ZergAbathur") && ((UnitHasBehavior2(EventUnit(), "BiomassBuff1") == true) || (UnitHasBehavior2(EventUnit(), "BiomassBuff10") == true) || (UnitHasBehavior2(EventUnit(), "BiomassBuff100") == true)) && (UnitFilterMatch(EventUnit(), 1, UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), 0)) == true) && ((libNtve_gf_UnitIsHidden(EventUnit()) == false) || (EventUnitDamageEffect() == libKMIS_gv_cM_CargoDeathKillEffect)) && (lv_biomassRefundChance > 0.0)))) {
             return false;
         }
     }
@@ -8189,7 +8193,7 @@ bool libKMIS_gt_CM_DebugAbathurBiomassLost_Func (bool testConds, bool runActions
     // Automatic Variable Declarations
     // Conditions
     if (testConds) {
-        if (!(((UnitGetType(EventUnit()) != "Locust") && (libKCOR_gf_ActiveCommanderForPlayer(UnitGetOwner(EventUnit())) == "ZergAbathur") && (UnitFilterMatch(EventUnit(), 1, UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterHidden - 32)))) == true)))) {
+        if (!(((UnitGetType(EventUnit()) != "Locust") && (UnitGetType(EventUnit()) != "BiomassPickup") && (libKCOR_gf_ActiveCommanderForPlayer(UnitGetOwner(EventUnit())) == "ZergAbathur") && (UnitFilterMatch(EventUnit(), 1, UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterHidden - 32)))) == true)))) {
             return false;
         }
     }
@@ -23096,7 +23100,6 @@ void libKMIS_InitTriggers () {
     libKMIS_gt_CM_Abathur_BiomassRefund_Init();
     libKMIS_gt_CM_DebugAbathurBiomassLost_Init();
     libKMIS_gt_CM_Abathur_BiomassTrain_Init();
-    libKMIS_gt_CM_Abathur_BiomassManualUpdate_Init();
     libKMIS_gt_CM_Abathur_BiomassScaler_Init();
     libKMIS_gt_CM_Abathur_Enemy_Death_Create_Locusts_Init();
     libKMIS_gt_CM_Abathur_ToxicNest_Init();
