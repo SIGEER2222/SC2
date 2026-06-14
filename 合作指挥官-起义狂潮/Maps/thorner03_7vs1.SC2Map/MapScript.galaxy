@@ -401,7 +401,18 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    libE0EAE146_gf_InitializeConfiguredMapScenario("thorner03_7vs1", false, null, gt_Init01Technology, true, gt_Init02Players, gt_Init03Units, gt_Init04Music, gt_Init05Environment, gt_Init06Difficulty, null, gt_IntroSequence);
+    PlayerModifyPropertyInt(gv_p01_USER, c_playerPropMinerals, c_playerPropOperSetTo, 300);
+    PlayerModifyPropertyInt(gv_p01_USER, c_playerPropVespene, c_playerPropOperSetTo, 250);
+    // Keep the legacy mission init order here; the configured wrapper drifts
+    // from the original alliance/state setup on this map.
+    libE0EAE146_gf_InitializeMapScenario("thorner03_7vs1", false);
+    TriggerExecute(gt_Init01Technology, true, true);
+    TriggerExecute(gt_Init02Players, true, true);
+    TriggerExecute(gt_Init03Units, true, true);
+    TriggerExecute(gt_Init04Music, true, true);
+    TriggerExecute(gt_Init05Environment, true, true);
+    TriggerExecute(gt_Init06Difficulty, true, true);
+    TriggerExecute(gt_IntroSequence, true, false);
     return true;
 }
 
@@ -661,6 +672,10 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
         if (autoBA160EAB_var == null) { break; }
         UnitBehaviorAdd(autoBA160EAB_var, "ScanRangeBonus", autoBA160EAB_var, 1);
     }
+    // Keep the mission Nova unit on the Dominion side; the map should not
+    // inherit the playable Nova commander ownership for this actor.
+    libNtve_gf_SetAlliance(gv_p03_DOMINION_WAREHOUSE, gv_p01_USER, libNtve_ge_AllianceSetting_Enemy);
+    libNtve_gf_SetAlliance(gv_p03_DOMINION_WAREHOUSE, gv_p02_TYCHUS, libNtve_ge_AllianceSetting_Enemy);
     UnitGroupSelect(UnitGroup(null, gv_p01_USER, RegionFromId(8), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), gv_p01_USER, true);
     libNtve_gf_CinematicMode(false, PlayerGroupAll(), 1.5);
     libNtve_gf_GlobalCinematicSetting(false);

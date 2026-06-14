@@ -98,9 +98,11 @@ void libE0EAE146_InitVariables () {
     libE0EAE146_gv_genericBonusesApplied = false;
     libE0EAE146_gv_genericBonusCreepRegenEnabled = false;
     libE0EAE146_gv_genericBonusMechanicalRepairEnabled = false;
+    libE0EAE146_gv_genericBonusControllerRequired = false;
     libE0EAE146_gv_genericBonusController = null;
     libE0EAE146_gt_GenericBonusMechanicalRepair = null;
     libE0EAE146_gt_GenericBonusCreepRegen = null;
+    libE0EAE146_gt_GenericBonusControllerWatchdog = null;
     libE0EAE146_gt_SharedPlayerCampaignAllySanitizer = null;
     for (autoFD1D4F18_i = 1; autoFD1D4F18_i <= 8; autoFD1D4F18_i += 1) {
         libE0EAE146_gv_xmProgressionRunBlessingApplied[autoFD1D4F18_i] = false;
@@ -784,6 +786,17 @@ bool libE0EAE146_gt_GenericBonusCreepRegen_Func (bool testConds, bool runActions
     return true;
 }
 
+bool libE0EAE146_gt_GenericBonusControllerWatchdog_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+    if (!libE0EAE146_gv_genericBonusControllerRequired) {
+        return true;
+    }
+    libE0EAE146_gf_GenericBonusEnsureController(1);
+    return true;
+}
+
 void libE0EAE146_gf_GenericBonusEnsureTriggers () {
     if (libE0EAE146_gt_GenericBonusMechanicalRepair == null) {
         libE0EAE146_gt_GenericBonusMechanicalRepair = TriggerCreate("libE0EAE146_gt_GenericBonusMechanicalRepair_Func");
@@ -794,6 +807,11 @@ void libE0EAE146_gf_GenericBonusEnsureTriggers () {
         libE0EAE146_gt_GenericBonusCreepRegen = TriggerCreate("libE0EAE146_gt_GenericBonusCreepRegen_Func");
         TriggerAddEventTimePeriodic(libE0EAE146_gt_GenericBonusCreepRegen, 2.0, c_timeGame);
         TriggerEnable(libE0EAE146_gt_GenericBonusCreepRegen, false);
+    }
+    if (libE0EAE146_gt_GenericBonusControllerWatchdog == null) {
+        libE0EAE146_gt_GenericBonusControllerWatchdog = TriggerCreate("libE0EAE146_gt_GenericBonusControllerWatchdog_Func");
+        TriggerAddEventTimePeriodic(libE0EAE146_gt_GenericBonusControllerWatchdog, 2.0, c_timeGame);
+        TriggerEnable(libE0EAE146_gt_GenericBonusControllerWatchdog, false);
     }
 }
 
@@ -1091,7 +1109,7 @@ unit libE0EAE146_gf_CreateGenericBonusController (int lp_player) {
     if (!CatalogEntryIsValid(c_gameCatalogUnit, "GenericBonusController")) {
         return null;
     }
-    if (UnitIsValid(libE0EAE146_gv_genericBonusController) == true) {
+    if ((UnitIsValid(libE0EAE146_gv_genericBonusController) == true) && (UnitIsAlive(libE0EAE146_gv_genericBonusController) == true)) {
         return libE0EAE146_gv_genericBonusController;
     }
 
@@ -1111,6 +1129,40 @@ unit libE0EAE146_gf_CreateGenericBonusController (int lp_player) {
     }
 
     return null;
+}
+
+void libE0EAE146_gf_GenericBonusEnsureController (int lp_player) {
+    unitgroup lv_nearbyUnits;
+    unit lv_unit;
+    point lv_point;
+    int lv_count;
+    string lv_unitType;
+
+    if (!libE0EAE146_gv_genericBonusControllerRequired) {
+        return;
+    }
+    if ((UnitIsValid(libE0EAE146_gv_genericBonusController) == true) && (UnitIsAlive(libE0EAE146_gv_genericBonusController) == true) && (UnitGetOwner(libE0EAE146_gv_genericBonusController) == lp_player) && (UnitGetType(libE0EAE146_gv_genericBonusController) == "GenericBonusController")) {
+        return;
+    }
+
+    lv_point = libE0EAE146_gf_GenericBonusControllerPoint(lp_player);
+    lv_nearbyUnits = UnitGroupSearch(null, lp_player, lv_point, 4.0, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_count = UnitGroupCount(lv_nearbyUnits, c_unitCountAll);
+    while (lv_count > 0) {
+        lv_unit = UnitGroupUnitFromEnd(lv_nearbyUnits, lv_count);
+        lv_unitType = UnitGetType(lv_unit);
+        if (lv_unitType == "GenericBonusController") {
+            libE0EAE146_gv_genericBonusController = lv_unit;
+            return;
+        }
+        if ((lv_unitType == "SolarForge") || (lv_unitType == "DamagedSolarForge")) {
+            UnitRemove(lv_unit);
+        }
+        lv_count -= 1;
+    }
+
+    libE0EAE146_gv_genericBonusController = null;
+    libE0EAE146_gv_genericBonusController = libE0EAE146_gf_CreateGenericBonusController(lp_player);
 }
 
 void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
@@ -1156,13 +1208,19 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     if (lv_chronoBoost) { lv_selectedCount += 1; }
 
     libE0EAE146_gv_genericBonusesApplied = true;
+    libE0EAE146_gv_genericBonusControllerRequired = ((lv_doubleMineralsLevel > 0) || (lv_doubleVespeneLevel > 0) || lv_richResources || lv_guardianShell || lv_creepRegeneration || lv_mechanicalRepair || lv_chronoBoost);
     if ((lv_doubleMineralsLevel > 0) || (lv_doubleVespeneLevel > 0) || lv_richResources) {
         libE0EAE146_gf_GenericBonusApplyResources(lv_doubleMineralsLevel, lv_doubleVespeneLevel, lv_richResources);
     }
     libE0EAE146_gf_GenericBonusApplyPassives(lp_player);
-    if ((lv_doubleMineralsLevel > 0) || (lv_doubleVespeneLevel > 0) || lv_richResources || lv_guardianShell || lv_creepRegeneration || lv_mechanicalRepair || lv_chronoBoost) {
+    if (libE0EAE146_gt_GenericBonusControllerWatchdog != null) {
+        TriggerEnable(libE0EAE146_gt_GenericBonusControllerWatchdog, libE0EAE146_gv_genericBonusControllerRequired);
+    }
+    if (libE0EAE146_gv_genericBonusControllerRequired) {
         lv_controller = libE0EAE146_gf_CreateGenericBonusController(lp_player);
     }
+    libE0EAE146_gf_GenericBonusEnsureController(lp_player);
+    lv_controller = libE0EAE146_gv_genericBonusController;
     lv_doubleMineralsInt = 0;
     lv_doubleVespeneInt = 0;
     lv_richResourcesInt = 0;

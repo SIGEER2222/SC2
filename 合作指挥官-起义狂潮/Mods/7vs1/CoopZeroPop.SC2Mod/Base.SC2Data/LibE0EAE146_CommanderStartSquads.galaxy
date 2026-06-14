@@ -214,6 +214,21 @@ bool libE0EAE146_gf_AbathurIsUltimateBiomassUnit (unit lp_unit) {
     lv_unitType = UnitGetType(lp_unit);
     return ((lv_unitType == "BrutaliskAbathur") || (lv_unitType == "LeviathanAbathur"));
 }
+bool libE0EAE146_gf_AbathurP2UltimateBiomass50Enabled (unit lp_unit) {
+    int lv_player;
+
+    if ((lp_unit == null)) {
+        return false;
+    }
+    lv_player = UnitGetOwner(lp_unit);
+    if (lv_player <= 0) {
+        return false;
+    }
+    if (!lib67C0F0E7_gf_BitMaskTrueIndexIs(libE0EAE146_gf_CommanderPowerPrestigeMask("Abathur"), 1)) {
+        return false;
+    }
+    return libE0EAE146_gf_CommanderPowerBankFlagEnabled("Abathur", "P2UltimateBiomass50");
+}
 int libE0EAE146_gf_AbathurBiomassMaxStacksForUnit (unit lp_unit) {
     int lv_max;
     int lv_bonus;
@@ -228,6 +243,9 @@ int libE0EAE146_gf_AbathurBiomassMaxStacksForUnit (unit lp_unit) {
     lv_bonus = CatalogFieldValueGetAsInt(c_gameCatalogEffect, "AbathurBiomassUltimateMaxStacksDummy", "Amount", UnitGetOwner(lp_unit));
     if ((lv_bonus <= 0)) {
         lv_bonus = 100;
+    }
+    if (libE0EAE146_gf_AbathurP2UltimateBiomass50Enabled(lp_unit)) {
+        lv_bonus += 50;
     }
     return (lv_max + lv_bonus);
 }

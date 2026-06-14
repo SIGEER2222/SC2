@@ -28,6 +28,42 @@
         <ValidatorArray index="3" removed="1"/>
         <ValidatorArray index="4" removed="1"/>
     </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="BiomassBuff1To10AB">
+        <EditorCategories value=""/>
+        <Behavior value="BiomassBuff10"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="BiomassBuff1To10RB">
+        <EditorCategories value=""/>
+        <BehaviorLink value="BiomassBuff1"/>
+        <Count value="10"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="BiomassBuff1To10Set">
+        <EditorCategories value=""/>
+        <EffectArray value="BiomassBuff1To10AB"/>
+        <EffectArray value="BiomassBuff1To10RB"/>
+    </CEffectSet>
+    <CEffectSwitch id="BiomassBuff1To10Switch">
+        <EditorCategories value=""/>
+        <CaseArray Validator="BiomassBuff1CountGE10" Effect="BiomassBuff1To10Set"/>
+    </CEffectSwitch>
+    <CEffectRemoveBehavior id="BiomassBuff10To100RB">
+        <EditorCategories value=""/>
+        <BehaviorLink value="BiomassBuff10"/>
+        <Count value="10"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="BiomassBuff10To100AB">
+        <EditorCategories value=""/>
+        <Behavior value="BiomassBuff100"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="BiomassBuff10To100Set">
+        <EditorCategories value=""/>
+        <EffectArray value="BiomassBuff10To100AB"/>
+        <EffectArray value="BiomassBuff10To100RB"/>
+    </CEffectSet>
+    <CEffectSwitch id="BiomassBuff10To100Switch">
+        <EditorCategories value=""/>
+        <CaseArray Validator="BiomassBuff10CountGE10" Effect="BiomassBuff10To100Set"/>
+    </CEffectSwitch>
     <CEffectDamage id="ThermalLancesFriendlyDamage">
         <AttributeBonus index="Light" value="0"/>
         <Amount value="15"/>
