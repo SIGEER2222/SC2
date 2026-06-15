@@ -57,14 +57,15 @@ const MAX_LAUNCH_HISTORY = 8;
 const MAX_SCENARIO_PRESETS = 16;
 const DEFAULT_PRESTIGE_PROFILE = "Prestige4";
 const GENERIC_BONUS_OPTIONS = [
-  { id: "DoubleMinerals", name: "矿物储量翻倍", description: "每加 1 点，所有矿点当前与上限储量再翻一倍。", maxLevel: 9 },
-  { id: "DoubleVespene", name: "瓦斯储量翻倍", description: "每加 1 点，所有气矿当前与上限储量再翻一倍。", maxLevel: 9 },
+  { id: "DoubleMinerals", name: "矿物储量倍率", description: "每加 1 点，所有矿点当前与上限储量额外增加 100%。1 级为 x2，9 级为 x10。", maxLevel: 9 },
+  { id: "DoubleVespene", name: "瓦斯储量倍率", description: "每加 1 点，所有气矿当前与上限储量额外增加 100%。1 级为 x2，9 级为 x10。", maxLevel: 9 },
   { id: "RichResources", name: "高产矿脉与瓦斯", description: "提高资源采集效率并保留当前储量，晶体矿脉与瓦斯节点替换为高产模型。" },
   { id: "GuardianShell", name: "守护者之壳", description: "获得阿塔尼斯的守护者之壳被动。" },
   { id: "CreepRegeneration", name: "菌毯回血", description: "获得凯瑞甘菌毯回血效果。" },
   { id: "MechanicalRepair", name: "机械维修", description: "机械单位周期性自我修复。" },
   { id: "ChronoBoost", name: "时空加速", description: "基地旁控制建筑获得一次全图时空加速主动技能。" },
   { id: "MaxSupply50", name: "人口上限+50", description: "人口上限额外增加 50。" },
+  { id: "ZeroSupply", name: "单位0人口", description: "启用公共层 0/200 供给脚本：定时把人口上限设为 200，并将现有单位改为不占人口。" },
 ];
 const LEVELABLE_GENERIC_BONUS_IDS = new Set(
   GENERIC_BONUS_OPTIONS.filter((item) => Number.isFinite(item.maxLevel) && item.maxLevel > 0).map((item) => item.id),

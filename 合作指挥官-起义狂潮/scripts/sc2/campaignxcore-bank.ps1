@@ -595,7 +595,8 @@ function Set-CampaignXCoreGenericBonuses {
         "CreepRegeneration",
         "MechanicalRepair",
         "ChronoBoost",
-        "MaxSupply50"
+        "MaxSupply50",
+        "ZeroSupply"
     )) {
         $allowedBonuses[$bonus] = $bonus
     }

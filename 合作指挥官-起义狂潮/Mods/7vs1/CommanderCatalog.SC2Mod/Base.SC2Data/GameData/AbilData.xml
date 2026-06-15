@@ -66,6 +66,96 @@
       <Button DefaultButtonFace="FusionCore" State="Available" />
     </InfoArray>
   </CAbilBuild>
+  <CAbilMorph id="UpgradeToOrbitalSwann" parent="UpgradeToOrbitalCoop" unit="OrbitalCommandSwann">
+    <CmdButtonArray index="Execute" DefaultButtonFace="OrbitalCommand" State="Available" Requirements="" />
+    <InfoArray index="0" Unit="OrbitalCommandSwann">
+      <SectionArray index="Actor">
+        <EffectArray index="Start" value="CommandCenterIsMorphingAB" />
+        <EffectArray index="Finish" value="CommandCenterIsMorphingRB" />
+        <EffectArray index="Cancel" value="CommandCenterIsMorphingRB" />
+      </SectionArray>
+    </InfoArray>
+  </CAbilMorph>
+  <CAbilMorph id="UpgradeToPlanetaryFortressSwann" parent="UpgradeToPlanetaryFortress" unit="PlanetaryFortressSwann">
+    <CmdButtonArray index="Execute" DefaultButtonFace="UpgradeToPlanetaryFortress" State="Available" Requirements="" />
+    <InfoArray index="0" Unit="PlanetaryFortressSwann">
+      <SectionArray index="Actor">
+        <EffectArray index="Start" value="CommandCenterIsMorphingAB" />
+        <EffectArray index="Finish" value="CommandCenterIsMorphingRB" />
+        <EffectArray index="Cancel" value="CommandCenterIsMorphingRB" />
+      </SectionArray>
+    </InfoArray>
+  </CAbilMorph>
+  <CAbilMorph id="CommandCenterLiftOffSwann" parent="CommandCenterLiftOff" unit="CommandCenterSwannFlying" />
+  <CAbilMorphPlacement id="CommandCenterLandSwann" parent="CommandCenterLand" unit="CommandCenterSwann">
+    <InfoArray index="0" Unit="CommandCenterSwann" CollideRange="0" />
+  </CAbilMorphPlacement>
+  <CAbilMorph id="OrbitalLiftOffSwann" parent="OrbitalLiftOff" unit="OrbitalCommandSwannFlying" />
+  <CAbilMorphPlacement id="OrbitalCommandLandSwann" parent="OrbitalCommandLand" unit="OrbitalCommandSwann">
+    <InfoArray index="0" Unit="OrbitalCommandSwann" CollideRange="0" />
+  </CAbilMorphPlacement>
+  <CAbilBuild id="TerranBuildSwann" parent="TerranBuild">
+    <InfoArray index="Build1" Unit="CommandCenterSwann" Time="100">
+      <Button DefaultButtonFace="CommandCenterOrbRelay" State="Available" Requirements="HaveSwannCommander" />
+    </InfoArray>
+    <InfoArray index="Build2">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build3">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build4">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build5">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build6">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build7">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build8" Unit="PsiDisruptor" Time="50">
+      <Button DefaultButtonFace="PsiDisruptor" State="Available" Requirements="HaveSwannCommander" />
+    </InfoArray>
+    <InfoArray index="Build9" Unit="SensorTower" Time="18.75">
+      <Button DefaultButtonFace="SensorTower" State="Available" Requirements="HaveSwannCommander" />
+    </InfoArray>
+    <InfoArray index="Build10">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build11">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build12">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build13">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build14">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build15">
+      <Button State="Restricted" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build20" Unit="PerditionTurret" Time="23">
+      <Button DefaultButtonFace="PerditionTurret" State="Available" Requirements="HaveSwannCommander" />
+    </InfoArray>
+    <InfoArray index="Build21" Unit="CommandCenterSwann" Time="100">
+      <Button DefaultButtonFace="CommandCenterOrbRelay" State="Available" Requirements="HaveSwannCommander" />
+    </InfoArray>
+    <InfoArray index="Build22" Unit="HiveMindEmulator" Time="50">
+      <Button DefaultButtonFace="HiveMindEmulator" State="Available" Requirements="HaveSwannCommander" />
+    </InfoArray>
+    <InfoArray index="Build26" Unit="KelMorianMissileTurret" Time="18.75">
+      <Button DefaultButtonFace="BuildKelMorianMissileTurret" State="Available" Requirements="HaveSwannCommander" />
+    </InfoArray>
+    <InfoArray index="Build27" Unit="KelMorianGrenadeTurret" Time="26.25">
+      <Button DefaultButtonFace="BuildKelMorianRocketTurret" State="Available" Requirements="HaveSwannCommander" />
+    </InfoArray>
+  </CAbilBuild>
 
   <CAbilBuild default="1" id="RaynorTerranAddOns">
     <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
@@ -82,6 +172,13 @@
     <InfoArray index="Train1" Time="12">
       <Unit index="0" removed="1" />
       <Unit index="0" value="SCVRaynor" />
+      <Button DefaultButtonFace="SCV" State="Available" />
+    </InfoArray>
+  </CAbilTrain>
+  <CAbilTrain id="CommandCenterTrainSwann" parent="CommandCenterTrain">
+    <InfoArray index="Train1" Time="12">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="SCVSwann" />
       <Button DefaultButtonFace="SCV" State="Available" />
     </InfoArray>
   </CAbilTrain>

@@ -92,6 +92,7 @@ bool lib45C3A6C3_gt_E4B88DE58DA0E4BABAE58FA3_Func (bool testConds, bool runActio
     // Variable Declarations
     int lv_e78EA9E5AEB6;
     unit lv_e58D95E4BD8D;
+    bool lv_zeroSupplyEnabled;
 
     // Automatic Variable Declarations
     playergroup autoDB482E3C_g;
@@ -102,6 +103,12 @@ bool lib45C3A6C3_gt_E4B88DE58DA0E4BABAE58FA3_Func (bool testConds, bool runActio
 
     // Actions
     if (!runActions) {
+        return true;
+    }
+
+    BankLoad("CampaignXCore", 1);
+    lv_zeroSupplyEnabled = (BankValueGetAsInt(BankLastCreated(), "GenericBonuses", "Selected.ZeroSupply") > 0);
+    if (!lv_zeroSupplyEnabled) {
         return true;
     }
 
@@ -153,4 +160,3 @@ void lib45C3A6C3_InitLib () {
     lib45C3A6C3_InitLibraries();
     lib45C3A6C3_InitTriggers();
 }
-

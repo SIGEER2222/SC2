@@ -153,6 +153,74 @@ void gf_CargoCreateWithFallback3 (unit lp_transport, string lp_primary, string l
     UnitCargoCreate(lp_transport, lv_unitType, lp_count);
 }
 
+void gf_CreateCommanderOpeningCargo (unit lp_transport, string lp_commander) {
+    string lv_commander;
+
+    lv_commander = lp_commander;
+    // This opening transport must never create commander hero units.
+    if (lv_commander == "Raynor") {
+        libE0EAE146_gf_RaynorCreateCargoSquad(lp_transport, "light");
+    }
+    else if (lv_commander == "Kerrigan") {
+        libE0EAE146_gf_KerriganCreateCargoSquad(lp_transport, "light");
+    }
+    else if (lv_commander == "Artanis") {
+        libE0EAE146_gf_ArtanisCreateCargoSquad(lp_transport, "light");
+    }
+    else if (lv_commander == "Swann") {
+        gf_CargoCreateWithFallback3(lp_transport, "PredatorSwann", "HellionTank", "Hellion", 4);
+    }
+    else if (lv_commander == "Zagara") {
+        libE0EAE146_gf_ZagaraCreateCargoSquad(lp_transport, "light");
+    }
+    else if (lv_commander == "Vorazun") {
+        libE0EAE146_gf_VorazunCreateCargoSquad(lp_transport, "light");
+    }
+    else if (lv_commander == "Karax") {
+        libE0EAE146_gf_KaraxCreateCargoSquad(lp_transport, "light");
+    }
+    else if (lv_commander == "Abathur") {
+        libE0EAE146_gf_AbathurCreateCargoSquad(lp_transport, "heavy");
+    }
+    else if (lv_commander == "Alarak") {
+        libE0EAE146_gf_AlarakCreateCargoSquad(lp_transport, "heavy");
+    }
+    else if (lv_commander == "Nova") {
+        UnitCargoCreate(lp_transport, "HellbatBlackOps", 2);
+        UnitCargoCreate(lp_transport, "Marine_BlackOps", 2);
+    }
+    else if (lv_commander == "Stukov") {
+        UnitCargoCreate(lp_transport, "SIInfestedMarine", 6);
+        UnitCargoCreate(lp_transport, "SIVolatileInfested", 3);
+    }
+    else if (lv_commander == "Fenix") {
+        libE0EAE146_gf_FenixCreateCargoSquad(lp_transport, "light");
+    }
+    else if (lv_commander == "Dehaka") {
+        UnitCargoCreate(lp_transport, "PrimalZergling", 4);
+        UnitCargoCreate(lp_transport, "DehakaRoach", 2);
+    }
+    else if ((lv_commander == "Mira") || (lv_commander == "Horner") || (lv_commander == "HanHorner") || (lv_commander == "HanAndHorner")) {
+        UnitCargoCreate(lp_transport, "HellionTankMira", 3);
+    }
+    else if (lv_commander == "Tychus") {
+        UnitCargoCreate(lp_transport, "TychusFirebat", 1);
+    }
+    else if (lv_commander == "Zeratul") {
+        libE0EAE146_gf_ZeratulCreateCargoSquad(lp_transport, "light");
+    }
+    else if (lv_commander == "Stetmann") {
+        UnitCargoCreate(lp_transport, "LurkerStetmann", 3);
+    }
+    else if (lv_commander == "Mengsk") {
+        UnitCargoCreate(lp_transport, "TrooperMengskFlamethrower", 6);
+    }
+    else {
+        UnitCargoCreate(lp_transport, "Firebat", 3);
+        UnitCargoCreate(lp_transport, "Medic", 2);
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 // Trigger Variables
 //--------------------------------------------------------------------------------------------------
@@ -933,39 +1001,7 @@ bool gt_FirebatDropshipAction_Func (bool testConds, bool runActions) {
     }
 
     auto8F0E1D21_val = libE0EAE146_gv_commander;
-    if (auto8F0E1D21_val == "Tychus") {
-        UnitCargoCreate(UnitFromId(290), "TychusFirebat", 1);
-    }
-    else if (auto8F0E1D21_val == "Mira") {
-        UnitCargoCreate(UnitFromId(290), "HellionTankMira", 3);
-    }
-    else if (auto8F0E1D21_val == "Dehaka") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "DehakaCoop", 0, 1, PointFromId(2150));
-        libDF8E6945_gf_InitializeDehakaEvent(1, UnitLastCreated());
-        BankLoad("CampaignXCore", 1);
-        if ((lib67C0F0E7_gf_BitMaskTrueIndexIs(BankValueGetAsInt(BankLastCreated(), libE0EAE146_gv_commander, "AchBit"), 0) == true)) {
-            libDF8E6945_gf_DehakaBroodbrother();
-        }
-
-    }
-    else if (auto8F0E1D21_val == "Nova") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "NovaCoop", 0, 1, PointFromId(2150));
-        lib0940FFB7_gf_NovaTrigger(UnitLastCreated());
-        UnitCargoCreate(UnitFromId(290), "HellbatBlackOps", 2);
-    }
-    else if (auto8F0E1D21_val == "Mengsk") {
-        UnitCargoCreate(UnitFromId(290), "TrooperMengskFlamethrower", 6);
-    }
-    else if (auto8F0E1D21_val == "Swann") {
-        gf_CargoCreateWithFallback3(UnitFromId(290), "PredatorSwann", "HellionTank", "Hellion", 4);
-    }
-    else if (auto8F0E1D21_val == "Stetmann") {
-        UnitCargoCreate(UnitFromId(290), "LurkerStetmann", 3);
-    }
-    else {
-        UnitCargoCreate(UnitFromId(290), "Firebat", 3);
-        UnitCargoCreate(UnitFromId(290), "Medic", 2);
-    }
+    gf_CreateCommanderOpeningCargo(UnitFromId(290), auto8F0E1D21_val);
     gf_DropCargoAndExit(UnitFromId(290), PointFromId(2157), PointFromId(376213958));
     Wait(0.1, c_timeGame);
     TriggerEnable(gt_DefeatTacticalPhase, true);

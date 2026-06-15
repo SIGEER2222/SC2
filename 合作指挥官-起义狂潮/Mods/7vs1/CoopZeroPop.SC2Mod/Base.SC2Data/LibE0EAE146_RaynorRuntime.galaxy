@@ -318,6 +318,96 @@ bool libE0EAE146_gf_RaynorStructureNeedsRefresh (unit lp_unit) {
     return false;
 }
 
+string libE0EAE146_gf_RaynorMorphExpectedUnitType (abilcmd lp_abilCmd) {
+    string lv_abil;
+
+    lv_abil = AbilityCommandGetAbility(lp_abilCmd);
+    if (lv_abil == "CommandCenterLiftOffRaynor") {
+        return "CommandCenterFlyingRaynor";
+    }
+    if (lv_abil == "CommandCenterLandRaynor") {
+        return "CommandCenterRaynor";
+    }
+    if (lv_abil == "UpgradeToOrbitalRaynor") {
+        return "OrbitalCommandRaynor";
+    }
+    if (lv_abil == "OrbitalLiftOffRaynor") {
+        return "OrbitalCommandFlyingRaynor";
+    }
+    if (lv_abil == "OrbitalCommandLandRaynor") {
+        return "OrbitalCommandRaynor";
+    }
+    if (lv_abil == "BarracksLiftOffRaynor") {
+        return "BarracksFlyingRaynor";
+    }
+    if (lv_abil == "BarracksLandRaynor") {
+        return "BarracksRaynor";
+    }
+    if (lv_abil == "FactoryLiftOffRaynor") {
+        return "FactoryFlyingRaynor";
+    }
+    if (lv_abil == "FactoryLandRaynor") {
+        return "FactoryRaynor";
+    }
+    if (lv_abil == "StarportLiftOffRaynor") {
+        return "StarportFlyingRaynor";
+    }
+    if (lv_abil == "StarportLandRaynor") {
+        return "StarportRaynor";
+    }
+
+    return "";
+}
+
+unit libE0EAE146_gf_RaynorFindNearestOwnedUnitOfType (int lp_player, string lp_unitType, point lp_point, fixed lp_maxDistance) {
+    unitgroup lv_units;
+    int lv_count;
+    unit lv_unit;
+    unit lv_bestUnit;
+    fixed lv_distance;
+    fixed lv_bestDistance;
+
+    if ((lp_unitType == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unitType))) {
+        return null;
+    }
+
+    lv_units = UnitGroup(lp_unitType, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_count = UnitGroupCount(lv_units, c_unitCountAlive);
+    lv_bestDistance = (lp_maxDistance + 0.5);
+    for (;; lv_count -= 1) {
+        lv_unit = UnitGroupUnitFromEnd(lv_units, lv_count);
+        if (lv_unit == null) { break; }
+        lv_distance = DistanceBetweenPoints(lp_point, UnitGetPosition(lv_unit));
+        if (lv_distance <= lp_maxDistance) {
+            if ((lv_bestUnit == null) || (lv_distance < lv_bestDistance)) {
+                lv_bestUnit = lv_unit;
+                lv_bestDistance = lv_distance;
+            }
+        }
+    }
+
+    return lv_bestUnit;
+}
+
+unit libE0EAE146_gf_RaynorResolveMorphedStructure (unit lp_oldUnit, abilcmd lp_abilCmd) {
+    int lv_player;
+    string lv_expectedType;
+    point lv_oldPoint;
+    unit lv_newUnit;
+
+    lv_player = UnitGetOwner(lp_oldUnit);
+    lv_expectedType = libE0EAE146_gf_RaynorMorphExpectedUnitType(lp_abilCmd);
+    lv_newUnit = libNtve_gf_LastReplacedUnit();
+    if ((lv_newUnit != null) && (UnitIsAlive(lv_newUnit) == true) && (UnitGetOwner(lv_newUnit) == lv_player)) {
+        if ((lv_expectedType == "") || (UnitGetType(lv_newUnit) == lv_expectedType)) {
+            return lv_newUnit;
+        }
+    }
+
+    lv_oldPoint = UnitGetPosition(lp_oldUnit);
+    return libE0EAE146_gf_RaynorFindNearestOwnedUnitOfType(lv_player, lv_expectedType, lv_oldPoint, 6.0);
+}
+
 bool libE0EAE146_gf_RaynorRuntimeHasTestRun () {
     BankLoad("CampaignXCore", 1);
     return (BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "TestRunId") != "");
@@ -487,6 +577,7 @@ void libE0EAE146_gf_RaynorStartTrainProbe (int lp_player) {
 bool libE0EAE146_gt_RaynorStructureMorphRefresh_Func (bool testConds, bool runActions) {
     int lv_player;
     unit lv_newUnit;
+    point lv_oldPoint;
     unitgroup lv_selectedUnits;
     bool lv_wasSelected;
 
@@ -501,10 +592,11 @@ bool libE0EAE146_gt_RaynorStructureMorphRefresh_Func (bool testConds, bool runAc
     }
 
     lv_player = UnitGetOwner(EventUnit());
+    lv_oldPoint = UnitGetPosition(EventUnit());
     lv_selectedUnits = UnitGroupSelected(lv_player);
     lv_wasSelected = UnitIsSelected(EventUnit(), lv_player);
     Wait(0.125, c_timeGame);
-    lv_newUnit = libNtve_gf_LastReplacedUnit();
+    lv_newUnit = libE0EAE146_gf_RaynorResolveMorphedStructure(EventUnit(), EventUnitAbility());
     if ((lv_newUnit != null) && (UnitIsAlive(lv_newUnit) == true)) {
         libNtve_gf_CopyUnitControlGroups(EventUnit(), lv_newUnit);
         UnitCreateEffectUnit(lv_newUnit, "CopyTargetSelectionAndControlGroups", EventUnit());
@@ -513,7 +605,15 @@ bool libE0EAE146_gt_RaynorStructureMorphRefresh_Func (bool testConds, bool runAc
             UnitGroupAdd(lv_selectedUnits, lv_newUnit);
             UnitClearSelection(lv_player);
             Wait(0.0625, c_timeGame);
+            UnitSelect(lv_newUnit, lv_player, true);
             UnitGroupSelect(lv_selectedUnits, lv_player, true);
+        }
+    }
+    else if (lv_wasSelected == true) {
+        lv_newUnit = libE0EAE146_gf_RaynorFindNearestOwnedUnitOfType(lv_player, libE0EAE146_gf_RaynorMorphExpectedUnitType(EventUnitAbility()), lv_oldPoint, 8.0);
+        if ((lv_newUnit != null) && (UnitIsAlive(lv_newUnit) == true)) {
+            UnitClearSelection(lv_player);
+            UnitSelect(lv_newUnit, lv_player, true);
         }
     }
     if (((lv_newUnit != null) && (libE0EAE146_gf_RaynorStructureNeedsRefresh(lv_newUnit) == true)) || (libE0EAE146_gf_RaynorStructureNeedsRefresh(EventUnit()) == true)) {

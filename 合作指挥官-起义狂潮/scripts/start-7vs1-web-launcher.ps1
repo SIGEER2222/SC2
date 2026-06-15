@@ -953,7 +953,8 @@ function ConvertTo-LaunchArgumentList {
         "CreepRegeneration",
         "MechanicalRepair",
         "ChronoBoost",
-        "MaxSupply50"
+        "MaxSupply50",
+        "ZeroSupply"
     )
     $levelableGenericBonuses = @("DoubleMinerals", "DoubleVespene")
     $selectedGenericBonuses = New-Object System.Collections.Generic.List[string]
