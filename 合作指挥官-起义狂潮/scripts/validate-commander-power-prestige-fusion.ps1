@@ -152,6 +152,9 @@ $coopZeroPopGameData = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Ba
 $unitXmls = Read-CatalogXmlSet -GameDataRoot $catalogGameData -BaseName "UnitData"
 $overlayUpgradeXml = Read-CatalogXml -Path (Join-Path $catalogGameData "UpgradeData.xml")
 $coopZeroPopUpgradeXml = Read-CatalogXml -Path (Join-Path $coopZeroPopGameData "UpgradeData.xml")
+$coopZeroPopEffectXml = Read-CatalogXml -Path (Join-Path $coopZeroPopGameData "EffectData.xml")
+$coopZeroPopRequirementXml = Read-CatalogXml -Path (Join-Path $coopZeroPopGameData "RequirementData.xml")
+$coopZeroPopRequirementNodeXml = Read-CatalogXml -Path (Join-Path $coopZeroPopGameData "RequirementNodeData.xml")
 $generatedGalaxyPath = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\LibE0EAE146_CommanderPowerGenerated.galaxy"
 Assert-True -Condition (Test-Path -LiteralPath $generatedGalaxyPath) -Message "Generated CommanderPower Galaxy not found: $generatedGalaxyPath"
 $generatedGalaxy = Get-Content -LiteralPath $generatedGalaxyPath -Encoding UTF8 -Raw
@@ -180,6 +183,56 @@ foreach ($xml in $unitXmls) {
     }
 }
 Assert-True -Condition ($abathurLockLayoutNodes.Count -eq 0) -Message "Abathur biomass prestige lock overlays must not remain bound in UnitData*.xml."
+
+$karaxLockFaces = @(
+    "CommanderPrestigeKaraxPhotonCannonLocked",
+    "CommanderPrestigeKaraxKhaydarinMonolithLocked",
+    "CommanderPrestigeKaraxOptimizedAttackSpeedResearchLocked",
+    "CommanderPrestigeKaraxChronoWaveLocked",
+    "CommanderPrestigeKaraxChronoFieldLocked",
+    "CommanderPrestigeKaraxChronoBoostLocked",
+    "CommanderPrestigeKaraxPhotonCannonBuildLocked",
+    "CommanderPrestigeKaraxKhaydarinMonolithBuildLocked"
+)
+$karaxLockLayoutNodes = New-Object System.Collections.Generic.List[object]
+foreach ($xml in $unitXmls) {
+    foreach ($face in $karaxLockFaces) {
+        foreach ($node in @($xml.SelectNodes("//LayoutButtons[@Face='$face'][starts-with(@Requirements,'CommanderPrestigeKarax')]"))) {
+            $karaxLockLayoutNodes.Add($node) | Out-Null
+        }
+    }
+    foreach ($node in @($xml.SelectNodes("//LayoutButtons[starts-with(@Requirements,'KaraxLevel')]"))) {
+        $karaxLockLayoutNodes.Add($node) | Out-Null
+    }
+}
+Assert-True -Condition ($karaxLockLayoutNodes.Count -eq 0) -Message "Karax prestige fusion must not keep prestige lock overlays in UnitData*.xml."
+
+$karaxTooltipAppenderNodes = @($unitXmls | ForEach-Object { $_.SelectNodes("//TooltipAppender[@Validator='CommanderPrestigeKaraxStructures']") })
+if ($karaxTooltipAppenderNodes.Count -eq 0) {
+    $buttonXml = Read-CatalogXml -Path (Join-Path $catalogGameData "ButtonData.xml")
+    $karaxTooltipAppenderNodes = @($buttonXml.SelectNodes("/Catalog/CButton/TooltipAppender[@Validator='CommanderPrestigeKaraxStructures']"))
+}
+Assert-True -Condition ($karaxTooltipAppenderNodes.Count -eq 0) -Message "Karax prestige fusion must not keep CommanderPrestigeKaraxStructures tooltip appenders."
+
+$karaxCommander = @($metadata.commanders | Where-Object { [string]$_.bank_commander -eq "Karax" }) | Select-Object -First 1
+Assert-True -Condition ($null -ne $karaxCommander) -Message "Karax commander metadata not found."
+foreach ($prestige in @($karaxCommander.prestiges)) {
+    Assert-True -Condition (@($prestige.suppress_upgrades).Count -eq 0) -Message ("Karax prestige {0} still suppresses upgrades in metadata." -f [string]$prestige.id)
+    Assert-True -Condition (@($prestige.disable_units).Count -eq 0) -Message ("Karax prestige {0} still disables units in metadata." -f [string]$prestige.id)
+    Assert-True -Condition (@($prestige.disable_abils).Count -eq 0) -Message ("Karax prestige {0} still disables abilities in metadata." -f [string]$prestige.id)
+    Assert-True -Condition (([string]$prestige.tooltip) -notmatch "缺点") -Message ("Karax prestige {0} tooltip still contains drawback text." -f [string]$prestige.id)
+    Assert-True -Condition (([string]$prestige.tooltip_en) -notmatch "Disadvantage") -Message ("Karax prestige {0} English tooltip still contains drawback text." -f [string]$prestige.id)
+}
+
+$karaxRepairBeamNodes = @($coopZeroPopEffectXml.SelectNodes("/Catalog/CEffectApplyBehavior[@id='SOARepairBeamAB']/ValidatorArray[@index='5'][@removed='1']"))
+Assert-True -Condition ($karaxRepairBeamNodes.Count -gt 0) -Message "Karax prestige fusion must remove the SOARepairBeamAB structure-only validator override."
+
+$karaxHiddenRequirementNode = @($coopZeroPopRequirementNodeXml.SelectNodes("/Catalog/CRequirementConst[@id='CommanderPowerAlwaysHidden'][@parent='0']"))
+Assert-True -Condition ($karaxHiddenRequirementNode.Count -gt 0) -Message "Karax prestige fusion must define CommanderPowerAlwaysHidden requirement node."
+foreach ($requirementId in @("CommanderPrestigeKaraxArmy", "CommanderPrestigeKaraxStructures", "CommanderPrestigeKaraxTopBar")) {
+    $requirementNodes = @($coopZeroPopRequirementXml.SelectNodes("/Catalog/CRequirement[@id='$requirementId']/NodeArray[@index='Show'][@Link='CommanderPowerAlwaysHidden']"))
+    Assert-True -Condition ($requirementNodes.Count -gt 0) -Message ("Karax prestige fusion must hide requirement {0} via CommanderPowerAlwaysHidden." -f $requirementId)
+}
 
 $missingRuntimePrestigeApplications = New-Object System.Collections.Generic.List[object]
 $missingPrestigeDefinitions = New-Object System.Collections.Generic.List[object]

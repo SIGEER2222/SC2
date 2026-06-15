@@ -1,6 +1,7 @@
 include "TriggerLibs/NativeLib"
 
 include "Lib67C0F0E7_h"
+include "LibKCUI_h"
 
 //--------------------------------------------------------------------------------------------------
 // Library: XCoreMod
@@ -1569,8 +1570,19 @@ void lib67C0F0E7_gf_UnitAddAttributePoint (unit lp_unit, string lp_attribute, bo
 void lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin (int lp_player, string lp_consoleSkin) {
     // Automatic Variable Declarations
     // Implementation
-    PlayerSetCommander(lp_player, ((lp_consoleSkin)));
     PlayerSetConsoleSkin(lp_player, ((lp_consoleSkin)));
+}
+
+void lib67C0F0E7_gf_CU_HideLegacyGlobalCastingPanel (int lp_player) {
+    if ((libKCUI_gv_cU_GPPanel[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(libKCUI_gv_cU_GPPanel[lp_player], PlayerGroupSingle(lp_player), false);
+    }
+    if ((libKCUI_gv_cU_GPCmdPanel[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(libKCUI_gv_cU_GPCmdPanel[lp_player], PlayerGroupSingle(lp_player), false);
+    }
+    if ((libKCUI_gv_cU_ZeratulSelectionCmdPanel[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(libKCUI_gv_cU_ZeratulSelectionCmdPanel[lp_player], PlayerGroupSingle(lp_player), false);
+    }
 }
 
 void lib67C0F0E7_gf_ButtonReplacement (int lp_player, string lp_buttonS, string lp_buttonP) {
@@ -2070,6 +2082,12 @@ void lib67C0F0E7_gf_ZeratulPanelControl (int lp_player, int lp_button, string lp
 void lib67C0F0E7_gf_CU_GPInit (int lp_player, string lp_type, unit lp_unit, unit lp_secondUnit) {
     // Automatic Variable Declarations
     string auto1CC9623D_val;
+    unitgroup autoB94AA4C1_g;
+    int autoB94AA4C1_u;
+    unit autoB94AA4C1_var;
+    unitgroup auto4FF3A2A0_g;
+    int auto4FF3A2A0_u;
+    unit auto4FF3A2A0_var;
 
     // Implementation
     if ((TriggerGetExecCount(TriggerGetCurrent()) == 0)) {
@@ -2078,6 +2096,37 @@ void lib67C0F0E7_gf_CU_GPInit (int lp_player, string lp_type, unit lp_unit, unit
     }
 
     if ((lib67C0F0E7_gv_cU_GPInitialized[lp_player] == true)) {
+        lib67C0F0E7_gv_cU_GPUnit[lp_player] = lp_unit;
+        lib67C0F0E7_gv_commandPanelType[lp_player] = lp_type;
+        autoB94AA4C1_g = lib67C0F0E7_gv_cU_GPCasterGroup[lp_player];
+        autoB94AA4C1_u = UnitGroupCount(autoB94AA4C1_g, c_unitCountAll);
+        for (;; autoB94AA4C1_u -= 1) {
+            autoB94AA4C1_var = UnitGroupUnitFromEnd(autoB94AA4C1_g, autoB94AA4C1_u);
+            if (autoB94AA4C1_var == null) { break; }
+            UnitGroupRemove(lib67C0F0E7_gv_cU_GPCasterGroup[lp_player], autoB94AA4C1_var);
+        }
+        if ((lp_unit != null)) {
+            UnitGroupAdd(lib67C0F0E7_gv_cU_GPCasterGroup[lp_player], lp_unit);
+        }
+        if (lib67C0F0E7_gv_cU_GPCmdPanel[lp_player] != c_invalidDialogControlId) {
+            libNtve_gf_SetDialogItemUnitGroup(lib67C0F0E7_gv_cU_GPCmdPanel[lp_player], lib67C0F0E7_gv_cU_GPCasterGroup[lp_player], PlayerGroupSingle(lp_player));
+        }
+        if (lp_type == "Zeratul") {
+            auto4FF3A2A0_g = lib67C0F0E7_gv_cM_GlobalCasterUnitGroupSecondary[lp_player];
+            auto4FF3A2A0_u = UnitGroupCount(auto4FF3A2A0_g, c_unitCountAll);
+            for (;; auto4FF3A2A0_u -= 1) {
+                auto4FF3A2A0_var = UnitGroupUnitFromEnd(auto4FF3A2A0_g, auto4FF3A2A0_u);
+                if (auto4FF3A2A0_var == null) { break; }
+                UnitGroupRemove(lib67C0F0E7_gv_cM_GlobalCasterUnitGroupSecondary[lp_player], auto4FF3A2A0_var);
+            }
+            lib67C0F0E7_gv_cM_GlobalCasterUnitSecondary[lp_player] = lp_secondUnit;
+            if (lp_secondUnit != null) {
+                UnitGroupAdd(lib67C0F0E7_gv_cM_GlobalCasterUnitGroupSecondary[lp_player], lp_secondUnit);
+            }
+            if (lib67C0F0E7_gv_cU_ZeratulSelectionCmdPanel != c_invalidDialogControlId) {
+                libNtve_gf_SetDialogItemUnitGroup(lib67C0F0E7_gv_cU_ZeratulSelectionCmdPanel, lib67C0F0E7_gv_cM_GlobalCasterUnitGroupSecondary[lp_player], PlayerGroupSingle(lp_player));
+            }
+        }
         return ;
     }
 
@@ -2146,6 +2195,7 @@ void lib67C0F0E7_gf_CU_GPInit (int lp_player, string lp_type, unit lp_unit, unit
     else {
     }
     libNtve_gf_SetDialogItemUnitGroup(lib67C0F0E7_gv_cU_GPCmdPanel[lp_player], lib67C0F0E7_gv_cU_GPCasterGroup[lp_player], PlayerGroupSingle(lp_player));
+    lib67C0F0E7_gf_CU_HideLegacyGlobalCastingPanel(lp_player);
     PlayerGroupAdd(lib67C0F0E7_gv_playerGroup, lp_player);
 }
 

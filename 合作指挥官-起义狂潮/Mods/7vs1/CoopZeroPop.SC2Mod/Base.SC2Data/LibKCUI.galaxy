@@ -1579,12 +1579,56 @@ string libKCUI_gf_CU_UnitProgressBar_Dialog (unit lp_unit, int lp_type) {
     return lv_name;
 }
 
+bool libKCUI_gf_CU_UseLegacyGlobalCastingPanel (int lp_player) {
+    string lv_commander;
+
+    if (!((PlayerGroupHasPlayer(libKCOR_gf_CommanderPlayers(), lp_player) == true))) {
+        return false;
+    }
+
+    lv_commander = libKCOR_gf_ActiveCommanderForPlayer(lp_player);
+    if ((lv_commander == null) || (lv_commander == "")) {
+        return false;
+    }
+    if ((lv_commander == "ProtossArtanis") || (lv_commander == "ProtossVorazun") || (lv_commander == "ProtossKarax") || (lv_commander == "ProtossAlarak") || (lv_commander == "ProtossFenix") || (lv_commander == "ProtossZeratul") || (lv_commander == "TerranRaynor") || (lv_commander == "TerranSwann") || (lv_commander == "TerranNova") || (lv_commander == "TerranHorner") || (lv_commander == "TerranTychus") || (lv_commander == "TerranMengsk") || (lv_commander == "ZergStetmann") || (lv_commander == "ZergAbathur") || (lv_commander == "ZergStukov") || (lv_commander == "ZergDehaka")) {
+        return false;
+    }
+
+    return true;
+}
+
+void libKCUI_gf_CU_DisableLegacyGlobalCastingPanel (int lp_player) {
+    if ((libKCUI_gv_cU_GPPanel[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(libKCUI_gv_cU_GPPanel[lp_player], PlayerGroupSingle(lp_player), false);
+    }
+    if ((libKCUI_gv_cU_GPCmdPanel[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(libKCUI_gv_cU_GPCmdPanel[lp_player], PlayerGroupSingle(lp_player), false);
+    }
+    if ((libKCUI_gv_cU_GPEnergyLabel[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(libKCUI_gv_cU_GPEnergyLabel[lp_player], PlayerGroupSingle(lp_player), false);
+    }
+    if ((libKCUI_gv_cU_GPEnergyTooltip[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(libKCUI_gv_cU_GPEnergyTooltip[lp_player], PlayerGroupSingle(lp_player), false);
+    }
+    if ((libKCUI_gv_cU_ZeratulSelectionCmdPanel[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(libKCUI_gv_cU_ZeratulSelectionCmdPanel[lp_player], PlayerGroupSingle(lp_player), false);
+    }
+    libKCUI_gv_cU_GPVisible[lp_player] = false;
+    libKCUI_gv_cU_GPInitialized[lp_player] = false;
+    libKCUI_gv_cU_GPUnit[lp_player] = null;
+}
+
 void libKCUI_gf_CU_GPInit (int lp_player) {
     // Automatic Variable Declarations
     string auto25C94ED4_val;
 
     // Implementation
     if (!((PlayerGroupHasPlayer(libKCOR_gf_CommanderPlayers(), lp_player) == true))) {
+        return ;
+    }
+
+    if ((libKCUI_gf_CU_UseLegacyGlobalCastingPanel(lp_player) == false)) {
+        libKCUI_gf_CU_DisableLegacyGlobalCastingPanel(lp_player);
         return ;
     }
 
@@ -2310,6 +2354,14 @@ void libKCUI_gf_CU_GPSoAUpdateVitals (int lp_player) {
     lv_soAPlayers = PlayerGroupEmpty();
 
     // Implementation
+    if ((libKCUI_gf_CU_UseLegacyGlobalCastingPanel(lp_player) == false)) {
+        libKCUI_gf_CU_DisableLegacyGlobalCastingPanel(lp_player);
+        return ;
+    }
+    if ((libKCUI_gv_cU_GPUnit[lp_player] == null) || (libKCUI_gv_cU_GPEnergyLabel[lp_player] == c_invalidDialogControlId) || (libKCUI_gv_cU_GPEnergyBarScene[lp_player] == c_invalidDialogControlId)) {
+        return ;
+    }
+
     lv_energyFloored = Floor(UnitGetPropertyFixed(libKCUI_gv_cU_GPUnit[lp_player], c_unitPropEnergy, c_unitPropCurrent));
     if ((lv_energyFloored == libKCUI_gv_cU_GPLastEnergyUpdate[lp_player])) {
         return ;
@@ -2344,6 +2396,11 @@ void libKCUI_gf_CU_GPHighlightButton (int lp_slot, bool lp_on, int lp_player) {
 void libKCUI_gf_CU_GPCheckForEnergyHighlight (int lp_player) {
     // Automatic Variable Declarations
     // Implementation
+    if ((libKCUI_gf_CU_UseLegacyGlobalCastingPanel(lp_player) == false)) {
+        libKCUI_gf_CU_DisableLegacyGlobalCastingPanel(lp_player);
+        return ;
+    }
+
     if (((PlayerRace(lp_player) != "Prot") || (libKCOR_gf_ActiveCommanderForPlayer(lp_player) == "ProtossAlarak") || (libKCOR_gf_ActiveCommanderForPlayer(lp_player) == "ProtossFenix") || (DialogControlIsVisible(libKCUI_gv_cU_GPCmdPanel[lp_player], lp_player) == false))) {
         return ;
     }
@@ -2387,6 +2444,11 @@ void libKCUI_gf_CU_GPSetUnit (unit lp_casterUnit, int lp_player) {
 
     // Implementation
     if (!((PlayerGroupHasPlayer(libKCOR_gf_CommanderPlayers(), lp_player) == true))) {
+        return ;
+    }
+
+    if ((libKCUI_gf_CU_UseLegacyGlobalCastingPanel(lp_player) == false)) {
+        libKCUI_gf_CU_DisableLegacyGlobalCastingPanel(lp_player);
         return ;
     }
 
@@ -2438,6 +2500,11 @@ void libKCUI_gf_CU_GPShowHide (bool lp_showHide, int lp_player, fixed lp_duratio
     // Automatic Variable Declarations
     // Implementation
     libKCUI_gv_cU_GPVisible[lp_player] = (lp_showHide == true);
+    if ((libKCUI_gf_CU_UseLegacyGlobalCastingPanel(lp_player) == false)) {
+        libKCUI_gf_CU_DisableLegacyGlobalCastingPanel(lp_player);
+        return ;
+    }
+
     libKCUI_gf_CU_GPVisibilitySet(lp_showHide, lp_player, lp_duration);
 }
 
@@ -2461,6 +2528,11 @@ void libKCUI_gf_CU_GPVisibilitySet (bool lp_showHide, int lp_player, fixed lp_du
 
     // Implementation
     if (!((PlayerGroupHasPlayer(libKCOR_gf_CommanderPlayers(), lp_player) == true))) {
+        return ;
+    }
+
+    if ((libKCUI_gf_CU_UseLegacyGlobalCastingPanel(lp_player) == false)) {
+        libKCUI_gf_CU_DisableLegacyGlobalCastingPanel(lp_player);
         return ;
     }
 
@@ -2570,6 +2642,11 @@ void libKCUI_gf_CU_GPVisibilitySet (bool lp_showHide, int lp_player, fixed lp_du
 void libKCUI_gf_CU_GPVisibilityAutoUpdate (bool lp_showHide, int lp_player, fixed lp_duration) {
     // Automatic Variable Declarations
     // Implementation
+    if ((libKCUI_gf_CU_UseLegacyGlobalCastingPanel(lp_player) == false)) {
+        libKCUI_gf_CU_DisableLegacyGlobalCastingPanel(lp_player);
+        return ;
+    }
+
     if ((libKCUI_gv_cU_GPVisible[lp_player] == false)) {
         return ;
     }
@@ -4826,5 +4903,3 @@ void libKCUI_InitLib () {
 include "LibKPVP"
 include "LibKCOR"
 include "LibKMIS"
-
-

@@ -4791,8 +4791,9 @@ void libKMIS_gf_CM_GlobalCasterCreateUnit (int lp_player) {
     else {
     }
     UnitSetState(libKMIS_gv_cM_GlobalCasterUnit[lp_player], c_unitStateSelectable, false);
-    libKCUI_gf_CU_GPSetUnit(libKMIS_gv_cM_GlobalCasterUnit[lp_player], lp_player);
-    libKMIS_gf_CM_SoACasterUnitSet(UnitLastCreated(), lp_player);
+    // CoopZeroPop uses the Lib67 commander panel path; binding KCUI here creates a
+    // second independent GlobalCastingPanel with its own unit state/cooldowns.
+    libKMIS_gf_CM_SoACasterUnitSet(libKMIS_gv_cM_GlobalCasterUnit[lp_player], lp_player);
 }
 
 unit libKMIS_gf_CM_GlobalCasterUnitForCommander (string lp_commanderType) {
