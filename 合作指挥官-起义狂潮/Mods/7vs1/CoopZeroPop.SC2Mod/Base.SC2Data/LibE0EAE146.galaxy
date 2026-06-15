@@ -383,7 +383,6 @@ void libE0EAE146_gf_InitializeStandardMapScenario (string lp_mapId, bool lp_rpg,
 
 void libE0EAE146_gf_InitializeConfiguredMapScenario (string lp_mapId, bool lp_rpg, trigger lp_preInit, trigger lp_init01, bool lp_init01WaitUntilDone, trigger lp_init02, trigger lp_init03, trigger lp_init04, trigger lp_init05, trigger lp_init06, trigger lp_postInit, trigger lp_intro) {
     libE0EAE146_gv_currentMapId = lp_mapId;
-    libE0EAE146_gf_RuntimeLog(1, "MapScenario", "InitializeConfigured.enter", 1, lp_mapId, FixedToString(libE0EAE146_gf_MapStartSuppliesMade(lp_mapId), c_fixedPrecision0), libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly(lp_mapId));
     libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitization(lp_mapId);
     if (libE0EAE146_gf_MapNeedsPreInitializeRpg(lp_mapId)) {
         libE0EAE146_gf_Initialize(true);
@@ -548,6 +547,9 @@ void libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitization (string lp_
     if ((lp_mapId == "") || (libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly(lp_mapId) == false)) {
         return;
     }
+    // The live runtime rejects these unit catalog writes during map initialization on current builds.
+    // Keep startup stable first; shared-ally visual cleanup stays handled by runtime duplicate removal.
+    return;
     if (DataTableGetBool(true, ("XMSharedAllyCatalogSanitized_" + lp_mapId)) == true) {
         return;
     }
@@ -556,7 +558,6 @@ void libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitization (string lp_
     for (lv_player = 1; lv_player <= 15; lv_player += 1) {
         libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitizationForPlayer(lp_mapId, lv_player);
     }
-    libE0EAE146_gf_RuntimeLog(2, "SharedAlly", "CatalogSanitized", 1, lp_mapId, "", 1);
 }
 
 void libE0EAE146_gf_RunSharedPlayerCampaignAllyDuplicateCleanup (string lp_mapId) {
@@ -573,29 +574,36 @@ void libE0EAE146_gf_RunSharedPlayerCampaignAllyDuplicateCleanup (string lp_mapId
     DataTableSetBool(true, ("XMSharedAllyDuplicateCleanup_" + lp_mapId), true);
     lv_removed = 0;
     if (lp_mapId == "thanson03a_7vs1") {
+        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(2, 0.20);
         lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(3, 0.20);
+        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(4, 0.20);
         lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(5, 0.20);
+        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(6, 0.20);
+        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(8, 0.20);
+        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(9, 0.20);
+        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(10, 0.20);
         lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(11, 0.20);
+        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(12, 0.20);
+        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(13, 0.20);
     }
     else if (lp_mapId == "thanson01_7vs1") {
-        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(4, 0.20);
-        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(7, 0.20);
-        lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(8, 0.20);
+        for (lv_player = 2; lv_player <= 10; lv_player += 1) {
+            lv_removed += libE0EAE146_gf_RemoveOverlappingDuplicatesForPlayer(lv_player, 0.20);
+        }
     }
 
     BankLoad("CampaignXCore", 1);
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "SharedAllyDuplicateCleanupMap", lp_mapId);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "SharedAllyDuplicateCleanupRemoved", lv_removed);
     BankSave(BankLastCreated());
-    libE0EAE146_gf_RuntimeLog(2, "SharedAlly", "DuplicateCleanup", 1, lp_mapId, "", lv_removed);
 }
 
 bool libE0EAE146_gf_IsSharedPlayerCampaignAllyPlayer (string lp_mapId, int lp_player) {
     if (lp_mapId == "thanson03a_7vs1") {
-        return ((lp_player == 3) || (lp_player == 5) || (lp_player == 11));
+        return ((lp_player == 2) || (lp_player == 3) || (lp_player == 4) || (lp_player == 5) || (lp_player == 6) || (lp_player == 8) || (lp_player == 9) || (lp_player == 10) || (lp_player == 11) || (lp_player == 12) || (lp_player == 13));
     }
     if (lp_mapId == "thanson01_7vs1") {
-        return ((lp_player == 4) || (lp_player == 7) || (lp_player == 8));
+        return ((lp_player >= 2) && (lp_player <= 10));
     }
     return false;
 }
@@ -741,7 +749,6 @@ void libE0EAE146_gf_EnsureSharedPlayerCampaignAllySanitizer (string lp_mapId) {
     }
     TriggerEnable(libE0EAE146_gt_SharedPlayerCampaignAllySanitizer, true);
     libE0EAE146_gf_RunSharedPlayerCampaignAllySanitization(lp_mapId);
-    libE0EAE146_gf_RuntimeLog(2, "SharedAlly", "SanitizerEnabled", 1, lp_mapId, "", 1);
 }
 
 int libE0EAE146_gf_GenericBonusBankInt (string lp_key) {
@@ -812,31 +819,15 @@ void libE0EAE146_gf_GenericBonusEnsureTriggers () {
 }
 
 fixed libE0EAE146_gf_GenericBonusResourceMultiplier (int lp_level) {
-    return (1.0 + IntToFixed(lp_level));
-}
+    fixed lv_multiplier;
+    int lv_i;
 
-fixed libE0EAE146_gf_GenericBonusResourceBehaviorCapacity (string lp_behavior) {
-    if ((lp_behavior == "") || (!CatalogEntryIsValid(c_gameCatalogBehavior, lp_behavior))) {
-        return 0.0;
+    lv_multiplier = 1.0;
+    lv_i = 0;
+    for ( ; ( lv_i < lp_level ) ; lv_i += 1 ) {
+        lv_multiplier *= 2.0;
     }
-    return StringToFixed(CatalogFieldValueGet(c_gameCatalogBehavior, lp_behavior, "Capacity", c_playerAny));
-}
-
-void libE0EAE146_gf_GenericBonusEnsureResourceBehaviorCapacity (string lp_behavior, fixed lp_targetAmount) {
-    fixed lv_capacity;
-    int lv_targetInt;
-
-    if ((lp_behavior == "") || (!CatalogEntryIsValid(c_gameCatalogBehavior, lp_behavior)) || (lp_targetAmount <= 0.0)) {
-        return;
-    }
-    lv_capacity = libE0EAE146_gf_GenericBonusResourceBehaviorCapacity(lp_behavior);
-    if (lv_capacity >= lp_targetAmount) {
-        return;
-    }
-
-    lv_targetInt = CeilingI(lp_targetAmount);
-    CatalogFieldValueSet(c_gameCatalogBehavior, lp_behavior, "Capacity", c_playerAny, IntToString(lv_targetInt));
-    CatalogFieldValueSet(c_gameCatalogBehavior, lp_behavior, "Contents", c_playerAny, IntToString(lv_targetInt));
+    return lv_multiplier;
 }
 
 unit libE0EAE146_gf_GenericBonusReplaceResourceUnit (unit lp_resourceUnit, string lp_newUnitType, fixed lp_resourceAmount) {
@@ -881,14 +872,8 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     int lv_gasNodeCount;
     string lv_mineralSampleBehavior;
     string lv_gasSampleBehavior;
-    fixed lv_targetResourceAmount;
-    fixed lv_effectiveResourceAmount;
     int lv_mineralSampleAmount;
     int lv_gasSampleAmount;
-    int lv_mineralSampleRequestedAmount;
-    int lv_gasSampleRequestedAmount;
-    int lv_mineralSampleCapacity;
-    int lv_gasSampleCapacity;
 
     lv_resourceNodes = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterRawResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
     UnitGroupAddUnitGroup(lv_resourceNodes, UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
@@ -898,10 +883,6 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     lv_gasSampleBehavior = "";
     lv_mineralSampleAmount = 0;
     lv_gasSampleAmount = 0;
-    lv_mineralSampleRequestedAmount = 0;
-    lv_gasSampleRequestedAmount = 0;
-    lv_mineralSampleCapacity = 0;
-    lv_gasSampleCapacity = 0;
     lv_mineralMultiplier = libE0EAE146_gf_GenericBonusResourceMultiplier(lp_doubleMineralsLevel);
     lv_gasMultiplier = libE0EAE146_gf_GenericBonusResourceMultiplier(lp_doubleVespeneLevel);
     lv_resourceUnit = UnitGroupUnit(lv_resourceNodes, 1);
@@ -986,20 +967,15 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
                     }
                 }
 
-                lv_targetResourceAmount = lv_resourceAmount;
-                if (lp_doubleMineralsLevel > 0) {
-                    lv_targetResourceAmount = (lv_targetResourceAmount * lv_mineralMultiplier);
-                }
-                libE0EAE146_gf_GenericBonusEnsureResourceBehaviorCapacity(lv_behavior, lv_targetResourceAmount);
                 UnitBehaviorAdd(lv_resourceUnit, lv_behavior, lv_resourceUnit, 1);
-                UnitSetPropertyFixed(lv_resourceUnit, c_unitPropResources, lv_targetResourceAmount);
-                lv_effectiveResourceAmount = libNtve_gf_UnitGetPropertyResources(lv_resourceUnit, c_unitPropCurrent);
+                if (lp_doubleMineralsLevel > 0) {
+                    lv_resourceAmount = (lv_resourceAmount * lv_mineralMultiplier);
+                }
+                UnitSetPropertyFixed(lv_resourceUnit, c_unitPropResources, lv_resourceAmount);
                 lv_mineralNodeCount += 1;
                 if (lv_mineralSampleBehavior == "") {
                     lv_mineralSampleBehavior = lv_behavior;
-                    lv_mineralSampleRequestedAmount = FixedToInt(lv_targetResourceAmount);
-                    lv_mineralSampleAmount = FixedToInt(lv_effectiveResourceAmount);
-                    lv_mineralSampleCapacity = FixedToInt(libE0EAE146_gf_GenericBonusResourceBehaviorCapacity(lv_behavior));
+                    lv_mineralSampleAmount = FixedToInt(lv_resourceAmount);
                 }
             }
         }
@@ -1031,20 +1007,15 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
                 else {
                     lv_behavior = "RawVespeneGeyserGas";
                 }
-                lv_targetResourceAmount = lv_resourceAmount;
-                if (lp_doubleVespeneLevel > 0) {
-                    lv_targetResourceAmount = (lv_targetResourceAmount * lv_gasMultiplier);
-                }
-                libE0EAE146_gf_GenericBonusEnsureResourceBehaviorCapacity(lv_behavior, lv_targetResourceAmount);
                 UnitBehaviorAdd(lv_resourceUnit, lv_behavior, lv_resourceUnit, 1);
-                UnitSetPropertyFixed(lv_resourceUnit, c_unitPropResources, lv_targetResourceAmount);
-                lv_effectiveResourceAmount = libNtve_gf_UnitGetPropertyResources(lv_resourceUnit, c_unitPropCurrent);
+                if (lp_doubleVespeneLevel > 0) {
+                    lv_resourceAmount = (lv_resourceAmount * lv_gasMultiplier);
+                }
+                UnitSetPropertyFixed(lv_resourceUnit, c_unitPropResources, lv_resourceAmount);
                 lv_gasNodeCount += 1;
                 if (lv_gasSampleBehavior == "") {
                     lv_gasSampleBehavior = lv_behavior;
-                    lv_gasSampleRequestedAmount = FixedToInt(lv_targetResourceAmount);
-                    lv_gasSampleAmount = FixedToInt(lv_effectiveResourceAmount);
-                    lv_gasSampleCapacity = FixedToInt(libE0EAE146_gf_GenericBonusResourceBehaviorCapacity(lv_behavior));
+                    lv_gasSampleAmount = FixedToInt(lv_resourceAmount);
                 }
             }
         }
@@ -1056,19 +1027,13 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     BankLoad("CampaignXCore", 1);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralNodesProcessed", lv_mineralNodeCount);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasNodesProcessed", lv_gasNodeCount);
-    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralMultiplier", FixedToInt(lv_mineralMultiplier));
-    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasMultiplier", FixedToInt(lv_gasMultiplier));
     if (lv_mineralSampleBehavior != "") {
         BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralSampleBehavior", lv_mineralSampleBehavior);
-        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralSampleRequestedAmount", lv_mineralSampleRequestedAmount);
         BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralSampleAmount", lv_mineralSampleAmount);
-        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralSampleCapacity", lv_mineralSampleCapacity);
     }
     if (lv_gasSampleBehavior != "") {
         BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasSampleBehavior", lv_gasSampleBehavior);
-        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasSampleRequestedAmount", lv_gasSampleRequestedAmount);
         BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasSampleAmount", lv_gasSampleAmount);
-        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasSampleCapacity", lv_gasSampleCapacity);
     }
     BankSave(BankLastCreated());
 }
@@ -1211,7 +1176,6 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     bool lv_creepRegeneration;
     bool lv_mechanicalRepair;
     bool lv_chronoBoost;
-    bool lv_zeroSupply;
     int lv_selectedCount;
     int lv_controllerCreated;
     int lv_doubleMineralsInt;
@@ -1221,7 +1185,6 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     int lv_creepRegenerationInt;
     int lv_mechanicalRepairInt;
     int lv_chronoBoostInt;
-    int lv_zeroSupplyInt;
     unit lv_controller;
 
     if (libE0EAE146_gv_genericBonusesApplied) {
@@ -1238,7 +1201,6 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     lv_creepRegeneration = libE0EAE146_gf_GenericBonusEnabled("CreepRegeneration");
     lv_mechanicalRepair = libE0EAE146_gf_GenericBonusEnabled("MechanicalRepair");
     lv_chronoBoost = libE0EAE146_gf_GenericBonusEnabled("ChronoBoost");
-    lv_zeroSupply = libE0EAE146_gf_GenericBonusEnabled("ZeroSupply");
     lv_selectedCount = 0;
     if (lv_doubleMineralsLevel > 0) { lv_selectedCount += 1; }
     if (lv_doubleVespeneLevel > 0) { lv_selectedCount += 1; }
@@ -1247,10 +1209,9 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     if (lv_creepRegeneration) { lv_selectedCount += 1; }
     if (lv_mechanicalRepair) { lv_selectedCount += 1; }
     if (lv_chronoBoost) { lv_selectedCount += 1; }
-    if (lv_zeroSupply) { lv_selectedCount += 1; }
 
     libE0EAE146_gv_genericBonusesApplied = true;
-    libE0EAE146_gv_genericBonusControllerRequired = ((lv_doubleMineralsLevel > 0) || (lv_doubleVespeneLevel > 0) || lv_richResources || lv_guardianShell || lv_creepRegeneration || lv_mechanicalRepair || lv_chronoBoost || lv_zeroSupply);
+    libE0EAE146_gv_genericBonusControllerRequired = ((lv_doubleMineralsLevel > 0) || (lv_doubleVespeneLevel > 0) || lv_richResources || lv_guardianShell || lv_creepRegeneration || lv_mechanicalRepair || lv_chronoBoost);
     if ((lv_doubleMineralsLevel > 0) || (lv_doubleVespeneLevel > 0) || lv_richResources) {
         libE0EAE146_gf_GenericBonusApplyResources(lv_doubleMineralsLevel, lv_doubleVespeneLevel, lv_richResources);
     }
@@ -1270,7 +1231,6 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     lv_creepRegenerationInt = 0;
     lv_mechanicalRepairInt = 0;
     lv_chronoBoostInt = 0;
-    lv_zeroSupplyInt = 0;
     lv_doubleMineralsInt = lv_doubleMineralsLevel;
     lv_doubleVespeneInt = lv_doubleVespeneLevel;
     if (lv_richResources) { lv_richResourcesInt = 1; }
@@ -1278,7 +1238,6 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     if (lv_creepRegeneration) { lv_creepRegenerationInt = 1; }
     if (lv_mechanicalRepair) { lv_mechanicalRepairInt = 1; }
     if (lv_chronoBoost) { lv_chronoBoostInt = 1; }
-    if (lv_zeroSupply) { lv_zeroSupplyInt = 1; }
     lv_controllerCreated = 0;
     if (UnitIsValid(lv_controller) == true) {
         lv_controllerCreated = 1;
@@ -1294,7 +1253,6 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusCreepRegeneration", lv_creepRegenerationInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMechanicalRepair", lv_mechanicalRepairInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusChronoBoost", lv_chronoBoostInt);
-    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusZeroSupply", lv_zeroSupplyInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusControllerCreated", lv_controllerCreated);
     if (UnitIsValid(lv_controller) == true) {
         BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "GenericBonusControllerType", UnitGetType(lv_controller));
@@ -1492,6 +1450,11 @@ void libE0EAE146_gf_CommanderUpgrade () {
             lv_tooltip = libE0EAE146_gf_UpdateTooltip(lv_tooltip, TextExpressionAssemble("Param/Expression/lib_E0EAE146_E4EE868C"));
         }
     }
+    DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/ConsoleUIContainer/PlayerPrestigeBrief");
+    DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), true);
+    libNtve_gf_SetDialogItemTooltip(DialogControlLastCreated(), lv_tooltip, PlayerGroupAll());
+    DialogControlHookup(DialogControlLastCreated(), c_triggerControlTypeImage, "CommanderIcon");
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), UserDataGetImagePath("CommanderAch", lib67C0F0E7_gf_StrToUserinstance(libE0EAE146_gv_commander), "CommanderIcon", 1), PlayerGroupAll());
     libE0EAE146_gf_CommanderPowerApplyProfile(1, libE0EAE146_gv_commander);
 }
 
@@ -1826,12 +1789,6 @@ void libE0EAE146_InitTriggers () {
     libE0EAE146_gt_RPG_Init();
     libE0EAE146_gt_PAttack_Init();
     libE0EAE146_gt_AIAttakcWaveUpgrade2_Init();
-    libE0EAE146_gt_AbathurBiomassDrop_Init();
-    libE0EAE146_gt_AbathurBiomassPickup_Init();
-    libE0EAE146_gt_AbathurBiomassRefund_Init();
-    libE0EAE146_gt_AbathurBiomassTrain_Init();
-    libE0EAE146_gt_AbathurBiomassScaler_Init();
-    libE0EAE146_gt_AbathurUltimateBiomassAutoPickup_Init();
 }
 
 //--------------------------------------------------------------------------------------------------

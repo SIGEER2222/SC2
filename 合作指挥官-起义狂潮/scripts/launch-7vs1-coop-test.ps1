@@ -902,6 +902,7 @@ function Validate-LiveBaseTestlineInstall {
     if ($effectiveKpvp.Contains('auto814DE7B0_g = libKCOR_gf_CommanderPlayers()') -eq $false) {
         throw 'Live base testline effective LibKPVP STARTPVP is not filtered to CommanderPlayers.'
     }
+    Assert-GeneratedLibraryIncludeCoverage -Text $effectiveKpvp -Context 'Live base testline LibKPVP' -RequiredPrefixes @('E0EAE146')
 
     Assert-GeneratedLibraryIncludeCoverage -Text $effectiveKmis -Context 'Live base testline LibKMIS' -RequiredPrefixes @('DF8E6945', 'E0EAE146')
 }

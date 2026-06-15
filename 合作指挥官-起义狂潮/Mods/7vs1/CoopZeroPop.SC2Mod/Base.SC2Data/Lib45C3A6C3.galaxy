@@ -71,8 +71,8 @@ bool lib45C3A6C3_gt_E5BC80E5B180E8B584E6BA90_Func (bool testConds, bool runActio
         lv_e78EA9E5AEB6 = PlayerGroupNextPlayer(autoE150305B_g, lv_e78EA9E5AEB6);
         if (lv_e78EA9E5AEB6 < 0) { break; }
         if ((PlayerType(lv_e78EA9E5AEB6) == c_playerTypeUser)) {
-            PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 500);
-            PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 250);
+            PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperAdd, (500 - PlayerGetPropertyInt(1, c_playerPropMinerals)));
+            PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperAdd, (250 - PlayerGetPropertyInt(1, c_playerPropVespene)));
         }
 
     }
@@ -118,7 +118,6 @@ bool lib45C3A6C3_gt_E4B88DE58DA0E4BABAE58FA3_Func (bool testConds, bool runActio
         lv_e78EA9E5AEB6 = PlayerGroupNextPlayer(autoDB482E3C_g, lv_e78EA9E5AEB6);
         if (lv_e78EA9E5AEB6 < 0) { break; }
         if ((PlayerType(lv_e78EA9E5AEB6) == c_playerTypeUser) && (PlayerGetPropertyInt(lv_e78EA9E5AEB6, c_playerPropSuppliesUsed) >= 1)) {
-            PlayerModifyPropertyInt(lv_e78EA9E5AEB6, c_playerPropSuppliesMade, c_playerPropOperSetTo, 200);
             PlayerModifyPropertyInt(lv_e78EA9E5AEB6, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 200);
             autoBD71835F_g = UnitGroup(null, lv_e78EA9E5AEB6, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
             autoBD71835F_u = UnitGroupCount(autoBD71835F_g, c_unitCountAll);
