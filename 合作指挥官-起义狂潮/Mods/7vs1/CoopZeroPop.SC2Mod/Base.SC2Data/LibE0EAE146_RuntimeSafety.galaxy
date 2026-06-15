@@ -20,6 +20,47 @@ string libE0EAE146_gf_RuntimePrimaryCommander () {
     return BankValueGetAsString(BankLastCreated(), "Ach", "Commander");
 }
 
+void libE0EAE146_gf_RuntimeLog (int lp_level, string lp_category, string lp_event, int lp_player, string lp_valueA, string lp_valueB, int lp_valueInt) {
+    string lv_category;
+    string lv_event;
+    string lv_prefix;
+    int lv_count;
+
+    lv_category = lp_category;
+    if (lv_category == "") {
+        lv_category = "General";
+    }
+    lv_event = lp_event;
+    if (lv_event == "") {
+        lv_event = "Unnamed";
+    }
+
+    lv_prefix = ("XMRuntimeLog_" + lv_category + "_" + lv_event);
+    lv_count = (DataTableGetInt(true, (lv_prefix + "_Count")) + 1);
+    DataTableSetInt(true, (lv_prefix + "_Count"), lv_count);
+    DataTableSetInt(true, (lv_prefix + "_Level"), lp_level);
+    DataTableSetInt(true, (lv_prefix + "_Player"), lp_player);
+    DataTableSetString(true, (lv_prefix + "_ValueA"), lp_valueA);
+    DataTableSetString(true, (lv_prefix + "_ValueB"), lp_valueB);
+    DataTableSetInt(true, (lv_prefix + "_ValueInt"), lp_valueInt);
+
+    if ((lp_level >= 3) || (lv_count <= 3) || (ModI(lv_count, 10) == 0)) {
+        BankLoad("CampaignXCore", 1);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeLog", "LastCategory", lv_category);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeLog", "LastEvent", lv_event);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeLog", "LastLevel", lp_level);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeLog", "LastPlayer", lp_player);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeLog", "LastValueA", lp_valueA);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeLog", "LastValueB", lp_valueB);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeLog", "LastValueInt", lp_valueInt);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeLog", (lv_category + "_" + lv_event + "_Count"), lv_count);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeLog", "RunId", BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "TestRunId"));
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeLog", "Commander", libE0EAE146_gv_commander);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeLog", "MapId", libE0EAE146_gv_currentMapId);
+        BankSave(BankLastCreated());
+    }
+}
+
 void libE0EAE146_gf_SeedDefaultCommanderBankIfEmpty (string lp_defaultCommander) {
     string lv_testRunId;
     string lv_primaryCommander;
@@ -42,6 +83,7 @@ void libE0EAE146_gf_SeedDefaultCommanderBankIfEmpty (string lp_defaultCommander)
 }
 
 void libE0EAE146_gf_RuntimeCheckpoint (string lp_phase) {
+    libE0EAE146_gf_RuntimeLog(1, "Checkpoint", lp_phase, 1, libE0EAE146_gv_commander, libE0EAE146_gv_currentMapId, 0);
     BankLoad("CampaignXCore", 1);
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "LastPhase", lp_phase);
     BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "Commander", libE0EAE146_gv_commander);
@@ -63,6 +105,7 @@ void libE0EAE146_gf_RuntimeVisualProbe (string lp_source, int lp_player, string 
     DataTableSetString(true, (lv_keyBase + "_ValueB"), lp_valueB);
     DataTableSetInt(true, (lv_keyBase + "_ValueInt"), lp_valueInt);
     DataTableSetInt(true, (lv_keyBase + "_Player"), lp_player);
+    libE0EAE146_gf_RuntimeLog(1, "VisualProbe", lp_source, lp_player, lp_valueA, lp_valueB, lp_valueInt);
     lv_playerColor = -1;
     if (lp_player >= 0) {
         lv_playerColor = PlayerGetColorIndex(lp_player, false);
@@ -745,6 +788,39 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
         }
         if (lp_field == "SecondUnit") {
             lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("OverlordKerrigan");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+        }
+    }
+
+    if (lv_commander == "Stetmann") {
+        if (lp_field == "CommandCenter") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HatcheryStetmann");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("Hatchery");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+        }
+        if (lp_field == "Worker") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("DroneStetmann");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("Drone");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+        }
+        if (lp_field == "SecondUnit") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("OverlordStetmann");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("Overlord");
             if (lv_unit != "") {
                 return lv_unit;
             }

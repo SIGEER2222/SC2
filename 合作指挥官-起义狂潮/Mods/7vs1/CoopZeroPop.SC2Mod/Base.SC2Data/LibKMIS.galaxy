@@ -4947,6 +4947,7 @@ void libKMIS_gf_SetAllianceCoop (int lp_sourcePlayer, int lp_targetPlayer, int l
     // Variable Initialization
 
     // Implementation
+    libE0EAE146_gf_RuntimeLog(2, "Alliance", "SetAllianceCoop", lp_sourcePlayer, IntToString(lp_targetPlayer), IntToString(lp_alliance), lp_targetPlayer);
     libNtve_gf_SetAlliance(lp_sourcePlayer, lp_targetPlayer, lp_alliance);
     if ((PlayerGroupHasPlayer(libKCOR_gf_HumanPlayers(), lp_sourcePlayer) == true) && (PlayerGroupHasPlayer(libKCOR_gf_HumanPlayers(), lp_targetPlayer) == false)) {
         lv_humanPlayer = lp_sourcePlayer;
@@ -4977,6 +4978,7 @@ void libKMIS_gf_SetAllianceOneWayCoop (int lp_sourcePlayer, int lp_targetPlayer,
 
     // Implementation
     if ((lp_sourcePlayer != lp_targetPlayer)) {
+        libE0EAE146_gf_RuntimeLog(2, "Alliance", "SetAllianceOneWayCoop", lp_sourcePlayer, IntToString(lp_targetPlayer), IntToString(lp_alliance), lp_targetPlayer);
         libKMIS_gf_SetAllianceAspectCoop(lp_sourcePlayer, c_allianceIdVision, lp_targetPlayer, false);
         auto9570F556_val = lp_alliance;
         if (auto9570F556_val == libNtve_ge_AllianceSetting_Ally) {
@@ -5031,6 +5033,7 @@ void libKMIS_gf_SetAllianceAspectCoop (int lp_inSourcePlayer, int lp_inAllianceI
     // Variable Initialization
 
     // Implementation
+    libE0EAE146_gf_RuntimeLog(1, "Alliance", "SetAllianceAspectCoop", lp_inSourcePlayer, IntToString(lp_inAllianceId), IntToString(lp_inTargetPlayer), lp_ally);
     if ((lp_inAllianceId != c_allianceIdVision)) {
         PlayerSetAlliance(lp_inSourcePlayer, lp_inAllianceId, lp_inTargetPlayer, lp_ally);
         return ;

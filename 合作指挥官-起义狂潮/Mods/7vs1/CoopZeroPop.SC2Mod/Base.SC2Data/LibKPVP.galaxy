@@ -842,6 +842,7 @@ void libKPVP_gf_STARTPVP () {
     lv_itPlayerGroup = PlayerGroupEmpty();
 
     // Implementation
+    libE0EAE146_gf_RuntimeLog(2, "KPVP", "STARTPVP.enter", 1, libE0EAE146_gv_currentMapId, "", PlayerGroupCount(libKCOR_gf_CommanderPlayers()));
     Wait(0.01, c_timeGame);
     auto814DE7B0_g = libKCOR_gf_CommanderPlayers();
     lv_indexPlayer = -1;
@@ -940,6 +941,7 @@ void libKPVP_gf_apply_peace_time () {
         }
 
     }
+    libE0EAE146_gf_RuntimeLog(2, "KPVP", "STARTPVP.exit", 1, libE0EAE146_gv_currentMapId, "", PlayerGroupCount(libKCOR_gf_CommanderPlayers()));
 }
 
 void libKPVP_gf_hide_own_nydus (unit lp_unit) {
@@ -1654,6 +1656,7 @@ bool libKPVP_gt_StartingTech_Func (bool testConds, bool runActions) {
     while (true) {
         lv_itPlayer = PlayerGroupNextPlayer(auto92D7FABE_g, lv_itPlayer);
         if (lv_itPlayer < 0) { break; }
+        libE0EAE146_gf_RuntimeLog(1, "KPVP", "StartingTech.PowerAlliance", lv_itPlayer, "Power", "AllyMutual", PlayerGroupCount(libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_AllyMutual, lv_itPlayer)));
         libNtve_gf_SetAllianceAspectForPlayerGroup(libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_AllyMutual, lv_itPlayer), c_allianceIdPower, true);
     }
     autoD2F2BF71_g = libKCOR_gf_CommanderPlayers();
@@ -1700,6 +1703,7 @@ bool libKPVP_gt_NYDUS_CREATED_Func (bool testConds, bool runActions) {
 
     libKPVP_gf_hide_own_nydus(EventUnitProgressUnit());
     auto9AB9CF88_g = PlayerGroupAlliance(c_playerGroupAlly, EventPlayer());
+    libE0EAE146_gf_RuntimeLog(1, "KPVP", "NYDUS_CREATED", EventPlayer(), "NydusNetwork", "", PlayerGroupCount(auto9AB9CF88_g));
     auto9AB9CF88_var = -1;
     while (true) {
         auto9AB9CF88_var = PlayerGroupNextPlayer(auto9AB9CF88_g, auto9AB9CF88_var);
@@ -1744,6 +1748,7 @@ bool libKPVP_gt_NYDUS_CREATED2_Func (bool testConds, bool runActions) {
 
     libKPVP_gf_hide_own_nydus(EventUnitProgressUnit());
     auto48FD946E_g = PlayerGroupAlliance(c_playerGroupAlly, EventPlayer());
+    libE0EAE146_gf_RuntimeLog(1, "KPVP", "NYDUS_CREATED2", EventPlayer(), "NydusCanal", "", PlayerGroupCount(auto48FD946E_g));
     auto48FD946E_var = -1;
     while (true) {
         auto48FD946E_var = PlayerGroupNextPlayer(auto48FD946E_g, auto48FD946E_var);
@@ -1788,6 +1793,7 @@ bool libKPVP_gt_NYDUS_CREATED3_Func (bool testConds, bool runActions) {
 
     libKPVP_gf_hide_own_nydus(EventUnitCreatedUnit());
     autoE0A4D2A5_g = PlayerGroupAlliance(c_playerGroupAlly, EventPlayer());
+    libE0EAE146_gf_RuntimeLog(1, "KPVP", "NYDUS_CREATED3", EventPlayer(), "GreaterNydusWorm", "", PlayerGroupCount(autoE0A4D2A5_g));
     autoE0A4D2A5_var = -1;
     while (true) {
         autoE0A4D2A5_var = PlayerGroupNextPlayer(autoE0A4D2A5_g, autoE0A4D2A5_var);
@@ -1850,6 +1856,7 @@ bool libKPVP_gt_setobserver_Func (bool testConds, bool runActions) {
 
     UIUnitColorStyleOverride(libKPVP_gv_observerGroup, c_unitColorStyleNormal);
     auto83D5F9D4_g = PlayerGroupActive();
+    libE0EAE146_gf_RuntimeLog(2, "KPVP", "SetObserver.begin", libKPVP_gv_observer, "Observer", "", PlayerGroupCount(auto83D5F9D4_g));
     auto83D5F9D4_var = -1;
     while (true) {
         auto83D5F9D4_var = PlayerGroupNextPlayer(auto83D5F9D4_g, auto83D5F9D4_var);
