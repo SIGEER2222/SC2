@@ -1478,6 +1478,11 @@ bool gt_OdinRampageBegins_Func (bool testConds, bool runActions) {
     libNtve_gf_StopTimer(gv_warningTimer1);
     libNtve_gf_StopTimer(gv_warningTimer2);
     libNtve_gf_StopTimer(gv_warningTimer3);
+    Wait(60.0, c_timeGame);
+    libNtve_gf_PauseUnit(gv_odin, false);
+    AISetUnitForceMover(gv_odin, true);
+    gv_odinAIPlayerTarget = gv_p10_DOMINION_LOKI;
+    TriggerExecute(gt_OdinGoGoGo, true, false);
     Wait(5.0, c_timeGame);
     TriggerQueueEnter();
     libCamp_gf_SetAllSoundChannelVolumesCampaign(libNtve_ge_VolumeChannelMode_Speech);
@@ -1489,7 +1494,8 @@ bool gt_OdinRampageBegins_Func (bool testConds, bool runActions) {
     while (true) {
         Wait(10.0, c_timeGame);
         libNtve_gf_MakeUnitInvulnerable(gv_odin, false);
-        UnitIssueOrder(gv_odin, OrderTargetingPoint(AbilityCommand("attack", 0), UnitGetPosition(gv_loki)), c_orderQueueReplace);
+        gv_odinAIPlayerTarget = gv_p10_DOMINION_LOKI;
+        TriggerExecute(gt_OdinGoGoGo, true, false);
     }
     return true;
 }
