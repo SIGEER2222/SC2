@@ -834,7 +834,7 @@ bool gt_StartGame_Func (bool testConds, bool runActions) {
 
     libE0EAE146_gf_StartGame();
     lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/5021B292"), 1, true, 0, 10);
-    lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/8FACEFC2"), 2, true, 0, 2);
+    lib67C0F0E7_gf_ObjectiveNew(true, StringExternal("Param/Value/8FACEFC2"), 2, true, 0, 5);
     lib67C0F0E7_gf_ObjectiveNew(false, StringExternal("Param/Value/4DD395E0"), 1, true, 0, 3);
     lib67C0F0E7_gf_ObjectiveNew(false, StringExternal("Param/Value/91DACAD4"), 2, true, 0, 3);
     Wait(1.0, c_timeReal);
@@ -2506,6 +2506,9 @@ bool gt_TrainDespawn_Func (bool testConds, bool runActions) {
         lib67C0F0E7_gf_ObjectiveSet(true, 2, lib67C0F0E7_ge_ObjectiveSet_Add);
         if ((lib67C0F0E7_gf_ObjectiveMultiNow(true, 2) <= 1)) {
             TriggerExecute(gt_Train1MissedQ, true, false);
+        }
+        else if ((lib67C0F0E7_gf_ObjectiveMultiNow(true, 2) <= 4)) {
+            TriggerExecute(gt_Train2MissedQ, true, false);
         }
         else {
             TriggerExecute(gt_DefeatTooManyTrainsMissed, true, false);
