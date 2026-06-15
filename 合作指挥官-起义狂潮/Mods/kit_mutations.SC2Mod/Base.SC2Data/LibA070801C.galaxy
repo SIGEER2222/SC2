@@ -2547,6 +2547,8 @@ bool auto_libA070801C_gf_CT_GiftSpawn_TriggerFunc (bool testConds, bool runActio
     Wait(40.0, c_timeAI);
     libNtve_gf_KillModel(lv_spawnFX);
     libNtve_gf_ShowHideUnit(lv_gift, true);
+    libA070801C_gf_CT_GiftProgressDisplay(lv_gift);
+    libA070801C_gf_CT_GiftProgressSet(lv_gift, 0.0);
     libA070801C_gf_CT_GiftSetState(lv_gift, libA070801C_ge_CT_GiftState_CT_GiftStateNeutral);
     return true;
 }
@@ -2596,17 +2598,91 @@ void libA070801C_gf_CT_GiftSetProgress (unit lp_gift, fixed lp_progress) {
     // Automatic Variable Declarations
     // Implementation
     if ((lp_progress >= 100.0)) {
+        libA070801C_gf_CT_GiftProgressShow(lp_gift, false);
         libA070801C_gf_CT_GiftClaim(lp_gift);
         return ;
     }
 
     UnitSetCustomValue(lp_gift, 12, lp_progress);
+    libA070801C_gf_CT_GiftProgressSet(lp_gift, lp_progress);
 }
 
 void libA070801C_gf_CT_GiftAddProgress (unit lp_gift, fixed lp_progress) {
     // Automatic Variable Declarations
     // Implementation
     libA070801C_gf_CT_GiftSetProgress(lp_gift, (UnitGetCustomValue(lp_gift, 12) + lp_progress));
+}
+
+void libA070801C_gf_CT_GiftAnnounce (string lp_message) {
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringToText(lp_message));
+}
+
+string libA070801C_gf_CT_GiftProgressDialogName (unit lp_gift, int lp_type) {
+    string lv_name;
+
+    lv_name = ("CT_GiftProgress_" + IntToString(UnitGetTag(lp_gift)));
+    if ((lp_type == 0)) {
+        lv_name = (lv_name + "_Bar");
+    }
+    else {
+        lv_name = (lv_name + "_Border");
+    }
+    return lv_name;
+}
+
+void libA070801C_gf_CT_GiftProgressShow (unit lp_gift, bool lp_show) {
+    int lv_bar;
+    int lv_border;
+
+    lv_bar = libNtve_gf_ValueFromDataTableDialogItem(true, libA070801C_gf_CT_GiftProgressDialogName(lp_gift, 0));
+    lv_border = libNtve_gf_ValueFromDataTableDialogItem(true, libA070801C_gf_CT_GiftProgressDialogName(lp_gift, 1));
+    if ((lv_bar != c_invalidDialogControlId)) {
+        DialogControlSetVisible(lv_bar, PlayerGroupAll(), lp_show);
+    }
+    if ((lv_border != c_invalidDialogControlId)) {
+        DialogControlSetVisible(lv_border, PlayerGroupAll(), lp_show);
+    }
+}
+
+void libA070801C_gf_CT_GiftProgressDisplay (unit lp_gift) {
+    int lv_bar;
+    int lv_border;
+
+    lv_bar = libNtve_gf_ValueFromDataTableDialogItem(true, libA070801C_gf_CT_GiftProgressDialogName(lp_gift, 0));
+    lv_border = libNtve_gf_ValueFromDataTableDialogItem(true, libA070801C_gf_CT_GiftProgressDialogName(lp_gift, 1));
+    UnitStatusBarOverride(lp_gift, c_unitStatusGroupAll);
+    if ((lv_bar == c_invalidDialogControlId)) {
+        DialogControlHookupUnitStatus(c_triggerControlTypeImage, "BarImage", lp_gift);
+        lv_bar = DialogControlLastCreated();
+        libNtve_gf_SaveDataTableValueDialogItem(true, libA070801C_gf_CT_GiftProgressDialogName(lp_gift, 0), lv_bar);
+    }
+    if ((lv_border == c_invalidDialogControlId)) {
+        DialogControlHookupUnitStatus(c_triggerControlTypeImage, "BorderImage", lp_gift);
+        lv_border = DialogControlLastCreated();
+        libNtve_gf_SaveDataTableValueDialogItem(true, libA070801C_gf_CT_GiftProgressDialogName(lp_gift, 1), lv_border);
+    }
+    libA070801C_gf_CT_GiftProgressShow(lp_gift, true);
+}
+
+void libA070801C_gf_CT_GiftProgressSet (unit lp_gift, fixed lp_progress) {
+    int lv_bar;
+    int lv_width;
+    fixed lv_clampedProgress;
+
+    lv_bar = libNtve_gf_ValueFromDataTableDialogItem(true, libA070801C_gf_CT_GiftProgressDialogName(lp_gift, 0));
+    if ((lv_bar == c_invalidDialogControlId)) {
+        return ;
+    }
+
+    lv_clampedProgress = lp_progress;
+    if ((lv_clampedProgress < 0.0)) {
+        lv_clampedProgress = 0.0;
+    }
+    if ((lv_clampedProgress > 100.0)) {
+        lv_clampedProgress = 100.0;
+    }
+    lv_width = FixedToInt((265.0 * (lv_clampedProgress / 100.0)));
+    DialogControlSetSize(lv_bar, PlayerGroupAll(), MaxI(lv_width, 1), 12);
 }
 
 trigger auto_libA070801C_gf_CT_GiftSendAttack_Trigger = null;
@@ -2780,6 +2856,7 @@ void libA070801C_gf_CT_GiftClaim (unit lp_gift) {
     // Implementation
     lv_attackingForce = DataTableGetUnitGroup(true, ("CT_GiftAtk_" + IntToString(UnitGetTag(lp_gift))));
     if ((libA070801C_gf_CT_GiftState(lp_gift) == libA070801C_ge_CT_GiftState_CT_GiftStatePlayer)) {
+        libA070801C_gf_CT_GiftAnnounce("Gift opened: ally reward");
         libA070801C_gv_cT_GiftAmonPower += 1;
         autoAA8771E6_g = PlayerGroupSingle(1);
         lv_indexPlayer = -1;
@@ -2790,6 +2867,7 @@ void libA070801C_gf_CT_GiftClaim (unit lp_gift) {
         }
     }
     else if (((libA070801C_gf_CT_GiftState(lp_gift) == libA070801C_ge_CT_GiftState_CT_GiftStateEnemy) || (libA070801C_gf_CT_GiftState(lp_gift) == libA070801C_ge_CT_GiftState_CT_GiftStateStealing))) {
+        libA070801C_gf_CT_GiftAnnounce("Gift opened: enemy effect");
         libA070801C_gv_cT_GiftAmonPower -= 1;
         libA070801C_gf_CT_GiftEnemyBonus(UnitGetPosition(lp_gift), RandomInt(1, libA070801C_gv_cTC_GiftEnemyBonuses));
         if ((libHots_gf_ActorForUnit(lp_gift, 6) != null)) {
@@ -3147,45 +3225,6 @@ bool auto_libA070801C_gf_CT_GiftEnemyBonus_TriggerFunc (bool testConds, bool run
         AISetGroupSuicide(lv_bonusUnits, true);
     }
     else if (autoC35EF233_val == 5) {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "MutatorKillBot", 0, libA070801C_gf_CT_MutatorAIPlayer(), lp_giftLocation);
-        lv_killBot = UnitLastCreated();
-        UnitSetState(lv_killBot, c_unitStateInvulnerable, true);
-        lv_killBotPing = PingLastCreated();
-        PingSetScale(lv_killBotPing, 0.45);
-        PingSetUnit(lv_killBotPing, lv_killBot);
-        PingSetTooltip(lv_killBotPing, StringExternal("Param/Value/lib_A070801C_94B464B3"));
-        UnitStatusBarOverride(lv_killBot, c_unitStatusGroupAll);
-        DialogControlHookupUnitStatus(c_triggerControlTypeLabel, "InfoLabel", lv_killBot);
-        lv_killBotLabel = DialogControlLastCreated();
-        AISetUnitSuicide(lv_killBot, true);
-        if ((GameGetMissionTime() < 600.0)) {
-            lv_killBotKillCap = libNtve_gf_DifficultyValueInt(3, 5, 20, 30);
-        }
-        else {
-            lv_killBotKillCap = libNtve_gf_DifficultyValueInt(5, 10, 30, 50);
-        }
-        lv_killBotKills = -1;
-        TriggerEnable(libA070801C_gt_CT_GiftKillBotBanelingCredit, true);
-        while (true) {
-            if (((UnitIsValid(lv_killBot) == false) || (UnitIsAlive(lv_killBot) == false))) {
-                return true;
-            }
-
-            if ((lv_killBotKills != libNtve_gf_UnitGetPropertyKills(lv_killBot, c_unitPropCurrent))) {
-                lv_killBotKills = libNtve_gf_UnitGetPropertyKills(lv_killBot, c_unitPropCurrent);
-                TextExpressionSetToken("Param/Expression/lib_A070801C_DFEDE33D", "A", IntToText(lv_killBotKills));
-                TextExpressionSetToken("Param/Expression/lib_A070801C_DFEDE33D", "B", IntToText(lv_killBotKillCap));
-                libNtve_gf_SetDialogItemText(lv_killBotLabel, TextExpressionAssemble("Param/Expression/lib_A070801C_DFEDE33D"), PlayerGroupAll());
-                if ((lv_killBotKills >= lv_killBotKillCap)) {
-                    UnitKill(lv_killBot);
-                }
-
-            }
-
-            Wait(0.5, c_timeGame);
-        }
-    }
-    else if (autoC35EF233_val == 6) {
         libA070801C_gv_cT_GiftShuttlesOvercharged += libNtve_gf_DifficultyValueInt(2, 2, 4, 5);
         auto5D0D4BD3_g = UnitGroup("ProtossFrigate", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
         auto5D0D4BD3_u = UnitGroupCount(auto5D0D4BD3_g, c_unitCountAll);
@@ -3203,7 +3242,7 @@ bool auto_libA070801C_gf_CT_GiftEnemyBonus_TriggerFunc (bool testConds, bool run
 
         }
     }
-    else if (autoC35EF233_val == 7) {
+    else if (autoC35EF233_val == 6) {
         TriggerEnable(libA070801C_gt_CT_GiftShrunkEffectOn, true);
         TriggerEnable(libA070801C_gt_CT_GiftShrunkEffectOff, true);
         autoA3089793_g = UnitGroupAlliance(1, c_unitAllianceAlly, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
