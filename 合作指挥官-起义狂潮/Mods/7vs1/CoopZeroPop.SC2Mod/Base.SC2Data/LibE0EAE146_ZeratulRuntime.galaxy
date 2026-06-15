@@ -158,7 +158,9 @@ bool libE0EAE146_gt_ZeratulArtifactPickedUp_Func (bool testConds, bool runAction
         TechTreeUpgradeAddLevel(lv_player, "ZeratulArtifactTier3", 1);
     }
     else {
-        TechTreeUpgradeAddLevel(lv_player, "ProphecyArtifactsDiscovered", 1);
+        if ((TechTreeUpgradeCount(lv_player, "CommanderPrestigeZeratulArtifactFragmentsUnlimitedUpgrade", c_techCountCompleteOnly) == 0)) {
+            TechTreeUpgradeAddLevel(lv_player, "ProphecyArtifactsDiscovered", 1);
+        }
     }
 
     lib67C0F0E7_gf_ZeratulPanelControl(lv_player, lv_artifactNumber, "Collected");
