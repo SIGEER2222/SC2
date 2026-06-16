@@ -367,14 +367,11 @@ function getUnlockedPrestigeSet() {
 }
 
 function isGenericBonusUnlocked(bonusId) {
-  return getUnlockedBonusSet().has(bonusId);
+  return true;
 }
 
 function isCommanderPrestigeUnlocked(prestige, commander = getCommander()) {
-  const bankCommander = commander?.bankCommander || "";
-  const prestigeId = prestige?.id || "";
-  if (!bankCommander || !prestigeId) return false;
-  return getUnlockedPrestigeSet().has(normalizeCommanderMapClearKey(`${bankCommander}:${prestigeId}`));
+  return true;
 }
 
 function isCommanderExtraOptionActive(option, commander = getCommander()) {
@@ -873,24 +870,13 @@ function getGenericBonusLabel(id) {
 }
 
 function renderGenericBonuses() {
-  for (const bonusId of [...state.selectedGenericBonuses]) {
-    if (!isGenericBonusUnlocked(bonusId)) {
-      state.selectedGenericBonuses.delete(bonusId);
-      if (LEVELABLE_GENERIC_BONUS_IDS.has(bonusId)) {
-        state.genericBonusLevels[bonusId] = 0;
-      }
-    }
-  }
-
   renderGenericBonusPanelComponent({
     container: el.genericBonusList,
     options: GENERIC_BONUS_OPTIONS,
     selectedBonusIds: state.selectedGenericBonuses,
     levelValues: state.genericBonusLevels,
-    isBonusUnlocked: isGenericBonusUnlocked,
     onToggleBonus: (bonusId, checked) => {
       if (!bonusId) return;
-      if (checked && !isGenericBonusUnlocked(bonusId)) return;
       if (checked) {
         state.selectedGenericBonuses.add(bonusId);
         if (LEVELABLE_GENERIC_BONUS_IDS.has(bonusId) && clampGenericBonusLevel(bonusId, state.genericBonusLevels[bonusId]) === 0) {
@@ -907,7 +893,6 @@ function renderGenericBonuses() {
     },
     onSetBonusLevel: (bonusId, nextLevel) => {
       if (!bonusId || !LEVELABLE_GENERIC_BONUS_IDS.has(bonusId)) return;
-      if (!isGenericBonusUnlocked(bonusId)) return;
       const level = clampGenericBonusLevel(bonusId, nextLevel);
       state.genericBonusLevels[bonusId] = level;
       if (level > 0) {
@@ -1039,14 +1024,6 @@ function renderQuickPickers() {
 }
 
 function renderPrestiges(commander) {
-  const selections = getCommanderPrestigeSelectionsFromUI(commander);
-  const unlockedSelections = selections.filter((selection) =>
-    isCommanderPrestigeUnlocked({ id: selection.id, bitMask: selection.bitMask, slot: selection.slot }, commander));
-  if (unlockedSelections.length !== selections.length) {
-    setCommanderPrestigeSelectionState(unlockedSelections);
-    syncPrestigeMaskFromUI(state.prestigeMaskMode);
-  }
-
   const defaultMask = getCommanderDefaultPrestigeMask(commander);
   const activeMask = clampNumber(el.prestigeMask.value, 0, 7, defaultMask);
   renderPrestigePanelComponent({
@@ -1054,7 +1031,6 @@ function renderPrestiges(commander) {
     commander,
     activeMask,
     defaultMask,
-    isPrestigeUnlocked: (prestige) => isCommanderPrestigeUnlocked(prestige, commander),
     getPrestigeTooltipParts,
     onSelectMode: (mode) => {
       const inputs = [...document.querySelectorAll(".prestige-toggle-input")];
@@ -1496,25 +1472,6 @@ function getConfigIssues(payload = buildLaunchPayload()) {
   const mapExists = state.data?.maps.some((item) => item.id === payload.map);
   if (!commanderExists) issues.push(`未知指挥官: ${payload.commander || "-"}`);
   if (!mapExists) issues.push(`未知地图: ${payload.map || "-"}`);
-  if (payload.enablePrestiges && payload.prestigeBonusMask === 0) {
-    issues.push("已启用融合，但未选择任何正向效果");
-  }
-  const commander = state.data?.commanders?.find((item) => item.runtime === payload.commander) || null;
-  for (const selection of payload.prestigeSelections || []) {
-    if (!isCommanderPrestigeUnlocked(selection, commander)) {
-      issues.push(`威望未解锁: ${selection.name || selection.id || `slot ${selection.slot}`}`);
-    }
-  }
-  for (const bonusId of payload.genericBonuses || []) {
-    if (!isGenericBonusUnlocked(bonusId)) {
-      issues.push(`额外加成未解锁: ${getGenericBonusLabel(bonusId)}`);
-    }
-  }
-  const scoreState = getScoreState(payload);
-  if (scoreState.balanceAfterSelection < 0) {
-    issues.push(`积分不足: 已得 ${scoreState.earnedPoints} + 因子 ${scoreState.mutatorPoints} - 加成 ${scoreState.bonusCost} = ${scoreState.balanceAfterSelection}`);
-  }
-
   return issues;
 }
 

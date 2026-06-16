@@ -924,51 +924,26 @@ void gt_SwanntalksaboutFirebatQ_Init () {
 // Trigger: Firebat Dropship Action
 //--------------------------------------------------------------------------------------------------
 bool gt_FirebatDropshipAction_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    string auto8F0E1D21_val;
-
     // Actions
     if (!runActions) {
         return true;
     }
-
-    auto8F0E1D21_val = libE0EAE146_gv_commander;
-    if (auto8F0E1D21_val == "Tychus") {
-        UnitCargoCreate(UnitFromId(290), "TychusFirebat", 1);
-    }
-    else if (auto8F0E1D21_val == "Mira") {
-        UnitCargoCreate(UnitFromId(290), "HellionTankMira", 3);
-    }
-    else if (auto8F0E1D21_val == "Dehaka") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "DehakaCoop", 0, 1, PointFromId(2150));
-        libDF8E6945_gf_InitializeDehakaEvent(1, UnitLastCreated());
-        BankLoad("CampaignXCore", 1);
-        if ((lib67C0F0E7_gf_BitMaskTrueIndexIs(BankValueGetAsInt(BankLastCreated(), libE0EAE146_gv_commander, "AchBit"), 0) == true)) {
-            libDF8E6945_gf_DehakaBroodbrother();
-        }
-
-    }
-    else if (auto8F0E1D21_val == "Nova") {
-        libNtve_gf_CreateUnitsWithDefaultFacing(1, "NovaCoop", 0, 1, PointFromId(2150));
-        lib0940FFB7_gf_NovaTrigger(UnitLastCreated());
-        UnitCargoCreate(UnitFromId(290), "HellbatBlackOps", 2);
-    }
-    else if (auto8F0E1D21_val == "Mengsk") {
-        UnitCargoCreate(UnitFromId(290), "TrooperMengskFlamethrower", 6);
-    }
-    else if (auto8F0E1D21_val == "Swann") {
-        gf_CargoCreateWithFallback3(UnitFromId(290), "PredatorSwann", "HellionTank", "Hellion", 4);
-    }
-    else if (auto8F0E1D21_val == "Stetmann") {
-        UnitCargoCreate(UnitFromId(290), "LurkerStetmann", 3);
-    }
-    else {
-        UnitCargoCreate(UnitFromId(290), "Firebat", 3);
-        UnitCargoCreate(UnitFromId(290), "Medic", 2);
-    }
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "Thanson01FirebatDropshipPhase", "beforeCreateSquad");
+    BankSave(BankLastCreated());
+    libE0EAE146_gf_CreateCommanderCinematicTransportSquad(UnitFromId(290), "hero", 1, PointFromId(2150));
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "Thanson01FirebatDropshipPhase", "afterCreateSquad");
+    BankSave(BankLastCreated());
     gf_DropCargoAndExit(UnitFromId(290), PointFromId(2157), PointFromId(376213958));
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "Thanson01FirebatDropshipPhase", "afterDropCargo");
+    BankSave(BankLastCreated());
     Wait(0.1, c_timeGame);
     TriggerEnable(gt_DefeatTacticalPhase, true);
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "Thanson01FirebatDropshipPhase", "done");
+    BankSave(BankLastCreated());
     return true;
 }
 

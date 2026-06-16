@@ -33,13 +33,47 @@ unit libE0EAE146_gf_FindCommanderHeroStructure (int lp_player, string lp_unitTyp
 }
 
 point libE0EAE146_gf_CommanderHeroStructurePoint (int lp_player, string lp_unitType) {
+    unit lv_townHall;
+    point lv_origin;
     point lv_candidate;
     point lv_placement;
+    int lv_angleIndex;
+    int lv_radiusIndex;
+    fixed lv_angle;
+    fixed lv_radius;
+    fixed[6] lv_angles;
+    fixed[4] lv_radii;
 
-    lv_candidate = PointWithOffsetPolar(PlayerStartLocation(lp_player), 7.0, 315.0);
-    lv_placement = UnitTypePlacementFromPoint(lp_unitType, lp_player, lv_candidate, 12.0);
-    if (lv_placement != null) {
-        return lv_placement;
+    lv_townHall = libE0EAE146_gf_CommanderPrimaryTownHall(lp_player, libE0EAE146_gv_commander);
+    if (UnitIsValid(lv_townHall) == true) {
+        lv_origin = UnitGetPosition(lv_townHall);
+    }
+    else {
+        lv_origin = PlayerStartLocation(lp_player);
+    }
+
+    lv_angles[0] = 225.0;
+    lv_angles[1] = 315.0;
+    lv_angles[2] = 135.0;
+    lv_angles[3] = 45.0;
+    lv_angles[4] = 270.0;
+    lv_angles[5] = 180.0;
+    lv_radii[0] = 10.0;
+    lv_radii[1] = 12.0;
+    lv_radii[2] = 14.0;
+    lv_radii[3] = 16.0;
+
+    lv_candidate = lv_origin;
+    for (lv_radiusIndex = 0; lv_radiusIndex < 4; lv_radiusIndex += 1) {
+        lv_radius = lv_radii[lv_radiusIndex];
+        for (lv_angleIndex = 0; lv_angleIndex < 6; lv_angleIndex += 1) {
+            lv_angle = lv_angles[lv_angleIndex];
+            lv_candidate = PointWithOffsetPolar(lv_origin, lv_radius, lv_angle);
+            lv_placement = UnitTypePlacementFromPoint(lp_unitType, lp_player, lv_candidate, 12.0);
+            if (lv_placement != null) {
+                return lv_placement;
+            }
+        }
     }
 
     return lv_candidate;

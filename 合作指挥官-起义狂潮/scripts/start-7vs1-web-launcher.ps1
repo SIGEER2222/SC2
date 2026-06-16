@@ -1346,13 +1346,6 @@ function ConvertTo-LaunchArgumentList {
         $normalizedScoreRequest.genericBonusLevels | Add-Member -NotePropertyName $bonusId -NotePropertyValue ([int]$selectedGenericBonusLevels[$bonusId])
     }
     $scoreSummary = Get-LaunchScoreSummary -Request $normalizedScoreRequest
-    if ($scoreSummary.balanceAfterSelection -lt 0) {
-        throw ("Score budget exceeded: earned={0}, mutators=+{1}, bonuses=-{2}, balance={3}" -f
-            $scoreSummary.earnedPoints,
-            $scoreSummary.mutatorPoints,
-            $scoreSummary.bonusCost,
-            $scoreSummary.balanceAfterSelection)
-    }
 
     $enableMasteries = if ($Request.enableMasteries -eq $false) { 0 } else { 1 }
     $enablePrestiges = if ($Request.enablePrestiges -eq $false) { 0 } else { 1 }
