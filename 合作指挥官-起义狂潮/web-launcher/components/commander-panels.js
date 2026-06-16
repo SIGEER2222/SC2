@@ -6,7 +6,7 @@ export function renderPrestigePanel({
   activeMask,
   defaultMask,
   isPrestigeUnlocked,
-  getPositivePrestigeTooltipText,
+  getPrestigeTooltipParts,
   onSelectMode,
   onTogglePrestige,
 }) {
@@ -32,7 +32,9 @@ export function renderPrestigePanel({
     const checked = (activeMask & prestige.bitMask) === prestige.bitMask;
     const defaultSelected = (defaultMask & prestige.bitMask) === prestige.bitMask;
     const unlocked = isPrestigeUnlocked ? isPrestigeUnlocked(prestige) : true;
-    const positiveTooltip = getPositivePrestigeTooltipText(prestige.tooltip || prestige.id);
+    const tooltipParts = getPrestigeTooltipParts ? getPrestigeTooltipParts(prestige.tooltip || prestige.id) : { positive: prestige.id, negative: "" };
+    const positiveTooltip = tooltipParts.positive || prestige.id;
+    const negativeTooltip = tooltipParts.negative || "";
     card.innerHTML = `
       <label class="prestige-toggle">
         <input class="prestige-toggle-input" type="checkbox" data-slot="${prestige.slot}" data-bit-mask="${prestige.bitMask}" ${checked ? "checked" : ""} ${unlocked ? "" : "disabled"}>
@@ -48,7 +50,10 @@ export function renderPrestigePanel({
           </span>
         </span>
       </label>
-      <div class="prestige-tip">${escapeHtml((unlocked ? "" : "未解锁。") + (positiveTooltip || prestige.id))}</div>
+      <div class="prestige-tip">
+        <div class="prestige-tip-positive">${escapeHtml((unlocked ? "" : "未解锁。") + positiveTooltip)}</div>
+        ${negativeTooltip ? `<div class="prestige-tip-negative">${escapeHtml(negativeTooltip)}</div>` : ""}
+      </div>
     `;
     container.append(card);
   }

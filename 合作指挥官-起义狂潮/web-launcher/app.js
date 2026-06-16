@@ -290,24 +290,43 @@ function normalizeText(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
 }
 
-function getPositivePrestigeTooltipText(tooltip) {
+function getPrestigeTooltipParts(tooltip) {
   const text = normalizeText(tooltip);
-  if (!text) return "";
+  if (!text) {
+    return { positive: "", negative: "" };
+  }
 
-  const negativeMarkerIndex = text.search(/缺点|Disadvantage/i);
   const positiveMarkerIndex = text.search(/优点|Advantage/i);
-  let selected = text;
-  if (negativeMarkerIndex >= 0) {
-    selected = text.slice(0, negativeMarkerIndex);
+  const negativeMarkerIndex = text.search(/缺点|Disadvantage/i);
+  let positive = "";
+  let negative = "";
+
+  if (positiveMarkerIndex >= 0 && negativeMarkerIndex >= 0) {
+    if (positiveMarkerIndex < negativeMarkerIndex) {
+      positive = text.slice(positiveMarkerIndex, negativeMarkerIndex);
+      negative = text.slice(negativeMarkerIndex);
+    } else {
+      negative = text.slice(negativeMarkerIndex, positiveMarkerIndex);
+      positive = text.slice(positiveMarkerIndex);
+    }
+  } else if (positiveMarkerIndex >= 0) {
+    positive = text.slice(positiveMarkerIndex);
+  } else if (negativeMarkerIndex >= 0) {
+    negative = text.slice(negativeMarkerIndex);
+  } else {
+    positive = text;
   }
-  if (positiveMarkerIndex >= 0) {
-    selected = selected.slice(positiveMarkerIndex);
-  }
-  selected = selected
+
+  positive = positive
     .replace(/^(优点|Advantage)\s*/i, "")
     .replace(/\s+/g, " ")
     .trim();
-  return selected || text;
+  negative = negative
+    .replace(/^(缺点|Disadvantage)\s*/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return { positive: positive || text, negative };
 }
 
 function getCommanderDefaultPrestigeMask(commander) {
@@ -1036,7 +1055,7 @@ function renderPrestiges(commander) {
     activeMask,
     defaultMask,
     isPrestigeUnlocked: (prestige) => isCommanderPrestigeUnlocked(prestige, commander),
-    getPositivePrestigeTooltipText,
+    getPrestigeTooltipParts,
     onSelectMode: (mode) => {
       const inputs = [...document.querySelectorAll(".prestige-toggle-input")];
       if (mode === "default") {
