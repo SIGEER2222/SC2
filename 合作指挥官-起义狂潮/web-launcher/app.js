@@ -18,6 +18,7 @@ import {
 import {
   updateBootstrapStripPanel as updateBootstrapStripPanelComponent,
   updateMasteryPairStatusPanel as updateMasteryPairStatusPanelComponent,
+  updateScorePanel as updateScorePanelComponent,
   updateSummaryDetailPanel as updateSummaryDetailPanelComponent,
   updateSummaryPanel as updateSummaryPanelComponent,
 } from "./components/summary-panels.js";
@@ -173,6 +174,7 @@ const el = {
   summaryMap: document.querySelector("#summaryMap"),
   summaryMastery: document.querySelector("#summaryMastery"),
   summaryMutators: document.querySelector("#summaryMutators"),
+  summaryPoints: document.querySelector("#summaryPoints"),
   summaryMode: document.querySelector("#summaryMode"),
   summaryValidation: document.querySelector("#summaryValidation"),
   copySummaryButton: document.querySelector("#copySummaryButton"),
@@ -183,6 +185,7 @@ const el = {
   bootstrapMapCount: document.querySelector("#bootstrapMapCount"),
   bootstrapMutatorCount: document.querySelector("#bootstrapMutatorCount"),
   bootstrapCompletionStatus: document.querySelector("#bootstrapCompletionStatus"),
+  bootstrapScoreStatus: document.querySelector("#bootstrapScoreStatus"),
   bootstrapResourcePlanText: document.querySelector("#bootstrapResourcePlanText"),
   commanderSelect: document.querySelector("#commanderSelect"),
   mapSelect: document.querySelector("#mapSelect"),
@@ -207,6 +210,14 @@ const el = {
   prestigeList: document.querySelector("#prestigeList"),
   extraOptionList: document.querySelector("#extraOptionList"),
   genericBonusList: document.querySelector("#genericBonusList"),
+  scoreBudgetBadge: document.querySelector("#scoreBudgetBadge"),
+  scoreAvailablePoints: document.querySelector("#scoreAvailablePoints"),
+  scoreMutatorPoints: document.querySelector("#scoreMutatorPoints"),
+  scoreBonusCost: document.querySelector("#scoreBonusCost"),
+  scoreBalanceAfter: document.querySelector("#scoreBalanceAfter"),
+  scoreCommanderProgress: document.querySelector("#scoreCommanderProgress"),
+  scoreDetailText: document.querySelector("#scoreDetailText"),
+  scoreRuleText: document.querySelector("#scoreRuleText"),
   masteryGrid: document.querySelector("#masteryGrid"),
   mutatorSearch: document.querySelector("#mutatorSearch"),
   mutatorPreset: document.querySelector("#mutatorPreset"),
@@ -385,14 +396,25 @@ function getCommanderPrestigeSelectionsFromUI(commander = getCommander()) {
   return selections.sort((a, b) => a.slot - b.slot);
 }
 
+function getPrestigeMaskFromSelections(selections = []) {
+  let mask = 0;
+  for (const selection of selections || []) {
+    mask |= clampNumber(selection?.bitMask, 0, 7, 0);
+  }
+  return clampNumber(mask, 0, 7, 0);
+}
+
 function setCommanderPrestigeSelectionState(selections = []) {
   const selectedSlots = new Set();
   const selectedBitMasks = new Set();
   for (const selection of selections || []) {
     const slot = clampNumber(selection?.slot, 0, 7, -1);
     const bitMask = clampNumber(selection?.bitMask, 0, 7, 0);
-    if (slot >= 0) selectedSlots.add(slot);
-    if (bitMask > 0) selectedBitMasks.add(bitMask);
+    if (slot >= 0) {
+      selectedSlots.add(slot);
+    } else if (bitMask > 0) {
+      selectedBitMasks.add(bitMask);
+    }
   }
 
   document.querySelectorAll(".prestige-toggle-input").forEach((input) => {
@@ -603,6 +625,157 @@ function normalizeCommanderMapClearKey(key) {
   return `${commander}:${mapId}`;
 }
 
+function getScoreRules() {
+  return state.data?.scoreSystem || {
+    firstCommanderMapClearPoints: 3,
+    bonusObjectivePointValue: 1,
+    mutatorTierPoints: { normal: 1, medium: 2, hard: 3 },
+    mutatorOverrides: [
+      { id: "Random", points: 0 },
+      { id: "CycleRandom", points: 0 },
+    ],
+    genericBonusCosts: [
+      { id: "DoubleMinerals", costMode: "perLevel", costPerLevel: 1 },
+      { id: "DoubleVespene", costMode: "perLevel", costPerLevel: 1 },
+      { id: "RichResources", costMode: "fixed", cost: 2 },
+      { id: "GuardianShell", costMode: "fixed", cost: 2 },
+      { id: "CreepRegeneration", costMode: "fixed", cost: 1 },
+      { id: "MechanicalRepair", costMode: "fixed", cost: 1 },
+      { id: "ChronoBoost", costMode: "fixed", cost: 2 },
+      { id: "MaxSupply50", costMode: "fixed", cost: 1 },
+      { id: "ZeroSupply", costMode: "fixed", cost: 3 },
+    ],
+  };
+}
+
+function getMapBonusScore(mapId) {
+  const normalizedMapId = normalizeMapBankId(mapId);
+  for (const entry of state.data?.completion?.mapBonusScores || []) {
+    if (normalizeMapBankId(entry?.mapId) === normalizedMapId) {
+      return clampNumber(entry?.bonusScore, 0, 99, 0);
+    }
+  }
+  return 0;
+}
+
+function getCommanderBonusScore(mapId, commander = getCommander()) {
+  const normalizedMapId = normalizeMapBankId(mapId);
+  const bankCommander = commander?.bankCommander || "";
+  if (!bankCommander || !normalizedMapId) return 0;
+  for (const entry of state.data?.completion?.commanderBonusScores || []) {
+    if ((entry?.commander || "") !== bankCommander) continue;
+    if (normalizeMapBankId(entry?.mapId) !== normalizedMapId) continue;
+    return clampNumber(entry?.bonusScore, 0, 99, 0);
+  }
+  return 0;
+}
+
+function getCommanderObjectiveStateStats(mapId, commander = getCommander()) {
+  const normalizedMapId = normalizeMapBankId(mapId);
+  const bankCommander = commander?.bankCommander || "";
+  let completed = 0;
+  let failed = 0;
+  for (const record of state.data?.completion?.objectiveStates || []) {
+    if ((record?.commander || "") !== bankCommander) continue;
+    if (normalizeMapBankId(record?.mapId) !== normalizedMapId) continue;
+    const stateValue = Number(record?.state || 0);
+    if (stateValue === 2) completed += 1;
+    if (stateValue === 3) failed += 1;
+  }
+  return { completed, failed };
+}
+
+function getMutatorScorePoints(mutatorId) {
+  const rules = getScoreRules();
+  const override = (rules.mutatorOverrides || []).find((item) => item.id === mutatorId);
+  if (override) {
+    return clampNumber(override.points, 0, 99, 0);
+  }
+  const mutator = state.data?.mutators.find((item) => item.id === mutatorId);
+  const tier = mutator?.tier || "normal";
+  return clampNumber(rules.mutatorTierPoints?.[tier], 0, 99, 1);
+}
+
+function getGenericBonusScoreCost(bonusId, level = 0) {
+  const rules = getScoreRules();
+  const rule = (rules.genericBonusCosts || []).find((item) => item.id === bonusId);
+  if (!rule) return 0;
+  if (rule.costMode === "perLevel") {
+    return Math.max(0, Number(level || 0)) * Math.max(0, Number(rule.costPerLevel || 0));
+  }
+  return Math.max(0, Number(rule.cost || 0));
+}
+
+function getScoreState(payload = buildLaunchPayload()) {
+  const completion = state.data?.completion || {};
+  const ledger = completion.pointLedger || {};
+  const mutatorIds = Array.isArray(payload.mutators) ? payload.mutators : [];
+  const genericBonuses = Array.isArray(payload.genericBonuses) ? payload.genericBonuses : [];
+  const genericBonusLevels = normalizeGenericBonusLevels(payload.genericBonusLevels || {}, genericBonuses);
+  const mutatorBreakdown = mutatorIds
+    .slice()
+    .sort()
+    .map((id) => ({
+      id,
+      points: getMutatorScorePoints(id),
+      label: getMutatorLabel(id),
+    }));
+  const bonusBreakdown = genericBonuses
+    .slice()
+    .sort()
+    .map((id) => ({
+      id,
+      level: clampGenericBonusLevel(id, genericBonusLevels[id]),
+      cost: getGenericBonusScoreCost(id, genericBonusLevels[id]),
+      label: getGenericBonusDisplayName(id, genericBonusLevels),
+    }));
+  const mutatorPoints = mutatorBreakdown.reduce((sum, item) => sum + item.points, 0);
+  const bonusCost = bonusBreakdown.reduce((sum, item) => sum + item.cost, 0);
+  const earnedPoints = Number(ledger.earnedPoints || 0);
+  const commander = getCommander();
+  const selectedMapId = payload.map;
+  const commanderCleared = completion.bankFound === true
+    && new Set((completion.commanderClearKeys || []).map((item) => normalizeCommanderMapClearKey(item)))
+      .has(normalizeCommanderMapClearKey(`${commander?.bankCommander || ""}:${selectedMapId}`));
+  const objectiveStats = getCommanderObjectiveStateStats(selectedMapId, commander);
+  const commanderBonusScore = getCommanderBonusScore(selectedMapId, commander);
+  const mapBonusScore = getMapBonusScore(selectedMapId);
+  return {
+    earnedPoints,
+    firstClearCount: Number(ledger.firstClearCount || 0),
+    firstClearPoints: Number(ledger.firstClearPoints || 0),
+    bonusObjectiveCount: Number(ledger.bonusObjectiveCount || 0),
+    bonusObjectivePoints: Number(ledger.bonusObjectivePoints || 0),
+    objectiveStateSource: ledger.objectiveStateSource || "CommanderBonus",
+    mutatorPoints,
+    bonusCost,
+    balanceAfterSelection: earnedPoints + mutatorPoints - bonusCost,
+    mutatorBreakdown,
+    bonusBreakdown,
+    commanderCleared,
+    commanderBonusScore,
+    mapBonusScore,
+    objectiveStats,
+  };
+}
+
+function getScoreRuleText() {
+  const rules = getScoreRules();
+  const mutatorRules = rules.mutatorTierPoints || {};
+  const bonusRules = (rules.genericBonusCosts || []).map((item) => {
+    if (item.costMode === "perLevel") {
+      return `${getGenericBonusLabel(item.id)} 每级 ${item.costPerLevel} 分`;
+    }
+    return `${getGenericBonusLabel(item.id)} ${item.cost} 分`;
+  });
+  return [
+    `首通 ${rules.firstCommanderMapClearPoints} 分/指挥官地图`,
+    `奖励分 ${rules.bonusObjectivePointValue} 分/点`,
+    `因子 normal=${mutatorRules.normal ?? 1} / medium=${mutatorRules.medium ?? 2} / hard=${mutatorRules.hard ?? 3}`,
+    `加成 ${bonusRules.join("；")}`,
+  ].join(" · ");
+}
+
 function getMapCompletionState(mapId, commander = getCommander()) {
   const completion = state.data?.completion;
   const normalizedMapId = normalizeMapBankId(mapId);
@@ -619,12 +792,22 @@ function getMapCompletionState(mapId, commander = getCommander()) {
   const commanderClearKeys = new Set((completion?.commanderClearKeys || []).map((item) => normalizeCommanderMapClearKey(item)));
   const mapCleared = mapClearIds.has(normalizedMapId);
   const commanderCleared = commanderMapKey ? commanderClearKeys.has(commanderMapKey) : false;
+  const commanderBonusScore = getCommanderBonusScore(normalizedMapId, commander);
+  const mapBonusScore = getMapBonusScore(normalizedMapId);
+  const objectiveStats = getCommanderObjectiveStateStats(normalizedMapId, commander);
+  const bonusCount = Math.max(commanderBonusScore, objectiveStats.completed, mapBonusScore);
+  const bonusLabel = bonusCount > 0
+    ? commanderBonusScore > 0 || objectiveStats.completed > 0
+      ? `奖励 ${bonusCount}`
+      : `奖励 ${bonusCount} (地图)`
+    : "奖励 0";
 
   if (commanderCleared) {
     return {
       label: "当前指挥官已通关",
       tone: "ok",
       detail: `来自 CommanderClear：${commanderMapKey}`,
+      meta: bonusLabel,
     };
   }
   if (mapCleared) {
@@ -632,12 +815,14 @@ function getMapCompletionState(mapId, commander = getCommander()) {
       label: "地图已通关",
       tone: "warn",
       detail: `来自 MapClear：${normalizedMapId}。当前地图有通关记录，但未找到当前指挥官专属通关标记。`,
+      meta: bonusLabel,
     };
   }
   return {
     label: "未通关",
     tone: "error",
     detail: `Bank 已读取，但未找到 ${normalizedMapId} 或 ${commanderMapKey || "当前指挥官"} 的通关标记。`,
+    meta: bonusLabel,
   };
 }
 
@@ -1045,6 +1230,7 @@ function getPayloadSummaryText(payload) {
   const mutators = Array.isArray(payload.mutators) ? payload.mutators : [];
   const genericBonuses = Array.isArray(payload.genericBonuses) ? payload.genericBonuses : [];
   const genericBonusLevels = normalizeGenericBonusLevels(payload.genericBonusLevels || {}, genericBonuses);
+  const scoreState = getScoreState(payload);
   const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
   return [
     `指挥官=${getCommanderLabel(payload.commander)}(${payload.commander})`,
@@ -1055,6 +1241,7 @@ function getPayloadSummaryText(payload) {
     `额外升级=${overrideLabels.length === 0 ? "无" : overrideLabels.join(",")}`,
     `通用加成=${genericBonuses.length === 0 ? "无" : genericBonuses.map((id) => getGenericBonusDisplayName(id, genericBonusLevels)).join(",")}`,
     `因子=${mutators.length === 0 ? "无" : mutators.join(",")}`,
+    `积分=${scoreState.earnedPoints}+${scoreState.mutatorPoints}-${scoreState.bonusCost}=${scoreState.balanceAfterSelection}`,
     `模式=${payload.noLaunch ? "dry-run" : "launch"}`,
   ].join(" | ");
 }
@@ -1253,6 +1440,10 @@ function getConfigIssues(payload = buildLaunchPayload()) {
   if (payload.enablePrestiges && payload.prestigeBonusMask === 0) {
     issues.push("已启用融合，但未选择任何正向效果");
   }
+  const scoreState = getScoreState(payload);
+  if (scoreState.balanceAfterSelection < 0) {
+    issues.push(`积分不足: 已得 ${scoreState.earnedPoints} + 因子 ${scoreState.mutatorPoints} - 加成 ${scoreState.bonusCost} = ${scoreState.balanceAfterSelection}`);
+  }
 
   return issues;
 }
@@ -1344,11 +1535,48 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
   });
 }
 
+function updateScorePanel(payload = buildLaunchPayload()) {
+  if (!state.data) return;
+  const scoreState = getScoreState(payload);
+  const commander = getCommander();
+  const mapLabel = getMapLabel(payload.map);
+  const commanderProgressText = commander
+    ? `${commander.displayName || commander.runtime} / ${mapLabel || payload.map || "-"} / ${scoreState.commanderCleared ? "已首通" : "未首通"} / 奖励 ${Math.max(scoreState.commanderBonusScore, scoreState.objectiveStats.completed)}`
+    : "等待选择";
+  const detailParts = [
+    `首通 ${scoreState.firstClearCount} 次 = ${scoreState.firstClearPoints} 分`,
+    `奖励 ${scoreState.bonusObjectiveCount} 点 = ${scoreState.bonusObjectivePoints} 分`,
+    `当前因子 +${scoreState.mutatorPoints}`,
+    `当前加成 -${scoreState.bonusCost}`,
+  ];
+  if (scoreState.objectiveStats.failed > 0) {
+    detailParts.push(`失败目标 ${scoreState.objectiveStats.failed}`);
+  }
+  updateScorePanelComponent({
+    budgetBadgeElement: el.scoreBudgetBadge,
+    availablePointsElement: el.scoreAvailablePoints,
+    mutatorPointsElement: el.scoreMutatorPoints,
+    bonusCostElement: el.scoreBonusCost,
+    balanceAfterElement: el.scoreBalanceAfter,
+    commanderProgressElement: el.scoreCommanderProgress,
+    detailElement: el.scoreDetailText,
+    ruleElement: el.scoreRuleText,
+    earnedPoints: scoreState.earnedPoints,
+    mutatorPoints: scoreState.mutatorPoints,
+    bonusCost: scoreState.bonusCost,
+    balanceAfter: scoreState.balanceAfterSelection,
+    commanderProgressText,
+    detailText: detailParts.join(" · "),
+    ruleText: getScoreRuleText(),
+  });
+}
+
 function updateSummary() {
   if (!state.data) {
     el.selectionSummary.textContent = "未就绪";
     el.copySummaryButton.disabled = true;
     el.masteryPairStatus.textContent = "-";
+    if (el.summaryPoints) el.summaryPoints.textContent = "0";
     setValidationSummary("未验证");
     el.configIssues.textContent = "配置未就绪";
     el.configIssues.className = "config-issues status-warn";
@@ -1358,6 +1586,7 @@ function updateSummary() {
   const payload = buildLaunchPayload();
   const commander = getCommander();
   const map = getMapLabel(el.mapSelect.value) || "-";
+  const scoreState = getScoreState(payload);
   const mutatorCount = state.selectedMutators.size;
   const commanderOverrideCount = state.selectedCommanderOverrides.size;
   const genericBonusCount = (payload.genericBonuses || []).length;
@@ -1370,6 +1599,7 @@ function updateSummary() {
     summaryMapElement: el.summaryMap,
     summaryMasteryElement: el.summaryMastery,
     summaryMutatorsElement: el.summaryMutators,
+    summaryPointsElement: el.summaryPoints,
     prestigeFusionStatusElement: el.prestigeFusionStatus,
     copySummaryButton: el.copySummaryButton,
     commanderLabel: commander?.displayName ?? "-",
@@ -1383,9 +1613,11 @@ function updateSummary() {
     selectedPrestigeCount,
     prestigeBonusMask: payload.prestigeBonusMask,
     enablePrestiges: payload.enablePrestiges,
+    scoreSummaryText: `${scoreState.earnedPoints}+${scoreState.mutatorPoints}-${scoreState.bonusCost}=${scoreState.balanceAfterSelection}`,
   });
   updateLaunchModeLabels(payload);
   updateSummaryDetails(payload);
+  updateScorePanel(payload);
   updateMasteryPairStatus();
   updateValidationSummary();
   updateConfigIssues();
@@ -1394,12 +1626,13 @@ function updateSummary() {
 
 function updateBootstrapStrip() {
   if (!state.data) return;
-  if (!el.bootstrapCommanderCount || !el.bootstrapMapCount || !el.bootstrapMutatorCount || !el.bootstrapCompletionStatus || !el.bootstrapResourcePlanText) {
+  if (!el.bootstrapCommanderCount || !el.bootstrapMapCount || !el.bootstrapMutatorCount || !el.bootstrapCompletionStatus || !el.bootstrapScoreStatus || !el.bootstrapResourcePlanText) {
     return;
   }
 
   const completion = state.data.completion || {};
   const completionStatus = [];
+  const scoreStatus = [];
   if (completion.bankFound) {
     completionStatus.push(`已读取 Bank`);
     if (completion.lastCommander || completion.lastMap) {
@@ -1408,8 +1641,12 @@ function updateBootstrapStrip() {
     if (completion.bankLastWriteTime) {
       completionStatus.push(`更新时间 ${formatShortTime(completion.bankLastWriteTime)}`);
     }
+    scoreStatus.push(`已得 ${completion.pointLedger?.earnedPoints || 0} 分`);
+    scoreStatus.push(`首通 ${completion.pointLedger?.firstClearCount || 0}`);
+    scoreStatus.push(`奖励 ${completion.pointLedger?.bonusObjectiveCount || 0}`);
   } else {
     completionStatus.push("未找到 CampaignXCore.SC2Bank");
+    scoreStatus.push("积分从 0 开始");
   }
   const resourcePlan = state.data.resourcePlan || {};
   updateBootstrapStripPanelComponent({
@@ -1417,12 +1654,14 @@ function updateBootstrapStrip() {
     mapCountElement: el.bootstrapMapCount,
     mutatorCountElement: el.bootstrapMutatorCount,
     completionStatusElement: el.bootstrapCompletionStatus,
+    scoreStatusElement: el.bootstrapScoreStatus,
     resourcePlanElement: el.bootstrapResourcePlanText,
     commanderCount: state.data.counts?.commanders ?? state.data.commanders?.length ?? 0,
     mapCount: state.data.counts?.maps ?? state.data.maps?.length ?? 0,
     mutatorCount: state.data.counts?.mutators ?? state.data.mutators?.length ?? 0,
     completion,
     completionStatusText: completionStatus.join(" · "),
+    scoreStatusText: scoreStatus.join(" · "),
     resourcePlanText: [
     resourcePlan.text || "数据索引已就绪",
     resourcePlan.icons || "",
@@ -1479,16 +1718,24 @@ function applyPayload(payload, options = {}) {
 
   el.enablePrestiges.checked = payload.enablePrestiges !== false;
   el.enableMasteries.checked = payload.enableMasteries !== false;
-  setPrestigeMaskValue(clampNumber(payload.prestigeBonusMask, 0, 7, 7));
+  const payloadPrestigeSelections = Array.isArray(payload.prestigeSelections) ? payload.prestigeSelections : null;
+  const restoredPrestigeMask = payloadPrestigeSelections
+    ? getPrestigeMaskFromSelections(payloadPrestigeSelections)
+    : clampNumber(payload.prestigeBonusMask, 0, 7, 7);
+  setPrestigeMaskValue(restoredPrestigeMask);
   el.prestigeProfile.value = normalizePrestigeProfile(payload.prestigeProfile);
   el.masteryLevel.value = String(parseLooseInteger(payload.masteryLevel, 30));
   el.mutatorPreset.value = String(clampNumber(payload.mutatorPreset, 0, 3, 0));
   el.dryRunToggle.checked = payload.noLaunch === true;
-  state.prestigeMaskMode = options.prestigeMaskAuto === true ? "default" : "custom";
+  if (options.prestigeMaskAuto === true) {
+    state.prestigeMaskMode = "default";
+  } else if (options.prestigeMaskMode === "default" || options.prestigeMaskMode === "custom") {
+    state.prestigeMaskMode = options.prestigeMaskMode;
+  }
 
   renderCommanderDetails();
-  if (Array.isArray(payload.prestigeSelections)) {
-    setCommanderPrestigeSelectionState(payload.prestigeSelections);
+  if (payloadPrestigeSelections) {
+    setCommanderPrestigeSelectionState(payloadPrestigeSelections);
     setPrestigeMaskValue(getCommanderPrestigeMaskFromSelection());
   }
 
@@ -2023,7 +2270,9 @@ function loadSavedConfig() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return false;
   try {
-    return applyPayload(JSON.parse(raw));
+    return applyPayload(JSON.parse(raw), {
+      prestigeMaskMode: state.prestigeMaskMode,
+    });
   } catch (error) {
     localStorage.removeItem(STORAGE_KEY);
     writeOutput(`保存的配置无效，已清除：${error.message}`);
@@ -2230,6 +2479,7 @@ async function loadBootstrap() {
       launchScript: state.data.launchScript,
       resourcePlan: state.data.resourcePlan,
       completion: state.data.completion,
+      scoreSystem: state.data.scoreSystem,
     });
   } catch (error) {
     setStatus(error.message, "status-error");

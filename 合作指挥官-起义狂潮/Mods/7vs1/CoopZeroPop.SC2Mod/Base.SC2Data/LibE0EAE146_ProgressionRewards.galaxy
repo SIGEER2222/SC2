@@ -294,14 +294,18 @@ void XMChallenge_EvaluateOnVictory (int lp_player, string lp_mapId, string lp_co
 
 void XMProgression_RecordVictory (int lp_player, string lp_mapId, string lp_commanderId, int lp_bonusScore, int lp_heroDeaths) {
     string lv_key;
+    string lv_bonusKey;
     int lv_totalWins;
     int lv_clearTime;
     int lv_bestTime;
+    int lv_bestBonus;
 
     lv_key = lp_commanderId + ":" + lp_mapId;
+    lv_bonusKey = lv_key;
     lv_totalWins = libE0EAE146_gf_XMProgression_BankInt(lp_player, "Progression", "TotalWins") + 1;
     lv_clearTime = FixedToInt(AIGetTime());
     lv_bestTime = libE0EAE146_gf_XMProgression_BankInt(lp_player, "MapBest", lp_mapId);
+    lv_bestBonus = libE0EAE146_gf_XMProgression_BankInt(lp_player, "CommanderBonus", lv_bonusKey);
 
     BankLoad("CampaignXCore", lp_player);
     BankValueSetFromInt(BankLastCreated(), "Progression", "TotalWins", lv_totalWins);
@@ -312,6 +316,9 @@ void XMProgression_RecordVictory (int lp_player, string lp_mapId, string lp_comm
     BankValueSetFromInt(BankLastCreated(), "CommanderClear", lv_key, 1);
     if ((lv_bestTime <= 0) || (lv_clearTime < lv_bestTime)) {
         BankValueSetFromInt(BankLastCreated(), "MapBest", lp_mapId, lv_clearTime);
+    }
+    if (lp_bonusScore > lv_bestBonus) {
+        BankValueSetFromInt(BankLastCreated(), "CommanderBonus", lv_bonusKey, lp_bonusScore);
     }
     BankValueSetFromInt(BankLastCreated(), "Reward", "RewardVictoryArchive", 1);
     BankSave(BankLastCreated());

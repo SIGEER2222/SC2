@@ -154,6 +154,7 @@ foreach ($needle in @(
     'BankValueSetFromInt(BankLastCreated(), "Progression", "TotalWins"',
     'BankValueSetFromInt(BankLastCreated(), "MapClear"',
     'BankValueSetFromInt(BankLastCreated(), "CommanderClear"',
+    'BankValueSetFromInt(BankLastCreated(), "CommanderBonus"',
     'BankValueSetFromInt(BankLastCreated(), "Progression", "ObjectiveState"'
 )) {
     Assert-Contains -Failures $failures -Text $sharedRewards -Needle $needle -Message ("Reward lib missing bank write/read contract: {0}" -f $needle)
@@ -218,6 +219,7 @@ foreach ($map in $maps) {
         if (-not $text.Contains('BankValueSetFromInt(BankLastCreated(), "Progression", "TotalWins"')) { $notes.Add('missing_total_wins_bank_write') | Out-Null }
         if (-not $text.Contains('BankValueSetFromInt(BankLastCreated(), "MapClear"')) { $notes.Add('missing_map_clear_bank_write') | Out-Null }
         if (-not $text.Contains('BankValueSetFromInt(BankLastCreated(), "CommanderClear"')) { $notes.Add('missing_commander_clear_bank_write') | Out-Null }
+        if (-not $text.Contains('BankValueSetFromInt(BankLastCreated(), "CommanderBonus"')) { $notes.Add('missing_commander_bonus_bank_write') | Out-Null }
         if (-not $text.Contains('BankValueSetFromInt(BankLastCreated(), "Progression", "ObjectiveState"')) { $notes.Add('missing_objective_state_bank_write') | Out-Null }
         if (-not $text.Contains('if (lv_selected == "BlessingResourceRich")')) { $notes.Add('missing_resource_rich_blessing_effect') | Out-Null }
         if (-not $text.Contains('else if (lv_selected == "BlessingGoldenMinerals")')) { $notes.Add('missing_golden_minerals_blessing_effect') | Out-Null }

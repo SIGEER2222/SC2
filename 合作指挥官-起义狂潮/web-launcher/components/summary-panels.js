@@ -6,6 +6,7 @@ export function updateSummaryPanel({
   summaryMapElement,
   summaryMasteryElement,
   summaryMutatorsElement,
+  summaryPointsElement,
   prestigeFusionStatusElement,
   copySummaryButton,
   commanderLabel,
@@ -19,12 +20,14 @@ export function updateSummaryPanel({
   selectedPrestigeCount,
   prestigeBonusMask,
   enablePrestiges,
+  scoreSummaryText,
 }) {
   selectionSummaryElement.textContent = `${commanderLabel} / ${mapLabel} / ${mutatorCount} 因子 / ${genericBonusCount} 加成 / ${commanderOverrideCount} 升级`;
   summaryCommanderElement.textContent = commanderLabel;
   summaryMapElement.textContent = mapLabel;
   summaryMasteryElement.textContent = `${masteryLevel} / ${masteryValues.join(",")}`;
   summaryMutatorsElement.textContent = `${mutatorCount} / ${genericBonusCount}`;
+  summaryPointsElement.textContent = scoreSummaryText;
   prestigeFusionStatusElement.textContent = enablePrestiges
     ? `${prestigeMaskMode === "default" ? "默认整合" : "手动拆分"} / ${selectedPrestigeCount} 项 / mask ${prestigeBonusMask}`
     : "融合关闭";
@@ -78,12 +81,14 @@ export function updateBootstrapStripPanel({
   mapCountElement,
   mutatorCountElement,
   completionStatusElement,
+  scoreStatusElement,
   resourcePlanElement,
   commanderCount,
   mapCount,
   mutatorCount,
   completion,
   completionStatusText,
+  scoreStatusText,
   resourcePlanText,
 }) {
   commanderCountElement.textContent = String(commanderCount);
@@ -91,6 +96,8 @@ export function updateBootstrapStripPanel({
   mutatorCountElement.textContent = String(mutatorCount);
   completionStatusElement.textContent = completionStatusText;
   completionStatusElement.title = completion.bankPath || "";
+  scoreStatusElement.textContent = scoreStatusText;
+  scoreStatusElement.title = `积分来源：${completion.pointLedger?.objectiveStateSource || "CommanderBonus"}`;
   resourcePlanElement.textContent = resourcePlanText;
 }
 
@@ -98,4 +105,34 @@ export function updateMasteryPairStatusPanel({ element, pairSums }) {
   element.classList.remove("status-error");
   element.classList.add("status-ok");
   element.textContent = pairSums.map((item) => `C${item.category}:${item.total}`).join(" / ");
+}
+
+export function updateScorePanel({
+  budgetBadgeElement,
+  availablePointsElement,
+  mutatorPointsElement,
+  bonusCostElement,
+  balanceAfterElement,
+  commanderProgressElement,
+  detailElement,
+  ruleElement,
+  earnedPoints,
+  mutatorPoints,
+  bonusCost,
+  balanceAfter,
+  commanderProgressText,
+  detailText,
+  ruleText,
+}) {
+  const affordable = balanceAfter >= 0;
+  budgetBadgeElement.className = `badge ${affordable ? "status-ok" : "status-error"}`;
+  budgetBadgeElement.textContent = affordable ? "积分可用" : "积分不足";
+  availablePointsElement.textContent = String(earnedPoints);
+  mutatorPointsElement.textContent = `+${mutatorPoints}`;
+  bonusCostElement.textContent = `-${bonusCost}`;
+  balanceAfterElement.textContent = String(balanceAfter);
+  commanderProgressElement.textContent = commanderProgressText;
+  detailElement.className = `config-issues ${affordable ? "status-ok" : "status-error"}`;
+  detailElement.textContent = detailText;
+  ruleElement.textContent = ruleText;
 }

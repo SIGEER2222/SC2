@@ -112,6 +112,7 @@ export function renderQuickPickers({
         <strong>${escapeHtml(map.title || map.displayName || map.id)}</strong>
         <em>${escapeHtml(map.id)}</em>
         <span class="map-card-status ${getStatusToneClass(completion.tone)}" title="${escapeHtml(completion.detail || completion.label)}">${escapeHtml(completion.label)}</span>
+        <span class="map-card-meta">${escapeHtml(completion.meta || "")}</span>
       </span>
     `;
     button.addEventListener("click", () => {

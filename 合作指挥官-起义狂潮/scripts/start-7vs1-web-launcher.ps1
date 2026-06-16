@@ -717,10 +717,145 @@ function Normalize-CommanderClearKey {
     return "${commander}:$mapId"
 }
 
+function Normalize-CommanderBonusKey {
+    param([string]$KeyName)
+
+    return (Normalize-CommanderClearKey -KeyName $KeyName)
+}
+
+function Get-ScoreConfig {
+    return [pscustomobject]@{
+        version = "2026-06-16"
+        firstCommanderMapClearPoints = 3
+        bonusObjectivePointValue = 1
+        mutatorTierPoints = [pscustomobject]@{
+            normal = 1
+            medium = 2
+            hard = 3
+        }
+        mutatorOverrides = @(
+            [pscustomobject]@{ id = "Random"; points = 0; note = "随机入口不单独计分" }
+            [pscustomobject]@{ id = "CycleRandom"; points = 0; note = "轮换随机不单独计分" }
+        )
+        genericBonusCosts = @(
+            [pscustomobject]@{ id = "DoubleMinerals"; costMode = "perLevel"; costPerLevel = 1; label = "矿物储量倍率" }
+            [pscustomobject]@{ id = "DoubleVespene"; costMode = "perLevel"; costPerLevel = 1; label = "瓦斯储量倍率" }
+            [pscustomobject]@{ id = "RichResources"; costMode = "fixed"; cost = 2; label = "高产矿脉与瓦斯" }
+            [pscustomobject]@{ id = "GuardianShell"; costMode = "fixed"; cost = 2; label = "守护者之壳" }
+            [pscustomobject]@{ id = "CreepRegeneration"; costMode = "fixed"; cost = 1; label = "菌毯回血" }
+            [pscustomobject]@{ id = "MechanicalRepair"; costMode = "fixed"; cost = 1; label = "机械维修" }
+            [pscustomobject]@{ id = "ChronoBoost"; costMode = "fixed"; cost = 2; label = "时空加速" }
+            [pscustomobject]@{ id = "MaxSupply50"; costMode = "fixed"; cost = 1; label = "人口上限+50" }
+            [pscustomobject]@{ id = "ZeroSupply"; costMode = "fixed"; cost = 3; label = "单位0人口" }
+        )
+    }
+}
+
+function Get-CompletionPointLedger {
+    param([pscustomobject]$Completion)
+
+    $scoreConfig = Get-ScoreConfig
+    $commanderClearCount = @($Completion.commanderClearKeys).Count
+    $commanderBonusPoints = (@($Completion.commanderBonusScores) | Measure-Object -Property bonusScore -Sum).Sum
+    if ($null -eq $commanderBonusPoints) {
+        $commanderBonusPoints = 0
+    }
+    $objectiveCompletedCount = @($Completion.objectiveStates | Where-Object { $_.state -eq 2 }).Count
+    $clearPoints = $commanderClearCount * [int]$scoreConfig.firstCommanderMapClearPoints
+    $bonusCompletionCount = [Math]::Max([int]$commanderBonusPoints, [int]$objectiveCompletedCount)
+    $bonusPoints = $bonusCompletionCount * [int]$scoreConfig.bonusObjectivePointValue
+
+    return [pscustomobject]@{
+        firstClearCount = $commanderClearCount
+        firstClearPoints = $clearPoints
+        bonusObjectiveCount = $bonusCompletionCount
+        bonusObjectivePoints = $bonusPoints
+        earnedPoints = $clearPoints + $bonusPoints
+        objectiveStateSource = if (@($Completion.objectiveStates).Count -gt 0) { "ObjectiveState" } else { "CommanderBonus" }
+    }
+}
+
+function Get-MutatorScorePoints {
+    param([string]$Id)
+
+    $scoreConfig = Get-ScoreConfig
+    $override = @($scoreConfig.mutatorOverrides | Where-Object { $_.id -eq $Id } | Select-Object -First 1)
+    if ($override.Count -gt 0) {
+        return [int]$override[0].points
+    }
+
+    $class = Get-MutatorClass -Id $Id
+    switch ([string]$class.tier) {
+        "hard" { return [int]$scoreConfig.mutatorTierPoints.hard }
+        "medium" { return [int]$scoreConfig.mutatorTierPoints.medium }
+        default { return [int]$scoreConfig.mutatorTierPoints.normal }
+    }
+}
+
+function Get-GenericBonusScoreCost {
+    param(
+        [string]$Id,
+        [int]$Level = 0
+    )
+
+    $scoreConfig = Get-ScoreConfig
+    $rule = @($scoreConfig.genericBonusCosts | Where-Object { $_.id -eq $Id } | Select-Object -First 1)
+    if ($rule.Count -eq 0) {
+        return 0
+    }
+
+    if ([string]$rule[0].costMode -eq "perLevel") {
+        return [Math]::Max(0, [int]$Level) * [Math]::Max(0, [int]$rule[0].costPerLevel)
+    }
+
+    return [Math]::Max(0, [int]$rule[0].cost)
+}
+
+function Get-ObjectiveStateRecord {
+    param(
+        [string]$KeyName,
+        [int]$State
+    )
+
+    $value = [string]$KeyName
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        return $null
+    }
+
+    if ($value.StartsWith("ObjectiveState/")) {
+        $value = $value.Substring("ObjectiveState/".Length)
+    }
+
+    $parts = $value.Split(":", 4)
+    if ($parts.Count -lt 4) {
+        return $null
+    }
+
+    $commander = $parts[0].Trim()
+    $mapId = Normalize-BankMapId $parts[1]
+    $objectiveType = $parts[2].Trim()
+    $objectiveIndex = 0
+    if (-not [int]::TryParse($parts[3], [ref]$objectiveIndex)) {
+        return $null
+    }
+    if ([string]::IsNullOrWhiteSpace($commander) -or [string]::IsNullOrWhiteSpace($mapId)) {
+        return $null
+    }
+
+    return [pscustomobject]@{
+        key = "${commander}:${mapId}:${objectiveType}:${objectiveIndex}"
+        commander = $commander
+        mapId = $mapId
+        objectiveType = $objectiveType
+        objectiveIndex = $objectiveIndex
+        state = $State
+    }
+}
+
 function Get-CompletionSnapshot {
     $bankPaths = @(Get-CampaignXCoreBankPaths)
     if ($bankPaths.Count -eq 0) {
-        return [pscustomobject]@{
+        $completion = [pscustomobject]@{
             bankFound = $false
             bankPath = ""
             bankLastWriteTime = $null
@@ -728,15 +863,27 @@ function Get-CompletionSnapshot {
             lastCommander = ""
             mapClearIds = @()
             commanderClearKeys = @()
+            mapBonusScores = @()
+            commanderBonusScores = @()
+            objectiveStates = @()
+            totalWins = 0
+            lastClearTime = $null
         }
+        $completion | Add-Member -NotePropertyName pointLedger -NotePropertyValue (Get-CompletionPointLedger -Completion $completion)
+        return $completion
     }
 
     $mapClearIds = New-Object System.Collections.Generic.List[string]
     $commanderClearKeys = New-Object System.Collections.Generic.List[string]
+    $mapBonusScores = New-Object System.Collections.Generic.Dictionary[string,int] ([System.StringComparer]::OrdinalIgnoreCase)
+    $commanderBonusScores = New-Object System.Collections.Generic.Dictionary[string,int] ([System.StringComparer]::OrdinalIgnoreCase)
+    $objectiveStateMap = New-Object System.Collections.Generic.Dictionary[string,object] ([System.StringComparer]::OrdinalIgnoreCase)
     $selectedBankPath = ""
     $selectedBankWriteTime = $null
     $lastMap = ""
     $lastCommander = ""
+    $lastClearTime = $null
+    $totalWins = 0
 
     foreach ($bankPath in $bankPaths) {
         [xml]$xml = Get-Content -LiteralPath $bankPath -Raw -Encoding UTF8
@@ -746,6 +893,11 @@ function Get-CompletionSnapshot {
             $selectedBankWriteTime = $bankItem.LastWriteTime
             $lastMap = Get-BankStringValue -Xml $xml -SectionName "Progression" -KeyName "LastMap"
             $lastCommander = Get-BankStringValue -Xml $xml -SectionName "Progression" -KeyName "LastCommander"
+            $lastClearTime = Get-BankIntValue -Xml $xml -SectionName "Progression" -KeyName "LastClearTime"
+            $latestTotalWins = Get-BankIntValue -Xml $xml -SectionName "Progression" -KeyName "TotalWins"
+            if ($latestTotalWins -gt $totalWins) {
+                $totalWins = $latestTotalWins
+            }
         }
 
         foreach ($sectionName in @("MapClear", "Finished")) {
@@ -767,17 +919,76 @@ function Get-CompletionSnapshot {
                 $commanderClearKeys.Add($normalizedKey)
             }
         }
+
+        foreach ($key in @($xml.SelectNodes("/Bank/Section[@name='Bon']/Key"))) {
+            $keyName = [string]$key.GetAttribute("name")
+            $value = Get-BankIntValue -Xml $xml -SectionName "Bon" -KeyName $keyName
+            $normalizedMapId = Normalize-BankMapId $keyName
+            if (($value -gt 0) -and -not [string]::IsNullOrWhiteSpace($normalizedMapId)) {
+                if (-not $mapBonusScores.ContainsKey($normalizedMapId) -or $value -gt $mapBonusScores[$normalizedMapId]) {
+                    $mapBonusScores[$normalizedMapId] = $value
+                }
+            }
+        }
+
+        foreach ($key in @($xml.SelectNodes("/Bank/Section[@name='CommanderBonus']/Key"))) {
+            $keyName = [string]$key.GetAttribute("name")
+            $value = Get-BankIntValue -Xml $xml -SectionName "CommanderBonus" -KeyName $keyName
+            $normalizedKey = Normalize-CommanderBonusKey $keyName
+            if (($value -gt 0) -and -not [string]::IsNullOrWhiteSpace($normalizedKey)) {
+                if (-not $commanderBonusScores.ContainsKey($normalizedKey) -or $value -gt $commanderBonusScores[$normalizedKey]) {
+                    $commanderBonusScores[$normalizedKey] = $value
+                }
+            }
+        }
+
+        foreach ($key in @($xml.SelectNodes("/Bank/Section[@name='Progression']/Key"))) {
+            $keyName = [string]$key.GetAttribute("name")
+            if (-not $keyName.StartsWith("ObjectiveState")) {
+                continue
+            }
+
+            $value = Get-BankIntValue -Xml $xml -SectionName "Progression" -KeyName $keyName
+            if ($value -le 0) {
+                continue
+            }
+
+            $record = Get-ObjectiveStateRecord -KeyName $keyName -State $value
+            if ($null -ne $record) {
+                $objectiveStateMap[$record.key] = $record
+            }
+        }
     }
 
-    [pscustomobject]@{
+    $completion = [pscustomobject]@{
         bankFound = $true
         bankPath = $selectedBankPath
         bankLastWriteTime = if ($selectedBankWriteTime) { $selectedBankWriteTime.ToString("o") } else { $null }
         lastMap = Normalize-BankMapId $lastMap
         lastCommander = $lastCommander
+        totalWins = [int]$totalWins
+        lastClearTime = if ($lastClearTime -gt 0) { [int]$lastClearTime } else { $null }
         mapClearIds = @($mapClearIds | Sort-Object -Unique)
         commanderClearKeys = @($commanderClearKeys | Sort-Object -Unique)
+        mapBonusScores = @($mapBonusScores.GetEnumerator() | Sort-Object Name | ForEach-Object {
+                [pscustomobject]@{
+                    mapId = $_.Name
+                    bonusScore = [int]$_.Value
+                }
+            })
+        commanderBonusScores = @($commanderBonusScores.GetEnumerator() | Sort-Object Name | ForEach-Object {
+                $parts = $_.Name.Split(":", 2)
+                [pscustomobject]@{
+                    key = $_.Name
+                    commander = if ($parts.Count -gt 0) { $parts[0] } else { "" }
+                    mapId = if ($parts.Count -gt 1) { $parts[1] } else { "" }
+                    bonusScore = [int]$_.Value
+                }
+            })
+        objectiveStates = @($objectiveStateMap.Values | Sort-Object key)
     }
+    $completion | Add-Member -NotePropertyName pointLedger -NotePropertyValue (Get-CompletionPointLedger -Completion $completion)
+    return $completion
 }
 
 function Get-MapItems {
@@ -877,6 +1088,62 @@ function Get-MutatorClass {
     }
 }
 
+function Get-LaunchScoreSummary {
+    param([pscustomobject]$Request)
+
+    $completion = Get-CompletionSnapshot
+    $ledger = $completion.pointLedger
+    $selectedMutators = @($Request.mutators) | Sort-Object -Unique
+    $mutatorBreakdown = @($selectedMutators | ForEach-Object {
+            [pscustomobject]@{
+                id = [string]$_
+                points = Get-MutatorScorePoints -Id ([string]$_)
+            }
+        })
+    $mutatorPoints = (@($mutatorBreakdown) | Measure-Object -Property points -Sum).Sum
+    if ($null -eq $mutatorPoints) {
+        $mutatorPoints = 0
+    }
+
+    $selectedBonusIds = @($Request.genericBonuses) | Sort-Object -Unique
+    $genericBonusLevels = $Request.genericBonusLevels
+    $bonusBreakdown = @($selectedBonusIds | ForEach-Object {
+            $bonusId = [string]$_
+            $level = 0
+            if ($null -ne $genericBonusLevels) {
+                if ($genericBonusLevels -is [System.Collections.IDictionary]) {
+                    if ($genericBonusLevels.Contains($bonusId)) {
+                        $level = [int]$genericBonusLevels[$bonusId]
+                    }
+                }
+                elseif ($genericBonusLevels.PSObject.Properties.Name -contains $bonusId) {
+                    $level = [int]$genericBonusLevels.$bonusId
+                }
+            }
+
+            [pscustomobject]@{
+                id = $bonusId
+                level = $level
+                cost = Get-GenericBonusScoreCost -Id $bonusId -Level $level
+            }
+        })
+    $bonusCost = (@($bonusBreakdown) | Measure-Object -Property cost -Sum).Sum
+    if ($null -eq $bonusCost) {
+        $bonusCost = 0
+    }
+
+    return [pscustomobject]@{
+        completion = $completion
+        earnedPoints = [int]$ledger.earnedPoints
+        earnedBreakdown = $ledger
+        mutatorPoints = [int]$mutatorPoints
+        bonusCost = [int]$bonusCost
+        balanceAfterSelection = [int]$ledger.earnedPoints + [int]$mutatorPoints - [int]$bonusCost
+        mutatorBreakdown = $mutatorBreakdown
+        bonusBreakdown = $bonusBreakdown
+    }
+}
+
 function Get-BootstrapData {
     $commanders = @(Get-CommanderItems)
     $maps = @(Get-MapItems)
@@ -910,6 +1177,7 @@ function Get-BootstrapData {
         maps = $maps
         mutators = $mutators
         completion = $completion
+        scoreSystem = Get-ScoreConfig
         resourcePlan = [pscustomobject]@{
             text = "指挥官 / 因子文字与协议元数据已接入"
             icons = "本地缓存真实 SC2 贴图；优先命中提取图标，缺失项回退到同主题游戏贴图"
@@ -1029,6 +1297,25 @@ function ConvertTo-LaunchArgumentList {
         }
     }
 
+    $normalizedScoreRequest = [pscustomobject]@{
+        commander = $commander
+        map = $map
+        mutators = $selectedMutators.ToArray()
+        genericBonuses = $selectedGenericBonuses.ToArray()
+        genericBonusLevels = [pscustomobject]@{}
+    }
+    foreach ($bonusId in $selectedGenericBonusLevels.Keys) {
+        $normalizedScoreRequest.genericBonusLevels | Add-Member -NotePropertyName $bonusId -NotePropertyValue ([int]$selectedGenericBonusLevels[$bonusId])
+    }
+    $scoreSummary = Get-LaunchScoreSummary -Request $normalizedScoreRequest
+    if ($scoreSummary.balanceAfterSelection -lt 0) {
+        throw ("Score budget exceeded: earned={0}, mutators=+{1}, bonuses=-{2}, balance={3}" -f
+            $scoreSummary.earnedPoints,
+            $scoreSummary.mutatorPoints,
+            $scoreSummary.bonusCost,
+            $scoreSummary.balanceAfterSelection)
+    }
+
     $enableMasteries = if ($Request.enableMasteries -eq $false) { 0 } else { 1 }
     $enablePrestiges = if ($Request.enablePrestiges -eq $false) { 0 } else { 1 }
     $prestigeBonusMask = [int]($Request.prestigeBonusMask ?? 7)
@@ -1103,6 +1390,7 @@ function Start-LaunchProcess {
     param([pscustomobject]$Request)
 
     $args = ConvertTo-LaunchArgumentList -Request $Request
+    $scoreSummary = Get-LaunchScoreSummary -Request $Request
     $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
     $stdout = Join-Path $script:LogsRoot "web-launcher-$stamp.out.log"
     $stderr = Join-Path $script:LogsRoot "web-launcher-$stamp.err.log"
@@ -1123,6 +1411,7 @@ function Start-LaunchProcess {
         stdout = $stdout
         stderr = $stderr
         arguments = $args
+        score = $scoreSummary
     }
 }
 
@@ -1130,12 +1419,14 @@ function New-LaunchPreview {
     param([pscustomobject]$Request)
 
     $args = ConvertTo-LaunchArgumentList -Request $Request
+    $scoreSummary = Get-LaunchScoreSummary -Request $Request
 
     return [pscustomobject]@{
         ok = $true
         checkedAt = (Get-Date).ToString("o")
         executable = "pwsh"
         arguments = $args
+        score = $scoreSummary
         commandLine = "pwsh " + (($args | ForEach-Object {
                     if ($_ -match '[\s"]') {
                         '"' + ($_ -replace '"', '\"') + '"'
