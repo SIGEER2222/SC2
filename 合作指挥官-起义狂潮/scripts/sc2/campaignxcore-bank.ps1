@@ -595,6 +595,8 @@ function Set-CampaignXCoreGenericBonuses {
         "CreepRegeneration",
         "MechanicalRepair",
         "ChronoBoost",
+        "AllyEarlyDamageReduction",
+        "AllySustainBoost",
         "MaxSupply50",
         "ZeroSupply"
     )) {

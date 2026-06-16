@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Local Web launcher for 7vs1 coop commander test maps.
 
@@ -769,6 +769,8 @@ function Get-ScoreConfig {
             [pscustomobject]@{ id = "CreepRegeneration"; costMode = "fixed"; cost = 1; label = "菌毯回血" }
             [pscustomobject]@{ id = "MechanicalRepair"; costMode = "fixed"; cost = 1; label = "机械维修" }
             [pscustomobject]@{ id = "ChronoBoost"; costMode = "fixed"; cost = 2; label = "时空加速" }
+            [pscustomobject]@{ id = "AllyEarlyDamageReduction"; costMode = "fixed"; cost = 2; label = "盟友开局减伤" }
+            [pscustomobject]@{ id = "AllySustainBoost"; costMode = "fixed"; cost = 3; label = "盟友持续强化" }
             [pscustomobject]@{ id = "MaxSupply50"; costMode = "fixed"; cost = 1; label = "人口上限+50" }
             [pscustomobject]@{ id = "ZeroSupply"; costMode = "fixed"; cost = 3; label = "单位0人口" }
         )
@@ -1241,7 +1243,7 @@ function ConvertTo-LaunchArgumentList {
         throw "Unknown map: $map"
     }
 
-    $masteryLevel = [int]($Request.masteryLevel ?? 30)
+    $masteryLevel = if ($null -ne $Request.masteryLevel) { [int]$Request.masteryLevel } else { 30 }
     $masteries = @(30, 30, 30, 30, 30, 30)
     if ($null -ne $Request.masteries) {
         for ($i = 0; $i -lt [Math]::Min(6, $Request.masteries.Count); $i++) {
@@ -1259,6 +1261,8 @@ function ConvertTo-LaunchArgumentList {
         "CreepRegeneration",
         "MechanicalRepair",
         "ChronoBoost",
+        "AllyEarlyDamageReduction",
+        "AllySustainBoost",
         "MaxSupply50",
         "ZeroSupply"
     )
@@ -1349,9 +1353,9 @@ function ConvertTo-LaunchArgumentList {
 
     $enableMasteries = if ($Request.enableMasteries -eq $false) { 0 } else { 1 }
     $enablePrestiges = if ($Request.enablePrestiges -eq $false) { 0 } else { 1 }
-    $prestigeBonusMask = [int]($Request.prestigeBonusMask ?? 7)
-    $prestigePointIndex = [int]($Request.prestigePointIndex ?? -1)
-    $mutatorPreset = [int]($Request.mutatorPreset ?? 0)
+    $prestigeBonusMask = if ($null -ne $Request.prestigeBonusMask) { [int]$Request.prestigeBonusMask } else { 7 }
+    $prestigePointIndex = if ($null -ne $Request.prestigePointIndex) { [int]$Request.prestigePointIndex } else { -1 }
+    $mutatorPreset = if ($null -ne $Request.mutatorPreset) { [int]$Request.mutatorPreset } else { 0 }
     $noLaunch = if ($Request.noLaunch -eq $true) { $true } else { $false }
     $selectedCommanderOverrides = New-Object System.Collections.Generic.List[string]
     if ($null -ne $Request.commanderOverrides) {
@@ -1491,7 +1495,7 @@ function Get-LogTail {
 function Get-LaunchStatus {
     param([pscustomobject]$Request)
 
-    $pidValue = [int]($Request.pid ?? 0)
+    $pidValue = if ($null -ne $Request.pid) { [int]$Request.pid } else { 0 }
     $processKey = [string]$pidValue
     $process = if ($script:LaunchProcesses.ContainsKey($processKey)) {
         $script:LaunchProcesses[$processKey]

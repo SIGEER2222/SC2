@@ -65,6 +65,8 @@ const GENERIC_BONUS_OPTIONS = [
   { id: "CreepRegeneration", name: "菌毯回血", description: "获得凯瑞甘菌毯回血效果。" },
   { id: "MechanicalRepair", name: "机械维修", description: "机械单位周期性自我修复。" },
   { id: "ChronoBoost", name: "时空加速", description: "基地旁控制建筑获得一次全图时空加速主动技能。" },
+  { id: "AllyEarlyDamageReduction", name: "盟友开局减伤", description: "有剧情盟友的地图中，真实盟友单位在开局 5 分钟内受到伤害降低 90%。" },
+  { id: "AllySustainBoost", name: "盟友持续强化", description: "有剧情盟友的地图中，真实盟友获得通用攻防升级，并周期性补满生命和护盾。" },
   { id: "MaxSupply50", name: "人口上限+50", description: "人口上限额外增加 50。" },
   { id: "ZeroSupply", name: "单位0人口", description: "启用公共层 0/200 供给脚本：定时把人口上限设为 200，并将现有单位改为不占人口。" },
 ];
@@ -677,6 +679,8 @@ function getScoreRules() {
       { id: "CreepRegeneration", costMode: "fixed", cost: 1 },
       { id: "MechanicalRepair", costMode: "fixed", cost: 1 },
       { id: "ChronoBoost", costMode: "fixed", cost: 2 },
+      { id: "AllyEarlyDamageReduction", costMode: "fixed", cost: 2 },
+      { id: "AllySustainBoost", costMode: "fixed", cost: 3 },
       { id: "MaxSupply50", costMode: "fixed", cost: 1 },
       { id: "ZeroSupply", costMode: "fixed", cost: 3 },
     ],
