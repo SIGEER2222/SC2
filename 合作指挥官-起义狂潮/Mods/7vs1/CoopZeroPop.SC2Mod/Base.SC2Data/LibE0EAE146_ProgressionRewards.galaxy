@@ -67,6 +67,44 @@ void XMReward_Unlock (int lp_player, string lp_rewardId) {
     BankSave(BankLastCreated());
 }
 
+bool XMUnlock_BonusIsUnlocked (int lp_player, string lp_bonusId) {
+    return libE0EAE146_gf_XMProgression_BankInt(lp_player, "UnlockedBonus", lp_bonusId) > 0;
+}
+
+void XMUnlock_Bonus (int lp_player, string lp_bonusId) {
+    if (lp_bonusId == "") {
+        return;
+    }
+    if (XMUnlock_BonusIsUnlocked(lp_player, lp_bonusId)) {
+        return;
+    }
+    BankLoad("CampaignXCore", lp_player);
+    BankValueSetFromInt(BankLastCreated(), "UnlockedBonus", lp_bonusId, 1);
+    BankSave(BankLastCreated());
+}
+
+bool XMUnlock_PrestigeIsUnlocked (int lp_player, string lp_commanderId, string lp_prestigeId) {
+    string lv_key;
+
+    lv_key = lp_commanderId + ":" + lp_prestigeId;
+    return libE0EAE146_gf_XMProgression_BankInt(lp_player, "UnlockedPrestige", lv_key) > 0;
+}
+
+void XMUnlock_Prestige (int lp_player, string lp_commanderId, string lp_prestigeId) {
+    string lv_key;
+
+    if ((lp_commanderId == "") || (lp_prestigeId == "")) {
+        return;
+    }
+    if (XMUnlock_PrestigeIsUnlocked(lp_player, lp_commanderId, lp_prestigeId)) {
+        return;
+    }
+    lv_key = lp_commanderId + ":" + lp_prestigeId;
+    BankLoad("CampaignXCore", lp_player);
+    BankValueSetFromInt(BankLastCreated(), "UnlockedPrestige", lv_key, 1);
+    BankSave(BankLastCreated());
+}
+
 string XMBlessing_Selected (int lp_player) {
     return libE0EAE146_gv_xmProgressionSelectedBlessing[lp_player];
 }
@@ -270,20 +308,24 @@ void XMChallenge_EvaluateOnVictoryEx (int lp_player, string lp_mapId, string lp_
         XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_RESOURCE_SCARCE_CLEAR");
         XMBlessing_Unlock(lp_player, "BlessingResourceRich");
         XMReward_Unlock(lp_player, "RewardResourceRich");
+        XMUnlock_Bonus(lp_player, "RichResources");
     }
     else if (lv_challenge == "ChallengeSpeedClear") {
         XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_SPEED_CLEAR");
         XMBlessing_Unlock(lp_player, "BlessingGoldenMinerals");
         XMReward_Unlock(lp_player, "RewardGoldenMinerals");
+        XMUnlock_Bonus(lp_player, "DoubleMinerals");
     }
     else if (lv_challenge == "ChallengeFullBonus") {
         if (lp_bonusScore >= 3) {
             XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_FULL_BONUS_CLEAR");
+            XMUnlock_Bonus(lp_player, "CreepRegeneration");
         }
     }
     else if (lv_challenge == "ChallengeNoHeroDeath") {
         if (lp_heroDeaths <= 0) {
             XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_NO_HERO_DEATH_CLEAR");
+            XMUnlock_Bonus(lp_player, "MechanicalRepair");
         }
     }
 }
@@ -338,6 +380,7 @@ void XMProgression_RecordVictory (int lp_player, string lp_mapId, string lp_comm
         XMAchievement_Unlock(lp_player, "ACH_CLEAR_5_MISSIONS");
         XMBlessing_Unlock(lp_player, "BlessingGuardianShell");
         XMReward_Unlock(lp_player, "RewardGuardianShell");
+        XMUnlock_Bonus(lp_player, "GuardianShell");
     }
     XMChallenge_EvaluateOnVictoryEx(lp_player, lp_mapId, lp_commanderId, lp_bonusScore, lp_heroDeaths);
 }
@@ -352,6 +395,11 @@ void XMProgression_DebugUnlockFirstBatch (int lp_player) {
     XMBlessing_Unlock(lp_player, "BlessingGuardianShell");
     XMBlessing_Unlock(lp_player, "BlessingPhaseRepair");
     XMBlessing_Unlock(lp_player, "BlessingCreepRegeneration");
+    XMUnlock_Bonus(lp_player, "RichResources");
+    XMUnlock_Bonus(lp_player, "DoubleMinerals");
+    XMUnlock_Bonus(lp_player, "GuardianShell");
+    XMUnlock_Bonus(lp_player, "MechanicalRepair");
+    XMUnlock_Bonus(lp_player, "CreepRegeneration");
     XMAchievement_Unlock(lp_player, "ACH_ARTANIS_CLEAR_KEY_MISSION");
     XMAchievement_Unlock(lp_player, "ACH_KARAX_CLEAR_KEY_MISSION");
     XMAchievement_Unlock(lp_player, "ACH_KERRIGAN_CREEP_CLEAR");

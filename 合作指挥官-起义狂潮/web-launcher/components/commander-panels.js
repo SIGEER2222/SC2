@@ -5,6 +5,7 @@ export function renderPrestigePanel({
   commander,
   activeMask,
   defaultMask,
+  isPrestigeUnlocked,
   getPositivePrestigeTooltipText,
   onSelectMode,
   onTogglePrestige,
@@ -30,10 +31,11 @@ export function renderPrestigePanel({
     card.className = "prestige-item";
     const checked = (activeMask & prestige.bitMask) === prestige.bitMask;
     const defaultSelected = (defaultMask & prestige.bitMask) === prestige.bitMask;
+    const unlocked = isPrestigeUnlocked ? isPrestigeUnlocked(prestige) : true;
     const positiveTooltip = getPositivePrestigeTooltipText(prestige.tooltip || prestige.id);
     card.innerHTML = `
       <label class="prestige-toggle">
-        <input class="prestige-toggle-input" type="checkbox" data-slot="${prestige.slot}" data-bit-mask="${prestige.bitMask}" ${checked ? "checked" : ""}>
+        <input class="prestige-toggle-input" type="checkbox" data-slot="${prestige.slot}" data-bit-mask="${prestige.bitMask}" ${checked ? "checked" : ""} ${unlocked ? "" : "disabled"}>
         <span class="prestige-toggle-main">
           <span class="prestige-name">
             <strong>P${prestige.slot + 1} ${escapeHtml(prestige.name || prestige.id)}</strong>
@@ -41,11 +43,12 @@ export function renderPrestigePanel({
           </span>
           <span class="prestige-tags">
             <em class="${defaultSelected ? "status-ok" : ""}">${defaultSelected ? "默认整合内" : "默认未选"}</em>
+            <em class="${unlocked ? "status-ok" : "status-warn"}">${unlocked ? "已解锁" : "未解锁"}</em>
             <em>${escapeHtml(prestige.id)}</em>
           </span>
         </span>
       </label>
-      <div class="prestige-tip">${escapeHtml(positiveTooltip || prestige.id)}</div>
+      <div class="prestige-tip">${escapeHtml((unlocked ? "" : "未解锁。") + (positiveTooltip || prestige.id))}</div>
     `;
     container.append(card);
   }
@@ -151,6 +154,7 @@ export function renderGenericBonusPanel({
   options,
   selectedBonusIds,
   levelValues,
+  isBonusUnlocked,
   onToggleBonus,
   onSetBonusLevel,
 }) {
@@ -176,6 +180,7 @@ export function renderGenericBonusPanel({
     const checked = selectedBonusIds.has(option.id);
     const isLevelable = Number.isFinite(option.maxLevel) && option.maxLevel > 0;
     const level = isLevelable ? Math.max(0, Math.min(option.maxLevel, Number(levelValues?.[option.id] || 0))) : 0;
+    const unlocked = isBonusUnlocked ? isBonusUnlocked(option.id) : true;
     const card = document.createElement("div");
     card.className = "extra-option-item";
     if (isLevelable) {
@@ -188,17 +193,17 @@ export function renderGenericBonusPanel({
             </span>
           </div>
           <div class="generic-bonus-level-controls">
-            <button type="button" class="mini generic-bonus-level-button" data-bonus-id="${escapeHtml(option.id)}" data-level-delta="-1">-</button>
+            <button type="button" class="mini generic-bonus-level-button" data-bonus-id="${escapeHtml(option.id)}" data-level-delta="-1" ${unlocked ? "" : "disabled"}>-</button>
             <span class="generic-bonus-level-value">${level}</span>
-            <button type="button" class="mini generic-bonus-level-button" data-bonus-id="${escapeHtml(option.id)}" data-level-delta="1">+</button>
+            <button type="button" class="mini generic-bonus-level-button" data-bonus-id="${escapeHtml(option.id)}" data-level-delta="1" ${unlocked ? "" : "disabled"}>+</button>
           </div>
         </div>
-        <div class="extra-option-desc">${escapeHtml(option.description)} 当前点数 ${level}/${option.maxLevel}。</div>
+        <div class="extra-option-desc">${escapeHtml((unlocked ? "" : "未解锁。") + option.description)} 当前点数 ${level}/${option.maxLevel}。</div>
       `;
     } else {
       card.innerHTML = `
         <label class="extra-option-toggle">
-          <input class="generic-bonus-input" type="checkbox" data-bonus-id="${escapeHtml(option.id)}" ${checked ? "checked" : ""}>
+          <input class="generic-bonus-input" type="checkbox" data-bonus-id="${escapeHtml(option.id)}" ${checked ? "checked" : ""} ${unlocked ? "" : "disabled"}>
           <span class="extra-option-main">
             <span class="extra-option-name">
               <strong>${escapeHtml(option.name)}</strong>
@@ -206,7 +211,7 @@ export function renderGenericBonusPanel({
             </span>
           </span>
         </label>
-        <div class="extra-option-desc">${escapeHtml(option.description)}</div>
+        <div class="extra-option-desc">${escapeHtml((unlocked ? "" : "未解锁。") + option.description)}</div>
       `;
     }
     container.append(card);

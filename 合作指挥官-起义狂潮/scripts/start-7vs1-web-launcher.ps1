@@ -723,6 +723,30 @@ function Normalize-CommanderBonusKey {
     return (Normalize-CommanderClearKey -KeyName $KeyName)
 }
 
+function Get-UnlockedBankKeys {
+    param(
+        [xml]$Xml,
+        [string]$SectionName,
+        [scriptblock]$Normalizer = $null
+    )
+
+    $values = New-Object System.Collections.Generic.List[string]
+    foreach ($key in @($Xml.SelectNodes("/Bank/Section[@name='$SectionName']/Key"))) {
+        $keyName = [string]$key.GetAttribute("name")
+        $value = Get-BankIntValue -Xml $Xml -SectionName $SectionName -KeyName $keyName
+        if ($value -le 0) {
+            continue
+        }
+
+        $normalized = if ($null -ne $Normalizer) { & $Normalizer $keyName } else { [string]$keyName }
+        if (-not [string]::IsNullOrWhiteSpace($normalized)) {
+            $values.Add($normalized)
+        }
+    }
+
+    return @($values | Sort-Object -Unique)
+}
+
 function Get-ScoreConfig {
     return [pscustomobject]@{
         version = "2026-06-16"
@@ -866,6 +890,8 @@ function Get-CompletionSnapshot {
             mapBonusScores = @()
             commanderBonusScores = @()
             objectiveStates = @()
+            unlockedBonuses = @()
+            unlockedPrestiges = @()
             totalWins = 0
             lastClearTime = $null
         }
@@ -878,6 +904,8 @@ function Get-CompletionSnapshot {
     $mapBonusScores = New-Object System.Collections.Generic.Dictionary[string,int] ([System.StringComparer]::OrdinalIgnoreCase)
     $commanderBonusScores = New-Object System.Collections.Generic.Dictionary[string,int] ([System.StringComparer]::OrdinalIgnoreCase)
     $objectiveStateMap = New-Object System.Collections.Generic.Dictionary[string,object] ([System.StringComparer]::OrdinalIgnoreCase)
+    $unlockedBonuses = New-Object System.Collections.Generic.List[string]
+    $unlockedPrestiges = New-Object System.Collections.Generic.List[string]
     $selectedBankPath = ""
     $selectedBankWriteTime = $null
     $lastMap = ""
@@ -958,6 +986,14 @@ function Get-CompletionSnapshot {
                 $objectiveStateMap[$record.key] = $record
             }
         }
+
+        foreach ($entry in @(Get-UnlockedBankKeys -Xml $xml -SectionName "UnlockedBonus")) {
+            $unlockedBonuses.Add($entry)
+        }
+
+        foreach ($entry in @(Get-UnlockedBankKeys -Xml $xml -SectionName "UnlockedPrestige" -Normalizer { param($v) Normalize-CommanderClearKey -KeyName $v })) {
+            $unlockedPrestiges.Add($entry)
+        }
     }
 
     $completion = [pscustomobject]@{
@@ -986,6 +1022,8 @@ function Get-CompletionSnapshot {
                 }
             })
         objectiveStates = @($objectiveStateMap.Values | Sort-Object key)
+        unlockedBonuses = @($unlockedBonuses | Sort-Object -Unique)
+        unlockedPrestiges = @($unlockedPrestiges | Sort-Object -Unique)
     }
     $completion | Add-Member -NotePropertyName pointLedger -NotePropertyValue (Get-CompletionPointLedger -Completion $completion)
     return $completion
