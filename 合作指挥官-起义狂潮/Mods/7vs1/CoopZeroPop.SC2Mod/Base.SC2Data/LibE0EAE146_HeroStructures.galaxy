@@ -48,6 +48,15 @@ point libE0EAE146_gf_CommanderHeroStructurePoint (int lp_player, string lp_unitT
         lv_origin = PlayerStartLocation(lp_player);
     }
 
+    if ((libE0EAE146_gv_currentMapId == "thanson01_7vs1") && (lp_unitType == "SolarForgeKarax")) {
+        lv_candidate = PointWithOffsetPolar(lv_origin, 16.0, 90.0);
+        lv_placement = UnitTypePlacementFromPoint(lp_unitType, lp_player, lv_candidate, 12.0);
+        if (lv_placement != null) {
+            return lv_placement;
+        }
+        return lv_candidate;
+    }
+
     if (libE0EAE146_gv_currentMapId == "thanson01_7vs1") {
         lv_angles[0] = 45.0;
         lv_angles[1] = 90.0;
@@ -92,10 +101,16 @@ point libE0EAE146_gf_CommanderHeroStructurePoint (int lp_player, string lp_unitT
 unit libE0EAE146_gf_CreateCommanderHeroStructure (int lp_player, string lp_commander) {
     string lv_unitType;
     unit lv_structure;
+    unit lv_townHall;
     point lv_point;
 
     lv_unitType = libE0EAE146_gf_CommanderHeroStructureUnitType(lp_commander);
     if ((lv_unitType == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType))) {
+        return null;
+    }
+
+    lv_townHall = libE0EAE146_gf_CommanderPrimaryTownHall(lp_player, lp_commander);
+    if (UnitIsValid(lv_townHall) == false) {
         return null;
     }
 

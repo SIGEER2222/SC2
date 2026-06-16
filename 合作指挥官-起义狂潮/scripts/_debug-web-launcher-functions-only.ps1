@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
 Local Web launcher for 7vs1 coop commander test maps.
 
@@ -903,9 +903,9 @@ function Get-CompletionSnapshot {
 
     $mapClearIds = New-Object System.Collections.Generic.List[string]
     $commanderClearKeys = New-Object System.Collections.Generic.List[string]
-    $mapBonusScores = New-Object 'System.Collections.Generic.Dictionary[string,int]' -ArgumentList ([System.StringComparer]::OrdinalIgnoreCase)
-    $commanderBonusScores = New-Object 'System.Collections.Generic.Dictionary[string,int]' -ArgumentList ([System.StringComparer]::OrdinalIgnoreCase)
-    $objectiveStateMap = New-Object 'System.Collections.Generic.Dictionary[string,object]' -ArgumentList ([System.StringComparer]::OrdinalIgnoreCase)
+    $mapBonusScores = New-Object System.Collections.Generic.Dictionary[string,int] ([System.StringComparer]::OrdinalIgnoreCase)
+    $commanderBonusScores = New-Object System.Collections.Generic.Dictionary[string,int] ([System.StringComparer]::OrdinalIgnoreCase)
+    $objectiveStateMap = New-Object System.Collections.Generic.Dictionary[string,object] ([System.StringComparer]::OrdinalIgnoreCase)
     $unlockedBonuses = New-Object System.Collections.Generic.List[string]
     $unlockedPrestiges = New-Object System.Collections.Generic.List[string]
     $selectedBankPath = ""
@@ -1699,75 +1699,3 @@ function Invoke-Request {
     }
 }
 
-if ($SelfTest) {
-    Clear-StaleCommanderCache
-    $bootstrap = Get-BootstrapData
-    $sampleRequest = [pscustomobject]@{
-        commander = $bootstrap.defaults.commander
-        map = $bootstrap.defaults.map
-        enablePrestiges = $true
-        enableMasteries = $true
-        prestigeBonusMask = 7
-        prestigePointIndex = -1
-        masteryLevel = 15
-        masteries = @(15, 15, 15, 15, 15, 15)
-        commanderOverrides = @()
-        genericBonuses = @()
-        genericBonusLevels = @{}
-        mutators = @($bootstrap.mutators | Select-Object -First 3 -ExpandProperty id)
-        mutatorPreset = 0
-        noLaunch = $true
-    }
-    $sampleArgs = ConvertTo-LaunchArgumentList -Request $sampleRequest
-
-    [pscustomobject]@{
-        ok = $true
-        commanders = $bootstrap.counts.commanders
-        maps = $bootstrap.counts.maps
-        mutators = $bootstrap.counts.mutators
-        firstCommander = @($bootstrap.commanders | Select-Object -First 1)
-        firstMutator = @($bootstrap.mutators | Select-Object -First 1)
-        webRoot = $script:WebRoot
-        launchScript = $script:LaunchScript
-        sampleArgs = $sampleArgs
-    } | ConvertTo-Json -Depth 4
-    return
-}
-
-Clear-StaleCommanderCache
-
-$prefix = "http://$HostName`:$Port/"
-$listener = [System.Net.HttpListener]::new()
-$listener.Prefixes.Add($prefix)
-$listener.Start()
-
-Write-Host "7vs1 Web launcher: $prefix"
-Write-Host "Serving: $script:WebRoot"
-Write-Host "Press Ctrl+C to stop."
-
-if (-not $NoOpen) {
-    Start-Process $prefix | Out-Null
-}
-
-try {
-    while ($listener.IsListening) {
-        try {
-            $context = $listener.GetContext()
-            Invoke-Request -Context $context
-        }
-        catch [System.Net.HttpListenerException] {
-            if ($listener.IsListening) {
-                Write-Warning $_.Exception.Message
-            }
-        }
-        catch {
-            Write-Warning $_.Exception.Message
-        }
-    }
-}
-finally {
-    if ($listener.IsListening) {
-        $listener.Stop()
-    }
-    $listener.Close()
-}

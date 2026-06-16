@@ -194,7 +194,9 @@ unit libE0EAE146_gf_CommanderPrimaryTownHall (int lp_player, string lp_commander
         return libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "NexusFenix");
     }
     else if (lp_commander == "Karax") {
-        return libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "NexusKarax");
+        lv_townHall = libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "NexusKarax");
+        if (UnitIsValid(lv_townHall) == true) { return lv_townHall; }
+        return libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "Nexus");
     }
     else if (lp_commander == "Vorazun") {
         return libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "NexusVorazun");

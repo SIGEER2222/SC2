@@ -1195,6 +1195,10 @@ void gt_Zerg3_Init () {
 // Trigger: Switch to Escort Phase
 //--------------------------------------------------------------------------------------------------
 bool gt_SwitchtoEscortPhase_Func (bool testConds, bool runActions) {
+    unitgroup lv_karaxSolarForges;
+    int lv_karaxSolarForgesCount;
+    unit lv_karaxSolarForge;
+
     // Automatic Variable Declarations
     // Conditions
     if (testConds) {
@@ -1225,6 +1229,15 @@ bool gt_SwitchtoEscortPhase_Func (bool testConds, bool runActions) {
     libNtve_gf_ShareVisionofUnit(UnitFromId(2442), false, gv_p1_USER);
     libNtve_gf_ShareVisionofUnit(UnitFromId(2441), false, gv_p1_USER);
     UnitKill(UnitFromId(2508));
+    if (libE0EAE146_gv_commander == "Karax") {
+        lv_karaxSolarForges = UnitGroup("SolarForgeKarax", gv_p1_USER, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_karaxSolarForgesCount = UnitGroupCount(lv_karaxSolarForges, c_unitCountAll);
+        for (;; lv_karaxSolarForgesCount -= 1) {
+            lv_karaxSolarForge = UnitGroupUnitFromEnd(lv_karaxSolarForges, lv_karaxSolarForgesCount);
+            if (lv_karaxSolarForge == null) { break; }
+            UnitKill(lv_karaxSolarForge);
+        }
+    }
     TriggerEnable(gt_ZergontheLoose, false);
     TriggerEnable(gt_ZergontheLoose2, false);
     lib67C0F0E7_gf_ObjectiveSet(true, 1, lib67C0F0E7_ge_ObjectiveSet_Finish);
