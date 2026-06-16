@@ -100,6 +100,7 @@ void libE0EAE146_InitVariables () {
     libE0EAE146_gv_genericBonusMechanicalRepairEnabled = false;
     libE0EAE146_gv_genericBonusControllerRequired = false;
     libE0EAE146_gv_genericBonusController = null;
+    libE0EAE146_gv_effectiveBaseAnchor = null;
     libE0EAE146_gt_GenericBonusMechanicalRepair = null;
     libE0EAE146_gt_GenericBonusCreepRegen = null;
     libE0EAE146_gt_GenericBonusControllerWatchdog = null;
@@ -1094,7 +1095,6 @@ void libE0EAE146_gf_GenericBonusApplyPassives (int lp_player) {
 }
 
 point libE0EAE146_gf_GenericBonusControllerPoint (int lp_player) {
-    unit lv_townHall;
     point lv_origin;
     point lv_candidate;
     point lv_placement;
@@ -1105,24 +1105,35 @@ point libE0EAE146_gf_GenericBonusControllerPoint (int lp_player) {
     fixed[6] lv_angles;
     fixed[4] lv_radii;
 
-    lv_townHall = libE0EAE146_gf_CommanderPrimaryTownHall(lp_player, libE0EAE146_gv_commander);
-    if (UnitIsValid(lv_townHall) == true) {
-        lv_origin = UnitGetPosition(lv_townHall);
-    }
-    else {
+    lv_origin = libE0EAE146_gf_CommanderEffectiveBaseAnchor(lp_player, libE0EAE146_gv_commander);
+    if (lv_origin == null) {
         lv_origin = PlayerStartLocation(lp_player);
     }
 
-    lv_angles[0] = 135.0;
-    lv_angles[1] = 225.0;
-    lv_angles[2] = 315.0;
-    lv_angles[3] = 45.0;
-    lv_angles[4] = 180.0;
-    lv_angles[5] = 270.0;
-    lv_radii[0] = 11.0;
-    lv_radii[1] = 13.0;
-    lv_radii[2] = 15.0;
-    lv_radii[3] = 17.0;
+    if (libE0EAE146_gv_currentMapId == "thanson01_7vs1") {
+        lv_angles[0] = 90.0;
+        lv_angles[1] = 45.0;
+        lv_angles[2] = 135.0;
+        lv_angles[3] = 0.0;
+        lv_angles[4] = 180.0;
+        lv_angles[5] = 315.0;
+        lv_radii[0] = 14.0;
+        lv_radii[1] = 16.0;
+        lv_radii[2] = 18.0;
+        lv_radii[3] = 20.0;
+    }
+    else {
+        lv_angles[0] = 135.0;
+        lv_angles[1] = 225.0;
+        lv_angles[2] = 315.0;
+        lv_angles[3] = 45.0;
+        lv_angles[4] = 180.0;
+        lv_angles[5] = 270.0;
+        lv_radii[0] = 11.0;
+        lv_radii[1] = 13.0;
+        lv_radii[2] = 15.0;
+        lv_radii[3] = 17.0;
+    }
 
     lv_candidate = lv_origin;
     for (lv_radiusIndex = 0; lv_radiusIndex < 4; lv_radiusIndex += 1) {
@@ -1298,7 +1309,9 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
 void libE0EAE146_gf_InitializeBase (point lp_secondUnit, int lp_worker, point lp_secondBase, bool lp_createHero) {
     // Variable Declarations
     unit lv_u;
+    unit lv_secondTownHall;
     unitgroup lv_uG;
+    point lv_baseAnchor;
     int lv_i;
     int lv_j;
     int lv_ach;
@@ -1350,14 +1363,17 @@ void libE0EAE146_gf_InitializeBase (point lp_secondUnit, int lp_worker, point lp
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterPower");
     libE0EAE146_gf_ApplyOriginal7v1OpenerTech(1, libE0EAE146_gv_commander);
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterOpenerTech");
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("CommandCenter"), 0, 1, PlayerStartLocation(1));
+    libE0EAE146_gv_effectiveBaseAnchor = null;
+    lv_baseAnchor = PlayerStartLocation(1);
+    libE0EAE146_gv_effectiveBaseAnchor = null;
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("CommandCenter"), 0, 1, lv_baseAnchor);
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterTownHall");
     if ((lp_secondBase == null)) {
     }
     else {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("CommandCenter"), 0, 1, lp_secondBase);
     }
-    auto93C1ECD3_g = UnitGroup(null, c_playerAny, RegionCircle(PlayerStartLocation(1), 8.0), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto93C1ECD3_g = UnitGroup(null, c_playerAny, RegionCircle(lv_baseAnchor, 8.0), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     auto93C1ECD3_u = UnitGroupCount(auto93C1ECD3_g, c_unitCountAll);
     for (;; auto93C1ECD3_u -= 1) {
         lv_u = UnitGroupUnitFromEnd(auto93C1ECD3_g, auto93C1ECD3_u);
@@ -1369,17 +1385,20 @@ void libE0EAE146_gf_InitializeBase (point lp_secondUnit, int lp_worker, point lp
     }
     if ((UnitGroupCount(lv_uG, c_unitCountAlive) > 0)) {
         lv_i = 0;
+        libE0EAE146_gf_RuntimeBaseProbe("WorkerLoopMax", lp_worker);
         for ( ; ( lv_i <= lp_worker ) ; lv_i += 1 ) {
-            libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("Worker"), 0, 1, PointWithOffsetPolar(PlayerStartLocation(1), 2.0, (lv_i*10)));
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("Worker"), 0, 1, PointWithOffsetPolar(lv_baseAnchor, 2.0, (lv_i*10)));
             UnitIssueOrder(UnitLastCreated(), OrderTargetingUnit(null, UnitGroupRandomUnit(lv_uG, c_unitCountAlive)), c_orderQueueReplace);
         }
     }
     else {
         lv_i = 0;
+        libE0EAE146_gf_RuntimeBaseProbe("WorkerLoopMax", lp_worker);
         for ( ; ( lv_i <= lp_worker ) ; lv_i += 1 ) {
-            libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("Worker"), 0, 1, PointWithOffsetPolar(PlayerStartLocation(1), 2.0, (lv_i*10)));
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("Worker"), 0, 1, PointWithOffsetPolar(lv_baseAnchor, 2.0, (lv_i*10)));
         }
     }
+    libE0EAE146_gf_RuntimeBaseProbe("WorkerCountAfterCreate", libE0EAE146_gf_RuntimeUnitTypeCount(libE0EAE146_gf_CommanderAchUnit("Worker")));
     libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("SecondUnit"), 0, 1, lp_secondUnit);
     auto09490B45_val = libE0EAE146_gv_commander;
     if (auto09490B45_val == "Stukov") {

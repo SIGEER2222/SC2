@@ -150,6 +150,12 @@ void libE0EAE146_gf_RuntimeBaseCheckpoint (string lp_phase, string lp_townHallUn
     BankSave(BankLastCreated());
 }
 
+void libE0EAE146_gf_RuntimeBaseProbe (string lp_key, int lp_value) {
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", lp_key, lp_value);
+    BankSave(BankLastCreated());
+}
+
 string libE0EAE146_gf_CatalogUnitOrEmpty (string lp_unitType) {
     if ((lp_unitType != "") && CatalogEntryIsValid(c_gameCatalogUnit, lp_unitType)) {
         return lp_unitType;
@@ -1017,6 +1023,10 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
     if (lv_commander == "Karax") {
         if (lp_field == "CommandCenter") {
             lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("NexusKarax");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("Nexus");
             if (lv_unit != "") {
                 return lv_unit;
             }

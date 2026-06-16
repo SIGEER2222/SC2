@@ -259,17 +259,35 @@ unit libE0EAE146_gf_CommanderPrimaryTownHall (int lp_player, string lp_commander
     return null;
 }
 
-point libE0EAE146_gf_CommanderHeroRevivePoint (int lp_player, string lp_commander, string lp_reviveUnitType) {
+point libE0EAE146_gf_CommanderEffectiveBaseAnchor (int lp_player, string lp_commander) {
     unit lv_townHall;
+    point lv_point;
+
+    if (libE0EAE146_gv_effectiveBaseAnchor != null) {
+        return libE0EAE146_gv_effectiveBaseAnchor;
+    }
+    if (libE0EAE146_gv_currentMapId == "thanson01_7vs1") {
+        lv_point = PointFromId(858);
+        if (lv_point != null) {
+            return lv_point;
+        }
+    }
+
+    lv_townHall = libE0EAE146_gf_CommanderPrimaryTownHall(lp_player, lp_commander);
+    if (UnitIsValid(lv_townHall) == true) {
+        return UnitGetPosition(lv_townHall);
+    }
+
+    return PlayerStartLocation(lp_player);
+}
+
+point libE0EAE146_gf_CommanderHeroRevivePoint (int lp_player, string lp_commander, string lp_reviveUnitType) {
     point lv_origin;
     point lv_candidate;
     point lv_placement;
 
-    lv_townHall = libE0EAE146_gf_CommanderPrimaryTownHall(lp_player, lp_commander);
-    if (UnitIsValid(lv_townHall) == true) {
-        lv_origin = UnitGetPosition(lv_townHall);
-    }
-    else {
+    lv_origin = libE0EAE146_gf_CommanderEffectiveBaseAnchor(lp_player, lp_commander);
+    if (lv_origin == null) {
         lv_origin = PlayerStartLocation(lp_player);
     }
 

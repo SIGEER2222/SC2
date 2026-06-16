@@ -33,7 +33,6 @@ unit libE0EAE146_gf_FindCommanderHeroStructure (int lp_player, string lp_unitTyp
 }
 
 point libE0EAE146_gf_CommanderHeroStructurePoint (int lp_player, string lp_unitType) {
-    unit lv_townHall;
     point lv_origin;
     point lv_candidate;
     point lv_placement;
@@ -44,24 +43,35 @@ point libE0EAE146_gf_CommanderHeroStructurePoint (int lp_player, string lp_unitT
     fixed[6] lv_angles;
     fixed[4] lv_radii;
 
-    lv_townHall = libE0EAE146_gf_CommanderPrimaryTownHall(lp_player, libE0EAE146_gv_commander);
-    if (UnitIsValid(lv_townHall) == true) {
-        lv_origin = UnitGetPosition(lv_townHall);
-    }
-    else {
+    lv_origin = libE0EAE146_gf_CommanderEffectiveBaseAnchor(lp_player, libE0EAE146_gv_commander);
+    if (lv_origin == null) {
         lv_origin = PlayerStartLocation(lp_player);
     }
 
-    lv_angles[0] = 225.0;
-    lv_angles[1] = 315.0;
-    lv_angles[2] = 135.0;
-    lv_angles[3] = 45.0;
-    lv_angles[4] = 270.0;
-    lv_angles[5] = 180.0;
-    lv_radii[0] = 10.0;
-    lv_radii[1] = 12.0;
-    lv_radii[2] = 14.0;
-    lv_radii[3] = 16.0;
+    if (libE0EAE146_gv_currentMapId == "thanson01_7vs1") {
+        lv_angles[0] = 45.0;
+        lv_angles[1] = 90.0;
+        lv_angles[2] = 0.0;
+        lv_angles[3] = 135.0;
+        lv_angles[4] = 315.0;
+        lv_angles[5] = 180.0;
+        lv_radii[0] = 12.0;
+        lv_radii[1] = 14.0;
+        lv_radii[2] = 16.0;
+        lv_radii[3] = 18.0;
+    }
+    else {
+        lv_angles[0] = 225.0;
+        lv_angles[1] = 315.0;
+        lv_angles[2] = 135.0;
+        lv_angles[3] = 45.0;
+        lv_angles[4] = 270.0;
+        lv_angles[5] = 180.0;
+        lv_radii[0] = 10.0;
+        lv_radii[1] = 12.0;
+        lv_radii[2] = 14.0;
+        lv_radii[3] = 16.0;
+    }
 
     lv_candidate = lv_origin;
     for (lv_radiusIndex = 0; lv_radiusIndex < 4; lv_radiusIndex += 1) {
