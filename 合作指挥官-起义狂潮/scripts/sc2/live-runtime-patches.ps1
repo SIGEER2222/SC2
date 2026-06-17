@@ -69,6 +69,22 @@ function Patch-LiveAbathurBiomassScaleGuard {
     Set-FileTextWithRetry -Path $Path -Text $text
 }
 
+function Patch-LiveKerriganRuntimeProbe {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$BaseDataRoot
+    )
+
+    $runtimePath = Join-Path $BaseDataRoot "LibE0EAE146_KerriganRuntime.galaxy"
+    if (-not (Test-Path -LiteralPath $runtimePath)) {
+        return
+    }
+    # Keep the live file identical to the workspace copy.
+    # Kerrigan runtime diagnostics now live in the source file itself; rewriting
+    # the live copy here risks restoring stale probe code and hiding the real fix.
+    return
+}
+
 function Save-XmlDocument {
     param(
         [Parameter(Mandatory = $true)]
@@ -272,6 +288,10 @@ function Apply-LiveCommanderTestPatches {
     $libKCUI = Join-Path $BaseDataRoot "LibKCUI.galaxy"
     if (Test-Path -LiteralPath $libKCUI) {
         Patch-LiveTychusUiGuards -Path $libKCUI
+    }
+
+    if ($SelectedCommanders -contains "ZergKerrigan") {
+        Patch-LiveKerriganRuntimeProbe -BaseDataRoot $BaseDataRoot
     }
 }
 

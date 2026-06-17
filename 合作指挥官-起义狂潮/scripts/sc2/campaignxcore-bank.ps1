@@ -668,6 +668,9 @@ function Set-CampaignXCoreTestRunId {
 
     foreach ($bankPath in @(Get-CampaignXCoreBankPaths)) {
         [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
+        Remove-BankSectionIfPresent -Xml $xml -SectionName "XMRuntimeDebug"
+        Remove-BankSectionIfPresent -Xml $xml -SectionName "XMRuntimeLog"
+        Remove-BankSectionIfPresent -Xml $xml -SectionName "XMRuntimeVisualProbe"
         Set-BankStringKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "TestRunId" -Value $RunId
         Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
     }

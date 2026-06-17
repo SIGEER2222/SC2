@@ -235,6 +235,69 @@ function Set-FileTextWithRetry {
     }
 }
 
+function Merge-LiveCommanderCatalogUnitData {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$LiveGameDataRoot
+    )
+
+    $basePath = Join-Path $LiveGameDataRoot 'UnitData.xml'
+    if (-not (Test-Path -LiteralPath $basePath)) {
+        throw "Live CommanderCatalog UnitData.xml not found: $basePath"
+    }
+
+    [xml]$baseXml = Get-Content -LiteralPath $basePath -Encoding UTF8 -Raw
+    if ($null -eq $baseXml.Catalog) {
+        throw "Expected Catalog root in $basePath"
+    }
+
+    $paths = Get-ChildItem -LiteralPath $LiveGameDataRoot -File -Filter 'UnitData*.xml' |
+        Where-Object { $_.Name -ne 'UnitData.xml' } |
+        Sort-Object Name
+
+    foreach ($path in $paths) {
+        [xml]$splitXml = Get-Content -LiteralPath $path.FullName -Encoding UTF8 -Raw
+        if ($null -eq $splitXml.Catalog) {
+            throw "Expected Catalog root in $($path.FullName)"
+        }
+
+        foreach ($unit in @($splitXml.Catalog.CUnit)) {
+            $id = [string]$unit.id
+            if ([string]::IsNullOrWhiteSpace($id)) {
+                continue
+            }
+
+            $escapedId = $id.Replace("'", "&apos;")
+            $existing = $baseXml.SelectSingleNode("/Catalog/CUnit[@id='$escapedId']")
+            $imported = $baseXml.ImportNode($unit, $true)
+            if ($null -ne $existing) {
+                [void]$baseXml.DocumentElement.ReplaceChild($imported, $existing)
+            }
+            else {
+                [void]$baseXml.DocumentElement.AppendChild($imported)
+            }
+        }
+    }
+
+    $settings = New-Object System.Xml.XmlWriterSettings
+    $settings.Indent = $true
+    $settings.Encoding = New-Object System.Text.UTF8Encoding($false)
+    $writer = [System.Xml.XmlWriter]::Create($basePath, $settings)
+    try {
+        $baseXml.Save($writer)
+    }
+    finally {
+        $writer.Close()
+    }
+
+    [xml]$verifyXml = Get-Content -LiteralPath $basePath -Encoding UTF8 -Raw
+    foreach ($requiredId in @('HatcheryKerrigan', 'DroneKerrigan', 'OverlordKerrigan')) {
+        if ($null -eq $verifyXml.SelectSingleNode("/Catalog/CUnit[@id='$requiredId']")) {
+            throw "Live CommanderCatalog merge missing required Kerrigan unit: $requiredId"
+        }
+    }
+}
+
 function Wait-PathAvailable {
     param(
         [string]$Path,
@@ -1078,12 +1141,14 @@ Apply-LiveCommanderTestPatches `
 Set-LiveRuntimePrimaryCommanderOverride -BaseDataRoot $effectiveRuntimeBaseData -SelectedCommanders $effectiveCommanders
 
 $liveGameData = Join-Path $extensionLive "Base.SC2Data\GameData"
+$liveCommanderCatalogGameData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/7vs1/CommanderCatalog.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data\GameData"
 if (($effectiveCommanders -contains "TerranSwann") -and $swannSourceGameData) {
     Patch-LiveSwannKelMorianWorkerData -SourceGameData $swannSourceGameData -LiveGameData $liveGameData
 }
 elseif ($effectiveCommanders -contains "TerranSwann") {
     throw "TerranSwann test requires SourceRoot with replay pkg01 GameData. Pass -SourceRoot to a replay extract root."
 }
+Merge-LiveCommanderCatalogUnitData -LiveGameDataRoot $liveCommanderCatalogGameData
 Validate-LiveBaseTestlineInstall -MapLive $mapLive -ExtensionLive $extensionLive -SelectedCommanders $effectiveCommanders
 
 # Re-apply the CommanderPower bank preset at the end of the install path so

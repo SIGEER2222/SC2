@@ -627,6 +627,112 @@ int libE0EAE146_gf_SanitizeSharedPlayerCampaignAllyUnit (unit lp_unit, string lp
     return lv_removed;
 }
 
+string libE0EAE146_gf_SharedPlayerCampaignAllyUpgradeSnapshotKey (string lp_mapId, int lp_player, string lp_upgrade) {
+    return ("XMSharedAllyBoostUpgradeSnapshot_" + lp_mapId + "_" + IntToString(lp_player) + "_" + lp_upgrade);
+}
+
+string libE0EAE146_gf_SharedPlayerCampaignAllyUpgradeSnapshotSavedKey (string lp_mapId, int lp_player) {
+    return ("XMSharedAllyBoostUpgradeSnapshotSaved_" + lp_mapId + "_" + IntToString(lp_player));
+}
+
+void libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade (string lp_mapId, int lp_player, string lp_upgrade) {
+    DataTableSetInt(true, libE0EAE146_gf_SharedPlayerCampaignAllyUpgradeSnapshotKey(lp_mapId, lp_player, lp_upgrade), TechTreeUpgradeCount(lp_player, lp_upgrade, c_techCountCompleteOnly));
+}
+
+void libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade (string lp_mapId, int lp_player, string lp_upgrade) {
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lp_upgrade, DataTableGetInt(true, libE0EAE146_gf_SharedPlayerCampaignAllyUpgradeSnapshotKey(lp_mapId, lp_player, lp_upgrade)));
+}
+
+void libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForPlayer (string lp_mapId, int lp_player) {
+    string lv_savedKey;
+
+    if ((lp_mapId == "") || (lp_player <= 0)) {
+        return;
+    }
+    lv_savedKey = libE0EAE146_gf_SharedPlayerCampaignAllyUpgradeSnapshotSavedKey(lp_mapId, lp_player);
+    if (DataTableGetBool(true, lv_savedKey)) {
+        return;
+    }
+
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryWeaponsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryWeaponsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryWeaponsLevel3");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryArmorsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryArmorsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryArmorsLevel3");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleWeaponsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleWeaponsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleWeaponsLevel3");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleArmorsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleArmorsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleArmorsLevel3");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipWeaponsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipWeaponsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipWeaponsLevel3");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipArmorsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipArmorsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipArmorsLevel3");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundWeaponsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundWeaponsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundWeaponsLevel3");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundArmorsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundArmorsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundArmorsLevel3");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirWeaponsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirWeaponsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirWeaponsLevel3");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirArmorsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirArmorsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirArmorsLevel3");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossShieldsLevel1");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossShieldsLevel2");
+    libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossShieldsLevel3");
+    DataTableSetBool(true, lv_savedKey, true);
+}
+
+void libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForPlayer (string lp_mapId, int lp_player) {
+    if ((lp_mapId == "") || (lp_player <= 0)) {
+        return;
+    }
+    if (DataTableGetBool(true, libE0EAE146_gf_SharedPlayerCampaignAllyUpgradeSnapshotSavedKey(lp_mapId, lp_player)) == false) {
+        return;
+    }
+
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryWeaponsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryWeaponsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryWeaponsLevel3");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryArmorsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryArmorsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranInfantryArmorsLevel3");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleWeaponsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleWeaponsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleWeaponsLevel3");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleArmorsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleArmorsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranVehicleArmorsLevel3");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipWeaponsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipWeaponsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipWeaponsLevel3");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipArmorsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipArmorsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "TerranShipArmorsLevel3");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundWeaponsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundWeaponsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundWeaponsLevel3");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundArmorsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundArmorsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossGroundArmorsLevel3");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirWeaponsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirWeaponsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirWeaponsLevel3");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirArmorsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirArmorsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossAirArmorsLevel3");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossShieldsLevel1");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossShieldsLevel2");
+    libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForUpgrade(lp_mapId, lp_player, "ProtossShieldsLevel3");
+}
+
 void libE0EAE146_gf_ApplySharedPlayerCampaignAllyUpgradeBoostForPlayer (int lp_player) {
     if (lp_player <= 0) {
         return;
@@ -696,6 +802,7 @@ void libE0EAE146_gf_RunSharedPlayerCampaignAllyBoost (string lp_mapId) {
     int lv_sustainBoostInt;
     bool lv_earlyDamageReductionSelected;
     bool lv_earlyDamageReduction;
+    bool lv_sustainBoostSelected;
     bool lv_sustainBoost;
     unit lv_unit;
 
@@ -705,8 +812,9 @@ void libE0EAE146_gf_RunSharedPlayerCampaignAllyBoost (string lp_mapId) {
 
     lv_earlyDamageReductionSelected = libE0EAE146_gf_GenericBonusEnabled("AllyEarlyDamageReduction");
     lv_earlyDamageReduction = (lv_earlyDamageReductionSelected && (GameGetMissionTime() <= 300.0));
-    lv_sustainBoost = libE0EAE146_gf_GenericBonusEnabled("AllySustainBoost");
-    if ((!lv_earlyDamageReductionSelected) && (!lv_sustainBoost)) {
+    lv_sustainBoostSelected = libE0EAE146_gf_GenericBonusEnabled("AllySustainBoost");
+    lv_sustainBoost = (lv_sustainBoostSelected && (GameGetMissionTime() <= 300.0));
+    if ((!lv_earlyDamageReductionSelected) && (!lv_sustainBoostSelected)) {
         return;
     }
 
@@ -716,7 +824,11 @@ void libE0EAE146_gf_RunSharedPlayerCampaignAllyBoost (string lp_mapId) {
             continue;
         }
         if (lv_sustainBoost) {
+            libE0EAE146_gf_CaptureSharedPlayerCampaignAllyUpgradeSnapshotForPlayer(lp_mapId, lv_player);
             libE0EAE146_gf_ApplySharedPlayerCampaignAllyUpgradeBoostForPlayer(lv_player);
+        }
+        else if (lv_sustainBoostSelected) {
+            libE0EAE146_gf_RestoreSharedPlayerCampaignAllyUpgradeSnapshotForPlayer(lp_mapId, lv_player);
         }
 
         lv_units = UnitGroup(null, lv_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
