@@ -136,6 +136,9 @@ Assert-Contains -Failures $failures -Text $sharedMain -Needle 'XMProgression_Rec
 foreach ($signature in @(
     'void XMProgression_Init (int lp_player);',
     'void XMBlessing_ApplySelected (int lp_player);',
+    'void XMChallenge_ResetRuntimeState (int lp_player);',
+    'bool XMChallenge_IsLoneHeroForbiddenUnit (unit lp_unit, int lp_player);',
+    'int XMChallenge_CountCombatUnits (int lp_player, bool lp_mechanicalOnly);',
     'void XMChallenge_EvaluateOnVictoryEx (int lp_player, string lp_mapId, string lp_commanderId, int lp_bonusScore, int lp_heroDeaths);',
     'void XMProgression_RecordVictory (int lp_player, string lp_mapId, string lp_commanderId, int lp_bonusScore, int lp_heroDeaths);',
     'void XMReward_Unlock (int lp_player, string lp_rewardId);'
@@ -154,10 +157,32 @@ foreach ($needle in @(
     'BankValueSetFromInt(BankLastCreated(), "Progression", "TotalWins"',
     'BankValueSetFromInt(BankLastCreated(), "MapClear"',
     'BankValueSetFromInt(BankLastCreated(), "CommanderClear"',
-    'BankValueSetFromInt(BankLastCreated(), "CommanderBonus"',
-    'BankValueSetFromInt(BankLastCreated(), "Progression", "ObjectiveState"'
+    'BankValueSetFromInt(BankLastCreated(), "CommanderBonus"'
 )) {
     Assert-Contains -Failures $failures -Text $sharedRewards -Needle $needle -Message ("Reward lib missing bank write/read contract: {0}" -f $needle)
+}
+
+if ($sharedRewards.Contains('BankValueSetFromInt(BankLastCreated(), "Progression", "ObjectiveState"') -eq $false -and $sharedRewards.Contains('ObjectiveState') -eq $true) {
+    $failures.Add('Reward lib references ObjectiveState but missing expected bank write pattern.') | Out-Null
+}
+
+foreach ($needle in @(
+    'XMChallenge_ResetRuntimeState(lp_player);',
+    'TriggerAddEventUnitCreated(libE0EAE146_gt_XMChallengeUnitCreated, null, null, null);',
+    'TriggerAddEventUnitTrainProgress(libE0EAE146_gt_XMChallengeUnitTrainComplete, null, c_unitProgressStageComplete);',
+    'TriggerAddEventUnitConstructProgress(libE0EAE146_gt_XMChallengeUnitConstructComplete, null, c_unitProgressStageComplete);',
+    'TriggerAddEventUnitAbility(libE0EAE146_gt_XMChallengeUnitMorphComplete, null, null, c_abilMorphStageUnitEnd, false);',
+    'if (lv_challenge == "ChallengeLoneHero")',
+    'if (!libE0EAE146_gv_xmChallengeLoneHeroFailed[lp_player])',
+    'XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_LONE_HERO_CLEAR");',
+    'else if (lv_challenge == "ChallengeSteelTorrent")',
+    'XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_STEEL_TORRENT_CLEAR");',
+    'XMChallenge_CountCombatUnits(lp_player, true) >= 20',
+    'else if (lv_challenge == "ChallengeFirepowerCoverage")',
+    'XMAchievement_Unlock(lp_player, "ACH_CHALLENGE_FIREPOWER_COVERAGE_CLEAR");',
+    'XMChallenge_CountCombatUnits(lp_player, false) >= 35'
+)) {
+    Assert-Contains -Failures $failures -Text $sharedRewards -Needle $needle -Message ("Reward lib missing challenge runtime closure: {0}" -f $needle)
 }
 
 foreach ($needle in @(
