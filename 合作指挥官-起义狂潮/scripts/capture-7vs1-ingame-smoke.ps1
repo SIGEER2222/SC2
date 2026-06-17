@@ -17,9 +17,7 @@ param(
     [Nullable[int]]$CommanderPowerMastery3 = $null,
     [Nullable[int]]$CommanderPowerMastery4 = $null,
     [Nullable[int]]$CommanderPowerMastery5 = $null,
-    [string[]]$CommanderPowerOverride = @(),
-    [ValidateSet("Full", "NoVisuals", "CoreOnly")]
-    [string]$AbathurPatchProfile = "Full"
+    [string[]]$CommanderPowerOverride = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -404,10 +402,9 @@ $runId = "{0:N}" -f ([guid]::NewGuid())
 $quotedLaunchPath = Convert-ToPsSingleQuotedLiteral (Join-Path $workspaceRoot "scripts\launch-7vs1-coop-test.ps1")
 $quotedMapSource = Convert-ToPsSingleQuotedLiteral $resolvedMapSource
 $quotedLiveMapName = Convert-ToPsSingleQuotedLiteral $LiveMapName
-$quotedAbathurPatchProfile = Convert-ToPsSingleQuotedLiteral $AbathurPatchProfile
 $quotedCommanderPowerProfile = Convert-ToPsSingleQuotedLiteral $CommanderPowerProfile
 $quotedCommanders = @($Commanders | ForEach-Object { Convert-ToPsSingleQuotedLiteral $_ })
-$launchCommand = "& $quotedLaunchPath -MapSource $quotedMapSource -LiveMapName $quotedLiveMapName -AbathurPatchProfile $quotedAbathurPatchProfile -Commanders @(" + ($quotedCommanders -join ",") + ")"
+$launchCommand = "& $quotedLaunchPath -MapSource $quotedMapSource -LiveMapName $quotedLiveMapName -Commanders @(" + ($quotedCommanders -join ",") + ")"
 $launchCommand += " -TestRunId " + (Convert-ToPsSingleQuotedLiteral $runId)
 $launchCommand += " -CommanderPowerProfile $quotedCommanderPowerProfile"
 if ($null -ne $CommanderPowerPrestigeBonusMask) {
