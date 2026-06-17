@@ -8,6 +8,7 @@ import {
   renderGenericBonusPanel as renderGenericBonusPanelComponent,
   renderMasteryGridPanel as renderMasteryGridPanelComponent,
   renderPrestigePanel as renderPrestigePanelComponent,
+  renderVoicePackPanel as renderVoicePackPanelComponent,
 } from "./components/commander-panels.js";
 import {
   renderLaunchHistoryPanel as renderLaunchHistoryPanelComponent,
@@ -25,13 +26,14 @@ import {
 import { escapeHtml, getStatusToneClass, initials } from "./lib/ui-helpers.js";
 
 const DEFAULT_ACTIVE_SHEET = "mutators";
-const SHEET_IDS = new Set(["mutators", "prestige", "bonuses", "output"]);
+const SHEET_IDS = new Set(["mutators", "prestige", "voicepacks", "bonuses", "output"]);
 
 const state = {
   data: null,
   selectedMutators: new Set(),
   selectedCommanderOverrides: new Set(),
   selectedGenericBonuses: new Set(),
+  selectedVoicePackId: "Default",
   genericBonusLevels: {
     DoubleMinerals: 0,
     DoubleVespene: 0,
@@ -181,6 +183,11 @@ const el = {
   summaryValidation: document.querySelector("#summaryValidation"),
   copySummaryButton: document.querySelector("#copySummaryButton"),
   configIssues: document.querySelector("#configIssues"),
+  voicePackList: document.querySelector("#voicePackList"),
+  voicePackBadge: document.querySelector("#voicePackBadge"),
+  voicePackCurrentLabel: document.querySelector("#voicePackCurrentLabel"),
+  voicePackRaceReward: document.querySelector("#voicePackRaceReward"),
+  voicePackMode: document.querySelector("#voicePackMode"),
   sheetTabs: [...document.querySelectorAll("[data-sheet-tab]")],
   sheetPanels: [...document.querySelectorAll("[data-sheet-panel]")],
   bootstrapCommanderCount: document.querySelector("#bootstrapCommanderCount"),
@@ -290,6 +297,33 @@ function parseLooseInteger(value, fallback = 0) {
 
 function normalizeText(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function normalizeVoicePackId(value) {
+  const id = String(value || "").trim();
+  if (!id) return "Default";
+  return state.data?.voicePacks?.some((item) => item.id === id) ? id : "Default";
+}
+
+function getCommanderRaceFromRuntime(runtime) {
+  const text = String(runtime || "");
+  if (text.startsWith("Terran")) return "Terran";
+  if (text.startsWith("Protoss")) return "Protoss";
+  if (text.startsWith("Zerg")) return "Zerg";
+  return "";
+}
+
+function getSelectedCommanderRace() {
+  return getCommanderRaceFromRuntime(el.commanderSelect?.value);
+}
+
+function getVoicePackById(id = state.selectedVoicePackId) {
+  return state.data?.voicePacks?.find((item) => item.id === id) || null;
+}
+
+function getVoicePackLabel(id = state.selectedVoicePackId) {
+  const voicePack = getVoicePackById(id);
+  return voicePack?.name || id || "Default";
 }
 
 function getPrestigeTooltipParts(tooltip) {
@@ -911,6 +945,23 @@ function renderGenericBonuses() {
   });
 }
 
+function renderVoicePacks() {
+  if (!state.data || !el.voicePackList) return;
+  const selectedCommanderRace = getSelectedCommanderRace();
+  renderVoicePackPanelComponent({
+    container: el.voicePackList,
+    voicePacks: state.data.voicePacks || [],
+    selectedVoicePackId: state.selectedVoicePackId,
+    selectedCommanderRace,
+    onSelectVoicePack: (voicePackId) => {
+      state.selectedVoicePackId = normalizeVoicePackId(voicePackId);
+      renderVoicePacks();
+      updateSummary();
+      scheduleAutosave();
+    },
+  });
+}
+
 function populateSelect(select, items, getValue, getLabel) {
   select.replaceChildren();
   for (const item of items) {
@@ -1278,6 +1329,7 @@ function getPayloadSummaryText(payload) {
     `精通等级=${payload.masteryLevel}`,
     `精通=[${masteries.join(",") || "-"}]`,
     `额外升级=${overrideLabels.length === 0 ? "无" : overrideLabels.join(",")}`,
+    `语音=${getVoicePackLabel(payload.voicePack || "Default")}(${payload.voicePack || "Default"})`,
     `通用加成=${genericBonuses.length === 0 ? "无" : genericBonuses.map((id) => getGenericBonusDisplayName(id, genericBonusLevels)).join(",")}`,
     `因子=${mutators.length === 0 ? "无" : mutators.join(",")}`,
     `积分=${scoreState.earnedPoints}+${scoreState.mutatorPoints}-${scoreState.bonusCost}=${scoreState.balanceAfterSelection}`,
@@ -1318,6 +1370,7 @@ function getValidationSignature(payload = buildLaunchPayload()) {
     masteryLevel: payload.masteryLevel,
     masteries: payload.masteries,
     commanderOverrides: [...(payload.commanderOverrides || [])].sort(),
+    voicePack: normalizeVoicePackId(payload.voicePack),
     genericBonuses: [...(payload.genericBonuses || [])].sort(),
     genericBonusLevels: normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []),
     mutators: [...(payload.mutators || [])].sort(),
@@ -1337,6 +1390,7 @@ function normalizeLaunchPayload(payload = buildLaunchPayload()) {
     masteryLevel: payload.masteryLevel,
     masteries: [...(payload.masteries || [])],
     commanderOverrides: [...(payload.commanderOverrides || [])].sort(),
+    voicePack: normalizeVoicePackId(payload.voicePack),
     genericBonuses: [...(payload.genericBonuses || [])].sort(),
     genericBonusLevels: normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []),
     mutators: [...(payload.mutators || [])].sort(),
@@ -1404,6 +1458,9 @@ function getValidationChangeSummary(currentPayload = normalizeLaunchPayload()) {
   }
   if ((previous.commanderOverrides || []).join(",") !== (currentPayload.commanderOverrides || []).join(",")) {
     changes.push(`额外升级: ${(previous.commanderOverrides || []).length} -> ${(currentPayload.commanderOverrides || []).length}`);
+  }
+  if ((previous.voicePack || "Default") !== (currentPayload.voicePack || "Default")) {
+    changes.push(`语音包: ${getVoicePackLabel(previous.voicePack || "Default")} -> ${getVoicePackLabel(currentPayload.voicePack || "Default")}`);
   }
   if ((previous.genericBonuses || []).join(",") !== (currentPayload.genericBonuses || []).join(",")) {
     changes.push(`通用加成: ${(previous.genericBonuses || []).length} -> ${(currentPayload.genericBonuses || []).length}`);
@@ -1540,6 +1597,9 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     .filter((prestige) => (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask)
     .map((prestige) => `P${prestige.slot + 1} ${prestige.name || prestige.id}`);
   const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
+  const selectedRace = getSelectedCommanderRace();
+  const voicePack = getVoicePackById(payload.voicePack || "Default");
+  const voicePackReward = voicePack?.rewardIds?.[selectedRace] || "-";
   updateSummaryDetailPanelComponent({
     summaryCommanderElement: el.summaryCommander,
     summaryMapElement: el.summaryMap,
@@ -1564,6 +1624,18 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     prestigeNames,
     overrideLabels,
   });
+  if (el.voicePackBadge) {
+    el.voicePackBadge.textContent = getVoicePackLabel(payload.voicePack || "Default");
+  }
+  if (el.voicePackCurrentLabel) {
+    el.voicePackCurrentLabel.textContent = getVoicePackLabel(payload.voicePack || "Default");
+  }
+  if (el.voicePackRaceReward) {
+    el.voicePackRaceReward.textContent = voicePackReward;
+  }
+  if (el.voicePackMode) {
+    el.voicePackMode.textContent = (payload.voicePack || "Default") === "Default" ? "指挥官默认" : "按 Bank 覆盖";
+  }
 }
 
 function updateScorePanel(payload = buildLaunchPayload()) {
@@ -1649,6 +1721,7 @@ function updateSummary() {
   updateLaunchModeLabels(payload);
   updateSummaryDetails(payload);
   updateScorePanel(payload);
+  renderVoicePacks();
   updateMasteryPairStatus();
   updateValidationSummary();
   updateConfigIssues();
@@ -1782,6 +1855,7 @@ function applyPayload(payload, options = {}) {
   state.selectedMutators.clear();
   state.selectedCommanderOverrides.clear();
   state.selectedGenericBonuses.clear();
+  state.selectedVoicePackId = normalizeVoicePackId(payload.voicePack || state.data.defaults.voicePack || "Default");
   state.genericBonusLevels = createDefaultGenericBonusLevels();
   resetSelectedMutatorView();
   if (Array.isArray(payload.mutators)) {
@@ -1852,6 +1926,7 @@ function getDefaultPayload() {
     masteryLevel: state.data.defaults.masteryLevel,
     masteries: state.data.defaults.masterySlots,
     commanderOverrides: [...(state.data.defaults.commanderOverrides || [])],
+    voicePack: normalizeVoicePackId(state.data.defaults.voicePack || "Default"),
     genericBonuses: [...(state.data.defaults.genericBonuses || [])],
     genericBonusLevels: normalizeGenericBonusLevels(state.data.defaults.genericBonusLevels || {}, state.data.defaults.genericBonuses || []),
     mutators: [],
@@ -2441,6 +2516,7 @@ function buildLaunchPayload() {
     masteryLevel: parseLooseInteger(el.masteryLevel.value, 30),
     masteries: getMasteryValues(),
     commanderOverrides: [...state.selectedCommanderOverrides].sort(),
+    voicePack: normalizeVoicePackId(state.selectedVoicePackId),
     genericBonuses: getSelectedGenericBonusIds(),
     genericBonusLevels: normalizeGenericBonusLevels(state.genericBonusLevels, getSelectedGenericBonusIds()),
     mutators: [...state.selectedMutators],
@@ -2465,6 +2541,7 @@ async function loadBootstrap() {
     state.data = await response.json();
     state.selectedMutators.clear();
     state.selectedGenericBonuses.clear();
+    state.selectedVoicePackId = normalizeVoicePackId(state.data?.defaults?.voicePack || "Default");
     state.genericBonusLevels = createDefaultGenericBonusLevels();
 
     populateSelect(

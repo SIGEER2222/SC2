@@ -659,6 +659,35 @@ function Set-CampaignXCoreGenericBonuses {
     }
 }
 
+function Set-CampaignXCoreVoicePackSelection {
+    param(
+        [string[]]$SelectedCommanders,
+        [string]$VoicePack = "Default"
+    )
+
+    $bankPaths = @(Get-CampaignXCoreBankPaths)
+    if ($bankPaths.Count -eq 0) {
+        Write-Warning "CampaignXCore.SC2Bank not found; skipping voice pack preset."
+        return
+    }
+
+    $normalizedVoicePack = [string]$VoicePack
+    if ([string]::IsNullOrWhiteSpace($normalizedVoicePack)) {
+        $normalizedVoicePack = "Default"
+    }
+    $allowedVoicePacks = @("Default", "BlizzConDVa")
+    if ($allowedVoicePacks -notcontains $normalizedVoicePack) {
+        throw "Unknown voice pack '$normalizedVoicePack'."
+    }
+
+    foreach ($bankPath in $bankPaths) {
+        [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
+        Remove-BankKeyIfPresent -Xml $xml -SectionName "Cosmetics" -KeyName "VoicePack"
+        Set-BankStringKeyValue -Xml $xml -SectionName "Cosmetics" -KeyName "VoicePack" -Value $normalizedVoicePack
+        Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
+    }
+}
+
 function Set-CampaignXCoreTestRunId {
     param([string]$RunId)
 

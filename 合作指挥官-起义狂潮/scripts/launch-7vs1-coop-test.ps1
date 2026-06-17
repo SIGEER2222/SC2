@@ -47,6 +47,7 @@ param(
     [string[]]$CommanderPowerOverride = @(),
     [string[]]$Mutators = @(),
     [string[]]$GenericBonuses = @(),
+    [string]$VoicePack = "Default",
     [ValidateRange(0, 3)]
     [int]$MutatorPreset = 0,
     [string]$TestRunId = "",
@@ -345,6 +346,7 @@ function Convert-TestCommanderToCommanderPowerKey {
 
 $Mutators = Normalize-DelimitedStringArray -Values $Mutators
 $GenericBonuses = Normalize-DelimitedStringArray -Values $GenericBonuses
+$VoicePack = [string]$VoicePack
 
 function Resolve-CommanderPowerPresetPath {
     param([string]$Path)
@@ -1083,6 +1085,7 @@ if (-not $SkipCommanderPowerPreset) {
 }
 Set-CampaignXCoreMutatorPreset -SelectedMutators $Mutators -Preset $MutatorPreset
 Set-CampaignXCoreGenericBonuses -SelectedBonuses $GenericBonuses
+Set-CampaignXCoreVoicePackSelection -SelectedCommanders $effectiveCommanders -VoicePack $VoicePack
 Set-CampaignXCorePrimaryCommander -SelectedCommanders $effectiveCommanders
 Set-CampaignXCoreTestRunId -RunId $TestRunId
 
@@ -1173,6 +1176,7 @@ if (-not $SkipCommanderPowerPreset) {
 }
 Set-CampaignXCoreMutatorPreset -SelectedMutators $Mutators -Preset $MutatorPreset
 Set-CampaignXCoreGenericBonuses -SelectedBonuses $GenericBonuses
+Set-CampaignXCoreVoicePackSelection -SelectedCommanders $effectiveCommanders -VoicePack $VoicePack
 Set-CampaignXCorePrimaryCommander -SelectedCommanders $effectiveCommanders
 Set-CampaignXCoreTestRunId -RunId $TestRunId
 
@@ -1217,6 +1221,7 @@ else {
 if ($GenericBonuses.Count -gt 0) {
     Write-Host "Generic bonuses: $($GenericBonuses -join ', ')"
 }
+Write-Host "Voice pack: $VoicePack"
 
 if (-not $NoLaunch) {
     Write-Host "Launching map: $mapLive"

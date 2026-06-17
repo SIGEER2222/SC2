@@ -4247,6 +4247,54 @@ unit libKMIS_gf_CM_PrimaryTownHall (int lp_player) {
     return libKMIS_gv_cM_PrimaryTownHall[lp_player];
 }
 
+string libKMIS_gf_BankVoicePackSelection () {
+    if (!BankSectionExists(BankLastCreated(), "Cosmetics")) {
+        return "";
+    }
+    if (!BankKeyExists(BankLastCreated(), "Cosmetics", "VoicePack")) {
+        return "";
+    }
+    return BankValueGetAsString(BankLastCreated(), "Cosmetics", "VoicePack");
+}
+
+string libKMIS_gf_VoicePackRewardForCommanderRace (string lp_voicePack, string lp_commander) {
+    if ((lp_voicePack == "") || (lp_voicePack == "Default")) {
+        return "";
+    }
+    if (lp_voicePack == "BlizzConDVa") {
+        if (StringContains(lp_commander, "Terran", c_stringAtStart, c_stringCase)) {
+            return "VoicePackTerranBlizzConDVa";
+        }
+        if (StringContains(lp_commander, "Protoss", c_stringAtStart, c_stringCase)) {
+            return "VoicePackProtossBlizzConDVa";
+        }
+        if (StringContains(lp_commander, "Zerg", c_stringAtStart, c_stringCase)) {
+            return "VoicePackZergBlizzConDVa";
+        }
+    }
+    return "";
+}
+
+bool libKMIS_gf_VoicePackSelectionApply (int lp_player) {
+    string lv_voicePack;
+    string lv_rewardId;
+    string lv_commander;
+
+    lv_voicePack = libKMIS_gf_BankVoicePackSelection();
+    if ((lv_voicePack == "") || (lv_voicePack == "Default")) {
+        return false;
+    }
+
+    lv_commander = libKCOR_gf_ActiveCommanderForPlayer(lp_player);
+    lv_rewardId = libKMIS_gf_VoicePackRewardForCommanderRace(lv_voicePack, lv_commander);
+    if ((lv_rewardId == "") || (CatalogEntryScope(c_gameCatalogReward, lv_rewardId) != "CRewardVoicePack")) {
+        return false;
+    }
+
+    PlayerAddReward(lp_player, lv_rewardId);
+    return true;
+}
+
 void libKMIS_gf_VoicePackOverridesApply (int lp_player) {
     // Variable Declarations
     string lv_itReward;
@@ -4305,6 +4353,9 @@ void libKMIS_gf_VoicePackCommanderDefaultApply (int lp_player) {
     if ((lv_defaultvoicepack != "") && (lv_defaultvoicepack != null)) {
     }
     else {
+        return ;
+    }
+    if (libKMIS_gf_VoicePackSelectionApply(lp_player) == true) {
         return ;
     }
     auto3F278324_catalog = c_gameCatalogReward;

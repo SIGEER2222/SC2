@@ -596,6 +596,37 @@ function Get-CommanderItems {
         } | Sort-Object displayName)
 }
 
+function Get-VoicePackItems {
+    return @(
+        [pscustomobject]@{
+            id = "Default"
+            name = "默认"
+            storeName = "指挥官默认语音"
+            description = "沿用当前指挥官的默认语音包。"
+            typeName = "Default"
+            releaseDate = ""
+            rewardIds = [pscustomobject]@{
+                Terran = ""
+                Protoss = ""
+                Zerg = ""
+            }
+        }
+        [pscustomobject]@{
+            id = "BlizzConDVa"
+            name = "D.Va"
+            storeName = "播报员：D.Va"
+            description = "官方 D.Va 语音包。"
+            typeName = "Female"
+            releaseDate = "2016-11-04"
+            rewardIds = [pscustomobject]@{
+                Terran = "VoicePackTerranBlizzConDVa"
+                Protoss = "VoicePackProtossBlizzConDVa"
+                Zerg = "VoicePackZergBlizzConDVa"
+            }
+        }
+    )
+}
+
 function Get-MapDisplayName {
     param([string]$MapPath)
 
@@ -1188,6 +1219,7 @@ function Get-BootstrapData {
     $commanders = @(Get-CommanderItems)
     $maps = @(Get-MapItems)
     $mutators = @(Get-MutatorItems)
+    $voicePacks = @(Get-VoicePackItems)
     $completion = Get-CompletionSnapshot
 
     return [pscustomobject]@{
@@ -1209,6 +1241,7 @@ function Get-BootstrapData {
             enableMasteries = $true
             enablePrestiges = $true
             commanderOverrides = @()
+            voicePack = "Default"
             genericBonuses = @()
             genericBonusLevels = @{}
             mutatorPreset = 0
@@ -1216,12 +1249,13 @@ function Get-BootstrapData {
         commanders = $commanders
         maps = $maps
         mutators = $mutators
+        voicePacks = $voicePacks
         completion = $completion
         scoreSystem = Get-ScoreConfig
         resourcePlan = [pscustomobject]@{
             text = "指挥官 / 因子文字与协议元数据已接入"
             icons = "本地缓存真实 SC2 贴图；优先命中提取图标，缺失项回退到同主题游戏贴图"
-            audio = "音效仍保留为后续目标"
+            audio = "已支持通过 Bank 覆盖官方语音包；当前内置 Default 与 D.Va"
         }
     }
 }
@@ -1358,6 +1392,14 @@ function ConvertTo-LaunchArgumentList {
     $mutatorPreset = if ($null -ne $Request.mutatorPreset) { [int]$Request.mutatorPreset } else { 0 }
     $noLaunch = if ($Request.noLaunch -eq $true) { $true } else { $false }
     $selectedCommanderOverrides = New-Object System.Collections.Generic.List[string]
+    $voicePackId = "Default"
+    if ($null -ne $Request.voicePack) {
+        $voicePackId = [string]$Request.voicePack
+    }
+    $allowedVoicePacks = @((Get-VoicePackItems) | ForEach-Object { [string]$_.id })
+    if ($allowedVoicePacks -notcontains $voicePackId) {
+        throw "Unknown voice pack: $voicePackId"
+    }
     if ($null -ne $Request.commanderOverrides) {
         foreach ($overrideEntry in @($Request.commanderOverrides)) {
             $overrideText = [string]$overrideEntry
@@ -1412,6 +1454,8 @@ function ConvertTo-LaunchArgumentList {
         }
         $args.Add(($serializedGenericBonuses -join ","))
     }
+    $args.Add("-VoicePack")
+    $args.Add($voicePackId)
     $args.Add("-MutatorPreset")
     $args.Add([string]$mutatorPreset)
     if ($noLaunch) {
@@ -1712,6 +1756,7 @@ if ($SelfTest) {
         masteryLevel = 15
         masteries = @(15, 15, 15, 15, 15, 15)
         commanderOverrides = @()
+        voicePack = "BlizzConDVa"
         genericBonuses = @()
         genericBonusLevels = @{}
         mutators = @($bootstrap.mutators | Select-Object -First 3 -ExpandProperty id)
@@ -1725,6 +1770,7 @@ if ($SelfTest) {
         commanders = $bootstrap.counts.commanders
         maps = $bootstrap.counts.maps
         mutators = $bootstrap.counts.mutators
+        voicePacks = @($bootstrap.voicePacks | ForEach-Object { $_.id })
         firstCommander = @($bootstrap.commanders | Select-Object -First 1)
         firstMutator = @($bootstrap.mutators | Select-Object -First 1)
         webRoot = $script:WebRoot

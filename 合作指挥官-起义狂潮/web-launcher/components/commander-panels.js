@@ -231,3 +231,36 @@ export function renderGenericBonusPanel({
     });
   });
 }
+
+export function renderVoicePackPanel({
+  container,
+  voicePacks,
+  selectedVoicePackId,
+  selectedCommanderRace,
+  onSelectVoicePack,
+}) {
+  if (!container) return;
+  container.replaceChildren();
+
+  for (const voicePack of voicePacks) {
+    const card = document.createElement("button");
+    card.type = "button";
+    const selected = voicePack.id === selectedVoicePackId;
+    const rewardId = voicePack.rewardIds?.[selectedCommanderRace] || "-";
+    card.className = `voice-pack-card${selected ? " selected" : ""}`;
+    card.innerHTML = `
+      <span class="voice-pack-card-head">
+        <strong>${escapeHtml(voicePack.name || voicePack.id)}</strong>
+        <span class="badge">${escapeHtml(voicePack.id)}</span>
+      </span>
+      <span class="voice-pack-card-meta">
+        <em>${escapeHtml(voicePack.typeName || "语音包")}</em>
+        <em>${escapeHtml(voicePack.releaseDate || "-")}</em>
+      </span>
+      <span class="voice-pack-card-desc">${escapeHtml(voicePack.storeName || voicePack.description || "")}</span>
+      <span class="voice-pack-card-reward">当前种族奖励: ${escapeHtml(rewardId)}</span>
+    `;
+    card.addEventListener("click", () => onSelectVoicePack(voicePack.id));
+    container.append(card);
+  }
+}
