@@ -162,6 +162,13 @@ bool XMChallenge_ShouldTrackUnit (unit lp_unit, int lp_player) {
     return true;
 }
 
+bool XMChallenge_IsWorkerUnit (unit lp_unit, int lp_player) {
+    if (lp_unit == null) {
+        return false;
+    }
+    return UnitFilterMatch(lp_unit, lp_player, UnitFilter((1 << c_targetFilterWorker), 0, 0, 0));
+}
+
 bool XMChallenge_IsLoneHeroForbiddenUnit (unit lp_unit, int lp_player) {
     string lv_unitType;
 
@@ -172,7 +179,7 @@ bool XMChallenge_IsLoneHeroForbiddenUnit (unit lp_unit, int lp_player) {
     if (UnitTypeTestAttribute(lv_unitType, c_unitAttributeStructure)) {
         return false;
     }
-    if (UnitTypeTestAttribute(lv_unitType, c_unitAttributeWorker)) {
+    if (XMChallenge_IsWorkerUnit(lp_unit, lp_player)) {
         return false;
     }
     if (UnitTypeTestAttribute(lv_unitType, c_unitAttributeHeroic)) {
@@ -198,7 +205,7 @@ int XMChallenge_CountCombatUnits (int lp_player, bool lp_mechanicalOnly) {
     lv_count = 0;
     while (lv_unit != null) {
         lv_unitType = UnitGetType(lv_unit);
-        if (!UnitTypeTestAttribute(lv_unitType, c_unitAttributeStructure) && !UnitTypeTestAttribute(lv_unitType, c_unitAttributeWorker) && (UnitWeaponCount(lv_unit) > 0)) {
+        if (!UnitTypeTestAttribute(lv_unitType, c_unitAttributeStructure) && !XMChallenge_IsWorkerUnit(lv_unit, lp_player) && (UnitWeaponCount(lv_unit) > 0)) {
             if (!lp_mechanicalOnly || UnitTypeTestAttribute(lv_unitType, c_unitAttributeMechanical)) {
                 lv_count += 1;
             }
