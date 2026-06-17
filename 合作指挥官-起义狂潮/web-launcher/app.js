@@ -2536,7 +2536,7 @@ async function loadBootstrap() {
   el.validateLaunchButton.disabled = true;
   setStatus("加载中");
   try {
-    const response = await fetch("/api/bootstrap");
+    const response = await fetch("/api/bootstrap?v=20260617-voicepacks", { cache: "no-store" });
     if (!response.ok) throw new Error(`bootstrap ${response.status}`);
     state.data = await response.json();
     state.selectedMutators.clear();

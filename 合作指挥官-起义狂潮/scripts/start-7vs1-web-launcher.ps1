@@ -1708,6 +1708,9 @@ function Send-Json {
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
     $Context.Response.StatusCode = $StatusCode
     $Context.Response.ContentType = "application/json; charset=utf-8"
+    $Context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    $Context.Response.Headers["Pragma"] = "no-cache"
+    $Context.Response.Headers["Expires"] = "0"
     $Context.Response.ContentLength64 = $bytes.Length
     $Context.Response.OutputStream.Write($bytes, 0, $bytes.Length)
     $Context.Response.OutputStream.Close()
@@ -1739,6 +1742,9 @@ function Send-Text {
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($Text)
     $Context.Response.StatusCode = $StatusCode
     $Context.Response.ContentType = $ContentType
+    $Context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    $Context.Response.Headers["Pragma"] = "no-cache"
+    $Context.Response.Headers["Expires"] = "0"
     $Context.Response.ContentLength64 = $bytes.Length
     $Context.Response.OutputStream.Write($bytes, 0, $bytes.Length)
     $Context.Response.OutputStream.Close()
@@ -1803,6 +1809,9 @@ function Send-StaticFile {
     $bytes = [System.IO.File]::ReadAllBytes($fullPath)
     $Context.Response.StatusCode = 200
     $Context.Response.ContentType = Get-ContentType $fullPath
+    $Context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    $Context.Response.Headers["Pragma"] = "no-cache"
+    $Context.Response.Headers["Expires"] = "0"
     $Context.Response.ContentLength64 = $bytes.Length
     $Context.Response.OutputStream.Write($bytes, 0, $bytes.Length)
     $Context.Response.OutputStream.Close()
