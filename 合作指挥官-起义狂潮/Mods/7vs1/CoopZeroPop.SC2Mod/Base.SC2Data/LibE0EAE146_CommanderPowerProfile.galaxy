@@ -7,9 +7,92 @@ void libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast (int lp_player, string lp_up
         return;
     }
 
+    libE0EAE146_gf_CommanderPowerDebugTrackUpgrade(lp_player, lp_upgrade, lp_level);
     lv_currentLevel = TechTreeUpgradeCount(lp_player, lp_upgrade, c_techCountCompleteOnly);
     if (lv_currentLevel < lp_level) {
         TechTreeUpgradeAddLevel(lp_player, lp_upgrade, (lp_level - lv_currentLevel));
+    }
+}
+
+bool libE0EAE146_gf_CommanderPowerDebugShouldTrackUpgrade (string lp_upgrade) {
+    if (lp_upgrade == "") {
+        return false;
+    }
+    if (StringContains(lp_upgrade, "Cooldown", c_stringAnywhere, c_stringCase)) {
+        return true;
+    }
+    if (StringContains(lp_upgrade, "TopBar", c_stringAnywhere, c_stringCase)) {
+        return true;
+    }
+    if (StringContains(lp_upgrade, "TopPanel", c_stringAnywhere, c_stringCase)) {
+        return true;
+    }
+    return false;
+}
+
+void libE0EAE146_gf_CommanderPowerDebugTrackApply (int lp_player, string lp_commander, string lp_source) {
+    string lv_commander;
+    string lv_source;
+    string lv_keyBase;
+    int lv_count;
+
+    lv_commander = lp_commander;
+    if (lv_commander == "") {
+        lv_commander = libE0EAE146_gv_commanderPowerActiveCommander;
+    }
+    if (lv_commander == "") {
+        lv_commander = libE0EAE146_gv_commander;
+    }
+    if (lv_commander == "") {
+        lv_commander = "UnknownCommander";
+    }
+    lv_source = lp_source;
+    if (lv_source == "") {
+        lv_source = "UnknownSource";
+    }
+    lv_keyBase = ("XMCommanderPowerApply_" + IntToString(lp_player) + "_" + lv_commander + "_" + lv_source);
+    lv_count = (DataTableGetInt(true, lv_keyBase) + 1);
+    DataTableSetInt(true, lv_keyBase, lv_count);
+    if (lv_count > 1) {
+        libE0EAE146_gf_RuntimeLog(2, "CommanderPowerApply", lv_source, lp_player, lv_commander, "", lv_count);
+    }
+    if (lv_count > 1) {
+        BankLoad("CampaignXCore", 1);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "CommanderPowerApplyDuplicateCommander", lv_commander);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "CommanderPowerApplyDuplicateSource", lv_source);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "CommanderPowerApplyDuplicatePlayer", lp_player);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "CommanderPowerApplyDuplicateCount", lv_count);
+        BankSave(BankLastCreated());
+    }
+}
+
+void libE0EAE146_gf_CommanderPowerDebugTrackUpgrade (int lp_player, string lp_upgrade, int lp_level) {
+    string lv_commander;
+    string lv_keyBase;
+    int lv_count;
+
+    if (!libE0EAE146_gf_CommanderPowerDebugShouldTrackUpgrade(lp_upgrade)) {
+        return;
+    }
+    lv_commander = libE0EAE146_gv_commanderPowerActiveCommander;
+    if (lv_commander == "") {
+        lv_commander = libE0EAE146_gv_commander;
+    }
+    if (lv_commander == "") {
+        lv_commander = "UnknownCommander";
+    }
+    lv_keyBase = ("XMCommanderPowerUpgrade_" + IntToString(lp_player) + "_" + lv_commander + "_" + lp_upgrade);
+    lv_count = (DataTableGetInt(true, lv_keyBase) + 1);
+    DataTableSetInt(true, lv_keyBase, lv_count);
+    if (lv_count > 1) {
+        libE0EAE146_gf_RuntimeLog(2, "CommanderPowerUpgrade", lp_upgrade, lp_player, lv_commander, "", lv_count);
+        BankLoad("CampaignXCore", 1);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "CommanderPowerUpgradeDuplicateCommander", lv_commander);
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "CommanderPowerUpgradeDuplicateUpgrade", lp_upgrade);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "CommanderPowerUpgradeDuplicatePlayer", lp_player);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "CommanderPowerUpgradeDuplicateLevel", lp_level);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "CommanderPowerUpgradeDuplicateCount", lv_count);
+        BankSave(BankLastCreated());
     }
 }
 
@@ -211,5 +294,6 @@ void libE0EAE146_gf_CommanderPowerApplyRaynor (int lp_player) {
 }
 
 void libE0EAE146_gf_CommanderPowerApplyProfile (int lp_player, string lp_commander) {
+    libE0EAE146_gf_CommanderPowerDebugTrackApply(lp_player, lp_commander, "ApplyProfile");
     libE0EAE146_gf_CommanderPowerApplyGeneratedProfile(lp_player, lp_commander);
 }
