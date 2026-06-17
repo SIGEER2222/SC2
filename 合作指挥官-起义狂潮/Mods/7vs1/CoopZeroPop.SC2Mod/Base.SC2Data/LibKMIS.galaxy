@@ -4248,15 +4248,71 @@ unit libKMIS_gf_CM_PrimaryTownHall (int lp_player) {
 }
 
 string libKMIS_gf_BankVoicePackSelection () {
-    return "";
+    if (!BankSectionExists(BankLastCreated(), "Cosmetics")) {
+        return "";
+    }
+    if (!BankKeyExists(BankLastCreated(), "Cosmetics", "VoicePack")) {
+        return "";
+    }
+    return BankValueGetAsString(BankLastCreated(), "Cosmetics", "VoicePack");
 }
 
 string libKMIS_gf_VoicePackRewardForCommanderRace (string lp_voicePack, string lp_commander) {
+    string lv_racePrefix;
+    string lv_commanderRace;
+    int lv_index;
+    string lv_reward;
+
+    if ((lp_voicePack == "") || (lp_voicePack == "Default")) {
+        return "";
+    }
+    lv_commanderRace = libKCOR_gf_CC_CommanderRace(lp_commander);
+    if (lv_commanderRace == "Terr") {
+        lv_racePrefix = "Terran";
+    }
+    else if (lv_commanderRace == "Prot") {
+        lv_racePrefix = "Protoss";
+    }
+    else if (lv_commanderRace == "Zerg") {
+        lv_racePrefix = "Zerg";
+    }
+    else {
+        return "";
+    }
+
+    for (lv_index = 1; lv_index <= CatalogEntryCount(c_gameCatalogReward); lv_index += 1) {
+        lv_reward = CatalogEntryGet(c_gameCatalogReward, lv_index);
+        if (CatalogEntryScope(c_gameCatalogReward, lv_reward) != "CRewardVoicePack") {
+            continue;
+        }
+        if (CatalogFieldValueGet(c_gameCatalogReward, lv_reward, "VoicePack", c_playerAny) != lp_voicePack) {
+            continue;
+        }
+        if (CatalogFieldValueGet(c_gameCatalogReward, lv_reward, "Race", c_playerAny) == lv_commanderRace) {
+            return lv_reward;
+        }
+    }
     return "";
 }
 
 bool libKMIS_gf_VoicePackSelectionApply (int lp_player) {
-    return false;
+    string lv_voicePack;
+    string lv_rewardId;
+    string lv_commander;
+
+    lv_voicePack = libKMIS_gf_BankVoicePackSelection();
+    if ((lv_voicePack == "") || (lv_voicePack == "Default")) {
+        return false;
+    }
+
+    lv_commander = libKCOR_gf_ActiveCommanderForPlayer(lp_player);
+    lv_rewardId = libKMIS_gf_VoicePackRewardForCommanderRace(lv_voicePack, lv_commander);
+    if ((lv_rewardId == "") || (CatalogEntryScope(c_gameCatalogReward, lv_rewardId) != "CRewardVoicePack")) {
+        return false;
+    }
+
+    PlayerAddReward(lp_player, lv_rewardId);
+    return true;
 }
 void libKMIS_gf_VoicePackOverridesApply (int lp_player) {
     // Variable Declarations

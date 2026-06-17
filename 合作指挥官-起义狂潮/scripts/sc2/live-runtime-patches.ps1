@@ -4,13 +4,7 @@ function Disable-LiveRewardGrants {
         [string]$Path
     )
 
-    $text = Get-Content -LiteralPath $Path -Raw
-    $text = [regex]::Replace(
-        $text,
-        '(?m)^\s*PlayerAddReward\([^\r\n]*\);\s*$',
-        '    // Codex local smoke test: PlayerAddReward omitted because SC2Switcher has no reward authority.'
-    )
-    Set-FileTextWithRetry -Path $Path -Text $text
+    return
 }
 
 function Patch-LiveTychusUiGuards {
