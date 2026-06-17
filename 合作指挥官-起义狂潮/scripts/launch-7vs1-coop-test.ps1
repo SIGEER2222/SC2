@@ -1015,6 +1015,22 @@ function Clear-Sc2TextureReductionCache {
     }
 }
 
+function Clear-Sc2GameLogs {
+    $logsRoot = "C:\Users\22448\Documents\StarCraft II\GameLogs"
+    if (-not (Test-Path -LiteralPath $logsRoot)) {
+        return
+    }
+
+    Get-ChildItem -LiteralPath $logsRoot -Force -ErrorAction SilentlyContinue | ForEach-Object {
+        try {
+            Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction Stop
+        }
+        catch {
+            Write-Warning "Could not remove SC2 log entry '$($_.FullName)': $($_.Exception.Message)"
+        }
+    }
+}
+
 if ([string]::IsNullOrWhiteSpace($SourceRoot)) {
     $SourceRoot = Resolve-DefaultSourceRoot
 }
@@ -1094,6 +1110,7 @@ if ($ForceStopSc2BeforeInstall -or (-not $NoLaunch)) {
 }
 
 if (-not $NoLaunch) {
+    Clear-Sc2GameLogs
     Clear-Sc2TextureReductionCache -Sc2Root $Sc2Root
 }
 
