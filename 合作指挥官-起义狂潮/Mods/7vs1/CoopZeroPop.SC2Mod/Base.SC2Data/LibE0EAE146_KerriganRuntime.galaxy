@@ -56,6 +56,19 @@ void libE0EAE146_gf_KerriganSetAbilFieldIfUnitPresent (int lp_player, string lp_
     CatalogFieldValueSet(c_gameCatalogAbil, lp_abil, lp_field, lp_player, lp_unit);
 }
 
+void libE0EAE146_gf_KerriganSetBehaviorFieldIfUnitPresent (int lp_player, string lp_behavior, string lp_field, string lp_unit) {
+    if ((lp_behavior == "") || (lp_field == "") || (lp_unit == "")) {
+        return;
+    }
+    if (!CatalogEntryIsValid(c_gameCatalogBehavior, lp_behavior)) {
+        return;
+    }
+    if (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unit)) {
+        return;
+    }
+    CatalogFieldValueSet(c_gameCatalogBehavior, lp_behavior, lp_field, lp_player, lp_unit);
+}
+
 void libE0EAE146_gf_KerriganApplyFullLevelUpgrades (int lp_player) {
     libE0EAE146_gf_KerriganSetUpgradeAtLeast(lp_player, "CommanderLevel", 16);
     libE0EAE146_gf_KerriganSetUpgradeAtLeast(lp_player, "KerriganCommander", 16);
@@ -113,6 +126,12 @@ void libE0EAE146_gf_KerriganApplyTechFilter (int lp_player) {
     libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent(lp_player, "HydraliskDenKerrigan", "Alias_HydraliskDen");
     libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent(lp_player, "SpireKerrigan", "Alias_Spire");
     libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent(lp_player, "UltraliskCavernKerrigan", "Alias_UltraliskCavern");
+    libE0EAE146_gf_KerriganSetBehaviorFieldIfUnitPresent(lp_player, "SpawnLarva", "InfoArray[0].Unit", "LarvaKerrigan");
+    libE0EAE146_gf_KerriganSetBehaviorFieldIfUnitPresent(lp_player, "SpawnLarva", "InfoArray[0].Unit[0]", "LarvaKerrigan");
+    libE0EAE146_gf_KerriganSetBehaviorFieldIfUnitPresent(lp_player, "SpawnLarva", "InfoArray[1].Unit", "LarvaKerrigan");
+    libE0EAE146_gf_KerriganSetBehaviorFieldIfUnitPresent(lp_player, "SpawnLarva", "InfoArray[1].Unit[0]", "LarvaKerrigan");
+    libE0EAE146_gf_KerriganSetBehaviorFieldIfUnitPresent(lp_player, "SpawnLarva", "InfoArray[2].Unit", "LarvaKerrigan");
+    libE0EAE146_gf_KerriganSetBehaviorFieldIfUnitPresent(lp_player, "SpawnLarva", "InfoArray[2].Unit[0]", "LarvaKerrigan");
 
     // Kerrigan should never inherit the Abathur-edited larva outputs.
     // Force the larva and hatchery train slots back onto Kerrigan's private chain.
