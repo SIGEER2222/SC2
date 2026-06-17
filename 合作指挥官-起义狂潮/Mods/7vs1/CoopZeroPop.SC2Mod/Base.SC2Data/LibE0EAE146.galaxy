@@ -1024,6 +1024,9 @@ bool libE0EAE146_gt_GenericBonusControllerWatchdog_Func (bool testConds, bool ru
         return true;
     }
     libE0EAE146_gf_GenericBonusEnsureController(1);
+    if (libE0EAE146_gf_GenericBonusEnabled("ChronoBoost")) {
+        libE0EAE146_gf_GenericBonusApplyChronoTargets(1);
+    }
     return true;
 }
 
@@ -1055,6 +1058,29 @@ fixed libE0EAE146_gf_GenericBonusResourceMultiplier (int lp_level) {
         lv_multiplier *= 2.0;
     }
     return lv_multiplier;
+}
+
+void libE0EAE146_gf_GenericBonusApplyChronoTargets (int lp_player) {
+    unitgroup lv_units;
+    unit lv_unit;
+
+    lv_units = UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_unit = null;
+    while (true) {
+        lv_unit = UnitGroupFirstUnit(lv_units);
+        if (lv_unit == null) {
+            break;
+        }
+        UnitGroupRemoveUnit(lv_units, lv_unit);
+        if (UnitTypeTestAttribute(UnitGetType(lv_unit), c_unitAttributeStructure) == true) {
+            if (UnitHasBehavior2(lv_unit, "ChronoBoostTarget") == false) {
+                UnitBehaviorAdd(lv_unit, "ChronoBoostTarget", lv_unit, 1);
+            }
+            if (UnitHasBehavior2(lv_unit, "SOAMapWideChronoPassiveTarget") == false) {
+                UnitBehaviorAdd(lv_unit, "SOAMapWideChronoPassiveTarget", lv_unit, 1);
+            }
+        }
+    }
 }
 
 unit libE0EAE146_gf_GenericBonusReplaceResourceUnit (unit lp_resourceUnit, string lp_newUnitType, fixed lp_resourceAmount) {
