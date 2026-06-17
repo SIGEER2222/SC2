@@ -259,12 +259,12 @@ void libE0EAE146_gf_InitializeMapScenario (string lp_mapId, bool lp_rpg) {
 
     libE0EAE146_gv_currentMapId = lp_mapId;
     lv_secondUnit = PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0);
-    lv_worker = 7;
+    lv_worker = 11;
     lv_secondBase = null;
     lv_createHero = true;
     if (lp_mapId == "tvalerian03_7vs1") {
         lv_secondUnit = PointFromId(789749215);
-        lv_worker = 12;
+        lv_worker = 11;
     }
     else if (lp_mapId == "tzeratul03_7vs1") {
         lv_secondUnit = PointFromId(2109449659);
@@ -1591,6 +1591,10 @@ void libE0EAE146_gf_InitializeBase (point lp_secondUnit, int lp_worker, point lp
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterRuntimeOpenerTech");
     libE0EAE146_gf_ApplyGenericBonuses(1);
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterGenericBonuses");
+    if (((libE0EAE146_gv_currentMapId == "ttosh02_7vs1") && (libE0EAE146_gv_commander == "Kerrigan")) && (DataTableGetBool(true, "XMKerriganStartPanelPreviewSpawned") == false)) {
+        DataTableSetBool(true, "XMKerriganStartPanelPreviewSpawned", true);
+        libE0EAE146_gf_KerriganCreateMapStartSquad("full", 1, PointWithOffsetPolar(lv_baseAnchor, 9.0, 45.0));
+    }
     libE0EAE146_gf_RuntimeBaseCheckpoint("InitializeBase.units", libE0EAE146_gf_CommanderAchUnit("CommandCenter"), libE0EAE146_gf_CommanderAchUnit("Worker"), libE0EAE146_gf_CommanderAchUnit("SecondUnit"));
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.exit");
 }
