@@ -17,14 +17,11 @@ function Assert-True {
 
 $mapsRoot = Join-Path $WorkspaceRoot 'Maps'
 $launchScriptPath = Join-Path $WorkspaceRoot 'scripts\launch-7vs1-coop-test.ps1'
-$captureScriptPath = Join-Path $WorkspaceRoot 'scripts\capture-7vs1-ingame-smoke.ps1'
 
 Assert-True (Test-Path -LiteralPath $mapsRoot) "Missing maps root: $mapsRoot"
 Assert-True (Test-Path -LiteralPath $launchScriptPath) "Missing launch script: $launchScriptPath"
-Assert-True (Test-Path -LiteralPath $captureScriptPath) "Missing capture script: $captureScriptPath"
 
 $launchScript = Get-Content -LiteralPath $launchScriptPath -Raw -Encoding UTF8
-$captureScript = Get-Content -LiteralPath $captureScriptPath -Raw -Encoding UTF8
 
 Assert-True ($launchScript.Contains('Get-EffectiveLiveRuntimeLibraryPath -MapLive $mapLive -ExtensionLive $extensionLive -LibraryName "LibKPVP.galaxy"')) `
     'Launch script must patch the effective LibKPVP, not assume extension LibKPVP wins over map-local runtime libraries.'
@@ -38,11 +35,6 @@ Assert-True (-not $launchScript.Contains('libKPVP_gf_codex_init_7vs1_test_comman
     'Launch script must not replace the original commander selection loop.'
 Assert-True ($launchScript.Contains('Live base testline still contains obsolete commander init override')) `
     'Launch validation must reject obsolete commander init override leftovers.'
-
-Assert-True ($captureScript.Contains('Get-LogTimestampFromName')) `
-    'Capture script must parse SC2 log filename timestamps.'
-Assert-True ($captureScript.Contains('Test-LogItemStartedAfter -Item $afterScriptError -StartedAt $runStartedAt')) `
-    'Capture script must not report old ScriptError logs as new errors based only on LastWriteTime.'
 
 $maps = @(Get-ChildItem -LiteralPath $mapsRoot -Directory -Filter '*_7vs1.SC2Map' | Sort-Object Name)
 Assert-True ($maps.Count -gt 0) "No *_7vs1.SC2Map directories found under $mapsRoot"

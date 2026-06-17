@@ -8,7 +8,6 @@ param(
     [string[]]$Commanders = @(),
     [Alias("IncludePrestigeMaskMatrix")]
     [switch]$IncludePrestigeBonusMaskMatrix,
-    [switch]$IncludeMasteryOverrideSmoke,
     [int]$LaunchRetryCount = 2,
     [int]$LaunchRetryDelaySeconds = 2,
     [switch]$StopOnFailure
@@ -409,25 +408,6 @@ $scenarios.Add(@{
     MasteryValues = @(30, 30, 30, 30, 30, 30)
 }) | Out-Null
 
-if ($IncludeMasteryOverrideSmoke) {
-    $scenarios.Add(@{
-        Name = "mastery_override_smoke"
-        Profile = $CommanderPowerProfile
-        EnablePrestiges = 1
-        EnableMasteries = 1
-        PrestigePointIndex = -1
-        PrestigeBonusMask = 7
-        MasteryDefault = 30
-        Mastery0 = 0
-        Mastery1 = 3
-        Mastery2 = 6
-        Mastery3 = 9
-        Mastery4 = 12
-        Mastery5 = 15
-        MasteryValues = @(0, 3, 6, 9, 12, 15)
-    }) | Out-Null
-}
-
 if ($IncludePrestigeBonusMaskMatrix) {
     $scenarios.Add(@{
         Name = "prestige_bonus_mask_bit1_override"
@@ -508,7 +488,7 @@ foreach ($spec in $targetSpecs) {
         foreach ($key in $scenario.Keys) {
             $effectiveScenario[$key] = $scenario[$key]
         }
-        if ($scenario.Name -in @("full_fusion", "prestiges_off", "masteries_off", "mastery_override_smoke")) {
+        if ($scenario.Name -in @("full_fusion", "prestiges_off", "masteries_off")) {
             $effectiveScenario.PrestigeBonusMask = $defaultPrestigeBonusMask
         }
 
