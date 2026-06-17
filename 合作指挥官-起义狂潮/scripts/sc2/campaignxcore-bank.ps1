@@ -21,6 +21,71 @@ function Get-CampaignXCoreBankPaths {
     return $paths.ToArray()
 }
 
+function Get-VoicePackSelectionCatalog {
+    if ($script:VoicePackSelectionCatalog) {
+        return $script:VoicePackSelectionCatalog
+    }
+
+    $workspaceRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+    $metadataPath = Join-Path $workspaceRoot "Shared\CommanderPower\commander-power-metadata.json"
+    if (-not (Test-Path -LiteralPath $metadataPath)) {
+        $script:VoicePackSelectionCatalog = @("Default")
+        return @("Default")
+    }
+
+    $metadata = Get-Content -LiteralPath $metadataPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $localizedZhPath = [string]$metadata.source.localized_zh_path
+    if ([string]::IsNullOrWhiteSpace($localizedZhPath)) {
+        $script:VoicePackSelectionCatalog = @("Default")
+        return @("Default")
+    }
+
+    $localizedDir = Split-Path -Parent $localizedZhPath
+    $stringsPath = Join-Path $localizedDir "..\..\..\core.sc2mod\zhcn.sc2data\localizeddata\gamestringsproduct.txt"
+    $voicePackDataPath = Join-Path $localizedDir "..\..\..\liberty.sc2mod\base.sc2data\gamedata\voicepackdata.xml"
+    $rewardDataPath = Join-Path $localizedDir "..\..\..\liberty.sc2mod\base.sc2data\gamedata\rewarddata.xml"
+
+    if (-not (Test-Path -LiteralPath $stringsPath) -or -not (Test-Path -LiteralPath $voicePackDataPath) -or -not (Test-Path -LiteralPath $rewardDataPath)) {
+        $script:VoicePackSelectionCatalog = @("Default")
+        return @("Default")
+    }
+
+    $nameMap = @{}
+    $storeMap = @{}
+    foreach ($line in Get-Content -LiteralPath $stringsPath -Encoding UTF8) {
+        if ($line -match '^VoicePack/Name/([^=]+)=(.*)$') {
+            $nameMap[$matches[1]] = $matches[2]
+        }
+        elseif ($line -match '^VoicePack/StoreName/([^=]+)=(.*)$') {
+            $storeMap[$matches[1]] = $matches[2]
+        }
+    }
+
+    [xml]$voicePackXml = Get-Content -LiteralPath $voicePackDataPath -Raw -Encoding UTF8
+    [xml]$rewardXml = Get-Content -LiteralPath $rewardDataPath -Raw -Encoding UTF8
+
+    $catalog = @("Default")
+    foreach ($node in @($voicePackXml.Catalog.CVoicePack)) {
+        $id = [string]$node.id
+        if ([string]::IsNullOrWhiteSpace($id) -or $id -eq "Default") {
+            continue
+        }
+        $hasReward = $false
+        foreach ($rewardNode in @($rewardXml.Catalog.CRewardVoicePack)) {
+            if ([string]$rewardNode.voicepack -eq $id) {
+                $hasReward = $true
+                break
+            }
+        }
+        if ($hasReward -and ($catalog -notcontains $id)) {
+            $catalog += $id
+        }
+    }
+
+    $script:VoicePackSelectionCatalog = @($catalog)
+    return $script:VoicePackSelectionCatalog
+}
+
 function Get-OrCreateBankSection {
     param(
         [xml]$Xml,
@@ -675,7 +740,7 @@ function Set-CampaignXCoreVoicePackSelection {
     if ([string]::IsNullOrWhiteSpace($normalizedVoicePack)) {
         $normalizedVoicePack = "Default"
     }
-    $allowedVoicePacks = @("Default", "BlizzConDVa")
+    $allowedVoicePacks = @(Get-VoicePackSelectionCatalog)
     if ($allowedVoicePacks -notcontains $normalizedVoicePack) {
         throw "Unknown voice pack '$normalizedVoicePack'."
     }

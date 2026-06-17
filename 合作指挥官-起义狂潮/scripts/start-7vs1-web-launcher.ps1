@@ -31,6 +31,7 @@ $script:MutatorsGameDataPath = Join-Path $script:WorkspaceRoot "Mods\kit_mutatio
 $script:MutatorsGameDataRoot = Join-Path $script:WorkspaceRoot "Mods\kit_mutations.SC2Mod\Base.SC2Data\GameData"
 $script:LaunchProcesses = @{}
 $script:AssetSourceConfig = $null
+$script:VoicePackItemsCache = $null
 $script:CommanderExactPortraitMap = @{
     TerranRaynor   = "TerranRaynor.png"
     ZergKerrigan   = "ZergKerrigan.png"
@@ -169,6 +170,57 @@ function Get-AssetSourceConfig {
         mutationWingAssets = "C:\Users\22448\Downloads\因子之翼\kit_liberty_mutation_challenge.SC2Mod\Assets\Textures"
     }
     return $script:AssetSourceConfig
+}
+
+function Get-VoicePackSourceConfig {
+    $metadata = Get-Content -LiteralPath $script:MetadataPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $localizedZhPath = [string]$metadata.source.localized_zh_path
+    if ([string]::IsNullOrWhiteSpace($localizedZhPath)) {
+        return $null
+    }
+
+    $localizedDir = Split-Path -Parent $localizedZhPath
+    return [pscustomobject]@{
+        stringsPath = (Resolve-Path -LiteralPath (Join-Path $localizedDir "..\..\..\core.sc2mod\zhcn.sc2data\localizeddata\gamestringsproduct.txt")).Path
+        voicePackDataPath = (Resolve-Path -LiteralPath (Join-Path $localizedDir "..\..\..\liberty.sc2mod\base.sc2data\gamedata\voicepackdata.xml")).Path
+        rewardDataPath = (Resolve-Path -LiteralPath (Join-Path $localizedDir "..\..\..\liberty.sc2mod\base.sc2data\gamedata\rewarddata.xml")).Path
+    }
+}
+
+function Convert-VoicePackReleaseDate {
+    param([string]$Value)
+
+    $text = [string]$Value
+    if ([string]::IsNullOrWhiteSpace($text)) {
+        return ""
+    }
+
+    $culture = [System.Globalization.CultureInfo]::GetCultureInfo("en-US")
+    $date = [datetime]::MinValue
+    if ([datetime]::TryParse($text, $culture, [System.Globalization.DateTimeStyles]::None, [ref]$date)) {
+        return $date.ToString("yyyy-MM-dd")
+    }
+
+    return $text
+}
+
+function Convert-VoicePackTypeName {
+    param(
+        [string]$Value,
+        [hashtable]$TypeNameMap
+    )
+
+    $text = [string]$Value
+    if ([string]::IsNullOrWhiteSpace($text)) {
+        return ""
+    }
+    if ($TypeNameMap.ContainsKey($text)) {
+        return [string]$TypeNameMap[$text]
+    }
+    if ($text -match '/([^/]+)$') {
+        return $matches[1]
+    }
+    return $text
 }
 
 function Get-CommanderIntegrationStatus {
@@ -597,34 +649,97 @@ function Get-CommanderItems {
 }
 
 function Get-VoicePackItems {
-    return @(
-        [pscustomobject]@{
-            id = "Default"
-            name = "默认"
-            storeName = "指挥官默认语音"
-            description = "沿用当前指挥官的默认语音包。"
-            typeName = "Default"
-            releaseDate = ""
-            rewardIds = [pscustomobject]@{
-                Terran = ""
-                Protoss = ""
-                Zerg = ""
+    if ($null -ne $script:VoicePackItemsCache) {
+        return $script:VoicePackItemsCache
+    }
+
+    $defaultItem = [pscustomobject]@{
+        id = "Default"
+        name = "默认"
+        storeName = "指挥官默认语音"
+        description = "沿用当前指挥官的默认语音包。"
+        typeName = "Default"
+        releaseDate = ""
+        rewardIds = [pscustomobject]@{
+            Terran = ""
+            Protoss = ""
+            Zerg = ""
+        }
+    }
+
+    $source = Get-VoicePackSourceConfig
+    if (($null -eq $source) -or
+        (-not (Test-Path -LiteralPath $source.stringsPath)) -or
+        (-not (Test-Path -LiteralPath $source.voicePackDataPath)) -or
+        (-not (Test-Path -LiteralPath $source.rewardDataPath))) {
+        $script:VoicePackItemsCache = @($defaultItem)
+        return $script:VoicePackItemsCache
+    }
+
+    $nameMap = @{}
+    $storeNameMap = @{}
+    $typeNameMap = @{}
+    foreach ($line in Get-Content -LiteralPath $source.stringsPath -Encoding UTF8) {
+        if ($line -match '^VoicePack/Name/([^=]+)=(.*)$') {
+            $nameMap[$matches[1]] = $matches[2]
+            continue
+        }
+        if ($line -match '^VoicePack/StoreName/([^=]+)=(.*)$') {
+            $storeNameMap[$matches[1]] = $matches[2]
+            continue
+        }
+        if ($line -match '^(VoicePack/TypeName/[^=]+)=(.*)$') {
+            $typeNameMap[$matches[1]] = $matches[2]
+        }
+    }
+
+    [xml]$voicePackXml = Get-Content -LiteralPath $source.voicePackDataPath -Raw -Encoding UTF8
+    [xml]$rewardXml = Get-Content -LiteralPath $source.rewardDataPath -Raw -Encoding UTF8
+    $items = foreach ($node in @($voicePackXml.Catalog.CVoicePack)) {
+        $id = [string]$node.id
+        if ([string]::IsNullOrWhiteSpace($id) -or $id -eq "Default") {
+            continue
+        }
+
+        $rewardIds = @{
+            Terran = ""
+            Protoss = ""
+            Zerg = ""
+        }
+        foreach ($rewardNode in @($rewardXml.Catalog.CRewardVoicePack)) {
+            if ([string]$rewardNode.voicepack -ne $id) {
+                continue
+            }
+            $rewardId = [string]$rewardNode.id
+            if ($rewardId -match '^VoicePack(Terran|Protoss|Zerg)') {
+                $rewardIds[$matches[1]] = $rewardId
             }
         }
+
+        $displayName = if ($nameMap.ContainsKey($id)) { [string]$nameMap[$id] } else { $id }
+        $storeName = if ($storeNameMap.ContainsKey($id)) { [string]$storeNameMap[$id] } else { "播报员：$displayName" }
+        $typeName = Convert-VoicePackTypeName -Value ([string]$node.TypeName.value) -TypeNameMap $typeNameMap
+        if ([string]::IsNullOrWhiteSpace($typeName)) {
+            $typeName = "官方"
+        }
+
         [pscustomobject]@{
-            id = "BlizzConDVa"
-            name = "D.Va"
-            storeName = "播报员：D.Va"
-            description = "官方 D.Va 语音包。"
-            typeName = "Female"
-            releaseDate = "2016-11-04"
+            id = $id
+            name = $displayName
+            storeName = $storeName
+            description = "$storeName。"
+            typeName = $typeName
+            releaseDate = Convert-VoicePackReleaseDate -Value ([string]$node.ReleaseDate.value)
             rewardIds = [pscustomobject]@{
-                Terran = "VoicePackTerranBlizzConDVa"
-                Protoss = "VoicePackProtossBlizzConDVa"
-                Zerg = "VoicePackZergBlizzConDVa"
+                Terran = [string]$rewardIds.Terran
+                Protoss = [string]$rewardIds.Protoss
+                Zerg = [string]$rewardIds.Zerg
             }
         }
-    )
+    }
+
+    $script:VoicePackItemsCache = @($defaultItem) + @($items | Sort-Object storeName, name, id)
+    return $script:VoicePackItemsCache
 }
 
 function Get-MapDisplayName {
@@ -1255,7 +1370,7 @@ function Get-BootstrapData {
         resourcePlan = [pscustomobject]@{
             text = "指挥官 / 因子文字与协议元数据已接入"
             icons = "本地缓存真实 SC2 贴图；优先命中提取图标，缺失项回退到同主题游戏贴图"
-            audio = "已支持通过 Bank 覆盖官方语音包；当前内置 Default 与 D.Va"
+            audio = "已支持通过 Bank 覆盖官方语音包；当前自动枚举本地官方语音包"
         }
     }
 }
@@ -1746,6 +1861,10 @@ function Invoke-Request {
 if ($SelfTest) {
     Clear-StaleCommanderCache
     $bootstrap = Get-BootstrapData
+    $sampleVoicePack = @($bootstrap.voicePacks | Where-Object { $_.id -ne "Default" } | Select-Object -First 1 -ExpandProperty id)
+    if ([string]::IsNullOrWhiteSpace($sampleVoicePack)) {
+        $sampleVoicePack = "Default"
+    }
     $sampleRequest = [pscustomobject]@{
         commander = $bootstrap.defaults.commander
         map = $bootstrap.defaults.map
@@ -1756,7 +1875,7 @@ if ($SelfTest) {
         masteryLevel = 15
         masteries = @(15, 15, 15, 15, 15, 15)
         commanderOverrides = @()
-        voicePack = "BlizzConDVa"
+        voicePack = $sampleVoicePack
         genericBonuses = @()
         genericBonusLevels = @{}
         mutators = @($bootstrap.mutators | Select-Object -First 3 -ExpandProperty id)

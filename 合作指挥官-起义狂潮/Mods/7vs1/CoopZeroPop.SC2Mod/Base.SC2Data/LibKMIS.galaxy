@@ -4258,18 +4258,40 @@ string libKMIS_gf_BankVoicePackSelection () {
 }
 
 string libKMIS_gf_VoicePackRewardForCommanderRace (string lp_voicePack, string lp_commander) {
+    string lv_racePrefix;
+    int lv_rewardPrefixLength;
+    string lv_rewardId;
+    int lv_index;
+    string lv_reward;
+
     if ((lp_voicePack == "") || (lp_voicePack == "Default")) {
         return "";
     }
-    if (lp_voicePack == "BlizzConDVa") {
-        if (StringContains(lp_commander, "Terran", c_stringAtStart, c_stringCase)) {
-            return "VoicePackTerranBlizzConDVa";
+    if (StringContains(lp_commander, "Terran", c_stringAtStart, c_stringCase)) {
+        lv_racePrefix = "Terran";
+    }
+    else if (StringContains(lp_commander, "Protoss", c_stringAtStart, c_stringCase)) {
+        lv_racePrefix = "Protoss";
+    }
+    else if (StringContains(lp_commander, "Zerg", c_stringAtStart, c_stringCase)) {
+        lv_racePrefix = "Zerg";
+    }
+    else {
+        return "";
+    }
+
+    lv_rewardPrefixLength = StringLength("VoicePack");
+    auto08666BD0_catalog = c_gameCatalogReward;
+    for (lv_index = 1; lv_index <= CatalogEntryCount(c_gameCatalogReward); lv_index += 1) {
+        lv_reward = CatalogEntryGet(auto08666BD0_catalog, lv_index);
+        if (CatalogEntryScope(c_gameCatalogReward, lv_reward) != "CRewardVoicePack") {
+            continue;
         }
-        if (StringContains(lp_commander, "Protoss", c_stringAtStart, c_stringCase)) {
-            return "VoicePackProtossBlizzConDVa";
+        if (CatalogFieldValueGet(c_gameCatalogReward, lv_reward, "VoicePack", c_playerAny) != lp_voicePack) {
+            continue;
         }
-        if (StringContains(lp_commander, "Zerg", c_stringAtStart, c_stringCase)) {
-            return "VoicePackZergBlizzConDVa";
+        if (StringContains(lv_reward, ("VoicePack" + lv_racePrefix), c_stringAtStart, c_stringCase)) {
+            return lv_reward;
         }
     }
     return "";
