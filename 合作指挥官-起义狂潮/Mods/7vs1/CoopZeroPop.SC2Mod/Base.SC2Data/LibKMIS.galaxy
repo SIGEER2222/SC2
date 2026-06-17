@@ -5173,6 +5173,7 @@ bool auto_libKMIS_gf_CM_GPReminderRaynor_TriggerFunc (bool testConds, bool runAc
         return true;
     }
 
+    SoundPlay(SoundLink("Defiler_DarkSwarm", -1), PlayerGroupSingle(lp_player), 100.0, 0.0);
     libKCUI_gf_CU_GPHighlightButton(1, true, lp_player);
     libKCUI_gf_CU_GPHighlightButton(2, true, lp_player);
     return true;
@@ -22780,6 +22781,10 @@ bool libKMIS_gt_CM_CampaignUnitCreated_Func (bool testConds, bool runActions) {
     // Actions
     if (!runActions) {
         return true;
+    }
+
+    if (((UnitGetType(EventUnitCreatedUnit()) == "Drone") || (UnitGetType(EventUnitCreatedUnit()) == "SCV") || (UnitGetType(EventUnitCreatedUnit()) == "Probe"))) {
+        SoundPlay(SoundLink("Defiler_DarkSwarm", -1), PlayerGroupSingle(UnitGetOwner(EventUnitCreatedUnit())), 100.0, 0.0);
     }
 
     libKMIS_gf_CM_UseUnitNameAsUnitTip(EventUnitCreatedUnit());
