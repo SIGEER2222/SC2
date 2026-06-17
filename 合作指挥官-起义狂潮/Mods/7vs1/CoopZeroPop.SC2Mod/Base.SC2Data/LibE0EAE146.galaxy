@@ -960,13 +960,8 @@ void libE0EAE146_gf_GenericBonusApplyChronoTargets (int lp_player) {
             break;
         }
         UnitGroupRemoveUnit(lv_units, lv_unit);
-        if (UnitTypeTestAttribute(UnitGetType(lv_unit), c_unitAttributeStructure) == true) {
-            if (UnitHasBehavior2(lv_unit, "ChronoBoostTarget") == false) {
-                UnitBehaviorAdd(lv_unit, "ChronoBoostTarget", lv_unit, 1);
-            }
-            if (UnitHasBehavior2(lv_unit, "SOAMapWideChronoPassiveTarget") == false) {
-                UnitBehaviorAdd(lv_unit, "SOAMapWideChronoPassiveTarget", lv_unit, 1);
-            }
+        if ((UnitTypeTestAttribute(UnitGetType(lv_unit), c_unitAttributeStructure) == true) && (UnitHasBehavior2(lv_unit, "ChronoBoostTarget") == false)) {
+            UnitBehaviorAdd(lv_unit, "ChronoBoostTarget", lv_unit, 1);
         }
     }
 }
