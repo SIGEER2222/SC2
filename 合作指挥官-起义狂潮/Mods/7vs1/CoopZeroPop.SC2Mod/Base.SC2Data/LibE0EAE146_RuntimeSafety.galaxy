@@ -164,23 +164,6 @@ string libE0EAE146_gf_CatalogUnitOrEmpty (string lp_unitType) {
     return "";
 }
 
-void libE0EAE146_gf_RuntimeCommanderAchTrace (string lp_field, string lp_source, string lp_unit) {
-    string lv_key;
-    int lv_count;
-
-    lv_key = ("CommanderAchTrace_" + lp_field);
-    lv_count = (DataTableGetInt(true, (lv_key + "_Count")) + 1);
-    DataTableSetInt(true, (lv_key + "_Count"), lv_count);
-    DataTableSetString(true, (lv_key + "_Source"), lp_source);
-    DataTableSetString(true, (lv_key + "_Unit"), lp_unit);
-
-    BankLoad("CampaignXCore", 1);
-    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", (lv_key + "_Source"), lp_source);
-    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", (lv_key + "_Unit"), lp_unit);
-    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_key + "_Count"), lv_count);
-    BankSave(BankLastCreated());
-}
-
 bool libE0EAE146_gf_IsAllowedConsoleSkin (string lp_consoleSkin) {
     if (lp_consoleSkin == "ConsoleTerran_Default") {
         return true;
@@ -399,10 +382,6 @@ string libE0EAE146_gf_CommanderDefaultSkin (string lp_commander) {
 void libE0EAE146_gf_ApplyDefaultCommanderSkin (int lp_player, string lp_commander) {
     string lv_skin;
 
-    if (lp_commander == "Kerrigan") {
-        return;
-    }
-
     lv_skin = libE0EAE146_gf_CommanderDefaultSkin(lp_commander);
     if (((lv_skin != "") && CatalogEntryIsValid(c_gameCatalogSkin, lv_skin)) && (libE0EAE146_gf_ShouldApplyPlayerSkins() == true)) {
         libE0EAE146_gf_RuntimeVisualProbe("RuntimeSafety_DefaultCommanderSkin", lp_player, lv_skin, lp_commander, 1);
@@ -415,8 +394,7 @@ bool libE0EAE146_gf_CommanderUseOriginal7v1SharedOpeners () {
 }
 
 bool libE0EAE146_gf_CommanderUsePrivateTechFilter (string lp_commander) {
-    lp_commander = libE0EAE146_gf_CommanderShortName(lp_commander);
-    return (lp_commander == "Kerrigan");
+    return false;
 }
 
 void libE0EAE146_gf_AllowUnitIfPresent (int lp_player, string lp_unit) {
@@ -583,50 +561,18 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
         if (lv_commander == "Raynor") {
             if (lp_field == "CommandCenter") {
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenterRaynor");
-                if (lv_unit != "") {
-                    libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "PrivateTech.Raynor.CommandCenterRaynor", lv_unit);
-                    return lv_unit;
-                }
-                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
-                libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "PrivateTech.Raynor.CommandCenterFallback", lv_unit);
-                return lv_unit;
+                if (lv_unit != "") { return lv_unit; }
+                return libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
             }
             if (lp_field == "Worker") {
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCVRaynor");
-                if (lv_unit != "") {
-                    libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "PrivateTech.Raynor.SCVRaynor", lv_unit);
-                    return lv_unit;
-                }
-                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
-                libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "PrivateTech.Raynor.SCVFallback", lv_unit);
-                return lv_unit;
+                if (lv_unit != "") { return lv_unit; }
+                return libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
             }
             if (lp_field == "SecondUnit") {
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("MarineRaynor");
-                if (lv_unit != "") {
-                    libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "PrivateTech.Raynor.MarineRaynor", lv_unit);
-                    return lv_unit;
-                }
-                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
-                libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "PrivateTech.Raynor.MarineFallback", lv_unit);
-                return lv_unit;
-            }
-        }
-        if (lv_commander == "Kerrigan") {
-            if (lp_field == "CommandCenter") {
-                lv_unit = "HatcheryKerrigan";
-                libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "PrivateTech.Kerrigan.HatcheryKerriganForced", lv_unit);
-                return lv_unit;
-            }
-            if (lp_field == "Worker") {
-                lv_unit = "DroneKerrigan";
-                libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "PrivateTech.Kerrigan.DroneKerriganForced", lv_unit);
-                return lv_unit;
-            }
-            if (lp_field == "SecondUnit") {
-                lv_unit = "OverlordKerrigan";
-                libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "PrivateTech.Kerrigan.OverlordKerriganForced", lv_unit);
-                return lv_unit;
+                if (lv_unit != "") { return lv_unit; }
+                return libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
             }
         }
         if ((lv_commander == "Mira") || (lv_commander == "Horner") || (lv_commander == "HanHorner") || (lv_commander == "HanAndHorner")) {
@@ -728,50 +674,14 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
                 return libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
             }
         }
-        if ((lv_commander == "Zagara") || (lv_commander == "Abathur") || (lv_commander == "AbathurCustom") || (lv_commander == "Stetmann")) {
+        if ((lv_commander == "Kerrigan") || (lv_commander == "Zagara") || (lv_commander == "Abathur") || (lv_commander == "AbathurCustom") || (lv_commander == "Stetmann")) {
             if (lp_field == "CommandCenter") {
-                if (lv_commander == "Zagara") {
-                    lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HatcheryZagara");
-                    if (lv_unit != "") { return lv_unit; }
-                }
-                if (lv_commander == "Abathur") {
-                    lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HatcheryAbathur");
-                    if (lv_unit != "") { return lv_unit; }
-                }
-                if (lv_commander == "Stetmann") {
-                    lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HatcheryStetmann");
-                    if (lv_unit != "") { return lv_unit; }
-                }
                 return libE0EAE146_gf_CatalogUnitOrEmpty("Hatchery");
             }
             if (lp_field == "Worker") {
-                if (lv_commander == "Zagara") {
-                    lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("DroneZagara");
-                    if (lv_unit != "") { return lv_unit; }
-                }
-                if (lv_commander == "Abathur") {
-                    lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("DroneAbathur");
-                    if (lv_unit != "") { return lv_unit; }
-                }
-                if (lv_commander == "Stetmann") {
-                    lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("DroneStetmann");
-                    if (lv_unit != "") { return lv_unit; }
-                }
                 return libE0EAE146_gf_CatalogUnitOrEmpty("Drone");
             }
             if (lp_field == "SecondUnit") {
-                if (lv_commander == "Zagara") {
-                    lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("OverlordZagara");
-                    if (lv_unit != "") { return lv_unit; }
-                }
-                if (lv_commander == "Abathur") {
-                    lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("OverlordAbathur");
-                    if (lv_unit != "") { return lv_unit; }
-                }
-                if (lv_commander == "Stetmann") {
-                    lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("OverlordStetmann");
-                    if (lv_unit != "") { return lv_unit; }
-                }
                 return libE0EAE146_gf_CatalogUnitOrEmpty("Overlord");
             }
         }
@@ -1179,7 +1089,6 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
 
     lv_unit = UserDataGetUnit("CommanderAch", lib67C0F0E7_gf_StrToUserinstance(lv_commander), lp_field, 1);
     if (lv_unit != "") {
-        libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "UserData.CommanderAch", lv_unit);
         return lv_unit;
     }
 
@@ -1188,56 +1097,44 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
             if ((lv_commander == "Mira") || (lv_commander == "Horner") || (lv_commander == "HanHorner") || (lv_commander == "HanAndHorner")) {
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HHCommandCenter");
                 if (lv_unit != "") {
-                    libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "TerranFallback.HHCommandCenter", lv_unit);
                     return lv_unit;
                 }
             }
             if (lv_commander == "Mengsk") {
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenterMengsk");
                 if (lv_unit != "") {
-                    libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "TerranFallback.CommandCenterMengsk", lv_unit);
                     return lv_unit;
                 }
             }
-            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
-            libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "TerranFallback.CommandCenter", lv_unit);
-            return lv_unit;
+            return libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
         }
         if (lp_field == "Worker") {
             if ((lv_commander == "Mira") || (lv_commander == "Horner") || (lv_commander == "HanHorner") || (lv_commander == "HanAndHorner")) {
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HHSCV");
                 if (lv_unit != "") {
-                    libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "TerranFallback.HHSCV", lv_unit);
                     return lv_unit;
                 }
             }
             if (lv_commander == "Mengsk") {
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCVMengsk");
                 if (lv_unit != "") {
-                    libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "TerranFallback.SCVMengsk", lv_unit);
                     return lv_unit;
                 }
             }
-            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
-            libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "TerranFallback.SCV", lv_unit);
-            return lv_unit;
+            return libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
         }
         if (lp_field == "SecondUnit") {
             if ((lv_commander == "Mira") || (lv_commander == "Horner") || (lv_commander == "HanHorner") || (lv_commander == "HanAndHorner")) {
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HHMercStarportNoArmy");
                 if (lv_unit != "") {
-                    libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "TerranFallback.HHMercStarportNoArmy", lv_unit);
                     return lv_unit;
                 }
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HHMercStarportUpgraded");
                 if (lv_unit != "") {
-                    libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "TerranFallback.HHMercStarportUpgraded", lv_unit);
                     return lv_unit;
                 }
             }
-            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
-            libE0EAE146_gf_RuntimeCommanderAchTrace(lp_field, "TerranFallback.Marine", lv_unit);
-            return lv_unit;
+            return libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
         }
     }
 

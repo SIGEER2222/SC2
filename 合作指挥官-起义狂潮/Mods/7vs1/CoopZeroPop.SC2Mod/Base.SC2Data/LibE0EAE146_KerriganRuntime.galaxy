@@ -33,7 +33,14 @@ void libE0EAE146_gf_KerriganAllowAbilityIfPresent (int lp_player, string lp_abil
 }
 
 void libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent (int lp_player, string lp_unit, string lp_alias) {
-    return;
+    if ((lp_unit == "") || (lp_alias == "")) {
+        return;
+    }
+    if (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unit)) {
+        return;
+    }
+    CatalogFieldValueSet(c_gameCatalogUnit, lp_unit, "TechAliasArray[0]", lp_player, lp_alias);
+    CatalogFieldValueSet(c_gameCatalogUnit, lp_unit, "TechAliasArray[1]", lp_player, lp_alias);
 }
 
 void libE0EAE146_gf_KerriganSetAbilFieldIfUnitPresent (int lp_player, string lp_abil, string lp_field, string lp_unit) {
@@ -47,42 +54,6 @@ void libE0EAE146_gf_KerriganSetAbilFieldIfUnitPresent (int lp_player, string lp_
         return;
     }
     CatalogFieldValueSet(c_gameCatalogAbil, lp_abil, lp_field, lp_player, lp_unit);
-}
-
-void libE0EAE146_gf_KerriganRuntimeProbe (int lp_player) {
-    unit lv_hatchery;
-    unit lv_lair;
-    unit lv_hive;
-    unit lv_larva;
-    int lv_trainHydraAllowed;
-    int lv_trainMutaAllowed;
-    int lv_trainUltraAllowed;
-
-    lv_hatchery = libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "HatcheryKerrigan");
-    lv_lair = libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "LairKerrigan");
-    lv_hive = libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "HiveKerrigan");
-    lv_larva = libE0EAE146_gf_FindFirstPlayerUnitOfType(lp_player, "LarvaKerrigan");
-    lv_trainHydraAllowed = BoolToInt(TechTreeAbilityIsAllowed(lp_player, AbilityCommand("LarvaTrainKerrigan", 4)));
-    lv_trainUltraAllowed = BoolToInt(TechTreeAbilityIsAllowed(lp_player, AbilityCommand("LarvaTrainKerrigan", 7)));
-    lv_trainMutaAllowed = BoolToInt(TechTreeAbilityIsAllowed(lp_player, AbilityCommand("LarvaTrainKerrigan", 11)));
-
-    libE0EAE146_gf_RuntimeBaseProbe("KerriganTrainHydraAllowed", lv_trainHydraAllowed);
-    libE0EAE146_gf_RuntimeBaseProbe("KerriganTrainUltraAllowed", lv_trainUltraAllowed);
-    libE0EAE146_gf_RuntimeBaseProbe("KerriganTrainMutaAllowed", lv_trainMutaAllowed);
-
-    if (UnitIsValid(lv_hatchery) == true) {
-        libE0EAE146_gf_RuntimeVisualProbe("KerriganTownHall", lp_player, UnitGetType(lv_hatchery), "HatcheryKerrigan", UnitGetTag(lv_hatchery));
-    }
-    else if (UnitIsValid(lv_lair) == true) {
-        libE0EAE146_gf_RuntimeVisualProbe("KerriganTownHall", lp_player, UnitGetType(lv_lair), "LairKerrigan", UnitGetTag(lv_lair));
-    }
-    else if (UnitIsValid(lv_hive) == true) {
-        libE0EAE146_gf_RuntimeVisualProbe("KerriganTownHall", lp_player, UnitGetType(lv_hive), "HiveKerrigan", UnitGetTag(lv_hive));
-    }
-
-    if (UnitIsValid(lv_larva) == true) {
-        libE0EAE146_gf_RuntimeVisualProbe("KerriganLarva", lp_player, UnitGetType(lv_larva), "Private", UnitGetTag(lv_larva));
-    }
 }
 
 void libE0EAE146_gf_KerriganApplyFullLevelUpgrades (int lp_player) {
@@ -192,30 +163,9 @@ void libE0EAE146_gf_KerriganApplyTechFilter (int lp_player) {
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "K5KerriganUnburrow", 0);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrain", 0);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrainSwarm", 0);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrainKerrigan", 0);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrainKerrigan", 1);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrainKerrigan", 2);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrainKerrigan", 3);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrainKerrigan", 4);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrainKerrigan", 7);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "LarvaTrainKerrigan", 11);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "TrainQueen", 0);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "TrainQueenKerrigan", 1);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "TrainQueenKerrigan", 4);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "UpgradeToLair", 0);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "UpgradeToLairKerrigan", 0);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "UpgradeToHive", 0);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "UpgradeToHiveKerrigan", 0);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "ZergBuildKerrigan", 1);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "ZergBuildKerrigan", 3);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "ZergBuildKerrigan", 4);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "ZergBuildKerrigan", 5);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "ZergBuildKerrigan", 6);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "ZergBuildKerrigan", 7);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "ZergBuildKerrigan", 8);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "ZergBuildKerrigan", 10);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "ZergBuildKerrigan", 15);
-    libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "ZergBuildKerrigan", 16);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "MorphToOverseer", 0);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "BuildNydusCanalKerrigan", 0);
     libE0EAE146_gf_KerriganAllowAbilityIfPresent(lp_player, "BuildNydusCanalKerrigan", 1);
@@ -372,7 +322,6 @@ void libE0EAE146_gf_KerriganRuntimeInit (int lp_player, point lp_heroPoint, bool
     if (libE0EAE146_gf_CommanderUsePrivateTechFilter("Kerrigan")) {
         libE0EAE146_gf_KerriganApplyTechFilter(lp_player);
     }
-    libE0EAE146_gf_KerriganRuntimeProbe(lp_player);
     libE0EAE146_gf_KerriganEconDropInit(lp_player);
 
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterKerrigan", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
