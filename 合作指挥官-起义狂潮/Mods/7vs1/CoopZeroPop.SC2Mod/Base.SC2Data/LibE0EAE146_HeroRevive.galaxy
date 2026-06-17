@@ -28,6 +28,9 @@ string libE0EAE146_gf_CommanderHeroReviveUnitType (string lp_commander) {
     else if (lp_commander == "Swann") {
         return "NovaReviveBeacon";
     }
+    else if (lp_commander == "Karax") {
+        return "NovaReviveBeacon";
+    }
 
     return "";
 }
@@ -60,6 +63,9 @@ string libE0EAE146_gf_CommanderHeroReviveFirstBehavior (string lp_commander) {
     else if (lp_commander == "Swann") {
         return "NovaReviveTimerInitial";
     }
+    else if (lp_commander == "Karax") {
+        return "NovaReviveTimerInitial";
+    }
 
     return "";
 }
@@ -90,6 +96,9 @@ string libE0EAE146_gf_CommanderHeroReviveNormalBehavior (string lp_commander) {
         return "StukovNormalReviveTimer";
     }
     else if (lp_commander == "Swann") {
+        return "NovaReviveTimer";
+    }
+    else if (lp_commander == "Karax") {
         return "NovaReviveTimer";
     }
 
@@ -130,6 +139,9 @@ bool libE0EAE146_gf_CommanderHeroReviveMatches (string lp_commander, unit lp_her
     }
     else if (lp_commander == "Swann") {
         return lv_unitType == "Swann";
+    }
+    else if (lp_commander == "Karax") {
+        return lv_unitType == "KaraxChampion";
     }
 
     return false;
@@ -409,6 +421,9 @@ bool libE0EAE146_gt_CommanderHeroDied_Func (bool testConds, bool runActions) {
         else if (libE0EAE146_gf_CommanderHeroReviveMatches("Swann", lv_hero) == true) {
             lv_commander = "Swann";
         }
+        else if (libE0EAE146_gf_CommanderHeroReviveMatches("Karax", lv_hero) == true) {
+            lv_commander = "Karax";
+        }
         else {
             return false;
         }
@@ -444,6 +459,9 @@ bool libE0EAE146_gt_CommanderHeroDied_Func (bool testConds, bool runActions) {
     }
     else if (libE0EAE146_gf_CommanderHeroReviveMatches("Swann", lv_hero) == true) {
         lv_commander = "Swann";
+    }
+    else if (libE0EAE146_gf_CommanderHeroReviveMatches("Karax", lv_hero) == true) {
+        lv_commander = "Karax";
     }
     else {
         return true;
