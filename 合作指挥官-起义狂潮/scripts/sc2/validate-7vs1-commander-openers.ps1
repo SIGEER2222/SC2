@@ -62,7 +62,7 @@ $startSquadsRuntime = Get-Content -LiteralPath $startSquadsPath -Raw -Encoding U
 $stukovRuntime = Get-Content -LiteralPath $stukovRuntimePath -Raw -Encoding UTF8
 
 Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUseOriginal7v1SharedOpeners\s*\(\)\s*\{\s*return\s+true;' 'Original 7v1 shared opener strategy must default to true.'
-Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUsePrivateTechFilter\s*\(\s*string\s+lp_commander\s*\)\s*\{\s*return\s+false;\s*\}' 'Private tech filters must default to false while opener tech stays catalog-backed.'
+Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUsePrivateTechFilter\s*\(\s*string\s+lp_commander\s*\)\s*\{\s*lp_commander\s*=\s*libE0EAE146_gf_CommanderShortName\(lp_commander\);\s*return\s*\(\s*lp_commander\s*==\s*"Kerrigan"\s*\);' 'Private tech filters must stay limited to Kerrigan so other opener tech remains catalog-backed.'
 
 $openerTechCalls = ([regex]::Matches($baseRuntime, 'libE0EAE146_gf_ApplyOriginal7v1OpenerTech\(1,\s*libE0EAE146_gv_commander\);')).Count
 if ($openerTechCalls -lt 2) {
@@ -90,7 +90,7 @@ $expectedOpeners = @(
     @{ Commander = 'Kerrigan'; TownHall = 'Hatchery'; Worker = 'Drone'; Second = 'Overlord' },
     @{ Commander = 'Zagara'; TownHall = 'Hatchery'; Worker = 'Drone'; Second = 'Overlord' },
     @{ Commander = 'Abathur'; TownHall = 'Hatchery'; Worker = 'Drone'; Second = 'Overlord' },
-    @{ Commander = 'Stetmann'; TownHall = 'Hatchery'; Worker = 'Drone'; Second = 'Overlord' },
+    @{ Commander = 'Stetmann'; TownHall = 'HatcheryStetmann'; Worker = 'DroneStetmann'; Second = 'OverlordStetmann' },
     @{ Commander = 'Stukov'; TownHall = 'SICommandCenter'; Worker = 'SISCV'; Second = 'SIInfestedTrooper' },
     @{ Commander = 'Dehaka'; TownHall = 'DehakaHatchery'; Worker = 'DehakaDrone'; Second = 'Zergling' },
     @{ Commander = 'Artanis'; TownHall = 'Nexus'; Worker = 'Probe'; Second = 'Zealot' },
