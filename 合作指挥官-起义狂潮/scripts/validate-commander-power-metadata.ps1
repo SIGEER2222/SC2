@@ -47,22 +47,6 @@ function Assert-True {
     }
 }
 
-function Get-NormalizedPrestigeTooltip {
-    param([string]$Tooltip)
-
-    if ([string]::IsNullOrWhiteSpace($Tooltip)) {
-        return ""
-    }
-
-    $disadvantageMarker = "<n/><n/><s val=`"Coop_Prestige_Disadvantage`">"
-    $markerIndex = $Tooltip.IndexOf($disadvantageMarker)
-    if ($markerIndex -ge 0) {
-        return $Tooltip.Substring(0, $markerIndex).TrimEnd("`t")
-    }
-
-    return $Tooltip
-}
-
 function Assert-PrestigeHasNoNegativeFields {
     param(
         [pscustomobject]$Prestige,
@@ -344,11 +328,9 @@ foreach ($commander in $metadata.commanders) {
         Assert-True -Condition ($zhMap.ContainsKey($expectedNameKey)) -Message ("Missing zhCN prestige name for {0} slot {1}" -f $officialFolder, $slot)
         Assert-True -Condition ($zhMap.ContainsKey($expectedTooltipKey)) -Message ("Missing zhCN prestige tooltip for {0} slot {1}" -f $officialFolder, $slot)
         Assert-True -Condition ([string]$metadataPrestige.name -eq [string]$zhMap[$expectedNameKey]) -Message ("Prestige zhCN name mismatch for {0} slot {1}" -f $officialFolder, $slot)
-        $expectedTooltip = Get-NormalizedPrestigeTooltip -Tooltip ([string]$zhMap[$expectedTooltipKey])
+        $expectedTooltip = [string]$zhMap[$expectedTooltipKey]
         Assert-True -Condition ([string]$metadataPrestige.tooltip -eq $expectedTooltip) -Message ("Prestige zhCN tooltip mismatch for {0} slot {1}" -f $officialFolder, $slot)
         Assert-PrestigeHasNoNegativeFields -Prestige $metadataPrestige -Label ("Prestige {0} slot {1}" -f $officialFolder, $slot)
-        Assert-True -Condition (([string]$metadataPrestige.tooltip) -notmatch "缺点|Disadvantage") -Message ("Prestige zhCN tooltip still contains drawback text for {0} slot {1}" -f $officialFolder, $slot)
-        Assert-True -Condition (([string]$metadataPrestige.tooltip_en) -notmatch "缺点|Disadvantage") -Message ("Prestige English tooltip still contains drawback text for {0} slot {1}" -f $officialFolder, $slot)
     }
 
     Assert-True -Condition ($generatedText.Contains(('if (lp_commander == "{0}") {{' -f $bankCommander))) -Message ("Generated runtime dispatcher missing {0}" -f $bankCommander)

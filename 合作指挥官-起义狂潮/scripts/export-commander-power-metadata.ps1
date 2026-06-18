@@ -214,22 +214,6 @@ function Resolve-LocalizedValue {
     return ""
 }
 
-function Get-NormalizedPrestigeTooltip {
-    param([string]$Tooltip)
-
-    if ([string]::IsNullOrWhiteSpace($Tooltip)) {
-        return ""
-    }
-
-    $disadvantageMarker = "<n/><n/><s val=`"Coop_Prestige_Disadvantage`">"
-    $markerIndex = $Tooltip.IndexOf($disadvantageMarker)
-    if ($markerIndex -ge 0) {
-        return $Tooltip.Substring(0, $markerIndex).TrimEnd("`t")
-    }
-
-    return $Tooltip
-}
-
 function Get-BankCommanderName {
     param([string]$OfficialFolder)
 
@@ -296,9 +280,9 @@ function New-PrestigeEntry {
         name_key = $nameKeyCandidates[0]
         tooltip_key = $tooltipKeyCandidates[0]
         name = (Resolve-LocalizedValue -Map $ZhMap -Keys $nameKeyCandidates)
-        tooltip = (Get-NormalizedPrestigeTooltip -Tooltip (Resolve-LocalizedValue -Map $ZhMap -Keys $tooltipKeyCandidates))
+        tooltip = (Resolve-LocalizedValue -Map $ZhMap -Keys $tooltipKeyCandidates)
         name_en = (Resolve-LocalizedValue -Map $EnMap -Keys $nameKeyCandidates)
-        tooltip_en = (Get-NormalizedPrestigeTooltip -Tooltip (Resolve-LocalizedValue -Map $EnMap -Keys $tooltipKeyCandidates))
+        tooltip_en = (Resolve-LocalizedValue -Map $EnMap -Keys $tooltipKeyCandidates)
         secondary_upgrades_shared = @($Prestige.secondary_upgrades_shared)
         secondary_upgrades_self = @($Prestige.secondary_upgrades_self)
         suppress_upgrades = @()

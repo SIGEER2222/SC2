@@ -409,18 +409,6 @@ string libKCOR_gf_CC_PrestigeCommanderTableKey (string lp_commander, int lp_play
 }
 
 bool libKCOR_gf_CC_PrestigeSuppressed (int lp_player, string lp_suppressionType) {
-    // Variable Declarations
-    string lv_prestige;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_prestige = libKCOR_gf_CC_PlayerActivePrestigeInstance(lp_player);
-
-    // Implementation
-    if ((UserDataGetInt("PlayerPrestige", lv_prestige, lp_suppressionType, 1) == 1)) {
-        return true;
-    }
-
     return false;
 }
 
@@ -494,36 +482,10 @@ void libKCOR_gf_CC_PlayerPrestigeEnable (int lp_player, string lp_prestige) {
         return ;
     }
 
-    autoFFFE3F17_ae = UserDataFieldValueCount("PlayerPrestige", "DisableAbil");
-    lv_index = 1;
-    for ( ; ( (autoFFFE3F17_ai >= 0 && lv_index <= autoFFFE3F17_ae) || (autoFFFE3F17_ai < 0 && lv_index >= autoFFFE3F17_ae) ) ; lv_index += autoFFFE3F17_ai ) {
-        TechTreeAbilityAllow(lp_player, UserDataGetAbilCmd("PlayerPrestige", lp_prestige, "DisableAbil", lv_index), false);
-    }
     auto2AF6D99E_ae = UserDataFieldValueCount("PlayerPrestige", "EnableAbil");
     lv_index = 1;
     for ( ; ( (auto2AF6D99E_ai >= 0 && lv_index <= auto2AF6D99E_ae) || (auto2AF6D99E_ai < 0 && lv_index >= auto2AF6D99E_ae) ) ; lv_index += auto2AF6D99E_ai ) {
         TechTreeAbilityAllow(lp_player, UserDataGetAbilCmd("PlayerPrestige", lp_prestige, "EnableAbil", lv_index), true);
-    }
-    auto8173B652_ae = UserDataFieldValueCount("PlayerPrestige", "SuppressUpgrade");
-    lv_index = 1;
-    for ( ; ( (auto8173B652_ai >= 0 && lv_index <= auto8173B652_ae) || (auto8173B652_ai < 0 && lv_index >= auto8173B652_ae) ) ; lv_index += auto8173B652_ai ) {
-        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "SuppressUpgrade", lv_index), 0);
-    }
-    autoEDDDFDDA_ae = UserDataFieldValueCount("PlayerPrestige", "SuppressUpgradeShared");
-    lv_index = 1;
-    for ( ; ( (autoEDDDFDDA_ai >= 0 && lv_index <= autoEDDDFDDA_ae) || (autoEDDDFDDA_ai < 0 && lv_index >= autoEDDDFDDA_ae) ) ; lv_index += autoEDDDFDDA_ai ) {
-        autoED32D43C_g = libKCOR_gf_CommanderPlayers();
-        lv_ally = -1;
-        while (true) {
-            lv_ally = PlayerGroupNextPlayer(autoED32D43C_g, lv_ally);
-            if (lv_ally < 0) { break; }
-            libNtve_gf_SetUpgradeLevelForPlayer(lv_ally, UserDataGetGameLink("PlayerPrestige", lp_prestige, "SuppressUpgradeShared", lv_index), 0);
-        }
-    }
-    autoA8942F1B_ae = UserDataFieldValueCount("PlayerPrestige", "DisableUnit");
-    lv_index = 1;
-    for ( ; ( (autoA8942F1B_ai >= 0 && lv_index <= autoA8942F1B_ae) || (autoA8942F1B_ai < 0 && lv_index >= autoA8942F1B_ae) ) ; lv_index += autoA8942F1B_ai ) {
-        TechTreeUnitAllow(lp_player, UserDataGetUnit("PlayerPrestige", lp_prestige, "DisableUnit", lv_index), false);
     }
     autoAF2781D7_ae = UserDataFieldValueCount("PlayerPrestige", "UpgradeSupplements");
     lv_index = 1;

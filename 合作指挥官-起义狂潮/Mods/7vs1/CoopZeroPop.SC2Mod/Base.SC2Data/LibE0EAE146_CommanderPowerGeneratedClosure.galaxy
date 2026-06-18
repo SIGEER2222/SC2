@@ -30,7 +30,7 @@ void libE0EAE146_gf_CommanderPowerDebugTrackAbilityAllow (int lp_player, string 
 }
 
 void libE0EAE146_gf_CommanderPowerGeneratedAllowAbility (int lp_player, string lp_abil, int lp_cmd, bool lp_allow) {
-    if ((!lp_allow) && (libE0EAE146_gv_commanderPowerApplyTradeoffs == false)) {
+    if (!lp_allow) {
         return;
     }
     libE0EAE146_gf_CommanderPowerDebugTrackAbilityAllow(lp_player, lp_abil, lp_cmd, lp_allow);
@@ -38,23 +38,14 @@ void libE0EAE146_gf_CommanderPowerGeneratedAllowAbility (int lp_player, string l
 }
 
 void libE0EAE146_gf_CommanderPowerGeneratedAllowUnit (int lp_player, string lp_unit, bool lp_allow) {
-    if ((!lp_allow) && (libE0EAE146_gv_commanderPowerApplyTradeoffs == false)) {
+    if (!lp_allow) {
         return;
     }
     TechTreeUnitAllow(lp_player, lp_unit, lp_allow);
 }
 
 void libE0EAE146_gf_CommanderPowerGeneratedSuppressUpgrade (int lp_player, string lp_upgrade) {
-    int lv_currentLevel;
-
-    if (libE0EAE146_gv_commanderPowerApplyTradeoffs == false) {
-        return;
-    }
-    TechTreeUpgradeAllow(lp_player, lp_upgrade, false);
-    lv_currentLevel = TechTreeUpgradeCount(lp_player, lp_upgrade, c_techCountCompleteOnly);
-    if (lv_currentLevel > 0) {
-        TechTreeUpgradeAddLevel(lp_player, lp_upgrade, (0 - lv_currentLevel));
-    }
+    return;
 }
 
 void libE0EAE146_gf_CommanderPowerGeneratedApplyRaynorClosure (int lp_player) {

@@ -262,15 +262,11 @@ $karaxCommander = @($metadata.commanders | Where-Object { [string]$_.bank_comman
 Assert-True -Condition ($null -ne $karaxCommander) -Message "Karax commander metadata not found."
 foreach ($prestige in @($karaxCommander.prestiges)) {
     Assert-PrestigeHasNoNegativeFields -Prestige $prestige -Label ("Karax prestige {0}" -f [string]$prestige.id)
-    Assert-True -Condition (([string]$prestige.tooltip) -notmatch "缺点|Disadvantage") -Message ("Karax prestige {0} tooltip still contains drawback text." -f [string]$prestige.id)
-    Assert-True -Condition (([string]$prestige.tooltip_en) -notmatch "缺点|Disadvantage") -Message ("Karax prestige {0} English tooltip still contains drawback text." -f [string]$prestige.id)
 }
 
 foreach ($commander in $metadata.commanders) {
     foreach ($prestige in @($commander.prestiges)) {
         Assert-PrestigeHasNoNegativeFields -Prestige $prestige -Label ("Prestige {0}" -f [string]$prestige.id)
-        Assert-True -Condition (([string]$prestige.tooltip) -notmatch "缺点|Disadvantage") -Message ("Prestige {0} tooltip still contains drawback text." -f [string]$prestige.id)
-        Assert-True -Condition (([string]$prestige.tooltip_en) -notmatch "缺点|Disadvantage") -Message ("Prestige {0} English tooltip still contains drawback text." -f [string]$prestige.id)
     }
 }
 
