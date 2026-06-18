@@ -43,6 +43,8 @@ const state = {
   activeSheet: DEFAULT_ACTIVE_SHEET,
   autosaveTimer: null,
   launchPollTimer: null,
+  bootstrapRetryTimer: null,
+  serviceUnavailable: false,
   lastLogPaths: null,
   lastValidatedSignature: "",
   lastValidationDetail: null,
@@ -59,6 +61,7 @@ const MAX_RECENT = 6;
 const MAX_LAUNCH_HISTORY = 8;
 const MAX_SCENARIO_PRESETS = 16;
 const DEFAULT_PRESTIGE_PROFILE = "Prestige4";
+const SERVICE_RETRY_MS = 1500;
 const GENERIC_BONUS_OPTIONS = [
   { id: "DoubleMinerals", name: "矿物储量倍率", description: "每加 1 点，所有矿点当前与上限储量额外增加 100%。1 级为 x2，9 级为 x10。", maxLevel: 9 },
   { id: "DoubleVespene", name: "瓦斯储量倍率", description: "每加 1 点，所有气矿当前与上限储量额外增加 100%。1 级为 x2，9 级为 x10。", maxLevel: 9 },
@@ -643,6 +646,57 @@ function isDryRunComplete(status) {
 function setStatus(text, className = "") {
   el.dataStatus.className = className ? `subtle ${className}` : "subtle";
   el.dataStatus.textContent = text;
+}
+
+function isFetchFailure(error) {
+  const message = String(error?.message || error || "");
+  return error instanceof TypeError || message.includes("Failed to fetch") || message.includes("NetworkError");
+}
+
+async function apiFetchJson(path, options = {}) {
+  let response;
+  try {
+    response = await fetch(path, options);
+  } catch (error) {
+    throw new Error(`本地启动器不可用: ${error?.message || error}`);
+  }
+
+  let result = null;
+  try {
+    result = await response.json();
+  } catch {
+    result = null;
+  }
+
+  if (!response.ok || (result && result.ok === false)) {
+    throw new Error(result?.error || `${path} ${response.status}`);
+  }
+
+  return result;
+}
+
+function setServiceUnavailable(message = "本地启动器离线") {
+  state.serviceUnavailable = true;
+  setStatus(message, "status-error");
+  el.launchState.textContent = "服务离线";
+  updateConfigActionButtons(true);
+}
+
+function clearServiceUnavailable() {
+  state.serviceUnavailable = false;
+}
+
+function scheduleBootstrapRetry() {
+  if (state.bootstrapRetryTimer) {
+    return;
+  }
+
+  state.bootstrapRetryTimer = setTimeout(() => {
+    state.bootstrapRetryTimer = null;
+    loadBootstrap().catch(() => {
+      scheduleBootstrapRetry();
+    });
+  }, SERVICE_RETRY_MS);
 }
 
 function getMapLabel(id) {
@@ -1556,7 +1610,7 @@ function updateConfigIssues(payload = buildLaunchPayload()) {
 }
 
 function updateConfigActionButtons(forceDisabled = false) {
-  const disabled = forceDisabled || Boolean(state.launchPollTimer) || !state.data || getConfigIssues().length > 0;
+  const disabled = forceDisabled || state.serviceUnavailable || Boolean(state.launchPollTimer) || !state.data || getConfigIssues().length > 0;
   el.previewButton.disabled = disabled;
   el.validateButton.disabled = disabled;
   el.validateLaunchButton.disabled = disabled;
@@ -2526,6 +2580,7 @@ function buildLaunchPayload() {
 }
 
 async function loadBootstrap() {
+  clearServiceUnavailable();
   el.launchButton.disabled = true;
   el.previewButton.disabled = true;
   el.validateButton.disabled = true;
@@ -2536,9 +2591,7 @@ async function loadBootstrap() {
   el.validateLaunchButton.disabled = true;
   setStatus("加载中");
   try {
-    const response = await fetch("/api/bootstrap?v=20260617-voicepacks", { cache: "no-store" });
-    if (!response.ok) throw new Error(`bootstrap ${response.status}`);
-    state.data = await response.json();
+    state.data = await apiFetchJson("/api/bootstrap?v=20260617-voicepacks", { cache: "no-store" });
     state.selectedMutators.clear();
     state.selectedGenericBonuses.clear();
     state.selectedVoicePackId = normalizeVoicePackId(state.data?.defaults?.voicePack || "Default");
@@ -2590,9 +2643,10 @@ async function loadBootstrap() {
       scoreSystem: state.data.scoreSystem,
     });
   } catch (error) {
-    setStatus(error.message, "status-error");
-    el.launchState.textContent = "错误";
+    state.data = null;
+    setServiceUnavailable(error.message || "本地启动器离线");
     writeOutput(error.stack || error.message);
+    scheduleBootstrapRetry();
   }
 }
 
@@ -2608,20 +2662,23 @@ function setLaunchControlsDisabled(disabled) {
 }
 
 async function pollLaunchStatus(launchResult) {
-  const response = await fetch("/api/launch-status", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      pid: launchResult.pid,
-      stdout: launchResult.stdout,
-      stderr: launchResult.stderr,
-    }),
-  });
-  const status = await response.json();
-  if (!response.ok || status.ok === false) {
-    throw new Error(status.error || `launch-status ${response.status}`);
+  try {
+    return await apiFetchJson("/api/launch-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pid: launchResult.pid,
+        stdout: launchResult.stdout,
+        stderr: launchResult.stderr,
+      }),
+    });
+  } catch (error) {
+    if (isFetchFailure(error)) {
+      setServiceUnavailable(error.message || "本地启动器离线");
+      scheduleBootstrapRetry();
+    }
+    throw error;
   }
-  return status;
 }
 
 async function waitForLaunchCompletion(launchResult, options = {}) {
@@ -2668,15 +2725,11 @@ async function submitLaunch(payload, labels = {}) {
   writeOutput({ request: payload });
 
   try {
-    const response = await fetch("/api/launch", {
+    const result = await apiFetchJson("/api/launch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    const result = await response.json();
-    if (!response.ok || result.ok === false) {
-      throw new Error(result.error || `launch ${response.status}`);
-    }
     el.launchState.textContent = labels.started || `PID ${result.pid}`;
     setLastLogPaths(result.stdout, result.stderr);
     let finalStatus = null;
@@ -2702,7 +2755,12 @@ async function submitLaunch(payload, labels = {}) {
       historyId,
     };
   } catch (error) {
-    el.launchState.textContent = "错误";
+    if (isFetchFailure(error)) {
+      setServiceUnavailable(error.message || "本地启动器离线");
+      scheduleBootstrapRetry();
+    } else {
+      el.launchState.textContent = "错误";
+    }
     writeOutput(error.stack || error.message);
     return null;
   } finally {
@@ -2835,21 +2893,22 @@ async function previewLaunch() {
   writeOutput({ request: payload });
 
   try {
-    const response = await fetch("/api/preview", {
+    const result = await apiFetchJson("/api/preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    const result = await response.json();
-    if (!response.ok || result.ok === false) {
-      throw new Error(result.error || `preview ${response.status}`);
-    }
     el.launchState.textContent = "参数有效";
     el.copyCommandButton.disabled = !result.commandLine;
     el.copyCommandButton.dataset.command = result.commandLine || "";
     writeOutput(result);
   } catch (error) {
-    el.launchState.textContent = "错误";
+    if (isFetchFailure(error)) {
+      setServiceUnavailable(error.message || "本地启动器离线");
+      scheduleBootstrapRetry();
+    } else {
+      el.launchState.textContent = "错误";
+    }
     writeOutput(error.stack || error.message);
   } finally {
     updateConfigActionButtons();

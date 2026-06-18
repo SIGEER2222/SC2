@@ -47,6 +47,23 @@ function Assert-True {
     }
 }
 
+function Get-NormalizedPrestigeTooltip {
+    param(
+        [string]$OfficialFolder,
+        [string]$Tooltip
+    )
+
+    if ($OfficialFolder -eq "Karax") {
+        $disadvantageMarker = "<n/><n/><s val=`"Coop_Prestige_Disadvantage`">"
+        $markerIndex = $Tooltip.IndexOf($disadvantageMarker)
+        if ($markerIndex -ge 0) {
+            return $Tooltip.Substring(0, $markerIndex).TrimEnd("`t")
+        }
+    }
+
+    return $Tooltip
+}
+
 function Read-LocalizedStringMap {
     param([string]$Path)
 
@@ -296,12 +313,27 @@ foreach ($commander in $metadata.commanders) {
             }
             Assert-True -Condition ($fusionPrimaryUpgrade -eq "CommanderPowerNovaSuperCloakFusion") -Message "Nova slot 2 must declare fusion_primary_upgrade=CommanderPowerNovaSuperCloakFusion."
         }
+        if (($officialFolder -eq "Stetmann") -and ($slot -eq 0)) {
+            $fusionPrimaryUpgrade = ""
+            if ($null -ne $metadataPrestige.PSObject.Properties["fusion_primary_upgrade"]) {
+                $fusionPrimaryUpgrade = [string]$metadataPrestige.fusion_primary_upgrade
+            }
+            Assert-True -Condition ($fusionPrimaryUpgrade -eq "CommanderPowerStetmannStetellitesFusion") -Message "Stetmann slot 0 must declare fusion_primary_upgrade=CommanderPowerStetmannStetellitesFusion."
+        }
+        if (($officialFolder -eq "Stetmann") -and ($slot -eq 1)) {
+            $fusionPrimaryUpgrade = ""
+            if ($null -ne $metadataPrestige.PSObject.Properties["fusion_primary_upgrade"]) {
+                $fusionPrimaryUpgrade = [string]$metadataPrestige.fusion_primary_upgrade
+            }
+            Assert-True -Condition ($fusionPrimaryUpgrade -eq "CommanderPowerStetmannGaryFusion") -Message "Stetmann slot 1 must declare fusion_primary_upgrade=CommanderPowerStetmannGaryFusion."
+        }
         Assert-True -Condition ([string]$metadataPrestige.name_key -eq $expectedNameKey) -Message ("Prestige name key mismatch for {0} slot {1}" -f $officialFolder, $slot)
         Assert-True -Condition ([string]$metadataPrestige.tooltip_key -eq $expectedTooltipKey) -Message ("Prestige tooltip key mismatch for {0} slot {1}" -f $officialFolder, $slot)
         Assert-True -Condition ($zhMap.ContainsKey($expectedNameKey)) -Message ("Missing zhCN prestige name for {0} slot {1}" -f $officialFolder, $slot)
         Assert-True -Condition ($zhMap.ContainsKey($expectedTooltipKey)) -Message ("Missing zhCN prestige tooltip for {0} slot {1}" -f $officialFolder, $slot)
         Assert-True -Condition ([string]$metadataPrestige.name -eq [string]$zhMap[$expectedNameKey]) -Message ("Prestige zhCN name mismatch for {0} slot {1}" -f $officialFolder, $slot)
-        Assert-True -Condition ([string]$metadataPrestige.tooltip -eq [string]$zhMap[$expectedTooltipKey]) -Message ("Prestige zhCN tooltip mismatch for {0} slot {1}" -f $officialFolder, $slot)
+        $expectedTooltip = Get-NormalizedPrestigeTooltip -OfficialFolder $officialFolder -Tooltip ([string]$zhMap[$expectedTooltipKey])
+        Assert-True -Condition ([string]$metadataPrestige.tooltip -eq $expectedTooltip) -Message ("Prestige zhCN tooltip mismatch for {0} slot {1}" -f $officialFolder, $slot)
     }
 
     Assert-True -Condition ($generatedText.Contains(('if (lp_commander == "{0}") {{' -f $bankCommander))) -Message ("Generated runtime dispatcher missing {0}" -f $bankCommander)
@@ -313,5 +345,7 @@ foreach ($commander in $metadata.commanders) {
 
 Assert-True -Condition ($launchText.Contains("Convert-TestCommanderToCommanderPowerKey")) -Message "Launch script must route commander names through CommanderPower metadata helpers."
 Assert-True -Condition ($generatedText.Contains('"CommanderPowerNovaSuperCloakFusion"')) -Message "Generated runtime must reference CommanderPowerNovaSuperCloakFusion for Nova fusion prestige."
+Assert-True -Condition ($generatedText.Contains('"CommanderPowerStetmannStetellitesFusion"')) -Message "Generated runtime must reference CommanderPowerStetmannStetellitesFusion for Stetmann fusion prestige."
+Assert-True -Condition ($generatedText.Contains('"CommanderPowerStetmannGaryFusion"')) -Message "Generated runtime must reference CommanderPowerStetmannGaryFusion for Stetmann fusion prestige."
 
 Write-Host ("COMMANDER_POWER_METADATA_VALIDATE=PASS commanders={0} metadata={1}" -f @($metadata.commanders).Count, $metadataPath)

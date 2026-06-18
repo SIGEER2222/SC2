@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectRemoveBehavior id="CommanderPrestigeKerriganAbilitiesExhaust">
+        <EditorCategories value="" />
+        <WhichUnit Value="Caster" />
+        <BehaviorLink value="CommanderPrestigeKerriganAbilitiesFuryExpend" />
+        <Count value="1" />
+    </CEffectRemoveBehavior>
+    <CEffectSet id="CommanderPrestigeKerriganAbilitiesExpendSet">
+        <EditorCategories value="" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesStunSearch" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesExhaust" />
+    </CEffectSet>
+    <CEffectSet id="CommanderPrestigeKerriganAbilitiesExpendSet2">
+        <EditorCategories value="" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesStunSearch2" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesExhaust" />
+    </CEffectSet>
+    <CEffectSet id="CommanderPrestigeKerriganAbilitiesExpendSet3">
+        <EditorCategories value="" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesStunSearch3" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesExhaust" />
+    </CEffectSet>
+    <CEffectSet id="CommanderPrestigeKerriganAbilitiesExpendSet4">
+        <EditorCategories value="" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesStunSearch4" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesExhaust" />
+    </CEffectSet>
+    <CEffectSet id="CommanderPrestigeKerriganAbilitiesExpendSet5">
+        <EditorCategories value="" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesStunSearch5" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesExhaust" />
+    </CEffectSet>
+    <CEffectApplyBehavior id="CommanderPrestigeKerriganAbilitiesFuryExpendX2">
+        <EditorCategories value="" />
+        <WhichUnit Value="Caster" />
+        <Behavior value="CommanderPrestigeKerriganAbilitiesFuryExpend" />
+        <Count value="2" />
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="CommanderPrestigeKerriganAbilitiesFuryExpendX3">
+        <EditorCategories value="" />
+        <WhichUnit Value="Caster" />
+        <Behavior value="CommanderPrestigeKerriganAbilitiesFuryExpend" />
+        <Count value="3" />
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="CommanderPrestigeKerriganAbilitiesFuryExpendX4">
+        <EditorCategories value="" />
+        <WhichUnit Value="Caster" />
+        <Behavior value="CommanderPrestigeKerriganAbilitiesFuryExpend" />
+        <Count value="4" />
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="CommanderPrestigeKerriganAbilitiesFuryExpendX5">
+        <EditorCategories value="" />
+        <WhichUnit Value="Caster" />
+        <Behavior value="CommanderPrestigeKerriganAbilitiesFuryExpend" />
+        <Count value="5" />
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="CommanderPrestigeKerriganAbilitiesRemoveFury">
+        <EditorCategories value="" />
+        <WhichUnit Value="Caster" />
+        <StackAlias value="KerriganRage" />
+    </CEffectRemoveBehavior>
+    <CEffectSet id="PsiStrikeWalk">
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesConvertRage" />
+    </CEffectSet>
+    <CEffectApplyBehavior id="CommanderPrestigeKerriganAbilitiesFuryExpend">
+        <EditorCategories value="" />
+        <WhichUnit Value="Caster" />
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="CommanderPrestigeKerriganAbilitiesCP">
+        <EditorCategories value="" />
+        <PeriodicEffectArray value="CommanderPrestigeKerriganAbilitiesExpendSet" />
+        <PeriodicEffectArray value="CommanderPrestigeKerriganAbilitiesExpendSet2" />
+        <PeriodicEffectArray value="CommanderPrestigeKerriganAbilitiesExpendSet3" />
+        <PeriodicEffectArray value="CommanderPrestigeKerriganAbilitiesExpendSet4" />
+        <PeriodicEffectArray value="CommanderPrestigeKerriganAbilitiesExpendSet5" />
+        <PeriodicPeriodArray value="0.1875" />
+        <ValidatorArray value="HaveCommanderPrestigeKerriganFuryExpend" />
+        <WhichLocation Value="CasterUnit" />
+        <Flags index="PersistUntilDestroyed" value="1" />
+        <InitialEffect value="CommanderPrestigeKerriganAbilitiesRemoveFury" />
+        <PeriodicValidator value="HaveCommanderPrestigeKerriganFuryExpend" />
+    </CEffectCreatePersistent>
+    <CEffectSwitch id="CommanderPrestigeKerriganAbilitiesConvertRage">
+        <ValidatorArray value="HaveKerriganRage" />
+        <EditorCategories value="" />
+        <CaseArray Validator="HaveKerriganPrimalRage5" Effect="CommanderPrestigeKerriganAbilitiesFuryExpendX5" FallThrough="1" />
+        <CaseArray Validator="HaveKerriganPrimalRage4" Effect="CommanderPrestigeKerriganAbilitiesFuryExpendX4" FallThrough="1" />
+        <CaseArray Validator="HaveKerriganPrimalRage3" Effect="CommanderPrestigeKerriganAbilitiesFuryExpendX3" FallThrough="1" />
+        <CaseArray Validator="HaveKerriganPrimalRage2" Effect="CommanderPrestigeKerriganAbilitiesFuryExpendX2" FallThrough="1" />
+        <CaseArray Validator="HaveKerriganPrimalRage1" Effect="CommanderPrestigeKerriganAbilitiesFuryExpend" FallThrough="1" />
+        <CaseDefault value="CommanderPrestigeKerriganAbilitiesCP" />
+        <Chance value="0" />
+    </CEffectSwitch>
+    <CEffectDamage id="CommanderPrestigeKerriganAbilitiesDamage">
+        <EditorCategories value="" />
+        <Amount value="50" />
+    </CEffectDamage>
+    <CEffectApplyBehavior id="CommanderPrestigeKerriganAbilitiesStun">
+        <ValidatorArray index="0" value="NotMapBossOrHeroic" />
+        <EditorCategories value="" />
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="CommanderPrestigeKerriganAbilitiesStunSearchParent">
+        <EditorCategories value="" />
+        <LaunchLocation Value="CasterUnit" />
+        <ImpactLocation Value="CasterUnit" />
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,RawResource,Missile,Destructible,Item,Dead,Hidden,Invulnerable" />
+        <TargetSorts>
+            <SortArray value="TSCommanderPrestigeKerriganAbilitiesStun" />
+            <SortArray value="TSPriority" />
+            <SortArray value="TSNotHeroicOrMapBoss" />
+            <SortArray value="TSRandom" />
+        </TargetSorts>
+        <AreaArray Radius="10" Effect="CommanderPrestigeKerriganAbilitiesStunSet" />
+        <MaxCount value="1" />
+    </CEffectEnumArea>
+    <CEffectEnumArea id="CommanderPrestigeKerriganAbilitiesStunSearch" parent="CommanderPrestigeKerriganAbilitiesStunSearchParent">
+        <TargetSorts>
+            <SortArray value="TSCommanderPrestigeKerriganAbilitiesStun" />
+            <SortArray value="TSPriority" />
+            <SortArray value="TSNotHeroicOrMapBoss" />
+            <SortArray value="TSRandom" />
+        </TargetSorts>
+        <AreaArray Radius="6" Effect="CommanderPrestigeKerriganAbilitiesStunSet" />
+    </CEffectEnumArea>
+    <CEffectEnumArea id="CommanderPrestigeKerriganAbilitiesStunSearch2" parent="CommanderPrestigeKerriganAbilitiesStunSearchParent">
+        <MaxCount value="2" />
+    </CEffectEnumArea>
+    <CEffectEnumArea id="CommanderPrestigeKerriganAbilitiesStunSearch3" parent="CommanderPrestigeKerriganAbilitiesStunSearchParent">
+        <MaxCount value="3" />
+    </CEffectEnumArea>
+    <CEffectEnumArea id="CommanderPrestigeKerriganAbilitiesStunSearch4" parent="CommanderPrestigeKerriganAbilitiesStunSearchParent">
+        <MaxCount value="6" />
+    </CEffectEnumArea>
+    <CEffectEnumArea id="CommanderPrestigeKerriganAbilitiesStunSearch5" parent="CommanderPrestigeKerriganAbilitiesStunSearchParent">
+        <MaxCount value="12" />
+    </CEffectEnumArea>
+    <CEffectSet id="CommanderPrestigeKerriganAbilitiesStunSet">
+        <EditorCategories value="" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesDamage" />
+        <EffectArray value="CommanderPrestigeKerriganAbilitiesStun" />
+    </CEffectSet>
+</Catalog>
