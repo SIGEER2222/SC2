@@ -34,6 +34,7 @@ function Assert-FixedContains {
 $sharedRoot = Join-Path $WorkspaceRoot 'Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data'
 $runtimeSafetyPath = Join-Path $sharedRoot 'LibE0EAE146_RuntimeSafety.galaxy'
 $basePath = Join-Path $sharedRoot 'LibE0EAE146.galaxy'
+$startSquadsPath = Join-Path $sharedRoot 'LibE0EAE146_CommanderStartSquads.galaxy'
 $stukovRuntimePath = Join-Path $sharedRoot 'LibE0EAE146_StukovRuntime.galaxy'
 $commanderCatalogGameData = Join-Path $WorkspaceRoot 'Mods\7vs1\CommanderCatalog.SC2Mod\Base.SC2Data\GameData'
 $commanderCatalogAbilDataPath = Join-Path $commanderCatalogGameData 'AbilData.xml'
@@ -48,12 +49,16 @@ if (!(Test-Path -LiteralPath $runtimeSafetyPath)) {
 if (!(Test-Path -LiteralPath $basePath)) {
     throw "Missing base runtime file: $basePath"
 }
+if (!(Test-Path -LiteralPath $startSquadsPath)) {
+    throw "Missing commander start squads file: $startSquadsPath"
+}
 if (!(Test-Path -LiteralPath $stukovRuntimePath)) {
     throw "Missing Stukov runtime file: $stukovRuntimePath"
 }
 
 $runtimeSafety = Get-Content -LiteralPath $runtimeSafetyPath -Raw -Encoding UTF8
 $baseRuntime = Get-Content -LiteralPath $basePath -Raw -Encoding UTF8
+$startSquadsRuntime = Get-Content -LiteralPath $startSquadsPath -Raw -Encoding UTF8
 $stukovRuntime = Get-Content -LiteralPath $stukovRuntimePath -Raw -Encoding UTF8
 
 Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUseOriginal7v1SharedOpeners\s*\(\)\s*\{\s*return\s+true;' 'Original 7v1 shared opener strategy must default to true.'
@@ -63,6 +68,17 @@ $openerTechCalls = ([regex]::Matches($baseRuntime, 'libE0EAE146_gf_ApplyOriginal
 if ($openerTechCalls -lt 2) {
     throw "InitializeBase must apply original opener tech before unit creation and after commander runtime. Found calls: $openerTechCalls"
 }
+
+$kerriganStartSquadStart = $startSquadsRuntime.IndexOf('void libE0EAE146_gf_KerriganCreateMapStartSquad ')
+$kerriganStartSquadEnd = $startSquadsRuntime.IndexOf('void libE0EAE146_gf_KerriganCreateMapStartSquadInRegion ', $kerriganStartSquadStart)
+if ($kerriganStartSquadStart -lt 0 -or $kerriganStartSquadEnd -lt 0) {
+    throw 'Missing Kerrigan map start squad function.'
+}
+$kerriganStartSquad = $startSquadsRuntime.Substring($kerriganStartSquadStart, $kerriganStartSquadEnd - $kerriganStartSquadStart)
+if ($kerriganStartSquad -match '"Hydralisk"') {
+    throw 'Kerrigan map start squads must create HydraliskKerrigan, not generic Hydralisk, so spawned hydralisks keep the Kerrigan morph command card.'
+}
+Assert-FixedContains $kerriganStartSquad '"HydraliskKerrigan"' 'Kerrigan map start squads must reference HydraliskKerrigan.'
 
 $expectedOpeners = @(
     @{ Commander = 'Raynor'; TownHall = 'CommandCenterRaynor'; Worker = 'SCVRaynor'; Second = 'MarineRaynor' },
