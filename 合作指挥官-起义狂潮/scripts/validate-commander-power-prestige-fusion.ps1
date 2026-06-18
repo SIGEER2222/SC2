@@ -43,6 +43,34 @@ function Get-UpgradeNodes {
     return @($nodes)
 }
 
+function Get-RemovedEffectIndexes {
+    param(
+        [xml[]]$Xmls,
+        [string]$UpgradeId
+    )
+
+    $removed = New-Object System.Collections.Generic.HashSet[int]
+    foreach ($node in @(Get-UpgradeNodes -Xmls $Xmls -UpgradeId $UpgradeId)) {
+        foreach ($effect in @($node.EffectArray)) {
+            if (([string]$effect.removed) -ne "1") {
+                continue
+            }
+
+            $indexText = [string]$effect.index
+            if ([string]::IsNullOrWhiteSpace($indexText)) {
+                continue
+            }
+
+            $indexValue = 0
+            if ([int]::TryParse($indexText, [ref]$indexValue)) {
+                [void]$removed.Add($indexValue)
+            }
+        }
+    }
+
+    return ,$removed
+}
+
 function Assert-OverlayEffect {
     param(
         [xml]$Xml,
@@ -150,6 +178,7 @@ $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
 $catalogGameData = Join-Path $workspaceRoot "Mods\7vs1\CommanderCatalog.SC2Mod\Base.SC2Data\GameData"
 $coopZeroPopGameData = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\GameData"
 $unitXmls = Read-CatalogXmlSet -GameDataRoot $catalogGameData -BaseName "UnitData"
+$overlayUpgradeXmls = Read-CatalogXmlSet -GameDataRoot $catalogGameData -BaseName "UpgradeData"
 $overlayUpgradeXml = Read-CatalogXml -Path (Join-Path $catalogGameData "UpgradeData.xml")
 $coopZeroPopUpgradeXml = Read-CatalogXml -Path (Join-Path $coopZeroPopGameData "UpgradeData.xml")
 $coopZeroPopEffectXml = Read-CatalogXml -Path (Join-Path $coopZeroPopGameData "EffectData.xml")
@@ -166,7 +195,9 @@ $runtimeGalaxy = $generatedGalaxy + "`n" + $profileGalaxy
 $sourceUpgradePaths = @(
     (Join-Path $repoRoot "_codex_7vs1_source_root\s2ma_packages\pkg01\extract\base.sc2data\GameData\UpgradeData.xml"),
     (Join-Path $repoRoot "_codex_7vs1_source_root\s2ma_packages\pkg01\extract\base.sc2data\GameData\Commanders\CommanderTychus.xml"),
-    (Join-Path $repoRoot "_codex_7vs1_source_root\s2ma_packages\pkg01\extract\base.sc2data\GameData\Commanders\FutureCommanders.xml")
+    (Join-Path $repoRoot "_codex_7vs1_source_root\s2ma_packages\pkg01\extract\base.sc2data\GameData\Commanders\FutureCommanders.xml"),
+    (Join-Path $repoRoot "crys_the_swarm_reborn.SC2Mod\游戏数据\官方SC2原始文本镜像\mods\starcoop\commanders\egonstetmann.sc2mod\base.sc2data\gamedata\upgradedata.xml"),
+    (Join-Path $repoRoot "crys_the_swarm_reborn.SC2Mod\游戏数据\官方SC2原始文本镜像\mods\starcoop\commanders\arcturusmengsk.sc2mod\base.sc2data\gamedata\upgradedata.xml")
 )
 
 $sourceUpgradeXmls = @()
@@ -245,7 +276,7 @@ foreach ($commander in $metadata.commanders) {
                 }) | Out-Null
         }
 
-        $nodes = @(Get-UpgradeNodes -Xmls ($sourceUpgradeXmls + @($overlayUpgradeXml, $coopZeroPopUpgradeXml)) -UpgradeId $upgradeId)
+        $nodes = @(Get-UpgradeNodes -Xmls ($sourceUpgradeXmls + @($overlayUpgradeXml, $coopZeroPopUpgradeXml) + $overlayUpgradeXmls) -UpgradeId $upgradeId)
         if ($nodes.Count -eq 0) {
             $missingPrestigeDefinitions.Add([pscustomobject]@{
                     Commander = [string]$commander.bank_commander
@@ -333,8 +364,10 @@ foreach ($commander in $metadata.commanders) {
             continue
         }
 
+        $removedEffectIndexes = Get-RemovedEffectIndexes -Xmls $overlayUpgradeXmls -UpgradeId $upgradeId
+
         $availableRefs = New-Object System.Collections.Generic.HashSet[string]([System.StringComparer]::OrdinalIgnoreCase)
-        foreach ($node in @(Get-UpgradeNodes -Xmls ($sourceUpgradeXmls + @($overlayUpgradeXml)) -UpgradeId $upgradeId)) {
+        foreach ($node in @(Get-UpgradeNodes -Xmls ($sourceUpgradeXmls + @($overlayUpgradeXml, $coopZeroPopUpgradeXml) + $overlayUpgradeXmls) -UpgradeId $upgradeId)) {
             foreach ($effect in @($node.EffectArray)) {
                 if (-not [string]::IsNullOrWhiteSpace([string]$effect.Reference)) {
                     [void]$availableRefs.Add([string]$effect.Reference)
@@ -344,7 +377,13 @@ foreach ($commander in $metadata.commanders) {
 
         $reportedKeys = New-Object System.Collections.Generic.HashSet[string]([System.StringComparer]::OrdinalIgnoreCase)
         foreach ($node in $sourceNodes) {
-            foreach ($effect in @($node.EffectArray)) {
+            $sourceEffects = @($node.EffectArray)
+            for ($effectIndex = 0; $effectIndex -lt $sourceEffects.Count; $effectIndex++) {
+                if ($removedEffectIndexes.Contains($effectIndex)) {
+                    continue
+                }
+
+                $effect = $sourceEffects[$effectIndex]
                 $reference = [string]$effect.Reference
                 if ($reference -notmatch '^Unit,([^,]+),(.+)$') {
                     continue
