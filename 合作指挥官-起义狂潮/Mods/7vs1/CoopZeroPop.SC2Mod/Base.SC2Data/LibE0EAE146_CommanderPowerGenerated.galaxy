@@ -843,13 +843,25 @@ void libE0EAE146_gf_CommanderPowerGeneratedApplyStetmannMasteries (int lp_player
 
 void libE0EAE146_gf_CommanderPowerGeneratedApplyStetmannPrestiges (int lp_player) {
     int lv_prestigeMask;
+    bool lv_applyTradeoffs;
 
     lv_prestigeMask = libE0EAE146_gf_CommanderPowerPrestigeMask("Stetmann");
+    lv_applyTradeoffs = libE0EAE146_gf_CommanderPowerApplyNegativePrestigeTradeoffs("Stetmann");
     if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 0)) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeStetmannStetellites", 1);
+        if (lv_applyTradeoffs) {
+            libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeStetmannStetellites", 1);
+        }
+        else {
+            libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPowerStetmannStetellitesFusion", 1);
+        }
     }
     if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 1)) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeStetmannGary", 1);
+        if (lv_applyTradeoffs) {
+            libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeStetmannGary", 1);
+        }
+        else {
+            libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPowerStetmannGaryFusion", 1);
+        }
     }
     if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 2)) {
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeStetmannCombatBuff", 1);

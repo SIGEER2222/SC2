@@ -265,6 +265,19 @@ foreach ($requirementId in @("CommanderPrestigeKaraxArmy", "CommanderPrestigeKar
     Assert-True -Condition ($requirementNodes.Count -gt 0) -Message ("Karax prestige fusion must hide requirement {0} via CommanderPowerAlwaysHidden." -f $requirementId)
 }
 
+$stetmannSourceLockNodes = @($unitXmls | ForEach-Object { $_.SelectNodes("//LayoutButtons[@Face='CommanderPrestigeStetmannSuperGaryLocked'][@Requirements='CommanderPrestigeStetmannStetellites']") })
+Assert-True -Condition ($stetmannSourceLockNodes.Count -gt 0) -Message "Stetmann source catalog must still declare the Super Gary prestige lock overlay."
+$stetmannHiddenRequirementNodes = @($coopZeroPopRequirementXml.SelectNodes("/Catalog/CRequirement[@id='CommanderPrestigeStetmannStetellites']/NodeArray[@index='Show'][@Link='CommanderPowerAlwaysHidden']"))
+Assert-True -Condition ($stetmannHiddenRequirementNodes.Count -gt 0) -Message "Stetmann prestige fusion must hide CommanderPrestigeStetmannStetellites overlays via CommanderPowerAlwaysHidden."
+$stetmannFusionP1Nodes = @(Get-UpgradeNodes -Xmls @($coopZeroPopUpgradeXml) -UpgradeId "CommanderPowerStetmannStetellitesFusion")
+Assert-True -Condition ($stetmannFusionP1Nodes.Count -gt 0) -Message "Stetmann prestige fusion must define CommanderPowerStetmannStetellitesFusion."
+Assert-OverlayEffect -Xml $coopZeroPopUpgradeXml -UpgradeId "CommanderPowerStetmannStetellitesFusion" -Reference "Behavior,PowerTowerDeathStetmann,Modification.StateFlags[Invulnerable]" -Value "1" -Operation "Set"
+Assert-OverlayEffect -Xml $coopZeroPopUpgradeXml -UpgradeId "CommanderPowerStetmannStetellitesFusion" -Reference "Actor,PowerTowerStetmannRange,Range" -Value "3.625000"
+$stetmannFusionP2Nodes = @(Get-UpgradeNodes -Xmls @($coopZeroPopUpgradeXml) -UpgradeId "CommanderPowerStetmannGaryFusion")
+Assert-True -Condition ($stetmannFusionP2Nodes.Count -gt 0) -Message "Stetmann prestige fusion must define CommanderPowerStetmannGaryFusion."
+Assert-OverlayEffect -Xml $coopZeroPopUpgradeXml -UpgradeId "CommanderPowerStetmannGaryFusion" -Reference "Effect,GaryStetmannDamage,Amount" -Value "30"
+Assert-OverlayEffect -Xml $coopZeroPopUpgradeXml -UpgradeId "CommanderPowerStetmannGaryFusion" -Reference "Unit,SuperGaryStetmann,LifeMax" -Value "1000"
+
 $missingRuntimePrestigeApplications = New-Object System.Collections.Generic.List[object]
 $missingPrestigeDefinitions = New-Object System.Collections.Generic.List[object]
 foreach ($commander in $metadata.commanders) {
