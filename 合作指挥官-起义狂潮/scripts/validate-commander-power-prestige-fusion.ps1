@@ -104,6 +104,19 @@ function Assert-OverlayEffect {
     Assert-True -Condition $hit -Message ("{0} missing overlay effect Reference='{1}' Value='{2}' Operation='{3}'." -f $UpgradeId, $Reference, $Value, $Operation)
 }
 
+function Assert-PrestigeHasNoNegativeFields {
+    param(
+        [pscustomobject]$Prestige,
+        [string]$Label
+    )
+
+    foreach ($propertyName in @("suppress_upgrades", "disable_units", "disable_abils")) {
+        $property = $Prestige.PSObject.Properties[$propertyName]
+        Assert-True -Condition ($null -ne $property) -Message ("{0} is missing metadata field {1}." -f $Label, $propertyName)
+        Assert-True -Condition (@($Prestige.$propertyName).Count -eq 0) -Message ("{0} still contains entries in metadata field {1}." -f $Label, $propertyName)
+    }
+}
+
 function Add-PrestigeUpgradeId {
     param(
         [System.Collections.Generic.HashSet[string]]$Set,
@@ -248,11 +261,17 @@ Assert-True -Condition ($karaxTooltipAppenderNodes.Count -eq 0) -Message "Karax 
 $karaxCommander = @($metadata.commanders | Where-Object { [string]$_.bank_commander -eq "Karax" }) | Select-Object -First 1
 Assert-True -Condition ($null -ne $karaxCommander) -Message "Karax commander metadata not found."
 foreach ($prestige in @($karaxCommander.prestiges)) {
-    Assert-True -Condition (@($prestige.suppress_upgrades).Count -eq 0) -Message ("Karax prestige {0} still suppresses upgrades in metadata." -f [string]$prestige.id)
-    Assert-True -Condition (@($prestige.disable_units).Count -eq 0) -Message ("Karax prestige {0} still disables units in metadata." -f [string]$prestige.id)
-    Assert-True -Condition (@($prestige.disable_abils).Count -eq 0) -Message ("Karax prestige {0} still disables abilities in metadata." -f [string]$prestige.id)
-    Assert-True -Condition (([string]$prestige.tooltip) -notmatch "缺点") -Message ("Karax prestige {0} tooltip still contains drawback text." -f [string]$prestige.id)
-    Assert-True -Condition (([string]$prestige.tooltip_en) -notmatch "Disadvantage") -Message ("Karax prestige {0} English tooltip still contains drawback text." -f [string]$prestige.id)
+    Assert-PrestigeHasNoNegativeFields -Prestige $prestige -Label ("Karax prestige {0}" -f [string]$prestige.id)
+    Assert-True -Condition (([string]$prestige.tooltip) -notmatch "缺点|Disadvantage") -Message ("Karax prestige {0} tooltip still contains drawback text." -f [string]$prestige.id)
+    Assert-True -Condition (([string]$prestige.tooltip_en) -notmatch "缺点|Disadvantage") -Message ("Karax prestige {0} English tooltip still contains drawback text." -f [string]$prestige.id)
+}
+
+foreach ($commander in $metadata.commanders) {
+    foreach ($prestige in @($commander.prestiges)) {
+        Assert-PrestigeHasNoNegativeFields -Prestige $prestige -Label ("Prestige {0}" -f [string]$prestige.id)
+        Assert-True -Condition (([string]$prestige.tooltip) -notmatch "缺点|Disadvantage") -Message ("Prestige {0} tooltip still contains drawback text." -f [string]$prestige.id)
+        Assert-True -Condition (([string]$prestige.tooltip_en) -notmatch "缺点|Disadvantage") -Message ("Prestige {0} English tooltip still contains drawback text." -f [string]$prestige.id)
+    }
 }
 
 $karaxRepairBeamNodes = @($coopZeroPopEffectXml.SelectNodes("/Catalog/CEffectApplyBehavior[@id='SOARepairBeamAB']/ValidatorArray[@index='5'][@removed='1']"))
