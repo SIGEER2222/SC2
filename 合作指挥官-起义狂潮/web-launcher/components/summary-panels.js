@@ -29,7 +29,7 @@ export function updateSummaryPanel({
   summaryMutatorsElement.textContent = `${mutatorCount} / ${genericBonusCount}`;
   summaryPointsElement.textContent = scoreSummaryText;
   prestigeFusionStatusElement.textContent = enablePrestiges
-    ? `${prestigeMaskMode === "default" ? "默认整合" : "手动拆分"} / ${selectedPrestigeCount} 项 / mask ${prestigeBonusMask}`
+    ? `${prestigeMaskMode === "default" ? "默认整合" : "手动拆分"} / ${selectedPrestigeCount} 项 / 掩码 ${prestigeBonusMask}`
     : "融合关闭";
   prestigeFusionStatusElement.classList.toggle("status-ok", enablePrestiges && prestigeBonusMask > 0);
   prestigeFusionStatusElement.classList.toggle("status-warn", !enablePrestiges || prestigeBonusMask === 0);
@@ -68,11 +68,11 @@ export function updateSummaryDetailPanel({
   );
   setElementDetail(
     summaryMutatorsElement,
-    ["因子", `${mutatorCount} 个 / ${genericBonusCount} 加成`, `preset=${mutatorPreset}；ids=${mutatorIdsText}；加成=${genericBonusLabels.join("、") || "无"}`],
+    ["因子", `${mutatorCount} 个 / ${genericBonusCount} 加成`, `预设=${mutatorPreset}；ID=${mutatorIdsText}；加成=${genericBonusLabels.join("、") || "无"}`],
   );
   setElementDetail(
     summaryModeElement,
-    ["模式", modeLabel, `融合=${prestigeProfileLabel}；mask=${prestigeBonusMask}；项=${prestigeNames.join("、") || "无"}；额外=${overrideLabels.join("、") || "无"}；通用=${genericBonusLabels.join("、") || "无"}；point=-1`],
+    ["模式", modeLabel, `融合=${prestigeProfileLabel}；掩码=${prestigeBonusMask}；项=${prestigeNames.join("、") || "无"}；额外=${overrideLabels.join("、") || "无"}；通用=${genericBonusLabels.join("、") || "无"}；点数=-1`],
   );
 }
 
@@ -104,7 +104,7 @@ export function updateBootstrapStripPanel({
 export function updateMasteryPairStatusPanel({ element, pairSums }) {
   element.classList.remove("status-error");
   element.classList.add("status-ok");
-  element.textContent = pairSums.map((item) => `C${item.category}:${item.total}`).join(" / ");
+  element.textContent = pairSums.map((item) => `类别${item.category}:${item.total}`).join(" / ");
 }
 
 export function updateScorePanel({

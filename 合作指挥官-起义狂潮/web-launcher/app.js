@@ -844,7 +844,7 @@ function getScoreRuleText() {
   return [
     `首通 ${rules.firstCommanderMapClearPoints} 分/指挥官地图`,
     `奖励分 ${rules.bonusObjectivePointValue} 分/点`,
-    `因子 normal=${mutatorRules.normal ?? 1} / medium=${mutatorRules.medium ?? 2} / hard=${mutatorRules.hard ?? 3}`,
+    `因子 普通=${mutatorRules.normal ?? 1} / 中等=${mutatorRules.medium ?? 2} / 困难=${mutatorRules.hard ?? 3}`,
     `加成 ${bonusRules.join("；")}`,
   ].join(" · ");
 }
@@ -879,7 +879,7 @@ function getMapCompletionState(mapId, commander = getCommander()) {
     return {
       label: "当前指挥官已通关",
       tone: "ok",
-      detail: `来自 CommanderClear：${commanderMapKey}`,
+      detail: `来自指挥官通关记录：${commanderMapKey}`,
       meta: bonusLabel,
     };
   }
@@ -887,14 +887,14 @@ function getMapCompletionState(mapId, commander = getCommander()) {
     return {
       label: "地图已通关",
       tone: "warn",
-      detail: `来自 MapClear：${normalizedMapId}。当前地图有通关记录，但未找到当前指挥官专属通关标记。`,
+      detail: `来自地图通关记录：${normalizedMapId}。当前地图有通关记录，但未找到当前指挥官专属通关标记。`,
       meta: bonusLabel,
     };
   }
   return {
     label: "未通关",
     tone: "error",
-    detail: `Bank 已读取，但未找到 ${normalizedMapId} 或 ${commanderMapKey || "当前指挥官"} 的通关标记。`,
+    detail: `存档已读取，但未找到 ${normalizedMapId} 或 ${commanderMapKey || "当前指挥官"} 的通关标记。`,
     meta: bonusLabel,
   };
 }
@@ -1333,7 +1333,7 @@ function getPayloadSummaryText(payload) {
     `通用加成=${genericBonuses.length === 0 ? "无" : genericBonuses.map((id) => getGenericBonusDisplayName(id, genericBonusLevels)).join(",")}`,
     `因子=${mutators.length === 0 ? "无" : mutators.join(",")}`,
     `积分=${scoreState.earnedPoints}+${scoreState.mutatorPoints}-${scoreState.bonusCost}=${scoreState.balanceAfterSelection}`,
-    `模式=${payload.noLaunch ? "dry-run" : "launch"}`,
+    `模式=${payload.noLaunch ? "验证" : "启动"}`,
   ].join(" | ");
 }
 
@@ -1469,7 +1469,7 @@ function getValidationChangeSummary(currentPayload = normalizeLaunchPayload()) {
     changes.push(`资源倍率点数: ${JSON.stringify(previous.genericBonusLevels || {})} -> ${JSON.stringify(currentPayload.genericBonusLevels || {})}`);
   }
   if (previous.mutatorPreset !== currentPayload.mutatorPreset) {
-    changes.push(`因子 Preset: ${previous.mutatorPreset} -> ${currentPayload.mutatorPreset}`);
+    changes.push(`因子预设: ${previous.mutatorPreset} -> ${currentPayload.mutatorPreset}`);
   }
   if (previous.mutators.join(",") !== currentPayload.mutators.join(",")) {
     changes.push(`因子: ${previous.mutators.length} -> ${currentPayload.mutators.length}`);
@@ -1480,12 +1480,12 @@ function getValidationChangeSummary(currentPayload = normalizeLaunchPayload()) {
 function getLaunchModeLabels(payload = buildLaunchPayload()) {
   const dryRun = payload.noLaunch === true;
   return {
-    mode: dryRun ? "安装" : "启动",
-    launch: dryRun ? "安装" : "启动",
+    mode: dryRun ? "验证" : "启动",
+    launch: dryRun ? "验证" : "启动",
     validateLaunch: dryRun ? "验证后安装" : "验证后启动",
-    pending: dryRun ? "安装验证中" : "启动中",
-    started: dryRun ? "安装中" : "",
-    running: dryRun ? "安装验证中" : "",
+    pending: dryRun ? "验证中" : "启动中",
+    started: dryRun ? "验证中" : "",
+    running: dryRun ? "验证中" : "",
   };
 }
 
@@ -1516,8 +1516,8 @@ function updateValidationSummary() {
     const detail = getValidationDetailText();
     const suffix = state.lastValidationDetail?.checkedAt ? ` ${formatShortTime(state.lastValidationDetail.checkedAt)}` : "";
     setValidationSummary(`已验证${suffix}`, "status-ok validation-ok");
-    el.summaryValidation.title = detail || "当前配置已通过 dry-run 验证";
-    el.summaryValidation.setAttribute("aria-label", detail || "当前配置已通过 dry-run 验证");
+    el.summaryValidation.title = detail || "当前配置已通过验证";
+    el.summaryValidation.setAttribute("aria-label", detail || "当前配置已通过验证");
   } else {
     setValidationSummary("已变更", "status-warn");
     const detail = getValidationDetailText();
@@ -1618,7 +1618,7 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     mutatorPreset: payload.mutatorPreset,
     mutatorIdsText: mutatorIds,
     genericBonusLabels,
-    modeLabel: payload.noLaunch ? "dry-run 安装" : "launch 启动",
+    modeLabel: payload.noLaunch ? "验证安装" : "正式启动",
     prestigeProfileLabel: formatPrestigeProfile(payload.prestigeProfile),
     prestigeBonusMask: payload.prestigeBonusMask,
     prestigeNames,
@@ -1634,7 +1634,7 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     el.voicePackRaceReward.textContent = voicePackReward;
   }
   if (el.voicePackMode) {
-    el.voicePackMode.textContent = (payload.voicePack || "Default") === "Default" ? "指挥官默认" : "按 Bank 覆盖";
+    el.voicePackMode.textContent = (payload.voicePack || "Default") === "Default" ? "指挥官默认" : "按存档覆盖";
   }
 }
 
@@ -1966,7 +1966,7 @@ function exportPayloadToEditor(payload, statusText = "已导出配置") {
   el.copyPayloadButton.disabled = false;
   el.applyPayloadButton.disabled = false;
   setPayloadStatus(statusText, "status-ok");
-  el.launchState.textContent = "JSON 已导出";
+  el.launchState.textContent = "已导出配置";
 }
 
 async function copyPayloadJson() {
@@ -1986,7 +1986,7 @@ function applyPayloadJson() {
   el.applyPayloadButton.disabled = false;
   if (report.ok) {
     setPayloadStatus("JSON 已应用", "status-ok");
-    el.launchState.textContent = "JSON 已应用";
+    el.launchState.textContent = "已应用配置";
   } else {
     setPayloadStatus("JSON 已部分应用", "status-error");
     el.launchState.textContent = "部分应用";
@@ -2297,11 +2297,11 @@ function updateLaunchHistoryStatus(recordId, finalStatus) {
 function getLaunchHistoryStatusLabel(item) {
   const result = item.result || {};
   if (result.noLaunch) {
-    if (result.exitCode === 0) return "dry-run OK";
+    if (result.exitCode === 0) return "验证通过";
     if (result.exitCode !== null && result.exitCode !== undefined) return `退出码 ${result.exitCode}`;
-    return "dry-run";
+    return "验证中";
   }
-  if (result.exitCode === 0) return "启动 OK";
+  if (result.exitCode === 0) return "启动成功";
   if (result.finalStatus?.timedOut) return "轮询超时";
   if (result.exitCode !== null && result.exitCode !== undefined) return `退出码 ${result.exitCode}`;
   return `PID ${result.pid || "-"}`;

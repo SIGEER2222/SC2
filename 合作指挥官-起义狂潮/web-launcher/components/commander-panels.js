@@ -38,8 +38,8 @@ export function renderPrestigePanel({
         <input class="prestige-toggle-input" type="checkbox" data-slot="${prestige.slot}" data-bit-mask="${prestige.bitMask}" ${checked ? "checked" : ""}>
         <span class="prestige-toggle-main">
           <span class="prestige-name">
-            <strong>P${prestige.slot + 1} ${escapeHtml(prestige.name || prestige.id)}</strong>
-            <span class="badge">mask ${prestige.bitMask}</span>
+            <strong>威望${prestige.slot + 1} ${escapeHtml(prestige.name || prestige.id)}</strong>
+            <span class="badge">掩码 ${prestige.bitMask}</span>
           </span>
           <span class="prestige-tags">
             <em class="${defaultSelected ? "status-ok" : ""}">${defaultSelected ? "默认整合内" : "默认未选"}</em>
@@ -115,7 +115,7 @@ export function renderExtraOptionPanel({
         <span class="extra-option-main">
           <span class="extra-option-name">
             <strong>${escapeHtml(option.name || option.id)}</strong>
-            <span class="badge">P${Number(option.prestigeSlot) + 1}</span>
+            <span class="badge">威望${Number(option.prestigeSlot) + 1}</span>
           </span>
           <span class="extra-option-tags">
             <em>${escapeHtml(option.prestigeName || option.prestigeId || "")}</em>
@@ -144,7 +144,7 @@ export function renderMasteryGridPanel({ container, commander }) {
     card.className = "mastery-card";
     card.innerHTML = `
       <span class="mastery-title">${escapeHtml(mastery.name || mastery.id)}</span>
-      <span class="mastery-meta">C${mastery.category} / ${escapeHtml(mastery.id)}</span>
+      <span class="mastery-meta">类别${mastery.category} / ${escapeHtml(mastery.id)}</span>
       <input class="mastery-input" type="number" value="30" data-slot="${mastery.slot}">
     `;
     container.append(card);
@@ -258,7 +258,7 @@ export function renderVoicePackPanel({
         <em>${escapeHtml(voicePack.releaseDate || "-")}</em>
       </span>
       <span class="voice-pack-card-desc">${escapeHtml(voicePack.storeName || voicePack.description || "")}</span>
-      <span class="voice-pack-card-reward">当前种族奖励: ${escapeHtml(rewardId)}</span>
+      <span class="voice-pack-card-reward">当前种族奖励：${escapeHtml(rewardId)}</span>
     `;
     card.addEventListener("click", () => onSelectVoicePack(voicePack.id));
     container.append(card);
