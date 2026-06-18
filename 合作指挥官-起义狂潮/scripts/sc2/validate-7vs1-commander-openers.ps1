@@ -36,6 +36,7 @@ $runtimeSafetyPath = Join-Path $sharedRoot 'LibE0EAE146_RuntimeSafety.galaxy'
 $basePath = Join-Path $sharedRoot 'LibE0EAE146.galaxy'
 $startSquadsPath = Join-Path $sharedRoot 'LibE0EAE146_CommanderStartSquads.galaxy'
 $stukovRuntimePath = Join-Path $sharedRoot 'LibE0EAE146_StukovRuntime.galaxy'
+$raynorRuntimePath = Join-Path $sharedRoot 'LibE0EAE146_RaynorRuntime.galaxy'
 $commanderCatalogGameData = Join-Path $WorkspaceRoot 'Mods\7vs1\CommanderCatalog.SC2Mod\Base.SC2Data\GameData'
 $commanderCatalogAbilDataPath = Join-Path $commanderCatalogGameData 'AbilData.xml'
 $commanderCatalogActorDataPath = Join-Path $commanderCatalogGameData 'ActorData.xml'
@@ -55,14 +56,18 @@ if (!(Test-Path -LiteralPath $startSquadsPath)) {
 if (!(Test-Path -LiteralPath $stukovRuntimePath)) {
     throw "Missing Stukov runtime file: $stukovRuntimePath"
 }
+if (!(Test-Path -LiteralPath $raynorRuntimePath)) {
+    throw "Missing Raynor runtime file: $raynorRuntimePath"
+}
 
 $runtimeSafety = Get-Content -LiteralPath $runtimeSafetyPath -Raw -Encoding UTF8
 $baseRuntime = Get-Content -LiteralPath $basePath -Raw -Encoding UTF8
 $startSquadsRuntime = Get-Content -LiteralPath $startSquadsPath -Raw -Encoding UTF8
 $stukovRuntime = Get-Content -LiteralPath $stukovRuntimePath -Raw -Encoding UTF8
+$raynorRuntime = Get-Content -LiteralPath $raynorRuntimePath -Raw -Encoding UTF8
 
 Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUseOriginal7v1SharedOpeners\s*\(\)\s*\{\s*return\s+true;' 'Original 7v1 shared opener strategy must default to true.'
-Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUsePrivateTechFilter\s*\(\s*string\s+lp_commander\s*\)\s*\{\s*lp_commander\s*=\s*libE0EAE146_gf_CommanderShortName\(lp_commander\);\s*return\s*\(\s*lp_commander\s*==\s*"Kerrigan"\s*\);' 'Private tech filters must stay limited to Kerrigan so other opener tech remains catalog-backed.'
+Assert-Contains $runtimeSafety 'bool\s+libE0EAE146_gf_CommanderUsePrivateTechFilter\s*\(\s*string\s+lp_commander\s*\)\s*\{\s*lp_commander\s*=\s*libE0EAE146_gf_CommanderShortName\(lp_commander\);\s*return\s*\(\s*\(\s*lp_commander\s*==\s*"Kerrigan"\s*\)\s*\|\|\s*\(\s*lp_commander\s*==\s*"Raynor"\s*\)\s*\);' 'Private tech filters must cover Kerrigan and Raynor so both commanders keep their private opener units and command cards.'
 
 $openerTechCalls = ([regex]::Matches($baseRuntime, 'libE0EAE146_gf_ApplyOriginal7v1OpenerTech\(1,\s*libE0EAE146_gv_commander\);')).Count
 if ($openerTechCalls -lt 2) {
@@ -112,6 +117,10 @@ Assert-FixedContains $stukovRuntime 'libNtve_gf_CreateUnitsWithDefaultFacing(1, 
 Assert-FixedContains $stukovRuntime 'lib67C0F0E7_gf_CU_GPInit(lp_player, "Stukov", lv_caster, null);' 'Stukov runtime must bind the Stukov topbar to CoopCasterStukov, not to a battlefield hero.'
 if ($stukovRuntime -match 'lib67C0F0E7_gf_CU_GPInit\(\s*lp_player,\s*"Stukov",\s*lv_hero') {
     throw 'Stukov runtime must not bind the topbar to the battlefield InfestedStukovCoop hero; keep CoopCasterStukov as the topbar caster.'
+}
+Assert-FixedContains $raynorRuntime 'lib67C0F0E7_gf_CU_GPInit(lp_player, "Raynor", lv_caster, null);' 'Raynor runtime must bind the Raynor topbar to CoopCasterRaynor so the commander panel is initialized consistently.'
+if ($raynorRuntime -match 'lib67C0F0E7_gf_CU_GPInit\(\s*lp_player,\s*"Raynor",\s*lv_hero') {
+    throw 'Raynor runtime must not bind the topbar to the battlefield RaynorCommando hero; keep CoopCasterRaynor as the topbar caster.'
 }
 
 if (!(Test-Path -LiteralPath $commanderCatalogAbilDataPath)) {
