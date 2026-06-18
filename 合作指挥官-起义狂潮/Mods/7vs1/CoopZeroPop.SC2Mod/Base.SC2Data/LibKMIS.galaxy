@@ -4247,13 +4247,21 @@ unit libKMIS_gf_CM_PrimaryTownHall (int lp_player) {
     return libKMIS_gv_cM_PrimaryTownHall[lp_player];
 }
 
-string libKMIS_gf_BankVoicePackSelection () {
+string libKMIS_gf_BankVoicePackSelection (int lp_player) {
+    BankLoad("CampaignXCore", lp_player);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeVoicePack", "SelectionReadPlayer", lp_player);
     if (!BankSectionExists(BankLastCreated(), "Cosmetics")) {
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "SelectionReadResult", "MissingCosmetics");
+        BankSave(BankLastCreated());
         return "";
     }
     if (!BankKeyExists(BankLastCreated(), "Cosmetics", "VoicePack")) {
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "SelectionReadResult", "MissingVoicePack");
+        BankSave(BankLastCreated());
         return "";
     }
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "SelectionReadResult", BankValueGetAsString(BankLastCreated(), "Cosmetics", "VoicePack"));
+    BankSave(BankLastCreated());
     return BankValueGetAsString(BankLastCreated(), "Cosmetics", "VoicePack");
 }
 
@@ -4300,18 +4308,30 @@ bool libKMIS_gf_VoicePackSelectionApply (int lp_player) {
     string lv_rewardId;
     string lv_commander;
 
-    lv_voicePack = libKMIS_gf_BankVoicePackSelection();
+    lv_voicePack = libKMIS_gf_BankVoicePackSelection(lp_player);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "ApplyVoicePack", lv_voicePack);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeVoicePack", "ApplyPlayer", lp_player);
     if ((lv_voicePack == "") || (lv_voicePack == "Default")) {
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "ApplyResult", "SkippedDefault");
+        BankSave(BankLastCreated());
         return false;
     }
 
     lv_commander = libKCOR_gf_ActiveCommanderForPlayer(lp_player);
     lv_rewardId = libKMIS_gf_VoicePackRewardForCommanderRace(lv_voicePack, lv_commander);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "ApplyCommander", lv_commander);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "ApplyRewardId", lv_rewardId);
     if ((lv_rewardId == "") || (CatalogEntryScope(c_gameCatalogReward, lv_rewardId) != "CRewardVoicePack")) {
+        BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "ApplyResult", "MissingReward");
+        BankSave(BankLastCreated());
         return false;
     }
 
     PlayerAddReward(lp_player, lv_rewardId);
+    libKMIS_gf_VoicePackOverridesApply(lp_player);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "ApplyResult", "Applied");
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeVoicePack", "HasRewardAfterApply", BoolToInt(PlayerHasReward(lp_player, lv_rewardId)));
+    BankSave(BankLastCreated());
     return true;
 }
 void libKMIS_gf_VoicePackOverridesApply (int lp_player) {
@@ -4369,12 +4389,12 @@ void libKMIS_gf_VoicePackCommanderDefaultApply (int lp_player) {
     lv_defaultvoicepack = libKCOR_gf_CC_CommanderDefaultVoicePack(libKCOR_gf_ActiveCommanderForPlayer(lp_player));
 
     // Implementation
+    if (libKMIS_gf_VoicePackSelectionApply(lp_player) == true) {
+        return ;
+    }
     if ((lv_defaultvoicepack != "") && (lv_defaultvoicepack != null)) {
     }
     else {
-        return ;
-    }
-    if (libKMIS_gf_VoicePackSelectionApply(lp_player) == true) {
         return ;
     }
     auto3F278324_catalog = c_gameCatalogReward;
@@ -16313,6 +16333,7 @@ bool libKMIS_gt_CM_Stetmann_TriggersInit_Func (bool testConds, bool runActions) 
     int lv_p;
     int[libKCOR_gv_cCC_MAXPLAYERS + 1] lv_upgradeCount;
     int lv_stetmannplayer;
+    int lv_panelWaits;
 
     // Automatic Variable Declarations
     playergroup autoABD0809F_g;
@@ -16336,13 +16357,20 @@ bool libKMIS_gt_CM_Stetmann_TriggersInit_Func (bool testConds, bool runActions) 
         if ((libKCOR_gf_ActiveCommanderForPlayer(autoABD0809F_var) == "ZergStetmann")) {
             lv_upgradeCount[autoABD0809F_var] = TechTreeUpgradeCount(autoABD0809F_var, "MasteryStetmannStetzoneBonuses", c_techCountCompleteOnly);
             libKMIS_gf_CM_MasteryStetmannUpgradeCost(autoABD0809F_var);
-            DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "ReminderStetzones", "NoReminder");
-            DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "ReminderStetellites", "NoReminder");
-            if ((libKCOR_gf_CC_CommanderLevel(autoABD0809F_var, "ZergStetmann") >= 2)) {
-                DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "EgonergyLockedState", "Unlocked");
+            lv_panelWaits = 0;
+            while ((libKCUI_gv_cU_GPPanel[autoABD0809F_var] == c_invalidDialogControlId) && (lv_panelWaits < 32)) {
+                Wait(0.0625, c_timeGame);
+                lv_panelWaits += 1;
             }
-            else {
-                DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "EgonergyLockedState", "Locked");
+            if ((libKCUI_gv_cU_GPPanel[autoABD0809F_var] != c_invalidDialogControlId)) {
+                DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "ReminderStetzones", "NoReminder");
+                DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "ReminderStetellites", "NoReminder");
+                if ((libKCOR_gf_CC_CommanderLevel(autoABD0809F_var, "ZergStetmann") >= 2)) {
+                    DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "EgonergyLockedState", "Unlocked");
+                }
+                else {
+                    DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "EgonergyLockedState", "Locked");
+                }
             }
         }
 

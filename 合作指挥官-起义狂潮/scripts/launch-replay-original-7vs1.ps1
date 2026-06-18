@@ -103,6 +103,22 @@ function Stop-RunningSc2 {
     Start-Sleep -Seconds 2
 }
 
+function Clear-Sc2GameLogs {
+    $logsRoot = "C:\Users\22448\Documents\StarCraft II\GameLogs"
+    if (-not (Test-Path -LiteralPath $logsRoot)) {
+        return
+    }
+
+    Get-ChildItem -LiteralPath $logsRoot -Force -ErrorAction SilentlyContinue | ForEach-Object {
+        try {
+            Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction Stop
+        }
+        catch {
+            Write-Warning "Could not remove SC2 log entry '$($_.FullName)': $($_.Exception.Message)"
+        }
+    }
+}
+
 $switcherPath = Join-Path $Sc2Root "Support64\SC2Switcher_x64.exe"
 $mapSource = Join-Path $ReplayExtractRoot "s2ma_packages\pkg02\extract"
 $modSource = Join-Path $ReplayExtractRoot "s2ma_packages\pkg03\extract"
@@ -147,6 +163,7 @@ foreach ($dependencySource in @(
 }
 
 Stop-RunningSc2
+Clear-Sc2GameLogs
 Copy-DirectoryClean -Source $mapSource -Destination $liveMapPath
 Copy-DirectoryClean -Source $modSource -Destination $liveModPath
 Copy-DirectoryClean -Source $alliedCommandersSource -Destination $liveAlliedCommandersPath
