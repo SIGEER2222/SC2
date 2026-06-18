@@ -2087,40 +2087,6 @@ void libKCUI_gf_CU_GPInitStukov (int lp_player) {
     CutscenePlay(CutsceneGetTriggerControl(libKCUI_gv_cU_GPCutscene[lp_player]));
 }
 
-void libKCUI_gf_CU_GPInitDehaka (int lp_player) {
-    // Variable Declarations
-    int lv_lastFrame;
-    int lv_buttonIndex;
-
-    // Automatic Variable Declarations
-    const int auto6C8809D3_ae = 4;
-    const int auto6C8809D3_ai = 1;
-
-    // Variable Initialization
-    lv_lastFrame = c_invalidDialogControlId;
-
-    // Implementation
-    DialogControlCreateInPanelFromTemplate(libKCUI_gv_cU_GPPanelHolder, c_triggerControlTypePanel, "Coop_GlobalCastingTemplates/ZergCasterPanelTemplate");
-    libKCUI_gv_cU_GPPanel[lp_player] = DialogControlLastCreated();
-    DialogControlHookup(libKCUI_gv_cU_GPPanel[lp_player], c_triggerControlTypeCutscene, "ZergCommandCutscene");
-    libKCUI_gv_cU_GPCutscene[lp_player] = DialogControlLastCreated();
-    DialogControlHookup(libKCUI_gv_cU_GPPanel[lp_player], c_triggerControlTypePanel, "ButtonHolder");
-    lv_lastFrame = DialogControlLastCreated();
-    DialogControlCreateInPanelFromTemplate(lv_lastFrame, c_triggerControlTypeCommandPanel, "Coop_GlobalCastingTemplates/DehakaGlobalCommandPanelTemplate");
-    libKCUI_gv_cU_GPCmdPanel[lp_player] = DialogControlLastCreated();
-    lv_buttonIndex = 1;
-    for ( ; ( (auto6C8809D3_ai >= 0 && lv_buttonIndex <= auto6C8809D3_ae) || (auto6C8809D3_ai < 0 && lv_buttonIndex >= auto6C8809D3_ae) ) ; lv_buttonIndex += auto6C8809D3_ai ) {
-        DialogControlHookup(libKCUI_gv_cU_GPCmdPanel[lp_player], c_triggerControlTypeButton, "CommandButton0" + IntToString(lv_buttonIndex-1));
-        libKCUI_gv_cU_GPCmdButtons[lv_buttonIndex][lp_player] = DialogControlLastCreated();
-        DialogControlHookup(libKCUI_gv_cU_GPPanel[lp_player], c_triggerControlTypePanel, "AbilityArrow0" + IntToString(lv_buttonIndex));
-        libKCUI_gv_cU_GPCmdButtonArrows[lv_buttonIndex][lp_player] = DialogControlLastCreated();
-        DialogControlSetPositionRelative(libKCUI_gv_cU_GPCmdButtonArrows[lv_buttonIndex][lp_player], PlayerGroupSingle(lp_player), c_anchorTop, libKCUI_gv_cU_GPCmdButtons[lv_buttonIndex][lp_player], c_anchorBottom, 0, 15);
-    }
-    DialogControlSetVisible(libKCUI_gv_cU_GPPanel[lp_player], PlayerGroupAll(), false);
-    libNtve_gf_SetDialogItemCutscene(libKCUI_gv_cU_GPCutscene[lp_player], "Cutscenes\\UI_DehakaCastingPanel.SC2Cutscene", PlayerGroupSingle(lp_player));
-    CutscenePlay(CutsceneGetTriggerControl(libKCUI_gv_cU_GPCutscene[lp_player]));
-}
-
 void libKCUI_gf_CU_GPInitNova (int lp_player) {
     // Variable Declarations
     int lv_lastFrame;
@@ -4501,6 +4467,7 @@ bool libKCUI_gt_CU_TycusMedivacPlatformBuilt_Func (bool testConds, bool runActio
 
     UnitGroupAdd(libKMIS_gv_cM_GlobalCasterUnitGroup[UnitGetOwner(EventUnitCreatedUnit())], lv_medivacplatform);
     libNtve_gf_SetDialogItemUnitGroup(libKCUI_gv_cU_GPCmdPanel[UnitGetOwner(EventUnitCreatedUnit())], libKMIS_gv_cM_GlobalCasterUnitGroup[UnitGetOwner(EventUnitCreatedUnit())], PlayerGroupAll());
+    libKCUI_gf_ModifyTychusMedivacCharges(1, UnitGetOwner(lv_medivacplatform));
     return true;
 }
 

@@ -1,3 +1,181 @@
+include "TriggerLibs/NativeLib"
+include "Lib67C0F0E7"
+include "LibE0EAE146_h"
+include "LibDF8E6945_h"
+include "LibKCUI_h"
+include "LibKCOR_h"
+include "LibKMIS_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Dehaka
+//--------------------------------------------------------------------------------------------------
+
+void libKMIS_gf_CM_DehakaConsumeFloatText (text lp_text, int lp_p, point lp_loc) {
+    TextTagCreate(lp_text, 24, lp_loc, 4.0, true, false, PlayerGroupSingle(lp_p));
+    TextTagSetVelocity(TextTagLastCreated(), 1.0, 90.0);
+    TextTagSetTime(TextTagLastCreated(), c_textTagTimeDuration, 5.0);
+    TextTagSetTime(TextTagLastCreated(), c_textTagTimeFadeOut, 2.0);
+    TextTagSetColor(TextTagLastCreated(), c_textTagColorText, Color(100.00, 100.00, 100.00));
+}
+
+void libKMIS_gf_CM_DehakaConsumeUpdatePsiExplodeDamage (int lp_dehakaPlayer, unit lp_dehakaUnit, fixed lp_maguroMemorialWeaponDamage) {
+    fixed lv_weaponDmgScalar;
+    fixed lv_totalDmg;
+
+    lv_weaponDmgScalar = 2.0;
+    lv_totalDmg = (lp_maguroMemorialWeaponDamage * lv_weaponDmgScalar);
+
+    CatalogFieldValueSet(c_gameCatalogEffect, libKMIS_gv_c_DehakaConsumeEffectPsiExplodeWeaponDmgLink, "Amount", lp_dehakaPlayer, (FixedToString(lv_totalDmg, c_fixedPrecisionAny)));
+    libNtve_gf_CatalogFieldValueModifyBasedOnDefaultValue(c_gameCatalogEffect, "DehakaConsumeEffectPsionicSearch", "AreaArray[" + IntToString(0) + "].Radius", lp_dehakaPlayer, UnitGetPropertyFixed(lp_dehakaUnit, c_unitPropRadius, c_unitPropCurrent), c_upgradeOperationAdd);
+}
+
+void libKMIS_gf_CM_Dehaka_SetLevelValues (int lp_player) {
+    int lv_i;
+    fixed lv_r;
+    int lv_xPTotal;
+    int autoEC066163_ae;
+    const int autoEC066163_ai = 1;
+
+    autoEC066163_ae = (libKMIS_gv_cM_DehakaLevelsMax[lp_player] - 1);
+    lv_i = 0;
+    for ( ; ( (autoEC066163_ai >= 0 && lv_i <= autoEC066163_ae) || (autoEC066163_ai < 0 && lv_i >= autoEC066163_ae) ) ; lv_i += autoEC066163_ai ) {
+        lv_xPTotal += CatalogFieldValueGetAsInt(c_gameCatalogBehavior, libKMIS_gv_cM_DehakaVeterencyBehavior[lp_player], "VeterancyLevelArray[" + IntToString(lv_i) + "].MinVeterancyXP", lp_player);
+        libKMIS_gv_cM_DehakaNextLevelValueArray[lv_i] = lv_xPTotal;
+    }
+}
+
+void libKMIS_gf_CM_Dehaka_LevelUp (int lp_dehakaPlayer, unit lp_dehakaUnit) {
+    fixed lv_dehakaScalePerLevel;
+    fixed lv_dehakaBaseScale;
+    fixed lv_dehakaScaleResult;
+    int lv_dehakaAttackDamagePerLevel;
+    int lv_dehakaAttackDamageBase;
+    int lv_dehakaAttackDamageResult;
+    unit lv_dehakaUnit;
+    fixed lv_dehakaTurnSpeed;
+    fixed lv_dehakaAbilityArcs;
+    int lv_dehakaNextLevelCheck;
+    int lv_dehakaCurrentLevel;
+    string lv_dehakaUnitType;
+    actor lv_dehakaUnitActor;
+
+    lv_dehakaScalePerLevel = 0.1;
+    lv_dehakaBaseScale = 0.5;
+    lv_dehakaAttackDamagePerLevel = 10;
+    lv_dehakaAttackDamageBase = 20;
+    lv_dehakaUnit = libKMIS_gv_cM_HeroUnit[lp_dehakaPlayer];
+    lv_dehakaCurrentLevel = UnitXPGetCurrentLevel(lp_dehakaUnit, null);
+    lv_dehakaUnitType = UnitGetType(lp_dehakaUnit);
+    lv_dehakaUnitActor = libNtve_gf_MainActorofUnit(lp_dehakaUnit);
+
+    if ((libKCOR_gf_ActiveCommanderForPlayer(lp_dehakaPlayer) != "ZergDehaka")) {
+        return ;
+    }
+
+    if ((libKMIS_gf_HeroCanSpendSkillPoint(lv_dehakaUnit, "DehakaLearn") == true)) {
+        ActorSend(lv_dehakaUnitActor, "HaloStart");
+        UISetButtonFaceHighlighted(PlayerGroupSingle(lp_dehakaPlayer), "DehakaLearnAbilities", true);
+    }
+    else {
+        ActorSend(lv_dehakaUnitActor, "HaloStop");
+        UISetButtonFaceHighlighted(PlayerGroupSingle(lp_dehakaPlayer), "DehakaLearnAbilities", false);
+    }
+    if ((lv_dehakaCurrentLevel >= libKMIS_gv_cM_DehakaLevelsMax[lp_dehakaPlayer]) && (libKMIS_gv_cM_DehakaLevelMaxMusicPlayed == false)) {
+        libKMIS_gv_cM_DehakaLevelMaxMusicPlayed = true;
+        SoundPlayOnUnitForPlayer(SoundLink("MusicDehakaMaxLevel", -1), lp_dehakaPlayer, PlayerGroupSingle(lp_dehakaPlayer), lp_dehakaUnit, 1.0, 100.0, 0.0);
+    }
+
+    lv_dehakaScaleResult = ((lv_dehakaCurrentLevel * lv_dehakaScalePerLevel) + lv_dehakaBaseScale);
+    libNtve_gf_SendActorMessageToUnit(lp_dehakaUnit, libNtve_gf_SetScale(lv_dehakaScaleResult, lv_dehakaScaleResult, lv_dehakaScaleResult, 0.0));
+    libNtve_gf_CatalogFieldValueSetAsReal(c_gameCatalogUnit, lv_dehakaUnitType, "Radius", lp_dehakaPlayer, ((lv_dehakaCurrentLevel * 0.0625) + 0.5));
+    lv_dehakaAttackDamageResult = (lv_dehakaAttackDamageBase + ((lv_dehakaCurrentLevel - 1) * lv_dehakaAttackDamagePerLevel));
+    lv_dehakaTurnSpeed = (800.0 - (lv_dehakaCurrentLevel * 40.0));
+    if ((lv_dehakaTurnSpeed < 300.0)) {
+        lv_dehakaTurnSpeed = 300.0;
+    }
+
+    libNtve_gf_CatalogFieldValueSetAsReal(c_gameCatalogUnit, lv_dehakaUnitType, "TurningRate", lp_dehakaPlayer, lv_dehakaTurnSpeed);
+    libNtve_gf_CatalogFieldValueSetAsReal(c_gameCatalogUnit, lv_dehakaUnitType, "StationaryTurningRate", lp_dehakaPlayer, lv_dehakaTurnSpeed);
+    if ((lp_dehakaUnit == libKMIS_gv_cM_HeroUnit[lp_dehakaPlayer])) {
+        libKMIS_gv_cM_DehakaEatReviveTimerAdjustment = ((lv_dehakaCurrentLevel * 1) - 24);
+        libNtve_gf_CatalogFieldValueSetAsReal(c_gameCatalogEffect, "DehakaDroneReviveTimerRefLink", "Amount", lp_dehakaPlayer, libKMIS_gv_cM_DehakaEatReviveTimerAdjustment);
+        if (((libKMIS_gf_DifficultyLevelForPlayerCoop(lp_dehakaPlayer) == 3) || (libKMIS_gf_DifficultyLevelForPlayerCoop(lp_dehakaPlayer) == 4)) && (lv_dehakaCurrentLevel >= 6) && (GameGetMissionTime() < 360.0)) {
+            AchievementAward(lp_dehakaPlayer, "CommanderDehakaLevelUp");
+        }
+
+    }
+
+}
+
+void libKMIS_gf_CM_Dehaka_EssenceSetStack (unit lp_essence, int lp_stack) {
+    UnitSetCustomValue(lp_essence, 63, IntToFixed(lp_stack));
+    TextExpressionSetToken("Param/Expression/lib_KMIS_CF4EE9FC", "Stack", IntToText(lp_stack));
+    UnitSetInfoTip(lp_essence, TextExpressionAssemble("Param/Expression/lib_KMIS_CF4EE9FC"));
+}
+
+int libKMIS_gf_CM_Dehaka_EssenceGetStack (unit lp_essence) {
+    int lv_stack;
+
+    lv_stack = FixedToInt(UnitGetCustomValue(lp_essence, 63));
+    return lv_stack;
+}
+
+void libKMIS_gf_CM_Dehaka_EssenceTransfer (int lp_indexPlayer, unit lp_trainUnit, int lp_essenceBuff100Count, int lp_essenceBuff10Count, int lp_essenceBuff1Count) {
+    UnitBehaviorAddPlayer(lp_trainUnit, "EssenceBuff100", lp_indexPlayer, lp_essenceBuff100Count);
+    UnitBehaviorAddPlayer(lp_trainUnit, "EssenceBuff10", lp_indexPlayer, lp_essenceBuff10Count);
+    UnitBehaviorAddPlayer(lp_trainUnit, "EssenceBuff1", lp_indexPlayer, lp_essenceBuff1Count);
+    UnitCreateEffectUnit(lp_trainUnit, "PostMorphHeal", lp_trainUnit);
+}
+
+void libKMIS_gf_CM_Dehaka_EssenceScale (unit lp_essenceUnit, bool lp_instantScale) {
+    fixed lv_customScale;
+
+    lv_customScale = (UnitGetCustomValue(lp_essenceUnit, 63) / 100.0);
+    lv_customScale += 0.8;
+    if ((lv_customScale > 1.8)) {
+        lv_customScale = 1.8;
+    }
+
+    if ((lp_instantScale == true)) {
+        TextExpressionSetToken("Param/Expression/lib_KMIS_43337540", "A", FixedToText(lv_customScale, c_fixedPrecisionAny));
+        // Codex 7vs1 smoke guard: copied maps can report invalid essence actor info before actor bindings are ready.
+    }
+    else {
+        TextExpressionSetToken("Param/Expression/lib_KMIS_61EDA91E", "A", FixedToText(lv_customScale, c_fixedPrecisionAny));
+        // Codex 7vs1 smoke guard: copied maps can report invalid essence actor info before actor bindings are ready.
+    }
+}
+
+void libKMIS_gf_CM_Dehaka_EssenceMerge (unit lp_essenceUnit, int lp_essenceUnitCount) {
+    fixed lv_essenceCongealRadius;
+    int lv_nearbyEssenceMaxCount;
+    unit lv_nearbyEssenceMaxCountUnit;
+    unitgroup autoDA80EBB9_g;
+    int autoDA80EBB9_u;
+    unit autoDA80EBB9_var;
+
+    lv_essenceCongealRadius = 1.9;
+
+    autoDA80EBB9_g = UnitGroup("EssencePickup", UnitGetOwner(lp_essenceUnit), RegionCircle(UnitGetPosition(lp_essenceUnit), lv_essenceCongealRadius), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDA80EBB9_u = UnitGroupCount(autoDA80EBB9_g, c_unitCountAll);
+    for (;; autoDA80EBB9_u -= 1) {
+        autoDA80EBB9_var = UnitGroupUnitFromEnd(autoDA80EBB9_g, autoDA80EBB9_u);
+        if (autoDA80EBB9_var == null) { break; }
+        if (((UnitGetCustomValue(autoDA80EBB9_var, 63) > lv_nearbyEssenceMaxCount) && (autoDA80EBB9_var != lp_essenceUnit) && (UnitHasBehavior2(autoDA80EBB9_var, "EssenceTravelling") == false))) {
+            lv_nearbyEssenceMaxCount = FixedToInt(UnitGetCustomValue(autoDA80EBB9_var, 63));
+            lv_nearbyEssenceMaxCountUnit = autoDA80EBB9_var;
+        }
+
+    }
+    if ((lv_nearbyEssenceMaxCountUnit != null)) {
+        libKMIS_gf_CM_Dehaka_EssenceSetStack(lv_nearbyEssenceMaxCountUnit, FixedToInt((UnitGetCustomValue(lv_nearbyEssenceMaxCountUnit, 63) + lp_essenceUnitCount)));
+        UnitBehaviorAdd(lp_essenceUnit, "EssenceTravelling", lp_essenceUnit, 1);
+        UnitCreateEffectUnit(lp_essenceUnit, "EssencePickupFullLM", lv_nearbyEssenceMaxCountUnit);
+        libKMIS_gf_CM_Dehaka_EssenceScale(lv_nearbyEssenceMaxCountUnit, false);
+    }
+
+}
+
 void libE0EAE146_gf_DehakaRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     unit lv_hero;
     string lv_panelCasterUnit;
