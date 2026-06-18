@@ -1158,7 +1158,9 @@ Apply-LiveCommanderTestPatches `
     -SelectedCommanders $effectiveCommanders `
     -TestSpawnPreset $TestSpawnPreset `
     -ApplySupportPatches $true
-Set-LiveRuntimePrimaryCommanderOverride -BaseDataRoot $effectiveRuntimeBaseData -SelectedCommanders $effectiveCommanders
+# LibE0EAE146_RuntimeSafety.galaxy is owned by the live extension mod, not the
+# effective LibKPVP location, so patch the extension Base.SC2Data directly.
+Set-LiveRuntimePrimaryCommanderOverride -BaseDataRoot $extensionBaseData -SelectedCommanders $effectiveCommanders
 
 $liveGameData = Join-Path $extensionLive "Base.SC2Data\GameData"
 $liveCommanderCatalogGameData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/7vs1/CommanderCatalog.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data\GameData"

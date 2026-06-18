@@ -4327,10 +4327,7 @@ bool libKMIS_gf_VoicePackSelectionApply (int lp_player) {
         return false;
     }
 
-    PlayerAddReward(lp_player, lv_rewardId);
-    libKMIS_gf_VoicePackOverridesApply(lp_player);
-    BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "ApplyResult", "Applied");
-    BankValueSetFromInt(BankLastCreated(), "XMRuntimeVoicePack", "HasRewardAfterApply", BoolToInt(PlayerHasReward(lp_player, lv_rewardId)));
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeVoicePack", "ApplyResult", "SkippedNoAuthority");
     BankSave(BankLastCreated());
     return true;
 }
