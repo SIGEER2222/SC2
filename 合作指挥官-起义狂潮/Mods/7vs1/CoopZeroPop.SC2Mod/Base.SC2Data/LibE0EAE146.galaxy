@@ -1191,7 +1191,7 @@ void libE0EAE146_gf_GenericBonusApplyPassives (int lp_player) {
     }
     if (lv_mechanicalRepair) {
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusMechanicalRepair", 1);
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "SwannCommanderWorkerFreeRepairs", 1);
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "SOARepairBeam", 1);
     }
     if (lv_chronoBoost) {
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusChronoBoost", 1);
@@ -1202,9 +1202,9 @@ void libE0EAE146_gf_GenericBonusApplyPassives (int lp_player) {
     }
 
     libE0EAE146_gf_GenericBonusEnsureTriggers();
-    libE0EAE146_gv_genericBonusMechanicalRepairEnabled = lv_mechanicalRepair;
+    libE0EAE146_gv_genericBonusMechanicalRepairEnabled = false;
     libE0EAE146_gv_genericBonusCreepRegenEnabled = lv_creepRegeneration;
-    TriggerEnable(libE0EAE146_gt_GenericBonusMechanicalRepair, lv_mechanicalRepair);
+    TriggerEnable(libE0EAE146_gt_GenericBonusMechanicalRepair, false);
     TriggerEnable(libE0EAE146_gt_GenericBonusCreepRegen, lv_creepRegeneration);
 }
 
