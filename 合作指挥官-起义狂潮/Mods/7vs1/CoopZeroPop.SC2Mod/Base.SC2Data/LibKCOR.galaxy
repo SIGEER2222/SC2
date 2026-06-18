@@ -944,50 +944,59 @@ string libKCOR_gf_CC_CommanderConvoTag (string lp_commander) {
     string auto7BF4C060_val;
 
     // Implementation
-    auto7BF4C060_val = lp_commander;
-    if (auto7BF4C060_val == "ProtossArtanis") {
-        return "Artanis";
-    }
-    else if (auto7BF4C060_val == "ProtossVorazun") {
-        return "Vorazun";
-    }
-    else if (auto7BF4C060_val == "ZergKerrigan") {
-        return "Kerrigan";
-    }
-    else if (auto7BF4C060_val == "ZergZagara") {
-        return "Zagara";
-    }
-    else if (auto7BF4C060_val == "TerranRaynor") {
+    if (lp_commander == "TerranRaynor") {
         return "Raynor";
     }
-    else if (auto7BF4C060_val == "TerranSwann") {
+    if (lp_commander == "ZergKerrigan") {
+        return "Kerrigan";
+    }
+    if (lp_commander == "ProtossArtanis") {
+        return "Artanis";
+    }
+    if (lp_commander == "ProtossVorazun") {
+        return "Vorazun";
+    }
+    if (lp_commander == "ProtossKarax") {
+        return "Karax";
+    }
+    if (lp_commander == "ZergZagara") {
+        return "Zagara";
+    }
+    if (lp_commander == "TerranNova") {
+        return "Nova";
+    }
+    if (lp_commander == "TerranSwann") {
         return "Swann";
     }
-    else if (auto7BF4C060_val == "ZergAbathur") {
+    if (lp_commander == "ZergAbathur") {
         return "Abathur";
     }
-    else if (auto7BF4C060_val == "ProtossFenix") {
+    if (lp_commander == "ProtossFenix") {
         return "Fenix";
     }
-    else if (auto7BF4C060_val == "ZergDehaka") {
+    if (lp_commander == "ZergDehaka") {
         return "Dehaka";
     }
-    else if (auto7BF4C060_val == "TerranHorner") {
-        return "Horner";
+    if (lp_commander == "ZergStukov") {
+        return "Stukov";
     }
-    else if (auto7BF4C060_val == "TerranTychus") {
+    if (lp_commander == "TerranHorner") {
+        return "Mira";
+    }
+    if (lp_commander == "ProtossAlarak") {
+        return "Alarak";
+    }
+    if (lp_commander == "TerranTychus") {
         return "Tychus";
     }
-    else if (auto7BF4C060_val == "ProtossZeratul") {
+    if (lp_commander == "ProtossZeratul") {
         return "Zeratul";
     }
-    else if (auto7BF4C060_val == "ZergStetmann") {
+    if (lp_commander == "ZergStetmann") {
         return "Stetmann";
     }
-    else if (auto7BF4C060_val == "TerranMengsk") {
+    if (lp_commander == "TerranMengsk") {
         return "Mengsk";
-    }
-    else {
     }
     return "Raynor";
 }
@@ -1282,6 +1291,8 @@ void libKCOR_gf_CC_LoadCommandersFromBank (int lp_player, bank lp_bank, string l
     // Variable Declarations
     int lv_commanderIndex;
     int lv_selectedCommanderIndex;
+    int lv_prestigeIndex;
+    int lv_prestigeMask;
     string lv_indexCommander;
 
     // Automatic Variable Declarations
@@ -1298,8 +1309,11 @@ void libKCOR_gf_CC_LoadCommandersFromBank (int lp_player, bank lp_bank, string l
         lv_indexCommander = UserDataInstance("PlayerCommander", auto4BF3AD5B_ai);
         auto4BF3AD5B_ai = auto4BF3AD5B_ai+1;
         lv_commanderIndex = libKCOR_gf_CC_CommanderInternalIndex(lv_indexCommander);
+        lv_prestigeIndex = libKCOR_gf_CC_LoadTransitionVarInteger(lp_bank, lp_section, (lv_indexCommander + ".PrestigePointIndex"), -1);
+        lv_prestigeMask = libKCOR_gf_CC_LoadTransitionVarInteger(lp_bank, lp_section, (lv_indexCommander + ".PrestigeBonusMask"), -1);
         if ((lv_selectedCommanderIndex == lv_commanderIndex)) {
             libKCOR_gv_cCX_PlayerCommander[lp_player] = lv_indexCommander;
+            libKCOR_gv_cCX_PlayerPrestigeIndex[lp_player] = lv_prestigeIndex;
         }
 
         libKCOR_gv_cCX_PlayerExperience[lp_player][lv_commanderIndex] = libKCOR_gf_CC_LoadTransitionVarInteger(lp_bank, lp_section, (lv_indexCommander), 0);
@@ -1309,6 +1323,8 @@ void libKCOR_gf_CC_LoadCommandersFromBank (int lp_player, bank lp_bank, string l
 void libKCOR_gf_CC_SaveCommandersToBank (int lp_player, bank lp_bank, string lp_section) {
     // Variable Declarations
     int lv_commanderIndex;
+    int lv_prestigeIndex;
+    int lv_prestigeMask;
     string lv_indexCommander;
 
     // Automatic Variable Declarations
@@ -1325,6 +1341,10 @@ void libKCOR_gf_CC_SaveCommandersToBank (int lp_player, bank lp_bank, string lp_
         lv_indexCommander = UserDataInstance("PlayerCommander", autoF6E85F3C_ai);
         autoF6E85F3C_ai = autoF6E85F3C_ai+1;
         lv_commanderIndex = libKCOR_gf_CC_CommanderInternalIndex(lv_indexCommander);
+        lv_prestigeIndex = libKCOR_gf_CC_PlayerActivePrestigeIndex(lp_player);
+        lv_prestigeMask = libE0EAE146_gf_CommanderPowerPrestigeBonusMask(libKCOR_gf_ActiveCommanderForPlayer(lp_player));
+        libKCOR_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, (lv_indexCommander + ".PrestigePointIndex"), lv_prestigeIndex, -1);
+        libKCOR_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, (lv_indexCommander + ".PrestigeBonusMask"), lv_prestigeMask, -1);
         libKCOR_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, (lv_indexCommander), libKCOR_gv_cCX_PlayerExperience[lp_player][lv_commanderIndex], 0);
     }
 }
