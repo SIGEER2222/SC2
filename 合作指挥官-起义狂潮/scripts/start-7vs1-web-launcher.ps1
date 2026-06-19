@@ -1154,13 +1154,13 @@ function Get-CompletionSnapshot {
         lastClearTime = if ($lastClearTime -gt 0) { [int]$lastClearTime } else { $null }
         mapClearIds = @($mapClearIds | Sort-Object -Unique)
         commanderClearKeys = @($commanderClearKeys | Sort-Object -Unique)
-        mapBonusScores = @($mapBonusScores.GetEnumerator() | Sort-Object Name | ForEach-Object {
+        mapBonusScores = @($mapBonusScores.GetEnumerator() | Where-Object { $null -ne $_ -and $null -ne $_.Name } | Sort-Object Name | ForEach-Object {
                 [pscustomobject]@{
                     mapId = $_.Name
                     bonusScore = [int]$_.Value
                 }
             })
-        commanderBonusScores = @($commanderBonusScores.GetEnumerator() | Sort-Object Name | ForEach-Object {
+        commanderBonusScores = @($commanderBonusScores.GetEnumerator() | Where-Object { $null -ne $_ -and $null -ne $_.Name } | Sort-Object Name | ForEach-Object {
                 $parts = $_.Name.Split(":", 2)
                 [pscustomobject]@{
                     key = $_.Name
