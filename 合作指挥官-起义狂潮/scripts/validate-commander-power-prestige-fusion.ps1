@@ -104,6 +104,56 @@ function Assert-OverlayEffect {
     Assert-True -Condition $hit -Message ("{0} missing overlay effect Reference='{1}' Value='{2}' Operation='{3}'." -f $UpgradeId, $Reference, $Value, $Operation)
 }
 
+function Get-CatalogValueFromReference {
+    param(
+        [xml[]]$Xmls,
+        [string]$Reference
+    )
+
+    $parts = $Reference -split ",", 3
+    Assert-True -Condition ($parts.Count -eq 3) -Message "Unsupported catalog reference format: $Reference"
+
+    $kind = $parts[0]
+    $id = $parts[1]
+    $field = $parts[2]
+
+    $tagName = switch ($kind) {
+        "Unit" { "CUnit" }
+        "Effect" { "CEffectDamage" }
+        default { throw "Unsupported catalog kind '$kind' in reference: $Reference" }
+    }
+
+    $node = Get-CatalogNodeById -Xmls $Xmls -TagName $tagName -Id $id
+    $fieldNode = $node.SelectSingleNode($field)
+    Assert-True -Condition ($null -ne $fieldNode) -Message "$Reference field node not found."
+
+    $value = [string]$fieldNode.value
+    Assert-True -Condition (-not [string]::IsNullOrWhiteSpace($value)) -Message "$Reference field value is empty."
+    return $value
+}
+
+function Assert-PrestigeBoostDiffersFromBase {
+    param(
+        [xml[]]$BaseXmls,
+        [xml]$UpgradeXml,
+        [string]$UpgradeId,
+        [string]$Reference
+    )
+
+    $baseValue = Get-CatalogValueFromReference -Xmls $BaseXmls -Reference $Reference
+    $upgradeValue = $null
+    foreach ($node in @(Get-UpgradeNodes -Xmls @($UpgradeXml) -UpgradeId $UpgradeId)) {
+        foreach ($effect in @($node.EffectArray)) {
+            if ([string]$effect.Reference -eq $Reference) {
+                $upgradeValue = [string]$effect.Value
+            }
+        }
+    }
+
+    Assert-True -Condition (-not [string]::IsNullOrWhiteSpace($upgradeValue)) -Message "$UpgradeId missing effect for $Reference."
+    Assert-True -Condition ($baseValue -ne $upgradeValue) -Message ("{0} must change {1}; base and prestige values are both '{2}'." -f $UpgradeId, $Reference, $baseValue)
+}
+
 function Assert-PrestigeHasNoNegativeFields {
     param(
         [pscustomobject]$Prestige,
@@ -191,6 +241,8 @@ $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
 $catalogGameData = Join-Path $workspaceRoot "Mods\7vs1\CommanderCatalog.SC2Mod\Base.SC2Data\GameData"
 $coopZeroPopGameData = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\GameData"
 $unitXmls = Read-CatalogXmlSet -GameDataRoot $catalogGameData -BaseName "UnitData"
+$effectXmls = Read-CatalogXmlSet -GameDataRoot $catalogGameData -BaseName "EffectData"
+$stetmannBaseXmls = @($unitXmls + $effectXmls)
 $overlayUpgradeXmls = Read-CatalogXmlSet -GameDataRoot $catalogGameData -BaseName "UpgradeData"
 $overlayUpgradeXml = Read-CatalogXml -Path (Join-Path $catalogGameData "UpgradeData.xml")
 $coopZeroPopUpgradeXml = Read-CatalogXml -Path (Join-Path $coopZeroPopGameData "UpgradeData.xml")
@@ -292,6 +344,17 @@ $stetmannFusionP2Nodes = @(Get-UpgradeNodes -Xmls @($coopZeroPopUpgradeXml) -Upg
 Assert-True -Condition ($stetmannFusionP2Nodes.Count -gt 0) -Message "Stetmann prestige fusion must define CommanderPowerStetmannGaryFusion."
 Assert-OverlayEffect -Xml $coopZeroPopUpgradeXml -UpgradeId "CommanderPowerStetmannGaryFusion" -Reference "Effect,GaryStetmannDamage,Amount" -Value "30"
 Assert-OverlayEffect -Xml $coopZeroPopUpgradeXml -UpgradeId "CommanderPowerStetmannGaryFusion" -Reference "Unit,SuperGaryStetmann,LifeMax" -Value "1000"
+foreach ($reference in @(
+    "Effect,GaryStetmannDamage,Amount",
+    "Effect,SuperGaryStetmannDamage,Amount",
+    "Effect,GaryStetmannOrbDamage,Amount",
+    "Unit,GaryStetmann,LifeStart",
+    "Unit,GaryStetmann,LifeMax",
+    "Unit,SuperGaryStetmann,LifeStart",
+    "Unit,SuperGaryStetmann,LifeMax"
+)) {
+    Assert-PrestigeBoostDiffersFromBase -BaseXmls $stetmannBaseXmls -UpgradeXml $coopZeroPopUpgradeXml -UpgradeId "CommanderPowerStetmannGaryFusion" -Reference $reference
+}
 
 $missingRuntimePrestigeApplications = New-Object System.Collections.Generic.List[object]
 $missingPrestigeDefinitions = New-Object System.Collections.Generic.List[object]
