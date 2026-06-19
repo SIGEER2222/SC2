@@ -27,16 +27,16 @@ function Resolve-OutputPath {
 }
 
 function New-StringSet {
-    return (New-Object System.Collections.Generic.HashSet[string]([System.StringComparer]::OrdinalIgnoreCase))
+    return ,([System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase))
 }
 
 function Add-SetValue {
     param(
-        [System.Collections.Generic.HashSet[string]]$Set,
+        [object]$Set,
         [string]$Value
     )
 
-    if (-not [string]::IsNullOrWhiteSpace($Value)) {
+    if (($null -ne $Set) -and (-not [string]::IsNullOrWhiteSpace($Value))) {
         [void]$Set.Add($Value)
     }
 }
@@ -66,6 +66,10 @@ function Get-CommanderOrder {
 
 function Get-CommanderMatchTokens {
     param($CommanderRecord)
+
+    if ($null -eq $CommanderRecord) {
+        return @()
+    }
 
     $tokens = New-StringSet
     foreach ($value in @(
@@ -98,7 +102,7 @@ function Get-CommanderMatchTokens {
 
 function Get-UnitNodeValue {
     param(
-        [xml]$Node,
+        [System.Xml.XmlNode]$Node,
         [string]$ChildName
     )
 
@@ -112,6 +116,29 @@ function Get-UnitNodeValue {
     }
 
     return [string]$child.value
+}
+
+function Test-UnitNodeHasValue {
+    param(
+        [System.Xml.XmlNode]$Node,
+        [string]$XPath,
+        [string]$ExpectedValue = ""
+    )
+
+    if ($null -eq $Node) {
+        return $false
+    }
+
+    $match = $Node.SelectSingleNode($XPath)
+    if ($null -eq $match) {
+        return $false
+    }
+
+    if ([string]::IsNullOrWhiteSpace($ExpectedValue)) {
+        return $true
+    }
+
+    return ([string]$match.value -eq $ExpectedValue)
 }
 
 function Get-EffectiveUnitValue {
@@ -135,6 +162,10 @@ function Get-EffectiveUnitValue {
     }
 
     $record = $UnitIndex[$UnitId]
+    if (($null -eq $record) -or ($null -eq $record.Node)) {
+        return ""
+    }
+
     $value = Get-UnitNodeValue -Node $record.Node -ChildName $ChildName
     if (-not [string]::IsNullOrWhiteSpace($value)) {
         return $value
@@ -164,8 +195,16 @@ function Get-EffectiveUnitAttributeValue {
     }
 
     $record = $UnitIndex[$UnitId]
+    if ($null -eq $record) {
+        return ""
+    }
+
+    if (($null -eq $record.Node) -or ($null -eq $record.Node.Attributes)) {
+        return Get-EffectiveUnitAttributeValue -UnitIndex $UnitIndex -UnitId $record.Parent -AttributeName $AttributeName -Visited $Visited
+    }
+
     foreach ($attribute in @($record.Node.Attributes)) {
-        if (([string]$attribute.index -eq $AttributeName) -and (-not [string]::IsNullOrWhiteSpace([string]$attribute.value))) {
+        if (($null -ne $attribute) -and (([string]$attribute.index -eq $AttributeName) -and (-not [string]::IsNullOrWhiteSpace([string]$attribute.value)))) {
             return [string]$attribute.value
         }
     }
@@ -176,10 +215,44 @@ function Get-EffectiveUnitAttributeValue {
 function Test-IsStructureUnit {
     param(
         [hashtable]$UnitIndex,
-        [string]$UnitId
+        [string]$UnitId,
+        [System.Collections.Generic.HashSet[string]]$Visited = $null
     )
 
-    return ((Get-EffectiveUnitAttributeValue -UnitIndex $UnitIndex -UnitId $UnitId -AttributeName "Structure") -eq "1")
+    if ([string]::IsNullOrWhiteSpace($UnitId) -or (-not $UnitIndex.ContainsKey($UnitId))) {
+        return $false
+    }
+
+    if ($null -eq $Visited) {
+        $Visited = New-StringSet
+    }
+
+    if (-not $Visited.Add($UnitId)) {
+        return $false
+    }
+
+    $record = $UnitIndex[$UnitId]
+    if (($null -eq $record) -or ($null -eq $record.Node)) {
+        return $false
+    }
+
+    if (Test-UnitNodeHasValue -Node $record.Node -XPath 'Collide[@index="Structure"]' -ExpectedValue '1') {
+        return $true
+    }
+
+    if (Test-UnitNodeHasValue -Node $record.Node -XPath 'CardLayouts/LayoutButtons[contains(@Face,"Lift")]') {
+        return $true
+    }
+
+    if (Test-UnitNodeHasValue -Node $record.Node -XPath 'Footprint') {
+        return $true
+    }
+
+    if (Test-UnitNodeHasValue -Node $record.Node -XPath 'PlacementFootprint') {
+        return $true
+    }
+
+    return Test-IsStructureUnit -UnitIndex $UnitIndex -UnitId $record.Parent -Visited $Visited
 }
 
 function Get-UnitCategory {
