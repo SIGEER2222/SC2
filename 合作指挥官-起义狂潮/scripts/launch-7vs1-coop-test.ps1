@@ -242,6 +242,24 @@ function Merge-LiveCommanderCatalogUnitData {
         [string]$LiveGameDataRoot
     )
 
+    function Remove-StetmannPrestigeLockButtons {
+        param([xml]$CatalogXml)
+
+        foreach ($removedFace in @(
+            'CommanderPrestigeStetmannMechaInfestorLocked',
+            'CommanderPrestigeStetmannChargingProtocolResearchLocked',
+            'CommanderPrestigeStetmannBonusRavagerResearchLocked',
+            'CommanderPrestigeStetmannRecycleMechaInfestorLocked',
+            'CommanderPrestigeStetmannMechaInfestorBuildLocked'
+        )) {
+            foreach ($removedNode in @($CatalogXml.SelectNodes("/Catalog/CUnit/CardLayouts/LayoutButtons[@Face='$removedFace']"))) {
+                if ($null -ne $removedNode.ParentNode) {
+                    [void]$removedNode.ParentNode.RemoveChild($removedNode)
+                }
+            }
+        }
+    }
+
     $basePath = Join-Path $LiveGameDataRoot 'UnitData.xml'
     if (-not (Test-Path -LiteralPath $basePath)) {
         throw "Live CommanderCatalog UnitData.xml not found: $basePath"
@@ -280,6 +298,8 @@ function Merge-LiveCommanderCatalogUnitData {
         }
     }
 
+    Remove-StetmannPrestigeLockButtons -CatalogXml $baseXml
+
     $settings = New-Object System.Xml.XmlWriterSettings
     $settings.Indent = $true
     $settings.Encoding = New-Object System.Text.UTF8Encoding($false)
@@ -295,6 +315,18 @@ function Merge-LiveCommanderCatalogUnitData {
     foreach ($requiredId in @('HatcheryKerrigan', 'DroneKerrigan', 'OverlordKerrigan')) {
         if ($null -eq $verifyXml.SelectSingleNode("/Catalog/CUnit[@id='$requiredId']")) {
             throw "Live CommanderCatalog merge missing required Kerrigan unit: $requiredId"
+        }
+    }
+
+    foreach ($removedFace in @(
+        'CommanderPrestigeStetmannMechaInfestorLocked',
+        'CommanderPrestigeStetmannChargingProtocolResearchLocked',
+        'CommanderPrestigeStetmannBonusRavagerResearchLocked',
+        'CommanderPrestigeStetmannRecycleMechaInfestorLocked',
+        'CommanderPrestigeStetmannMechaInfestorBuildLocked'
+    )) {
+        if ($null -ne $verifyXml.SelectSingleNode("/Catalog/CUnit/CardLayouts/LayoutButtons[@Face='$removedFace']")) {
+            throw "Live CommanderCatalog merge kept removed Stetmann lock button: $removedFace"
         }
     }
 }
