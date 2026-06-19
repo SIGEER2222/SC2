@@ -21484,9 +21484,9 @@ bool libKMIS_gt_CM_SoATargetingDeactivated_Func (bool testConds, bool runActions
     }
 
     lv_casterPlayer = UnitGetOwner(EventUnit());
-    // If the behavior is removed before target-mode off propagates, run the shared cancel cleanup
-    // from deactivation so camera/UI state does not get stranded in targeting mode.
-    if ((lv_behavior == libKMIS_gv_cM_SoATargetingBehavior[lv_casterPlayer]) && (libKMIS_gv_cM_SoATargetingActivateAbility[lv_casterPlayer] != null) && (libKMIS_gv_cM_SoATargetingAlreadyCanceled[lv_casterPlayer] == false) && (libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lv_casterPlayer] == false)) {
+    // Nova bombing run can be canceled via the behavior's Off command before target-mode exit
+    // fires. Route only that path through the shared cancel cleanup.
+    if ((lv_behavior == "NovaGriffinBombingRunActivate") && (libKMIS_gv_cM_SoATargetingActivateAbility[lv_casterPlayer] == "NovaGriffinBombingRunActivate") && (libKMIS_gv_cM_SoATargetingAlreadyCanceled[lv_casterPlayer] == false) && (libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lv_casterPlayer] == false)) {
         libKMIS_gf_CM_SoATargetingCancel(lv_casterPlayer);
     }
     else if ((libKMIS_gv_cM_SoATargetingAlreadyCanceled[lv_casterPlayer] == false) && ((libKMIS_gv_cM_SoATargetingPhase[lv_casterPlayer] != libKMIS_ge_CM_SoATargetingPhaseType_None) || (libKMIS_gv_cM_SoATargetingActivateAbility[lv_casterPlayer] != null))) {
