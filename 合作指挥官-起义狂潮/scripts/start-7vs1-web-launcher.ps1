@@ -1417,7 +1417,7 @@ function ConvertTo-LaunchArgumentList {
     )
     $levelableGenericBonuses = @("DoubleMinerals", "DoubleVespene")
     $selectedGenericBonuses = New-Object System.Collections.Generic.List[string]
-    $selectedGenericBonusLevels = New-Object 'System.Collections.Generic.Dictionary[string,int]' ([System.StringComparer]::OrdinalIgnoreCase)
+    $selectedGenericBonusLevels = New-Object 'System.Collections.Generic.Dictionary[string,int]' -ArgumentList ([System.StringComparer]::OrdinalIgnoreCase)
     if ($null -ne $Request.mutators) {
         foreach ($mutator in @($Request.mutators)) {
             $mutatorId = [string]$mutator

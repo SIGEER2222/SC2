@@ -903,9 +903,9 @@ function Get-CompletionSnapshot {
 
     $mapClearIds = New-Object System.Collections.Generic.List[string]
     $commanderClearKeys = New-Object System.Collections.Generic.List[string]
-    $mapBonusScores = New-Object System.Collections.Generic.Dictionary[string,int] ([System.StringComparer]::OrdinalIgnoreCase)
-    $commanderBonusScores = New-Object System.Collections.Generic.Dictionary[string,int] ([System.StringComparer]::OrdinalIgnoreCase)
-    $objectiveStateMap = New-Object System.Collections.Generic.Dictionary[string,object] ([System.StringComparer]::OrdinalIgnoreCase)
+    $mapBonusScores = New-Object 'System.Collections.Generic.Dictionary[string,int]' -ArgumentList ([System.StringComparer]::OrdinalIgnoreCase)
+    $commanderBonusScores = New-Object 'System.Collections.Generic.Dictionary[string,int]' -ArgumentList ([System.StringComparer]::OrdinalIgnoreCase)
+    $objectiveStateMap = New-Object 'System.Collections.Generic.Dictionary[string,object]' -ArgumentList ([System.StringComparer]::OrdinalIgnoreCase)
     $unlockedBonuses = New-Object System.Collections.Generic.List[string]
     $unlockedPrestiges = New-Object System.Collections.Generic.List[string]
     $selectedBankPath = ""
@@ -1268,7 +1268,7 @@ function ConvertTo-LaunchArgumentList {
     )
     $levelableGenericBonuses = @("DoubleMinerals", "DoubleVespene")
     $selectedGenericBonuses = New-Object System.Collections.Generic.List[string]
-    $selectedGenericBonusLevels = New-Object 'System.Collections.Generic.Dictionary[string,int]' ([System.StringComparer]::OrdinalIgnoreCase)
+    $selectedGenericBonusLevels = New-Object 'System.Collections.Generic.Dictionary[string,int]' -ArgumentList ([System.StringComparer]::OrdinalIgnoreCase)
     if ($null -ne $Request.mutators) {
         foreach ($mutator in @($Request.mutators)) {
             $mutatorId = [string]$mutator
