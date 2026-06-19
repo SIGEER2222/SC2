@@ -714,7 +714,9 @@ void lib67C0F0E7_gf_DropPodT (point lp_target) {
 void lib67C0F0E7_gf_DropPodZ (point lp_target) {
     // Automatic Variable Declarations
     // Implementation
-    libNtve_gf_CreateActorAtPoint("ZDropPodModelG", lp_target);
+    if (CatalogEntryIsValid(c_gameCatalogActor, "ZDropPodModelG")) {
+        libNtve_gf_CreateActorAtPoint("ZDropPodModelG", lp_target);
+    }
 }
 
 void lib67C0F0E7_gf_WarpinP (unitgroup lp_unitGroup) {
@@ -1170,17 +1172,29 @@ void lib67C0F0E7_gf_PingAttackWave (string lp_ping, unitgroup lp_uG) {
 bool auto_lib67C0F0E7_gf_PingAttackWave_TriggerFunc (bool testConds, bool runActions) {
     string lp_ping = auto_lib67C0F0E7_gf_PingAttackWave_lp_ping;
     unitgroup lp_uG = auto_lib67C0F0E7_gf_PingAttackWave_lp_uG;
+    point lv_center;
 
     // Automatic Variable Declarations
     // Implementation
-    libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), lp_ping, UnitGroupCenterOfGroup(lp_uG), ColorWithAlpha(100.00, 0.00, 0.00, 0.00), 0.0, 270.0);
+    if ((lp_uG == null) || (UnitGroupCount(lp_uG, c_unitCountAlive) <= 0)) {
+        return true;
+    }
+    lv_center = UnitGroupCenterOfGroup(lp_uG);
+    if (lv_center == null) {
+        return true;
+    }
+    libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), lp_ping, lv_center, ColorWithAlpha(100.00, 0.00, 0.00, 0.00), 0.0, 270.0);
     PingSetScale(PingLastCreated(), 0.6);
     while ((libNtve_gf_UnitGroupIsDead(lp_uG) == false)) {
         if ((UnitGroupCount(lp_uG, c_unitCountAlive) <= 5) && lib67C0F0E7_gf_PlayerControl(lp_uG)) {
             break;
         }
 
-        PingSetPosition(PingLastCreated(), UnitGroupCenterOfGroup(lp_uG));
+        lv_center = UnitGroupCenterOfGroup(lp_uG);
+        if (lv_center == null) {
+            break;
+        }
+        PingSetPosition(PingLastCreated(), lv_center);
         Wait(2.0, c_timeAI);
     }
     PingDestroy(PingLastCreated());

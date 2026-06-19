@@ -628,43 +628,54 @@ int libE0EAE146_gf_SanitizeSharedPlayerCampaignAllyUnit (unit lp_unit, string lp
 }
 
 void libE0EAE146_gf_ApplySharedPlayerCampaignAllyUpgradeBoostForPlayer (int lp_player) {
+    libE0EAE146_gf_SetSharedPlayerCampaignAllyUpgradeBoostForPlayer(lp_player, true);
+}
+
+void libE0EAE146_gf_SetSharedPlayerCampaignAllyUpgradeBoostForPlayer (int lp_player, bool lp_enabled) {
+    int lv_upgradeLevel;
+
     if (lp_player <= 0) {
         return;
     }
 
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranInfantryWeaponsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranInfantryWeaponsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranInfantryWeaponsLevel3", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranInfantryArmorsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranInfantryArmorsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranInfantryArmorsLevel3", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranVehicleWeaponsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranVehicleWeaponsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranVehicleWeaponsLevel3", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranVehicleArmorsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranVehicleArmorsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranVehicleArmorsLevel3", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranShipWeaponsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranShipWeaponsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranShipWeaponsLevel3", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranShipArmorsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranShipArmorsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "TerranShipArmorsLevel3", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossGroundWeaponsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossGroundWeaponsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossGroundWeaponsLevel3", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossGroundArmorsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossGroundArmorsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossGroundArmorsLevel3", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossAirWeaponsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossAirWeaponsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossAirWeaponsLevel3", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossAirArmorsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossAirArmorsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossAirArmorsLevel3", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossShieldsLevel1", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossShieldsLevel2", 1);
-    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "ProtossShieldsLevel3", 1);
+    lv_upgradeLevel = 0;
+    if (lp_enabled) {
+        lv_upgradeLevel = 1;
+    }
+
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranInfantryWeaponsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranInfantryWeaponsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranInfantryWeaponsLevel3", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranInfantryArmorsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranInfantryArmorsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranInfantryArmorsLevel3", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranVehicleWeaponsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranVehicleWeaponsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranVehicleWeaponsLevel3", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranVehicleArmorsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranVehicleArmorsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranVehicleArmorsLevel3", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranShipWeaponsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranShipWeaponsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranShipWeaponsLevel3", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranShipArmorsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranShipArmorsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "TerranShipArmorsLevel3", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossGroundWeaponsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossGroundWeaponsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossGroundWeaponsLevel3", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossGroundArmorsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossGroundArmorsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossGroundArmorsLevel3", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossAirWeaponsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossAirWeaponsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossAirWeaponsLevel3", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossAirArmorsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossAirArmorsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossAirArmorsLevel3", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossShieldsLevel1", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossShieldsLevel2", lv_upgradeLevel);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "ProtossShieldsLevel3", lv_upgradeLevel);
 }
 
 void libE0EAE146_gf_ApplySharedPlayerCampaignAllyBoostToUnit (unit lp_unit, bool lp_earlyDamageReduction, bool lp_sustainBoost) {
@@ -695,8 +706,10 @@ void libE0EAE146_gf_RunSharedPlayerCampaignAllyBoost (string lp_mapId) {
     int lv_earlyDamageReductionInt;
     int lv_sustainBoostInt;
     bool lv_earlyDamageReductionSelected;
+    bool lv_sustainBoostSelected;
     bool lv_earlyDamageReduction;
     bool lv_sustainBoost;
+    fixed lv_boostDeadline;
     unit lv_unit;
 
     if ((lp_mapId == "") || (libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly(lp_mapId) == false)) {
@@ -704,20 +717,24 @@ void libE0EAE146_gf_RunSharedPlayerCampaignAllyBoost (string lp_mapId) {
     }
 
     lv_earlyDamageReductionSelected = libE0EAE146_gf_GenericBonusEnabled("AllyEarlyDamageReduction");
-    lv_earlyDamageReduction = (lv_earlyDamageReductionSelected && (GameGetMissionTime() <= 300.0));
-    lv_sustainBoost = libE0EAE146_gf_GenericBonusEnabled("AllySustainBoost");
-    if ((!lv_earlyDamageReductionSelected) && (!lv_sustainBoost)) {
+    lv_sustainBoostSelected = libE0EAE146_gf_GenericBonusEnabled("AllySustainBoost");
+    if ((!lv_earlyDamageReductionSelected) && (!lv_sustainBoostSelected)) {
         return;
     }
+    lv_boostDeadline = DataTableGetFixed(true, ("XMSharedAllyBoostDeadline_" + lp_mapId));
+    if (lv_boostDeadline <= 0.0) {
+        lv_boostDeadline = (GameGetMissionTime() + 180.0);
+        DataTableSetFixed(true, ("XMSharedAllyBoostDeadline_" + lp_mapId), lv_boostDeadline);
+    }
+    lv_earlyDamageReduction = (lv_earlyDamageReductionSelected && (GameGetMissionTime() <= lv_boostDeadline));
+    lv_sustainBoost = (lv_sustainBoostSelected && (GameGetMissionTime() <= lv_boostDeadline));
 
     lv_boostedUnits = 0;
     for (lv_player = 1; lv_player <= 15; lv_player += 1) {
         if (libE0EAE146_gf_IsSharedPlayerCampaignAllyPlayer(lp_mapId, lv_player) == false) {
             continue;
         }
-        if (lv_sustainBoost) {
-            libE0EAE146_gf_ApplySharedPlayerCampaignAllyUpgradeBoostForPlayer(lv_player);
-        }
+        libE0EAE146_gf_SetSharedPlayerCampaignAllyUpgradeBoostForPlayer(lv_player, lv_sustainBoost);
 
         lv_units = UnitGroup(null, lv_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
         lv_count = UnitGroupCount(lv_units, c_unitCountAll);
@@ -934,15 +951,10 @@ void libE0EAE146_gf_GenericBonusEnsureTriggers () {
 }
 
 fixed libE0EAE146_gf_GenericBonusResourceMultiplier (int lp_level) {
-    fixed lv_multiplier;
-    int lv_i;
-
-    lv_multiplier = 1.0;
-    lv_i = 0;
-    for ( ; ( lv_i < lp_level ) ; lv_i += 1 ) {
-        lv_multiplier *= 2.0;
+    if (lp_level <= 0) {
+        return 1.0;
     }
-    return lv_multiplier;
+    return (1.0 + IntToFixed(lp_level));
 }
 
 unit libE0EAE146_gf_GenericBonusReplaceResourceUnit (unit lp_resourceUnit, string lp_newUnitType, fixed lp_resourceAmount) {
@@ -985,6 +997,7 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     fixed lv_gasMultiplier;
     int lv_mineralNodeCount;
     int lv_gasNodeCount;
+    int lv_resourceTag;
     string lv_mineralSampleBehavior;
     string lv_gasSampleBehavior;
     int lv_mineralSampleAmount;
@@ -1003,6 +1016,13 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     lv_resourceUnit = UnitGroupUnit(lv_resourceNodes, 1);
     while (lv_resourceUnit != null) {
         lv_groupResourceUnit = lv_resourceUnit;
+        lv_resourceTag = UnitGetTag(lv_resourceUnit);
+        if (DataTableGetBool(true, ("XMGenericBonusResourceProcessed_" + IntToString(lv_resourceTag)))) {
+            UnitGroupRemove(lv_resourceNodes, lv_groupResourceUnit);
+            lv_resourceUnit = UnitGroupUnit(lv_resourceNodes, 1);
+            continue;
+        }
+        DataTableSetBool(true, ("XMGenericBonusResourceProcessed_" + IntToString(lv_resourceTag)), true);
         lv_resourceUnitType = UnitGetType(lv_resourceUnit);
         lv_resourceType = CatalogFieldValueGet(c_gameCatalogUnit, lv_resourceUnitType, "ResourceType", c_playerAny);
         if (lv_resourceType == "Minerals") {
