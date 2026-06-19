@@ -4064,10 +4064,12 @@ void libKMIS_gf_CM_SoATargetingCancel (int lp_player) {
 
     UnitBehaviorRemove(libKMIS_gv_cM_SoACasterUnit[lp_player], libKMIS_gv_cM_SoATargetingBehavior[lp_player], 1);
     libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lp_player] = true;
-    CameraSetData(PlayerGroupSingle(lp_player), "Dflt");
-    CameraSetValue(lp_player, c_cameraValueDistance, 34.0, 0.0, -1, 10.0);
-    CameraSetValue(lp_player, c_cameraValuePitch, 56.0, 0.0, -1, 10.0);
-    VisResetFoWAlpha(lp_player);
+    UISetTargetingOrder(PlayerGroupSingle(lp_player), libKMIS_gv_cM_SoACasterGroup[lp_player], null, false);
+    UISetTargetingOrder(PlayerGroupSingle(lp_player), libKMIS_gv_cM_SoATargetingDirectionGroup[lp_player], null, false);
+    libKMIS_gv_cM_SoATargetingChargesSpent[lp_player] = 0;
+    if ((libKMIS_gv_cM_SoATargetingPhase[lp_player] != libKMIS_ge_CM_SoATargetingPhaseType_None)) {
+        libKMIS_gf_CM_SoATargetingModeExit(lp_player);
+    }
 }
 
 void libKMIS_gf_CM_SoATimeFreezeApply (int lp_castingPlayer) {
@@ -21482,16 +21484,17 @@ bool libKMIS_gt_CM_SoATargetingDeactivated_Func (bool testConds, bool runActions
     }
 
     lv_casterPlayer = UnitGetOwner(EventUnit());
-    // Nova bombing run can be canceled via the behavior's Off command before target-mode exit
-    // fires. Route that path through the shared cancel cleanup so the targeting state clears.
-    if ((lv_behavior == "NovaGriffinBombingRunActivate") && (libKMIS_gv_cM_SoATargetingActivateAbility[lv_casterPlayer] == "NovaGriffinBombingRunActivate") && (libKMIS_gv_cM_SoATargetingAlreadyCanceled[lv_casterPlayer] == false) && (libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lv_casterPlayer] == false)) {
+    // If the behavior is removed before target-mode off propagates, run the shared cancel cleanup
+    // from deactivation so camera/UI state does not get stranded in targeting mode.
+    if ((lv_behavior == libKMIS_gv_cM_SoATargetingBehavior[lv_casterPlayer]) && (libKMIS_gv_cM_SoATargetingActivateAbility[lv_casterPlayer] != null) && (libKMIS_gv_cM_SoATargetingAlreadyCanceled[lv_casterPlayer] == false) && (libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lv_casterPlayer] == false)) {
         libKMIS_gf_CM_SoATargetingCancel(lv_casterPlayer);
     }
-
-    UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoACasterGroup[lv_casterPlayer], null, false);
-    UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoATargetingDirectionGroup[lv_casterPlayer], null, false);
-    libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer] = 0;
-    libKMIS_gf_CM_SoATargetingModeExit(lv_casterPlayer);
+    else if ((libKMIS_gv_cM_SoATargetingAlreadyCanceled[lv_casterPlayer] == false) && ((libKMIS_gv_cM_SoATargetingPhase[lv_casterPlayer] != libKMIS_ge_CM_SoATargetingPhaseType_None) || (libKMIS_gv_cM_SoATargetingActivateAbility[lv_casterPlayer] != null))) {
+        UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoACasterGroup[lv_casterPlayer], null, false);
+        UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoATargetingDirectionGroup[lv_casterPlayer], null, false);
+        libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer] = 0;
+        libKMIS_gf_CM_SoATargetingModeExit(lv_casterPlayer);
+    }
     return true;
 }
 
@@ -21689,7 +21692,7 @@ bool libKMIS_gt_CM_SoATargetingCancel_Func (bool testConds, bool runActions) {
             return false;
         }
 
-        if (!(((EventTargetModeAbilCmd() == AbilityCommand("SOAOrbitalStrikeTargetingDummy", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("SOAThermalLanceTargetingDummy", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("SOAGravitonBomb", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("SOAThermalLanceExecute", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("NovaGriffinBombingRunExecute", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("NovaGriffinBombingRunTargetingDummy", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("HornerAirFleetExecute", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("HornerAirFleetTargetingDummy", 0))))) {
+        if (!((libKMIS_gv_cM_SoATargetingPhase[EventPlayer()] != libKMIS_ge_CM_SoATargetingPhaseType_None) || (libKMIS_gv_cM_SoATargetingActivateAbility[EventPlayer()] != null))) {
             return false;
         }
     }
