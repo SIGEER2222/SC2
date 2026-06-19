@@ -1379,10 +1379,13 @@ bool gt_StartGame_Func (bool testConds, bool runActions) {
     }
 
     libE0EAE146_gf_StartGame();
+    if ((PlayerCommander(gv_p1_USER) == "Stukov")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SIInfestedBunker", 0, gv_p1_USER, PointWithOffsetPolar(PlayerStartLocation(gv_p1_USER), 4.0, 180.0));
+    }
     if ((PlayerCommander(gv_p1_USER) == "Abathur")) {
         libE0EAE146_gv_abathurBiomassTestPickupCreated = true;
         libE0EAE146_gf_InitializeAbathurBiomass(gv_p1_USER, "BiomassPickupDummy");
-        libE0EAE146_gf_CreateAbathurBiomassPickup(PointWithOffsetPolar(PlayerStartLocation(gv_p1_USER), 4.0, 0.0), 200);
+        libE0EAE146_gf_AbathurCreateUnitsWithFullBiomass(1, "Roach", gv_p1_USER, PointWithOffsetPolar(PlayerStartLocation(gv_p1_USER), 4.0, 0.0));
     }
     libNtve_gf_ShareVisionofUnit(UnitFromId(34), true, gv_p1_USER);
     TimerStart(gv_protossAggroTimer, 180.0, false, c_timeGame);
