@@ -29,8 +29,8 @@ Assert-True (-not $launchScript.Contains('Add-SafeStartPointOverride -Path $libK
     'Launch script must not inject start point overrides into live LibKPVP.'
 Assert-True (-not $launchScript.Contains('-StartPoints $effectiveStartPoints')) `
     'Launch script must not pass custom start point tables into live patch helpers.'
-Assert-True ($launchScript.Contains('still contains forced lobby commander attribute override')) `
-    'Launch validation must reject forced lobby commander attribute overrides.'
+Assert-True ($launchScript.Contains('still contains obsolete commander init override')) `
+    'Launch validation must reject obsolete commander init override leftovers.'
 Assert-True (-not $launchScript.Contains('libKPVP_gf_codex_init_7vs1_test_commanders();')) `
     'Launch script must not replace the original commander selection loop.'
 Assert-True ($launchScript.Contains('Live base testline still contains obsolete commander init override')) `

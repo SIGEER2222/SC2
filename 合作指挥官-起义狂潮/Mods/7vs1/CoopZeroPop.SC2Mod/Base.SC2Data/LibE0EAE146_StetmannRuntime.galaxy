@@ -1,3 +1,673 @@
+include "TriggerLibs/NativeLib"
+include "Lib67C0F0E7"
+include "Lib975E2FE9"
+include "LibE0EAE146_h"
+include "LibKCUI_h"
+include "LibKCOR_h"
+include "LibKMIS_h"
+
+void libKCUI_gf_CU_GPInitStetmann (int lp_player) {
+    // Variable Declarations
+    int lv_lastFrame;
+    int lv_buttonIndex;
+
+    // Automatic Variable Declarations
+    const int auto48FECC0D_ae = 4;
+    const int auto48FECC0D_ai = 1;
+
+    // Variable Initialization
+    lv_lastFrame = c_invalidDialogControlId;
+
+    // Implementation
+    DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer");
+    DialogControlCreateInPanelFromTemplate(DialogControlLastCreated(), c_triggerControlTypePanel, "Coop_TopBar_Stetmann/StetmannTopBar");
+    libKCUI_gv_cU_GPPanel[lp_player] = DialogControlLastCreated();
+    DialogControlHookup(libKCUI_gv_cU_GPPanel[lp_player], c_triggerControlTypeCommandPanel, "StetmannGlobalCommandPanel");
+    libKCUI_gv_cU_GPCmdPanel[lp_player] = DialogControlLastCreated();
+    lv_buttonIndex = 1;
+    for ( ; ( (auto48FECC0D_ai >= 0 && lv_buttonIndex <= auto48FECC0D_ae) || (auto48FECC0D_ai < 0 && lv_buttonIndex >= auto48FECC0D_ae) ) ; lv_buttonIndex += auto48FECC0D_ai ) {
+        DialogControlHookup(libKCUI_gv_cU_GPCmdPanel[lp_player], c_triggerControlTypeButton, "CommandButton0" + IntToString(lv_buttonIndex-1));
+        libKCUI_gv_cU_GPCmdButtons[lv_buttonIndex][lp_player] = DialogControlLastCreated();
+    }
+    DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[lp_player], PlayerGroupSingle(lp_player), "ActiveZone", "Speed");
+    libKCUI_gf_CU_SetStetelliteChargeMax(lp_player);
+    libKCUI_gf_CU_DrawStetelliteChargePips(lp_player, (libKCUI_gv_cU_StetmannMaxStetelliteCharges[lp_player] - RoundI(PlayerGetChargeUsed(lp_player, "Abil/DeployPowerTowerStetmann"))), libKCUI_gv_cU_StetmannMaxStetelliteCharges[lp_player]);
+    TriggerEnable(libKCUI_gt_CU_StetelliteChargesChanged, true);
+    TriggerEnable(libKCUI_gt_CU_StetelliteMaxChargesChanged, true);
+    DialogControlSetVisible(libKCUI_gv_cU_GPPanel[lp_player], PlayerGroupAll(), false);
+    DialogControlSetVisible(libKCUI_gv_cU_GPPanel[lp_player], PlayerGroupSingle(lp_player), true);
+}
+
+void libKMIS_gf_CM_MasteryStetmannUpgradeCost (int lp_player) {
+    // Variable Declarations
+    int lv_upgradeCount;
+    fixed lv_costReduction;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    lv_upgradeCount = TechTreeUpgradeCount(lp_player, "MasteryStetmannUpgradeResearchCost", c_techCountCompleteOnly);
+    lv_costReduction = ((175 * (50 - lv_upgradeCount)) / 50);
+    CatalogFieldValueSet(c_gameCatalogAbil, "EvolutionChamberStetmannResearch", "InfoArray[" + IntToString(7) + "].Resource[" + IntToString(0) + "]", lp_player, IntToString(FixedToInt(lv_costReduction)));
+    CatalogFieldValueSet(c_gameCatalogAbil, "EvolutionChamberStetmannResearch", "InfoArray[" + IntToString(7) + "].Resource[" + IntToString(1) + "]", lp_player, IntToString(FixedToInt(lv_costReduction)));
+    lv_costReduction = ((175 * (50 - lv_upgradeCount)) / 50);
+    CatalogFieldValueSet(c_gameCatalogAbil, "SpireStetmannResearch", "InfoArray[" + IntToString(1) + "].Resource[" + IntToString(0) + "]", lp_player, IntToString(FixedToInt(lv_costReduction)));
+    CatalogFieldValueSet(c_gameCatalogAbil, "SpireStetmannResearch", "InfoArray[" + IntToString(1) + "].Resource[" + IntToString(1) + "]", lp_player, IntToString(FixedToInt(lv_costReduction)));
+    lv_costReduction = ((175 * (50 - lv_upgradeCount)) / 50);
+    CatalogFieldValueSet(c_gameCatalogAbil, "SpireStetmannResearch", "InfoArray[" + IntToString(4) + "].Resource[" + IntToString(0) + "]", lp_player, IntToString(FixedToInt(lv_costReduction)));
+    CatalogFieldValueSet(c_gameCatalogAbil, "SpireStetmannResearch", "InfoArray[" + IntToString(4) + "].Resource[" + IntToString(1) + "]", lp_player, IntToString(FixedToInt(lv_costReduction)));
+}
+
+void libKMIS_gf_StetmannPowerTowerEvent (trigger t, string lp_event) {
+    // Automatic Variable Declarations
+    // Implementation
+    TriggerAddEventGeneric(t, (lp_event));
+}
+
+int libKMIS_gf_EventStetmannPowerTowerTechLevel (string lp_techLevelParameter) {
+    // Automatic Variable Declarations
+    // Implementation
+    return DataTableGetInt(false, TriggerEventParamName(EventGenericName(), (lp_techLevelParameter)));
+}
+
+int libKMIS_gf_EventStetmannPowerTowerPlayer () {
+    // Automatic Variable Declarations
+    // Implementation
+    return DataTableGetInt(false, TriggerEventParamName(EventGenericName(), ("StetmannPowerTowerPlayer")));
+}
+
+void libKMIS_gf_CM_Stetmann_ThrowPowerTowerEvent (int lp_player) {
+    // Variable Declarations
+    int lv_laircount;
+    int lv_hivecount;
+    int lv_oldchargelevel;
+    string lv_eventname;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_laircount = UnitGroupCount(UnitGroup("LairStetmann", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
+    lv_hivecount = UnitGroupCount(UnitGroup("HiveStetmann", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
+    lv_oldchargelevel = libKMIS_gv_cM_Stetmann_StetelliteChargesLevel[lp_player];
+    lv_eventname = "";
+
+    // Implementation
+    if ((lv_hivecount > 0)) {
+        libKMIS_gv_cM_Stetmann_StetelliteChargesLevel[lp_player] = 2;
+    }
+    else if ((lv_laircount > 0)) {
+        libKMIS_gv_cM_Stetmann_StetelliteChargesLevel[lp_player] = 1;
+    }
+    else if (true) {
+        libKMIS_gv_cM_Stetmann_StetelliteChargesLevel[lp_player] = 0;
+    }
+    if ((libKMIS_gv_cM_Stetmann_StetelliteChargesLevel[lp_player] != lv_oldchargelevel)) {
+        lv_eventname = ("Event_PowerTowerLevelChanged");
+        DataTableSetInt(false, TriggerEventParamName(lv_eventname, ("StetmannPowerTowerTechLevelOld")), lv_oldchargelevel);
+        DataTableSetInt(false, TriggerEventParamName(lv_eventname, ("StetmannPowerTowerTechLevelNew")), libKMIS_gv_cM_Stetmann_StetelliteChargesLevel[lp_player]);
+        DataTableSetInt(false, TriggerEventParamName(lv_eventname, ("StetmannPowerTowerPlayer")), lp_player);
+        TriggerSendEvent(lv_eventname);
+        if ((libKMIS_gv_cM_Stetmann_StetelliteChargesLevel[lp_player] > lv_oldchargelevel)) {
+            lv_eventname = ("Event_PowerTowerLevelUp");
+        }
+        else {
+            lv_eventname = ("Event_PowerTowerLevelDown");
+        }
+        DataTableSetInt(false, TriggerEventParamName(lv_eventname, ("StetmannPowerTowerTechLevelOld")), lv_oldchargelevel);
+        DataTableSetInt(false, TriggerEventParamName(lv_eventname, ("StetmannPowerTowerTechLevelNew")), libKMIS_gv_cM_Stetmann_StetelliteChargesLevel[lp_player]);
+        DataTableSetInt(false, TriggerEventParamName(lv_eventname, ("StetmannPowerTowerPlayer")), lp_player);
+        TriggerSendEvent(lv_eventname);
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Stetmann_EventHook_LairHiveCreated
+//--------------------------------------------------------------------------------------------------
+bool libKMIS_gt_CM_Stetmann_EventHook_LairHiveCreated_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_stetmann;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_stetmann = EventPlayer();
+
+    // Conditions
+    if (testConds) {
+        if (!((libKCOR_gf_PlayerIsCommander(lv_stetmann) == true))) {
+            return false;
+        }
+
+        if (!((libKCOR_gf_CC_CommanderLevel(EventPlayer(), "ZergStetmann") >= 7))) {
+            return false;
+        }
+
+        if (!(((UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitCaster)) == "HiveStetmann") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitCaster)) == "LairStetmann")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libKMIS_gf_CM_Stetmann_ThrowPowerTowerEvent(EventPlayer());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libKMIS_gt_CM_Stetmann_EventHook_LairHiveCreated_Init () {
+    libKMIS_gt_CM_Stetmann_EventHook_LairHiveCreated = TriggerCreate("libKMIS_gt_CM_Stetmann_EventHook_LairHiveCreated_Func");
+    TriggerEnable(libKMIS_gt_CM_Stetmann_EventHook_LairHiveCreated, false);
+    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_Stetmann_EventHook_LairHiveCreated, c_playerAny, "LairHiveStetmannTrigger");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Stetmann_EventHook_LairHiveMorphed
+//--------------------------------------------------------------------------------------------------
+bool libKMIS_gt_CM_Stetmann_EventHook_LairHiveMorphed_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_stetmann;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_stetmann = UnitGetOwner(EventUnit());
+
+    // Conditions
+    if (testConds) {
+        if (!((libKCOR_gf_PlayerIsCommander(lv_stetmann) == true))) {
+            return false;
+        }
+
+        if (!((libKCOR_gf_CC_CommanderLevel(EventPlayer(), "ZergStetmann") >= 7))) {
+            return false;
+        }
+
+        if (!(((UnitGetType(EventUnit()) == "HiveStetmann") || (UnitGetType(EventUnit()) == "LairStetmann")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libKMIS_gf_CM_Stetmann_ThrowPowerTowerEvent(UnitGetOwner(EventUnit()));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libKMIS_gt_CM_Stetmann_EventHook_LairHiveMorphed_Init () {
+    libKMIS_gt_CM_Stetmann_EventHook_LairHiveMorphed = TriggerCreate("libKMIS_gt_CM_Stetmann_EventHook_LairHiveMorphed_Func");
+    TriggerEnable(libKMIS_gt_CM_Stetmann_EventHook_LairHiveMorphed, false);
+    TriggerAddEventUnitAbility(libKMIS_gt_CM_Stetmann_EventHook_LairHiveMorphed, null, AbilityCommand("UpgradeToLairStetmann",0), c_unitAbilStageComplete, false);
+    TriggerAddEventUnitAbility(libKMIS_gt_CM_Stetmann_EventHook_LairHiveMorphed, null, AbilityCommand("UpgradeToHiveStetmann",0), c_unitAbilStageComplete, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Stetmann_TriggersInit
+//--------------------------------------------------------------------------------------------------
+bool libKMIS_gt_CM_Stetmann_TriggersInit_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_p;
+    int[libKCOR_gv_cCC_MAXPLAYERS + 1] lv_upgradeCount;
+    int lv_stetmannplayer;
+    int lv_panelWaits;
+
+    // Automatic Variable Declarations
+    playergroup autoABD0809F_g;
+    int autoABD0809F_var;
+    playergroup auto8A6DE514_g;
+    playergroup auto66FFA6C3_g;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(0.0625, c_timeGame);
+    autoABD0809F_g = libKCOR_gf_CommanderPlayers();
+    autoABD0809F_var = -1;
+    while (true) {
+        autoABD0809F_var = PlayerGroupNextPlayer(autoABD0809F_g, autoABD0809F_var);
+        if (autoABD0809F_var < 0) { break; }
+        if ((libKCOR_gf_ActiveCommanderForPlayer(autoABD0809F_var) == "ZergStetmann")) {
+            lv_upgradeCount[autoABD0809F_var] = TechTreeUpgradeCount(autoABD0809F_var, "MasteryStetmannStetzoneBonuses", c_techCountCompleteOnly);
+            libKMIS_gf_CM_MasteryStetmannUpgradeCost(autoABD0809F_var);
+            lv_panelWaits = 0;
+            while ((libKCUI_gv_cU_GPPanel[autoABD0809F_var] == c_invalidDialogControlId) && (lv_panelWaits < 32)) {
+                Wait(0.0625, c_timeGame);
+                lv_panelWaits += 1;
+            }
+            if ((libKCUI_gv_cU_GPPanel[autoABD0809F_var] != c_invalidDialogControlId)) {
+                DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "ReminderStetzones", "NoReminder");
+                DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "ReminderStetellites", "NoReminder");
+                if ((libKCOR_gf_CC_CommanderLevel(autoABD0809F_var, "ZergStetmann") >= 2)) {
+                    DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "EgonergyLockedState", "Unlocked");
+                }
+                else {
+                    DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[autoABD0809F_var], PlayerGroupSingle(autoABD0809F_var), "EgonergyLockedState", "Locked");
+                }
+            }
+        }
+
+    }
+    TriggerEnable(libKMIS_gt_CM_Stetmann_EventHook_LairHiveCreated, true);
+    TriggerEnable(libKMIS_gt_CM_Stetmann_EventHook_LairHiveMorphed, true);
+    TriggerEnable(libKMIS_gt_CM_Stetmann_PowerFieldToggle, true);
+    TriggerEnable(libKMIS_gt_CM_Stetmann_BanelingEnergyDamageBoost, true);
+    TriggerEnable(libKMIS_gt_CM_Stetmann_BroodLordArmBroodling, true);
+    TriggerEnable(libKMIS_gt_CM_Stetmann_PowerTowerTechLevel, true);
+    TriggerEnable(libKMIS_gt_CM_Stetmann_GaryUpgrade, true);
+    TriggerEnable(libKMIS_gt_CM_Stetmann_StetelliteChainCast, true);
+    auto8A6DE514_g = libKCOR_gf_CommanderPlayers();
+    lv_p = -1;
+    while (true) {
+        lv_p = PlayerGroupNextPlayer(auto8A6DE514_g, lv_p);
+        if (lv_p < 0) { break; }
+        if ((libKCOR_gf_ActiveCommanderForPlayer(lv_p) == "ZergStetmann")) {
+            auto66FFA6C3_g = libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_AllyMutual, lv_p);
+            lv_stetmannplayer = -1;
+            while (true) {
+                lv_stetmannplayer = PlayerGroupNextPlayer(auto66FFA6C3_g, lv_stetmannplayer);
+                if (lv_stetmannplayer < 0) { break; }
+                if ((TechTreeUpgradeCount(lv_stetmannplayer, "MasteryStetmannStetzoneBonusesMovementSpeed", c_techCountQueuedOrBetter) < lv_upgradeCount[lv_p])) {
+                    libNtve_gf_SetUpgradeLevelForPlayer(lv_stetmannplayer, "MasteryStetmannStetzoneBonusesMovementSpeed", lv_upgradeCount[lv_p]);
+                }
+
+            }
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libKMIS_gt_CM_Stetmann_TriggersInit_Init () {
+    libKMIS_gt_CM_Stetmann_TriggersInit = TriggerCreate("libKMIS_gt_CM_Stetmann_TriggersInit_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Stetmann_PowerFieldToggle
+//--------------------------------------------------------------------------------------------------
+bool libKMIS_gt_CM_Stetmann_PowerFieldToggle_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+    int lv_upgradeCount;
+
+    // Automatic Variable Declarations
+    string auto778B81EA_val;
+    playergroup auto71D403BB_g;
+    int auto71D403BB_var;
+    playergroup auto46FE9560_g;
+    int auto46FE9560_var;
+    playergroup auto3A55F1AA_g;
+    int auto3A55F1AA_var;
+
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((libKCOR_gf_ActiveCommanderForPlayer(EventPlayer()) == "ZergStetmann"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libKMIS_gv_cM_Stetmann_StetzoneChanged[EventPlayer()] = true;
+    DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[EventPlayer()], PlayerGroupSingle(EventPlayer()), "ReminderStetzones", "NoReminder");
+    lv_upgradeCount = TechTreeUpgradeCount(EventPlayer(), "MasteryStetmannStetzoneBonuses", c_techCountCompleteOnly);
+    lv_player = EventPlayer();
+    auto778B81EA_val = EventPlayerEffectUsed();
+    if (auto778B81EA_val == "PowerFieldEnergyRegenerationOn") {
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "PowerFieldEnergyRegeneration", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "PowerFieldHPRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "PowerFieldMovementSpeed", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "MasteryStetmannStetzoneBonusesMovementSpeed", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "MasteryStetmannStetzoneBonusesHPRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "MasteryStetmannStetzoneBonusesEnergyRegeneration", lv_upgradeCount);
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[EventPlayer()], PlayerGroupSingle(EventPlayer()), "ActiveZone", "Energy");
+        auto71D403BB_g = PlayerGroupAlliance(c_playerGroupAlly, lv_player);
+        auto71D403BB_var = -1;
+        while (true) {
+            auto71D403BB_var = PlayerGroupNextPlayer(auto71D403BB_g, auto71D403BB_var);
+            if (auto71D403BB_var < 0) { break; }
+            if ((libKCOR_gf_ActiveCommanderForPlayer(auto71D403BB_var) != "ZergStetmann")) {
+                libNtve_gf_SetUpgradeLevelForPlayer(auto71D403BB_var, "PowerFieldEnergyRegeneration", 1);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto71D403BB_var, "PowerFieldHPRegeneration", 0);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto71D403BB_var, "PowerFieldMovementSpeed", 0);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto71D403BB_var, "MasteryStetmannStetzoneBonusesMovementSpeed", 0);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto71D403BB_var, "MasteryStetmannStetzoneBonusesHPRegeneration", 0);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto71D403BB_var, "MasteryStetmannStetzoneBonusesEnergyRegeneration", lv_upgradeCount);
+            }
+
+        }
+    }
+    else if (auto778B81EA_val == "PowerFieldHPRegenerationOn") {
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "PowerFieldEnergyRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "PowerFieldHPRegeneration", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "PowerFieldMovementSpeed", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "MasteryStetmannStetzoneBonusesMovementSpeed", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "MasteryStetmannStetzoneBonusesHPRegeneration", lv_upgradeCount);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "MasteryStetmannStetzoneBonusesEnergyRegeneration", 0);
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[EventPlayer()], PlayerGroupSingle(EventPlayer()), "ActiveZone", "Health");
+        auto46FE9560_g = PlayerGroupAlliance(c_playerGroupAlly, lv_player);
+        auto46FE9560_var = -1;
+        while (true) {
+            auto46FE9560_var = PlayerGroupNextPlayer(auto46FE9560_g, auto46FE9560_var);
+            if (auto46FE9560_var < 0) { break; }
+            if ((libKCOR_gf_ActiveCommanderForPlayer(auto46FE9560_var) != "ZergStetmann")) {
+                libNtve_gf_SetUpgradeLevelForPlayer(auto46FE9560_var, "PowerFieldEnergyRegeneration", 0);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto46FE9560_var, "PowerFieldHPRegeneration", 1);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto46FE9560_var, "PowerFieldMovementSpeed", 0);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto46FE9560_var, "MasteryStetmannStetzoneBonusesMovementSpeed", 0);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto46FE9560_var, "MasteryStetmannStetzoneBonusesHPRegeneration", lv_upgradeCount);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto46FE9560_var, "MasteryStetmannStetzoneBonusesEnergyRegeneration", 0);
+            }
+
+        }
+    }
+    else if (auto778B81EA_val == "PowerFieldMovementSpeedOn") {
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "PowerFieldEnergyRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "PowerFieldHPRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "PowerFieldMovementSpeed", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "MasteryStetmannStetzoneBonusesMovementSpeed", lv_upgradeCount);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "MasteryStetmannStetzoneBonusesHPRegeneration", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "MasteryStetmannStetzoneBonusesEnergyRegeneration", 0);
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPPanel[EventPlayer()], PlayerGroupSingle(EventPlayer()), "ActiveZone", "Speed");
+        auto3A55F1AA_g = PlayerGroupAlliance(c_playerGroupAlly, lv_player);
+        auto3A55F1AA_var = -1;
+        while (true) {
+            auto3A55F1AA_var = PlayerGroupNextPlayer(auto3A55F1AA_g, auto3A55F1AA_var);
+            if (auto3A55F1AA_var < 0) { break; }
+            if ((libKCOR_gf_ActiveCommanderForPlayer(auto3A55F1AA_var) != "ZergStetmann")) {
+                libNtve_gf_SetUpgradeLevelForPlayer(auto3A55F1AA_var, "PowerFieldEnergyRegeneration", 0);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto3A55F1AA_var, "PowerFieldHPRegeneration", 0);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto3A55F1AA_var, "PowerFieldMovementSpeed", 1);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto3A55F1AA_var, "MasteryStetmannStetzoneBonusesMovementSpeed", lv_upgradeCount);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto3A55F1AA_var, "MasteryStetmannStetzoneBonusesHPRegeneration", 0);
+                libNtve_gf_SetUpgradeLevelForPlayer(auto3A55F1AA_var, "MasteryStetmannStetzoneBonusesEnergyRegeneration", 0);
+            }
+
+        }
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libKMIS_gt_CM_Stetmann_PowerFieldToggle_Init () {
+    libKMIS_gt_CM_Stetmann_PowerFieldToggle = TriggerCreate("libKMIS_gt_CM_Stetmann_PowerFieldToggle_Func");
+    TriggerEnable(libKMIS_gt_CM_Stetmann_PowerFieldToggle, false);
+    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_Stetmann_PowerFieldToggle, c_playerAny, "PowerFieldEnergyRegenerationOn");
+    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_Stetmann_PowerFieldToggle, c_playerAny, "PowerFieldHPRegenerationOn");
+    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_Stetmann_PowerFieldToggle, c_playerAny, "PowerFieldMovementSpeedOn");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Stetmann_BanelingEnergyDamageBoost
+//--------------------------------------------------------------------------------------------------
+bool libKMIS_gt_CM_Stetmann_BanelingEnergyDamageBoost_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_baneling;
+    fixed lv_energy;
+    unit lv_target;
+
+    // Automatic Variable Declarations
+    string auto698BF1AA_val;
+
+    // Variable Initialization
+    lv_baneling = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+    lv_energy = UnitGetPropertyFixed(lv_baneling, c_unitPropEnergy, c_unitPropCurrent);
+    lv_target = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsAlive(lv_target) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libKMIS_gf_SetUnitAttributePoints("BanelingStetmannBonusDamage", lv_baneling, RoundI(lv_energy));
+    auto698BF1AA_val = EventPlayerEffectUsed();
+    if (auto698BF1AA_val == "BanelingStetmannExplodeAbilityBonusDamageTrigger") {
+        UnitCreateEffectUnit(lv_baneling, "BanelingDeathExplodeLargeSetStetmann", lv_target);
+    }
+    else if (auto698BF1AA_val == "BanelingStetmannExplodeDelayBonusDamageTrigger") {
+        UnitCreateEffectUnit(lv_baneling, "BanelingStetmannExplodeDelaySet", lv_target);
+    }
+    else if (auto698BF1AA_val == "BanelingStetmannExplodeWeaponBonusDamageTrigger") {
+        UnitCreateEffectUnit(lv_baneling, "BanelingExplodeLargeSetStetmann", lv_target);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libKMIS_gt_CM_Stetmann_BanelingEnergyDamageBoost_Init () {
+    libKMIS_gt_CM_Stetmann_BanelingEnergyDamageBoost = TriggerCreate("libKMIS_gt_CM_Stetmann_BanelingEnergyDamageBoost_Func");
+    TriggerEnable(libKMIS_gt_CM_Stetmann_BanelingEnergyDamageBoost, false);
+    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_Stetmann_BanelingEnergyDamageBoost, c_playerAny, "BanelingStetmannExplodeAbilityBonusDamageTrigger");
+    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_Stetmann_BanelingEnergyDamageBoost, c_playerAny, "BanelingStetmannExplodeDelayBonusDamageTrigger");
+    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_Stetmann_BanelingEnergyDamageBoost, c_playerAny, "BanelingStetmannExplodeWeaponBonusDamageTrigger");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Stetmann_BroodLordArmBroodling
+//--------------------------------------------------------------------------------------------------
+bool libKMIS_gt_CM_Stetmann_BroodLordArmBroodling_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_broodlord;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_broodlord = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitMagazineArm(lv_broodlord, AbilityCommand("BroodLordHangarStetmann", 0), 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libKMIS_gt_CM_Stetmann_BroodLordArmBroodling_Init () {
+    libKMIS_gt_CM_Stetmann_BroodLordArmBroodling = TriggerCreate("libKMIS_gt_CM_Stetmann_BroodLordArmBroodling_Func");
+    TriggerEnable(libKMIS_gt_CM_Stetmann_BroodLordArmBroodling, false);
+    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_Stetmann_BroodLordArmBroodling, c_playerAny, "BroodLordStetmannBroodlingEscortArm");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Stetmann_PowerTowerTechLevel
+//--------------------------------------------------------------------------------------------------
+bool libKMIS_gt_CM_Stetmann_PowerTowerTechLevel_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_powertowerabilstring;
+    string lv_abillink;
+    int lv_oldmaxcharges;
+    int lv_newmaxcharges;
+    int lv_deltamaxcharges;
+    int lv_oldchargesused;
+    int lv_newchargesused;
+    fixed lv_oldrechargetime;
+    fixed lv_newrechargetime;
+    fixed lv_deltarechargetime;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_powertowerabilstring = "Abil/DeployPowerTowerStetmann";
+    lv_abillink = "DeployPowerTowerStetmann";
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_oldmaxcharges = CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_abillink, "InfoArray[" + IntToString(0) + "].Charge.CountMax", libKMIS_gf_EventStetmannPowerTowerPlayer());
+    lv_oldrechargetime = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogAbil, lv_abillink, "InfoArray[" + IntToString(0) + "].Charge.TimeUse", libKMIS_gf_EventStetmannPowerTowerPlayer());
+    lv_oldchargesused = RoundI(PlayerGetChargeUsed(libKMIS_gf_EventStetmannPowerTowerPlayer(), lv_powertowerabilstring));
+    libNtve_gf_SetUpgradeLevelForPlayer(libKMIS_gf_EventStetmannPowerTowerPlayer(), "DeployPowerTowerTechLevel", libKMIS_gf_EventStetmannPowerTowerTechLevel("StetmannPowerTowerTechLevelNew"));
+    lv_newmaxcharges = CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_abillink, "InfoArray[" + IntToString(0) + "].Charge.CountMax", libKMIS_gf_EventStetmannPowerTowerPlayer());
+    lv_deltamaxcharges = (lv_newmaxcharges - lv_oldmaxcharges);
+    lv_newchargesused = (lv_oldchargesused + lv_deltamaxcharges);
+    lv_newrechargetime = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogAbil, lv_abillink, "InfoArray[" + IntToString(0) + "].Charge.TimeUse", libKMIS_gf_EventStetmannPowerTowerPlayer());
+    lv_deltarechargetime = (lv_newrechargetime - lv_oldrechargetime);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libKMIS_gt_CM_Stetmann_PowerTowerTechLevel_Init () {
+    libKMIS_gt_CM_Stetmann_PowerTowerTechLevel = TriggerCreate("libKMIS_gt_CM_Stetmann_PowerTowerTechLevel_Func");
+    TriggerEnable(libKMIS_gt_CM_Stetmann_PowerTowerTechLevel, false);
+    libKMIS_gf_StetmannPowerTowerEvent(libKMIS_gt_CM_Stetmann_PowerTowerTechLevel, "Event_PowerTowerLevelChanged");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Stetmann_GaryUpgrade
+//--------------------------------------------------------------------------------------------------
+bool libKMIS_gt_CM_Stetmann_GaryUpgrade_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_gary;
+    int lv_owner;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_gary = EventUnit();
+    lv_owner = UnitGetOwner(lv_gary);
+
+    // Conditions
+    if (testConds) {
+        if (!((libKCOR_gf_ActiveCommanderForPlayer(lv_owner) == "ZergStetmann"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libKCUI_gf_SetHeroPanelUnit(1, lv_gary, lv_owner);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libKMIS_gt_CM_Stetmann_GaryUpgrade_Init () {
+    libKMIS_gt_CM_Stetmann_GaryUpgrade = TriggerCreate("libKMIS_gt_CM_Stetmann_GaryUpgrade_Func");
+    TriggerEnable(libKMIS_gt_CM_Stetmann_GaryUpgrade, false);
+    TriggerAddEventUnitAbility(libKMIS_gt_CM_Stetmann_GaryUpgrade, null, AbilityCommand("MorphToSuperGaryStetmann",0), c_abilMorphStageUnitEnd, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Stetmann_Prestige Combat Buff Upgrade
+//--------------------------------------------------------------------------------------------------
+bool libKMIS_gt_CM_Stetmann_Set_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_upgrade;
+    fixed lv_costMutiplayer;
+    string lv_itUnit;
+    int lv_player;
+
+    // Automatic Variable Declarations
+    int autoF06ACDE6_catalog;
+    string autoF06ACDE6_entry;
+    string autoF06ACDE6_fieldPath;
+    int autoF06ACDE6_player;
+    int autoF06ACDE6_i;
+
+    // Variable Initialization
+    lv_upgrade = EventUpgradeName();
+    lv_costMutiplayer = 1.4;
+    lv_itUnit = "";
+    lv_player = EventPlayer();
+
+    // Conditions
+    if (testConds) {
+        if (!((lv_upgrade == "CommanderPrestigeStetmannCombatBuff"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoF06ACDE6_catalog = c_gameCatalogUpgrade;
+    autoF06ACDE6_entry = lv_upgrade;
+    autoF06ACDE6_fieldPath = "AffectedUnitArray";
+    autoF06ACDE6_player = lv_player;
+    autoF06ACDE6_i = 0;
+    for ( ; autoF06ACDE6_i <= CatalogFieldValueCount(c_gameCatalogUpgrade,autoF06ACDE6_entry,autoF06ACDE6_fieldPath,autoF06ACDE6_player)-1 ; autoF06ACDE6_i += 1 ) {
+        lv_itUnit = CatalogFieldValueGet(c_gameCatalogUpgrade,autoF06ACDE6_entry,autoF06ACDE6_fieldPath+"["+IntToString(autoF06ACDE6_i)+"]",autoF06ACDE6_player);
+        CatalogFieldValueSet(c_gameCatalogUnit, lv_itUnit, "CostResource[" + IntToString(0) + "]", lv_player, IntToString(CeilingI((CatalogFieldValueGetAsInt(c_gameCatalogUnit, lv_itUnit, "CostResource[" + IntToString(0) + "]", c_playerAny)*lv_costMutiplayer))));
+    }
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libKMIS_gt_CM_Stetmann_Set_Init () {
+    libKMIS_gt_CM_Stetmann_Set = TriggerCreate("libKMIS_gt_CM_Stetmann_Set_Func");
+    TriggerEnable(libKMIS_gt_CM_Stetmann_Set, false);
+    TriggerAddEventUpgradeLevelChanged(libKMIS_gt_CM_Stetmann_Set, c_playerAny);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Stetmann_StetelliteChainCast
+//--------------------------------------------------------------------------------------------------
+bool libKMIS_gt_CM_Stetmann_StetelliteChainCast_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_casterPlayer;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((TechTreeUpgradeCount(EventPlayer(), "StetmannCommander", c_techCountCompleteOnly) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_casterPlayer = UnitGetOwner(EventUnit());
+    if ((UnitAbilityChargeInfo(EventUnit(), AbilityCommand("DeployPowerTowerStetmann", 0), c_unitAbilChargeCountLeft) > 0.0)) {
+        UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_GlobalCasterUnitGroup[lv_casterPlayer], OrderTargetingPoint(AbilityCommand("DeployPowerTowerStetmann", 0), UnitGetPosition(libKMIS_gv_cM_GlobalCasterUnit[lv_casterPlayer])), false);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libKMIS_gt_CM_Stetmann_StetelliteChainCast_Init () {
+    libKMIS_gt_CM_Stetmann_StetelliteChainCast = TriggerCreate("libKMIS_gt_CM_Stetmann_StetelliteChainCast_Func");
+    TriggerEnable(libKMIS_gt_CM_Stetmann_StetelliteChainCast, false);
+    TriggerAddEventUnitAbility(libKMIS_gt_CM_Stetmann_StetelliteChainCast, null, AbilityCommand("DeployPowerTowerStetmann", 0), c_unitAbilStageAll, false);
+}
+
 void libE0EAE146_gf_StetmannRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     int lv_prestigeMask;
 

@@ -1595,6 +1595,26 @@ void lib67C0F0E7_gf_ButtonReplacement (int lp_player, string lp_buttonS, string 
         CatalogFieldValueSet(c_gameCatalogButton, lp_buttonS, "AlertIcon", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_buttonP, "AlertIcon", lp_player));
 }
 
+void lib67C0F0E7_gf_TychusCommonAbilityReplacement (int lp_player, string lp_target, string lp_buttonSource, string lp_abilSource) {
+    string lv_buttonSource;
+    string lv_abilSource;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_buttonSource = lp_buttonSource;
+    lv_abilSource = lp_abilSource;
+
+    // Implementation
+    if ((CatalogEntryIsValid(c_gameCatalogButton, lv_buttonSource) == false)) {
+        lv_buttonSource = lp_target;
+    }
+    if ((CatalogEntryIsValid(c_gameCatalogAbil, lv_abilSource) == false)) {
+        lv_abilSource = lp_target;
+    }
+    lib67C0F0E7_gf_ButtonReplacement(lp_player, lp_target, lv_buttonSource);
+    CatalogLinkReplace(lp_player, c_gameCatalogAbil, lp_target, lv_abilSource);
+}
+
 string lib67C0F0E7_gf_StrToUserinstance (string lp_str) {
     // Automatic Variable Declarations
     // Implementation
@@ -2968,8 +2988,7 @@ void lib67C0F0E7_gf_TychusSquadSetMember (unit lp_unit) {
     lv_ability += 1;
     UnitSetCustomValue(lp_unit, 63, lib67C0F0E7_gv_tychusSquad);
     UnitGroupAdd(lib67C0F0E7_gv_tychusSquadUnit, lp_unit);
-    lib67C0F0E7_gf_ButtonReplacement(lib67C0F0E7_gv_tychusPlayer, (("TychusHeroCommonAbil" + IntToString(lv_ability))), UserDataGetGameLink(lib67C0F0E7_gv_tychusSquadData, lib67C0F0E7_gf_StrToUserinstance(lv_strUnit), "Active Button", 1));
-    CatalogLinkReplace(lib67C0F0E7_gv_tychusPlayer, c_gameCatalogAbil, ("TychusHeroCommonAbil" + IntToString(lv_ability)), UserDataGetString(lib67C0F0E7_gv_tychusSquadData, lib67C0F0E7_gf_StrToUserinstance(lv_strUnit), "Active Abil", 1));
+    lib67C0F0E7_gf_TychusCommonAbilityReplacement(lib67C0F0E7_gv_tychusPlayer, (("TychusHeroCommonAbil" + IntToString(lv_ability))), UserDataGetGameLink(lib67C0F0E7_gv_tychusSquadData, lib67C0F0E7_gf_StrToUserinstance(lv_strUnit), "Active Button", 1), UserDataGetString(lib67C0F0E7_gv_tychusSquadData, lib67C0F0E7_gf_StrToUserinstance(lv_strUnit), "Active Abil", 1));
     PortraitSetModel(PortraitGetTriggerControl(lib67C0F0E7_gv_cU_TychusSquadPortraits[lib67C0F0E7_gv_tychusSquad]), UserDataGetModel(lib67C0F0E7_gv_tychusSquadData, lib67C0F0E7_gf_StrToUserinstance(lv_strUnit), "Portrait Model", 1), false);
     libNtve_gf_SetDialogItemUnit(lib67C0F0E7_gv_cU_TychusSquadUnitFrames[lib67C0F0E7_gv_tychusSquad], lp_unit, PlayerGroupAll());
     libNtve_gf_SetDialogItemUnit(lib67C0F0E7_gv_cU_TychusSquadUnitTargets[lib67C0F0E7_gv_tychusSquad], lp_unit, PlayerGroupAll());
@@ -3031,8 +3050,7 @@ bool auto_lib67C0F0E7_gf_TychusSquadAddMember_TriggerFunc (bool testConds, bool 
     UnitSetCustomValue(lp_unit, 63, lib67C0F0E7_gv_tychusSquad);
     UnitGroupAdd(lib67C0F0E7_gv_tychusSquadUnit, lp_unit);
     lv_ability += 1;
-    lib67C0F0E7_gf_ButtonReplacement(lib67C0F0E7_gv_tychusPlayer, (("TychusHeroCommonAbil" + IntToString(lv_ability))), UserDataGetGameLink(lib67C0F0E7_gv_tychusSquadData, lib67C0F0E7_gf_StrToUserinstance(lv_strUnit), "Active Button", 1));
-    CatalogLinkReplace(lib67C0F0E7_gv_tychusPlayer, c_gameCatalogAbil, ("TychusHeroCommonAbil" + IntToString(lv_ability)), UserDataGetString(lib67C0F0E7_gv_tychusSquadData, lib67C0F0E7_gf_StrToUserinstance(lv_strUnit), "Active Abil", 1));
+    lib67C0F0E7_gf_TychusCommonAbilityReplacement(lib67C0F0E7_gv_tychusPlayer, (("TychusHeroCommonAbil" + IntToString(lv_ability))), UserDataGetGameLink(lib67C0F0E7_gv_tychusSquadData, lib67C0F0E7_gf_StrToUserinstance(lv_strUnit), "Active Button", 1), UserDataGetString(lib67C0F0E7_gv_tychusSquadData, lib67C0F0E7_gf_StrToUserinstance(lv_strUnit), "Active Abil", 1));
     PortraitSetModel(PortraitGetTriggerControl(lib67C0F0E7_gv_cU_TychusSquadPortraits[lib67C0F0E7_gv_tychusSquad]), UserDataGetModel(lib67C0F0E7_gv_tychusSquadData, lib67C0F0E7_gf_StrToUserinstance(lv_strUnit), "Portrait Model", 1), false);
     libNtve_gf_SetDialogItemUnit(lib67C0F0E7_gv_cU_TychusSquadUnitFrames[lib67C0F0E7_gv_tychusSquad], lp_unit, PlayerGroupAll());
     libNtve_gf_SetDialogItemUnit(lib67C0F0E7_gv_cU_TychusSquadUnitTargets[lib67C0F0E7_gv_tychusSquad], lp_unit, PlayerGroupAll());

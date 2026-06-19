@@ -176,6 +176,35 @@ void libKMIS_gf_CM_Dehaka_EssenceMerge (unit lp_essenceUnit, int lp_essenceUnitC
 
 }
 
+void libKCUI_gf_CU_GPInitDehaka (int lp_player) {
+    int lv_lastFrame;
+    int lv_buttonIndex;
+    const int auto6C8809D3_ae = 4;
+    const int auto6C8809D3_ai = 1;
+
+    lv_lastFrame = c_invalidDialogControlId;
+
+    DialogControlCreateInPanelFromTemplate(libKCUI_gv_cU_GPPanelHolder, c_triggerControlTypePanel, "Coop_GlobalCastingTemplates/ZergCasterPanelTemplate");
+    libKCUI_gv_cU_GPPanel[lp_player] = DialogControlLastCreated();
+    DialogControlHookup(libKCUI_gv_cU_GPPanel[lp_player], c_triggerControlTypeCutscene, "ZergCommandCutscene");
+    libKCUI_gv_cU_GPCutscene[lp_player] = DialogControlLastCreated();
+    DialogControlHookup(libKCUI_gv_cU_GPPanel[lp_player], c_triggerControlTypePanel, "ButtonHolder");
+    lv_lastFrame = DialogControlLastCreated();
+    DialogControlCreateInPanelFromTemplate(lv_lastFrame, c_triggerControlTypeCommandPanel, "Coop_GlobalCastingTemplates/DehakaGlobalCommandPanelTemplate");
+    libKCUI_gv_cU_GPCmdPanel[lp_player] = DialogControlLastCreated();
+    lv_buttonIndex = 1;
+    for ( ; ( (auto6C8809D3_ai >= 0 && lv_buttonIndex <= auto6C8809D3_ae) || (auto6C8809D3_ai < 0 && lv_buttonIndex >= auto6C8809D3_ae) ) ; lv_buttonIndex += auto6C8809D3_ai ) {
+        DialogControlHookup(libKCUI_gv_cU_GPCmdPanel[lp_player], c_triggerControlTypeButton, "CommandButton0" + IntToString(lv_buttonIndex-1));
+        libKCUI_gv_cU_GPCmdButtons[lv_buttonIndex][lp_player] = DialogControlLastCreated();
+        DialogControlHookup(libKCUI_gv_cU_GPPanel[lp_player], c_triggerControlTypePanel, "AbilityArrow0" + IntToString(lv_buttonIndex));
+        libKCUI_gv_cU_GPCmdButtonArrows[lv_buttonIndex][lp_player] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(libKCUI_gv_cU_GPCmdButtonArrows[lv_buttonIndex][lp_player], PlayerGroupSingle(lp_player), c_anchorTop, libKCUI_gv_cU_GPCmdButtons[lv_buttonIndex][lp_player], c_anchorBottom, 0, 15);
+    }
+    DialogControlSetVisible(libKCUI_gv_cU_GPPanel[lp_player], PlayerGroupAll(), false);
+    libNtve_gf_SetDialogItemCutscene(libKCUI_gv_cU_GPCutscene[lp_player], "Cutscenes\\UI_DehakaCastingPanel.SC2Cutscene", PlayerGroupSingle(lp_player));
+    CutscenePlay(CutsceneGetTriggerControl(libKCUI_gv_cU_GPCutscene[lp_player]));
+}
+
 void libE0EAE146_gf_DehakaRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     unit lv_hero;
     string lv_panelCasterUnit;

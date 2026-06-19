@@ -122,6 +122,7 @@ Assert-FixedContains $raynorRuntime 'lib67C0F0E7_gf_CU_GPInit(lp_player, "Raynor
 if ($raynorRuntime -match 'lib67C0F0E7_gf_CU_GPInit\(\s*lp_player,\s*"Raynor",\s*lv_hero') {
     throw 'Raynor runtime must not bind the topbar to the battlefield RaynorCommando hero; keep CoopCasterRaynor as the topbar caster.'
 }
+Assert-FixedContains $raynorRuntime 'libE0EAE146_gf_RaynorAllowAbilityCommandsIfPresent(lp_player, "TerranBuildRaynor", 31);' 'Raynor runtime must explicitly unlock the full TerranBuildRaynor command set so SCV build cards stay available in private opener mode.'
 
 if (!(Test-Path -LiteralPath $commanderCatalogAbilDataPath)) {
     throw "Missing CommanderCatalog Raynor ability data: $commanderCatalogAbilDataPath"
@@ -153,6 +154,7 @@ foreach ($ability in @(
 )) {
     Assert-Contains $commanderCatalogAbilData ('id="' + [regex]::Escape($ability) + '"') "CommanderCatalog AbilData missing Raynor ability: $ability"
 }
+Assert-FixedContains $commanderCatalogAbilData '<InfoArray index="Build2" Unit="SupplyDepotRaynor" Time="30">' 'CommanderCatalog TerranBuildRaynor must keep SupplyDepotRaynor on Build2 so SCV build cards include supply depot.'
 Assert-Contains $commanderCatalogAbilData 'id="InfestedStukovCoopInfestedTerrans"(?s:.*?)Effect index="0" value="InfestedStukovCoopInfestedTerrans"' 'CommanderCatalog AbilData must define Stukov hero Infested Terrans with its spawn effect.'
 foreach ($effect in @(
     'InfestedStukovCoopInfestedTerrans',
@@ -258,12 +260,15 @@ $raynorConstructedActors = @(
 foreach ($actor in $raynorConstructedActors) {
     Assert-FixedContains $commanderCatalogActorData ('Terms="UnitConstruction.{0}.Start" Send="Create"' -f $actor) "CommanderCatalog ActorData missing Raynor construction actor create event: $actor"
 }
+Assert-FixedContains $commanderCatalogActorData 'Terms="UnitBirth.BarracksRaynor" Send="Create"' 'CommanderCatalog ActorData must create BarracksRaynor on birth so the Raynor train probe and instant-created barracks keep a visible actor.'
 foreach ($actor in @('SCVRaynor', 'MarineRaynor', 'CommandCenterRaynor')) {
     Assert-FixedContains $commanderCatalogActorData ('Terms="UnitBirth.{0}" Send="Create"' -f $actor) "CommanderCatalog ActorData missing Raynor unit birth create event: $actor"
 }
 
 Assert-FixedContains $commanderCatalogUnitData '<LayoutButtons index="2" Face="OrbitalCommand" Type="AbilCmd" AbilCmd="UpgradeToOrbitalRaynor,Execute" Requirements="" Row="2" Column="0" />' 'CommandCenterRaynor must expose UpgradeToOrbitalRaynor on the original fixed command-card index with no requirements.'
 Assert-FixedContains $commanderCatalogUnitData '<TechTreeProducedUnitArray value="OrbitalCommandRaynor" />' 'CommandCenterRaynor must declare OrbitalCommandRaynor as a produced morph target.'
+Assert-FixedContains $commanderCatalogUnitData '<AbilArray index="5" Link="TerranBuildRaynor" />' 'SCVRaynor must carry the Raynor build ability on the build card slot.'
+Assert-FixedContains $commanderCatalogUnitData '<LayoutButtons Face="SupplyDepot" Type="AbilCmd" AbilCmd="TerranBuildRaynor,Build2" Row="0" Column="2" />' 'SCVRaynor must expose SupplyDepotRaynor on TerranBuildRaynor Build2.'
 Assert-Contains $commanderCatalogUnitData 'CUnit id="InfestedStukovCoop"(?s:.*?)AbilArray Link="InfestedStukovCoopInfestedTerrans"(?s:.*?)AbilArray Link="SIStukovExplodeInfested" removed="1"' 'CommanderCatalog UnitData must add Stukov hero Infested Terrans and remove Explode Infested.'
 Assert-Contains $commanderCatalogUnitData 'CUnit id="InfestedStukovCoop"(?s:.*?)CardLayouts index="0" removed="1"(?s:.*?)LayoutButtons Face="InfestedStukovCoopInfestedTerrans" Type="AbilCmd" AbilCmd="InfestedStukovCoopInfestedTerrans,Execute" Row="2" Column="1"' 'CommanderCatalog UnitData must place Stukov hero Infested Terrans on the hero command card.'
 

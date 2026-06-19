@@ -1,3 +1,6 @@
+include "LibKCUI_h"
+include "LibKMIS_h"
+
 bool libE0EAE146_gv_raynorTrainProbeInitialized;
 int libE0EAE146_gv_raynorTrainProbePlayer;
 unit libE0EAE146_gv_raynorTrainProbeBarracks;
@@ -8,6 +11,152 @@ int libE0EAE146_gv_raynorTrainProbeMedicStart;
 int libE0EAE146_gv_raynorTrainProbeFirebatRaynorStart;
 int libE0EAE146_gv_raynorTrainProbeFirebatStart;
 trigger libE0EAE146_gt_RaynorTrainProbePeriodic;
+
+bool libKMIS_gt_CM_PrestigeRaynor_AirSupplyChanged_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libKCOR_gf_ActiveCommanderForPlayer(UnitGetOwner(EventPlayerEffectUsedUnit(c_effectUnitCaster))) == "TerranRaynor"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((EventPlayerEffectUsed() == "CommanderPrestigeRaynorAirTriggerAdd")) {
+        UnitGroupAdd(libKMIS_gv_cM_PrestigeRaynor_AirUnits, EventPlayerEffectUsedUnit(c_effectUnitCaster));
+    }
+    else {
+        UnitGroupRemove(libKMIS_gv_cM_PrestigeRaynor_AirUnits, EventPlayerEffectUsedUnit(c_effectUnitCaster));
+    }
+    libKMIS_gf_CM_PrestigeRaynor_AirSupplySetBonus(UnitGetOwner(EventPlayerEffectUsedUnit(c_effectUnitCaster)));
+    return true;
+}
+
+void libKMIS_gt_CM_PrestigeRaynor_AirSupplyChanged_Init () {
+    libKMIS_gt_CM_PrestigeRaynor_AirSupplyChanged = TriggerCreate("libKMIS_gt_CM_PrestigeRaynor_AirSupplyChanged_Func");
+    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_PrestigeRaynor_AirSupplyChanged, c_playerAny, "CommanderPrestigeRaynorAirTriggerAdd");
+    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_PrestigeRaynor_AirSupplyChanged, c_playerAny, "CommanderPrestigeRaynorAirTriggerRemove");
+}
+
+void libKCUI_gf_CU_GPInitRaynor (int lp_player) {
+    int lv_lastFrame;
+    int lv_buttonIndex;
+    const int auto3B4E81D6_ae = 2;
+    const int auto3B4E81D6_ai = 1;
+
+    lv_lastFrame = c_invalidDialogControlId;
+
+    DialogControlCreateInPanelFromTemplate(libKCUI_gv_cU_GPPanelHolder, c_triggerControlTypePanel, "Coop_GlobalCastingTemplates/TerranCasterPanelTemplate");
+    libKCUI_gv_cU_GPPanel[lp_player] = DialogControlLastCreated();
+    DialogControlHookup(libKCUI_gv_cU_GPPanel[lp_player], c_triggerControlTypeCutscene, "TerranCommandCutscene");
+    libKCUI_gv_cU_GPCutscene[lp_player] = DialogControlLastCreated();
+    DialogControlHookup(libKCUI_gv_cU_GPPanel[lp_player], c_triggerControlTypePanel, "ButtonHolder");
+    lv_lastFrame = DialogControlLastCreated();
+    DialogControlCreateInPanelFromTemplate(lv_lastFrame, c_triggerControlTypeCommandPanel, "Coop_GlobalCastingTemplates/RaynorGlobalCommandPanelTemplate");
+    libKCUI_gv_cU_GPCmdPanel[lp_player] = DialogControlLastCreated();
+    lv_buttonIndex = 1;
+    for ( ; ( (auto3B4E81D6_ai >= 0 && lv_buttonIndex <= auto3B4E81D6_ae) || (auto3B4E81D6_ai < 0 && lv_buttonIndex >= auto3B4E81D6_ae) ) ; lv_buttonIndex += auto3B4E81D6_ai ) {
+        DialogControlHookup(libKCUI_gv_cU_GPCmdPanel[lp_player], c_triggerControlTypeButton, "CommandButton0" + IntToString(lv_buttonIndex-1));
+        libKCUI_gv_cU_GPCmdButtons[lv_buttonIndex][lp_player] = DialogControlLastCreated();
+        DialogControlHookup(libKCUI_gv_cU_GPPanel[lp_player], c_triggerControlTypePanel, "AbilityArrow0" + IntToString(lv_buttonIndex));
+        libKCUI_gv_cU_GPCmdButtonArrows[lv_buttonIndex][lp_player] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(libKCUI_gv_cU_GPCmdButtonArrows[lv_buttonIndex][lp_player], PlayerGroupSingle(lp_player), c_anchorTop, libKCUI_gv_cU_GPCmdButtons[lv_buttonIndex][lp_player], c_anchorBottom, 0, 15);
+    }
+    DialogControlSetVisible(libKCUI_gv_cU_GPPanel[lp_player], PlayerGroupAll(), false);
+    libNtve_gf_SetDialogItemCutscene(libKCUI_gv_cU_GPCutscene[lp_player], "Cutscenes\\UI_TerranCastingPanel.SC2Cutscene", PlayerGroupAll());
+    CutscenePlay(CutsceneGetTriggerControl(libKCUI_gv_cU_GPCutscene[lp_player]));
+    libKCUI_gv_cU_GPCutsceneFilter[lp_player] = "TwoButtons";
+}
+
+void libKMIS_gf_CM_PrestigeRaynor_AirSupplySetBonus (int lp_raynorPlayer) {
+    unit lv_supplyunit;
+    fixed lv_supply;
+    unitgroup auto6FA383CA_g;
+    int auto6FA383CA_u;
+
+    auto6FA383CA_g = libKMIS_gv_cM_PrestigeRaynor_AirUnits;
+    auto6FA383CA_u = UnitGroupCount(auto6FA383CA_g, c_unitCountAll);
+    for (;; auto6FA383CA_u -= 1) {
+        lv_supplyunit = UnitGroupUnitFromEnd(auto6FA383CA_g, auto6FA383CA_u);
+        if (lv_supplyunit == null) { break; }
+        lv_supply += UnitGetPropertyFixed(lv_supplyunit, c_unitPropSuppliesUsed, c_unitPropCurrent);
+    }
+    libNtve_gf_CatalogFieldValueSetAsReal(c_gameCatalogBehavior, "CommanderPrestigeRaynorAir", "Modification.RateMultiplierArray[" + IntToString(1) + "]", lp_raynorPlayer, (1 + (lv_supply / 100)));
+}
+
+void libKMIS_gf_CM_RaynorUpgradeResearchCost (int lp_player, int lp_level) {
+    fixed lv_changedFactor;
+    const string lv_upgrade = "MasteryRaynorResearchCost";
+    int lv_researchCount;
+    int lv_itResearchIndex;
+    string lv_itResearch;
+    int lv_abilCmdCount;
+    const int lv_resourceTypeCount = 4;
+    int lv_itResearchCmd;
+    int lv_itResourceType;
+    fixed lv_default;
+    int autoA6390321_ae;
+    const int autoA6390321_ai = 1;
+    int auto6BD5CD32_ae;
+    const int auto6BD5CD32_ai = 1;
+    int auto063B4A4F_ae;
+    const int auto063B4A4F_ai = 1;
+
+    lv_changedFactor = (1-(IntToFixed(lp_level)*0.02));
+    lv_researchCount = CatalogFieldValueCount(c_gameCatalogUpgrade, lv_upgrade, "AffectedUnitArray", lp_player);
+    lv_itResearch = "";
+    lv_abilCmdCount = CatalogFieldValueCount(c_gameCatalogAbil, "ArmoryResearch", "InfoArray", c_playerAny);
+
+    autoA6390321_ae = (lv_researchCount-1);
+    lv_itResearchIndex = 0;
+    for ( ; ( (autoA6390321_ai >= 0 && lv_itResearchIndex <= autoA6390321_ae) || (autoA6390321_ai < 0 && lv_itResearchIndex >= autoA6390321_ae) ) ; lv_itResearchIndex += autoA6390321_ai ) {
+        lv_itResearch = CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "AffectedUnitArray[" + IntToString(lv_itResearchIndex) + "]", lp_player);
+        auto6BD5CD32_ae = (lv_abilCmdCount-1);
+        lv_itResearchCmd = 0;
+        for ( ; ( (auto6BD5CD32_ai >= 0 && lv_itResearchCmd <= auto6BD5CD32_ae) || (auto6BD5CD32_ai < 0 && lv_itResearchCmd >= auto6BD5CD32_ae) ) ; lv_itResearchCmd += auto6BD5CD32_ai ) {
+            auto063B4A4F_ae = (lv_resourceTypeCount-1);
+            lv_itResourceType = 0;
+            for ( ; ( (auto063B4A4F_ai >= 0 && lv_itResourceType <= auto063B4A4F_ae) || (auto063B4A4F_ai < 0 && lv_itResourceType >= auto063B4A4F_ae) ) ; lv_itResourceType += auto063B4A4F_ai ) {
+                lv_default = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogAbil, lv_itResearch, "InfoArray[" + IntToString(lv_itResearchCmd) + "].Resource[" + IntToString(lv_itResourceType) + "]", c_playerAny);
+                libNtve_gf_CatalogFieldValueSetAsReal(c_gameCatalogAbil, lv_itResearch, "InfoArray[" + IntToString(lv_itResearchCmd) + "].Resource[" + IntToString(lv_itResourceType) + "]", lp_player, CeilingI((lv_default*lv_changedFactor)));
+            }
+        }
+    }
+}
+
+trigger auto_libKMIS_gf_CM_GPReminderRaynor_Trigger = null;
+int auto_libKMIS_gf_CM_GPReminderRaynor_lp_player;
+
+void libKMIS_gf_CM_GPReminderRaynor (int lp_player) {
+    auto_libKMIS_gf_CM_GPReminderRaynor_lp_player = lp_player;
+
+    if (auto_libKMIS_gf_CM_GPReminderRaynor_Trigger == null) {
+        auto_libKMIS_gf_CM_GPReminderRaynor_Trigger = TriggerCreate("auto_libKMIS_gf_CM_GPReminderRaynor_TriggerFunc");
+    }
+
+    TriggerExecute(auto_libKMIS_gf_CM_GPReminderRaynor_Trigger, false, false);
+}
+
+bool auto_libKMIS_gf_CM_GPReminderRaynor_TriggerFunc (bool testConds, bool runActions) {
+    int lp_player = auto_libKMIS_gf_CM_GPReminderRaynor_lp_player;
+    timer lv_reminderTimer;
+
+    lv_reminderTimer = TimerCreate();
+    TimerStart(lv_reminderTimer, 600.0, false, c_timeGame);
+    libNtve_gf_WaitForTimer(lv_reminderTimer, 0.0, false);
+    if ((libKMIS_gv_cM_GPRemindersOn[lp_player] == false)) {
+        return true;
+    }
+
+    SoundPlay(SoundLink("Defiler_DarkSwarm", -1), PlayerGroupSingle(lp_player), 100.0, 0.0);
+    libKCUI_gf_CU_GPHighlightButton(1, true, lp_player);
+    libKCUI_gf_CU_GPHighlightButton(2, true, lp_player);
+    return true;
+}
 
 int libE0EAE146_gf_RaynorRuntimeUnitTypeCount (int lp_player, string lp_unitType) {
     if ((lp_unitType == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unitType))) {
@@ -72,6 +221,10 @@ void libE0EAE146_gf_RaynorAllowAbilityIfPresent (int lp_player, string lp_abil, 
         return;
     }
     TechTreeAbilityAllow(lp_player, AbilityCommand(lp_abil, lp_cmdIndex), true);
+}
+
+void libE0EAE146_gf_RaynorAllowAbilityCommandsIfPresent (int lp_player, string lp_abil, int lp_maxCmdIndex) {
+    libE0EAE146_gf_AllowAbilityCommandsIfPresent(lp_player, lp_abil, lp_maxCmdIndex);
 }
 
 void libE0EAE146_gf_RaynorAllowAddOnAbilityIfPresent (int lp_player, string lp_abil) {
@@ -199,6 +352,7 @@ void libE0EAE146_gf_RaynorApplyTechFilter (int lp_player) {
     libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "BansheeAirstrikeFakeAttackWeapon");
 
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "TerranBuildRaynor", 0);
+    libE0EAE146_gf_RaynorAllowAbilityCommandsIfPresent(lp_player, "TerranBuildRaynor", 31);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "CommandCenterTrainRaynor", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "CommandCenterLiftOffRaynor", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "CommandCenterLandRaynor", 0);
