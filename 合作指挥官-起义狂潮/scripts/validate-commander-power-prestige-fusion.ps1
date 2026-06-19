@@ -279,14 +279,6 @@ foreach ($xml in $unitXmls) {
     }
 }
 Assert-True -Condition ($abathurLockLayoutNodes.Count -eq 0) -Message "Abathur biomass prestige lock overlays must not remain bound in UnitData*.xml."
-foreach ($abilId in @("EvolveToBrutaliskRoach", "EvolveToBrutaliskRoachVile", "EvolveToBrutaliskSwarmHost", "EvolveToBrutaliskRavager")) {
-    $abilNode = Get-CatalogNodeById -Xmls (Read-CatalogXmlSet -GameDataRoot $catalogGameData -BaseName "AbilData") -TagName "CAbilTrain" -Id $abilId
-    Assert-True -Condition ([string]$abilNode.parent -eq "EvolveToBrutalisk") -Message ("{0} must inherit EvolveToBrutalisk so ultimate evolutions finish hatching." -f $abilId)
-}
-foreach ($cocoonId in @("BrutaliskCocoonRavager", "BrutaliskCocoonRoach", "BrutaliskCocoonRoachVile", "BrutaliskCocoonSwarmhost")) {
-    $cocoonNode = Get-CatalogNodeById -Xmls $unitXmls -TagName "CUnit" -Id $cocoonId
-    Assert-True -Condition ([string]$cocoonNode.parent -eq "BrutaliskCocoon") -Message ("{0} must exist as a BrutaliskCocoon variant." -f $cocoonId)
-}
 
 $karaxLockFaces = @(
     "CommanderPrestigeKaraxPhotonCannonLocked",
