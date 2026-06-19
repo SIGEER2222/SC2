@@ -417,6 +417,34 @@ function Remove-DirectoryWithRetry {
     }
 }
 
+function Sync-LiveMapRuntimeLibraries {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$MapLive,
+        [Parameter(Mandatory = $true)]
+        [string[]]$RuntimeBaseRoots
+    )
+
+    $mapBaseDataRoot = Join-Path $MapLive "Base.SC2Data"
+    if (-not (Test-Path -LiteralPath $mapBaseDataRoot)) {
+        New-Item -ItemType Directory -Path $mapBaseDataRoot -Force | Out-Null
+    }
+
+    Get-ChildItem -LiteralPath $mapBaseDataRoot -Filter 'Lib*.galaxy' -File -ErrorAction SilentlyContinue | ForEach-Object {
+        Remove-Item -LiteralPath $_.FullName -Force
+    }
+
+    foreach ($runtimeBaseRoot in $RuntimeBaseRoots) {
+        if (-not (Test-Path -LiteralPath $runtimeBaseRoot)) {
+            continue
+        }
+
+        Get-ChildItem -LiteralPath $runtimeBaseRoot -Filter 'Lib*.galaxy' -File -ErrorAction SilentlyContinue | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $mapBaseDataRoot $_.Name) -Force
+        }
+    }
+}
+
 function Remove-UnsupportedLiveRuntimeRoots {
     param(
         [Parameter(Mandatory = $true)]
@@ -1152,6 +1180,13 @@ $installedWorkspaceDependencyMods = Install-WorkspaceModDependencyClosure `
     -SkipDependencies $workspaceDependencySkips
 
 $extensionBaseData = Join-Path $extensionLive "Base.SC2Data"
+$kitMutationsLiveBaseData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/kit_mutations.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data"
+Sync-LiveMapRuntimeLibraries `
+    -MapLive $mapLive `
+    -RuntimeBaseRoots @(
+        $extensionBaseData,
+        $kitMutationsLiveBaseData
+    )
 $effectiveRuntimeBaseData = Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryPath -MapLive $mapLive -ExtensionLive $extensionLive -LibraryName "LibKPVP.galaxy")
 Apply-LiveCommanderTestPatches `
     -BaseDataRoot $effectiveRuntimeBaseData `
