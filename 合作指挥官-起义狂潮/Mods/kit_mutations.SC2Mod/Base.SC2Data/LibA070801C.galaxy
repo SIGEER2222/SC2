@@ -13556,6 +13556,22 @@ point libA070801C_gf_CT_GiftFindPlayerBaseSpawnPoint (int lp_player, fixed lp_mi
     return null;
 }
 
+void libA070801C_gf_CT_RecordGiftSpawnDebug (point lp_spawnLocation) {
+    int lv_time;
+    int lv_distance;
+
+    lv_time = FixedToInt(GameGetMissionTime());
+    lv_distance = FixedToInt(DistanceBetweenPoints(lp_spawnLocation, PlayerStartLocation(1)));
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GiftFightLastSpawnTime", lv_time);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GiftFightLastSpawnDistanceP1", lv_distance);
+    if (lv_time < 600) {
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GiftFightEarlySpawnDistanceP1", lv_distance);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GiftFightEarlySpawnTime", lv_time);
+    }
+    BankSave(BankLastCreated());
+}
+
 bool libA070801C_gt_CT_GiftFightSpawn_Func (bool testConds, bool runActions) {
     // Variable Declarations
     timer lv_spawnTimer;
@@ -13599,6 +13615,7 @@ bool libA070801C_gt_CT_GiftFightSpawn_Func (bool testConds, bool runActions) {
             continue;
         }
 
+        libA070801C_gf_CT_RecordGiftSpawnDebug(lv_spawnLocation);
         libA070801C_gf_CT_GiftSpawn(lv_spawnLocation);
         libA070801C_gf_CT_GiftSendAttack(libA070801C_gv_cT_GiftLastCreated);
         if ((GameGetMissionTime() > 1200.0)) {

@@ -123,6 +123,9 @@ int gf_GetClosestRawTerrazineToProtoss (int lp_regionToCheck);
 int gf_GetClosestDroppedTerrazineToProtoss ();
 unit gf_GetClosestProbeToNode (int lp_canisterHarvestTargetIndex);
 unit gf_NodeMatchingCustomValue (int lp_param_TerrazineIndex);
+void gf_CodexWriteRuntimeDebugInt (string lp_key, int lp_value);
+void gf_CodexWriteRuntimeDebugString (string lp_key, string lp_value);
+void gf_CodexRecordTimedAttack (string lp_source, int lp_cadence, string lp_composition);
 void gf_ResearchForAllProtoss (string lp_upgrade);
 
 //--------------------------------------------------------------------------------------------------
@@ -980,6 +983,59 @@ unit gf_NodeMatchingCustomValue (int lp_param_TerrazineIndex) {
 
     }
     return null;
+}
+
+void gf_CodexWriteRuntimeDebugInt (string lp_key, int lp_value) {
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", lp_key, lp_value);
+    BankSave(BankLastCreated());
+}
+
+void gf_CodexWriteRuntimeDebugString (string lp_key, string lp_value) {
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", lp_key, lp_value);
+    BankSave(BankLastCreated());
+}
+
+void gf_CodexRecordTimedAttack (string lp_source, int lp_cadence, string lp_composition) {
+    int lv_time;
+    int lv_count;
+    string lv_prefix;
+
+    lv_time = FixedToInt(GameGetMissionTime());
+    lv_prefix = ("Ttosh02" + lp_source);
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "LastTime"), lv_time);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "LastCadence"), lp_cadence);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "LastComp"), lp_composition);
+    if (lv_time >= 600) {
+        lv_count = (BankValueGetAsInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "After10Count")) + 1);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "After10Count"), lv_count);
+        if (BankValueGetAsInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage10Time")) <= 0) {
+            BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage10Time"), lv_time);
+            BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage10Cadence"), lp_cadence);
+            BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage10Comp"), lp_composition);
+        }
+    }
+    if (lv_time >= 900) {
+        lv_count = (BankValueGetAsInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "After15Count")) + 1);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "After15Count"), lv_count);
+        if (BankValueGetAsInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage15Time")) <= 0) {
+            BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage15Time"), lv_time);
+            BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage15Cadence"), lp_cadence);
+            BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage15Comp"), lp_composition);
+        }
+    }
+    if (lv_time >= 1200) {
+        lv_count = (BankValueGetAsInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "After20Count")) + 1);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "After20Count"), lv_count);
+        if (BankValueGetAsInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage20Time")) <= 0) {
+            BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage20Time"), lv_time);
+            BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage20Cadence"), lp_cadence);
+            BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", (lv_prefix + "Stage20Comp"), lp_composition);
+        }
+    }
+    BankSave(BankLastCreated());
 }
 
 void gf_ResearchForAllProtoss (string lp_upgrade) {
@@ -2390,10 +2446,12 @@ bool gt_ToshAttackWaves_Func (bool testConds, bool runActions) {
     AIAttackWaveAddUnits4(7, 7, 8, 10, "Reaper");
     AIAttackWaveAddUnits4(3, 3, 3, 4, "Goliath");
     AIAttackWaveSend(lv_aI, 140, true);
+    gf_CodexRecordTimedAttack("Tosh", 140, "Reaper+Goliath");
     AIAttackWaveAddUnits4(7, 7, 8, 10, "Reaper");
     AIAttackWaveAddUnits4(2, 2, 3, 3, "Wraith");
     AIAttackWaveAddUnits4(2, 2, 2, 3, "Medic");
     AIAttackWaveSend(lv_aI, 140, true);
+    gf_CodexRecordTimedAttack("Tosh", 140, "Reaper+Wraith+Medic");
     AIAttackWaveAddUnits4(3, 3, 4, 5, "Goliath");
     AIAttackWaveAddUnits4(2, 2, 2, 3, "Medic");
     AIAttackWaveAddUnits4(3, 3, 4, 5, "Spectre");
@@ -2433,6 +2491,7 @@ bool gt_ToshAttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(2, 2, 3, 4, "Reaper");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(140, 140, 120, 120), true);
+        gf_CodexRecordTimedAttack("Tosh", libNtve_gf_DifficultyValueInt(140, 140, 120, 120), "Goliath+Medic+Spectre+Raven");
         AIAttackWaveAddUnits4(3, 3, 3, 4, "Goliath");
         AIAttackWaveAddUnits4(6, 6, 7, 8, "Wraith");
         AIAttackWaveAddUnits4(2, 2, 2, 2, "Spectre");
@@ -2444,6 +2503,7 @@ bool gt_ToshAttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 1, "Battlecruiser");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(140, 140, 120, 120), true);
+        gf_CodexRecordTimedAttack("Tosh", libNtve_gf_DifficultyValueInt(140, 140, 120, 120), "Goliath+Wraith+Spectre+Raven");
         AIAttackWaveAddUnits4(7, 7, 8, 10, "Reaper");
         AIAttackWaveAddUnits4(3, 3, 3, 4, "Goliath");
         AIAttackWaveAddUnits4(3, 3, 3, 4, "Medic");
@@ -2455,6 +2515,7 @@ bool gt_ToshAttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 1, "ScienceVessel");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(140, 140, 120, 120), true);
+        gf_CodexRecordTimedAttack("Tosh", libNtve_gf_DifficultyValueInt(140, 140, 120, 120), "Reaper+Goliath+Medic+Raven");
     }
     return true;
 }
@@ -3988,6 +4049,7 @@ bool gt_P2AttackWaves_Func (bool testConds, bool runActions) {
     AIAttackWaveAddUnits4(7, 7, 8, 10, "Zealot");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Immortal");
     AIAttackWaveSend(lv_aI, 150, true);
+    gf_CodexRecordTimedAttack("P2", 150, "Zealot+Immortal");
     AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
     AIAttackWaveAddUnits4(2, 2, 3, 4, "Scout");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Sentry");
@@ -4033,6 +4095,7 @@ bool gt_P2AttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 2, "Tempest");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
+        gf_CodexRecordTimedAttack("P2", libNtve_gf_DifficultyValueInt(150, 150, 120, 120), "Zealot+DT+VoidRay+Scout");
         AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
         AIAttackWaveAddUnits4(8, 8, 10, 12, "Zealot");
         AIAttackWaveAddUnits4(1, 1, 1, 2, "ImmortalTaldarim");
@@ -4043,6 +4106,7 @@ bool gt_P2AttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 1, "Carrier");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
+        gf_CodexRecordTimedAttack("P2", libNtve_gf_DifficultyValueInt(150, 150, 120, 120), "Zealot+ImmortalTaldarim+Adept+Sentry+Stalker");
         AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
         AIAttackWaveAddUnits4(8, 8, 9, 10, "Zealot");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "Observer");
@@ -4061,6 +4125,7 @@ bool gt_P2AttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 1, "Tempest");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
+        gf_CodexRecordTimedAttack("P2", libNtve_gf_DifficultyValueInt(150, 150, 120, 120), "Stalker+Colossus+Monitor+HT+VoidRayTaldarim+DT");
     }
     return true;
 }
@@ -4198,6 +4263,7 @@ bool gt_P6AttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 2, "VoidRay");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(180, 180, 150, 150), true);
+        gf_CodexRecordTimedAttack("P6", libNtve_gf_DifficultyValueInt(180, 180, 150, 150), "Zealot+DT+Sentry+Observer");
         AIAttackWaveAddUnits4(7, 7, 8, 10, "Zealot");
         AIAttackWaveAddUnits4(2, 2, 2, 3, "Adept");
         AIAttackWaveAddUnits4(2, 2, 3, 3, "Sentry");
@@ -4205,6 +4271,7 @@ bool gt_P6AttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 1, "Immortal");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(180, 180, 150, 150), true);
+        gf_CodexRecordTimedAttack("P6", libNtve_gf_DifficultyValueInt(180, 180, 150, 150), "Zealot+Adept+Sentry");
         AIAttackWaveAddUnits4(5, 5, 6, 7, "Stalker");
         AIAttackWaveAddUnits4(1, 1, 1, 2, "Monitor");
         AIAttackWaveAddUnits4(2, 2, 3, 3, "DarkTemplarTaldarim");
@@ -4212,6 +4279,7 @@ bool gt_P6AttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 1, "VoidRayTaldarim");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(180, 180, 150, 150), true);
+        gf_CodexRecordTimedAttack("P6", libNtve_gf_DifficultyValueInt(180, 180, 150, 150), "Stalker+Monitor+DT");
     }
     return true;
 }
@@ -4243,6 +4311,7 @@ bool gt_P7AttackWaves_Func (bool testConds, bool runActions) {
     AIAttackWaveAddUnits4(7, 7, 8, 10, "Zealot");
     AIAttackWaveAddUnits4(2, 2, 3, 3, "Scout");
     AIAttackWaveSend(lv_aI, 150, true);
+    gf_CodexRecordTimedAttack("P7", 150, "Zealot+Scout");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "VoidRay");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Sentry");
     AIAttackWaveAddUnits4(2, 2, 3, 4, "Stalker");
@@ -4273,6 +4342,7 @@ bool gt_P7AttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 2, "Tempest");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
+        gf_CodexRecordTimedAttack("P7", libNtve_gf_DifficultyValueInt(150, 150, 120, 120), "Zealot+VoidRayTaldarim+Carrier");
         AIAttackWaveAddUnits4(5, 5, 6, 8, "Scout");
         AIAttackWaveAddUnits4(4, 4, 5, 6, "Stalker");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "Observer");
@@ -4280,6 +4350,7 @@ bool gt_P7AttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 1, "Carrier");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
+        gf_CodexRecordTimedAttack("P7", libNtve_gf_DifficultyValueInt(150, 150, 120, 120), "Scout+Stalker+Observer");
         AIAttackWaveAddUnits4(8, 8, 10, 12, "Zealot");
         AIAttackWaveAddUnits4(1, 1, 1, 2, "Tempest");
         AIAttackWaveAddUnits4(2, 2, 3, 4, "Stalker");
@@ -4288,6 +4359,7 @@ bool gt_P7AttackWaves_Func (bool testConds, bool runActions) {
             AIAttackWaveAddUnits4(1, 1, 1, 2, "Carrier");
         }
         AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
+        gf_CodexRecordTimedAttack("P7", libNtve_gf_DifficultyValueInt(150, 150, 120, 120), "Zealot+Tempest+Stalker+Monitor");
     }
     return true;
 }
