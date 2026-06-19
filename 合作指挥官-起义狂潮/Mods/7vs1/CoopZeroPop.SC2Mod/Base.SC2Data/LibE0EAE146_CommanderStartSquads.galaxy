@@ -1619,8 +1619,13 @@ void libE0EAE146_gf_CreateCommanderCinematicTransportSquad (unit lp_container, s
         return;
     }
     if (lv_commander == "Stukov") {
-        UnitCargoCreate(lp_container, "SIInfestedMarine", 4);
-        UnitCargoCreate(lp_container, "InfestedMedic", 2);
+        if (lp_kind == "hero") {
+            libE0EAE146_gt_CommanderHeroDied_Init();
+            UnitCargoCreate(lp_container, "InfestedStukovCoop", 1);
+            UnitCargoCreate(lp_container, "StukovInfestedDiamondBack", 2);
+            return;
+        }
+        UnitCargoCreate(lp_container, "StukovInfestedDiamondBack", 2);
         return;
     }
 
