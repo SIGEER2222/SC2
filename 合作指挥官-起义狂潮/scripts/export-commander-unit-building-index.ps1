@@ -415,12 +415,37 @@ function Parse-LocalizedValue {
     return $parts[0].Trim()
 }
 
+function New-LocalizedNameIndex {
+    return @{
+        Unit = @{}
+        Button = @{}
+        ArmyCategory = @{}
+    }
+}
+
+function Add-LocalizedNameEntry {
+    param(
+        [hashtable]$Index,
+        [string]$Bucket,
+        [string]$Key,
+        [string]$Value
+    )
+
+    if (($null -eq $Index) -or [string]::IsNullOrWhiteSpace($Bucket) -or [string]::IsNullOrWhiteSpace($Key) -or [string]::IsNullOrWhiteSpace($Value)) {
+        return
+    }
+
+    if (($Index.ContainsKey($Bucket)) -and (-not $Index[$Bucket].ContainsKey($Key))) {
+        $Index[$Bucket][$Key] = $Value
+    }
+}
+
 function Import-LocalizedUnitNames {
     param(
         [string[]]$Paths
     )
 
-    $nameMap = @{}
+    $nameIndex = New-LocalizedNameIndex
     foreach ($path in @($Paths)) {
         if (-not (Test-Path -LiteralPath $path)) {
             continue
@@ -430,21 +455,22 @@ function Import-LocalizedUnitNames {
             if ($line -match '^Unit/Name/([^=]+)=(.*)$') {
                 $unitId = [string]$matches[1]
                 $unitName = Parse-LocalizedValue -Value ([string]$matches[2])
-                if ((-not [string]::IsNullOrWhiteSpace($unitId)) -and (-not [string]::IsNullOrWhiteSpace($unitName)) -and (-not $nameMap.ContainsKey($unitId))) {
-                    $nameMap[$unitId] = $unitName
-                }
+                Add-LocalizedNameEntry -Index $nameIndex -Bucket "Unit" -Key $unitId -Value $unitName
             }
             elseif ($line -match '^Button/Name/([^=]+)=(.*)$') {
                 $buttonId = [string]$matches[1]
                 $buttonName = Parse-LocalizedValue -Value ([string]$matches[2])
-                if ((-not [string]::IsNullOrWhiteSpace($buttonId)) -and (-not [string]::IsNullOrWhiteSpace($buttonName)) -and (-not $nameMap.ContainsKey($buttonId))) {
-                    $nameMap[$buttonId] = $buttonName
-                }
+                Add-LocalizedNameEntry -Index $nameIndex -Bucket "Button" -Key $buttonId -Value $buttonName
+            }
+            elseif ($line -match '^ArmyCategory/Name/([^=]+)=(.*)$') {
+                $categoryId = [string]$matches[1]
+                $categoryName = Parse-LocalizedValue -Value ([string]$matches[2])
+                Add-LocalizedNameEntry -Index $nameIndex -Bucket "ArmyCategory" -Key $categoryId -Value $categoryName
             }
         }
     }
 
-    return $nameMap
+    return $nameIndex
 }
 
 function Get-LocalizedUnitName {
@@ -459,8 +485,12 @@ function Get-LocalizedUnitName {
         return ""
     }
 
-    if (($null -ne $LocalizedNames) -and $LocalizedNames.ContainsKey($UnitId)) {
-        return [string]$LocalizedNames[$UnitId]
+    if (($null -ne $LocalizedNames) -and $LocalizedNames.Unit.ContainsKey($UnitId)) {
+        return [string]$LocalizedNames.Unit[$UnitId]
+    }
+
+    if (($null -ne $LocalizedNames) -and $LocalizedNames.ArmyCategory.ContainsKey($UnitId)) {
+        return [string]$LocalizedNames.ArmyCategory[$UnitId]
     }
 
     if (($null -eq $UnitIndex) -or (-not $UnitIndex.ContainsKey($UnitId))) {
@@ -490,7 +520,19 @@ function Get-LocalizedUnitName {
         }
     }
 
-    return Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -UnitId $record.Parent -Visited $Visited
+    $localizedParent = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -UnitId $record.Parent -Visited $Visited
+    if (-not [string]::IsNullOrWhiteSpace($localizedParent)) {
+        return $localizedParent
+    }
+
+    foreach ($buttonFace in @($record.Node.SelectNodes('CardLayouts/LayoutButtons[@Face]'))) {
+        $face = [string]$buttonFace.Face
+        if (($null -ne $LocalizedNames) -and (-not [string]::IsNullOrWhiteSpace($face)) -and $LocalizedNames.Button.ContainsKey($face)) {
+            return [string]$LocalizedNames.Button[$face]
+        }
+    }
+
+    return ""
 }
 
 function Get-CommanderUnitRows {
