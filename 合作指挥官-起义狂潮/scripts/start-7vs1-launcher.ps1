@@ -19,6 +19,7 @@ Add-Type -AssemblyName System.Drawing
 
 $script:WorkspaceRoot = Split-Path -Parent $PSScriptRoot
 $script:LaunchScript = Join-Path $PSScriptRoot "launch-7vs1-coop-test.ps1"
+$script:CampaignXCoreBankScript = Join-Path $PSScriptRoot "sc2\campaignxcore-bank.ps1"
 $script:MetadataPath = Join-Path $script:WorkspaceRoot "Shared\CommanderPower\commander-power-metadata.json"
 $script:MapsRoot = Join-Path $script:WorkspaceRoot "Maps"
 $script:LogsRoot = Join-Path $script:WorkspaceRoot "logs"
@@ -26,6 +27,9 @@ $script:LogsRoot = Join-Path $script:WorkspaceRoot "logs"
 
 if (-not (Test-Path -LiteralPath $script:LaunchScript)) {
     throw "Launch script not found: $script:LaunchScript"
+}
+if (-not (Test-Path -LiteralPath $script:CampaignXCoreBankScript)) {
+    throw "CampaignXCore bank script not found: $script:CampaignXCoreBankScript"
 }
 if (-not (Test-Path -LiteralPath $script:MetadataPath)) {
     throw "Commander metadata not found: $script:MetadataPath"
@@ -35,14 +39,14 @@ if (-not (Test-Path -LiteralPath $script:LogsRoot)) {
 }
 
 function Get-MutatorIdsFromLaunchScript {
-    $text = Get-Content -LiteralPath $script:LaunchScript -Raw -Encoding UTF8
+    $text = Get-Content -LiteralPath $script:CampaignXCoreBankScript -Raw -Encoding UTF8
     $match = [regex]::Match(
         $text,
-        'foreach \(\$mutator in @\((?<body>.*?)\)\) \{\s*\$allowedMutators',
+        'foreach \(\$mutator in @\((?<body>.*?)\)\) \{\s*\$allowedMutators\[\$mutator\] = \$mutator',
         [System.Text.RegularExpressions.RegexOptions]::Singleline
     )
     if (-not $match.Success) {
-        throw "Could not parse mutator allow-list from $script:LaunchScript"
+        throw "Could not parse mutator allow-list from $script:CampaignXCoreBankScript"
     }
 
     return @([regex]::Matches($match.Groups["body"].Value, '"([^"]+)"') | ForEach-Object {
