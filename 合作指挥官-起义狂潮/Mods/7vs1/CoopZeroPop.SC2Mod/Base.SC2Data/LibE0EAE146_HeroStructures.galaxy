@@ -98,6 +98,42 @@ point libE0EAE146_gf_CommanderHeroStructurePoint (int lp_player, string lp_unitT
     return lv_candidate;
 }
 
+void libE0EAE146_gf_RelocateCommanderHeroStructureOffStartLocation (int lp_player) {
+    string lv_unitType;
+    unit lv_structure;
+    point lv_relocatePoint;
+    point lv_startPoint;
+
+    if (libE0EAE146_gv_currentMapId != "thanson01_7vs1") {
+        return;
+    }
+
+    lv_unitType = libKCOR_gf_CC_CommanderHeroStructureType(libKCOR_gf_ActiveCommanderForPlayer(lp_player));
+    if ((lv_unitType == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType))) {
+        return;
+    }
+
+    lv_structure = libE0EAE146_gf_FindCommanderHeroStructure(lp_player, lv_unitType);
+    if (UnitIsValid(lv_structure) == false) {
+        return;
+    }
+
+    lv_startPoint = PlayerStartLocation(lp_player);
+    if (lv_startPoint == null) {
+        return;
+    }
+    if (DistanceBetweenPoints(UnitGetPosition(lv_structure), lv_startPoint) > 6.0) {
+        return;
+    }
+
+    lv_relocatePoint = libE0EAE146_gf_CommanderHeroStructurePoint(lp_player, lv_unitType);
+    if (lv_relocatePoint == null) {
+        return;
+    }
+
+    UnitSetPosition(lv_structure, lv_relocatePoint, false);
+}
+
 unit libE0EAE146_gf_CreateCommanderHeroStructure (int lp_player, string lp_commander) {
     string lv_unitType;
     unit lv_structure;
