@@ -26,6 +26,93 @@ function Resolve-OutputPath {
     return (Join-Path $WorkspaceRoot ("docs\" + $fileName))
 }
 
+function Get-LocalizedNameFileCandidates {
+    param(
+        [string]$WorkspaceRoot,
+        [string]$CommanderShortId
+    )
+
+    $paths = New-Object System.Collections.Generic.List[string]
+    $modPath = Join-Path $WorkspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\zhCN.SC2Data\LocalizedData\GameStrings.txt"
+    if (Test-Path -LiteralPath $modPath) {
+        $paths.Add($modPath) | Out-Null
+    }
+
+    $semanticRoot = Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137\_semantic-game-data-by-commander-v2"
+    if (Test-Path -LiteralPath $semanticRoot) {
+        $sharedPaths = @(Get-ChildItem -LiteralPath $semanticRoot -Recurse -Filter "GameStrings.txt" -File -ErrorAction SilentlyContinue | Where-Object {
+                $_.FullName -like "*_shared*" -and $_.FullName -match "[\\\/]zhcn\.sc2data[\\\/]LocalizedData[\\\/]GameStrings\.txt$|[\\\/]zhCN\.SC2Data[\\\/]LocalizedData[\\\/]GameStrings\.txt$"
+            } | Sort-Object FullName | Select-Object -ExpandProperty FullName)
+        foreach ($path in $sharedPaths) {
+            if (-not $paths.Contains($path)) {
+                $paths.Add($path) | Out-Null
+            }
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($CommanderShortId)) {
+            $commanderRoot = Join-Path $semanticRoot $CommanderShortId
+            if (Test-Path -LiteralPath $commanderRoot) {
+                $commanderPaths = @(Get-ChildItem -LiteralPath $commanderRoot -Recurse -Filter "GameStrings.txt" -File -ErrorAction SilentlyContinue | Where-Object {
+                        $_.FullName -match "[\\\/]zhcn\.sc2data[\\\/]LocalizedData[\\\/]GameStrings\.txt$|[\\\/]zhCN\.SC2Data[\\\/]LocalizedData[\\\/]GameStrings\.txt$"
+                    } | Sort-Object FullName | Select-Object -ExpandProperty FullName)
+                foreach ($path in $commanderPaths) {
+                    if (-not $paths.Contains($path)) {
+                        $paths.Add($path) | Out-Null
+                    }
+                }
+            }
+        }
+    }
+
+    $gameRoot = ""
+    $profilePath = "C:\Users\22448\AppData\Roaming\@scnexus\app-main\SCNexusStorage\store-profile.json"
+    if (Test-Path -LiteralPath $profilePath) {
+        try {
+            $profile = Get-Content -LiteralPath $profilePath -Encoding UTF8 -Raw | ConvertFrom-Json
+            if ($null -ne $profile.active_profile.env.GAME_ROOT) {
+                $gameRoot = [string]$profile.active_profile.env.GAME_ROOT
+            }
+        }
+        catch {
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($gameRoot)) {
+        $fallbackGameRoot = "E:\SC2\SC2new\StarCraft II"
+        if (Test-Path -LiteralPath $fallbackGameRoot) {
+            $gameRoot = $fallbackGameRoot
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($gameRoot) -and (Test-Path -LiteralPath $gameRoot)) {
+        foreach ($relativePath in @(
+                "Mods\VoidMulti.SC2Mod\zhcn.sc2data\localizeddata\gamestrings.txt",
+                "Mods\StarCoop\StarCoop.SC2Mod\zhcn.sc2data\localizeddata\gamestrings.txt"
+            )) {
+            $candidate = Join-Path $gameRoot $relativePath
+            if ((Test-Path -LiteralPath $candidate) -and (-not $paths.Contains($candidate))) {
+                $paths.Add($candidate) | Out-Null
+            }
+        }
+
+        if ($CommanderShortId -eq "Stetmann") {
+            $candidate = Join-Path $gameRoot "Mods\StarCoop\Commanders\EgonStetmann.SC2Mod\zhcn.sc2data\localizeddata\gamestrings.txt"
+            if ((Test-Path -LiteralPath $candidate) -and (-not $paths.Contains($candidate))) {
+                $paths.Add($candidate) | Out-Null
+            }
+        }
+
+        if ($CommanderShortId -eq "Mengsk") {
+            $candidate = Join-Path $gameRoot "Mods\StarCoop\Commanders\ArcturusMengsk.SC2Mod\zhcn.sc2data\localizeddata\gamestrings.txt"
+            if ((Test-Path -LiteralPath $candidate) -and (-not $paths.Contains($candidate))) {
+                $paths.Add($candidate) | Out-Null
+            }
+        }
+    }
+
+    return @($paths)
+}
+
 function New-StringSet {
     return ,([System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase))
 }
@@ -317,10 +404,100 @@ function Escape-MarkdownCell {
     return (($Value -replace "\|", "\\|") -replace "\r?\n", "<br>")
 }
 
+function Parse-LocalizedValue {
+    param([string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return ""
+    }
+
+    $parts = $Value -split '\s+///\s+', 2
+    return $parts[0].Trim()
+}
+
+function Import-LocalizedUnitNames {
+    param(
+        [string[]]$Paths
+    )
+
+    $nameMap = @{}
+    foreach ($path in @($Paths)) {
+        if (-not (Test-Path -LiteralPath $path)) {
+            continue
+        }
+
+        foreach ($line in @(Get-Content -LiteralPath $path -Encoding UTF8)) {
+            if ($line -match '^Unit/Name/([^=]+)=(.*)$') {
+                $unitId = [string]$matches[1]
+                $unitName = Parse-LocalizedValue -Value ([string]$matches[2])
+                if ((-not [string]::IsNullOrWhiteSpace($unitId)) -and (-not [string]::IsNullOrWhiteSpace($unitName)) -and (-not $nameMap.ContainsKey($unitId))) {
+                    $nameMap[$unitId] = $unitName
+                }
+            }
+            elseif ($line -match '^Button/Name/([^=]+)=(.*)$') {
+                $buttonId = [string]$matches[1]
+                $buttonName = Parse-LocalizedValue -Value ([string]$matches[2])
+                if ((-not [string]::IsNullOrWhiteSpace($buttonId)) -and (-not [string]::IsNullOrWhiteSpace($buttonName)) -and (-not $nameMap.ContainsKey($buttonId))) {
+                    $nameMap[$buttonId] = $buttonName
+                }
+            }
+        }
+    }
+
+    return $nameMap
+}
+
+function Get-LocalizedUnitName {
+    param(
+        [hashtable]$LocalizedNames,
+        [hashtable]$UnitIndex,
+        [string]$UnitId,
+        [System.Collections.Generic.HashSet[string]]$Visited = $null
+    )
+
+    if ([string]::IsNullOrWhiteSpace($UnitId)) {
+        return ""
+    }
+
+    if (($null -ne $LocalizedNames) -and $LocalizedNames.ContainsKey($UnitId)) {
+        return [string]$LocalizedNames[$UnitId]
+    }
+
+    if (($null -eq $UnitIndex) -or (-not $UnitIndex.ContainsKey($UnitId))) {
+        return ""
+    }
+
+    if ($null -eq $Visited) {
+        $Visited = New-StringSet
+    }
+
+    if (-not $Visited.Add($UnitId)) {
+        return ""
+    }
+
+    $record = $UnitIndex[$UnitId]
+    if ($null -eq $record) {
+        return ""
+    }
+
+    foreach ($aliasChild in @("SelectAlias", "SubgroupAlias", "HotkeyAlias")) {
+        $aliasValue = Get-UnitNodeValue -Node $record.Node -ChildName $aliasChild
+        if ((-not [string]::IsNullOrWhiteSpace($aliasValue)) -and ($aliasValue -ne $UnitId)) {
+            $localizedAlias = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -UnitId $aliasValue -Visited $Visited
+            if (-not [string]::IsNullOrWhiteSpace($localizedAlias)) {
+                return $localizedAlias
+            }
+        }
+    }
+
+    return Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -UnitId $record.Parent -Visited $Visited
+}
+
 function Get-CommanderUnitRows {
     param(
         $CommanderRecord,
-        [hashtable]$UnitIndex
+        [hashtable]$UnitIndex,
+        [hashtable]$LocalizedNames
     )
 
     $rows = New-Object System.Collections.Generic.List[object]
@@ -353,6 +530,7 @@ function Get-CommanderUnitRows {
 
         $rows.Add([pscustomobject]@{
                 Id = $record.Id
+                NameZhCN = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -UnitId $record.Id
                 Parent = $record.Parent
                 Category = Get-UnitCategory -UnitIndex $UnitIndex -UnitId $record.Id
                 Tags = Get-UnitTags -UnitIndex $UnitIndex -UnitId $record.Id
@@ -434,7 +612,9 @@ foreach ($shortId in (Get-CommanderOrder)) {
     }
 
     $commander = $commandersByShortId[$shortId]
-    $rows = @(Get-CommanderUnitRows -CommanderRecord $commander -UnitIndex $unitIndex)
+    $localizedPaths = Get-LocalizedNameFileCandidates -WorkspaceRoot $workspaceRoot -CommanderShortId $shortId
+    $localizedNames = Import-LocalizedUnitNames -Paths $localizedPaths
+    $rows = @(Get-CommanderUnitRows -CommanderRecord $commander -UnitIndex $unitIndex -LocalizedNames $localizedNames)
     $buildingCount = @($rows | Where-Object { $_.Category -eq "Building" }).Count
     $unitCount = @($rows | Where-Object { $_.Category -eq "Unit" }).Count
     $variantCount = @($rows | Where-Object { $_.Category -eq "Variant" }).Count
@@ -444,12 +624,13 @@ foreach ($shortId in (Get-CommanderOrder)) {
     $lines.Add("") | Out-Null
     $lines.Add(("Counts: buildings {0}, units {1}, variants {2}, support {3}." -f $buildingCount, $unitCount, $variantCount, $supportCount)) | Out-Null
     $lines.Add("") | Out-Null
-    $lines.Add("| Catalog ID | Category | Parent | Tags | Source Files |") | Out-Null
-    $lines.Add("| --- | --- | --- | --- | --- |") | Out-Null
+    $lines.Add("| Catalog ID | Name ZH | Category | Parent | Tags | Source Files |") | Out-Null
+    $lines.Add("| --- | --- | --- | --- | --- | --- |") | Out-Null
     foreach ($row in $rows) {
         $lines.Add((
-                "| `{0}` | {1} | `{2}` | {3} | `{4}` |" -f
+                "| `{0}` | {1} | {2} | `{3}` | {4} | `{5}` |" -f
                 (Escape-MarkdownCell $row.Id),
+                (Escape-MarkdownCell $row.NameZhCN),
                 (Escape-MarkdownCell $row.Category),
                 (Escape-MarkdownCell $row.Parent),
                 (Escape-MarkdownCell $row.Tags),
