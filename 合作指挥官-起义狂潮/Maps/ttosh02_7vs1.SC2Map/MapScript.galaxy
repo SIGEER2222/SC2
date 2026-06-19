@@ -95,6 +95,7 @@ int gv_protossThreatLevel;
 int gv_statSCVsLost;
 unit gv_victoryTerrazine;
 bool gv_victoryCinematicCompleted;
+int gv_ttoshEnemyAttackStage;
 
 void InitGlobals () {
     gv_protossPlayerGroup = PlayerGroupEmpty();
@@ -105,6 +106,7 @@ void InitGlobals () {
     gv_probeHarvesters = UnitGroupEmpty();
     gv_protossThreatLevel = 1;
     gv_victoryTerrazine = UnitFromId(311);
+    gv_ttoshEnemyAttackStage = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2408,21 +2410,51 @@ bool gt_ToshAttackWaves_Func (bool testConds, bool runActions) {
     AIAttackWaveSend(lv_aI, 180, true);
     while (true) {
         Wait(1.0, c_timeGame);
+        if ((GameGetMissionTime() >= 1200.0)) {
+            gv_ttoshEnemyAttackStage = 3;
+        }
+        else if ((GameGetMissionTime() >= 900.0)) {
+            gv_ttoshEnemyAttackStage = 2;
+        }
+        else if ((GameGetMissionTime() >= 600.0)) {
+            gv_ttoshEnemyAttackStage = 1;
+        }
+        else {
+            gv_ttoshEnemyAttackStage = 0;
+        }
         AIAttackWaveAddUnits4(3, 3, 4, 5, "Goliath");
         AIAttackWaveAddUnits4(2, 2, 2, 3, "Medic");
         AIAttackWaveAddUnits4(3, 3, 4, 5, "Spectre");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "Raven");
-        AIAttackWaveSend(lv_aI, 140, true);
+        if ((gv_ttoshEnemyAttackStage >= 2)) {
+            AIAttackWaveAddUnits4(1, 1, 2, 2, "SiegeTank");
+        }
+        if ((gv_ttoshEnemyAttackStage >= 3)) {
+            AIAttackWaveAddUnits4(2, 2, 3, 4, "Reaper");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(140, 140, 120, 120), true);
         AIAttackWaveAddUnits4(3, 3, 3, 4, "Goliath");
         AIAttackWaveAddUnits4(6, 6, 7, 8, "Wraith");
         AIAttackWaveAddUnits4(2, 2, 2, 2, "Spectre");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "Raven");
-        AIAttackWaveSend(lv_aI, 140, true);
+        if ((gv_ttoshEnemyAttackStage >= 1)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 2, "Banshee");
+        }
+        if ((gv_ttoshEnemyAttackStage >= 3)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 1, "Battlecruiser");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(140, 140, 120, 120), true);
         AIAttackWaveAddUnits4(7, 7, 8, 10, "Reaper");
         AIAttackWaveAddUnits4(3, 3, 3, 4, "Goliath");
         AIAttackWaveAddUnits4(3, 3, 3, 4, "Medic");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "Raven");
-        AIAttackWaveSend(lv_aI, 140, true);
+        if ((gv_ttoshEnemyAttackStage >= 1)) {
+            AIAttackWaveAddUnits4(1, 1, 2, 2, "Diamondback");
+        }
+        if ((gv_ttoshEnemyAttackStage >= 2)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 1, "ScienceVessel");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(140, 140, 120, 120), true);
     }
     return true;
 }
@@ -3951,43 +3983,43 @@ bool gt_P2AttackWaves_Func (bool testConds, bool runActions) {
 
     AIAttackWaveSetTargetPlayer(lv_aI, PlayerGroupAlliance(c_playerGroupEnemy, lv_aI));
     AIAttackWaveSetGatherPoint(lv_aI, PointFromId(22));
-    Wait(780.0, c_timeGame);
+    Wait(600.0, c_timeGame);
     AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
     AIAttackWaveAddUnits4(7, 7, 8, 10, "Zealot");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Immortal");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
     AIAttackWaveAddUnits4(2, 2, 3, 4, "Scout");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Sentry");
     AIAttackWaveAddUnits4(2, 2, 3, 4, "Stalker");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
     AIAttackWaveAddUnits4(6, 6, 7, 8, "Zealot");
     AIAttackWaveAddUnits4(2, 2, 3, 4, "DarkTemplarTaldarim");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "VoidRay");
     AIAttackWaveAddUnits4(1, 1, 1, 1, "Observer");
     AIAttackWaveAddUnits4(0, 0, 1, 1, "HighTemplar");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
     AIAttackWaveAddUnits4(6, 6, 7, 8, "Zealot");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "ImmortalTaldarim");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Sentry");
     AIAttackWaveAddUnits4(3, 3, 4, 5, "Stalker");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
     AIAttackWaveAddUnits4(8, 8, 9, 10, "Zealot");
     AIAttackWaveAddUnits4(1, 1, 1, 1, "Observer");
     AIAttackWaveAddUnits4(3, 3, 4, 5, "Scout");
     AIAttackWaveAddUnits4(2, 2, 2, 3, "Sentry");
     AIAttackWaveAddUnits4(2, 2, 2, 3, "Archon");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
     AIAttackWaveAddUnits4(4, 4, 5, 6, "Stalker");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Colossus");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Monitor");
     AIAttackWaveAddUnits4(2, 2, 3, 4, "Adept");
     AIAttackWaveAddUnits4(3, 3, 4, 5, "DarkTemplarTaldarim");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     while (true) {
         Wait(1.0, c_timeGame);
         AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
@@ -3997,21 +4029,27 @@ bool gt_P2AttackWaves_Func (bool testConds, bool runActions) {
         AIAttackWaveAddUnits4(2, 2, 3, 3, "Scout");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "Observer");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "HighTemplar");
-        AIAttackWaveSend(lv_aI, 180, true);
+        if ((GameGetMissionTime() >= 900.0)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 2, "Tempest");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
         AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
         AIAttackWaveAddUnits4(8, 8, 10, 12, "Zealot");
         AIAttackWaveAddUnits4(1, 1, 1, 2, "ImmortalTaldarim");
         AIAttackWaveAddUnits4(2, 2, 3, 4, "Adept");
         AIAttackWaveAddUnits4(1, 1, 1, 2, "Sentry");
         AIAttackWaveAddUnits4(3, 3, 4, 5, "Stalker");
-        AIAttackWaveSend(lv_aI, 180, true);
+        if ((GameGetMissionTime() >= 1200.0)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 1, "Carrier");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
         AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
         AIAttackWaveAddUnits4(8, 8, 9, 10, "Zealot");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "Observer");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "HighTemplarTaldarim");
         AIAttackWaveAddUnits4(3, 3, 4, 5, "Scout");
         AIAttackWaveAddUnits4(2, 2, 3, 4, "Archon");
-        AIAttackWaveSend(lv_aI, 180, true);
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
         AIAttackWaveAddWaypoint(lv_aI, gv_waypointArrayAttackers[RandomInt(0, 2)], false);
         AIAttackWaveAddUnits4(4, 4, 5, 6, "Stalker");
         AIAttackWaveAddUnits4(1, 1, 1, 2, "Colossus");
@@ -4019,7 +4057,10 @@ bool gt_P2AttackWaves_Func (bool testConds, bool runActions) {
         AIAttackWaveAddUnits4(1, 1, 1, 1, "HighTemplar");
         AIAttackWaveAddUnits4(2, 2, 2, 3, "VoidRayTaldarim");
         AIAttackWaveAddUnits4(3, 3, 4, 5, "DarkTemplarTaldarim");
-        AIAttackWaveSend(lv_aI, 180, true);
+        if ((GameGetMissionTime() >= 1200.0)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 1, "Tempest");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
     }
     return true;
 }
@@ -4153,15 +4194,24 @@ bool gt_P6AttackWaves_Func (bool testConds, bool runActions) {
         AIAttackWaveAddUnits4(4, 4, 5, 6, "DarkTemplarTaldarim");
         AIAttackWaveAddUnits4(1, 1, 1, 2, "Sentry");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "Observer");
-        AIAttackWaveSend(lv_aI, 180, true);
+        if ((GameGetMissionTime() >= 900.0)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 2, "VoidRay");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(180, 180, 150, 150), true);
         AIAttackWaveAddUnits4(7, 7, 8, 10, "Zealot");
         AIAttackWaveAddUnits4(2, 2, 2, 3, "Adept");
         AIAttackWaveAddUnits4(2, 2, 3, 3, "Sentry");
-        AIAttackWaveSend(lv_aI, 180, true);
+        if ((GameGetMissionTime() >= 1200.0)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 1, "Immortal");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(180, 180, 150, 150), true);
         AIAttackWaveAddUnits4(5, 5, 6, 7, "Stalker");
         AIAttackWaveAddUnits4(1, 1, 1, 2, "Monitor");
         AIAttackWaveAddUnits4(2, 2, 3, 3, "DarkTemplarTaldarim");
-        AIAttackWaveSend(lv_aI, 180, true);
+        if ((GameGetMissionTime() >= 1200.0)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 1, "VoidRayTaldarim");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(180, 180, 150, 150), true);
     }
     return true;
 }
@@ -4192,43 +4242,52 @@ bool gt_P7AttackWaves_Func (bool testConds, bool runActions) {
     Wait(600.0, c_timeGame);
     AIAttackWaveAddUnits4(7, 7, 8, 10, "Zealot");
     AIAttackWaveAddUnits4(2, 2, 3, 3, "Scout");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     AIAttackWaveAddUnits4(1, 1, 1, 2, "VoidRay");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Sentry");
     AIAttackWaveAddUnits4(2, 2, 3, 4, "Stalker");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     AIAttackWaveAddUnits4(8, 8, 10, 12, "Zealot");
     AIAttackWaveAddUnits4(2, 2, 3, 4, "Scout");
     AIAttackWaveAddUnits4(0, 0, 0, 1, "Tempest");
     AIAttackWaveAddUnits4(1, 1, 1, 1, "Observer");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     AIAttackWaveAddUnits4(6, 6, 7, 8, "Zealot");
     AIAttackWaveAddUnits4(2, 2, 3, 4, "VoidRayTaldarim");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Monitor");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     AIAttackWaveAddUnits4(5, 5, 6, 7, "Scout");
     AIAttackWaveAddUnits4(2, 2, 3, 4, "Stalker");
     AIAttackWaveAddUnits4(1, 1, 1, 1, "Observer");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     AIAttackWaveAddUnits4(8, 8, 10, 12, "Zealot");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Tempest");
     AIAttackWaveAddUnits4(1, 1, 1, 2, "Monitor");
-    AIAttackWaveSend(lv_aI, 180, true);
+    AIAttackWaveSend(lv_aI, 150, true);
     while (true) {
         Wait(1.0, c_timeGame);
         AIAttackWaveAddUnits4(10, 10, 12, 14, "Zealot");
         AIAttackWaveAddUnits4(2, 2, 3, 4, "VoidRayTaldarim");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "Carrier");
-        AIAttackWaveSend(lv_aI, 180, true);
+        if ((GameGetMissionTime() >= 900.0)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 2, "Tempest");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
         AIAttackWaveAddUnits4(5, 5, 6, 8, "Scout");
         AIAttackWaveAddUnits4(4, 4, 5, 6, "Stalker");
         AIAttackWaveAddUnits4(1, 1, 1, 1, "Observer");
-        AIAttackWaveSend(lv_aI, 180, true);
+        if ((GameGetMissionTime() >= 1200.0)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 1, "Carrier");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
         AIAttackWaveAddUnits4(8, 8, 10, 12, "Zealot");
         AIAttackWaveAddUnits4(1, 1, 1, 2, "Tempest");
         AIAttackWaveAddUnits4(2, 2, 3, 4, "Stalker");
         AIAttackWaveAddUnits4(1, 1, 1, 2, "Monitor");
-        AIAttackWaveSend(lv_aI, 180, true);
+        if ((GameGetMissionTime() >= 1200.0)) {
+            AIAttackWaveAddUnits4(1, 1, 1, 2, "Carrier");
+        }
+        AIAttackWaveSend(lv_aI, libNtve_gf_DifficultyValueInt(150, 150, 120, 120), true);
     }
     return true;
 }

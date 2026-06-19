@@ -13537,6 +13537,25 @@ void libA070801C_gt_CT_StructureStealUnitTrained_Init () {
 //--------------------------------------------------------------------------------------------------
 // Trigger: CT_GiftFightSpawn
 //--------------------------------------------------------------------------------------------------
+point libA070801C_gf_CT_GiftFindPlayerBaseSpawnPoint (int lp_player, fixed lp_minDistance, fixed lp_maxDistance, int lp_maxAttempts) {
+    point lv_spawnLocation;
+    int lv_spawnAttempt;
+    fixed lv_angle;
+    fixed lv_distance;
+
+    lv_spawnAttempt = 1;
+    while (lv_spawnAttempt <= lp_maxAttempts) {
+        lv_angle = RandomFixed(0.0, 360.0);
+        lv_distance = RandomFixed(lp_minDistance, lp_maxDistance);
+        lv_spawnLocation = PointWithOffsetPolar(PlayerStartLocation(lp_player), lv_distance, lv_angle);
+        if ((PointPathingIsConnected(lv_spawnLocation, PlayerStartLocation(lp_player)) == true) && (PathingType(lv_spawnLocation) == c_pathingGround) && (UnitGroupCount(UnitGroup(null, c_playerAny, RegionCircle(lv_spawnLocation, libA070801C_gv_cTC_GiftCaptureRadius), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 1), c_unitCountAlive) <= 0)) {
+            return lv_spawnLocation;
+        }
+        lv_spawnAttempt += 1;
+    }
+    return null;
+}
+
 bool libA070801C_gt_CT_GiftFightSpawn_Func (bool testConds, bool runActions) {
     // Variable Declarations
     timer lv_spawnTimer;
@@ -13560,14 +13579,20 @@ bool libA070801C_gt_CT_GiftFightSpawn_Func (bool testConds, bool runActions) {
         while (!((TimerGetRemaining(lv_spawnTimer) <= 0.0))) {
             Wait(1.0, c_timeGame);
         }
-        lv_spawnAttempt = 1;
-        for ( ; ( (auto1E1E9A87_ai >= 0 && lv_spawnAttempt <= auto1E1E9A87_ae) || (auto1E1E9A87_ai < 0 && lv_spawnAttempt >= auto1E1E9A87_ae) ) ; lv_spawnAttempt += auto1E1E9A87_ai ) {
-            lv_spawnLocation = RegionRandomPoint(RegionPlayableMap());
-            if ((PointPathingIsConnected(lv_spawnLocation, PlayerStartLocation(1)) == true) && (PathingType(lv_spawnLocation) == c_pathingGround) && (DistanceBetweenPoints(lv_spawnLocation, PlayerStartLocation(1)) >= 40.0) && (UnitGroupCount(UnitGroup(null, c_playerAny, RegionCircle(lv_spawnLocation, libA070801C_gv_cTC_GiftCaptureRadius), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 1), c_unitCountAlive) <= 0)) {
-                break;
-            }
-            else {
-                lv_spawnLocation = null;
+        lv_spawnLocation = null;
+        if ((GameGetMissionTime() < 600.0)) {
+            lv_spawnLocation = libA070801C_gf_CT_GiftFindPlayerBaseSpawnPoint(1, 16.0, 28.0, 128);
+        }
+        if ((lv_spawnLocation == null)) {
+            lv_spawnAttempt = 1;
+            for ( ; ( (auto1E1E9A87_ai >= 0 && lv_spawnAttempt <= auto1E1E9A87_ae) || (auto1E1E9A87_ai < 0 && lv_spawnAttempt >= auto1E1E9A87_ae) ) ; lv_spawnAttempt += auto1E1E9A87_ai ) {
+                lv_spawnLocation = RegionRandomPoint(RegionPlayableMap());
+                if ((PointPathingIsConnected(lv_spawnLocation, PlayerStartLocation(1)) == true) && (PathingType(lv_spawnLocation) == c_pathingGround) && (DistanceBetweenPoints(lv_spawnLocation, PlayerStartLocation(1)) >= 40.0) && (UnitGroupCount(UnitGroup(null, c_playerAny, RegionCircle(lv_spawnLocation, libA070801C_gv_cTC_GiftCaptureRadius), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 1), c_unitCountAlive) <= 0)) {
+                    break;
+                }
+                else {
+                    lv_spawnLocation = null;
+                }
             }
         }
         if ((lv_spawnLocation == null)) {
