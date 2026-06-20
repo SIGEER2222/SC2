@@ -1,3 +1,23 @@
+void libE0EAE146_gf_StetmannAllowAbilityIfPresent (int lp_player, string lp_abil, int lp_cmdIndex) {
+    if ((lp_abil == "") || (!CatalogEntryIsValid(c_gameCatalogAbil, lp_abil))) {
+        return;
+    }
+    TechTreeAbilityAllow(lp_player, AbilityCommand(lp_abil, lp_cmdIndex), true);
+}
+
+void libE0EAE146_gf_StetmannApplyPrestigePenaltyBypass (int lp_player) {
+    int lv_prestigeMask;
+
+    lv_prestigeMask = libE0EAE146_gf_CommanderPowerPrestigeMask("Stetmann");
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 0) == true) {
+        libE0EAE146_gf_StetmannAllowAbilityIfPresent(lp_player, "MorphToSuperGaryStetmann", 0);
+    }
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 2) == true) {
+        libE0EAE146_gf_StetmannAllowAbilityIfPresent(lp_player, "InfestationPitStetmannResearch2", 0);
+        libE0EAE146_gf_StetmannAllowAbilityIfPresent(lp_player, "InfestationPitStetmannResearch2", 1);
+    }
+}
+
 void libE0EAE146_gf_StetmannRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     int lv_prestigeMask;
 
@@ -7,6 +27,7 @@ void libE0EAE146_gf_StetmannRuntimeInit (int lp_player, point lp_heroPoint, bool
 
     libE0EAE146_gv_stetmannRuntimeInitialized = true;
     lv_prestigeMask = libE0EAE146_gf_CommanderPowerPrestigeMask("Stetmann");
+    libE0EAE146_gf_StetmannApplyPrestigePenaltyBypass(lp_player);
     if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 2) == true) {
         PlayerAddResponse(lp_player, "CommanderPrestigeStetmannCombatBuff");
     }
