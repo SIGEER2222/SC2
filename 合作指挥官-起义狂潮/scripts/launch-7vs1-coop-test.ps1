@@ -772,7 +772,9 @@ function Test-WorkspaceModDependency {
 
     $normalized = $Dependency.Replace('\', '/').ToLowerInvariant()
     return ($normalized -like 'file:mods/7vs1/*.sc2mod') -or
-        ($normalized -eq 'file:mods/kit_mutations.sc2mod')
+        ($normalized -eq 'file:mods/kit_mutations.sc2mod') -or
+        ($normalized -eq 'file:mods/starcoop/starcoop.sc2mod') -or
+        ($normalized -like 'file:mods/starcoop/commanders/*.sc2mod')
 }
 
 function Assert-SupportedWorkspaceModDependency {
@@ -780,7 +782,7 @@ function Assert-SupportedWorkspaceModDependency {
 
     if ((Test-AnyLocalModDependency -Dependency $Dependency) -and
         (-not (Test-WorkspaceModDependency -Dependency $Dependency))) {
-        throw "Unsupported workspace dependency '$Dependency'. 7vs1 smoke/install only allows file:Mods/7vs1/*.SC2Mod and file:Mods/kit_mutations.SC2Mod. Remove stale unsupported local mod references from DocumentInfo."
+        throw "Unsupported workspace dependency '$Dependency'. 7vs1 smoke/install only allows file:Mods/7vs1/*.SC2Mod, file:Mods/kit_mutations.SC2Mod, and file:Mods/StarCoop/*.SC2Mod dependencies. Remove stale unsupported local mod references from DocumentInfo."
     }
 }
 
@@ -807,6 +809,35 @@ function Convert-DependencyToRelativePath {
     return $Dependency.Substring(5).Replace('/', '\')
 }
 
+function Resolve-UnpackedStarCoopDependencySource {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Dependency,
+        [Parameter(Mandatory = $true)]
+        [string]$WorkspaceRoot
+    )
+
+    $normalized = $Dependency.Replace('\', '/').ToLowerInvariant()
+    $sourceName = switch ($normalized) {
+        'file:mods/starcoop/starcoop.sc2mod' { 'Co-op Mission_StarCoop.SC2Mod'; break }
+        'file:mods/starcoop/commanders/arcturusmengsk.sc2mod' { 'Co-op Mission_ArcturusMengsk.SC2Mod'; break }
+        'file:mods/starcoop/commanders/egonstetmann.sc2mod' { 'Co-op Mission_EgonStetmann.SC2Mod'; break }
+        default { '' }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($sourceName)) {
+        return ''
+    }
+
+    $repoRoot = Split-Path -Parent $WorkspaceRoot
+    $sourcePath = Join-Path (Join-Path $repoRoot "解包数据") $sourceName
+    if (Test-Path -LiteralPath $sourcePath) {
+        return $sourcePath
+    }
+
+    return ''
+}
+
 function Resolve-WorkspaceDependencySource {
     param(
         [Parameter(Mandatory = $true)]
@@ -814,6 +845,11 @@ function Resolve-WorkspaceDependencySource {
         [Parameter(Mandatory = $true)]
         [string]$WorkspaceRoot
     )
+
+    $unpackedStarCoopSource = Resolve-UnpackedStarCoopDependencySource -Dependency $Dependency -WorkspaceRoot $WorkspaceRoot
+    if (-not [string]::IsNullOrWhiteSpace($unpackedStarCoopSource)) {
+        return $unpackedStarCoopSource
+    }
 
     $relativePath = Convert-DependencyToRelativePath -Dependency $Dependency
     $sourcePath = Join-Path $WorkspaceRoot $relativePath

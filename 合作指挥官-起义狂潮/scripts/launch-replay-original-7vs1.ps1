@@ -5,6 +5,7 @@ param(
     [string]$LiveMapName = "ReplayOriginal7vs1.SC2Map",
     [string]$LiveModName = "ReplayOriginal7vs1.SC2Mod",
     [string]$OfficialMirrorRoot = "",
+    [string]$UnpackedCoopRoot = "",
     [switch]$NoLaunch
 )
 
@@ -88,6 +89,18 @@ function Replace-InFile {
     Set-Content -LiteralPath $Path -Value $updated -Encoding utf8
 }
 
+function Resolve-UnpackedCoopRoot {
+    param([string]$ConfiguredRoot)
+
+    if (-not [string]::IsNullOrWhiteSpace($ConfiguredRoot)) {
+        return $ConfiguredRoot
+    }
+
+    $workspaceRoot = Split-Path -Parent $PSScriptRoot
+    $repoRoot = Split-Path -Parent $workspaceRoot
+    return (Join-Path $repoRoot "解包数据")
+}
+
 function Stop-RunningSc2 {
     foreach ($processName in @("SC2_x64", "SC2Switcher_x64", "BlizzardError")) {
         foreach ($proc in @(Get-Process -Name $processName -ErrorAction SilentlyContinue)) {
@@ -138,9 +151,10 @@ $liveMapPath = Join-Path (Join-Path $Sc2Root "Maps\ReplayOriginal7vs1") $LiveMap
 $liveModPath = Join-Path $Sc2Root ("Mods\{0}" -f $LiveModName)
 $liveAlliedCommandersPath = Join-Path $Sc2Root "Mods\ReplayOriginal7vs1_AlliedCommanders.SC2Mod"
 $officialVoidMultiSource = Join-Path $OfficialMirrorRoot "voidmulti.sc2mod"
-$officialStarCoopSource = Join-Path $OfficialMirrorRoot "starcoop\starcoop.sc2mod"
-$officialMengskSource = Join-Path $OfficialMirrorRoot "starcoop\commanders\arcturusmengsk.sc2mod"
-$officialStetmannSource = Join-Path $OfficialMirrorRoot "starcoop\commanders\egonstetmann.sc2mod"
+$resolvedUnpackedCoopRoot = Resolve-UnpackedCoopRoot -ConfiguredRoot $UnpackedCoopRoot
+$starCoopSource = Join-Path $resolvedUnpackedCoopRoot "Co-op Mission_StarCoop.SC2Mod"
+$mengskSource = Join-Path $resolvedUnpackedCoopRoot "Co-op Mission_ArcturusMengsk.SC2Mod"
+$stetmannSource = Join-Path $resolvedUnpackedCoopRoot "Co-op Mission_EgonStetmann.SC2Mod"
 $liveVoidMultiPath = Join-Path $Sc2Root "Mods\VoidMulti.SC2Mod"
 $liveStarCoopPath = Join-Path $Sc2Root "Mods\StarCoop\StarCoop.SC2Mod"
 $liveMengskPath = Join-Path $Sc2Root "Mods\StarCoop\Commanders\ArcturusMengsk.SC2Mod"
@@ -164,12 +178,12 @@ if (-not (Test-Path -LiteralPath (Join-Path $alliedCommandersSource "DocumentInf
 
 foreach ($dependencySource in @(
     $officialVoidMultiSource,
-    $officialStarCoopSource,
-    $officialMengskSource,
-    $officialStetmannSource
+    $starCoopSource,
+    $mengskSource,
+    $stetmannSource
 )) {
     if (-not (Test-Path -LiteralPath $dependencySource)) {
-        throw "Missing required official dependency source: $dependencySource"
+        throw "Missing required dependency source: $dependencySource"
     }
 }
 
@@ -179,9 +193,9 @@ Copy-DirectoryClean -Source $mapSource -Destination $liveMapPath
 Copy-DirectoryClean -Source $modSource -Destination $liveModPath
 Copy-DirectoryClean -Source $alliedCommandersSource -Destination $liveAlliedCommandersPath
 Copy-DirectoryClean -Source $officialVoidMultiSource -Destination $liveVoidMultiPath
-Copy-DirectoryClean -Source $officialStarCoopSource -Destination $liveStarCoopPath
-Copy-DirectoryClean -Source $officialMengskSource -Destination $liveMengskPath
-Copy-DirectoryClean -Source $officialStetmannSource -Destination $liveStetmannPath
+Copy-DirectoryClean -Source $starCoopSource -Destination $liveStarCoopPath
+Copy-DirectoryClean -Source $mengskSource -Destination $liveMengskPath
+Copy-DirectoryClean -Source $stetmannSource -Destination $liveStetmannPath
 
 $liveMapDocInfo = Join-Path $liveMapPath "DocumentInfo"
 $liveModDocInfo = Join-Path $liveModPath "DocumentInfo"
