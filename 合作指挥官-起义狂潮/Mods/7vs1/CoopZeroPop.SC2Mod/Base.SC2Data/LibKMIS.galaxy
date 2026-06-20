@@ -21555,7 +21555,11 @@ bool libKMIS_gt_CM_SoATargetingPointChosen_Func (bool testConds, bool runActions
         UnitIssueOrder(libKMIS_gv_cM_SoACasterUnit[lv_casterPlayer], OrderTargetingPoint(libKMIS_gv_cM_SoATargetingExecuteCommand[lv_casterPlayer], lv_targetPoint), c_orderQueueAddToEnd);
         libKCUI_gf_CU_TargetingSetCharges((libKMIS_gv_cM_SoATargetingChargesTotal[lv_casterPlayer]-libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]), libKMIS_gv_cM_SoATargetingChargesTotal[lv_casterPlayer], lv_casterPlayer);
         if ((libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer] == libKMIS_gv_cM_SoATargetingChargesTotal[lv_casterPlayer])) {
+            libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lv_casterPlayer] = true;
+            UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoACasterGroup[lv_casterPlayer], null, false);
+            UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoATargetingDirectionGroup[lv_casterPlayer], null, false);
             Wait(0.125, c_timeGame);
+            UnitIssueOrder(libKMIS_gv_cM_SoACasterUnit[lv_casterPlayer], Order(AbilityCommand(libKMIS_gv_cM_SoATargetingActivateAbility[lv_casterPlayer], 1)), c_orderQueueAddToEnd);
             UnitBehaviorRemove(libKMIS_gv_cM_SoACasterUnit[lv_casterPlayer], libKMIS_gv_cM_SoATargetingBehavior[lv_casterPlayer], 1);
         }
         else {
@@ -21693,6 +21697,10 @@ bool libKMIS_gt_CM_SoATargetingCancel_Func (bool testConds, bool runActions) {
         }
 
         if (!(((EventTargetModeAbilCmd() == AbilityCommand("SOAOrbitalStrikeTargetingDummy", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("SOAOrbitalStrikeKarax", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("SOAThermalLanceTargetingDummy", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("SOAGravitonBomb", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("SOAThermalLanceExecute", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("NovaGriffinBombingRunExecute", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("NovaGriffinBombingRunTargetingDummy", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("HornerAirFleetExecute", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("HornerAirFleetTargetingDummy", 0))))) {
+            return false;
+        }
+
+        if (!((libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[EventPlayer()] == false))) {
             return false;
         }
 

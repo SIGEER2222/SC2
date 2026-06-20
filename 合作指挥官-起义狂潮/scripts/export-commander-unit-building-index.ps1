@@ -118,27 +118,66 @@ function Get-AdditionalUnitCatalogPaths {
 
     $paths = New-Object System.Collections.Generic.List[string]
     $semanticRoot = Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137"
+    $fixedPaths = @(
+        (Join-Path $WorkspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\GameData\UnitData.xml"),
+        (Join-Path $semanticRoot "s2ma_packages\pkg01\extract\base.sc2data\GameData\Commanders\FutureCommanders.xml")
+    )
 
-    foreach ($relativePath in @(
-            "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\GameData\UnitData.xml",
-            "s2ma_packages\pkg01\extract\base.sc2data\GameData\Commanders\FutureCommanders.xml",
-            "_semantic-game-data-by-commander\Mengsk\s2ma_packages\pkg01\extract\base.sc2data\GameData\UnitData.xml",
-            "_semantic-game-data-by-commander-v2\_shared\s2ma_packages\pkg01\extract\base.sc2data\GameData\UnitData.xml",
-            "_semantic-game-data-by-commander-v2\_shared\s2ma_packages\pkg02\extract\Base.SC2Data\GameData\UnitData.xml",
-            "_semantic-game-data-by-commander-v2\_shared\s2ma_packages\pkg03\extract\Base.SC2Data\GameData\UnitData.xml"
-        )) {
-        if ($relativePath.StartsWith("Mods\", [System.StringComparison]::OrdinalIgnoreCase)) {
-            $candidate = Join-Path $WorkspaceRoot $relativePath
-        }
-        else {
-            $candidate = Join-Path $semanticRoot $relativePath
-        }
+    foreach ($candidate in @($fixedPaths)) {
         if ((Test-Path -LiteralPath $candidate) -and (-not $paths.Contains($candidate))) {
             $paths.Add($candidate) | Out-Null
         }
     }
 
+    foreach ($semanticDirectory in @(
+            (Join-Path $semanticRoot "_semantic-game-data-by-commander"),
+            (Join-Path $semanticRoot "_semantic-game-data-by-commander-v2")
+        )) {
+        if (-not (Test-Path -LiteralPath $semanticDirectory)) {
+            continue
+        }
+
+        $semanticPaths = @(Get-ChildItem -LiteralPath $semanticDirectory -Recurse -Filter "UnitData*.xml" -File -ErrorAction SilentlyContinue |
+                Sort-Object FullName |
+                Select-Object -ExpandProperty FullName)
+        foreach ($candidate in $semanticPaths) {
+            if (-not $paths.Contains($candidate)) {
+                $paths.Add($candidate) | Out-Null
+            }
+        }
+    }
+
     return @($paths)
+}
+
+function Get-UnitCatalogSourceName {
+    param(
+        [string]$Path,
+        [string]$WorkspaceRoot
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        return ""
+    }
+
+    $semanticRoots = @(
+        (Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137\_semantic-game-data-by-commander"),
+        (Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137\_semantic-game-data-by-commander-v2")
+    )
+
+    foreach ($semanticRoot in $semanticRoots) {
+        if (-not [string]::IsNullOrWhiteSpace($semanticRoot) -and $Path.StartsWith($semanticRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $relativePath = $Path.Substring($semanticRoot.Length).TrimStart('\', '/')
+            $parts = @($relativePath -split '[\\/]+')
+            if ($parts.Count -gt 0) {
+                $owner = [string]$parts[0]
+                $tag = if ($semanticRoot.EndsWith("_v2", [System.StringComparison]::OrdinalIgnoreCase)) { "SemanticV2" } else { "Semantic" }
+                return "{0}_{1}_{2}" -f $tag, $owner, (Split-Path -Leaf $Path)
+            }
+        }
+    }
+
+    return (Split-Path -Leaf $Path)
 }
 
 function New-StringSet {
@@ -937,7 +976,7 @@ function Get-DedicatedSourceOwners {
             continue
         }
 
-        if ($sourceName -match '^UnitData_([A-Za-z0-9]+)\.xml$') {
+        if ($sourceName -match '^(?:UnitData|Semantic|SemanticV2)_([A-Za-z0-9]+)_') {
             $candidate = [string]$matches[1]
             if ($candidate -notmatch '^Shared') {
                 Add-SetValue -Set $owners -Value $candidate
@@ -1464,9 +1503,10 @@ function Get-CommanderUnitRows {
     foreach ($record in $UnitIndex.Values) {
         $include = $false
         $dedicatedOwners = @(Get-DedicatedSourceOwners -SourceNames @($record.Sources))
-        $hasForeignDedicatedOwner = (@($dedicatedOwners).Count -gt 0) -and (-not (@($dedicatedOwners) -contains [string]$CommanderRecord.official_short_id))
+        $hasCommanderDedicatedOwner = @($dedicatedOwners) -contains [string]$CommanderRecord.official_short_id
+        $hasForeignDedicatedOwner = (@($dedicatedOwners).Count -gt 0) -and (-not $hasCommanderDedicatedOwner)
 
-        if (@($record.Sources) -contains $dedicatedFile) {
+        if (@($record.Sources) -contains $dedicatedFile -or $hasCommanderDedicatedOwner) {
             $include = $true
         }
         else {
@@ -1541,7 +1581,7 @@ $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
 $unitIndex = @{}
 foreach ($path in $unitPaths) {
     [xml]$xml = Get-Content -LiteralPath $path -Encoding UTF8 -Raw
-    $sourceName = Split-Path -Leaf $path
+    $sourceName = Get-UnitCatalogSourceName -Path $path -WorkspaceRoot $workspaceRoot
     foreach ($node in @($xml.SelectNodes("/Catalog/CUnit[@id]"))) {
         $id = [string]$node.id
         if ([string]::IsNullOrWhiteSpace($id)) {
@@ -1581,8 +1621,8 @@ $lines.Add("# Commander Unit And Building Index") | Out-Null
 $lines.Add("") | Out-Null
 $lines.Add(("Generated: {0}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"))) | Out-Null
 $lines.Add("") | Out-Null
-$lines.Add("Source: local `CommanderCatalog.SC2Mod/Base.SC2Data/GameData/UnitData*.xml` files in this repository.") | Out-Null
-$lines.Add("Rule: prefer commander-specific `UnitData_<Commander>.xml` entries, then supplement with shared-file units that carry commander-specific XML markers or curated shared-tech baselines.") | Out-Null
+$lines.Add("Source: local `CommanderCatalog.SC2Mod/Base.SC2Data/GameData/UnitData*.xml` files plus semantic commander package `UnitData*.xml` files in this repository.") | Out-Null
+$lines.Add("Rule: prefer commander-specific `UnitData_<Commander>.xml` entries and semantic commander package sources, then supplement with shared-file units that carry commander-specific XML markers or curated shared-tech baselines.") | Out-Null
 $lines.Add("") | Out-Null
 
 foreach ($shortId in (Get-CommanderOrder)) {
