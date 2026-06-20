@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$OutputPath = ""
 )
@@ -113,6 +113,34 @@ function Get-LocalizedNameFileCandidates {
     return @($paths)
 }
 
+function Get-AdditionalUnitCatalogPaths {
+    param([string]$WorkspaceRoot)
+
+    $paths = New-Object System.Collections.Generic.List[string]
+    $semanticRoot = Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137"
+
+    foreach ($relativePath in @(
+            "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\GameData\UnitData.xml",
+            "s2ma_packages\pkg01\extract\base.sc2data\GameData\Commanders\FutureCommanders.xml",
+            "_semantic-game-data-by-commander\Mengsk\s2ma_packages\pkg01\extract\base.sc2data\GameData\UnitData.xml",
+            "_semantic-game-data-by-commander-v2\_shared\s2ma_packages\pkg01\extract\base.sc2data\GameData\UnitData.xml",
+            "_semantic-game-data-by-commander-v2\_shared\s2ma_packages\pkg02\extract\Base.SC2Data\GameData\UnitData.xml",
+            "_semantic-game-data-by-commander-v2\_shared\s2ma_packages\pkg03\extract\Base.SC2Data\GameData\UnitData.xml"
+        )) {
+        if ($relativePath.StartsWith("Mods\", [System.StringComparison]::OrdinalIgnoreCase)) {
+            $candidate = Join-Path $WorkspaceRoot $relativePath
+        }
+        else {
+            $candidate = Join-Path $semanticRoot $relativePath
+        }
+        if ((Test-Path -LiteralPath $candidate) -and (-not $paths.Contains($candidate))) {
+            $paths.Add($candidate) | Out-Null
+        }
+    }
+
+    return @($paths)
+}
+
 function New-StringSet {
     return ,([System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase))
 }
@@ -174,17 +202,812 @@ function Get-CommanderMatchTokens {
             Add-SetValue -Set $tokens -Value "Mira"
         }
         "Stukov" {
-            Add-SetValue -Set $tokens -Value "SI"
+            Add-SetValue -Set $tokens -Value "StukovInfested"
         }
         "Fenix" {
             Add-SetValue -Set $tokens -Value "Purifier"
         }
         "Dehaka" {
-            Add-SetValue -Set $tokens -Value "Primal"
+            Add-SetValue -Set $tokens -Value "DehakaPrimal"
         }
     }
 
     return @($tokens | Sort-Object)
+}
+
+function Get-CommanderSharedUnitIds {
+    param($CommanderRecord)
+
+    if ($null -eq $CommanderRecord) {
+        return @()
+    }
+
+    $commonTerranEconomy = @(
+        "CommandCenter",
+        "Refinery",
+        "SCV",
+        "SupplyDepot"
+    )
+
+    $commonTerranProduction = @(
+        "Armory",
+        "Barracks",
+        "Bunker",
+        "EngineeringBay",
+        "Factory",
+        "FusionCore",
+        "MissileTurret",
+        "SensorTower",
+        "Starport"
+    )
+
+    $commonProtossEconomy = @(
+        "Assimilator",
+        "Nexus",
+        "Probe",
+        "Pylon"
+    )
+
+    $commonZergEconomy = @(
+        "Drone",
+        "Extractor",
+        "Hatchery",
+        "Lair",
+        "Hive",
+        "Larva",
+        "Overlord",
+        "Overseer"
+    )
+
+    $commonZergTech = @(
+        "BanelingNest",
+        "EvolutionChamber",
+        "GreaterSpire",
+        "HydraliskDen",
+        "InfestationPit",
+        "RoachWarren",
+        "SpawningPool",
+        "SpineCrawler",
+        "SporeCrawler",
+        "Spire",
+        "UltraliskCavern"
+    )
+
+    switch ([string]$CommanderRecord.official_short_id) {
+        "Raynor" {
+            return @(
+                $commonTerranEconomy +
+                $commonTerranProduction +
+                @(
+                    "Banshee",
+                    "Battlecruiser",
+                    "Cyclone",
+                    "Firebat",
+                    "Goliath",
+                    "Hellbat",
+                    "Hellion",
+                    "Marauder",
+                    "Marine",
+                    "Medic",
+                    "Reaper",
+                    "SiegeTank",
+                    "SiegeTankSieged",
+                    "VikingAssault",
+                    "VikingFighter",
+                    "Vulture",
+                    "Wraith"
+                )
+            )
+        }
+        "Kerrigan" {
+            return @(
+                $commonZergEconomy +
+                $commonZergTech +
+                @(
+                    "BroodLord",
+                    "BroodLordCocoon",
+                    "Hydralisk",
+                    "HydraliskLurker",
+                    "HydraliskLurkerBurrowed",
+                    "Infestor",
+                    "Mutalisk",
+                    "NydusCanal",
+                    "NydusNetwork",
+                    "OverlordTransport",
+                    "Queen",
+                    "Ravager",
+                    "Roach",
+                    "Ultralisk",
+                    "Zergling"
+                )
+            )
+        }
+        "Artanis" {
+            return @(
+                $commonProtossEconomy +
+                @(
+                    "Carrier",
+                    "CyberneticsCore",
+                    "Dragoon",
+                    "FleetBeacon",
+                    "Forge",
+                    "Gateway",
+                    "HighArchonTemplar",
+                    "HighTemplar",
+                    "Immortal",
+                    "Observer",
+                    "ObserverSiegeMode",
+                    "PhotonCannon",
+                    "Phoenix",
+                    "Reaver",
+                    "RoboticsBay",
+                    "RoboticsFacility",
+                    "Scout",
+                    "SolarForge",
+                    "Stargate",
+                    "Tempest",
+                    "TemplarArchive",
+                    "TwilightCouncil",
+                    "WarpGate",
+                    "WarpPrism",
+                    "WarpPrismPhasing",
+                    "Zealot"
+                )
+            )
+        }
+        "Vorazun" {
+            return @(
+                $commonProtossEconomy +
+                @(
+                    "CorsairMP",
+                    "DarkArchon",
+                    "DarkShrine",
+                    "DarkTemplarShakuras",
+                    "FleetBeacon",
+                    "Forge",
+                    "Gateway",
+                    "Observer",
+                    "Oracle",
+                    "PhotonCannon",
+                    "Scout",
+                    "Stargate",
+                    "TemplarArchive",
+                    "TwilightCouncil",
+                    "VoidRay",
+                    "WarpPrism",
+                    "WarpPrismPhasing",
+                    "WarpGate"
+                )
+            )
+        }
+        "Karax" {
+            return @(
+                $commonProtossEconomy +
+                @(
+                    "Carrier",
+                    "Colossus",
+                    "CyberneticsCore",
+                    "FleetBeacon",
+                    "Forge",
+                    "Gateway",
+                    "Immortal",
+                    "KhaydarinMonolith",
+                    "Observer",
+                    "Phoenix",
+                    "PhotonCannon",
+                    "RoboticsBay",
+                    "RoboticsFacility",
+                    "SentryPhasing",
+                    "ShieldBattery",
+                    "Stargate",
+                    "TwilightCouncil",
+                    "WarpGate",
+                    "WarpPrism",
+                    "ZealotPurifier"
+                )
+            )
+        }
+        "Fenix" {
+            return @(
+                $commonProtossEconomy +
+                @(
+                    "Adept",
+                    "AdeptFenix",
+                    "Carrier",
+                    "Colossus",
+                    "ColossusPurifier",
+                    "CyberneticsCore",
+                    "Disruptor",
+                    "FenixClolarionCarrier",
+                    "FenixMojoScout",
+                    "FenixTaldarinImmortal",
+                    "FenixTalisAdept",
+                    "FenixWarbringerColossus",
+                    "FleetBeacon",
+                    "Forge",
+                    "Gateway",
+                    "Immortal",
+                    "Observer",
+                    "Purifier",
+                    "Scout",
+                    "SentryFenix",
+                    "RoboticsBay",
+                    "RoboticsFacility",
+                    "Stargate",
+                    "TwilightCouncil",
+                    "WarpGate"
+                )
+            )
+        }
+        "Alarak" {
+            return @(
+                $commonProtossEconomy +
+                @(
+                    "Ascendant",
+                    "CyberneticsCore",
+                    "Gateway",
+                    "Havoc",
+                    "RoboticsBay",
+                    "RoboticsFacility",
+                    "Stalker",
+                    "Slayer",
+                    "Supplicant",
+                    "TemplarArchive",
+                    "TwilightCouncil",
+                    "Vanguard",
+                    "WarpGate",
+                    "WarpPrism",
+                    "Wrathwalker"
+                )
+            )
+        }
+        "Swann" {
+            return @(
+                $commonTerranEconomy +
+                $commonTerranProduction +
+                @(
+                    "Cyclone",
+                    "Goliath",
+                    "Hellion",
+                    "HellionTank",
+                    "SiegeTank",
+                    "SiegeTankSieged",
+                    "Thor",
+                    "VikingAssault",
+                    "VikingFighter",
+                    "Wraith"
+                )
+            )
+        }
+        "Zagara" {
+            return @(
+                $commonZergEconomy +
+                $commonZergTech +
+                @(
+                    "Baneling",
+                    "BanelingNest",
+                    "Corruptor",
+                    "Infestor",
+                    "Mutalisk",
+                    "Roach",
+                    "Scourge",
+                    "Zergling"
+                )
+            )
+        }
+        "Abathur" {
+            return @(
+                $commonZergEconomy +
+                $commonZergTech +
+                @(
+                    "Brutalisk",
+                    "BrutaliskAbathur",
+                    "BrutaliskAbathurBurrowed",
+                    "Hydralisk",
+                    "Larva",
+                    "Mutalisk",
+                    "Queen",
+                    "Ravager",
+                    "RavagerAbathur",
+                    "RavagerAbathurBurrowed",
+                    "Roach",
+                    "SwarmHostMP"
+                )
+            )
+        }
+        "Nova" {
+            return @(
+                $commonTerranEconomy +
+                $commonTerranProduction +
+                @(
+                    "Banshee",
+                    "Battlecruiser",
+                    "Ghost",
+                    "Hellbat",
+                    "Liberator",
+                    "Marauder",
+                    "Marine",
+                    "Medivac",
+                    "Raven",
+                    "Reaper",
+                    "SiegeTank",
+                    "SiegeTankSieged",
+                    "Thor",
+                    "VikingAssault",
+                    "VikingFighter"
+                )
+            )
+        }
+        "Stukov" {
+            return @(
+                $commonTerranEconomy +
+                $commonTerranProduction +
+                @(
+                    "InfestedBanshee",
+                    "InfestedCivilian",
+                    "InfestedDiamondback",
+                    "InfestedSiegeTank",
+                    "InfestedTerran",
+                    "InfestedTerranEgg",
+                    "InfestedTerranStructure",
+                    "InfestedVikingFighter",
+                    "InfestedLiberator",
+                    "InfestedMarine",
+                    "InfestedMarauder",
+                    "InfestedReaper",
+                    "InfestedSiegeTankSieged"
+                )
+            )
+        }
+        "Dehaka" {
+            return @(
+                $commonZergEconomy +
+                $commonZergTech +
+                @(
+                    "DehakaBrutalisk",
+                    "DehakaCoop",
+                    "DehakaGuardian",
+                    "DehakaImpaler",
+                    "DehakaMutalisk",
+                    "DehakaPackLeader",
+                    "DehakaPrimal"
+                )
+            )
+        }
+        "Horner" {
+            return @(
+                $commonTerranEconomy +
+                $commonTerranProduction +
+                @(
+                    "HHBattlecruiser",
+                    "HHHellion",
+                    "HHHellionTank",
+                    "HHRaven",
+                    "HHReaper",
+                    "HHReaperFlying",
+                    "HHVikingAssault",
+                    "HHVikingFighter",
+                    "HHWidowMine",
+                    "HHWidowMineBurrowed",
+                    "HHWraith",
+                    "MiraStarportMissile"
+                )
+            )
+        }
+        "Tychus" {
+            return @(
+                "TychusChaingun",
+                "TychusCommando"
+            )
+        }
+        "Zeratul" {
+            return @(
+                $commonProtossEconomy +
+                @(
+                    "AutomatedAssimilatorZeratul",
+                    "ColossusPurifier",
+                    "CorsairMP",
+                    "DarkArchon",
+                    "DarkShrine",
+                    "DarkTemplarShakuras",
+                    "Disruptor",
+                    "Gateway",
+                    "Immortal",
+                    "Observer",
+                    "ObserverSiegeMode",
+                    "PhotonCannon",
+                    "Purifier",
+                    "Reaver",
+                    "RoboticsBay",
+                    "RoboticsFacility",
+                    "Scout",
+                    "Sentry",
+                    "Stalker",
+                    "Tempest",
+                    "VoidRay",
+                    "WarpPrism",
+                    "WarpPrismPhasing",
+                    "Zealot",
+                    "ZealotPurifier",
+                    "ZeratulACArtifact",
+                    "ZeratulCoop",
+                    "ZeratulCoopReviveBeacon",
+                    "ZeratulCyberneticsCore",
+                    "ZeratulDarkArchon",
+                    "ZeratulDarkShrine",
+                    "ZeratulDarkTemplar",
+                    "ZeratulDisruptor",
+                    "ZeratulGateway",
+                    "ZeratulHeroDarkArchon",
+                    "ZeratulImmortal",
+                    "ZeratulKhaydarinMonolith",
+                    "ZeratulNexus",
+                    "ZeratulObserver",
+                    "ZeratulObserverSiegeMode",
+                    "ZeratulPhotonCannon",
+                    "ZeratulProbe",
+                    "ZeratulRoboticsBay",
+                    "ZeratulRoboticsFacility",
+                    "ZeratulSentry",
+                    "ZeratulStalker",
+                    "ZeratulSummonKarass",
+                    "ZeratulSummonVoidRay",
+                    "ZeratulSummonZealot",
+                    "ZeratulTransportVoidSeeker",
+                    "ZeratulWarpPrism",
+                    "ZeratulWarpPrismPhasing",
+                    "ZeratulXelNagaConstruct",
+                    "ZeratulXelNagaConstructCyan"
+                )
+            )
+        }
+        "Mengsk" {
+            return @(
+                $commonTerranEconomy +
+                $commonTerranProduction +
+                @(
+                    "Battlecruiser",
+                    "Bunker",
+                    "Ghost",
+                    "Marauder",
+                    "Marine",
+                    "MengskBanshee",
+                    "MengskBC",
+                    "MengskDiamondback",
+                    "MengskFirebat",
+                    "MengskGoliath",
+                    "MengskHellion",
+                    "MengskMarauder",
+                    "MengskMarine",
+                    "MengskMedic",
+                    "MengskReaper",
+                    "MengskSiegeTank",
+                    "MengskSiegeTankSieged",
+                    "MengskThor",
+                    "MengskVikingAssault",
+                    "MengskVikingFighter",
+                    "MengskWraith",
+                    "Medic",
+                    "Medivac",
+                    "SiegeTank",
+                    "SiegeTankSieged",
+                    "Thor",
+                    "VikingAssault",
+                    "VikingFighter"
+                )
+            )
+        }
+    }
+
+    return @()
+}
+
+function Get-FixedLocalizedUnitNames {
+    return @{
+        AdeptFenix = "使徒"
+        Alarak = "阿拉纳克"
+        AlarakCoop = "阿拉纳克"
+        AlarakReviveBeacon = "阿拉纳克信标"
+        Assimilator = "瓦斯采集器"
+        AutomatedAssimilatorZeratul = "古代吸纳舱"
+        Armory = "军械库"
+        Barracks = "兵营"
+        Bunker = "地堡"
+        BanelingNest = "爆虫巢"
+        Carrier = "航母"
+        Colossus = "巨像"
+        CommandCenter = "指挥中心"
+        CyberneticsCore = "控制芯核"
+        DarkArchon = "黑暗执政官"
+        DarkShrine = "黑暗圣坛"
+        DarkTemplarShakuras = "黑暗圣堂武士"
+        DehakaCoopReviveCocoon = "德哈卡的巢穴"
+        DehakaHatchery = "原始主巢"
+        DehakaHatcheryUprooted = "原始主巢"
+        Dragoon = "龙骑士"
+        Drone = "工蜂"
+        EngineeringBay = "工程站"
+        EvolutionChamber = "进化腔"
+        Extractor = "萃取器"
+        Factory = "工厂"
+        FleetBeacon = "舰队航标"
+        Forge = "锻炉"
+        FusionCore = "聚变芯体"
+        GarysDen = "盖瑞的房间"
+        Gateway = "传送门"
+        GreaterSpire = "巨型尖塔"
+        Hatchery = "孵化场"
+        Havoc = "潜伏者"
+        Hive = "主巢"
+        HighArchon = "高阶执政官"
+        HighArchonTemplar = "高阶执政官"
+        HighTemplar = "高阶圣堂武士"
+        HydraliskDen = "刺蛇巢"
+        InfestationPit = "感染深渊"
+        Immortal = "不朽者"
+        KhaydarinMonolith = "凯达林巨石"
+        Lair = "虫穴"
+        Larva = "幼虫"
+        MengskBanshee = "皇家女妖"
+        MengskBC = "皇家战列巡航舰"
+        MengskDiamondback = "皇家响尾蛇"
+        MengskFirebat = "皇家火蝠"
+        MengskGoliath = "皇家歌利亚"
+        MengskHellion = "皇家恶火"
+        MengskMarauder = "皇家劫掠者"
+        MengskMarine = "皇家陆战队员"
+        MengskMedic = "皇家医疗兵"
+        MengskReaper = "皇家收割者"
+        MengskSiegeTank = "皇家攻城坦克"
+        MengskSiegeTankSieged = "皇家攻城坦克"
+        MengskThor = "皇家雷神"
+        MengskVikingAssault = "皇家维京"
+        MengskVikingFighter = "皇家维京"
+        MengskWraith = "皇家怨灵"
+        Marauder = "劫掠者"
+        Marine = "陆战队员"
+        Medic = "医疗兵"
+        MissileTurret = "导弹塔"
+        Nexus = "星灵枢纽"
+        Observer = "侦测器"
+        ObserverSiegeMode = "侦测器"
+        Oracle = "先知"
+        Overlord = "王虫"
+        Overseer = "监察王虫"
+        Pylon = "水晶塔"
+        Probe = "探机"
+        Purifier = "净化者"
+        Reaper = "收割者"
+        Ravager = "破坏者"
+        Refinery = "精炼厂"
+        Roach = "蟑螂"
+        RoachWarren = "蟑螂巢"
+        RoboticsBay = "机械台"
+        RoboticsFacility = "机械制造厂"
+        SCV = "SCV"
+        Scout = "侦察机"
+        SensorTower = "感应塔"
+        Sentry = "哨兵"
+        SentryPhasing = "能量者"
+        SentryFenix = "保护者"
+        ShieldBattery = "护盾充能器"
+        SiegeTank = "攻城坦克"
+        SiegeTankSieged = "攻城坦克"
+        SolarForge = "太阳锻炉"
+        SpawningPool = "孵化池"
+        SpineCrawler = "脊针爬虫"
+        Spire = "尖塔"
+        SporeCrawler = "孢子爬虫"
+        Starport = "星港"
+        Stalker = "追猎者"
+        StalkerFenix = "追猎者"
+        StalkerPurifier = "追猎者净化者"
+        StalkerShakuras = "黑暗追猎者"
+        Stukov = "斯托科夫"
+        SupplyDepot = "补给站"
+        Supplicant = "死徒"
+        SwarmHostMP = "飞蛇宿主"
+        Tempest = "风暴战舰"
+        TemplarArchive = "圣堂武士文献馆"
+        Thor = "雷神"
+        TwilightCouncil = "暮光议会"
+        Ultralisk = "雷兽"
+        UltraliskCavern = "雷兽窟"
+        VoidRay = "虚空辉光舰"
+        Vanguard = "先锋"
+        WarPrism = "折跃棱镜"
+        WarpPrism = "折跃棱镜"
+        WarpPrismPhasing = "折跃棱镜"
+        WarpGate = "折跃门"
+        Wrathwalker = "怒火巨像"
+        Phoenix = "凤凰"
+        PhotonCannon = "光子炮台"
+        Reaver = "掠夺者"
+        Stargate = "星际之门"
+        TychusChaingun = "抢手"
+        TychusCommando = "枪王"
+        Zealot = "狂热者"
+        ZealotPurifier = "狂热者净化者"
+        Zeratul = "泽拉图"
+        ZeratulACArtifact = "神器储放台"
+        ZeratulCoop = "泽拉图"
+        ZeratulCoopReviveBeacon = "泽拉图的信标"
+        ZeratulCyberneticsCore = "芯核锻炉"
+        ZeratulDarkArchon = "黑暗执政官"
+        ZeratulDarkShrine = "虚空圣坛"
+        ZeratulDarkTemplar = "虚空圣堂武士"
+        ZeratulDisruptor = "萨尔纳加禁绝者"
+        ZeratulGateway = "萨尔纳加通道"
+        ZeratulHeroDarkArchon = "瑟达斯"
+        ZeratulImmortal = "萨尔纳加执行者"
+        ZeratulKhaydarinMonolith = "超立方水晶碑"
+        ZeratulNexus = "古代星核"
+        ZeratulObserver = "萨尔纳加观察者"
+        ZeratulObserverSiegeMode = "萨尔纳加观察者"
+        ZeratulPhotonCannon = "超立方光子炮"
+        ZeratulProbe = "萨尔纳加先驱"
+        ZeratulRoboticsBay = "构造体研究所"
+        ZeratulRoboticsFacility = "构造体制造厂"
+        ZeratulSentry = "萨尔纳加盾卫"
+        ZeratulStalker = "萨尔纳加伏击者"
+        ZeratulSummonKarass = "泰布洛斯"
+        ZeratulSummonVoidRay = "虚空舰"
+        ZeratulSummonZealot = "狂战士"
+        ZeratulTransportVoidSeeker = "虚空追寻者"
+        ZeratulWarpPrism = "萨尔纳加虚空阵列"
+        ZeratulWarpPrismPhasing = "萨尔纳加虚空阵列"
+        ZeratulXelNagaConstruct = "精华化身"
+        ZeratulXelNagaConstructCyan = "形态化身"
+    }
+}
+
+function Get-FixedBuildingUnitIds {
+    return @(
+        "Armory",
+        "Assimilator",
+        "AutomatedAssimilatorZeratul",
+        "BanelingNest",
+        "Barracks",
+        "Bunker",
+        "CommandCenter",
+        "CyberneticsCore",
+        "DarkShrine",
+        "EngineeringBay",
+        "EvolutionChamber",
+        "Extractor",
+        "Factory",
+        "FleetBeacon",
+        "Forge",
+        "FusionCore",
+        "GarysDen",
+        "Gateway",
+        "GreaterSpire",
+        "Hatchery",
+        "Hive",
+        "HydraliskDen",
+        "InfestationPit",
+        "Lair",
+        "MissileTurret",
+        "Nexus",
+        "PhotonCannon",
+        "Pylon",
+        "Refinery",
+        "RoachWarren",
+        "RoboticsBay",
+        "RoboticsFacility",
+        "SensorTower",
+        "ShieldBattery",
+        "SolarForge",
+        "SpawningPool",
+        "SpineCrawler",
+        "Spire",
+        "SporeCrawler",
+        "Stargate",
+        "Starport",
+        "SupplyDepot",
+        "TemplarArchive",
+        "TwilightCouncil",
+        "UltraliskCavern",
+        "WarpGate",
+        "DehakaBarracks",
+        "DehakaCoopReviveCocoon",
+        "DehakaDakrunStructure",
+        "DehakaGlevigStructure",
+        "DehakaMurvarStructure",
+        "ZeratulCoopReviveBeacon",
+        "ZeratulCyberneticsCore",
+        "ZeratulDarkShrine",
+        "ZeratulGateway",
+        "ZeratulKhaydarinMonolith",
+        "ZeratulNexus",
+        "ZeratulPhotonCannon",
+        "ZeratulRoboticsBay",
+        "ZeratulRoboticsFacility"
+    )
+}
+
+function Get-DedicatedSourceOwners {
+    param(
+        [string[]]$SourceNames
+    )
+
+    $owners = New-StringSet
+    foreach ($sourceName in @($SourceNames)) {
+        if ([string]::IsNullOrWhiteSpace($sourceName)) {
+            continue
+        }
+
+        if ($sourceName -match '^UnitData_([A-Za-z0-9]+)\.xml$') {
+            $candidate = [string]$matches[1]
+            if ($candidate -notmatch '^Shared') {
+                Add-SetValue -Set $owners -Value $candidate
+            }
+        }
+    }
+
+    return @($owners | Sort-Object)
+}
+
+function Get-CommanderUpgradeTooltipMap {
+    param(
+        [string]$UpgradeDataPath,
+        [string]$CommanderShortId
+    )
+
+    $result = @{}
+    if ([string]::IsNullOrWhiteSpace($UpgradeDataPath) -or (-not (Test-Path -LiteralPath $UpgradeDataPath))) {
+        return $result
+    }
+
+    $prefix = "AC{0}" -f $CommanderShortId
+    foreach ($line in @(Get-Content -LiteralPath $UpgradeDataPath -Encoding UTF8)) {
+        if ($line -notmatch 'Reference="(Unit|Button),([^",]+),(Description|Tooltip|AlertTooltip|Name)" Value="(?:Button/Tooltip|Unit/Name)/(AC[^"]+)"') {
+            continue
+        }
+
+        $unitId = [string]$matches[2]
+        $key = [string]$matches[4]
+        if (-not $key.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+            continue
+        }
+
+        if (-not $result.ContainsKey($unitId)) {
+            $result[$unitId] = $key
+        }
+    }
+
+    return $result
+}
+
+function Get-CommanderUpgradeNameMap {
+    param(
+        [string]$UpgradeDataPath,
+        [string]$CommanderShortId
+    )
+
+    $result = @{}
+    if ([string]::IsNullOrWhiteSpace($UpgradeDataPath) -or (-not (Test-Path -LiteralPath $UpgradeDataPath))) {
+        return $result
+    }
+
+    $prefix = "AC{0}" -f $CommanderShortId
+    foreach ($line in @(Get-Content -LiteralPath $UpgradeDataPath -Encoding UTF8)) {
+        if ($line -notmatch 'Reference="(Unit|Button),([^",]+),Name" Value="Unit/Name/(AC[^"]+)"') {
+            continue
+        }
+
+        $unitId = [string]$matches[2]
+        $key = [string]$matches[3]
+        if (-not $key.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+            continue
+        }
+
+        if (-not $result.ContainsKey($unitId)) {
+            $result[$unitId] = $key
+        }
+    }
+
+    return $result
 }
 
 function Get-UnitNodeValue {
@@ -348,11 +1171,43 @@ function Get-UnitCategory {
         [string]$UnitId
     )
 
-    if (Test-IsStructureUnit -UnitIndex $UnitIndex -UnitId $UnitId) {
+    if (($UnitId -match '^SoACaster|^CoopCaster|^CoopAssistCaster') -or ($UnitId -eq 'CoopGlobalCaster')) {
+        return "Support"
+    }
+
+    $fixedBuildingIds = New-StringSet
+    foreach ($buildingId in @(Get-FixedBuildingUnitIds)) {
+        Add-SetValue -Set $fixedBuildingIds -Value $buildingId
+    }
+    if ($fixedBuildingIds.Contains($UnitId)) {
         return "Building"
     }
 
+    if (($null -ne $UnitIndex) -and $UnitIndex.ContainsKey($UnitId)) {
+        $parent = [string]$UnitIndex[$UnitId].Parent
+        if ((-not [string]::IsNullOrWhiteSpace($parent)) -and $fixedBuildingIds.Contains($parent)) {
+            return "Building"
+        }
+    }
+
     $editorCategories = Get-EffectiveUnitValue -UnitIndex $UnitIndex -UnitId $UnitId -ChildName "EditorCategories"
+    $heroic = (Get-EffectiveUnitAttributeValue -UnitIndex $UnitIndex -UnitId $UnitId -AttributeName "Heroic") -eq "1"
+    if ($editorCategories -match "ObjectType:Structure") {
+        if (-not $heroic) {
+            return "Building"
+        }
+    }
+    if (Test-IsStructureUnit -UnitIndex $UnitIndex -UnitId $UnitId) {
+        if (-not $heroic) {
+            return "Building"
+        }
+    }
+    if ($editorCategories -match "ObjectType:Structure") {
+        if ($heroic) {
+            return "Unit"
+        }
+        return "Building"
+    }
     if ($editorCategories -match "ObjectType:Other") {
         return "Support"
     }
@@ -387,11 +1242,58 @@ function Get-UnitTags {
     if ($UnitId -match "Sieged|Assault|Phasing|Uprooted") {
         $tags.Add("MorphState") | Out-Null
     }
-    if ($UnitId -match "^CoopCaster|^CoopAssistCaster") {
+    if ($UnitId -match "^SoACaster|^CoopCaster|^CoopAssistCaster") {
         $tags.Add("TopBarCaster") | Out-Null
     }
 
     return (@($tags | Select-Object -Unique) -join ", ")
+}
+
+function Test-IsIndexableCommanderUnit {
+    param(
+        [hashtable]$UnitIndex,
+        [string]$UnitId
+    )
+
+    if ([string]::IsNullOrWhiteSpace($UnitId)) {
+        return $false
+    }
+
+    if ($UnitId -match '^(MutatorAmon|Mutator|PowerRadius_)') {
+        return $false
+    }
+
+    if ($UnitId -match '^(Artanis|Zeratul|Stetmann)Void|^Artanis$|^Stetmann$') {
+        return $false
+    }
+
+    if ($UnitId -match '^CommanderPrestige') {
+        return $false
+    }
+
+    if ($UnitId -match '^(PurifierGuardianEscort|RoguePurifier|SOAPurifierBeamUnit|ZealotPurifierReviveCorpse)$') {
+        return $false
+    }
+
+    if ($UnitId -match '(Weapon|Missile|Dummy|Placeholder|Placement|Targeter|Strafer|CellBlock|Precursor|Blocker|FootPrint|RockTower|Terrain)$') {
+        return $false
+    }
+
+    if ($UnitId -match '(Weapon|Missile|Dummy|Placeholder|Placement|Targeter|Strafer|CellBlock|Precursor|Blocker|FootPrint|RockTower|Terrain)') {
+        $category = Get-UnitCategory -UnitIndex $UnitIndex -UnitId $UnitId
+        if ($category -ne "Building") {
+            return $false
+        }
+    }
+
+    if (($null -ne $UnitIndex) -and $UnitIndex.ContainsKey($UnitId)) {
+        $parent = [string]$UnitIndex[$UnitId].Parent
+        if ($parent -match '^MISSILE|^ITEM$|^DESTRUCTIBLE$|^SMCHARACTER$') {
+            return $false
+        }
+    }
+
+    return $true
 }
 
 function Escape-MarkdownCell {
@@ -477,6 +1379,7 @@ function Get-LocalizedUnitName {
     param(
         [hashtable]$LocalizedNames,
         [hashtable]$UnitIndex,
+        [hashtable]$CommanderNameMap = $null,
         [string]$UnitId,
         [System.Collections.Generic.HashSet[string]]$Visited = $null
     )
@@ -485,12 +1388,24 @@ function Get-LocalizedUnitName {
         return ""
     }
 
+    $fixedNames = Get-FixedLocalizedUnitNames
+    if ($fixedNames.ContainsKey($UnitId)) {
+        return [string]$fixedNames[$UnitId]
+    }
+
     if (($null -ne $LocalizedNames) -and $LocalizedNames.Unit.ContainsKey($UnitId)) {
         return [string]$LocalizedNames.Unit[$UnitId]
     }
 
     if (($null -ne $LocalizedNames) -and $LocalizedNames.ArmyCategory.ContainsKey($UnitId)) {
         return [string]$LocalizedNames.ArmyCategory[$UnitId]
+    }
+
+    if (($null -ne $CommanderNameMap) -and $CommanderNameMap.ContainsKey($UnitId)) {
+        $nameKey = [string]$CommanderNameMap[$UnitId]
+        if (($null -ne $LocalizedNames) -and $LocalizedNames.Unit.ContainsKey($nameKey)) {
+            return [string]$LocalizedNames.Unit[$nameKey]
+        }
     }
 
     if (($null -eq $UnitIndex) -or (-not $UnitIndex.ContainsKey($UnitId))) {
@@ -513,23 +1428,16 @@ function Get-LocalizedUnitName {
     foreach ($aliasChild in @("SelectAlias", "SubgroupAlias", "HotkeyAlias")) {
         $aliasValue = Get-UnitNodeValue -Node $record.Node -ChildName $aliasChild
         if ((-not [string]::IsNullOrWhiteSpace($aliasValue)) -and ($aliasValue -ne $UnitId)) {
-            $localizedAlias = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -UnitId $aliasValue -Visited $Visited
+            $localizedAlias = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -CommanderNameMap $CommanderNameMap -UnitId $aliasValue -Visited $Visited
             if (-not [string]::IsNullOrWhiteSpace($localizedAlias)) {
                 return $localizedAlias
             }
         }
     }
 
-    $localizedParent = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -UnitId $record.Parent -Visited $Visited
+    $localizedParent = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -CommanderNameMap $CommanderNameMap -UnitId $record.Parent -Visited $Visited
     if (-not [string]::IsNullOrWhiteSpace($localizedParent)) {
         return $localizedParent
-    }
-
-    foreach ($buttonFace in @($record.Node.SelectNodes('CardLayouts/LayoutButtons[@Face]'))) {
-        $face = [string]$buttonFace.Face
-        if (($null -ne $LocalizedNames) -and (-not [string]::IsNullOrWhiteSpace($face)) -and $LocalizedNames.Button.ContainsKey($face)) {
-            return [string]$LocalizedNames.Button[$face]
-        }
     }
 
     return ""
@@ -539,29 +1447,46 @@ function Get-CommanderUnitRows {
     param(
         $CommanderRecord,
         [hashtable]$UnitIndex,
-        [hashtable]$LocalizedNames
+        [hashtable]$LocalizedNames,
+        [hashtable]$CommanderTooltipMap,
+        [hashtable]$CommanderNameMap
     )
 
     $rows = New-Object System.Collections.Generic.List[object]
     $seen = New-StringSet
     $dedicatedFile = "UnitData_{0}.xml" -f [string]$CommanderRecord.official_short_id
     $tokens = @(Get-CommanderMatchTokens -CommanderRecord $CommanderRecord)
+    $sharedUnitIds = New-StringSet
+    foreach ($unitId in @(Get-CommanderSharedUnitIds -CommanderRecord $CommanderRecord)) {
+        Add-SetValue -Set $sharedUnitIds -Value $unitId
+    }
 
     foreach ($record in $UnitIndex.Values) {
         $include = $false
+        $dedicatedOwners = @(Get-DedicatedSourceOwners -SourceNames @($record.Sources))
+        $hasForeignDedicatedOwner = (@($dedicatedOwners).Count -gt 0) -and (-not (@($dedicatedOwners) -contains [string]$CommanderRecord.official_short_id))
+
         if (@($record.Sources) -contains $dedicatedFile) {
             $include = $true
         }
         else {
-            $leaderAlias = Get-EffectiveUnitValue -UnitIndex $UnitIndex -UnitId $record.Id -ChildName "LeaderAlias"
-            foreach ($token in $tokens) {
-                if ($record.Id -like "*$token*") {
-                    $include = $true
-                    break
-                }
-                if ((-not [string]::IsNullOrWhiteSpace($leaderAlias)) -and $leaderAlias.Equals($token, [System.StringComparison]::OrdinalIgnoreCase)) {
-                    $include = $true
-                    break
+            if ($sharedUnitIds.Contains($record.Id)) {
+                $include = $true
+            }
+            elseif (($null -ne $CommanderTooltipMap) -and $CommanderTooltipMap.ContainsKey($record.Id)) {
+                $include = $true
+            }
+            elseif (-not $hasForeignDedicatedOwner) {
+                $leaderAlias = Get-EffectiveUnitValue -UnitIndex $UnitIndex -UnitId $record.Id -ChildName "LeaderAlias"
+                foreach ($token in $tokens) {
+                    if (($token.Length -ge 6) -and ($record.Id -like "*$token*")) {
+                        $include = $true
+                        break
+                    }
+                    if ((-not [string]::IsNullOrWhiteSpace($leaderAlias)) -and $leaderAlias.Equals($token, [System.StringComparison]::OrdinalIgnoreCase)) {
+                        $include = $true
+                        break
+                    }
                 }
             }
         }
@@ -570,9 +1495,13 @@ function Get-CommanderUnitRows {
             continue
         }
 
+        if (-not (Test-IsIndexableCommanderUnit -UnitIndex $UnitIndex -UnitId $record.Id)) {
+            continue
+        }
+
         $rows.Add([pscustomobject]@{
                 Id = $record.Id
-                NameZhCN = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -UnitId $record.Id
+                NameZhCN = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -CommanderNameMap $CommanderNameMap -UnitId $record.Id
                 Parent = $record.Parent
                 Category = Get-UnitCategory -UnitIndex $UnitIndex -UnitId $record.Id
                 Tags = Get-UnitTags -UnitIndex $UnitIndex -UnitId $record.Id
@@ -602,7 +1531,11 @@ if (-not (Test-Path -LiteralPath $outputDir)) {
 }
 
 $gameDataRoot = Join-Path $workspaceRoot "Mods\7vs1\CommanderCatalog.SC2Mod\Base.SC2Data\GameData"
-$unitPaths = @(Get-CatalogXmlPaths -GameDataRoot $gameDataRoot -BaseName "UnitData")
+$unitPaths = @(
+    @(Get-CatalogXmlPaths -GameDataRoot $gameDataRoot -BaseName "UnitData") +
+    @(Get-AdditionalUnitCatalogPaths -WorkspaceRoot $workspaceRoot)
+) | Select-Object -Unique
+$upgradeDataPath = Join-Path $workspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137\_semantic-by-commander\_shared\s2ma_packages\pkg01\extract\base.sc2data\GameData\UpgradeData.xml"
 $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
 
 $unitIndex = @{}
@@ -624,8 +1557,12 @@ foreach ($path in $unitPaths) {
             }
         }
         else {
-            $unitIndex[$id].Parent = [string]$node.parent
-            $unitIndex[$id].Node = $node
+            if (-not [string]::IsNullOrWhiteSpace([string]$node.parent)) {
+                $unitIndex[$id].Parent = [string]$node.parent
+            }
+            if (@($node.ChildNodes).Count -gt 0) {
+                $unitIndex[$id].Node = $node
+            }
         }
 
         if (-not @($unitIndex[$id].Sources).Contains($sourceName)) {
@@ -645,7 +1582,7 @@ $lines.Add("") | Out-Null
 $lines.Add(("Generated: {0}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"))) | Out-Null
 $lines.Add("") | Out-Null
 $lines.Add("Source: local `CommanderCatalog.SC2Mod/Base.SC2Data/GameData/UnitData*.xml` files in this repository.") | Out-Null
-$lines.Add("Rule: prefer commander-specific `UnitData_<Commander>.xml` entries, then supplement with shared-file units that carry commander-specific IDs or leader aliases.") | Out-Null
+$lines.Add("Rule: prefer commander-specific `UnitData_<Commander>.xml` entries, then supplement with shared-file units that carry commander-specific XML markers or curated shared-tech baselines.") | Out-Null
 $lines.Add("") | Out-Null
 
 foreach ($shortId in (Get-CommanderOrder)) {
@@ -656,7 +1593,9 @@ foreach ($shortId in (Get-CommanderOrder)) {
     $commander = $commandersByShortId[$shortId]
     $localizedPaths = Get-LocalizedNameFileCandidates -WorkspaceRoot $workspaceRoot -CommanderShortId $shortId
     $localizedNames = Import-LocalizedUnitNames -Paths $localizedPaths
-    $rows = @(Get-CommanderUnitRows -CommanderRecord $commander -UnitIndex $unitIndex -LocalizedNames $localizedNames)
+    $commanderTooltipMap = Get-CommanderUpgradeTooltipMap -UpgradeDataPath $upgradeDataPath -CommanderShortId $shortId
+    $commanderNameMap = Get-CommanderUpgradeNameMap -UpgradeDataPath $upgradeDataPath -CommanderShortId $shortId
+    $rows = @(Get-CommanderUnitRows -CommanderRecord $commander -UnitIndex $unitIndex -LocalizedNames $localizedNames -CommanderTooltipMap $commanderTooltipMap -CommanderNameMap $commanderNameMap)
     $buildingCount = @($rows | Where-Object { $_.Category -eq "Building" }).Count
     $unitCount = @($rows | Where-Object { $_.Category -eq "Unit" }).Count
     $variantCount = @($rows | Where-Object { $_.Category -eq "Variant" }).Count
