@@ -118,6 +118,24 @@ function Get-AdditionalUnitCatalogPaths {
 
     $paths = New-Object System.Collections.Generic.List[string]
     $semanticRoot = Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137"
+    $gameRoot = ""
+    $profilePath = "C:\Users\22448\AppData\Roaming\@scnexus\app-main\SCNexusStorage\store-profile.json"
+    if (Test-Path -LiteralPath $profilePath) {
+        try {
+            $profile = Get-Content -LiteralPath $profilePath -Encoding UTF8 -Raw | ConvertFrom-Json
+            if ($null -ne $profile.PROFILE_GAME.GAME_ROOT) {
+                $gameRoot = [string]$profile.PROFILE_GAME.GAME_ROOT
+            }
+        }
+        catch {
+        }
+    }
+    if ([string]::IsNullOrWhiteSpace($gameRoot)) {
+        $fallbackGameRoot = "E:\SC2\SC2new\StarCraft II"
+        if (Test-Path -LiteralPath $fallbackGameRoot) {
+            $gameRoot = $fallbackGameRoot
+        }
+    }
     $fixedPaths = @(
         (Join-Path $WorkspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\GameData\UnitData.xml"),
         (Join-Path $semanticRoot "s2ma_packages\pkg01\extract\base.sc2data\GameData\Commanders\FutureCommanders.xml")
@@ -126,6 +144,18 @@ function Get-AdditionalUnitCatalogPaths {
     foreach ($candidate in @($fixedPaths)) {
         if ((Test-Path -LiteralPath $candidate) -and (-not $paths.Contains($candidate))) {
             $paths.Add($candidate) | Out-Null
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($gameRoot)) {
+        foreach ($relativePath in @(
+                "Mods\StarCoop\StarCoop.SC2Mod\base.sc2data\gamedata\unitdata.xml",
+                "Mods\StarCoop\StarCoop.SC2Mod\base.sc2data\gamedata\commanders\commandertychus.xml"
+            )) {
+            $candidate = Join-Path $gameRoot $relativePath
+            if ((Test-Path -LiteralPath $candidate) -and (-not $paths.Contains($candidate))) {
+                $paths.Add($candidate) | Out-Null
+            }
         }
     }
 
@@ -161,8 +191,8 @@ function Get-UnitCatalogSourceName {
     }
 
     $semanticRoots = @(
-        (Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137\_semantic-game-data-by-commander"),
-        (Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137\_semantic-game-data-by-commander-v2")
+        (Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137\_semantic-game-data-by-commander-v2"),
+        (Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137\_semantic-game-data-by-commander")
     )
 
     foreach ($semanticRoot in $semanticRoots) {
@@ -175,6 +205,10 @@ function Get-UnitCatalogSourceName {
                 return "{0}_{1}_{2}" -f $tag, $owner, (Split-Path -Leaf $Path)
             }
         }
+    }
+
+    if ($Path.EndsWith("commandertychus.xml", [System.StringComparison]::OrdinalIgnoreCase)) {
+        return "Commander_Tychus.xml"
     }
 
     return (Split-Path -Leaf $Path)
@@ -976,8 +1010,14 @@ function Get-DedicatedSourceOwners {
             continue
         }
 
-        if ($sourceName -match '^(?:UnitData|Semantic|SemanticV2)_([A-Za-z0-9]+)_') {
+        if ($sourceName -match '^UnitData_([A-Za-z0-9]+)\.xml$|^Commander_([A-Za-z0-9]+)\.xml$|^(?:Semantic|SemanticV2)_([A-Za-z0-9]+)_') {
             $candidate = [string]$matches[1]
+            if ([string]::IsNullOrWhiteSpace($candidate)) {
+                $candidate = [string]$matches[2]
+            }
+            if ([string]::IsNullOrWhiteSpace($candidate)) {
+                $candidate = [string]$matches[3]
+            }
             if ($candidate -notmatch '^Shared') {
                 Add-SetValue -Set $owners -Value $candidate
             }
