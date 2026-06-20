@@ -277,7 +277,9 @@ void libE0EAE146_gf_CommanderPowerApplyRaynorPositivePrestige (int lp_player) {
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorBioUpgradeTerranInfantryArmorLevel1", 1);
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorBioUpgradeTerranInfantryArmorLevel2", 1);
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorBioUpgradeTerranInfantryArmorLevel3", 1);
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorBioSuperStim", 1);
+        if (libE0EAE146_gf_CommanderPowerBankFlagEnabled("Raynor", "BioSuperStim")) {
+            libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorBioSuperStim", 1);
+        }
     }
     if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_prestigeMask, 1)) {
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "CommanderPrestigeRaynorMechAfterburners", 1);

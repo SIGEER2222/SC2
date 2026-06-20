@@ -297,6 +297,9 @@ function New-PrestigeEntry {
     if (($null -ne $ExistingPrestige) -and ($null -ne $ExistingPrestige.PSObject.Properties["fusion_primary_upgrade"])) {
         $entry.fusion_primary_upgrade = [string]$ExistingPrestige.fusion_primary_upgrade
     }
+    if (($null -ne $ExistingPrestige) -and ($null -ne $ExistingPrestige.PSObject.Properties["extra_options"])) {
+        $entry.extra_options = @($ExistingPrestige.extra_options)
+    }
 
     return $entry
 }

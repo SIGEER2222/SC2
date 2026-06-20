@@ -91,6 +91,9 @@ if ($prestigeBonusMaskBlock.Contains('if (lp_commander == "Abathur")')) {
 $prestigeMaskBlock = Get-FunctionBlock -Text $profileText -Signature "int libE0EAE146_gf_CommanderPowerPrestigeMask (string lp_commander)"
 Assert-Contains -Text $prestigeMaskBlock -Needle 'libE0EAE146_gf_CommanderPowerPrestigeBonusMask(lp_commander)' -Message "Prestige mask compatibility wrapper must delegate to the bonus-mask helper."
 
+$raynorPrestigeBlock = Get-FunctionBlock -Text $profileText -Signature "void libE0EAE146_gf_CommanderPowerApplyRaynorPositivePrestige (int lp_player)"
+Assert-Contains -Text $raynorPrestigeBlock -Needle 'libE0EAE146_gf_CommanderPowerBankFlagEnabled("Raynor", "BioSuperStim")' -Message "Raynor P1 super stim must be gated by the CommanderPower bank override."
+
 $bridgeBlock = Get-FunctionBlock -Text $bridgeText -Signature "function Set-CampaignXCoreCommanderPowerPreset"
 Assert-Contains -Text $bridgeBlock -Needle '$commanderPrestigeBonusMask = $normalizedPrestigeBonusMask' -Message "Commander power preset must start from the normalized prestige mask."
 Assert-Contains -Text $bridgeBlock -Needle 'Get-CommanderPowerDefaultPrestigeBonusMask -Commander $selectedCommander' -Message "Commander power preset must honor commander-specific default prestige masks when requested."
