@@ -26,6 +26,32 @@ function Resolve-OutputPath {
     return (Join-Path $WorkspaceRoot ("docs\" + $fileName))
 }
 
+function Resolve-GameRoot {
+    $profilePath = "C:\Users\22448\AppData\Roaming\@scnexus\app-main\SCNexusStorage\store-profile.json"
+    if (Test-Path -LiteralPath $profilePath) {
+        try {
+            $profile = Get-Content -LiteralPath $profilePath -Encoding UTF8 -Raw | ConvertFrom-Json
+            foreach ($candidate in @(
+                    $profile.PROFILE_GAME.GAME_ROOT,
+                    $profile.active_profile.env.GAME_ROOT
+                )) {
+                if ((-not [string]::IsNullOrWhiteSpace([string]$candidate)) -and (Test-Path -LiteralPath ([string]$candidate))) {
+                    return [string]$candidate
+                }
+            }
+        }
+        catch {
+        }
+    }
+
+    $fallbackGameRoot = "E:\SC2\SC2new\StarCraft II"
+    if (Test-Path -LiteralPath $fallbackGameRoot) {
+        return $fallbackGameRoot
+    }
+
+    return ""
+}
+
 function Get-LocalizedNameFileCandidates {
     param(
         [string]$WorkspaceRoot,
@@ -64,25 +90,7 @@ function Get-LocalizedNameFileCandidates {
         }
     }
 
-    $gameRoot = ""
-    $profilePath = "C:\Users\22448\AppData\Roaming\@scnexus\app-main\SCNexusStorage\store-profile.json"
-    if (Test-Path -LiteralPath $profilePath) {
-        try {
-            $profile = Get-Content -LiteralPath $profilePath -Encoding UTF8 -Raw | ConvertFrom-Json
-            if ($null -ne $profile.active_profile.env.GAME_ROOT) {
-                $gameRoot = [string]$profile.active_profile.env.GAME_ROOT
-            }
-        }
-        catch {
-        }
-    }
-
-    if ([string]::IsNullOrWhiteSpace($gameRoot)) {
-        $fallbackGameRoot = "E:\SC2\SC2new\StarCraft II"
-        if (Test-Path -LiteralPath $fallbackGameRoot) {
-            $gameRoot = $fallbackGameRoot
-        }
-    }
+    $gameRoot = Resolve-GameRoot
 
     if (-not [string]::IsNullOrWhiteSpace($gameRoot) -and (Test-Path -LiteralPath $gameRoot)) {
         foreach ($relativePath in @(
@@ -118,24 +126,7 @@ function Get-AdditionalUnitCatalogPaths {
 
     $paths = New-Object System.Collections.Generic.List[string]
     $semanticRoot = Join-Path $WorkspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137"
-    $gameRoot = ""
-    $profilePath = "C:\Users\22448\AppData\Roaming\@scnexus\app-main\SCNexusStorage\store-profile.json"
-    if (Test-Path -LiteralPath $profilePath) {
-        try {
-            $profile = Get-Content -LiteralPath $profilePath -Encoding UTF8 -Raw | ConvertFrom-Json
-            if ($null -ne $profile.PROFILE_GAME.GAME_ROOT) {
-                $gameRoot = [string]$profile.PROFILE_GAME.GAME_ROOT
-            }
-        }
-        catch {
-        }
-    }
-    if ([string]::IsNullOrWhiteSpace($gameRoot)) {
-        $fallbackGameRoot = "E:\SC2\SC2new\StarCraft II"
-        if (Test-Path -LiteralPath $fallbackGameRoot) {
-            $gameRoot = $fallbackGameRoot
-        }
-    }
+    $gameRoot = Resolve-GameRoot
     $fixedPaths = @(
         (Join-Path $WorkspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod\Base.SC2Data\GameData\UnitData.xml"),
         (Join-Path $semanticRoot "s2ma_packages\pkg01\extract\base.sc2data\GameData\Commanders\FutureCommanders.xml")
@@ -150,7 +141,10 @@ function Get-AdditionalUnitCatalogPaths {
     if (-not [string]::IsNullOrWhiteSpace($gameRoot)) {
         foreach ($relativePath in @(
                 "Mods\StarCoop\StarCoop.SC2Mod\base.sc2data\gamedata\unitdata.xml",
-                "Mods\StarCoop\StarCoop.SC2Mod\base.sc2data\gamedata\commanders\commandertychus.xml"
+                "Mods\StarCoop\StarCoop.SC2Mod\base.sc2data\gamedata\commanders\commandertychus.xml",
+                "Mods\StarCoop\StarCoop.SC2Mod\base.sc2data\gamedata\commanders\futurecommanders.xml",
+                "Mods\StarCoop\Commanders\ArcturusMengsk.SC2Mod\base.sc2data\gamedata\unitdata.xml",
+                "Mods\StarCoop\Commanders\EgonStetmann.SC2Mod\base.sc2data\gamedata\unitdata.xml"
             )) {
             $candidate = Join-Path $gameRoot $relativePath
             if ((Test-Path -LiteralPath $candidate) -and (-not $paths.Contains($candidate))) {
@@ -211,6 +205,22 @@ function Get-UnitCatalogSourceName {
         return "Commander_Tychus.xml"
     }
 
+    if ($Path.EndsWith("futurecommanders.xml", [System.StringComparison]::OrdinalIgnoreCase)) {
+        return "FutureCommanders.xml"
+    }
+
+    if ($Path -match '[\\\/]Commanders[\\\/]ArcturusMengsk\.SC2Mod[\\\/].*[\\\/]unitdata\.xml$') {
+        return "Commander_Mengsk_UnitData.xml"
+    }
+
+    if ($Path -match '[\\\/]Commanders[\\\/]EgonStetmann\.SC2Mod[\\\/].*[\\\/]unitdata\.xml$') {
+        return "Commander_Stetmann_UnitData.xml"
+    }
+
+    if ($Path -match '[\\\/]StarCoop\.SC2Mod[\\\/].*[\\\/]unitdata\.xml$') {
+        return "StarCoop_UnitData.xml"
+    }
+
     return (Split-Path -Leaf $Path)
 }
 
@@ -227,6 +237,69 @@ function Add-SetValue {
     if (($null -ne $Set) -and (-not [string]::IsNullOrWhiteSpace($Value))) {
         [void]$Set.Add($Value)
     }
+}
+
+function Get-StarCoopGameDataPath {
+    param(
+        [string]$RelativePath
+    )
+
+    $gameRoot = Resolve-GameRoot
+    if ([string]::IsNullOrWhiteSpace($gameRoot)) {
+        return ""
+    }
+
+    return (Join-Path $gameRoot ("Mods\StarCoop\StarCoop.SC2Mod\base.sc2data\gamedata\" + $RelativePath))
+}
+
+function Import-CommanderUserRosterMap {
+    param([string]$WorkspaceRoot)
+
+    $map = @{}
+    $commanderDataPath = Get-StarCoopGameDataPath -RelativePath "commanderdata.xml"
+    $userDataPath = Get-StarCoopGameDataPath -RelativePath "userdata.xml"
+    if ((-not (Test-Path -LiteralPath $commanderDataPath)) -or (-not (Test-Path -LiteralPath $userDataPath))) {
+        return $map
+    }
+
+    $playerCommanderToShortId = @{}
+    [xml]$commanderXml = Get-Content -LiteralPath $commanderDataPath -Encoding UTF8 -Raw
+    foreach ($node in @($commanderXml.SelectNodes("/Catalog/CCommander[@id]"))) {
+        $shortId = [string]$node.id
+        $reference = [string]$node.UserReference.value
+        if ($reference -match '^PlayerCommanders;(.+)$') {
+            $playerCommanderToShortId[[string]$matches[1]] = $shortId
+            if (-not $map.ContainsKey($shortId)) {
+                $map[$shortId] = New-StringSet
+            }
+        }
+    }
+
+    [xml]$userXml = Get-Content -LiteralPath $userDataPath -Encoding UTF8 -Raw
+    foreach ($instance in @($userXml.SelectNodes("/Catalog/CUser/Instances"))) {
+        $commanderUser = @($instance.User | Where-Object {
+                $_.Type -eq "PlayerCommanders" -and $_.Field.Id -eq "Commander"
+            } | Select-Object -First 1)
+        if (($commanderUser.Count -eq 0) -or (-not $playerCommanderToShortId.ContainsKey([string]$commanderUser[0].Instance))) {
+            continue
+        }
+
+        $shortId = [string]$playerCommanderToShortId[[string]$commanderUser[0].Instance]
+        if (-not $map.ContainsKey($shortId)) {
+            $map[$shortId] = New-StringSet
+        }
+
+        foreach ($gameLink in @($instance.GameLink)) {
+            $armyField = @($gameLink.Field | Where-Object {
+                    $_.Id -eq "ArmyCategoryOn" -or $_.Id -eq "ArmyCategoryOff"
+                } | Select-Object -First 1)
+            if ($armyField.Count -gt 0) {
+                Add-SetValue -Set $map[$shortId] -Value ([string]$gameLink.GameLink)
+            }
+        }
+    }
+
+    return $map
 }
 
 function Get-CommanderOrder {
@@ -516,21 +589,20 @@ function Get-CommanderSharedUnitIds {
             return @(
                 $commonProtossEconomy +
                 @(
-                    "Ascendant",
+                    "ColossusTaldarim",
                     "CyberneticsCore",
                     "Gateway",
-                    "Havoc",
+                    "HighTemplarTaldarim",
                     "RoboticsBay",
                     "RoboticsFacility",
+                    "ImmortalTaldarim",
+                    "Monitor",
                     "Stalker",
-                    "Slayer",
                     "Supplicant",
                     "TemplarArchive",
                     "TwilightCouncil",
-                    "Vanguard",
                     "WarpGate",
-                    "WarpPrism",
-                    "Wrathwalker"
+                    "WarpPrism"
                 )
             )
         }
@@ -653,11 +725,25 @@ function Get-CommanderSharedUnitIds {
                 $commonTerranProduction +
                 @(
                     "HHBattlecruiser",
+                    "HHBomber",
+                    "HHBomberPlatform",
+                    "HHCommandCenter",
+                    "HHCommandCenterFlying",
                     "HHHellion",
                     "HHHellionTank",
+                    "HHMagneticMine",
+                    "HHMagneticMinePrep",
+                    "HHMercCompound",
+                    "HHMercenarySpaceStation",
+                    "HHMercStarportNoArmy",
+                    "HHMercStarportUpgraded",
                     "HHRaven",
+                    "HHRavenSiegeMode",
                     "HHReaper",
                     "HHReaperFlying",
+                    "HHSCV",
+                    "HHStarport",
+                    "HHStarportFlying",
                     "HHVikingAssault",
                     "HHVikingFighter",
                     "HHWidowMine",
@@ -776,7 +862,9 @@ function Get-CommanderSharedUnitIds {
 }
 
 function Get-FixedLocalizedUnitNames {
-    return @{
+    param([string]$CommanderShortId = "")
+
+    $names = @{
         AdeptFenix = "使徒"
         Alarak = "阿拉纳克"
         AlarakCoop = "阿拉纳克"
@@ -789,6 +877,7 @@ function Get-FixedLocalizedUnitNames {
         BanelingNest = "爆虫巢"
         Carrier = "航母"
         Colossus = "巨像"
+        ColossusTaldarim = "天罚行者"
         CommandCenter = "指挥中心"
         CyberneticsCore = "控制芯核"
         DarkArchon = "黑暗执政官"
@@ -810,14 +899,29 @@ function Get-FixedLocalizedUnitNames {
         Gateway = "传送门"
         GreaterSpire = "巨型尖塔"
         Hatchery = "孵化场"
-        Havoc = "潜伏者"
         Hive = "主巢"
         HighArchon = "高阶执政官"
         HighArchonTemplar = "高阶执政官"
         HighTemplar = "高阶圣堂武士"
+        HighTemplarTaldarim = "升格者"
+        HHBomber = "强袭战机"
+        HHBomberPlatform = "强袭战机平台"
+        HHCommandCenter = "指挥中心"
+        HHCommandCenterFlying = "飞行中的指挥中心"
+        HHMagneticMine = "磁雷"
+        HHMagneticMinePrep = "磁雷"
+        HHMercCompound = "佣兵营地"
+        HHMercenarySpaceStation = "佣兵空间站"
+        HHMercStarportNoArmy = "星港"
+        HHMercStarportUpgraded = "升级后的星港"
+        HHRavenSiegeMode = "忒伊亚铁鸦"
+        HHSCV = "SCV"
+        HHStarport = "星港"
+        HHStarportFlying = "飞行中的星港"
         HydraliskDen = "刺蛇巢"
         InfestationPit = "感染深渊"
         Immortal = "不朽者"
+        ImmortalTaldarim = "先锋"
         KhaydarinMonolith = "凯达林巨石"
         Lair = "虫穴"
         Larva = "幼虫"
@@ -841,6 +945,7 @@ function Get-FixedLocalizedUnitNames {
         Marine = "陆战队员"
         Medic = "医疗兵"
         MissileTurret = "导弹塔"
+        Monitor = "浩劫"
         Nexus = "星灵枢纽"
         Observer = "侦测器"
         ObserverSiegeMode = "侦测器"
@@ -887,12 +992,10 @@ function Get-FixedLocalizedUnitNames {
         Ultralisk = "雷兽"
         UltraliskCavern = "雷兽窟"
         VoidRay = "虚空辉光舰"
-        Vanguard = "先锋"
         WarPrism = "折跃棱镜"
         WarpPrism = "折跃棱镜"
         WarpPrismPhasing = "折跃棱镜"
         WarpGate = "折跃门"
-        Wrathwalker = "怒火巨像"
         Phoenix = "凤凰"
         PhotonCannon = "光子炮台"
         Reaver = "掠夺者"
@@ -932,6 +1035,12 @@ function Get-FixedLocalizedUnitNames {
         ZeratulXelNagaConstruct = "精华化身"
         ZeratulXelNagaConstructCyan = "形态化身"
     }
+
+    if ($CommanderShortId -eq "Alarak") {
+        $names["Stalker"] = "杀戮者"
+    }
+
+    return $names
 }
 
 function Get-FixedBuildingUnitIds {
@@ -1459,6 +1568,7 @@ function Get-LocalizedUnitName {
         [hashtable]$LocalizedNames,
         [hashtable]$UnitIndex,
         [hashtable]$CommanderNameMap = $null,
+        [string]$CommanderShortId = "",
         [string]$UnitId,
         [System.Collections.Generic.HashSet[string]]$Visited = $null
     )
@@ -1467,7 +1577,7 @@ function Get-LocalizedUnitName {
         return ""
     }
 
-    $fixedNames = Get-FixedLocalizedUnitNames
+    $fixedNames = Get-FixedLocalizedUnitNames -CommanderShortId $CommanderShortId
     if ($fixedNames.ContainsKey($UnitId)) {
         return [string]$fixedNames[$UnitId]
     }
@@ -1507,14 +1617,14 @@ function Get-LocalizedUnitName {
     foreach ($aliasChild in @("SelectAlias", "SubgroupAlias", "HotkeyAlias")) {
         $aliasValue = Get-UnitNodeValue -Node $record.Node -ChildName $aliasChild
         if ((-not [string]::IsNullOrWhiteSpace($aliasValue)) -and ($aliasValue -ne $UnitId)) {
-            $localizedAlias = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -CommanderNameMap $CommanderNameMap -UnitId $aliasValue -Visited $Visited
+            $localizedAlias = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -CommanderNameMap $CommanderNameMap -CommanderShortId $CommanderShortId -UnitId $aliasValue -Visited $Visited
             if (-not [string]::IsNullOrWhiteSpace($localizedAlias)) {
                 return $localizedAlias
             }
         }
     }
 
-    $localizedParent = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -CommanderNameMap $CommanderNameMap -UnitId $record.Parent -Visited $Visited
+    $localizedParent = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -CommanderNameMap $CommanderNameMap -CommanderShortId $CommanderShortId -UnitId $record.Parent -Visited $Visited
     if (-not [string]::IsNullOrWhiteSpace($localizedParent)) {
         return $localizedParent
     }
@@ -1528,16 +1638,23 @@ function Get-CommanderUnitRows {
         [hashtable]$UnitIndex,
         [hashtable]$LocalizedNames,
         [hashtable]$CommanderTooltipMap,
-        [hashtable]$CommanderNameMap
+        [hashtable]$CommanderNameMap,
+        [hashtable]$CommanderRosterMap
     )
 
     $rows = New-Object System.Collections.Generic.List[object]
     $seen = New-StringSet
-    $dedicatedFile = "UnitData_{0}.xml" -f [string]$CommanderRecord.official_short_id
+    $shortId = [string]$CommanderRecord.official_short_id
+    $dedicatedFile = "UnitData_{0}.xml" -f $shortId
     $tokens = @(Get-CommanderMatchTokens -CommanderRecord $CommanderRecord)
     $sharedUnitIds = New-StringSet
     foreach ($unitId in @(Get-CommanderSharedUnitIds -CommanderRecord $CommanderRecord)) {
         Add-SetValue -Set $sharedUnitIds -Value $unitId
+    }
+    if (($null -ne $CommanderRosterMap) -and $CommanderRosterMap.ContainsKey($shortId)) {
+        foreach ($unitId in @($CommanderRosterMap[$shortId])) {
+            Add-SetValue -Set $sharedUnitIds -Value $unitId
+        }
     }
 
     foreach ($record in $UnitIndex.Values) {
@@ -1581,7 +1698,7 @@ function Get-CommanderUnitRows {
 
         $rows.Add([pscustomobject]@{
                 Id = $record.Id
-                NameZhCN = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -CommanderNameMap $CommanderNameMap -UnitId $record.Id
+                NameZhCN = Get-LocalizedUnitName -LocalizedNames $LocalizedNames -UnitIndex $UnitIndex -CommanderNameMap $CommanderNameMap -CommanderShortId $shortId -UnitId $record.Id
                 Parent = $record.Parent
                 Category = Get-UnitCategory -UnitIndex $UnitIndex -UnitId $record.Id
                 Tags = Get-UnitTags -UnitIndex $UnitIndex -UnitId $record.Id
@@ -1617,6 +1734,7 @@ $unitPaths = @(
 ) | Select-Object -Unique
 $upgradeDataPath = Join-Path $workspaceRoot "游戏数据\其他mod数据\7vs1母巢之战合作指挥官bate版_SC2Replay_94137\_semantic-by-commander\_shared\s2ma_packages\pkg01\extract\base.sc2data\GameData\UpgradeData.xml"
 $metadata = Get-CommanderPowerMetadata -WorkspaceRoot $workspaceRoot
+$commanderRosterMap = Import-CommanderUserRosterMap -WorkspaceRoot $workspaceRoot
 
 $unitIndex = @{}
 foreach ($path in $unitPaths) {
@@ -1675,7 +1793,7 @@ foreach ($shortId in (Get-CommanderOrder)) {
     $localizedNames = Import-LocalizedUnitNames -Paths $localizedPaths
     $commanderTooltipMap = Get-CommanderUpgradeTooltipMap -UpgradeDataPath $upgradeDataPath -CommanderShortId $shortId
     $commanderNameMap = Get-CommanderUpgradeNameMap -UpgradeDataPath $upgradeDataPath -CommanderShortId $shortId
-    $rows = @(Get-CommanderUnitRows -CommanderRecord $commander -UnitIndex $unitIndex -LocalizedNames $localizedNames -CommanderTooltipMap $commanderTooltipMap -CommanderNameMap $commanderNameMap)
+    $rows = @(Get-CommanderUnitRows -CommanderRecord $commander -UnitIndex $unitIndex -LocalizedNames $localizedNames -CommanderTooltipMap $commanderTooltipMap -CommanderNameMap $commanderNameMap -CommanderRosterMap $commanderRosterMap)
     $buildingCount = @($rows | Where-Object { $_.Category -eq "Building" }).Count
     $unitCount = @($rows | Where-Object { $_.Category -eq "Unit" }).Count
     $variantCount = @($rows | Where-Object { $_.Category -eq "Variant" }).Count

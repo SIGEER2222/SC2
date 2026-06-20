@@ -13,6 +13,7 @@ void libE0EAE146_gf_InitializeAbathurBiomass (int lp_player, string lp_collectEf
     libE0EAE146_gv_abathurBiomassPlayer = lp_player;
     libE0EAE146_gv_abathurBiomassEffect = lp_collectEffect;
     libE0EAE146_gv_abathurBiomassEnabled = true;
+    libE0EAE146_gf_EnsureAbathurBiomassTriggers();
     libE0EAE146_gf_EnableAbathurBiomassTriggers();
     if ((libE0EAE146_gv_abathurBiomassTestPickupCreated == false)) {
         libE0EAE146_gv_abathurBiomassTestPickupCreated = libE0EAE146_gf_CreateAbathurBiomassTestPickup(PointWithOffsetPolar(PlayerStartLocation(lp_player), 4.0, 0.0), libE0EAE146_gf_AbathurBiomassMaxStacks());
@@ -22,6 +23,7 @@ void libE0EAE146_gf_EnableAbathurBiomassForGenericBonus (int lp_player, string l
     libE0EAE146_gv_abathurBiomassPlayer = lp_player;
     libE0EAE146_gv_abathurBiomassEffect = lp_collectEffect;
     libE0EAE146_gv_abathurBiomassEnabled = true;
+    libE0EAE146_gf_EnsureAbathurBiomassTriggers();
     libE0EAE146_gf_EnableAbathurBiomassTriggers();
 }
 void libE0EAE146_gf_EnableAbathurBiomassTriggers () {
@@ -598,6 +600,27 @@ void libE0EAE146_gt_AbathurUltimateBiomassAutoPickup_Init () {
     libE0EAE146_gt_AbathurUltimateBiomassAutoPickup = TriggerCreate("libE0EAE146_gt_AbathurUltimateBiomassAutoPickup_Func");
     TriggerAddEventTimePeriodic(libE0EAE146_gt_AbathurUltimateBiomassAutoPickup, 0.25, c_timeGame);
     TriggerEnable(libE0EAE146_gt_AbathurUltimateBiomassAutoPickup, false);
+}
+
+void libE0EAE146_gf_EnsureAbathurBiomassTriggers () {
+    if ((libE0EAE146_gt_AbathurBiomassDrop == null)) {
+        libE0EAE146_gt_AbathurBiomassDrop_Init();
+    }
+    if ((libE0EAE146_gt_AbathurBiomassPickup == null)) {
+        libE0EAE146_gt_AbathurBiomassPickup_Init();
+    }
+    if ((libE0EAE146_gt_AbathurBiomassRefund == null)) {
+        libE0EAE146_gt_AbathurBiomassRefund_Init();
+    }
+    if ((libE0EAE146_gt_AbathurBiomassTrain == null)) {
+        libE0EAE146_gt_AbathurBiomassTrain_Init();
+    }
+    if ((libE0EAE146_gt_AbathurBiomassScaler == null)) {
+        libE0EAE146_gt_AbathurBiomassScaler_Init();
+    }
+    if ((libE0EAE146_gt_AbathurUltimateBiomassAutoPickup == null)) {
+        libE0EAE146_gt_AbathurUltimateBiomassAutoPickup_Init();
+    }
 }
 
 void libE0EAE146_gf_RaynorCreateMapStartSquad (string lp_kind, int lp_player, point lp_point) {

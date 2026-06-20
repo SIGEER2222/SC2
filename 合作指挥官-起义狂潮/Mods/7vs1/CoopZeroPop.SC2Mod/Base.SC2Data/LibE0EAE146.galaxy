@@ -1412,10 +1412,12 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     bool lv_mechanicalRepair;
     bool lv_chronoBoost;
     bool lv_abathurBiomassDrop;
+    bool lv_maxSupply50;
     bool lv_allyEarlyDamageReduction;
     bool lv_allySustainBoost;
     int lv_selectedCount;
     int lv_controllerCreated;
+    int lv_supplyLimitAfter;
     int lv_doubleMineralsInt;
     int lv_doubleVespeneInt;
     int lv_richResourcesInt;
@@ -1424,6 +1426,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     int lv_mechanicalRepairInt;
     int lv_chronoBoostInt;
     int lv_abathurBiomassDropInt;
+    int lv_maxSupply50Int;
     int lv_allyEarlyDamageReductionInt;
     int lv_allySustainBoostInt;
     unit lv_controller;
@@ -1443,6 +1446,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     lv_mechanicalRepair = libE0EAE146_gf_GenericBonusEnabled("MechanicalRepair");
     lv_chronoBoost = libE0EAE146_gf_GenericBonusEnabled("ChronoBoost");
     lv_abathurBiomassDrop = libE0EAE146_gf_GenericBonusEnabled("AbathurBiomassDrop");
+    lv_maxSupply50 = libE0EAE146_gf_GenericBonusEnabled("MaxSupply50");
     lv_allyEarlyDamageReduction = libE0EAE146_gf_GenericBonusEnabled("AllyEarlyDamageReduction");
     lv_allySustainBoost = libE0EAE146_gf_GenericBonusEnabled("AllySustainBoost");
     lv_selectedCount = 0;
@@ -1454,6 +1458,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     if (lv_mechanicalRepair) { lv_selectedCount += 1; }
     if (lv_chronoBoost) { lv_selectedCount += 1; }
     if (lv_abathurBiomassDrop) { lv_selectedCount += 1; }
+    if (lv_maxSupply50) { lv_selectedCount += 1; }
     if (lv_allyEarlyDamageReduction) { lv_selectedCount += 1; }
     if (lv_allySustainBoost) { lv_selectedCount += 1; }
 
@@ -1471,6 +1476,13 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     }
     libE0EAE146_gf_GenericBonusEnsureController(lp_player);
     lv_controller = libE0EAE146_gv_genericBonusController;
+    if ((lv_abathurBiomassDrop == true) && (UnitIsValid(lv_controller) == true)) {
+        libE0EAE146_gf_CreateAbathurBiomassPickup(PointWithOffsetPolar(UnitGetPosition(lv_controller), 3.0, 45.0), 20);
+    }
+    if (lv_maxSupply50) {
+        PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesLimit, c_playerPropOperAdd, 50);
+    }
+    lv_supplyLimitAfter = PlayerGetPropertyInt(lp_player, c_playerPropSuppliesLimit);
     lv_doubleMineralsInt = 0;
     lv_doubleVespeneInt = 0;
     lv_richResourcesInt = 0;
@@ -1479,6 +1491,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     lv_mechanicalRepairInt = 0;
     lv_chronoBoostInt = 0;
     lv_abathurBiomassDropInt = 0;
+    lv_maxSupply50Int = 0;
     lv_allyEarlyDamageReductionInt = 0;
     lv_allySustainBoostInt = 0;
     lv_doubleMineralsInt = lv_doubleMineralsLevel;
@@ -1489,6 +1502,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     if (lv_mechanicalRepair) { lv_mechanicalRepairInt = 1; }
     if (lv_chronoBoost) { lv_chronoBoostInt = 1; }
     if (lv_abathurBiomassDrop) { lv_abathurBiomassDropInt = 1; }
+    if (lv_maxSupply50) { lv_maxSupply50Int = 1; }
     if (lv_allyEarlyDamageReduction) { lv_allyEarlyDamageReductionInt = 1; }
     if (lv_allySustainBoost) { lv_allySustainBoostInt = 1; }
     lv_controllerCreated = 0;
@@ -1507,9 +1521,12 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMechanicalRepair", lv_mechanicalRepairInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusChronoBoost", lv_chronoBoostInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusAbathurBiomassDrop", lv_abathurBiomassDropInt);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMaxSupply50", lv_maxSupply50Int);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusSupplyLimitAfter", lv_supplyLimitAfter);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusAllyEarlyDamageReduction", lv_allyEarlyDamageReductionInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusAllySustainBoost", lv_allySustainBoostInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusControllerCreated", lv_controllerCreated);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusAbathurBiomassInitialPickup", lv_abathurBiomassDropInt);
     if (UnitIsValid(lv_controller) == true) {
         BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "GenericBonusControllerType", UnitGetType(lv_controller));
     }

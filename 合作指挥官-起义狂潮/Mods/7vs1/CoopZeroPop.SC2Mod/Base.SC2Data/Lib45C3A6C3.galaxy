@@ -93,6 +93,7 @@ bool lib45C3A6C3_gt_E4B88DE58DA0E4BABAE58FA3_Func (bool testConds, bool runActio
     int lv_e78EA9E5AEB6;
     unit lv_e58D95E4BD8D;
     bool lv_zeroSupplyEnabled;
+    int lv_supplyLimit;
 
     // Automatic Variable Declarations
     playergroup autoDB482E3C_g;
@@ -111,6 +112,10 @@ bool lib45C3A6C3_gt_E4B88DE58DA0E4BABAE58FA3_Func (bool testConds, bool runActio
     if (!lv_zeroSupplyEnabled) {
         return true;
     }
+    lv_supplyLimit = 200;
+    if ((BankValueGetAsInt(BankLastCreated(), "GenericBonuses", "Selected.MaxSupply50") > 0)) {
+        lv_supplyLimit = 250;
+    }
 
     autoDB482E3C_g = PlayerGroupAll();
     lv_e78EA9E5AEB6 = -1;
@@ -118,7 +123,7 @@ bool lib45C3A6C3_gt_E4B88DE58DA0E4BABAE58FA3_Func (bool testConds, bool runActio
         lv_e78EA9E5AEB6 = PlayerGroupNextPlayer(autoDB482E3C_g, lv_e78EA9E5AEB6);
         if (lv_e78EA9E5AEB6 < 0) { break; }
         if ((PlayerType(lv_e78EA9E5AEB6) == c_playerTypeUser) && (PlayerGetPropertyInt(lv_e78EA9E5AEB6, c_playerPropSuppliesUsed) >= 1)) {
-            PlayerModifyPropertyInt(lv_e78EA9E5AEB6, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 200);
+            PlayerModifyPropertyInt(lv_e78EA9E5AEB6, c_playerPropSuppliesLimit, c_playerPropOperSetTo, lv_supplyLimit);
             autoBD71835F_g = UnitGroup(null, lv_e78EA9E5AEB6, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
             autoBD71835F_u = UnitGroupCount(autoBD71835F_g, c_unitCountAll);
             for (;; autoBD71835F_u -= 1) {
