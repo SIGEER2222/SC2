@@ -617,22 +617,32 @@ function Get-CommanderItems {
                             name = [string]$prestigeRecord.name
                             nameEn = [string]$prestigeRecord.name_en
                             tooltip = ConvertFrom-SC2Text ([string]$prestigeRecord.tooltip)
-                            extraOptions = @($prestigeRecord.extra_options | ForEach-Object {
-                                    $optionRecord = $_
-                                    $enabledValue = if ($null -ne $optionRecord.enabled_value) { [int]$optionRecord.enabled_value } else { 1 }
-                                    $bankKey = [string]$optionRecord.bank_key
-                                    [pscustomobject]@{
-                                        id = [string]$optionRecord.id
-                                        bankKey = $bankKey
-                                        name = [string]$optionRecord.name
-                                        description = ConvertFrom-SC2Text ([string]$optionRecord.description)
-                                        type = if ([string]::IsNullOrWhiteSpace([string]$optionRecord.type)) { "toggle" } else { [string]$optionRecord.type }
-                                        defaultEnabled = ($(if ($null -ne $optionRecord.default) { [int]$optionRecord.default } else { 0 }) -gt 0)
-                                        enabledValue = $enabledValue
-                                        requiresPrestigeMask = if ($null -ne $optionRecord.requires_prestige_mask) { [int]$optionRecord.requires_prestige_mask } else { $prestigeBitMask }
-                                        overrideValue = if ([string]::IsNullOrWhiteSpace($bankKey)) { "" } else { "$bankCommander.$bankKey=$enabledValue" }
+                            extraOptions = @(
+                                if ($null -ne $prestigeRecord.PSObject.Properties["extra_options"]) {
+                                    foreach ($optionRecord in @($prestigeRecord.extra_options)) {
+                                        if ($null -eq $optionRecord) {
+                                            continue
+                                        }
+                                        $optionId = [string]$optionRecord.id
+                                        $bankKey = [string]$optionRecord.bank_key
+                                        if ([string]::IsNullOrWhiteSpace($optionId) -or [string]::IsNullOrWhiteSpace($bankKey)) {
+                                            continue
+                                        }
+                                        $enabledValue = if ($null -ne $optionRecord.enabled_value) { [int]$optionRecord.enabled_value } else { 1 }
+                                        [pscustomobject]@{
+                                            id = $optionId
+                                            bankKey = $bankKey
+                                            name = [string]$optionRecord.name
+                                            description = ConvertFrom-SC2Text ([string]$optionRecord.description)
+                                            type = if ([string]::IsNullOrWhiteSpace([string]$optionRecord.type)) { "toggle" } else { [string]$optionRecord.type }
+                                            defaultEnabled = ($(if ($null -ne $optionRecord.default) { [int]$optionRecord.default } else { 0 }) -gt 0)
+                                            enabledValue = $enabledValue
+                                            requiresPrestigeMask = if ($null -ne $optionRecord.requires_prestige_mask) { [int]$optionRecord.requires_prestige_mask } else { $prestigeBitMask }
+                                            overrideValue = "$bankCommander.$bankKey=$enabledValue"
+                                        }
                                     }
-                                })
+                                }
+                            )
                         }
                     })
                 masteries = @($commanderRecord.masteries | ForEach-Object {

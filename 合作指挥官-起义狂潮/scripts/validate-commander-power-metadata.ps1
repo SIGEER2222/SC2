@@ -8,6 +8,8 @@ $ErrorActionPreference = "Stop"
 
 . (Join-Path $PSScriptRoot "commander-power-metadata.ps1")
 
+$script:RaynorBioSuperStimExpectedName = ([string][char]0x5F3A) + ([string][char]0x5316) + ([string][char]0x5174) + ([string][char]0x594B) + ([string][char]0x5242)
+
 function Resolve-ExistingPath {
     param(
         [object[]]$Candidates,
@@ -58,6 +60,19 @@ function Assert-PrestigeHasNoNegativeFields {
         Assert-True -Condition ($null -ne $property) -Message ("{0} is missing metadata field {1}." -f $Label, $propertyName)
         Assert-True -Condition (@($Prestige.$propertyName).Count -eq 0) -Message ("{0} still contains entries in metadata field {1}." -f $Label, $propertyName)
     }
+}
+
+function Assert-TrueExtraOption {
+    param(
+        [pscustomobject]$Option,
+        [string]$PropertyName,
+        [object]$ExpectedValue,
+        [string]$Message
+    )
+
+    $property = $Option.PSObject.Properties[$PropertyName]
+    Assert-True -Condition ($null -ne $property) -Message $Message
+    Assert-True -Condition ([string]$property.Value -eq [string]$ExpectedValue) -Message $Message
 }
 
 function Read-LocalizedStringMap {
@@ -331,6 +346,18 @@ foreach ($commander in $metadata.commanders) {
         $expectedTooltip = [string]$zhMap[$expectedTooltipKey]
         Assert-True -Condition ([string]$metadataPrestige.tooltip -eq $expectedTooltip) -Message ("Prestige zhCN tooltip mismatch for {0} slot {1}" -f $officialFolder, $slot)
         Assert-PrestigeHasNoNegativeFields -Prestige $metadataPrestige -Label ("Prestige {0} slot {1}" -f $officialFolder, $slot)
+        if (($officialFolder -eq "Raynor") -and ($slot -eq 0)) {
+            $extraOptions = @($metadataPrestige.extra_options)
+            Assert-True -Condition ($extraOptions.Count -ge 1) -Message "Raynor slot 0 must expose at least one extra option."
+            $bioSuperStim = @($extraOptions | Where-Object { [string]$_.id -eq "BioSuperStim" } | Select-Object -First 1)
+            Assert-True -Condition ($bioSuperStim.Count -eq 1) -Message "Raynor slot 0 must expose BioSuperStim extra option."
+            Assert-TrueExtraOption -Option $bioSuperStim[0] -PropertyName "bank_key" -ExpectedValue "BioSuperStim" -Message "Raynor BioSuperStim bank key mismatch."
+            Assert-TrueExtraOption -Option $bioSuperStim[0] -PropertyName "name" -ExpectedValue $script:RaynorBioSuperStimExpectedName -Message "Raynor BioSuperStim name mismatch."
+            Assert-TrueExtraOption -Option $bioSuperStim[0] -PropertyName "type" -ExpectedValue "toggle" -Message "Raynor BioSuperStim type mismatch."
+            Assert-TrueExtraOption -Option $bioSuperStim[0] -PropertyName "default" -ExpectedValue "0" -Message "Raynor BioSuperStim default mismatch."
+            Assert-TrueExtraOption -Option $bioSuperStim[0] -PropertyName "enabled_value" -ExpectedValue "1" -Message "Raynor BioSuperStim enabled_value mismatch."
+            Assert-TrueExtraOption -Option $bioSuperStim[0] -PropertyName "requires_prestige_mask" -ExpectedValue "1" -Message "Raynor BioSuperStim requires_prestige_mask mismatch."
+        }
     }
 
     Assert-True -Condition ($generatedText.Contains(('if (lp_commander == "{0}") {{' -f $bankCommander))) -Message ("Generated runtime dispatcher missing {0}" -f $bankCommander)

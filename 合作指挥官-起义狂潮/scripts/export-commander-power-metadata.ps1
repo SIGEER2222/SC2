@@ -10,6 +10,8 @@ $ErrorActionPreference = "Stop"
 
 . (Join-Path $PSScriptRoot "commander-power-metadata.ps1")
 
+$script:RaynorBioSuperStimExtraOption = '{"id":"BioSuperStim","bank_key":"BioSuperStim","name":"\u5f3a\u5316\u5174\u594b\u5242","description":"\u542f\u7528\u540e\uff0c\u67aa\u5175\u548c\u52ab\u63a0\u8005\u4f7f\u7528\u5f3a\u5316\u7248\u5174\u594b\u5242\uff1b\u5173\u95ed\u65f6\u5219\u4fdd\u7559\u666e\u901a\u6263\u8840\u5174\u594b\u5242\u3002","type":"toggle","default":0,"enabled_value":1,"requires_prestige_mask":1}' | ConvertFrom-Json
+
 function Resolve-ExistingPath {
     param(
         [object[]]$Candidates,
@@ -243,6 +245,7 @@ function Get-ConcreteBankKeys {
 
 function New-PrestigeEntry {
     param(
+        [string]$OfficialFolder,
         [pscustomobject]$Prestige,
         [int]$Slot,
         [string]$ButtonId,
@@ -294,11 +297,30 @@ function New-PrestigeEntry {
         upgrade_supplements = $supplements
     }
 
+    $mergedExtraOptions = New-Object System.Collections.Generic.List[object]
+    $seenExtraOptionIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    if (($OfficialFolder -eq "Raynor") -and ($Slot -eq 0)) {
+        $mergedExtraOptions.Add($script:RaynorBioSuperStimExtraOption.PSObject.Copy()) | Out-Null
+        $seenExtraOptionIds.Add("BioSuperStim") | Out-Null
+    }
+
     if (($null -ne $ExistingPrestige) -and ($null -ne $ExistingPrestige.PSObject.Properties["fusion_primary_upgrade"])) {
         $entry.fusion_primary_upgrade = [string]$ExistingPrestige.fusion_primary_upgrade
     }
     if (($null -ne $ExistingPrestige) -and ($null -ne $ExistingPrestige.PSObject.Properties["extra_options"])) {
-        $entry.extra_options = @($ExistingPrestige.extra_options)
+        foreach ($existingOption in @($ExistingPrestige.extra_options)) {
+            $existingOptionId = [string]$existingOption.id
+            if ([string]::IsNullOrWhiteSpace($existingOptionId)) {
+                $mergedExtraOptions.Add($existingOption) | Out-Null
+                continue
+            }
+            if ($seenExtraOptionIds.Add($existingOptionId)) {
+                $mergedExtraOptions.Add($existingOption) | Out-Null
+            }
+        }
+    }
+    if ($mergedExtraOptions.Count -gt 0) {
+        $entry.extra_options = $mergedExtraOptions.ToArray()
     }
 
     return $entry
@@ -371,7 +393,7 @@ function New-CommanderEntry {
     for ($index = 0; $index -lt @($prestiges).Count; $index++) {
         $buttonId = if ($index -lt $prestigeButtonIds.Count) { $prestigeButtonIds[$index] } else { [string]$prestiges[$index].id }
         $existingPrestige = Get-ExistingPrestigeOverride -ExistingMetadata $ExistingMetadata -OfficialFolder $Folder -Slot $index
-        $prestigeEntries += New-PrestigeEntry -Prestige $prestiges[$index] -Slot $index -ButtonId $buttonId -ZhMap $ZhMap -EnMap $EnMap -ExistingPrestige $existingPrestige
+        $prestigeEntries += New-PrestigeEntry -OfficialFolder $Folder -Prestige $prestiges[$index] -Slot $index -ButtonId $buttonId -ZhMap $ZhMap -EnMap $EnMap -ExistingPrestige $existingPrestige
     }
 
     $masteryEntries = @()
