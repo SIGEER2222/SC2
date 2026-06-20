@@ -161,6 +161,121 @@ point lib1_gf_AllyAISpawnOffset (int lp_player, fixed lp_x, fixed lp_y) {
     return PointWithOffset(lib1_gf_AllyAIHomePoint(lp_player), lv_x, lv_y);
 }
 
+point lib1_gf_AllyAIBasePoint (int lp_player) {
+    return lib1_gf_AllyAISpawnOffset(lp_player, 14.0, 12.0);
+}
+
+point lib1_gf_AllyAIWallPoint (int lp_player) {
+    return lib1_gf_AllyAISpawnOffset(lp_player, 20.0, 4.0);
+}
+
+point lib1_gf_AllyAIBunkerPoint (int lp_player) {
+    return lib1_gf_AllyAISpawnOffset(lp_player, 24.0, 4.0);
+}
+
+point lib1_gf_AllyAITankPoint (int lp_player) {
+    return lib1_gf_AllyAISpawnOffset(lp_player, 17.0, 8.0);
+}
+
+point lib1_gf_AllyAITurretPoint (int lp_player) {
+    return lib1_gf_AllyAISpawnOffset(lp_player, 8.0, 18.0);
+}
+
+int lib1_gf_AllyAICountNearbyType (int lp_player, string lp_unitType, point lp_center, fixed lp_radius) {
+    return UnitGroupCount(UnitGroup(lp_unitType, lp_player, RegionCircle(lp_center, lp_radius), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
+}
+
+unit lib1_gf_AllyAINearestMineral (point lp_center) {
+    unitgroup lv_minerals;
+    unit lv_target;
+
+    lv_minerals = UnitGroup("MineralField", c_playerAny, RegionCircle(lp_center, 18.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    UnitGroupAddUnitGroup(lv_minerals, UnitGroup("RichMineralField", c_playerAny, RegionCircle(lp_center, 18.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    lv_target = libNtve_gf_ClosestUnitToPoint(lp_center, lv_minerals);
+    if (lv_target != null) {
+        return lv_target;
+    }
+
+    lv_minerals = UnitGroup("MineralField", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    UnitGroupAddUnitGroup(lv_minerals, UnitGroup("RichMineralField", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    return libNtve_gf_ClosestUnitToPoint(lp_center, lv_minerals);
+}
+
+void lib1_gf_AllyAIOrderWorkersToMine (int lp_player) {
+    point lv_base;
+    unit lv_mineral;
+    unitgroup lv_workers;
+    int lv_count;
+    unit lv_worker;
+
+    lv_base = lib1_gf_AllyAIBasePoint(lp_player);
+    lv_mineral = lib1_gf_AllyAINearestMineral(lv_base);
+    if (lv_mineral == null) {
+        return;
+    }
+
+    lv_workers = UnitGroup("SCV", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_count = UnitGroupCount(lv_workers, c_unitCountAlive);
+    for (;; lv_count -= 1) {
+        lv_worker = UnitGroupUnitFromEnd(lv_workers, lv_count);
+        if (lv_worker == null) {
+            break;
+        }
+        if (DistanceBetweenPoints(UnitGetPosition(lv_worker), lv_base) > 35.0) {
+            continue;
+        }
+        if (UnitOrder(lv_worker, 0) == null) {
+            UnitIssueOrder(lv_worker, OrderTargetingUnit(AbilityCommand("SCVHarvest", 0), lv_mineral), c_orderQueueReplace);
+        }
+    }
+}
+
+void lib1_gf_AllyAISiegeHomeTanks (int lp_player) {
+    point lv_home;
+    unitgroup lv_tanks;
+    int lv_count;
+    unit lv_tank;
+
+    lv_home = lib1_gf_AllyAIHomePoint(lp_player);
+    lv_tanks = UnitGroup("SiegeTank", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_count = UnitGroupCount(lv_tanks, c_unitCountAlive);
+    for (;; lv_count -= 1) {
+        lv_tank = UnitGroupUnitFromEnd(lv_tanks, lv_count);
+        if (lv_tank == null) {
+            break;
+        }
+        if (DistanceBetweenPoints(UnitGetPosition(lv_tank), lv_home) > 18.0) {
+            continue;
+        }
+        if (UnitOrder(lv_tank, 0) == null) {
+            UnitIssueOrder(lv_tank, Order(AbilityCommand("SiegeMode", 0)), c_orderQueueReplace);
+        }
+    }
+}
+
+void lib1_gf_AllyAIRefreshStock (int lp_player) {
+    AIEnableStock(lp_player);
+    AIClearStock(lp_player);
+    AIHarvestBonus(lp_player, 1.6);
+    AISetStockTown(lp_player, "CommandCenter", "Refinery");
+    AISetStockExpand(lp_player, "CommandCenter", 2);
+    AISetStockFarms(lp_player, "SupplyDepot", true);
+    AISetStockPeons(lp_player, 28, "SCV", false, true);
+    AISetStock(lp_player, 2, "Barracks");
+    AISetStock(lp_player, 1, "Factory");
+    AISetStock(lp_player, 1, "Starport");
+    AISetStock(lp_player, 1, "EngineeringBay");
+    AISetStock(lp_player, 1, "Armory");
+    AISetStock(lp_player, 1, "Bunker");
+    AISetStock(lp_player, 2, "MissileTurret");
+    AISetStock(lp_player, 24, "Marine");
+    AISetStock(lp_player, 8, "Marauder");
+    AISetStock(lp_player, 4, "Medic");
+    AISetStock(lp_player, 4, "SiegeTank");
+    AISetStock(lp_player, 6, "Viking");
+    AISetStock(lp_player, 2, "Battlecruiser");
+}
+
 void lib1_gf_AllyAISetFullAlliance (int lp_source, int lp_target) {
     PlayerSetAlliance(lp_source, c_allianceIdPassive, lp_target, true);
     PlayerSetAlliance(lp_source, c_allianceIdVision, lp_target, true);
@@ -258,21 +373,72 @@ void lib1_gf_AllyAISetEconomyAndTech (int lp_player) {
 
 void lib1_gf_AllyAIEnsurePlayerLoaded (int lp_player) {
     point lv_home;
-    unitgroup lv_structures;
+    point lv_base;
+    int lv_missing;
 
     lv_home = lib1_gf_AllyAIHomePoint(lp_player);
-    lv_structures = UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterHeroic) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-    if (UnitGroupCount(lv_structures, c_unitCountAlive) > 0) {
-        return;
+    lv_base = lib1_gf_AllyAIBasePoint(lp_player);
+
+    if (lib1_gf_AllyAICountNearbyType(lp_player, "CommandCenter", lv_home, 20.0) < 1) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "CommandCenter", 0, lp_player, lv_base);
     }
 
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, "CommandCenter", c_unitCreateIgnorePlacement, lp_player, lv_home);
-    libNtve_gf_CreateUnitsWithDefaultFacing(12, "SCV", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 4.0, 3.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(10, "Marine", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 6.0, 6.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(4, "Marauder", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 8.0, 2.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Medic", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 3.0, 8.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(2, "SiegeTank", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 10.0, 5.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(2, "MissileTurret", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 5.0, 10.0));
+    lv_missing = 16 - lib1_gf_AllyAICountNearbyType(lp_player, "SCV", lv_home, 30.0);
+    if (lv_missing > 0) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(lv_missing, "SCV", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 4.0, 3.0));
+    }
+
+    if (lib1_gf_AllyAICountNearbyType(lp_player, "SupplyDepot", lv_home, 30.0) < 2) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SupplyDepot", 0, lp_player, lib1_gf_AllyAIWallPoint(lp_player));
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SupplyDepot", 0, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 20.0, 7.0));
+    }
+    if (lib1_gf_AllyAICountNearbyType(lp_player, "Barracks", lv_home, 30.0) < 2) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Barracks", 0, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 11.0, 5.0));
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Barracks", 0, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 13.0, 1.0));
+    }
+    if (lib1_gf_AllyAICountNearbyType(lp_player, "Factory", lv_home, 30.0) < 1) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Factory", 0, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 7.0, 5.0));
+    }
+    if (lib1_gf_AllyAICountNearbyType(lp_player, "Starport", lv_home, 30.0) < 1) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Starport", 0, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 7.0, 1.0));
+    }
+    if (lib1_gf_AllyAICountNearbyType(lp_player, "EngineeringBay", lv_home, 30.0) < 1) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "EngineeringBay", 0, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 1.0, 9.0));
+    }
+    if (lib1_gf_AllyAICountNearbyType(lp_player, "Armory", lv_home, 30.0) < 1) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Armory", 0, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 1.0, 5.0));
+    }
+    if (lib1_gf_AllyAICountNearbyType(lp_player, "Bunker", lv_home, 30.0) < 1) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Bunker", 0, lp_player, lib1_gf_AllyAIBunkerPoint(lp_player));
+    }
+    if (lib1_gf_AllyAICountNearbyType(lp_player, "MissileTurret", lv_home, 30.0) < 2) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "MissileTurret", 0, lp_player, lib1_gf_AllyAITurretPoint(lp_player));
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "MissileTurret", 0, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 8.0, 14.0));
+    }
+
+    lv_missing = 10 - lib1_gf_AllyAICountNearbyType(lp_player, "Marine", lv_home, 45.0);
+    if (lv_missing > 0) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(lv_missing, "Marine", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 6.0, 6.0));
+    }
+    lv_missing = 4 - lib1_gf_AllyAICountNearbyType(lp_player, "Marauder", lv_home, 45.0);
+    if (lv_missing > 0) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(lv_missing, "Marauder", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 8.0, 2.0));
+    }
+    lv_missing = 3 - lib1_gf_AllyAICountNearbyType(lp_player, "Medic", lv_home, 45.0);
+    if (lv_missing > 0) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(lv_missing, "Medic", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 3.0, 8.0));
+    }
+    lv_missing = 2 - lib1_gf_AllyAICountNearbyType(lp_player, "SiegeTank", lv_home, 45.0);
+    if (lv_missing > 0) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(lv_missing, "SiegeTank", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAITankPoint(lp_player));
+    }
+    lv_missing = 2 - lib1_gf_AllyAICountNearbyType(lp_player, "Viking", lv_home, 45.0);
+    if (lv_missing > 0) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(lv_missing, "Viking", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 5.0, 12.0));
+    }
+
+    lib1_gf_AllyAIOrderWorkersToMine(lp_player);
+    lib1_gf_AllyAISiegeHomeTanks(lp_player);
 }
 
 void lib1_gf_AllyAIGuardPlayer (int lp_player) {
@@ -296,6 +462,17 @@ void lib1_gf_AllyAIGuardPlayer (int lp_player) {
         }
 
         AISetUnitScriptControlled(lv_unit, true);
+        if ((UnitGetType(lv_unit) == "SiegeTank") || (UnitGetType(lv_unit) == "SiegeTankSieged")) {
+            if (DistanceBetweenPoints(UnitGetPosition(lv_unit), lv_home) > 14.0) {
+                UnitIssueOrder(lv_unit, OrderTargetingPoint(AbilityCommand("attack", 0), lib1_gf_AllyAITankPoint(lp_player)), c_orderQueueReplace);
+            }
+            else {
+                if ((UnitGetType(lv_unit) == "SiegeTank") && (UnitOrder(lv_unit, 0) == null)) {
+                    UnitIssueOrder(lv_unit, Order(AbilityCommand("SiegeMode", 0)), c_orderQueueReplace);
+                }
+            }
+            continue;
+        }
         if (DistanceBetweenPoints(UnitGetPosition(lv_unit), lv_home) > 38.0) {
             UnitIssueOrder(lv_unit, OrderTargetingPoint(AbilityCommand("attack", 0), lv_home), c_orderQueueReplace);
         }
@@ -314,6 +491,7 @@ void lib1_gf_AllyAIStartPlayer (int lp_player) {
     lib1_gf_AllyAIEnsurePlayerLoaded(lp_player);
     lib1_gf_AllyAISetEconomyAndTech(lp_player);
     AICampaignStart(lp_player);
+    lib1_gf_AllyAIRefreshStock(lp_player);
     AIToggleBulliesInRegion(lp_player, RegionEntireMap(), true);
     AISetDifficulty(lp_player, c_diffRepairDamage, true);
     AISetDifficulty(lp_player, c_diffOptimizeGas, true);
@@ -327,7 +505,10 @@ void lib1_gf_AllyAIStartPlayer (int lp_player) {
     AISetDifficulty(lp_player, c_diffBalancePeonsAcrossBases, true);
     AISetDifficulty(lp_player, c_diffWaveLeashing, true);
     AISetDifficulty(lp_player, c_diffAdvancedRetreatLogic, true);
+    AISetDifficulty(lp_player, c_diffSetRallyPoints, true);
     lib1_gf_AllyAIGuardPlayer(lp_player);
+    lib1_gf_AllyAIOrderWorkersToMine(lp_player);
+    lib1_gf_AllyAISiegeHomeTanks(lp_player);
 }
 
 // Triggers
@@ -355,6 +536,7 @@ bool lib1_gt_E6B8B8E6888FE5BC80E5A78B_Func (bool testConds, bool runActions) {
     }
 
     MeleeInitUnits();
+    GameSetSpeedValue(c_gameSpeedFaster);
     BankLoad(lib1_gv__7V1E695B0E68DAEE99B86E69687E4BBB6E5908DE7A7B0, 1);
     lib1_gv__7v1E695B0E68DAEE99B86E69687E4BBB6[1] = BankLastCreated();
     lib1_gv_e6B8B8E6888FE59CBAE6ACA1 = BankValueGetAsInt(lib1_gv__7v1E695B0E68DAEE99B86E69687E4BBB6[1], "2708C7D4F99BF", "27C7D4F99BF");
@@ -2845,6 +3027,9 @@ bool lib1_gt_AllyAIEconomy_Func (bool testConds, bool runActions) {
             lib1_gf_AllyAIConfigurePlayerSlot(lv_player);
             lib1_gf_AllyAIEnsurePlayerLoaded(lv_player);
             lib1_gf_AllyAISetEconomyAndTech(lv_player);
+            lib1_gf_AllyAIRefreshStock(lv_player);
+            lib1_gf_AllyAIOrderWorkersToMine(lv_player);
+            lib1_gf_AllyAISiegeHomeTanks(lv_player);
         }
     }
     return true;
