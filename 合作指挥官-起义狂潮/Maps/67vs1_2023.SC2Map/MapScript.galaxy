@@ -145,6 +145,22 @@ point lib1_gf_AllyAIHomePoint (int lp_player) {
     return PointFromId(5);
 }
 
+point lib1_gf_AllyAISpawnOffset (int lp_player, fixed lp_x, fixed lp_y) {
+    fixed lv_x;
+    fixed lv_y;
+
+    lv_x = lp_x;
+    lv_y = lp_y;
+    if ((lp_player >= 2) && (lp_player <= 6)) {
+        lv_x = -lp_x;
+    }
+    if ((lp_player == 2) || (lp_player == 3)) {
+        lv_y = -lp_y;
+    }
+
+    return PointWithOffset(lib1_gf_AllyAIHomePoint(lp_player), lv_x, lv_y);
+}
+
 void lib1_gf_AllyAISetFullAlliance (int lp_source, int lp_target) {
     PlayerSetAlliance(lp_source, c_allianceIdPassive, lp_target, true);
     PlayerSetAlliance(lp_source, c_allianceIdVision, lp_target, true);
@@ -251,12 +267,12 @@ void lib1_gf_AllyAIEnsurePlayerLoaded (int lp_player) {
     }
 
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "CommandCenter", c_unitCreateIgnorePlacement, lp_player, lv_home);
-    libNtve_gf_CreateUnitsWithDefaultFacing(12, "SCV", c_unitCreateIgnorePlacement, lp_player, PointWithOffset(lv_home, 5.0, 45.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(10, "Marine", c_unitCreateIgnorePlacement, lp_player, PointWithOffset(lv_home, 8.0, 135.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(4, "Marauder", c_unitCreateIgnorePlacement, lp_player, PointWithOffset(lv_home, 9.0, 180.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Medic", c_unitCreateIgnorePlacement, lp_player, PointWithOffset(lv_home, 8.0, 225.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(2, "SiegeTank", c_unitCreateIgnorePlacement, lp_player, PointWithOffset(lv_home, 11.0, 270.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(2, "MissileTurret", c_unitCreateIgnorePlacement, lp_player, PointWithOffset(lv_home, 12.0, 315.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(12, "SCV", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 4.0, 3.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(10, "Marine", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 6.0, 6.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(4, "Marauder", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 8.0, 2.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Medic", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 3.0, 8.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "SiegeTank", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 10.0, 5.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "MissileTurret", c_unitCreateIgnorePlacement, lp_player, lib1_gf_AllyAISpawnOffset(lp_player, 5.0, 10.0));
 }
 
 void lib1_gf_AllyAIGuardPlayer (int lp_player) {
@@ -401,7 +417,7 @@ bool lib1_gt_E6B8B8E6888FE5BC80E5A78B_Func (bool testConds, bool runActions) {
         PlayerSetAlliance(6, c_allianceIdPower, lv_n, true);
         PlayerSetAlliance(7, c_allianceIdPower, lv_n, true);
     }
-    VisRevealArea(1, RegionFromId(1), 3600.0, false);
+    VisRevealArea(1, RegionEntireMap(), 3600.0, false);
     auto99B85EB1_g = UnitGroup("Overlord", 8, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     auto99B85EB1_u = UnitGroupCount(auto99B85EB1_g, c_unitCountAll);
     for (;; auto99B85EB1_u -= 1) {
