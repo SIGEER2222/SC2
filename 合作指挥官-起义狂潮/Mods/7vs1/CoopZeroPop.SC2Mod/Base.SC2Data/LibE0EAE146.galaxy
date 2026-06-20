@@ -101,6 +101,7 @@ void libE0EAE146_InitVariables () {
     libE0EAE146_gv_genericBonusControllerRequired = false;
     libE0EAE146_gv_genericBonusController = null;
     libE0EAE146_gv_effectiveBaseAnchor = null;
+    libE0EAE146_gv_delayedMapBaseInitialized = false;
     libE0EAE146_gt_GenericBonusMechanicalRepair = null;
     libE0EAE146_gt_GenericBonusCreepRegen = null;
     libE0EAE146_gt_GenericBonusControllerWatchdog = null;
@@ -251,7 +252,7 @@ void libE0EAE146_gf_Initialize (bool lp_rpg) {
     libE0EAE146_gf_RuntimeCheckpoint("Initialize.exit");
 }
 
-void libE0EAE146_gf_InitializeMapScenario (string lp_mapId, bool lp_rpg) {
+void libE0EAE146_gf_InitializeMapBaseScenario (string lp_mapId) {
     point lv_secondUnit;
     int lv_worker;
     point lv_secondBase;
@@ -269,8 +270,12 @@ void libE0EAE146_gf_InitializeMapScenario (string lp_mapId, bool lp_rpg) {
     else if (lp_mapId == "tzeratul03_7vs1") {
         lv_secondUnit = PointFromId(2109449659);
     }
-    libE0EAE146_gf_Initialize(lp_rpg);
     libE0EAE146_gf_InitializeBase(lv_secondUnit, lv_worker, lv_secondBase, lv_createHero);
+}
+
+void libE0EAE146_gf_InitializeMapScenario (string lp_mapId, bool lp_rpg) {
+    libE0EAE146_gf_Initialize(lp_rpg);
+    libE0EAE146_gf_InitializeMapBaseScenario(lp_mapId);
 }
 
 int libE0EAE146_gf_MapStartMinerals (string lp_mapId) {
@@ -394,6 +399,29 @@ void libE0EAE146_gf_InitializeConfiguredMapScenario (string lp_mapId, bool lp_rp
         UnitEventSetNullVariableInvalid(true);
     }
     libE0EAE146_gf_RunMapInitializationSequence(lp_preInit, lp_init01, lp_init01WaitUntilDone, lp_init02, lp_init03, lp_init04, lp_init05, lp_init06, lp_postInit, lp_intro);
+}
+
+void libE0EAE146_gf_InitializeConfiguredMapScenarioDelayedBase (string lp_mapId, bool lp_rpg, trigger lp_preInit, trigger lp_init01, bool lp_init01WaitUntilDone, trigger lp_init02, trigger lp_init03, trigger lp_init04, trigger lp_init05, trigger lp_init06, trigger lp_postInit, trigger lp_intro) {
+    libE0EAE146_gv_currentMapId = lp_mapId;
+    libE0EAE146_gv_delayedMapBaseInitialized = false;
+    libE0EAE146_gf_ApplySharedPlayerCampaignAllyCatalogSanitization(lp_mapId);
+    if (libE0EAE146_gf_MapNeedsPreInitializeRpg(lp_mapId)) {
+        libE0EAE146_gf_Initialize(true);
+    }
+    libE0EAE146_gf_ApplyMapStartResources(1, libE0EAE146_gf_MapStartMinerals(lp_mapId), libE0EAE146_gf_MapStartVespene(lp_mapId), libE0EAE146_gf_MapStartSuppliesMade(lp_mapId));
+    libE0EAE146_gf_Initialize(lp_rpg);
+    if (libE0EAE146_gf_MapNeedsUnitEventNullVariableInvalid(lp_mapId)) {
+        UnitEventSetNullVariableInvalid(true);
+    }
+    libE0EAE146_gf_RunMapInitializationSequence(lp_preInit, lp_init01, lp_init01WaitUntilDone, lp_init02, lp_init03, lp_init04, lp_init05, lp_init06, lp_postInit, lp_intro);
+}
+
+void libE0EAE146_gf_InitializeDelayedMapBase (string lp_mapId, bool lp_rpg) {
+    if (libE0EAE146_gv_delayedMapBaseInitialized == true) {
+        return;
+    }
+    libE0EAE146_gv_delayedMapBaseInitialized = true;
+    libE0EAE146_gf_InitializeMapBaseScenario(lp_mapId);
 }
 
 bool libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly (string lp_mapId) {

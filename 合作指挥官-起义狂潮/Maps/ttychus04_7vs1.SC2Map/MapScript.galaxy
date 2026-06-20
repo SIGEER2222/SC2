@@ -323,7 +323,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    libE0EAE146_gf_InitializeConfiguredMapScenario("ttychus04_7vs1", false, null, gt_Init01Technology, true, gt_Init02Players, gt_Init03Units, gt_Init04Music, gt_Init05Environment, gt_Init06Difficulties, null, gt_IntroSequence);
+    libE0EAE146_gf_InitializeConfiguredMapScenarioDelayedBase("ttychus04_7vs1", false, null, gt_Init01Technology, true, gt_Init02Players, gt_Init03Units, gt_Init04Music, gt_Init05Environment, gt_Init06Difficulties, null, gt_IntroSequence);
     return true;
 }
 
@@ -497,7 +497,7 @@ bool gt_Init03Units_Func (bool testConds, bool runActions) {
         UnitSetState(auto4F3CD872_var, c_unitStateUsingSupply, false);
         AISetUnitScriptControlled(auto4F3CD872_var, false);
     }
-    gv_stage1Enemies = UnitGroup(null, gv_pLAYER03_FORWARDGUARD, RegionFromId(16), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    gv_stage1Enemies = UnitGroup(null, gv_pLAYER03_FORWARDGUARD, RegionFromId(16), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterAir) | (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
     TriggerExecute(gt_Stage1Leashes, true, false);
     return true;
 }
@@ -828,6 +828,7 @@ bool gt_AreaClearStage2_Func (bool testConds, bool runActions) {
     TriggerEnable(gt_DefeatBansheeGroupDead, false);
     PingDestroy(gv_clearLZ_Ping);
     lib67C0F0E7_gf_ObjectiveSet(true, 1, lib67C0F0E7_ge_ObjectiveSet_Finish);
+    libE0EAE146_gf_InitializeDelayedMapBase("ttychus04_7vs1", false);
     Wait(3.0, c_timeGame);
     Wait(1.0, c_timeGame);
     TriggerExecute(gt_MidQ, true, false);

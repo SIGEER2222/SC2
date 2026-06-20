@@ -1188,7 +1188,8 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     else if (auto6FC7555F_val == "Nova") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "NovaCoop", 0, 1, PointFromId(1));
         lib0940FFB7_gf_NovaTrigger(UnitLastCreated());
-        libNtve_gf_CreateUnitsWithDefaultFacing(4, "Marine_BlackOps", 0, 1, PointFromId(1));
+        libNtve_gf_CreateUnitsWithDefaultFacing(6, "Marine_BlackOps", 0, 1, PointFromId(1));
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "Marauder_BlackOps", 0, 1, PointFromId(1));
         TechTreeUpgradeAddLevel(1, "NovaDetector", 1);
         TechTreeUpgradeAddLevel(1, "NovaSuperStim", 1);
     }
@@ -1202,8 +1203,8 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
     else if (auto6FC7555F_val == "Swann") {
         gf_CreateSwannCommanderUnits(1, 1, PointFromId(1));
         gf_CreateSwannSupportUnits(1, 1, PointFromId(1));
-        gf_CreateSwannGoliathUnits(3, 1, PointFromId(1));
-        gf_CreateSwannMicrobotUnits(3, 1, PointFromId(1));
+        gf_CreateSwannGoliathUnits(4, 1, PointFromId(1));
+        gf_CreateSwannMicrobotUnits(4, 1, PointFromId(1));
     }
     else if (auto6FC7555F_val == "Stetmann") {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterStetmann", c_unitCreateIgnorePlacement, 1, RegionGetBoundsMin(RegionEntireMap()));
@@ -1220,6 +1221,11 @@ bool gt_IntroSequence_Func (bool testConds, bool runActions) {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "OverseerStetmann", 0, 1, PointFromId(1));
         gf_CreateStetmannLarvaUnits(1, 1, PointFromId(1));
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "HydraliskStetmann", 0, 1, PointFromId(1));
+    }
+    else if (auto6FC7555F_val == "Raynor") {
+        libNtve_gf_CreateUnitsWithDefaultFacing(4, "MarineRaynor", 0, 1, PointFromId(1));
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "MarauderRaynor", 0, 1, PointFromId(1));
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "MedicRaynor", 0, 1, PointFromId(1));
     }
     else {
     }
@@ -1525,7 +1531,9 @@ bool gt_TriggerWarfieldCinematic_Func (bool testConds, bool runActions) {
     }
     libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CommanderAch", lib67C0F0E7_gf_StrToUserinstance(libE0EAE146_gv_commander), "CommandCenter", 1), 0, 1, PointFromId(1507954872));
     libNtve_gf_CreateUnitsWithDefaultFacing(2, UserDataGetUnit("CommanderAch", lib67C0F0E7_gf_StrToUserinstance(libE0EAE146_gv_commander), "Worker", 1), 0, 1, PointFromId(1507954872));
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CommanderAch", lib67C0F0E7_gf_StrToUserinstance(libE0EAE146_gv_commander), "SecondUnit", 1), 0, 1, PointFromId(2061979945));
+    if ((libE0EAE146_gv_commander != "Raynor")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CommanderAch", lib67C0F0E7_gf_StrToUserinstance(libE0EAE146_gv_commander), "SecondUnit", 1), 0, 1, PointFromId(2061979945));
+    }
     if ((libE0EAE146_gv_commander == "Tychus")) {
         lib67C0F0E7_gv_tychusSquadMainBuilding = UnitLastCreated();
     }

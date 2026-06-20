@@ -580,7 +580,7 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    libE0EAE146_gf_InitializeConfiguredMapScenario("ttychus05_7vs1", false, null, gt_Init01Technology, true, gt_Init02Players, gt_Init03Units, gt_Init04Music, gt_Init05Environment, gt_Init06Difficulties, null, gt_IntroQ);
+    libE0EAE146_gf_InitializeConfiguredMapScenarioDelayedBase("ttychus05_7vs1", false, null, gt_Init01Technology, true, gt_Init02Players, gt_Init03Units, gt_Init04Music, gt_Init05Environment, gt_Init06Difficulties, null, gt_IntroQ);
     return true;
 }
 
@@ -981,7 +981,7 @@ bool gt_Stage2_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
     // Conditions
     if (testConds) {
-        if (!((libNtve_gf_UnitGroupIsDead(UnitGroupAlliance(1, c_unitAllianceEnemy, RegionFromId(2), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0)) == true))) {
+        if (!((libNtve_gf_UnitGroupIsDead(UnitGroupAlliance(1, c_unitAllianceEnemy, RegionFromId(2), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterAir) | (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0)) == true))) {
             return false;
         }
     }
@@ -993,6 +993,7 @@ bool gt_Stage2_Func (bool testConds, bool runActions) {
 
     lib67C0F0E7_gf_ObjectiveSet(true, 1, lib67C0F0E7_ge_ObjectiveSet_Finish);
     TriggerEnable(TriggerGetCurrent(), false);
+    libE0EAE146_gf_InitializeDelayedMapBase("ttychus05_7vs1", false);
     TriggerExecute(gt_BaseMidQ, true, false);
     return true;
 }
