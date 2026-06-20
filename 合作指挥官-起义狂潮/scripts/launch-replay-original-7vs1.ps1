@@ -4,7 +4,7 @@ param(
     [string]$Sc2Root = "E:\SC2\SC2new\StarCraft II",
     [string]$LiveMapName = "ReplayOriginal7vs1.SC2Map",
     [string]$LiveModName = "ReplayOriginal7vs1.SC2Mod",
-    [string]$OfficialMirrorRoot = "C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\游戏数据\官方SC2原始文本镜像\mods",
+    [string]$OfficialMirrorRoot = "",
     [switch]$NoLaunch
 )
 
@@ -116,6 +116,17 @@ function Clear-Sc2GameLogs {
         catch {
             Write-Warning "Could not remove SC2 log entry '$($_.FullName)': $($_.Exception.Message)"
         }
+    }
+}
+
+if ([string]::IsNullOrWhiteSpace($OfficialMirrorRoot)) {
+    $workspaceRoot = Split-Path -Parent $PSScriptRoot
+    $localOfficialMirrorRoot = Join-Path $workspaceRoot "游戏数据\官方SC2原始文本镜像\mods"
+    if (Test-Path -LiteralPath $localOfficialMirrorRoot) {
+        $OfficialMirrorRoot = $localOfficialMirrorRoot
+    }
+    else {
+        $OfficialMirrorRoot = "C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\游戏数据\官方SC2原始文本镜像\mods"
     }
 }
 
