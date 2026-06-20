@@ -769,6 +769,7 @@ function Get-ScoreConfig {
             [pscustomobject]@{ id = "CreepRegeneration"; costMode = "fixed"; cost = 1; label = "菌毯回血" }
             [pscustomobject]@{ id = "MechanicalRepair"; costMode = "fixed"; cost = 1; label = "机械维修" }
             [pscustomobject]@{ id = "ChronoBoost"; costMode = "fixed"; cost = 2; label = "时空加速" }
+            [pscustomobject]@{ id = "AbathurBiomassDrop"; costMode = "fixed"; cost = 2; label = "生物质掉落" }
             [pscustomobject]@{ id = "AllyEarlyDamageReduction"; costMode = "fixed"; cost = 2; label = "盟友开局减伤" }
             [pscustomobject]@{ id = "AllySustainBoost"; costMode = "fixed"; cost = 3; label = "盟友持续强化" }
             [pscustomobject]@{ id = "MaxSupply50"; costMode = "fixed"; cost = 1; label = "人口上限+50" }
@@ -1261,6 +1262,7 @@ function ConvertTo-LaunchArgumentList {
         "CreepRegeneration",
         "MechanicalRepair",
         "ChronoBoost",
+        "AbathurBiomassDrop",
         "AllyEarlyDamageReduction",
         "AllySustainBoost",
         "MaxSupply50",

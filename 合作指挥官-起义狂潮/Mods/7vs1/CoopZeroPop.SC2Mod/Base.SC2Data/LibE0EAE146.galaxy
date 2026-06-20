@@ -1202,6 +1202,7 @@ void libE0EAE146_gf_GenericBonusApplyPassives (int lp_player) {
     bool lv_creepRegeneration;
     bool lv_mechanicalRepair;
     bool lv_chronoBoost;
+    bool lv_abathurBiomassDrop;
 
     lv_doubleMineralsLevel = libE0EAE146_gf_GenericBonusLevel("DoubleMinerals");
     lv_doubleVespeneLevel = libE0EAE146_gf_GenericBonusLevel("DoubleVespene");
@@ -1210,6 +1211,7 @@ void libE0EAE146_gf_GenericBonusApplyPassives (int lp_player) {
     lv_creepRegeneration = libE0EAE146_gf_GenericBonusEnabled("CreepRegeneration");
     lv_mechanicalRepair = libE0EAE146_gf_GenericBonusEnabled("MechanicalRepair");
     lv_chronoBoost = libE0EAE146_gf_GenericBonusEnabled("ChronoBoost");
+    lv_abathurBiomassDrop = libE0EAE146_gf_GenericBonusEnabled("AbathurBiomassDrop");
 
     if (lv_doubleMineralsLevel > 0) {
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusDoubleMinerals", 1);
@@ -1240,6 +1242,10 @@ void libE0EAE146_gf_GenericBonusApplyPassives (int lp_player) {
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "KaraxSOAChronoPassive", 1);
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "SOAMapWideChronoUpgrade", 1);
         libE0EAE146_gf_AllowAbilityIfPresent(lp_player, "SOAMapWideChrono", 0);
+    }
+    if (lv_abathurBiomassDrop) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusAbathurBiomassDrop", 1);
+        libE0EAE146_gf_EnableAbathurBiomassForGenericBonus(lp_player, "BiomassPickupDummy");
     }
 
     libE0EAE146_gf_GenericBonusEnsureTriggers();
@@ -1377,6 +1383,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     bool lv_creepRegeneration;
     bool lv_mechanicalRepair;
     bool lv_chronoBoost;
+    bool lv_abathurBiomassDrop;
     bool lv_allyEarlyDamageReduction;
     bool lv_allySustainBoost;
     int lv_selectedCount;
@@ -1388,6 +1395,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     int lv_creepRegenerationInt;
     int lv_mechanicalRepairInt;
     int lv_chronoBoostInt;
+    int lv_abathurBiomassDropInt;
     int lv_allyEarlyDamageReductionInt;
     int lv_allySustainBoostInt;
     unit lv_controller;
@@ -1406,6 +1414,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     lv_creepRegeneration = libE0EAE146_gf_GenericBonusEnabled("CreepRegeneration");
     lv_mechanicalRepair = libE0EAE146_gf_GenericBonusEnabled("MechanicalRepair");
     lv_chronoBoost = libE0EAE146_gf_GenericBonusEnabled("ChronoBoost");
+    lv_abathurBiomassDrop = libE0EAE146_gf_GenericBonusEnabled("AbathurBiomassDrop");
     lv_allyEarlyDamageReduction = libE0EAE146_gf_GenericBonusEnabled("AllyEarlyDamageReduction");
     lv_allySustainBoost = libE0EAE146_gf_GenericBonusEnabled("AllySustainBoost");
     lv_selectedCount = 0;
@@ -1416,11 +1425,12 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     if (lv_creepRegeneration) { lv_selectedCount += 1; }
     if (lv_mechanicalRepair) { lv_selectedCount += 1; }
     if (lv_chronoBoost) { lv_selectedCount += 1; }
+    if (lv_abathurBiomassDrop) { lv_selectedCount += 1; }
     if (lv_allyEarlyDamageReduction) { lv_selectedCount += 1; }
     if (lv_allySustainBoost) { lv_selectedCount += 1; }
 
     libE0EAE146_gv_genericBonusesApplied = true;
-    libE0EAE146_gv_genericBonusControllerRequired = ((lv_doubleMineralsLevel > 0) || (lv_doubleVespeneLevel > 0) || lv_richResources || lv_guardianShell || lv_creepRegeneration || lv_mechanicalRepair || lv_chronoBoost);
+    libE0EAE146_gv_genericBonusControllerRequired = ((lv_doubleMineralsLevel > 0) || (lv_doubleVespeneLevel > 0) || lv_richResources || lv_guardianShell || lv_creepRegeneration || lv_mechanicalRepair || lv_chronoBoost || lv_abathurBiomassDrop);
     if ((lv_doubleMineralsLevel > 0) || (lv_doubleVespeneLevel > 0) || lv_richResources) {
         libE0EAE146_gf_GenericBonusApplyResources(lv_doubleMineralsLevel, lv_doubleVespeneLevel, lv_richResources);
     }
@@ -1440,6 +1450,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     lv_creepRegenerationInt = 0;
     lv_mechanicalRepairInt = 0;
     lv_chronoBoostInt = 0;
+    lv_abathurBiomassDropInt = 0;
     lv_allyEarlyDamageReductionInt = 0;
     lv_allySustainBoostInt = 0;
     lv_doubleMineralsInt = lv_doubleMineralsLevel;
@@ -1449,6 +1460,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     if (lv_creepRegeneration) { lv_creepRegenerationInt = 1; }
     if (lv_mechanicalRepair) { lv_mechanicalRepairInt = 1; }
     if (lv_chronoBoost) { lv_chronoBoostInt = 1; }
+    if (lv_abathurBiomassDrop) { lv_abathurBiomassDropInt = 1; }
     if (lv_allyEarlyDamageReduction) { lv_allyEarlyDamageReductionInt = 1; }
     if (lv_allySustainBoost) { lv_allySustainBoostInt = 1; }
     lv_controllerCreated = 0;
@@ -1466,6 +1478,7 @@ void libE0EAE146_gf_ApplyGenericBonuses (int lp_player) {
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusCreepRegeneration", lv_creepRegenerationInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMechanicalRepair", lv_mechanicalRepairInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusChronoBoost", lv_chronoBoostInt);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusAbathurBiomassDrop", lv_abathurBiomassDropInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusAllyEarlyDamageReduction", lv_allyEarlyDamageReductionInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusAllySustainBoost", lv_allySustainBoostInt);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusControllerCreated", lv_controllerCreated);

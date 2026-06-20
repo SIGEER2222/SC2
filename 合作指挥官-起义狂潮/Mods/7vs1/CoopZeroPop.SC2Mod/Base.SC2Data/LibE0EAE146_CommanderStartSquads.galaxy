@@ -18,6 +18,12 @@ void libE0EAE146_gf_InitializeAbathurBiomass (int lp_player, string lp_collectEf
         libE0EAE146_gv_abathurBiomassTestPickupCreated = libE0EAE146_gf_CreateAbathurBiomassTestPickup(PointWithOffsetPolar(PlayerStartLocation(lp_player), 4.0, 0.0), libE0EAE146_gf_AbathurBiomassMaxStacks());
     }
 }
+void libE0EAE146_gf_EnableAbathurBiomassForGenericBonus (int lp_player, string lp_collectEffect) {
+    libE0EAE146_gv_abathurBiomassPlayer = lp_player;
+    libE0EAE146_gv_abathurBiomassEffect = lp_collectEffect;
+    libE0EAE146_gv_abathurBiomassEnabled = true;
+    libE0EAE146_gf_EnableAbathurBiomassTriggers();
+}
 void libE0EAE146_gf_EnableAbathurBiomassTriggers () {
     if ((libE0EAE146_gt_AbathurBiomassDrop != null)) {
         TriggerEnable(libE0EAE146_gt_AbathurBiomassDrop, true);

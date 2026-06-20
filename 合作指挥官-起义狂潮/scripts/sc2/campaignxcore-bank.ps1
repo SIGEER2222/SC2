@@ -660,6 +660,7 @@ function Set-CampaignXCoreGenericBonuses {
         "CreepRegeneration",
         "MechanicalRepair",
         "ChronoBoost",
+        "AbathurBiomassDrop",
         "AllyEarlyDamageReduction",
         "AllySustainBoost",
         "MaxSupply50",
