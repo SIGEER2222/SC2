@@ -122,6 +122,9 @@ Assert-FixedContains $raynorRuntime 'lib67C0F0E7_gf_CU_GPInit(lp_player, "Raynor
 if ($raynorRuntime -match 'lib67C0F0E7_gf_CU_GPInit\(\s*lp_player,\s*"Raynor",\s*lv_hero') {
     throw 'Raynor runtime must not bind the topbar to the battlefield RaynorCommando hero; keep CoopCasterRaynor as the topbar caster.'
 }
+foreach ($cmd in @(1, 3, 4)) {
+    Assert-FixedContains $raynorRuntime ('libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StarportTrainRaynor", {0});' -f $cmd) "Raynor runtime must allow StarportTrainRaynor command $cmd so private Banshee/Battlecruiser/Viking training is not blocked by the tech filter."
+}
 
 if (!(Test-Path -LiteralPath $commanderCatalogAbilDataPath)) {
     throw "Missing CommanderCatalog Raynor ability data: $commanderCatalogAbilDataPath"
@@ -264,6 +267,11 @@ foreach ($actor in @('SCVRaynor', 'MarineRaynor', 'CommandCenterRaynor')) {
 
 Assert-FixedContains $commanderCatalogUnitData '<LayoutButtons index="2" Face="OrbitalCommand" Type="AbilCmd" AbilCmd="UpgradeToOrbitalRaynor,Execute" Requirements="" Row="2" Column="0" />' 'CommandCenterRaynor must expose UpgradeToOrbitalRaynor on the original fixed command-card index with no requirements.'
 Assert-FixedContains $commanderCatalogUnitData '<TechTreeProducedUnitArray value="OrbitalCommandRaynor" />' 'CommandCenterRaynor must declare OrbitalCommandRaynor as a produced morph target.'
+Assert-Contains $commanderCatalogAbilData 'CAbilBuild id="TerranBuildRaynor"(?s:.*?)InfoArray index="Build2" Unit="SupplyDepotRaynor" Time="0"(?s:.*?)Button DefaultButtonFace="SupplyDepot" State="Available" Requirements=""' 'TerranBuildRaynor Build2 must expose instant SupplyDepotRaynor with no inherited requirements.'
+Assert-Contains $commanderCatalogAbilData 'CAbilTrain id="StarportTrainRaynor"(?s:.*?)InfoArray index="Train4" Time="90"(?s:.*?)Unit index="0" value="BattlecruiserRaynor"' 'StarportTrainRaynor Train4 must produce BattlecruiserRaynor.'
+Assert-Contains $commanderCatalogUnitData 'CUnit id="MedicRaynor"(?s:.*?)DefaultAcquireLevel value="Defensive"(?s:.*?)Response value="Flee"' 'MedicRaynor must use defensive acquire and flee response so it does not rush ahead during attack-move.'
+Assert-Contains $commanderCatalogUnitData 'CUnit id="FirebatRaynor"(?s:.*?)AbilArray Link="SuperStimpackMarineRaynor"(?s:.*?)AbilCmd="SuperStimpackMarineRaynor,Execute"' 'FirebatRaynor must use the unified Raynor bio stim ability.'
+Assert-Contains $commanderCatalogUnitData 'CUnit id="MarauderRaynor"(?s:.*?)AbilArray Link="SuperStimpackMarineRaynor"(?s:.*?)AbilCmd="SuperStimpackMarineRaynor,Execute"' 'MarauderRaynor must use the unified Raynor bio stim ability.'
 Assert-Contains $commanderCatalogUnitData 'CUnit id="InfestedStukovCoop"(?s:.*?)AbilArray Link="InfestedStukovCoopInfestedTerrans"(?s:.*?)AbilArray Link="SIStukovExplodeInfested" removed="1"' 'CommanderCatalog UnitData must add Stukov hero Infested Terrans and remove Explode Infested.'
 Assert-Contains $commanderCatalogUnitData 'CUnit id="InfestedStukovCoop"(?s:.*?)CardLayouts index="0" removed="1"(?s:.*?)LayoutButtons Face="InfestedStukovCoopInfestedTerrans" Type="AbilCmd" AbilCmd="InfestedStukovCoopInfestedTerrans,Execute" Row="2" Column="1"' 'CommanderCatalog UnitData must place Stukov hero Infested Terrans on the hero command card.'
 

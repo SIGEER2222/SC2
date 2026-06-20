@@ -31,8 +31,8 @@
     <InfoArray index="Build1" Unit="CommandCenterRaynor" Time="100">
       <Button DefaultButtonFace="CommandCenter" State="Available" />
     </InfoArray>
-    <InfoArray index="Build2" Unit="SupplyDepotRaynor" Time="30">
-      <Button DefaultButtonFace="SupplyDepot" State="Available" />
+    <InfoArray index="Build2" Unit="SupplyDepotRaynor" Time="0">
+      <Button DefaultButtonFace="SupplyDepot" State="Available" Requirements="" />
     </InfoArray>
     <InfoArray index="Build3" Unit="RefineryRaynor" Time="30">
       <Button DefaultButtonFace="Refinery" State="Available" />
@@ -650,30 +650,14 @@
   <CAbilMorph id="RaynorReactorMorphToStarport" parent="ReactorMorphToStarport" unit="StarportReactorRaynor" />
   <CAbilMorph id="RaynorReactorMorphToDetached" parent="ReactorMorphToDetached" unit="ReactorRaynor" />
 
-  <CAbilEffectInstant id="SuperStimpackMarineRaynor" parent="SuperStimpackMarine">
+  <CAbilEffectInstant id="SuperStimpackMarineRaynor" parent="StimpackMarauder">
+    <Effect index="0" value="StimpackRaynorApply" />
+    <Cost>
+      <Vital index="Life" value="20" />
+      <Charge Link="Abil/Stimpack" />
+      <Cooldown Link="Abil/Stimpack" />
+    </Cost>
     <CmdButtonArray index="Execute" DefaultButtonFace="MarineSuperStimpack" State="Available" Requirements="">
-      <Flags index="ToSelection" value="1" />
-    </CmdButtonArray>
-  </CAbilEffectInstant>
-  <CAbilEffectInstant id="StimpackMarauderRaynor" parent="StimpackMarauder">
-    <Effect index="0" value="StimpackMarauderRaynorApply" />
-    <Cost>
-      <Vital index="Life" value="20" />
-      <Charge Link="Abil/Stimpack" />
-      <Cooldown Link="Abil/Stimpack" />
-    </Cost>
-    <CmdButtonArray index="Execute" DefaultButtonFace="StimMarauder" State="Available" Requirements="">
-      <Flags index="ToSelection" value="1" />
-    </CmdButtonArray>
-  </CAbilEffectInstant>
-  <CAbilEffectInstant id="StimpackFirebatRaynor" parent="StimpackMarauder">
-    <Effect index="0" value="StimpackFirebatRaynorApply" />
-    <Cost>
-      <Vital index="Life" value="20" />
-      <Charge Link="Abil/Stimpack" />
-      <Cooldown Link="Abil/Stimpack" />
-    </Cost>
-    <CmdButtonArray index="Execute" DefaultButtonFace="StimMarauder" State="Available" Requirements="">
       <Flags index="ToSelection" value="1" />
     </CmdButtonArray>
   </CAbilEffectInstant>

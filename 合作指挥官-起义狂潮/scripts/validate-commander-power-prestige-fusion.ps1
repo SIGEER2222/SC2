@@ -407,10 +407,7 @@ $explicitRaynorBioChecks = @(
     @{ Upgrade = "CommanderPrestigeRaynorBioMarineUpgrade"; Unit = "MarineRaynor"; Fields = @("LifeMax", "LifeStart"); Value = "10" },
     @{ Upgrade = "CommanderPrestigeRaynorBioFirebatUpgrade"; Unit = "FirebatRaynor"; Fields = @("LifeMax", "LifeStart"); Value = "100" },
     @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Abil,SuperStimpackMarineRaynor,Cost[0].Vital[Life]"; Value = "0"; Operation = "Set" },
-    @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Abil,StimpackMarauderRaynor,Cost[0].Vital[Life]"; Value = "0"; Operation = "Set" },
-    @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Abil,StimpackFirebatRaynor,Cost[0].Vital[Life]"; Value = "0"; Operation = "Set" },
-    @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Behavior,StimpackMarauderRaynor,Modification.VitalRegenArray[Life]"; Value = "1"; Operation = "Set" },
-    @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Behavior,StimpackFirebatRaynor,Modification.VitalRegenArray[Life]"; Value = "1"; Operation = "Set" }
+    @{ Upgrade = "CommanderPrestigeRaynorBioSuperStim"; Reference = "Behavior,StimpackRaynor,Modification.VitalRegenArray[Life]"; Value = "1"; Operation = "Set" }
 )
 
 foreach ($level in 1..3) {
