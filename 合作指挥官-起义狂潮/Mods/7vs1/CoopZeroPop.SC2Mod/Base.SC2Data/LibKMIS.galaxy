@@ -2308,7 +2308,7 @@ void libKMIS_gf_CM_Mengsk_EnergyChanged (int lp_mengskPlayer) {
     if ((lp_mengskPlayer < 0) || (lp_mengskPlayer > libKCOR_gv_cCC_MAXPLAYERS)) {
         return;
     }
-    if ((libKMIS_gv_cM_GlobalCasterUnit[lp_mengskPlayer] == null) || (libKCUI_gv_cU_GPEnergyBar[lp_mengskPlayer] == c_invalidDialogControlId)) {
+    if ((libKMIS_gv_cM_GlobalCasterUnit[lp_mengskPlayer] == null) || (libKCUI_gv_cU_GPEnergyBar[lp_mengskPlayer] <= 0)) {
         return;
     }
     libNtve_gf_SetDialogItemMaximumValue(libKCUI_gv_cU_GPEnergyBar[lp_mengskPlayer], UnitGetPropertyFixed(libKMIS_gv_cM_GlobalCasterUnit[lp_mengskPlayer], c_unitPropEnergyMax, c_unitPropCurrent), PlayerGroupAll());
@@ -2421,7 +2421,13 @@ void libKMIS_gf_CM_Mengsk_GlobalCasterEnergyRegenCalculateRoyalGuard (int lp_men
     else {
         lv_roundeddisplay = 0.0;
     }
+    if ((libKCUI_gv_cU_GPMengskEnergyRegenRoyalGuardContainer[lp_mengskPlayer] <= 0)) {
+        return;
+    }
     DialogControlHookup(libKCUI_gv_cU_GPMengskEnergyRegenRoyalGuardContainer[lp_mengskPlayer], c_triggerControlTypeLabel, "Value");
+    if ((DialogControlLastCreated() <= 0)) {
+        return;
+    }
     libNtve_gf_SetDialogItemText(DialogControlLastCreated(), FixedToText(lv_roundeddisplay, 0), PlayerGroupAll());
 }
 
@@ -2445,7 +2451,13 @@ void libKMIS_gf_CM_Mengsk_GlobalCasterEnergyRegenCalculateTrooper (int lp_mengsk
     else {
         lv_roundeddisplay = 0.0;
     }
+    if ((libKCUI_gv_cU_GPMengskEnergyRegenTrooperContainer[lp_mengskPlayer] <= 0)) {
+        return;
+    }
     DialogControlHookup(libKCUI_gv_cU_GPMengskEnergyRegenTrooperContainer[lp_mengskPlayer], c_triggerControlTypeLabel, "Value");
+    if ((DialogControlLastCreated() <= 0)) {
+        return;
+    }
     libNtve_gf_SetDialogItemText(DialogControlLastCreated(), FixedToText(lv_roundeddisplay, 0), PlayerGroupAll());
 }
 
