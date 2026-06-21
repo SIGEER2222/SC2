@@ -9652,13 +9652,6 @@ bool libKMIS_gt_CM_DehakaConsumeExecuted_Func (bool testConds, bool runActions) 
         else {
             UnitCreateEffectUnit(lv_dehakaUnit, "DehakaConsumeEffectHealOther", lv_dehakaUnit);
         }
-        if ((UnitHasBehavior2(lv_targetUnit, "SupplyLT1") == true)) {
-            AchievementTermQuantityAdd(lv_dehakaPlayer, "CommanderDehakaSupply", 1);
-        }
-        else {
-            AchievementTermQuantityAdd(lv_dehakaPlayer, "CommanderDehakaSupply", (CatalogFieldValueGetAsInt(c_gameCatalogUnit, UnitGetType(lv_targetUnit), "Food", EventPlayerEffectUsedUnitOwner(c_effectPlayerTarget)) * -1));
-        }
-        AchievementTermQuantityAdd(lv_dehakaPlayer, "CommanderDehakaDamage", FixedToInt(lv_targetLife));
         if (((UnitHasBehavior2(lv_targetUnit, "MutatorMasterController") == false) && (UnitHasBehavior2(lv_targetUnit, "MutatorJustDie") == false))) {
             UnitSetPropertyFixed(lv_targetUnit, c_unitPropLife, 1.0);
         }
