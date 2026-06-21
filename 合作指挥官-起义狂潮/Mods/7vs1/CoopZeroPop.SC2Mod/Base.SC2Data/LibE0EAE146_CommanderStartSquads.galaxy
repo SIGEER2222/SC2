@@ -67,8 +67,6 @@ bool libE0EAE146_gf_CreateAbathurBiomassTestPickup (point lp_point, int lp_stack
 }
 
 void libE0EAE146_gf_AbathurBiomassShowCount (unit lp_unit, int lp_count) {
-    texttag lv_tag;
-
     if ((lp_unit == null)) {
         return;
     }
@@ -77,12 +75,11 @@ void libE0EAE146_gf_AbathurBiomassShowCount (unit lp_unit, int lp_count) {
     }
 
     TextTagCreate(IntToText(lp_count), 18, UnitGetPosition(lp_unit), 0.0, true, false, PlayerGroupSingle(UnitGetOwner(lp_unit)));
-    lv_tag = TextTagLastCreated();
-    TextTagAttachToUnit(lv_tag, lp_unit, 2.5);
-    TextTagSetVelocity(lv_tag, 0.0, 90.0);
-    TextTagSetTime(lv_tag, c_textTagTimeDuration, 2.5);
-    TextTagSetTime(lv_tag, c_textTagTimeFadeOut, 0.75);
-    TextTagSetColor(lv_tag, c_textTagColorText, Color(100.00, 255.00, 120.00));
+    TextTagAttachToUnit(TextTagLastCreated(), lp_unit, 2.5);
+    TextTagSetVelocity(TextTagLastCreated(), 0.0, 90.0);
+    TextTagSetTime(TextTagLastCreated(), c_textTagTimeDuration, 2.5);
+    TextTagSetTime(TextTagLastCreated(), c_textTagTimeFadeOut, 0.75);
+    TextTagSetColor(TextTagLastCreated(), c_textTagColorText, Color(100.00, 255.00, 120.00));
 }
 bool libE0EAE146_gf_AbathurCanDropBiomass (unit lp_unit) {
     if ((libE0EAE146_gv_abathurBiomassEnabled == false)) {
