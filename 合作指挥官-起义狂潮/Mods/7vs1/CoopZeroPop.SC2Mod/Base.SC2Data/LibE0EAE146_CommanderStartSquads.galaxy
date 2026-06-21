@@ -58,10 +58,31 @@ bool libE0EAE146_gf_CreateAbathurBiomassPickup (point lp_point, int lp_stack) {
     }
     UnitSetCustomValue(UnitLastCreated(), 63, IntToFixed(MaxI(1, lp_stack)));
     libNtve_gf_SendActorMessageToUnit(UnitLastCreated(), ("SetScale " + FixedToString(libE0EAE146_gf_AbathurBiomassVisualScale(MaxI(1, lp_stack)), c_fixedPrecisionAny)));
+    libE0EAE146_gf_AbathurBiomassShowCount(UnitLastCreated(), MaxI(1, lp_stack));
+    libE0EAE146_gf_AbathurBiomassMerge(UnitLastCreated(), MaxI(1, lp_stack));
     return true;
 }
 bool libE0EAE146_gf_CreateAbathurBiomassTestPickup (point lp_point, int lp_stack) {
     return libE0EAE146_gf_CreateAbathurBiomassPickup(lp_point, lp_stack);
+}
+
+void libE0EAE146_gf_AbathurBiomassShowCount (unit lp_unit, int lp_count) {
+    texttag lv_tag;
+
+    if ((lp_unit == null)) {
+        return;
+    }
+    if ((lp_count <= 0)) {
+        return;
+    }
+
+    TextTagCreate(IntToText(lp_count), 18, UnitGetPosition(lp_unit), 0.0, true, false, PlayerGroupSingle(UnitGetOwner(lp_unit)));
+    lv_tag = TextTagLastCreated();
+    TextTagAttachToUnit(lv_tag, lp_unit, 2.5);
+    TextTagSetVelocity(lv_tag, 0.0, 90.0);
+    TextTagSetTime(lv_tag, c_textTagTimeDuration, 2.5);
+    TextTagSetTime(lv_tag, c_textTagTimeFadeOut, 0.75);
+    TextTagSetColor(lv_tag, c_textTagColorText, Color(100.00, 255.00, 120.00));
 }
 bool libE0EAE146_gf_AbathurCanDropBiomass (unit lp_unit) {
     if ((libE0EAE146_gv_abathurBiomassEnabled == false)) {
@@ -208,6 +229,7 @@ void libE0EAE146_gf_AbathurBiomassMerge (unit lp_biomassUnit, int lp_biomassUnit
         UnitBehaviorAdd(lp_biomassUnit, "BiomassTravelling", lp_biomassUnit, 1);
         UnitCreateEffectUnit(lp_biomassUnit, "BiomassPickupFullLM", lv_nearbyBiomassMaxCountUnit);
         libE0EAE146_gf_AbathurBiomassScale(lv_nearbyBiomassMaxCountUnit, false);
+        libE0EAE146_gf_AbathurBiomassShowCount(lv_nearbyBiomassMaxCountUnit, FixedToInt(UnitGetCustomValue(lv_nearbyBiomassMaxCountUnit, 63)));
     }
 }
 int libE0EAE146_gf_AbathurUnitBiomassStacks (unit lp_unit) {
@@ -277,6 +299,7 @@ int libE0EAE146_gf_AbathurAddBiomassStacks (unit lp_unit, int lp_amount) {
         UnitBehaviorAddPlayer(lp_unit, "BiomassBuff1", UnitGetOwner(lp_unit), lv_1);
     }
     libNtve_gf_SendActorMessageToUnit(lp_unit, ("SetScale " + FixedToString(libE0EAE146_gf_AbathurBiomassVisualScale(lv_current + lv_applied), c_fixedPrecisionAny)));
+    libE0EAE146_gf_AbathurBiomassShowCount(lp_unit, (lv_current + lv_applied));
     return lv_applied;
 }
 
@@ -386,6 +409,8 @@ bool libE0EAE146_gt_AbathurBiomassPickup_Func (bool testConds, bool runActions) 
     }
     else {
         UnitSetCustomValue(lv_pickup, 63, IntToFixed(lv_stored - lv_applied));
+        libE0EAE146_gf_AbathurBiomassScale(lv_pickup, false);
+        libE0EAE146_gf_AbathurBiomassShowCount(lv_pickup, (lv_stored - lv_applied));
         UnitCreateEffectUnit(lv_pickup, "BiomassPickupLM", lv_target);
     }
     return true;
