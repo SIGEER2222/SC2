@@ -2305,6 +2305,12 @@ void libKMIS_gf_CM_Mengsk_EnergyChanged (int lp_mengskPlayer) {
     lv_energyperzergcalldownlevel = 25;
 
     // Implementation
+    if ((lp_mengskPlayer < 0) || (lp_mengskPlayer > libKCOR_gv_cCC_MAXPLAYERS)) {
+        return;
+    }
+    if ((libKMIS_gv_cM_GlobalCasterUnit[lp_mengskPlayer] == null) || (libKCUI_gv_cU_GPEnergyBar[lp_mengskPlayer] == c_invalidDialogControlId)) {
+        return;
+    }
     libNtve_gf_SetDialogItemMaximumValue(libKCUI_gv_cU_GPEnergyBar[lp_mengskPlayer], UnitGetPropertyFixed(libKMIS_gv_cM_GlobalCasterUnit[lp_mengskPlayer], c_unitPropEnergyMax, c_unitPropCurrent), PlayerGroupAll());
     libNtve_gf_SetDialogItemCurrentValue(libKCUI_gv_cU_GPEnergyBar[lp_mengskPlayer], UnitGetPropertyFixed(libKMIS_gv_cM_GlobalCasterUnit[lp_mengskPlayer], c_unitPropEnergy, c_unitPropCurrent), PlayerGroupAll());
     libNtve_gf_SetUpgradeLevelForPlayer(lp_mengskPlayer, "ZergMengskCalldownLevel", (FixedToInt(UnitGetPropertyFixed(libKMIS_gv_cM_GlobalCasterUnit[lp_mengskPlayer], c_unitPropEnergy, c_unitPropCurrent)) / lv_energyperzergcalldownlevel));
