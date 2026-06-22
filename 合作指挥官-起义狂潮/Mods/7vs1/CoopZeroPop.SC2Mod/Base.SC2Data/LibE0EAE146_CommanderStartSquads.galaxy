@@ -752,14 +752,26 @@ void libE0EAE146_gf_RaynorCreateCargoSquad (unit lp_container, string lp_kind) {
 
 void libE0EAE146_gf_KerriganCreateMapStartSquad (string lp_kind, int lp_player, point lp_point) {
     string lv_kind;
+    string lv_hydralisk;
     lv_kind = lp_kind;
+    lv_hydralisk = "";
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "HydraliskKerrigan")) {
+        lv_hydralisk = "HydraliskKerrigan";
+    }
+    else if (CatalogEntryIsValid(c_gameCatalogUnit, "Hydralisk")) {
+        lv_hydralisk = "Hydralisk";
+    }
     if ((lv_kind == "light")) {
         libNtve_gf_CreateUnitsWithDefaultFacing(4, "HotSRaptor", 0, lp_player, lp_point);
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "HydraliskKerrigan", 0, lp_player, lp_point);
+        if ((lv_hydralisk != "")) {
+            libNtve_gf_CreateUnitsWithDefaultFacing(2, lv_hydralisk, 0, lp_player, lp_point);
+        }
     }
     else if ((lv_kind == "heavy")) {
         libNtve_gf_CreateUnitsWithDefaultFacing(4, "HotSRaptor", 0, lp_player, lp_point);
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "HydraliskKerrigan", 0, lp_player, lp_point);
+        if ((lv_hydralisk != "")) {
+            libNtve_gf_CreateUnitsWithDefaultFacing(2, lv_hydralisk, 0, lp_player, lp_point);
+        }
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "QueenCoop", 0, lp_player, lp_point);
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "HotSTorrasque", 0, lp_player, lp_point);
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "MutaliskBroodlord", 0, lp_player, lp_point);
@@ -767,7 +779,9 @@ void libE0EAE146_gf_KerriganCreateMapStartSquad (string lp_kind, int lp_player, 
     }
     else if ((lv_kind == "full")) {
         libNtve_gf_CreateUnitsWithDefaultFacing(4, "HotSRaptor", 0, lp_player, lp_point);
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "HydraliskKerrigan", 0, lp_player, lp_point);
+        if ((lv_hydralisk != "")) {
+            libNtve_gf_CreateUnitsWithDefaultFacing(2, lv_hydralisk, 0, lp_player, lp_point);
+        }
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "QueenCoop", 0, lp_player, lp_point);
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "HotSTorrasque", 0, lp_player, lp_point);
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "MutaliskBroodlord", 0, lp_player, lp_point);
@@ -780,7 +794,9 @@ void libE0EAE146_gf_KerriganCreateMapStartSquad (string lp_kind, int lp_player, 
     else if ((lv_kind == "hero")) {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "K5Kerrigan", 0, lp_player, lp_point);
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "HotSRaptor", 0, lp_player, lp_point);
-        libNtve_gf_CreateUnitsWithDefaultFacing(2, "HydraliskKerrigan", 0, lp_player, lp_point);
+        if ((lv_hydralisk != "")) {
+            libNtve_gf_CreateUnitsWithDefaultFacing(2, lv_hydralisk, 0, lp_player, lp_point);
+        }
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "QueenCoop", 0, lp_player, lp_point);
     }
     else if ((lv_kind == "ultimate")) {

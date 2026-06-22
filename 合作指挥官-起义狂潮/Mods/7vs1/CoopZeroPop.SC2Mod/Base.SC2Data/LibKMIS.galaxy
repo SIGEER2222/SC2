@@ -11417,13 +11417,22 @@ void libKMIS_gt_CM_Fenix_ResearchRemoveSuicide_Init () {
 // Trigger: CM_Fenix_RallySetToFenix
 //--------------------------------------------------------------------------------------------------
 bool libKMIS_gt_CM_Fenix_RallySetToFenix_Func (bool testConds, bool runActions) {
+    int lv_fenixPlayer;
+    unit lv_activeHero;
+
     // Automatic Variable Declarations
     // Actions
     if (!runActions) {
         return true;
     }
 
-    if ((UnitIsAlive(EventUnitTargetUnit()) == true) && (EventUnitTargetUnit() == libKMIS_gv_cM_Fenix_ActiveHero[libKCOR_gf_CC_PlayerOfCommanderInGroupFirst("ProtossFenix", libKCOR_gf_CommanderPlayers())])) {
+    lv_fenixPlayer = libKCOR_gf_CC_PlayerOfCommanderInGroupFirst("ProtossFenix", libKCOR_gf_CommanderPlayers());
+    lv_activeHero = null;
+    if (lv_fenixPlayer != c_playerAny) {
+        lv_activeHero = libKMIS_gv_cM_Fenix_ActiveHero[lv_fenixPlayer];
+    }
+
+    if ((UnitIsAlive(EventUnitTargetUnit()) == true) && (lv_activeHero != null) && (EventUnitTargetUnit() == lv_activeHero)) {
         UnitGroupAdd(libKMIS_gv_cM_Fenix_RalliedGroup, EventUnit());
     }
     else {
@@ -19202,11 +19211,16 @@ void libKMIS_gt_CM_Tychus_CalldownOdinUpdateTarget_Init () {
 //--------------------------------------------------------------------------------------------------
 bool libKMIS_gt_CM_Tychus_CalldownOdinTychusSelect_Func (bool testConds, bool runActions) {
     // Variable Declarations
+    int lv_tychusPlayer;
     unit lv_tychus;
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_tychus = libKMIS_gv_cM_HeroUnit[libKCOR_gf_CC_PlayerOfCommanderInGroupFirst("TerranTychus", libKCOR_gf_CC_PlayersOfCommander("TerranTychus"))];
+    lv_tychusPlayer = libKCOR_gf_CC_PlayerOfCommanderInGroupFirst("TerranTychus", libKCOR_gf_CC_PlayersOfCommander("TerranTychus"));
+    lv_tychus = null;
+    if (lv_tychusPlayer != c_playerAny) {
+        lv_tychus = libKMIS_gv_cM_HeroUnit[lv_tychusPlayer];
+    }
 
     // Conditions
     if (testConds) {
