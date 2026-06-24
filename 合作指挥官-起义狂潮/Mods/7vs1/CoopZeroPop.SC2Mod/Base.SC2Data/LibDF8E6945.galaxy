@@ -167,7 +167,9 @@ bool libDF8E6945_gt_DehakaReviveActor_Func (bool testConds, bool runActions) {
         return true;
     }
 
-        lv_i=(IntToFixed(lv_level)*0.1)+0.5;
+    // 修复：复活后确保模型重新创建（防止有时看不到模型）
+    ActorSend(libNtve_gf_MainActorofUnit(EventUnit()), "Create");
+    lv_i=(IntToFixed(lv_level)*0.1)+0.5;
     libNtve_gf_SendActorMessageToUnit(EventUnit(), libNtve_gf_SetScale(lv_i, lv_i, lv_i, 1.0));
     return true;
 }
@@ -185,18 +187,22 @@ bool libDF8E6945_gt_ZehakaReviveActor_Func (bool testConds, bool runActions) {
     // Variable Declarations
     int lv_level;
     fixed lv_i;
+    unit lv_zehaka;
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_level = UnitXPGetCurrentLevel(EventPlayerEffectUsedUnit(c_effectUnitTarget), null);
+    lv_zehaka = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+    lv_level = UnitXPGetCurrentLevel(lv_zehaka, null);
 
     // Actions
     if (!runActions) {
         return true;
     }
 
-        lv_i=(IntToFixed(lv_level)*0.1)+0.5;
-    libNtve_gf_SendActorMessageToUnit(EventPlayerEffectUsedUnit(c_effectUnitTarget), libNtve_gf_SetScale(lv_i, lv_i, lv_i, 1.0));
+    // 修复：复活后确保模型重新创建（防止有时看不到模型）
+    ActorSend(libNtve_gf_MainActorofUnit(lv_zehaka), "Create");
+    lv_i=(IntToFixed(lv_level)*0.1)+0.5;
+    libNtve_gf_SendActorMessageToUnit(lv_zehaka, libNtve_gf_SetScale(lv_i, lv_i, lv_i, 1.0));
     return true;
 }
 

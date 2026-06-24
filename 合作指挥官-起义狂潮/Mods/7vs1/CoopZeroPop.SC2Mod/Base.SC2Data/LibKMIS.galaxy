@@ -10681,14 +10681,21 @@ void libKMIS_gt_CM_Dehaka_LevelUp_Stage3_Init () {
 bool libKMIS_gt_CM_Dehaka_LevelUp_Stun_Off_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_u;
+    int lv_stunCount;
 
     // Automatic Variable Declarations
     // Variable Initialization
     lv_u = EventUnit();
+    lv_stunCount = UnitBehaviorCount(lv_u, "DehakaModelSwapStun");
 
     // Actions
     if (!runActions) {
         return true;
+    }
+
+    // Safety: force-remove any remaining DehakaModelSwapStun to prevent model not showing
+    if (lv_stunCount > 0) {
+        UnitBehaviorRemove(lv_u, "DehakaModelSwapStun", lv_stunCount);
     }
 
     if ((libKMIS_gf_HeroCanSpendSkillPoint(lv_u, "DehakaLearn") == true)) {
