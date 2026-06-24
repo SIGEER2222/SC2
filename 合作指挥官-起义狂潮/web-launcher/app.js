@@ -2667,7 +2667,7 @@ async function pollLaunchStatus(launchResult) {
   try {
     return await apiFetchJson("/api/launch-status", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify({
         pid: launchResult.pid,
         stdout: launchResult.stdout,
@@ -2729,7 +2729,7 @@ async function submitLaunch(payload, labels = {}) {
   try {
     const result = await apiFetchJson("/api/launch", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify(payload),
     });
     el.launchState.textContent = labels.started || `PID ${result.pid}`;
@@ -2897,7 +2897,7 @@ async function previewLaunch() {
   try {
     const result = await apiFetchJson("/api/preview", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify(payload),
     });
     el.launchState.textContent = "参数有效";

@@ -1765,12 +1765,16 @@ function Send-Text {
 function Get-RequestJson {
     param([System.Net.HttpListenerRequest]$Request)
 
-    $reader = New-Object System.IO.StreamReader($Request.InputStream, $Request.ContentEncoding)
+    $buffer = New-Object byte[] 8192
+    $stream = New-Object System.IO.MemoryStream
     try {
-        $body = $reader.ReadToEnd()
+        while (($count = $Request.InputStream.Read($buffer, 0, $buffer.Length)) -gt 0) {
+            $stream.Write($buffer, 0, $count)
+        }
+        $body = [System.Text.Encoding]::UTF8.GetString($stream.ToArray())
     }
     finally {
-        $reader.Dispose()
+        $stream.Dispose()
     }
 
     if ([string]::IsNullOrWhiteSpace($body)) {
