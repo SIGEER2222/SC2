@@ -14,6 +14,20 @@ void libE0EAE146_gf_AbathurSetUpgradeAtLeast (int lp_player, string lp_upgrade, 
     }
 }
 
+void libE0EAE146_gf_AbathurAllowUnitIfValid (int lp_player, string lp_unit, bool lp_allow) {
+    if ((lp_unit == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unit))) {
+        return;
+    }
+    TechTreeUnitAllow(lp_player, lp_unit, lp_allow);
+}
+
+void libE0EAE146_gf_AbathurAllowAbilityIfValid (int lp_player, string lp_ability, int lp_commandIndex, bool lp_allow) {
+    if ((lp_ability == "") || (!CatalogEntryIsValid(c_gameCatalogAbil, lp_ability))) {
+        return;
+    }
+    TechTreeAbilityAllow(lp_player, AbilityCommand(lp_ability, lp_commandIndex), lp_allow);
+}
+
 void libE0EAE146_gf_AbathurApplyFullLevelUpgrades (int lp_player) {
     libE0EAE146_gf_AbathurSetUpgradeAtLeast(lp_player, "CommanderLevel", 16);
     libE0EAE146_gf_AbathurSetUpgradeAtLeast(lp_player, "AbathurCommander", 1);
@@ -82,9 +96,9 @@ void libE0EAE146_gf_AbathurApplyTechFilter (int lp_player) {
     TechTreeUnitAllow(lp_player, "RoachVile", true);
     TechTreeUnitAllow(lp_player, "RavagerAbathur", true);
     TechTreeUnitAllow(lp_player, "RavagerAbathurBurrowed", true);
-    TechTreeUnitAllow(lp_player, "BrutaliskAbathur", true);
-    TechTreeUnitAllow(lp_player, "BrutaliskAbathurBurrowed", true);
-    TechTreeUnitAllow(lp_player, "LeviathanAbathur", true);
+    libE0EAE146_gf_AbathurAllowUnitIfValid(lp_player, "BrutaliskAbathur", true);
+    libE0EAE146_gf_AbathurAllowUnitIfValid(lp_player, "BrutaliskAbathurBurrowed", true);
+    libE0EAE146_gf_AbathurAllowUnitIfValid(lp_player, "LeviathanAbathur", true);
     TechTreeUnitAllow(lp_player, "ToxicNest", true);
     TechTreeUnitAllow(lp_player, "ToxicNestBurrowed", true);
 
@@ -118,8 +132,8 @@ void libE0EAE146_gf_AbathurApplyTechFilter (int lp_player) {
     TechTreeAbilityAllow(lp_player, AbilityCommand("SymbioteCarapace", 0), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("BurrowBrutaliskDown", 0), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("BurrowBrutaliskUp", 0), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("BurrowBrutaliskAbathurDown", 0), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("BurrowBrutaliskAbathurUp", 0), true);
+    libE0EAE146_gf_AbathurAllowAbilityIfValid(lp_player, "BurrowBrutaliskAbathurDown", 0, true);
+    libE0EAE146_gf_AbathurAllowAbilityIfValid(lp_player, "BurrowBrutaliskAbathurUp", 0, true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("CorrosiveAcid", 0), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("LocustLaunch", 0), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("ViperConsumeStructure", 0), true);

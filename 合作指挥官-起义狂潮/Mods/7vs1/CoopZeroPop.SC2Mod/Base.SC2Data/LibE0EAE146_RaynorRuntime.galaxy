@@ -560,6 +560,7 @@ void libE0EAE146_gt_RaynorTrainProbePeriodic_Init () {
 }
 
 void libE0EAE146_gf_RaynorStartTrainProbe (int lp_player) {
+    string lv_barracksType;
     point lv_point;
 
     if (!libE0EAE146_gf_RaynorRuntimeHasTestRun()) {
@@ -573,8 +574,16 @@ void libE0EAE146_gf_RaynorStartTrainProbe (int lp_player) {
     libE0EAE146_gv_raynorTrainProbePlayer = lp_player;
     PlayerModifyPropertyInt(lp_player, c_playerPropMinerals, c_playerPropOperAdd, 1000);
     PlayerModifyPropertyInt(lp_player, c_playerPropVespene, c_playerPropOperAdd, 1000);
+    lv_barracksType = "";
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "BarracksRaynor")) {
+        lv_barracksType = "BarracksRaynor";
+    }
+    if ((lv_barracksType == "")) {
+        libE0EAE146_gf_RaynorTrainProbeWriteString("RaynorTrainProbeBarracksType", "missing");
+        return;
+    }
     lv_point = PointWithOffsetPolar(PlayerStartLocation(lp_player), 6.0, 225.0);
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, "BarracksRaynor", 0, lp_player, lv_point);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_barracksType, 0, lp_player, lv_point);
     libE0EAE146_gv_raynorTrainProbeBarracks = UnitLastCreated();
     libE0EAE146_gv_raynorTrainProbeMedicRaynorStart = libE0EAE146_gf_RaynorRuntimeUnitTypeCount(lp_player, "MedicRaynor");
     libE0EAE146_gv_raynorTrainProbeMedicStart = libE0EAE146_gf_RaynorRuntimeUnitTypeCount(lp_player, "Medic");

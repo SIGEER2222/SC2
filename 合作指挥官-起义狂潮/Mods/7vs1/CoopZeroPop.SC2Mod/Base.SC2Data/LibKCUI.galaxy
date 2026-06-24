@@ -1908,10 +1908,19 @@ void libKCUI_gf_CU_GPInitFenix (int lp_player) {
 }
 
 void libKCUI_gf_LinkUnitEnergyToGlobalCasterButton (unit lp_unit, int lp_player, int lp_index) {
+    int lv_control;
+
     // Automatic Variable Declarations
     // Implementation
-    libNtve_gf_SetDialogItemUnit(libKCUI_gv_cU_GPUnitEnergyLinks[lp_index][lp_player], lp_unit, PlayerGroupSingle(lp_player));
-    DialogControlSetVisible(libKCUI_gv_cU_GPUnitEnergyLinks[lp_index][lp_player], PlayerGroupSingle(lp_player), true);
+    if ((lp_unit == null)) {
+        return;
+    }
+    lv_control = libKCUI_gv_cU_GPUnitEnergyLinks[lp_index][lp_player];
+    if ((lv_control == c_invalidDialogControlId)) {
+        return;
+    }
+    libNtve_gf_SetDialogItemUnit(lv_control, lp_unit, PlayerGroupSingle(lp_player));
+    DialogControlSetVisible(lv_control, PlayerGroupSingle(lp_player), true);
 }
 
 void libKCUI_gf_CU_GPInitRaynor (int lp_player) {
