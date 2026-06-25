@@ -98,7 +98,6 @@ void libE0EAE146_gf_AbathurApplyTechFilter (int lp_player) {
     TechTreeUnitAllow(lp_player, "RavagerAbathurBurrowed", true);
     libE0EAE146_gf_AbathurAllowUnitIfValid(lp_player, "BrutaliskAbathur", true);
     libE0EAE146_gf_AbathurAllowUnitIfValid(lp_player, "BrutaliskAbathurBurrowed", true);
-    libE0EAE146_gf_AbathurAllowUnitIfValid(lp_player, "LeviathanAbathur", true);
     TechTreeUnitAllow(lp_player, "ToxicNest", true);
     TechTreeUnitAllow(lp_player, "ToxicNestBurrowed", true);
 
@@ -118,14 +117,6 @@ void libE0EAE146_gf_AbathurApplyTechFilter (int lp_player) {
     TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskRavager", 1), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskSwarmHost", 0), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskSwarmHost", 1), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanMutalisk", 0), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanMutalisk", 1), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanGuardianMP", 0), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanGuardianMP", 1), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanDevourer", 0), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanDevourer", 1), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanViper", 0), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToLeviathanViper", 1), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("AbathurDeepTunnel", 0), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("AbathurDeepTunnelImproved", 0), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("BrutaliskDeepTunnel", 0), true);
@@ -154,15 +145,19 @@ void libE0EAE146_gf_AbathurFusionProbeSnapshot (int lp_player, string lp_stage) 
     unitgroup lv_mutalisks;
     unitgroup lv_brutalisks;
     unitgroup lv_leviathans;
+    unitgroup lv_abathurBrutalisks;
+    int lv_brutaliskCount;
 
     lv_ravagers = UnitGroup("RavagerAbathur", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     lv_mutalisks = UnitGroup("Mutalisk", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     lv_brutalisks = UnitGroup("Brutalisk", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     lv_leviathans = UnitGroup("HotSLeviathan", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_abathurBrutalisks = UnitGroup("BrutaliskAbathur", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_brutaliskCount = UnitGroupCount(lv_brutalisks, c_unitCountAlive) + UnitGroupCount(lv_abathurBrutalisks, c_unitCountAlive);
 
     libE0EAE146_gf_AbathurFusionProbeWrite(("AbathurFusion." + lp_stage + ".RavagerCount"), IntToString(UnitGroupCount(lv_ravagers, c_unitCountAlive)));
     libE0EAE146_gf_AbathurFusionProbeWrite(("AbathurFusion." + lp_stage + ".MutaliskCount"), IntToString(UnitGroupCount(lv_mutalisks, c_unitCountAlive)));
-    libE0EAE146_gf_AbathurFusionProbeWrite(("AbathurFusion." + lp_stage + ".BrutaliskCount"), IntToString(UnitGroupCount(lv_brutalisks, c_unitCountAlive)));
+    libE0EAE146_gf_AbathurFusionProbeWrite(("AbathurFusion." + lp_stage + ".BrutaliskCount"), IntToString(lv_brutaliskCount));
     libE0EAE146_gf_AbathurFusionProbeWrite(("AbathurFusion." + lp_stage + ".LeviathanCount"), IntToString(UnitGroupCount(lv_leviathans, c_unitCountAlive)));
 }
 
@@ -184,11 +179,6 @@ bool libE0EAE146_gt_AbathurFusionProbe_Func (bool testConds, bool runActions) {
     }
 
     lv_mutalisks = UnitGroup("Mutalisk", 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-    if ((UnitGroupCount(lv_mutalisks, c_unitCountAlive) > 0)) {
-        lv_unit = UnitGroupRandomUnit(lv_mutalisks, c_unitCountAlive);
-        libE0EAE146_gf_AbathurFusionProbeWrite("AbathurFusion.BeforeOrder.MutaliskBiomass100", IntToString(UnitBehaviorCount(lv_unit, "BiomassBuff100")));
-        UnitIssueOrder(lv_unit, Order(StringToAbilCmd("EvolveToLeviathanMutalisk,Train1")), c_orderQueueReplace);
-    }
 
     libE0EAE146_gf_AbathurFusionProbeWrite("AbathurFusion.OrderIssued", "1");
     libE0EAE146_gf_AbathurFusionProbeSnapshot(1, "AfterOrder");
@@ -213,13 +203,13 @@ void libE0EAE146_gf_AbathurRunTestSpawnPreset (int lp_player) {
 
     libE0EAE146_gf_InitializeAbathurBiomass(lp_player, "BiomassPickupDummy");
     lv_start = PlayerStartLocation(lp_player);
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, "RavagerAbathur", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 6.0, PointGetY(lv_start) + 12.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "RavagerAbathur", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) - 45.0, PointGetY(lv_start) + 12.0));
     libE0EAE146_gf_AbathurSetUnitFullBiomass(UnitLastCreated());
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Mutalisk", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) + 2.0, PointGetY(lv_start) + 14.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Mutalisk", c_unitCreateIgnorePlacement, lp_player, Point(PointGetX(lv_start) - 49.0, PointGetY(lv_start) + 14.0));
     libE0EAE146_gf_AbathurSetUnitFullBiomass(UnitLastCreated());
     UIDisplayMessage(PlayerGroupSingle(lp_player), c_messageAreaChat, StringToText("Codex test init: Abathur fusion test units spawned from XMRuntimeControl/TestSpawnPreset."));
-    TriggerAddEventTimeElapsed(TriggerCreate("libE0EAE146_gt_AbathurFusionProbe_Func"), 2.0, c_timeGame);
-    TriggerAddEventTimeElapsed(TriggerCreate("libE0EAE146_gt_AbathurFusionProbeLate_Func"), 10.0, c_timeGame);
+    TriggerAddEventTimeElapsed(TriggerCreate("libE0EAE146_gt_AbathurFusionProbe_Func"), 8.0, c_timeGame);
+    TriggerAddEventTimeElapsed(TriggerCreate("libE0EAE146_gt_AbathurFusionProbeLate_Func"), 18.0, c_timeGame);
 }
 
 void libE0EAE146_gf_AbathurRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
