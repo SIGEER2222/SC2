@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+  <CValidatorUnitCompareBehaviorCount id="BiomassNotMaxed">
+    <Compare value="LT" />
+    <Value value="1" />
+    <Behavior value="BiomassMaxedMarker" />
+  </CValidatorUnitCompareBehaviorCount>
+
+  <CValidatorUnitType id="NotBrutalisk">
+    <Type value="SelectAlias" />
+    <Find value="0" />
+  </CValidatorUnitType>
+
+  <CValidatorUnitType id="NotHotSLeviathan">
+    <ResultNoUnit value="CantTargetThatUnit" />
+    <Value value="HotSLeviathan" />
+    <Find value="0" />
+  </CValidatorUnitType>
+
+  <CValidatorUnitCompareBehaviorCount id="BiomassBuff100CountGE1">
+    <Compare value="GE" />
+    <Value value="1" />
+    <Behavior value="BiomassBuff100" />
+  </CValidatorUnitCompareBehaviorCount>
+
+  <CValidatorUnitCompareBehaviorCount id="BiomassBuff100CountLT1">
+    <Compare value="LT" />
+    <Value value="1" />
+    <Behavior value="BiomassBuff100" />
+  </CValidatorUnitCompareBehaviorCount>
+
+  <CValidatorUnitCompareBehaviorCount id="BiomassBuff1CountGE10">
+    <Compare value="GE" />
+    <Value value="10" />
+    <Behavior value="BiomassBuff1" />
+  </CValidatorUnitCompareBehaviorCount>
+
+  <CValidatorUnitCompareBehaviorCount id="BiomassBuff10CountGE10">
+    <Compare value="GE" />
+    <Value value="10" />
+    <Behavior value="BiomassBuff10" />
+  </CValidatorUnitCompareBehaviorCount>
+
+  <CValidatorUnitCompareBehaviorCount id="BiomassBuff10CountLT20">
+    <Compare value="LT" />
+    <Value value="20" />
+    <Behavior value="BiomassBuff10" />
+  </CValidatorUnitCompareBehaviorCount>
+
+  <CValidatorUnitCompareBehaviorCount id="BiomassBuff100CountLT2">
+    <Compare value="LT" />
+    <Value value="2" />
+    <Behavior value="BiomassBuff100" />
+  </CValidatorUnitCompareBehaviorCount>
+
+  <CValidatorUnitCompareBehaviorCount id="TargetHasBiomassTargetMark">
+    <Compare value="GT" />
+    <Behavior value="BiomassTargetMark" />
+    <WhichUnit Value="Target" />
+  </CValidatorUnitCompareBehaviorCount>
+
+  <CValidatorCombine id="BiomassTargetMarkValidators">
+    <Type value="And" />
+    <CombineArray value="BiomassNotMaxed" />
+    <CombineArray value="IsNotEggUnit" />
+    <CombineArray value="NotTimedLifeUnitAndNotLarva" />
+    <CombineArray value="NotWorker" />
+    <CombineArray value="NotOverlord" />
+    <CombineArray value="NotOverseer" />
+    <CombineArray value="NotBrutalisk" />
+    <CombineArray value="NotHotSLeviathan" />
+  </CValidatorCombine>
+</Catalog>

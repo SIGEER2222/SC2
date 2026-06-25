@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+  <CEffectModifyUnit id="BiomassCreatedDummy" />
+
+  <CEffectSet id="BiomassPickupMarked">
+    <EffectArray value="BiomassPickupDummy" />
+    <ValidatorArray value="TargetHasBiomassTargetMark" />
+    <ValidatorArray value="BiomassTargetMarkValidators" />
+    <ValidatorArray value="BiomassBuff100CountLT1" />
+  </CEffectSet>
+
+  <CEffectSet id="BiomassPickup">
+    <EditorCategories value="" />
+    <EffectArray value="BiomassPickupDummy" />
+    <ValidatorArray value="IsNotEggUnit" />
+    <ValidatorArray value="BiomassNotMaxed" />
+    <ValidatorArray value="NotTimedLifeUnitAndNotLarva" />
+    <ValidatorArray value="NotWorker" />
+    <ValidatorArray value="NotOverlord" />
+    <ValidatorArray value="NotOverseer" />
+    <ValidatorArray value="NotBrutalisk" />
+    <ValidatorArray value="NotHotSLeviathan" />
+  </CEffectSet>
+
+  <CEffectModifyUnit id="BiomassPickupDummy" />
+
+  <CEffectLaunchMissile id="BiomassPickupLM">
+    <ImpactEffect value="BiomassPickupImpact" />
+    <AmmoUnit value="BiomassPickupWeapon" />
+    <Movers Link="BiomassMover" />
+  </CEffectLaunchMissile>
+
+  <CEffectLaunchMissile id="BiomassPickupFullLM">
+    <ImpactEffect value="BiomassPickupFullImpact" />
+    <Movers Link="BiomassMover" />
+  </CEffectLaunchMissile>
+
+  <CEffectModifyUnit id="BiomassPickupImpact" />
+  <CEffectModifyUnit id="BiomassPickupFullImpact" />
+
+  <CEffectSwitch id="BiomassBuff1To10Switch">
+    <Cases Default="0">
+      <Case effect="BiomassBuff1To10Set">
+        <ValidatorArray value="BiomassBuff1CountGE10" />
+      </Case>
+    </Cases>
+  </CEffectSwitch>
+
+  <CEffectSet id="BiomassBuff1To10Set">
+    <EffectArray value="BiomassBuff10Remove10Buff1Add" />
+    <EffectArray value="BiomassBuff1Add1Buff10Add" />
+  </CEffectSet>
+
+  <CEffectApplyBehavior id="BiomassBuff10Remove10Buff1Add">
+    <Behavior value="BiomassBuff10" />
+    <Count value="-10" />
+    <Source Effect="BiomassBuff1" />
+    <ValidatorArray value="BiomassBuff10CountLT20" />
+  </CEffectApplyBehavior>
+
+  <CEffectApplyBehavior id="BiomassBuff1Add1Buff10Add">
+    <Behavior value="BiomassBuff1" />
+    <Count value="-10" />
+    <Source Effect="BiomassBuff10" />
+  </CEffectApplyBehavior>
+
+  <CEffectSwitch id="BiomassBuff10To100Switch">
+    <Cases Default="0">
+      <Case effect="BiomassBuff10To100Set">
+        <ValidatorArray value="BiomassBuff10CountGE10" />
+      </Case>
+    </Cases>
+  </CEffectSwitch>
+
+  <CEffectSet id="BiomassBuff10To100Set">
+    <EffectArray value="BiomassBuff100Remove10Buff10Add" />
+    <EffectArray value="BiomassBuff10Add1Buff100Add" />
+  </CEffectSet>
+
+  <CEffectApplyBehavior id="BiomassBuff100Remove10Buff10Add">
+    <Behavior value="BiomassBuff100" />
+    <Count value="-10" />
+    <Source Effect="BiomassBuff10" />
+    <ValidatorArray value="BiomassBuff100CountLT2" />
+  </CEffectApplyBehavior>
+
+  <CEffectApplyBehavior id="BiomassBuff10Add1Buff100Add">
+    <Behavior value="BiomassBuff10" />
+    <Count value="-10" />
+    <Source Effect="BiomassBuff100" />
+  </CEffectApplyBehavior>
+
+  <CEffectApplyBehavior id="BiomassBuff1To10AB">
+    <Behavior value="BiomassBuff10" />
+  </CEffectApplyBehavior>
+
+  <CEffectApplyBehavior id="BiomassBuff10To100AB">
+    <Behavior value="BiomassBuff100" />
+  </CEffectApplyBehavior>
+
+  <CEffectEnumArea id="AbathurCollectBiomassSearch">
+    <SearchFilters value="Ground,Air;Item,Player,Ally,Neutral,Dead,Hidden,Stasis,Invulnerable,Missile" />
+    <AreaArray Radius="5" Effect="AbathurCollectBiomassPickup" />
+    <SearchFlags index="ExtendByUnitRadius" value="1" />
+    <CountMax value="1" />
+  </CEffectEnumArea>
+
+  <CEffectSet id="AbathurCollectBiomassPickup">
+    <EffectArray value="BiomassPickupLM" />
+    <ValidatorArray value="BiomassNotMaxed" />
+    <ValidatorArray value="NotWorker" />
+    <ValidatorArray value="NotOverlord" />
+    <ValidatorArray value="NotOverseer" />
+    <ValidatorArray value="NotBrutalisk" />
+    <ValidatorArray value="NotHotSLeviathan" />
+  </CEffectSet>
+
+  <CEffectDamage id="AbathurBiomassRefundDummy">
+    <Amount value="1" />
+    <Vital value="Life" />
+    <Kill value="1" />
+  </CEffectDamage>
+
+  <CEffectDamage id="AbathurBiomassMaxStacksDummy">
+    <Amount value="100" />
+    <Vital value="Life" />
+    <Kill value="1" />
+  </CEffectDamage>
+
+  <CEffectDamage id="AbathurBiomassUltimateMaxStacksDummy">
+    <Amount value="100" />
+    <Vital value="Life" />
+    <Kill value="1" />
+  </CEffectDamage>
+
+  <CEffectModifyPlayer id="GrantBiomass">
+    <ModifyPlayerType value="Resources" />
+    <Resource value="Minerals" />
+    <Amount value="1" />
+  </CEffectModifyPlayer>
+</Catalog>
