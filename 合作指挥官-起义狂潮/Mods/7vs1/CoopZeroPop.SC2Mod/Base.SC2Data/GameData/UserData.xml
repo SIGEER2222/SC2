@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
     <CUser id="CoopTechTychusSquad">
-        <Fields Id="Unit Type" Type="Unit" EditorColumn="1"/>
+        <Fields Id="Type" Type="String" EditorColumn="1"/>
         <Fields Id="2D Portrait" Type="Image" EditorColumn="2"/>
-        <Fields>
-            <Id value="Active Abil"/>
-            <Type value="GameLink"/>
-            <GameLinkType value="Abil"/>
-            <EditorColumn value="3"/>
-        </Fields>
+        <Fields Id="Active Abil" Type="String" EditorColumn="3"/>
         <Fields>
             <Id value="Active Button"/>
             <Type value="GameLink"/>
             <GameLinkType value="Button"/>
             <EditorColumn value="4"/>
         </Fields>
-        <Fields Id="Squad Slot" Type="Int" EditorColumn="5">
-            <Flags index="Modifiable" value="1"/>
-        </Fields>
-        <Fields Id="Revive Ability" Type="AbilCmd" EditorColumn="6"/>
         <Fields Id="Portrait Model" Type="Model" EditorColumn="7"/>
         <Fields>
             <Id value="Equipment"/>
@@ -26,22 +17,9 @@
             <Count value="4"/>
             <EditorColumn value="8"/>
         </Fields>
-        <Fields Id="EquipCount" Type="Int" EditorColumn="9">
-            <Flags index="Modifiable" value="1"/>
-        </Fields>
         <Fields Id="EquipmentStructure" Type="Unit" EditorColumn="10"/>
-        <Instances Id="[Default]">
-            <Int Int="-1">
-                <Field Id="Squad Slot"/>
-            </Int>
-        </Instances>
-        <Instances Id="Tychus">
-            <AbilCmd Abil="TychusFakeReviveTychus">
-                <Field Id="Revive Ability"/>
-            </AbilCmd>
-            <GameLink GameLink="TychusShredderGrenade">
-                <Field Id="Active Abil"/>
-            </GameLink>
+        <Instances Id="[Default]"/>
+        <Instances Id="TychusCoop">
             <GameLink GameLink="TychusShredderGrenade">
                 <Field Id="Active Button"/>
             </GameLink>
@@ -51,9 +29,12 @@
             <Model Model="TychusTopBarPortrait_Tychus">
                 <Field Id="Portrait Model"/>
             </Model>
-            <Unit Unit="TychusCoop">
-                <Field Id="Unit Type"/>
-            </Unit>
+            <String String="Tychus">
+                <Field Id="Type"/>
+            </String>
+            <String String="TychusShredderGrenade">
+                <Field Id="Active Abil"/>
+            </String>
             <Unit Unit="TychusMercCompound">
                 <Field Id="EquipmentStructure"/>
             </Unit>
@@ -70,13 +51,7 @@
                 <Field Id="Equipment" Index="3"/>
             </Upgrade>
         </Instances>
-        <Instances Id="Ghost">
-            <AbilCmd Abil="TychusFakeReviveGhost">
-                <Field Id="Revive Ability"/>
-            </AbilCmd>
-            <GameLink GameLink="TychusGhostDominate">
-                <Field Id="Active Abil"/>
-            </GameLink>
+        <Instances Id="TychusGhost">
             <GameLink GameLink="TychusGhostDominate">
                 <Field Id="Active Button"/>
             </GameLink>
@@ -86,9 +61,12 @@
             <Model Model="TychusTopBarPortrait_Ghost">
                 <Field Id="Portrait Model"/>
             </Model>
-            <Unit Unit="TychusGhost">
-                <Field Id="Unit Type"/>
-            </Unit>
+            <String String="Ghost">
+                <Field Id="Type"/>
+            </String>
+            <String String="TychusGhostDominate">
+                <Field Id="Active Abil"/>
+            </String>
             <Unit Unit="TychusGhostAcademy">
                 <Field Id="EquipmentStructure"/>
             </Unit>
@@ -105,13 +83,7 @@
                 <Field Id="Equipment" Index="3"/>
             </Upgrade>
         </Instances>
-        <Instances Id="Medic">
-            <AbilCmd Abil="TychusFakeReviveMedic">
-                <Field Id="Revive Ability"/>
-            </AbilCmd>
-            <GameLink GameLink="TychusMedicAoE">
-                <Field Id="Active Abil"/>
-            </GameLink>
+        <Instances Id="TychusMedic">
             <GameLink GameLink="TychusMedicAoE">
                 <Field Id="Active Button"/>
             </GameLink>
@@ -121,9 +93,12 @@
             <Model Model="TychusTopBarPortrait_Medic">
                 <Field Id="Portrait Model"/>
             </Model>
-            <Unit Unit="TychusMedic">
-                <Field Id="Unit Type"/>
-            </Unit>
+            <String String="Medic">
+                <Field Id="Type"/>
+            </String>
+            <String String="TychusMedicAoE">
+                <Field Id="Active Abil"/>
+            </String>
             <Unit Unit="TychusGhostAcademy">
                 <Field Id="EquipmentStructure"/>
             </Unit>
@@ -140,13 +115,7 @@
                 <Field Id="Equipment" Index="3"/>
             </Upgrade>
         </Instances>
-        <Instances Id="Firebat">
-            <AbilCmd Abil="TychusFakeReviveFirebat">
-                <Field Id="Revive Ability"/>
-            </AbilCmd>
-            <GameLink GameLink="TychusFirebatOilBomb">
-                <Field Id="Active Abil"/>
-            </GameLink>
+        <Instances Id="TychusFirebat">
             <GameLink GameLink="TychusFirebatOilBomb">
                 <Field Id="Active Button"/>
             </GameLink>
@@ -156,9 +125,12 @@
             <Model Model="TychusTopBarPortrait_Firebat">
                 <Field Id="Portrait Model"/>
             </Model>
-            <Unit Unit="TychusFirebat">
-                <Field Id="Unit Type"/>
-            </Unit>
+            <String String="FireBat">
+                <Field Id="Type"/>
+            </String>
+            <String String="TychusFirebatOilBomb">
+                <Field Id="Active Abil"/>
+            </String>
             <Unit Unit="TychusArmory">
                 <Field Id="EquipmentStructure"/>
             </Unit>
@@ -175,13 +147,7 @@
                 <Field Id="Equipment" Index="3"/>
             </Upgrade>
         </Instances>
-        <Instances Id="HERC">
-            <AbilCmd Abil="TychusFakeReviveHERC">
-                <Field Id="Revive Ability"/>
-            </AbilCmd>
-            <GameLink GameLink="TychusHercGrapple">
-                <Field Id="Active Abil"/>
-            </GameLink>
+        <Instances Id="TychusHERC">
             <GameLink GameLink="TychusHercGrapple">
                 <Field Id="Active Button"/>
             </GameLink>
@@ -191,9 +157,12 @@
             <Model Model="TychusTopBarPortrait_HERC">
                 <Field Id="Portrait Model"/>
             </Model>
-            <Unit Unit="TychusHERC">
-                <Field Id="Unit Type"/>
-            </Unit>
+            <String String="HERC">
+                <Field Id="Type"/>
+            </String>
+            <String String="TychusHercGrapple">
+                <Field Id="Active Abil"/>
+            </String>
             <Unit Unit="TychusArmory">
                 <Field Id="EquipmentStructure"/>
             </Unit>
@@ -210,13 +179,7 @@
                 <Field Id="Equipment" Index="3"/>
             </Upgrade>
         </Instances>
-        <Instances Id="Spectre">
-            <AbilCmd Abil="TychusFakeReviveSpectre">
-                <Field Id="Revive Ability"/>
-            </AbilCmd>
-            <GameLink GameLink="TychusSpectreUltrasonicPulse">
-                <Field Id="Active Abil"/>
-            </GameLink>
+        <Instances Id="TychusSpectre">
             <GameLink GameLink="TychusSpectreUltrasonicPulse">
                 <Field Id="Active Button"/>
             </GameLink>
@@ -226,9 +189,12 @@
             <Model Model="TychusTopBarPortrait_Spectre">
                 <Field Id="Portrait Model"/>
             </Model>
-            <Unit Unit="TychusSpectre">
-                <Field Id="Unit Type"/>
-            </Unit>
+            <String String="Spectre">
+                <Field Id="Type"/>
+            </String>
+            <String String="TychusSpectreUltrasonicPulse">
+                <Field Id="Active Abil"/>
+            </String>
             <Unit Unit="TychusGhostAcademy">
                 <Field Id="EquipmentStructure"/>
             </Unit>
@@ -245,13 +211,7 @@
                 <Field Id="Equipment" Index="3"/>
             </Upgrade>
         </Instances>
-        <Instances Id="Warhound">
-            <AbilCmd Abil="TychusFakeReviveWarhound">
-                <Field Id="Revive Ability"/>
-            </AbilCmd>
-            <GameLink GameLink="TychusWarhoundBuildAutoTurret">
-                <Field Id="Active Abil"/>
-            </GameLink>
+        <Instances Id="TychusWarhound">
             <GameLink GameLink="TychusWarhoundAutoTurret">
                 <Field Id="Active Button"/>
             </GameLink>
@@ -261,9 +221,12 @@
             <Model Model="TychusTopBarPortrait_Warhound">
                 <Field Id="Portrait Model"/>
             </Model>
-            <Unit Unit="TychusWarhound">
-                <Field Id="Unit Type"/>
-            </Unit>
+            <String String="Warhound">
+                <Field Id="Type"/>
+            </String>
+            <String String="TychusWarhoundBuildAutoTurret">
+                <Field Id="Active Abil"/>
+            </String>
             <Unit Unit="TychusMercCompound">
                 <Field Id="EquipmentStructure"/>
             </Unit>
@@ -280,13 +243,7 @@
                 <Field Id="Equipment" Index="3"/>
             </Upgrade>
         </Instances>
-        <Instances Id="Reaper">
-            <AbilCmd Abil="TychusFakeReviveReaper">
-                <Field Id="Revive Ability"/>
-            </AbilCmd>
-            <GameLink GameLink="TychusReaperBomb">
-                <Field Id="Active Abil"/>
-            </GameLink>
+        <Instances Id="TychusReaper">
             <GameLink GameLink="TychusReaperBomb">
                 <Field Id="Active Button"/>
             </GameLink>
@@ -296,9 +253,12 @@
             <Model Model="TychusTopBarPortrait_Reaper">
                 <Field Id="Portrait Model"/>
             </Model>
-            <Unit Unit="TychusReaper">
-                <Field Id="Unit Type"/>
-            </Unit>
+            <String String="Reaper">
+                <Field Id="Type"/>
+            </String>
+            <String String="TychusReaperBomb">
+                <Field Id="Active Abil"/>
+            </String>
             <Unit Unit="TychusMercCompound">
                 <Field Id="EquipmentStructure"/>
             </Unit>
@@ -315,13 +275,7 @@
                 <Field Id="Equipment" Index="3"/>
             </Upgrade>
         </Instances>
-        <Instances Id="Marauder">
-            <AbilCmd Abil="TychusFakeReviveMarauder">
-                <Field Id="Revive Ability"/>
-            </AbilCmd>
-            <GameLink GameLink="TychusMarauderBuildHealingWard">
-                <Field Id="Active Abil"/>
-            </GameLink>
+        <Instances Id="TychusMarauder">
             <GameLink GameLink="TychusMarauderHealingWard">
                 <Field Id="Active Button"/>
             </GameLink>
@@ -331,9 +285,12 @@
             <Model Model="TychusTopBarPortrait_Marauder">
                 <Field Id="Portrait Model"/>
             </Model>
-            <Unit Unit="TychusMarauder">
-                <Field Id="Unit Type"/>
-            </Unit>
+            <String String="Marauder">
+                <Field Id="Type"/>
+            </String>
+            <String String="TychusMarauderBuildHealingWard">
+                <Field Id="Active Abil"/>
+            </String>
             <Unit Unit="TychusArmory">
                 <Field Id="EquipmentStructure"/>
             </Unit>
