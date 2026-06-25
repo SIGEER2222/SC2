@@ -1,66 +1,354 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
     <CUser id="CoopTechTychusSquad">
-        <Fields index="4">
-            <Id value="Squad Slot"/>
-            <Type value="Int"/>
-            <Count value="16"/>
-            <EditorColumn value="5"/>
+        <Fields Id="Unit Type" Type="Unit" EditorColumn="1"/>
+        <Fields Id="2D Portrait" Type="Image" EditorColumn="2"/>
+        <Fields>
+            <Id value="Active Abil"/>
+            <Type value="GameLink"/>
+            <GameLinkType value="Abil"/>
+            <EditorColumn value="3"/>
+        </Fields>
+        <Fields>
+            <Id value="Active Button"/>
+            <Type value="GameLink"/>
+            <GameLinkType value="Button"/>
+            <EditorColumn value="4"/>
+        </Fields>
+        <Fields Id="Squad Slot" Type="Int" EditorColumn="5">
             <Flags index="Modifiable" value="1"/>
         </Fields>
-        <Fields index="8">
-            <Id value="EquipCount"/>
-            <Type value="Int"/>
-            <Count value="16"/>
-            <EditorColumn value="9"/>
+        <Fields Id="Revive Ability" Type="AbilCmd" EditorColumn="6"/>
+        <Fields Id="Portrait Model" Type="Model" EditorColumn="7"/>
+        <Fields>
+            <Id value="Equipment"/>
+            <Type value="Upgrade"/>
+            <Count value="4"/>
+            <EditorColumn value="8"/>
+        </Fields>
+        <Fields Id="EquipCount" Type="Int" EditorColumn="9">
             <Flags index="Modifiable" value="1"/>
         </Fields>
-        <Instances index="0" Id="[Default]">
+        <Fields Id="EquipmentStructure" Type="Unit" EditorColumn="10"/>
+        <Instances Id="[Default]">
             <Int Int="-1">
-                <Field Id="Squad Slot" Index="1"/>
+                <Field Id="Squad Slot"/>
             </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="2"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="3"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="4"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="5"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="6"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="7"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="8"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="9"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="10"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="11"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="12"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="13"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="14"/>
-            </Int>
-            <Int Int="-1">
-                <Field Id="Squad Slot" Index="15"/>
-            </Int>
+        </Instances>
+        <Instances Id="Tychus">
+            <AbilCmd Abil="TychusFakeReviveTychus">
+                <Field Id="Revive Ability"/>
+            </AbilCmd>
+            <GameLink GameLink="TychusShredderGrenade">
+                <Field Id="Active Abil"/>
+            </GameLink>
+            <GameLink GameLink="TychusShredderGrenade">
+                <Field Id="Active Button"/>
+            </GameLink>
+            <Image Image="Assets\Textures\UI_InGame_Coop_TopBar_Tychus_HeroPortrait_Tychus.dds">
+                <Field Id="2D Portrait"/>
+            </Image>
+            <Model Model="TychusTopBarPortrait_Tychus">
+                <Field Id="Portrait Model"/>
+            </Model>
+            <Unit Unit="TychusCoop">
+                <Field Id="Unit Type"/>
+            </Unit>
+            <Unit Unit="TychusMercCompound">
+                <Field Id="EquipmentStructure"/>
+            </Unit>
+            <Upgrade Upgrade="TychusACImplosionGrenades">
+                <Field Id="Equipment"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusACRageGrenades">
+                <Field Id="Equipment" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusACPiercingRounds">
+                <Field Id="Equipment" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusACBandofBrothers">
+                <Field Id="Equipment" Index="3"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Ghost">
+            <AbilCmd Abil="TychusFakeReviveGhost">
+                <Field Id="Revive Ability"/>
+            </AbilCmd>
+            <GameLink GameLink="TychusGhostDominate">
+                <Field Id="Active Abil"/>
+            </GameLink>
+            <GameLink GameLink="TychusGhostDominate">
+                <Field Id="Active Button"/>
+            </GameLink>
+            <Image Image="Assets\Textures\UI_InGame_Coop_TopBar_Tychus_HeroPortrait_Ghost.dds">
+                <Field Id="2D Portrait"/>
+            </Image>
+            <Model Model="TychusTopBarPortrait_Ghost">
+                <Field Id="Portrait Model"/>
+            </Model>
+            <Unit Unit="TychusGhost">
+                <Field Id="Unit Type"/>
+            </Unit>
+            <Unit Unit="TychusGhostAcademy">
+                <Field Id="EquipmentStructure"/>
+            </Unit>
+            <Upgrade Upgrade="TychusGhostDominateBuff">
+                <Field Id="Equipment"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusGhostDominatingDomination">
+                <Field Id="Equipment" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusGhostPsychicSnare">
+                <Field Id="Equipment" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusGhostConcentrationHelmet">
+                <Field Id="Equipment" Index="3"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Medic">
+            <AbilCmd Abil="TychusFakeReviveMedic">
+                <Field Id="Revive Ability"/>
+            </AbilCmd>
+            <GameLink GameLink="TychusMedicAoE">
+                <Field Id="Active Abil"/>
+            </GameLink>
+            <GameLink GameLink="TychusMedicAoE">
+                <Field Id="Active Button"/>
+            </GameLink>
+            <Image Image="Assets\Textures\UI_InGame_Coop_TopBar_Tychus_HeroPortrait_Medic.dds">
+                <Field Id="2D Portrait"/>
+            </Image>
+            <Model Model="TychusTopBarPortrait_Medic">
+                <Field Id="Portrait Model"/>
+            </Model>
+            <Unit Unit="TychusMedic">
+                <Field Id="Unit Type"/>
+            </Unit>
+            <Unit Unit="TychusGhostAcademy">
+                <Field Id="EquipmentStructure"/>
+            </Unit>
+            <Upgrade Upgrade="TychusMedicAdvancedHealingSpray">
+                <Field Id="Equipment"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusMedicSuperHealing">
+                <Field Id="Equipment" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusMedicDoubleBeam">
+                <Field Id="Equipment" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusMedicDefensiveMatrix">
+                <Field Id="Equipment" Index="3"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Firebat">
+            <AbilCmd Abil="TychusFakeReviveFirebat">
+                <Field Id="Revive Ability"/>
+            </AbilCmd>
+            <GameLink GameLink="TychusFirebatOilBomb">
+                <Field Id="Active Abil"/>
+            </GameLink>
+            <GameLink GameLink="TychusFirebatOilBomb">
+                <Field Id="Active Button"/>
+            </GameLink>
+            <Image Image="Assets\Textures\UI_InGame_Coop_TopBar_Tychus_HeroPortrait_Firebat.dds">
+                <Field Id="2D Portrait"/>
+            </Image>
+            <Model Model="TychusTopBarPortrait_Firebat">
+                <Field Id="Portrait Model"/>
+            </Model>
+            <Unit Unit="TychusFirebat">
+                <Field Id="Unit Type"/>
+            </Unit>
+            <Unit Unit="TychusArmory">
+                <Field Id="EquipmentStructure"/>
+            </Unit>
+            <Upgrade Upgrade="TychusFirebatPremiumPetroleum">
+                <Field Id="Equipment"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusFirebatBlueFlameOil">
+                <Field Id="Equipment" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusFirebatIncendiaryPetroleum">
+                <Field Id="Equipment" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusFirebatShield">
+                <Field Id="Equipment" Index="3"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="HERC">
+            <AbilCmd Abil="TychusFakeReviveHERC">
+                <Field Id="Revive Ability"/>
+            </AbilCmd>
+            <GameLink GameLink="TychusHercGrapple">
+                <Field Id="Active Abil"/>
+            </GameLink>
+            <GameLink GameLink="TychusHercGrapple">
+                <Field Id="Active Button"/>
+            </GameLink>
+            <Image Image="Assets\Textures\UI_InGame_Coop_TopBar_Tychus_HeroPortrait_HERC.dds">
+                <Field Id="2D Portrait"/>
+            </Image>
+            <Model Model="TychusTopBarPortrait_HERC">
+                <Field Id="Portrait Model"/>
+            </Model>
+            <Unit Unit="TychusHERC">
+                <Field Id="Unit Type"/>
+            </Unit>
+            <Unit Unit="TychusArmory">
+                <Field Id="EquipmentStructure"/>
+            </Unit>
+            <Upgrade Upgrade="TychusHercRage">
+                <Field Id="Equipment"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusHercGrappleStun">
+                <Field Id="Equipment" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusHercGrappleArmor">
+                <Field Id="Equipment" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusHercCrit">
+                <Field Id="Equipment" Index="3"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Spectre">
+            <AbilCmd Abil="TychusFakeReviveSpectre">
+                <Field Id="Revive Ability"/>
+            </AbilCmd>
+            <GameLink GameLink="TychusSpectreUltrasonicPulse">
+                <Field Id="Active Abil"/>
+            </GameLink>
+            <GameLink GameLink="TychusSpectreUltrasonicPulse">
+                <Field Id="Active Button"/>
+            </GameLink>
+            <Image Image="Assets\Textures\UI_InGame_Coop_TopBar_Tychus_HeroPortrait_Spectre.dds">
+                <Field Id="2D Portrait"/>
+            </Image>
+            <Model Model="TychusTopBarPortrait_Spectre">
+                <Field Id="Portrait Model"/>
+            </Model>
+            <Unit Unit="TychusSpectre">
+                <Field Id="Unit Type"/>
+            </Unit>
+            <Unit Unit="TychusGhostAcademy">
+                <Field Id="EquipmentStructure"/>
+            </Unit>
+            <Upgrade Upgrade="TychusSpectreExtendedPulseGun">
+                <Field Id="Equipment"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusSpectreSuperUltrasonicPulse">
+                <Field Id="Equipment" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusSpectreVisionSuit">
+                <Field Id="Equipment" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusSpectreBrillianceAura">
+                <Field Id="Equipment" Index="3"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Warhound">
+            <AbilCmd Abil="TychusFakeReviveWarhound">
+                <Field Id="Revive Ability"/>
+            </AbilCmd>
+            <GameLink GameLink="TychusWarhoundBuildAutoTurret">
+                <Field Id="Active Abil"/>
+            </GameLink>
+            <GameLink GameLink="TychusWarhoundAutoTurret">
+                <Field Id="Active Button"/>
+            </GameLink>
+            <Image Image="Assets\Textures\UI_InGame_Coop_TopBar_Tychus_HeroPortrait_Warhound.dds">
+                <Field Id="2D Portrait"/>
+            </Image>
+            <Model Model="TychusTopBarPortrait_Warhound">
+                <Field Id="Portrait Model"/>
+            </Model>
+            <Unit Unit="TychusWarhound">
+                <Field Id="Unit Type"/>
+            </Unit>
+            <Unit Unit="TychusMercCompound">
+                <Field Id="EquipmentStructure"/>
+            </Unit>
+            <Upgrade Upgrade="TychusWarhoundHaywireMissiles">
+                <Field Id="Equipment"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusWarhoundFear">
+                <Field Id="Equipment" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusWarhoundDeathExplosion">
+                <Field Id="Equipment" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusWarhoundTurretUpgrade">
+                <Field Id="Equipment" Index="3"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Reaper">
+            <AbilCmd Abil="TychusFakeReviveReaper">
+                <Field Id="Revive Ability"/>
+            </AbilCmd>
+            <GameLink GameLink="TychusReaperBomb">
+                <Field Id="Active Abil"/>
+            </GameLink>
+            <GameLink GameLink="TychusReaperBomb">
+                <Field Id="Active Button"/>
+            </GameLink>
+            <Image Image="Assets\Textures\UI_InGame_Coop_TopBar_Tychus_HeroPortrait_Reaper.dds">
+                <Field Id="2D Portrait"/>
+            </Image>
+            <Model Model="TychusTopBarPortrait_Reaper">
+                <Field Id="Portrait Model"/>
+            </Model>
+            <Unit Unit="TychusReaper">
+                <Field Id="Unit Type"/>
+            </Unit>
+            <Unit Unit="TychusMercCompound">
+                <Field Id="EquipmentStructure"/>
+            </Unit>
+            <Upgrade Upgrade="TychusReaperBombDamage">
+                <Field Id="Equipment"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusReaperBombStun">
+                <Field Id="Equipment" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusReaperEvasionBuff">
+                <Field Id="Equipment" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusReaperBombCharges">
+                <Field Id="Equipment" Index="3"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Marauder">
+            <AbilCmd Abil="TychusFakeReviveMarauder">
+                <Field Id="Revive Ability"/>
+            </AbilCmd>
+            <GameLink GameLink="TychusMarauderBuildHealingWard">
+                <Field Id="Active Abil"/>
+            </GameLink>
+            <GameLink GameLink="TychusMarauderHealingWard">
+                <Field Id="Active Button"/>
+            </GameLink>
+            <Image Image="Assets\Textures\UI_InGame_Coop_TopBar_Tychus_HeroPortrait_Marauder.dds">
+                <Field Id="2D Portrait"/>
+            </Image>
+            <Model Model="TychusTopBarPortrait_Marauder">
+                <Field Id="Portrait Model"/>
+            </Model>
+            <Unit Unit="TychusMarauder">
+                <Field Id="Unit Type"/>
+            </Unit>
+            <Unit Unit="TychusArmory">
+                <Field Id="EquipmentStructure"/>
+            </Unit>
+            <Upgrade Upgrade="TychusMarauderHealingWardBuff">
+                <Field Id="Equipment"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusMarauderHealingWardSpeedBuff">
+                <Field Id="Equipment" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusMarauderSuperStim">
+                <Field Id="Equipment" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="TychusMarauderAttackSplash">
+                <Field Id="Equipment" Index="3"/>
+            </Upgrade>
         </Instances>
     </CUser>
     <CUser id="CoopTechMutuallyExclusivePrestiges">
