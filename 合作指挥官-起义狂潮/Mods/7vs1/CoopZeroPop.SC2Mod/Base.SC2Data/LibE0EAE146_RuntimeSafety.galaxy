@@ -586,6 +586,8 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
                 if (lv_unit != "") { return lv_unit; }
             }
             if (lp_field == "SecondUnit") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HHStarport");
+                if (lv_unit != "") { return lv_unit; }
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HHMercStarportNoArmy");
                 if (lv_unit != "") { return lv_unit; }
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HHMercStarportUpgraded");
@@ -653,6 +655,8 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
                 return libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
             }
             if (lp_field == "SecondUnit") {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HHStarport");
+                if (lv_unit != "") { return lv_unit; }
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("ReaperHH");
                 if (lv_unit != "") { return lv_unit; }
                 return libE0EAE146_gf_CatalogUnitOrEmpty("Reaper");
@@ -1126,6 +1130,10 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
         }
         if (lp_field == "SecondUnit") {
             if ((lv_commander == "Mira") || (lv_commander == "Horner") || (lv_commander == "HanHorner") || (lv_commander == "HanAndHorner")) {
+                lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HHStarport");
+                if (lv_unit != "") {
+                    return lv_unit;
+                }
                 lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("HHMercStarportNoArmy");
                 if (lv_unit != "") {
                     return lv_unit;

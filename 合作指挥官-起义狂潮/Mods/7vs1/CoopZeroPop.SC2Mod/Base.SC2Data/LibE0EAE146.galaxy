@@ -263,6 +263,10 @@ void libE0EAE146_gf_InitializeMapBaseScenario (string lp_mapId) {
     lv_worker = 11;
     lv_secondBase = null;
     lv_createHero = true;
+    // 霍纳与汉的星际港需要更多空间，调整位置避免与矿物重叠
+    if (((libE0EAE146_gv_commander == "Mira") || (libE0EAE146_gv_commander == "Horner") || (libE0EAE146_gv_commander == "HanHorner") || (libE0EAE146_gv_commander == "HanAndHorner"))) {
+        lv_secondUnit = PointWithOffsetPolar(PlayerStartLocation(1), 8.0, -45.0);
+    }
     if (lp_mapId == "tvalerian03_7vs1") {
         lv_secondUnit = PointFromId(789749215);
         lv_worker = 11;
@@ -1231,6 +1235,9 @@ void libE0EAE146_gf_GenericBonusApplyPassives (int lp_player) {
     bool lv_mechanicalRepair;
     bool lv_chronoBoost;
     bool lv_abathurBiomassDrop;
+    bool lv_hornerMagMines;
+    bool lv_hornerStarport;
+    bool lv_hornerBombingPlatforms;
 
     lv_doubleMineralsLevel = libE0EAE146_gf_GenericBonusLevel("DoubleMinerals");
     lv_doubleVespeneLevel = libE0EAE146_gf_GenericBonusLevel("DoubleVespene");
@@ -1240,6 +1247,9 @@ void libE0EAE146_gf_GenericBonusApplyPassives (int lp_player) {
     lv_mechanicalRepair = libE0EAE146_gf_GenericBonusEnabled("MechanicalRepair");
     lv_chronoBoost = libE0EAE146_gf_GenericBonusEnabled("ChronoBoost");
     lv_abathurBiomassDrop = libE0EAE146_gf_GenericBonusEnabled("AbathurBiomassDrop");
+    lv_hornerMagMines = libE0EAE146_gf_GenericBonusEnabled("HornerMagMines");
+    lv_hornerStarport = libE0EAE146_gf_GenericBonusEnabled("HornerStarport");
+    lv_hornerBombingPlatforms = libE0EAE146_gf_GenericBonusEnabled("HornerBombingPlatforms");
 
     if (lv_doubleMineralsLevel > 0) {
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusDoubleMinerals", 1);
@@ -1274,6 +1284,15 @@ void libE0EAE146_gf_GenericBonusApplyPassives (int lp_player) {
     if (lv_abathurBiomassDrop) {
         libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusAbathurBiomassDrop", 1);
         libE0EAE146_gf_EnableAbathurBiomassForGenericBonus(lp_player, "BiomassPickupDummy");
+    }
+    if (lv_hornerMagMines) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusHornerMagMines", 1);
+    }
+    if (lv_hornerStarport) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusHornerStarport", 1);
+    }
+    if (lv_hornerBombingPlatforms) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusHornerBombingPlatforms", 1);
     }
 
     libE0EAE146_gf_GenericBonusEnsureTriggers();
