@@ -117,5 +117,90 @@
   <CEffectSet id="SIStukovMassNeuralParasiteTargetExpireSet">
     <EffectArray value="Suicide" />
   </CEffectSet>
-  
+  <CEffectSet id="HHStarportBirthDummy" />
+  <CEffectSet id="HHStarportDeathDummy" />
+
+  <CEffectAddTrackedUnit id="TychusMedicTransportAT">
+    <BehaviorLink value="TychusMedicTransportT" />
+    <TrackedUnit Value="Target" />
+  </CEffectAddTrackedUnit>
+  <CEffectApplyBehavior id="TychusMedicTransportPreAB">
+    <Behavior value="TychusMedicTransportPre" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="TychusMedicTransportFinAB">
+    <Behavior value="TychusMedicTransportFin" />
+  </CEffectApplyBehavior>
+  <CEffectRemoveBehavior id="TychusMedicTransportRB">
+    <BehaviorAlignment value="Negative" />
+  </CEffectRemoveBehavior>
+  <CEffectRemoveTrackedUnit id="TychusMedicTransportRT">
+    <BehaviorLink value="TychusMedicTransportT" />
+    <TrackedUnit Value="Target" />
+  </CEffectRemoveTrackedUnit>
+  <CEffectModifyUnit id="TychusMedicTransportHeal">
+    <VitalArray index="Life">
+      <ChangeFraction value="0.025" />
+    </VitalArray>
+  </CEffectModifyUnit>
+  <CEffectTeleport id="TychusMedicTransportT">
+    <PlacementArc value="360" />
+    <PlacementAround Effect="TychusMedicTransportFinPoint" />
+    <SourceLocation Value="CasterPoint" />
+    <TargetLocation Effect="TychusMedicTransportFinPoint" Value="TargetPoint" />
+  </CEffectTeleport>
+  <CEffectEnumArea id="TychusMedicTransportPreS">
+    <ImpactLocation Value="TargetPoint" />
+    <SearchFilters value="-;Ally,Neutral,Enemy,Structure,User1,Missile,Stasis,Dead,Hidden" />
+    <AreaArray Radius="5" Effect="TychusMedicTransportPreSet" />
+    <MinCount value="1" />
+  </CEffectEnumArea>
+  <CEffectSet id="TychusMedicTransportPreSet">
+    <EffectArray value="TychusMedicTransportAT" />
+    <EffectArray value="TychusMedicTransportPreAB" />
+  </CEffectSet>
+  <CEffectSet id="TychusMedicTransportFinPoint">
+    <EffectArray value="TychusMedicTransportTT" />
+    <TargetLocationType value="Point" />
+  </CEffectSet>
+  <CEffectEnumTrackedUnits id="TychusMedicTransportTT">
+    <BehaviorLink value="TychusMedicTransportT" />
+    <Effect value="TychusMedicTransportFinSet" />
+  </CEffectEnumTrackedUnits>
+  <CEffectSet id="TychusMedicTransportFinSet">
+    <EffectArray value="TychusMedicTransportT" />
+    <EffectArray value="TychusMedicTransportRB" />
+    <EffectArray value="TychusMedicTransportFinAB" />
+    <EffectArray value="TychusMedicTransportRT" />
+  </CEffectSet>
+  <CEffectSet id="TychusMedicTransportUnit" />
+
+  <CEffectCreateUnit id="TychusCalldownOdinCreateUnit">
+    <WhichLocation Value="TargetPoint" />
+    <SpawnEffect value="TychusCalldownOdinDamageSet" />
+    <SpawnUnit value="TychusOdin" />
+    <CreateFlags index="Placement" value="0" />
+    <CreateFlags index="ProvideFood" value="0" />
+    <CreateFlags index="UseFood" value="0" />
+    <SelectUnit Value="Caster" />
+  </CEffectCreateUnit>
+  <CEffectApplyBehavior id="TychusCalldownOdinApplyTimedLife">
+    <Behavior value="TychusOdinTimedLife" />
+  </CEffectApplyBehavior>
+  <CEffectSet id="TychusCalldownOdinDamageSet">
+    <EffectArray value="TychusCalldownOdinApplyTimedLife" />
+    <EffectArray value="TychusCalldownSearchAreaPersistent" />
+    <TargetLocationType value="Point" />
+  </CEffectSet>
+  <CEffectCreatePersistent id="TychusCalldownSearchAreaPersistent">
+    <ExpireEffect value="TychusCalldownOdinSearchArea" />
+    <ExpireDelay value="0.8" />
+  </CEffectCreatePersistent>
+  <CEffectEnumArea id="TychusCalldownOdinSearchArea">
+    <AreaArray Radius="2" Effect="TychusCalldownOdinDamage" />
+    <SearchFilters value="-;Player,Ally,Structure,Missile,Stasis,Dead,Hidden,Invulnerable" />
+  </CEffectEnumArea>
+  <CEffectDamage id="TychusCalldownOdinDamage">
+    <Amount value="150" />
+  </CEffectDamage>
+
 </Catalog>
