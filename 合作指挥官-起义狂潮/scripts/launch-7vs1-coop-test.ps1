@@ -1200,6 +1200,7 @@ Set-CampaignXCoreGenericBonuses -SelectedBonuses $GenericBonuses
 Set-CampaignXCoreVoicePackSelection -SelectedCommanders $effectiveCommanders -VoicePack $VoicePack
 Set-CampaignXCorePrimaryCommander -SelectedCommanders $effectiveCommanders
 Set-CampaignXCoreTestRunId -RunId $TestRunId
+Set-CampaignXCoreTestSpawnPreset -TestSpawnPreset $TestSpawnPreset
 
 if ($ForceStopSc2BeforeInstall -or (-not $NoLaunch)) {
     Stop-RunningSc2
@@ -1259,7 +1260,6 @@ $effectiveRuntimeBaseData = Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryP
 Apply-LiveCommanderTestPatches `
     -BaseDataRoot $effectiveRuntimeBaseData `
     -SelectedCommanders $effectiveCommanders `
-    -TestSpawnPreset $TestSpawnPreset `
     -ApplySupportPatches $true
 # LibE0EAE146_RuntimeSafety.galaxy is owned by the live extension mod, not the
 # effective LibKPVP location, so patch the extension Base.SC2Data directly.
@@ -1301,6 +1301,7 @@ Set-CampaignXCoreGenericBonuses -SelectedBonuses $GenericBonuses
 Set-CampaignXCoreVoicePackSelection -SelectedCommanders $effectiveCommanders -VoicePack $VoicePack
 Set-CampaignXCorePrimaryCommander -SelectedCommanders $effectiveCommanders
 Set-CampaignXCoreTestRunId -RunId $TestRunId
+Set-CampaignXCoreTestSpawnPreset -TestSpawnPreset $TestSpawnPreset
 
 Write-Host "Installed map: $mapLive"
 Write-Host "Installed extension mod: $extensionLive"

@@ -771,6 +771,21 @@ function Set-CampaignXCoreTestRunId {
     }
 }
 
+function Set-CampaignXCoreTestSpawnPreset {
+    param([string]$TestSpawnPreset)
+
+    foreach ($bankPath in @(Get-CampaignXCoreBankPaths)) {
+        [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
+        if ([string]::IsNullOrWhiteSpace($TestSpawnPreset)) {
+            Remove-BankKeyIfPresent -Xml $xml -SectionName "XMRuntimeControl" -KeyName "TestSpawnPreset"
+        }
+        else {
+            Set-BankStringKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "TestSpawnPreset" -Value $TestSpawnPreset
+        }
+        Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
+    }
+}
+
 function Set-CampaignXCorePrimaryCommander {
     param([string[]]$SelectedCommanders)
 

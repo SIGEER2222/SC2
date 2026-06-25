@@ -1405,9 +1405,34 @@ int libKMIS_gf_CM_Abathur_BiomassGetStack (unit lp_biomass) {
     return lv_stack;
 }
 
+bool libKMIS_gf_CM_Abathur_CanCollectBiomass (unit lp_unit) {
+    string lv_unitType;
+
+    if ((lp_unit == null)) {
+        return false;
+    }
+    lv_unitType = UnitGetType(lp_unit);
+    if ((lv_unitType == "BiomassPickup")) {
+        return false;
+    }
+    if ((UnitFilterMatch(lp_unit, UnitGetOwner(lp_unit), UnitFilter(0, (1 << (c_targetFilterSummoned - 32)), 0, 0)) == true)) {
+        return false;
+    }
+    if ((lv_unitType == "Interceptor") || (lv_unitType == "InterceptorStetmann") || (lv_unitType == "FenixClolarionInterceptor") || (lv_unitType == "Locust") || (lv_unitType == "Broodling") || (lv_unitType == "BroodlingStetmann") || (lv_unitType == "HyperionVoidCoop") || (lv_unitType == "DuskWing") || (lv_unitType == "NovaOdin") || (lv_unitType == "TychusOdin") || (lv_unitType == "StukovApocalisk") || (lv_unitType == "StukovAleksander") || (lv_unitType == "ZeratulSummonKarass") || (lv_unitType == "ZeratulSummonZealot") || (lv_unitType == "ZeratulSummonVoidRay") || (lv_unitType == "Mohandar") || (lv_unitType == "SOASummonFenix") || (lv_unitType == "SOASummonFenixDragoon") || (lv_unitType == "SOASummonFenixArbiter")) {
+        return false;
+    }
+    if ((UnitHasBehavior2(lp_unit, "TimedLife") == true) || (UnitHasBehavior2(lp_unit, "LocustTimedLife") == true) || (UnitHasBehavior2(lp_unit, "BroodlingStetmannFate") == true) || (UnitHasBehavior2(lp_unit, "DehakaTopBarSummonTimedLife") == true) || (UnitHasBehavior2(lp_unit, "ZeratulTopBarTimedLife") == true) || (UnitHasBehavior2(lp_unit, "SIBarracksTrainTimedLife") == true) || (UnitHasBehavior2(lp_unit, "StukovSummonAleksanderCrashedTimedLife") == true) || (UnitHasBehavior2(lp_unit, "CommanderPrestigeFenixSuitSwapTimedLife") == true)) {
+        return false;
+    }
+    return true;
+}
+
 void libKMIS_gf_CM_Abathur_BiomassTransfer (int lp_indexPlayer, unit lp_trainUnit, int lp_biomassBuff100Count, int lp_biomassBuff10Count, int lp_biomassBuff1Count) {
     // Automatic Variable Declarations
     // Implementation
+    if ((libKMIS_gf_CM_Abathur_CanCollectBiomass(lp_trainUnit) == false)) {
+        return;
+    }
     UnitBehaviorAddPlayer(lp_trainUnit, "BiomassBuff100", lp_indexPlayer, lp_biomassBuff100Count);
     UnitBehaviorAddPlayer(lp_trainUnit, "BiomassBuff10", lp_indexPlayer, lp_biomassBuff10Count);
     UnitBehaviorAddPlayer(lp_trainUnit, "BiomassBuff1", lp_indexPlayer, lp_biomassBuff1Count);
@@ -8192,6 +8217,10 @@ bool libKMIS_gt_CM_Abathur_BiomassPickup_Func (bool testConds, bool runActions) 
 
     // Actions
     if (!runActions) {
+        return true;
+    }
+
+    if ((libKMIS_gf_CM_Abathur_CanCollectBiomass(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == false)) {
         return true;
     }
 
