@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CActorUnit id="BrutaliskCocoon" parent="GenericUnitMorph" unitName="BrutaliskCocoon">
+        <Aliases value="_UnitMedium"/>
+        <On Terms="UnitBirth.BrutaliskCocoon" Send="Create"/>
+        <On Terms="UnitBirth.BrutaliskCocoonRoach" Send="Create"/>
+        <On Terms="UnitBirth.BrutaliskCocoonRoachVile" Send="Create"/>
+        <On Terms="UnitBirth.BrutaliskCocoonQueen" Send="Create"/>
+        <On Terms="UnitBirth.BrutaliskCocoonSwarmhost" Send="Create"/>
+        <On Terms="UnitBirth.BrutaliskCocoonRavager" Send="Create"/>
+        <On Terms="UnitBirth.BrutaliskCocoonDefiler" Send="Create"/>
+        <On Terms="UnitBirth.BrutaliskCocoon" Send="$Birth"/>
+        <On Terms="UnitBirth.BrutaliskCocoonRoach" Send="$Birth"/>
+        <On Terms="UnitBirth.BrutaliskCocoonRoachVile" Send="$Birth"/>
+        <On Terms="UnitBirth.BrutaliskCocoonQueen" Send="$Birth"/>
+        <On Terms="UnitBirth.BrutaliskCocoonSwarmhost" Send="$Birth"/>
+        <On Terms="UnitBirth.BrutaliskCocoonRavager" Send="$Birth"/>
+        <On Terms="UnitBirth.BrutaliskCocoonDefiler" Send="$Birth"/>
+        <On Terms="ActorDestruction" Send="Create BrutaliskCocoonDeath"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="RavagerCocoonDeath" SoundLink="Egg_Explode"/>
+        <PortraitModel value="CocoonPortrait"/>
+        <BarOffset value="50"/>
+        <BarWidth value="40"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Zerg-RavagersEgg.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-zerg-egg.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-zerg-egg.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Zerg-RavagersEgg.dds"/>
+        </Wireframe>
+        <StatusBarOn index="Progress" value="1"/>
+        <StatusBarOn index="Duration" value="1"/>
+    </CActorUnit>
+    <CActorModel id="BrutaliskCocoonDeath">
+        <On Terms="ActorCreation" Send="$Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+    </CActorModel>
+    <CActorUnit id="LeviathanCocoon" parent="GenericUnitMorph" unitName="LeviathanCocoon">
+        <Aliases value="_UnitMedium"/>
+        <On Terms="UnitBirth.LeviathanCocoon" Send="Create"/>
+        <On Terms="UnitBirth.LeviathanCocoonMutalisk" Send="Create"/>
+        <On Terms="UnitBirth.LeviathanCocoonGuardianMP" Send="Create"/>
+        <On Terms="UnitBirth.LeviathanCocoonDevourer" Send="Create"/>
+        <On Terms="UnitBirth.LeviathanCocoonViper" Send="Create"/>
+        <On Terms="UnitBirth.LeviathanCocoon" Send="$Birth"/>
+        <On Terms="UnitBirth.LeviathanCocoonMutalisk" Send="$Birth"/>
+        <On Terms="UnitBirth.LeviathanCocoonGuardianMP" Send="$Birth"/>
+        <On Terms="UnitBirth.LeviathanCocoonDevourer" Send="$Birth"/>
+        <On Terms="UnitBirth.LeviathanCocoonViper" Send="$Birth"/>
+        <On Terms="ActorDestruction" Send="Create LeviathanCocoonDeath"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="RavagerCocoonDeath" SoundLink="Egg_Explode"/>
+        <PortraitModel value="CocoonPortrait"/>
+        <BarOffset value="50"/>
+        <BarWidth value="40"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Zerg-RavagersEgg.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-zerg-egg.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-zerg-egg.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Zerg-RavagersEgg.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorModel id="LeviathanCocoonDeath">
+        <On Terms="ActorCreation" Send="$Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+    </CActorModel>
+</Catalog>
