@@ -146,6 +146,9 @@ void libE0EAE146_gf_CM_Tychus_SetHeroRequiredTechLevel (int lp_p, int lp_level) 
     for ( ; auto845894D2_i <= UserDataInstanceCount(auto845894D2_userType) ; auto845894D2_i += 1 ) {
         lv_instance = UserDataInstance(auto845894D2_userType, auto845894D2_i);
         lv_uT = UserDataGetUnit(libE0EAE146_gv_cM_Tychus_UserTypeHeroList, lv_instance, "Unit Type", 1);
+        if ((lv_uT == null)) {
+            continue;
+        }
         if ((TechTreeUnitIsAllowed(lp_p, lv_uT) == true)) {
             auto3D8DE2E4_ae = (TechTreeUnitProducedAbilCmdCount(lv_uT) - 1);
             lv_i = 0;
@@ -180,6 +183,9 @@ void libE0EAE146_gf_CM_Tychus_SetHeroCostMultiply (int lp_p, fixed lp_multiplyMi
     for ( ; auto9ADCDADB_i <= UserDataInstanceCount(auto9ADCDADB_userType) ; auto9ADCDADB_i += 1 ) {
         lv_instance = UserDataInstance(auto9ADCDADB_userType, auto9ADCDADB_i);
         lv_uT = UserDataGetUnit(libE0EAE146_gv_cM_Tychus_UserTypeHeroList, lv_instance, "Unit Type", 1);
+        if ((lv_uT == null)) {
+            continue;
+        }
         libNtve_gf_CatalogFieldValueModifyBasedOnDefaultValue(c_gameCatalogUnit, lv_uT, "CostResource[" + IntToString(0) + "]", lp_p, RoundI((lp_multiplyMinerals * libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_uT, "CostResource[" + IntToString(0) + "]", c_playerAny) * lv_costfactor)), c_upgradeOperationSet);
         libNtve_gf_CatalogFieldValueModifyBasedOnDefaultValue(c_gameCatalogUnit, lv_uT, "CostResource[" + IntToString(1) + "]", lp_p, RoundI((lp_multiplyMinerals * libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_uT, "CostResource[" + IntToString(1) + "]", c_playerAny) * lv_costfactor)), c_upgradeOperationSet);
     }
