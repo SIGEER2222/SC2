@@ -567,11 +567,11 @@ bool libE0EAE146_gt_CM_Tychus_OdinSummon_Used_Func (bool testConds, bool runActi
     }
 
     libNtve_gf_PlayerRemoveCooldown(lv_p, libKCOR_gf_CC_CommanderHeroReviveLink(libKCOR_gf_ActiveCommanderForPlayer(lv_p)));
-    UnitRevive(libE0EAE146_gv_cM_HeroUnit[lv_p]);
-    UnitSetPropertyFixed(libE0EAE146_gv_cM_HeroUnit[lv_p], c_unitPropLifePercent, 100.0);
-    UnitCreateEffectPoint(libE0EAE146_gv_cM_HeroUnit[lv_p], libE0EAE146_gv_cM_Tychus_OdinSummonEffect_Called, EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    UnitRevive(libKMIS_gv_cM_HeroUnit[lv_p]);
+    UnitSetPropertyFixed(libKMIS_gv_cM_HeroUnit[lv_p], c_unitPropLifePercent, 100.0);
+    UnitCreateEffectPoint(libKMIS_gv_cM_HeroUnit[lv_p], libE0EAE146_gv_cM_Tychus_OdinSummonEffect_Called, EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
     Wait(1.0, c_timeGame);
-    UnitSetPosition(libE0EAE146_gv_cM_HeroUnit[lv_p], RegionGetBoundsMin(RegionEntireMap()), false);
+    UnitSetPosition(libKMIS_gv_cM_HeroUnit[lv_p], RegionGetBoundsMin(RegionEntireMap()), false);
     return true;
 }
 
@@ -1624,7 +1624,7 @@ bool libE0EAE146_gt_CM_TychusReplaceResearchCenter_Func (bool testConds, bool ru
     }
 
     CatalogLinkReplace(UnitGetOwner(libE0EAE146_gf_EventTychusHero()), c_gameCatalogUnit, "TychusResearchCenter", "TychusResearchCenterUnlocked");
-    libE0EAE146_gv_cM_HeroUnit[lv_p] = libE0EAE146_gf_EventTychusHero();
+    libKMIS_gv_cM_HeroUnit[lv_p] = libE0EAE146_gf_EventTychusHero();
     libKCUI_gv_cU_HeroUnit[0][lv_p] = lv_unit;
     auto8B4AE5B8_g = UnitGroup("TychusResearchCenter", UnitGetOwner(libE0EAE146_gf_EventTychusHero()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     auto8B4AE5B8_u = UnitGroupCount(auto8B4AE5B8_g, c_unitCountAll);
@@ -1746,7 +1746,7 @@ bool libE0EAE146_gt_CM_Tychus_CalldownOdinTychusSelect_Func (bool testConds, boo
     lv_tychusPlayer = libKCOR_gf_CC_PlayerOfCommanderInGroupFirst("TerranTychus", libKCOR_gf_CC_PlayersOfCommander("TerranTychus"));
     lv_tychus = null;
     if (lv_tychusPlayer != c_playerAny) {
-        lv_tychus = libE0EAE146_gv_cM_HeroUnit[lv_tychusPlayer];
+        lv_tychus = libKMIS_gv_cM_HeroUnit[lv_tychusPlayer];
     }
 
     // Conditions
@@ -1769,7 +1769,7 @@ bool libE0EAE146_gt_CM_Tychus_CalldownOdinTychusSelect_Func (bool testConds, boo
         UnitSelect(lv_tychus, UnitGetOwner(EventUnit()), true);
     }
 
-    libKCUI_gf_UpdateTychusSquadTargetFrame("Tychus", libE0EAE146_gv_cM_HeroUnit[libKCOR_gf_CC_PlayerOfCommanderInGroupFirst("TerranTychus", libKCOR_gf_CC_PlayersOfCommander("TerranTychus"))], 0);
+    libKCUI_gf_UpdateTychusSquadTargetFrame("Tychus", libKMIS_gv_cM_HeroUnit[libKCOR_gf_CC_PlayerOfCommanderInGroupFirst("TerranTychus", libKCOR_gf_CC_PlayersOfCommander("TerranTychus"))], 0);
     return true;
 }
 
