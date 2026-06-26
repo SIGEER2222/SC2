@@ -243,4 +243,1812 @@ void libE0EAE146_gf_FenixRuntimeInit (int lp_player, point lp_heroPoint, bool lp
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "FenixCoop", 0, lp_player, lp_heroPoint);
         libE0EAE146_gf_FenixApplyEnergyRegenToType(lp_player, "FenixCoop");
     }
+
+    TriggerExecute(libE0EAE146_gt_CM_Fenix_TriggersInit, true, false);
 }
+
+//--------------------------------------------------------------------------------------------------
+// Variable Initialization
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_fenix_InitVariables_completed = false;
+
+void libE0EAE146_fenix_InitVariables () {
+    int init_i;
+    int init_j;
+
+    if (libE0EAE146_fenix_InitVariables_completed) {
+        return;
+    }
+
+    libE0EAE146_fenix_InitVariables_completed = true;
+
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_HeroGroup[init_i] = UnitGroupEmpty();
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_DummyGroup[init_i] = UnitGroupEmpty();
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_ActiveHero[init_i] = null;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_ActiveHero_Abil[init_i] = "";
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_ActiveHero_Slot[init_i] = 0;
+    }
+    for (init_j = 0; init_j <= 3; init_j += 1) {
+        for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+            libE0EAE146_gv_cM_Fenix_Suits[init_j][init_i] = null;
+        }
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_OfflineHealthRegen[init_i] = 2.5;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_OfflineShieldRegen[init_i] = 5.0;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_OfflineEnergyRegen[init_i] = 0.7875;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_KillCount[init_i] = 0;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_KilledSelf[init_i] = false;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_SuicideLife[init_i] = 0.0;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_SuicideShield[init_i] = 0.0;
+    }
+    libE0EAE146_gv_cM_Fenix_RalliedGroup = UnitGroupEmpty();
+    for (init_j = 0; init_j <= libE0EAE146_gv_cMC_Fenix_ChampionCount; init_j += 1) {
+        for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+            libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer[init_j][init_i] = 0.0;
+        }
+    }
+    for (init_j = 0; init_j <= libE0EAE146_gv_cMC_Fenix_ChampionCount; init_j += 1) {
+        for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+            libE0EAE146_gv_cM_Fenix_ChampionKills[init_j][init_i] = 0;
+        }
+    }
+    for (init_j = 0; init_j <= libE0EAE146_gv_cMC_Fenix_ChampionCount; init_j += 1) {
+        for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+            libE0EAE146_gv_cM_Fenix_ChampionUnit[init_j][init_i] = null;
+        }
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_cM_Fenix_ChampionStructure[init_i] = null;
+    }
+    for (init_j = 0; init_j <= libE0EAE146_gv_cMC_Fenix_ChampionCount; init_j += 1) {
+        for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+            libE0EAE146_gv_cM_Fenix_ChampionAvailable[init_j][init_i] = false;
+        }
+    }
+    for (init_j = 0; init_j <= libE0EAE146_gv_cMC_Fenix_ChampionCount; init_j += 1) {
+        for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+            libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[init_j][init_i] = UnitGroupEmpty();
+        }
+    }
+    for (init_j = 0; init_j <= libE0EAE146_gv_cMC_Fenix_ChampionCount; init_j += 1) {
+        libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[init_j] = 0;
+    }
+    for (init_j = 0; init_j <= libE0EAE146_gv_cMC_Fenix_ChampionCount; init_j += 1) {
+        libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStackMaxCount[init_j] = 10;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_fenixWhirlwindAutocast[init_i] = false;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_fenixShieldCapacitorAutocast[init_i] = false;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_fenixAchievementCarrierAmount[init_i] = 0;
+    }
+    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
+        libE0EAE146_gv_fenixAchievementCarrierResearched[init_i] = false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// Function Implementations
+//--------------------------------------------------------------------------------------------------
+trigger auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_Trigger = null;
+int auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_lp_player;
+abilcmd auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_lp_cmd;
+point auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_lp_targetPoint;
+
+void libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread (int lp_player, abilcmd lp_cmd, point lp_targetPoint) {
+    auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_lp_player = lp_player;
+    auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_lp_cmd = lp_cmd;
+    auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_lp_targetPoint = lp_targetPoint;
+
+    if (auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_Trigger == null) {
+        auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_Trigger = TriggerCreate("auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_TriggerFunc");
+    }
+
+    TriggerExecute(auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_Trigger, false, false);
+}
+
+bool auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_TriggerFunc (bool testConds, bool runActions) {
+    int lp_player = auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_lp_player;
+    abilcmd lp_cmd = auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_lp_cmd;
+    point lp_targetPoint = auto_libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread_lp_targetPoint;
+
+    fixed lv_cooldown;
+    string lv_cooldownLink;
+    point lv_placementTarget;
+
+    lv_cooldownLink = CatalogFieldValueGet(c_gameCatalogAbil, AbilityCommandGetAbility(lp_cmd), "Cost[" + IntToString(0) + "].Cooldown.Link", lp_player);
+
+    lv_placementTarget = UnitTypePlacementFromPoint("FenixDragoon", lp_player, lp_targetPoint, 500.0);
+    VisRevealArea(lp_player, RegionCircle(lv_placementTarget, 10.0), 5.0, false);
+    Wait(4.0, c_timeGame);
+    lv_placementTarget = UnitTypePlacementFromPoint("FenixDragoon", lp_player, lp_targetPoint, 500.0);
+    lv_cooldown = PlayerGetCooldown(lp_player, lv_cooldownLink);
+    libNtve_gf_PlayerRemoveCooldown(lp_player, lv_cooldownLink);
+    UnitIssueOrder(libKCUI_gv_cU_GPUnit[lp_player], OrderTargetingPoint(lp_cmd, lv_placementTarget), c_orderQueueReplace);
+    PlayerAddCooldown(lp_player, lv_cooldownLink, lv_cooldown);
+    return true;
+}
+
+void libE0EAE146_gf_CM_Fenix_VitalMatch (unit lp_hero) {
+    int lv_i;
+    int lv_player;
+    int lv_suitIndex;
+
+    string auto49AD353E_val;
+
+    lv_player = UnitGetOwner(lp_hero);
+
+    auto49AD353E_val = UnitGetType(lp_hero);
+    if (auto49AD353E_val == "FenixCoop") {
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[1][lv_player], c_unitPropEnergy, UnitGetPropertyFixed(lp_hero, c_unitPropEnergy, c_unitPropCurrent));
+        if (true) {
+            lv_suitIndex = 1;
+            UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[1][lv_player], c_unitPropLife, (UnitGetPropertyFixed(lp_hero, c_unitPropLife, c_unitPropCurrent) + 1.0));
+            UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[1][lv_player], c_unitPropShields, UnitGetPropertyFixed(lp_hero, c_unitPropShields, c_unitPropCurrent));
+        }
+
+        libKCUI_gf_LinkUnitEnergyToGlobalCasterButton(libE0EAE146_gv_cM_Fenix_Suits[1][lv_player], UnitGetOwner(lp_hero), 1);
+    }
+    else if (auto49AD353E_val == "FenixDragoon") {
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[2][lv_player], c_unitPropEnergy, UnitGetPropertyFixed(lp_hero, c_unitPropEnergy, c_unitPropCurrent));
+        if (true) {
+            lv_suitIndex = 2;
+            UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[2][lv_player], c_unitPropLife, (UnitGetPropertyFixed(lp_hero, c_unitPropLife, c_unitPropCurrent) + 1.0));
+            UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[2][lv_player], c_unitPropShields, UnitGetPropertyFixed(lp_hero, c_unitPropShields, c_unitPropCurrent));
+        }
+
+        libKCUI_gf_LinkUnitEnergyToGlobalCasterButton(libE0EAE146_gv_cM_Fenix_Suits[2][lv_player], UnitGetOwner(lp_hero), 2);
+    }
+    else if (auto49AD353E_val == "FenixArbiter") {
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[3][lv_player], c_unitPropEnergy, UnitGetPropertyFixed(lp_hero, c_unitPropEnergy, c_unitPropCurrent));
+        if (true) {
+            lv_suitIndex = 3;
+            UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[3][lv_player], c_unitPropLife, (UnitGetPropertyFixed(lp_hero, c_unitPropLife, c_unitPropCurrent) + 1.0));
+            UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[3][lv_player], c_unitPropShields, UnitGetPropertyFixed(lp_hero, c_unitPropShields, c_unitPropCurrent));
+        }
+
+        libKCUI_gf_LinkUnitEnergyToGlobalCasterButton(libE0EAE146_gv_cM_Fenix_Suits[3][lv_player], UnitGetOwner(lp_hero), 3);
+    }
+    else {
+    }
+    if ((libE0EAE146_gv_cM_Fenix_SuicideLife[lv_player] > 0.0)) {
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[lv_suitIndex][lv_player], c_unitPropLife, libE0EAE146_gv_cM_Fenix_SuicideLife[lv_player]);
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[lv_suitIndex][lv_player], c_unitPropShields, libE0EAE146_gv_cM_Fenix_SuicideShield[lv_player]);
+        libE0EAE146_gv_cM_Fenix_SuicideLife[lv_player] = 0.0;
+        libE0EAE146_gv_cM_Fenix_SuicideLife[lv_player] = 0.0;
+    }
+
+}
+
+void libE0EAE146_gf_CM_Fenix_SetActiveHeroUIState (unit lp_unit, bool lp_active) {
+    int lv_heroUnitID;
+
+    string autoA3829BFE_val;
+
+    autoA3829BFE_val = UnitGetType(lp_unit);
+    if (autoA3829BFE_val == "FenixCoop") {
+        lv_heroUnitID = 1;
+    }
+    else if (autoA3829BFE_val == "FenixDragoon") {
+        lv_heroUnitID = 2;
+    }
+    else if (autoA3829BFE_val == "FenixArbiter") {
+        lv_heroUnitID = 3;
+    }
+    else {
+        lv_heroUnitID = 0;
+    }
+    if ((lp_active == false)) {
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPCmdButtons[lv_heroUnitID][UnitGetOwner(lp_unit)], PlayerGroupAll(), "ActiveState", "False");
+    }
+    else if ((lp_active == true) && (lv_heroUnitID == 1)) {
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPCmdButtons[1][UnitGetOwner(lp_unit)], PlayerGroupAll(), "ActiveState", "True");
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPCmdButtons[2][UnitGetOwner(lp_unit)], PlayerGroupAll(), "ActiveState", "False");
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPCmdButtons[3][UnitGetOwner(lp_unit)], PlayerGroupAll(), "ActiveState", "False");
+    }
+    else if ((lp_active == true) && (lv_heroUnitID == 2)) {
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPCmdButtons[2][UnitGetOwner(lp_unit)], PlayerGroupAll(), "ActiveState", "True");
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPCmdButtons[1][UnitGetOwner(lp_unit)], PlayerGroupAll(), "ActiveState", "False");
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPCmdButtons[3][UnitGetOwner(lp_unit)], PlayerGroupAll(), "ActiveState", "False");
+    }
+    else if ((lp_active == true) && (lv_heroUnitID == 3)) {
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPCmdButtons[3][UnitGetOwner(lp_unit)], PlayerGroupAll(), "ActiveState", "True");
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPCmdButtons[1][UnitGetOwner(lp_unit)], PlayerGroupAll(), "ActiveState", "False");
+        DialogControlSetAnimationState(libKCUI_gv_cU_GPCmdButtons[2][UnitGetOwner(lp_unit)], PlayerGroupAll(), "ActiveState", "False");
+    }
+}
+
+void libE0EAE146_gf_CM_Fenix_SetActiveHeroRally (unit lp_unit) {
+    unit lv_ralliedUnit;
+
+    unitgroup autoE1527CA3_g;
+    int autoE1527CA3_u;
+
+    autoE1527CA3_g = libE0EAE146_gv_cM_Fenix_RalliedGroup;
+    autoE1527CA3_u = UnitGroupCount(autoE1527CA3_g, c_unitCountAll);
+    for (;; autoE1527CA3_u -= 1) {
+        lv_ralliedUnit = UnitGroupUnitFromEnd(autoE1527CA3_g, autoE1527CA3_u);
+        if (lv_ralliedUnit == null) { break; }
+        UnitIssueOrder(lv_ralliedUnit, OrderTargetingUnit(AbilityCommand("Rally", 0), lp_unit), c_orderQueueAddToFront);
+    }
+}
+
+void libE0EAE146_gf_CM_Fenix_AvengingProtocol (int lp_group, int lp_player, int lp_stacksToApply) {
+    fixed lv_moveSpeedHastePerStack;
+    fixed lv_attackSpeedHastePerStack;
+
+    lv_moveSpeedHastePerStack = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogEffect, "AvengingProtocolMoveSpeedDummy", "Amount", lp_player);
+    lv_attackSpeedHastePerStack = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogEffect, "AvengingProtocolAttackSpeedDummy", "Amount", lp_player);
+
+    if ((TechTreeUpgradeCount(lp_player, "FenixChampionSwapBoost", c_techCountCompleteOnly) >= 1)) {
+        libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[lp_group] += lp_stacksToApply;
+        if ((libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[lp_group] > libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStackMaxCount[lp_group])) {
+            libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[lp_group] = libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStackMaxCount[lp_group];
+        }
+
+        CatalogFieldValueModify(c_gameCatalogBehavior, libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBehaviors[lp_group], "Modification.MoveSpeedMultiplier", lp_player, FixedToString((1.0 + (libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[lp_group] * lv_moveSpeedHastePerStack)), c_fixedPrecisionAny), c_upgradeOperationSet);
+        CatalogFieldValueModify(c_gameCatalogBehavior, libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBehaviors[lp_group], "Modification.AttackSpeedMultiplier", lp_player, FixedToString((1.0 + (libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[lp_group] * lv_attackSpeedHastePerStack)), c_fixedPrecisionAny), c_upgradeOperationSet);
+        UnitBehaviorAdd(libE0EAE146_gv_cM_Fenix_ChampionUnit[lp_group][lp_player], libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBehaviors[lp_group], libE0EAE146_gv_cM_Fenix_ChampionUnit[lp_group][lp_player], 1);
+    }
+
+}
+
+void libE0EAE146_gf_CM_Fenix_UpdateNetworkValues (int lp_group, int lp_player) {
+    int lv_supply;
+    int lv_maxCount;
+    int lv_stacksPerSupply;
+
+    unitgroup autoF21BE722_g;
+    int autoF21BE722_u;
+    unit autoF21BE722_var;
+
+    lv_maxCount = CatalogFieldValueGetAsInt(c_gameCatalogEffect, libE0EAE146_gv_cM_Fenix_ChampionNetworkMaxCountDummy[lp_group], "Amount", lp_player);
+    lv_stacksPerSupply = CatalogFieldValueGetAsInt(c_gameCatalogEffect, libE0EAE146_gv_cM_Fenix_ChampionNetworkStacksPerSupplyDummy[lp_group], "Amount", lp_player);
+
+    if ((TechTreeUpgradeCount(lp_player, "FenixNetworkedSuperiority", c_techCountCompleteOnly) >= 1)) {
+        autoF21BE722_g = libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[lp_group][lp_player];
+        autoF21BE722_u = UnitGroupCount(autoF21BE722_g, c_unitCountAll);
+        for (;; autoF21BE722_u -= 1) {
+            autoF21BE722_var = UnitGroupUnitFromEnd(autoF21BE722_g, autoF21BE722_u);
+            if (autoF21BE722_var == null) { break; }
+            lv_supply -= CatalogFieldValueGetAsInt(c_gameCatalogUnit, UnitGetType(autoF21BE722_var), "Food", lp_player);
+        }
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, libE0EAE146_gv_cM_Fenix_ChampionNetworkUpgrades[lp_group], MinI((lv_supply * lv_stacksPerSupply), lv_maxCount));
+    }
+
+}
+
+void libE0EAE146_gf_CM_Fenix_UpdateFenixChampionShellCountValues (int lp_group, int lp_player) {
+    int lv_count;
+
+    lv_count = UnitGroupCount(libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[lp_group][lp_player], c_unitCountAlive);
+    CatalogFieldValueSet(c_gameCatalogEffect, libE0EAE146_gv_cM_Fenix_ChampionShellCountEffects[lp_group], "Amount", lp_player, IntToString(lv_count));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Implementations
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_AchievementCarrierAmount
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_AchievementCarrierAmount_Func (bool testConds, bool runActions) {
+    int lv_player;
+
+    lv_player = UnitGetOwner(EventUnitCreatedUnit());
+
+    if (testConds) {
+        if (!((UnitGetType(EventUnitCreatedUnit()) == "Carrier"))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    libE0EAE146_gv_fenixAchievementCarrierAmount[lv_player] += 1;
+    if ((libE0EAE146_gv_fenixAchievementCarrierAmount[lv_player] == 4) && (libE0EAE146_gv_fenixAchievementCarrierResearched[lv_player] == true) && (GameGetMissionTime() <= 600.0)) {
+        AchievementAward(lv_player, "CommanderFenixCarrier");
+        TriggerEnable(TriggerGetCurrent(), false);
+    }
+
+    return true;
+}
+
+void libE0EAE146_gt_CM_Fenix_AchievementCarrierAmount_Init () {
+    libE0EAE146_gt_CM_Fenix_AchievementCarrierAmount = TriggerCreate("libE0EAE146_gt_CM_Fenix_AchievementCarrierAmount_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_AchievementCarrierAmount, false);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_CM_Fenix_AchievementCarrierAmount, null, null, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_AchievementCarrierResearched
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_AchievementCarrierResearched_Func (bool testConds, bool runActions) {
+    if (testConds) {
+        if (!((libNtve_gf_TriggeringProgressUpgrade() == "FenixChampionClolarionCarrier"))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    libE0EAE146_gv_fenixAchievementCarrierResearched[EventPlayer()] = true;
+    if ((libE0EAE146_gv_fenixAchievementCarrierAmount[EventPlayer()] == 4) && (libE0EAE146_gv_fenixAchievementCarrierResearched[EventPlayer()] == true) && (GameGetMissionTime() <= 600.0)) {
+        AchievementAward(EventPlayer(), "CommanderFenixCarrier");
+        TriggerEnable(TriggerGetCurrent(), false);
+    }
+
+    return true;
+}
+
+void libE0EAE146_gt_CM_Fenix_AchievementCarrierResearched_Init () {
+    libE0EAE146_gt_CM_Fenix_AchievementCarrierResearched = TriggerCreate("libE0EAE146_gt_CM_Fenix_AchievementCarrierResearched_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_AchievementCarrierResearched, false);
+    TriggerAddEventUnitResearchProgress(libE0EAE146_gt_CM_Fenix_AchievementCarrierResearched, null, c_unitProgressStageComplete);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_SentryNullShield
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_SentryNullShield_Func (bool testConds, bool runActions) {
+    if (testConds) {
+        if (!((TechTreeUpgradeCount(UnitBehaviorEffectPlayer(EventUnit(), EventUnitBehavior(), c_effectPlayerCaster, 0), "FenixSentryNullShieldReflect", c_techCountCompleteOnly) == 1))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetPropertyFixed(EventUnit(), c_unitPropLife, (UnitGetPropertyFixed(EventUnit(), c_unitPropLife, c_unitPropCurrent) - (EventUnitDamageAbsorbed() / 2.0)));
+    return true;
+}
+
+void libE0EAE146_gt_CM_Fenix_SentryNullShield_Init () {
+    libE0EAE146_gt_CM_Fenix_SentryNullShield = TriggerCreate("libE0EAE146_gt_CM_Fenix_SentryNullShield_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_SentryNullShield, false);
+    TriggerAddEventUnitDamageAbsorbed(libE0EAE146_gt_CM_Fenix_SentryNullShield, null, "SentryFenixNullShield");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_TaldarinDetonationStore
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_TaldarinDetonationStore_Func (bool testConds, bool runActions) {
+    fixed lv_damageDone;
+
+    if (testConds) {
+        if (!((TechTreeUpgradeCount(EventUnitDamageSourcePlayer(), "FenixImmortalDetonationShot", c_techCountCompleteOnly) == 1))) {
+            return false;
+        }
+
+        if (!((UnitFilterMatch(EventUnit(), EventUnitDamageSourcePlayer(), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterHidden - 32)))) == true))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_damageDone = EventUnitDamageAttempted();
+    UnitSetCustomValue(EventUnit(), 62, (UnitGetCustomValue(EventUnit(), 62) + lv_damageDone));
+    return true;
+}
+
+void libE0EAE146_gt_CM_Fenix_TaldarinDetonationStore_Init () {
+    libE0EAE146_gt_CM_Fenix_TaldarinDetonationStore = TriggerCreate("libE0EAE146_gt_CM_Fenix_TaldarinDetonationStore_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_TaldarinDetonationStore, false);
+    TriggerAddEventUnitDamaged(libE0EAE146_gt_CM_Fenix_TaldarinDetonationStore, null, c_unitDamageTypeAny, c_unitDamageEither, "FenixTaldarinImmortalPhaseDisruptors");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_TaldarinDetonationRelease
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_TaldarinDetonationRelease_Func (bool testConds, bool runActions) {
+    fixed lv_amount;
+    fixed lv_fraction;
+    int lv_fenixPlayer;
+
+    if (testConds) {
+        if (!((UnitHasBehavior2(EventUnit(), "FenixImmortalDetonation") == true))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_fenixPlayer = UnitBehaviorEffectPlayer(EventUnit(), "FenixImmortalDetonation", c_effectPlayerCaster, 0);
+    lv_fraction = (StringToFixed(CatalogFieldValueGet(c_gameCatalogEffect, "FenixTaldarinImmortalDetonationDummyFraction", "Amount", lv_fenixPlayer)) / 100);
+    lv_amount = (UnitGetCustomValue(EventUnit(), 62) * lv_fraction);
+    CatalogFieldValueSet(c_gameCatalogEffect, "FenixImmortalDetonationDamage", "Amount", lv_fenixPlayer, FixedToString(lv_amount, c_fixedPrecisionAny));
+    if ((UnitIsAlive(libE0EAE146_gv_cM_Fenix_ChampionUnit[4][lv_fenixPlayer]) == true)) {
+        UnitCreateEffectPoint(libE0EAE146_gv_cM_Fenix_ChampionUnit[4][lv_fenixPlayer], "FenixImmortalDetonationSearchArea", UnitGetPosition(EventUnit()));
+    }
+    else {
+        PlayerCreateEffectPoint(lv_fenixPlayer, "FenixImmortalDetonationSearchArea", UnitGetPosition(EventUnit()));
+    }
+    return true;
+}
+
+void libE0EAE146_gt_CM_Fenix_TaldarinDetonationRelease_Init () {
+    libE0EAE146_gt_CM_Fenix_TaldarinDetonationRelease = TriggerCreate("libE0EAE146_gt_CM_Fenix_TaldarinDetonationRelease_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_TaldarinDetonationRelease, false);
+    TriggerAddEventUnitDied(libE0EAE146_gt_CM_Fenix_TaldarinDetonationRelease, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_InitialDummySpawn
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_InitialDummySpawn_Func (bool testConds, bool runActions) {
+    int lv_itPlayer;
+
+    playergroup auto6C9E4F0A_g;
+
+    if (!runActions) {
+        return true;
+    }
+
+    auto6C9E4F0A_g = libKCOR_gf_CC_PlayersOfCommander("ProtossFenix");
+    lv_itPlayer = -1;
+    while (true) {
+        lv_itPlayer = PlayerGroupNextPlayer(auto6C9E4F0A_g, lv_itPlayer);
+        if (lv_itPlayer < 0) { break; }
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "FenixManaDummy1", c_unitCreateIgnorePlacement, lv_itPlayer, Point(0.0, 0.0));
+        UnitGroupAdd(libE0EAE146_gv_cM_Fenix_DummyGroup[lv_itPlayer], UnitLastCreated());
+        libE0EAE146_gv_cM_Fenix_Suits[1][lv_itPlayer] = UnitLastCreated();
+        libKCUI_gf_LinkUnitEnergyToGlobalCasterButton(libE0EAE146_gv_cM_Fenix_Suits[1][lv_itPlayer], lv_itPlayer, 1);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "FenixManaDummy2", c_unitCreateIgnorePlacement, lv_itPlayer, Point(0.0, 0.0));
+        UnitGroupAdd(libE0EAE146_gv_cM_Fenix_DummyGroup[lv_itPlayer], UnitLastCreated());
+        libE0EAE146_gv_cM_Fenix_Suits[2][lv_itPlayer] = UnitLastCreated();
+        libKCUI_gf_LinkUnitEnergyToGlobalCasterButton(libE0EAE146_gv_cM_Fenix_Suits[2][lv_itPlayer], lv_itPlayer, 2);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "FenixManaDummy3", c_unitCreateIgnorePlacement, lv_itPlayer, Point(0.0, 0.0));
+        UnitGroupAdd(libE0EAE146_gv_cM_Fenix_DummyGroup[lv_itPlayer], UnitLastCreated());
+        libE0EAE146_gv_cM_Fenix_Suits[3][lv_itPlayer] = UnitLastCreated();
+        libKCUI_gf_LinkUnitEnergyToGlobalCasterButton(libE0EAE146_gv_cM_Fenix_Suits[3][lv_itPlayer], lv_itPlayer, 3);
+        libE0EAE146_gv_cM_Fenix_AbilCmdArray[1] = "SOASummonFenix";
+        libE0EAE146_gv_cM_Fenix_AbilCmdArray[2] = "SOASummonFenixDragoon";
+        libE0EAE146_gv_cM_Fenix_AbilCmdArray[3] = "SOASummonFenixArbiter";
+        if ((TechTreeUpgradeCount(lv_itPlayer, "FenixOfflineSuitRegen", c_techCountCompleteOnly) == 1)) {
+            libE0EAE146_gv_cM_Fenix_OfflineHealthRegen[lv_itPlayer] *= libE0EAE146_gv_cM_Fenix_OfflineVitalRegenMultiplier;
+            libE0EAE146_gv_cM_Fenix_OfflineShieldRegen[lv_itPlayer] *= libE0EAE146_gv_cM_Fenix_OfflineVitalRegenMultiplier;
+        }
+
+        libE0EAE146_gv_cM_Fenix_OfflineEnergyRegen[lv_itPlayer] *= ((TechTreeUpgradeCount(lv_itPlayer, "MasteryFenixSuitEnergyRegen", c_techCountCompleteOnly) / 100.0) + 1.0);
+    }
+    return true;
+}
+
+void libE0EAE146_gt_CM_Fenix_InitialDummySpawn_Init () {
+    libE0EAE146_gt_CM_Fenix_InitialDummySpawn = TriggerCreate("libE0EAE146_gt_CM_Fenix_InitialDummySpawn_Func");
+}
+
+
+bool libE0EAE146_gt_CM_Fenix_HeroSpawn_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+    int lv_kills;
+    unit lv_fenixUnitNew;
+    int lv_fenixPlayer;
+    unit lv_fenixUnitOld;
+    bool lv_selected;
+    bool lv_activedSubGroupSelected;
+    unitgroup lv_fenixPlayerSelectionGroup;
+    unitgroup lv_fenixPlayerActivedSubGroup;
+
+    // Automatic Variable Declarations
+    unitgroup auto0DA865BB_g;
+    int auto0DA865BB_u;
+    unit auto0DA865BB_var;
+    string auto057CC64D_val;
+    const int auto97938278_ae = 3;
+    const int auto97938278_ai = 1;
+    const int autoCED00EAD_ae = 3;
+    const int autoCED00EAD_ai = 1;
+    const int autoCD058B6B_ae = 3;
+    const int autoCD058B6B_ai = 1;
+
+    // Variable Initialization
+    lv_fenixUnitNew = EventUnitCreatedUnit();
+    lv_fenixPlayer = UnitGetOwner(lv_fenixUnitNew);
+    lv_fenixUnitOld = libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer];
+    lv_fenixPlayerSelectionGroup = UnitGroupSelected(lv_fenixPlayer);
+    lv_fenixPlayerActivedSubGroup = UnitGroupEmpty();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitBehaviorRemove(lv_fenixUnitOld, "CommanderPrestigeFenixSuitSwapTimedLife", 1);
+    UnitGroupAdd(libE0EAE146_gv_cM_Fenix_HeroGroup[lv_fenixPlayer], EventUnitCreatedUnit());
+    if ((libE0EAE146_gv_cM_Fenix_KilledSelf[UnitGetOwner(EventUnit())] == false)) {
+        UnitBehaviorAdd(lv_fenixUnitNew, "FenixExplode", lv_fenixUnitNew, 1);
+    }
+
+    libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer] = lv_fenixUnitNew;
+    libE0EAE146_gv_cM_Fenix_ActiveHero_Abil[lv_fenixPlayer] = EventUnitCreatedAbil();
+    auto0DA865BB_g = libE0EAE146_gv_cM_Fenix_HeroGroup[lv_fenixPlayer];
+    auto0DA865BB_u = UnitGroupCount(auto0DA865BB_g, c_unitCountAll);
+    for (;; auto0DA865BB_u -= 1) {
+        auto0DA865BB_var = UnitGroupUnitFromEnd(auto0DA865BB_g, auto0DA865BB_u);
+        if (auto0DA865BB_var == null) { break; }
+        if ((UnitIsAlive(auto0DA865BB_var) == true)) {
+            lv_kills += libNtve_gf_UnitGetPropertyKills(auto0DA865BB_var, c_unitPropCurrent);
+        }
+
+    }
+    if ((lv_kills > 0)) {
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropKills, lv_kills);
+        libE0EAE146_gv_cM_Fenix_KillCount[UnitGetOwner(EventUnit())] = lv_kills;
+    }
+    else {
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropKills, libE0EAE146_gv_cM_Fenix_KillCount[UnitGetOwner(EventUnit())]);
+    }
+    DialogControlSetVisible(libKCUI_gv_cU_GPCmdButtonActiveImage[1][UnitGetOwner(lv_fenixUnitNew)], PlayerGroupSingle(UnitGetOwner(lv_fenixUnitNew)), false);
+    DialogControlSetVisible(libKCUI_gv_cU_GPCmdButtonActiveImage[2][UnitGetOwner(lv_fenixUnitNew)], PlayerGroupSingle(UnitGetOwner(lv_fenixUnitNew)), false);
+    DialogControlSetVisible(libKCUI_gv_cU_GPCmdButtonActiveImage[3][UnitGetOwner(lv_fenixUnitNew)], PlayerGroupSingle(UnitGetOwner(lv_fenixUnitNew)), false);
+    auto057CC64D_val = UnitGetType(EventUnitCreatedUnit());
+    if (auto057CC64D_val == "FenixCoop") {
+        libE0EAE146_gv_cM_Fenix_ActiveHero_Slot[lv_fenixPlayer] = 1;
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropLife, UnitGetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[1][lv_fenixPlayer], c_unitPropLife, c_unitPropCurrent));
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropShields, UnitGetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[1][lv_fenixPlayer], c_unitPropShields, c_unitPropCurrent));
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropEnergy, UnitGetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[1][lv_fenixPlayer], c_unitPropEnergy, c_unitPropCurrent));
+        libKCUI_gf_LinkUnitEnergyToGlobalCasterButton(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], UnitGetOwner(EventUnitCreatedUnit()), 1);
+        CutsceneGoToBookmark(CutsceneGetTriggerControl(libKCUI_gv_cU_GPCutscene[lv_fenixPlayer]), "WorkStart");
+        lv_i = 1;
+        for ( ; ( (auto97938278_ai >= 0 && lv_i <= auto97938278_ae) || (auto97938278_ai < 0 && lv_i >= auto97938278_ae) ) ; lv_i += auto97938278_ai ) {
+            if (((PlayerGetCooldown(lv_fenixPlayer, (libE0EAE146_gv_cM_Fenix_AbilCmdArray[lv_i])) <= 0.0) && ((libE0EAE146_gv_cM_Fenix_AbilCmdArray[lv_i]) != (libE0EAE146_gv_cM_Fenix_ActiveHero_Abil[lv_fenixPlayer])))) {
+                PlayerAddCooldown(lv_fenixPlayer, (libE0EAE146_gv_cM_Fenix_AbilCmdArray[lv_i]), libE0EAE146_gv_cM_Fenix_SuitSwapCooldown);
+            }
+
+        }
+    }
+    else if (auto057CC64D_val == "FenixDragoon") {
+        libE0EAE146_gv_cM_Fenix_ActiveHero_Slot[lv_fenixPlayer] = 2;
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropLife, UnitGetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[2][lv_fenixPlayer], c_unitPropLife, c_unitPropCurrent));
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropShields, UnitGetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[2][lv_fenixPlayer], c_unitPropShields, c_unitPropCurrent));
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropEnergy, UnitGetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[2][lv_fenixPlayer], c_unitPropEnergy, c_unitPropCurrent));
+        libKCUI_gf_LinkUnitEnergyToGlobalCasterButton(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], UnitGetOwner(lv_fenixUnitNew), 2);
+        CutsceneGoToBookmark(CutsceneGetTriggerControl(libKCUI_gv_cU_GPCutscene[UnitGetOwner(lv_fenixUnitNew)]), "WorkStart");
+        lv_i = 1;
+        for ( ; ( (autoCED00EAD_ai >= 0 && lv_i <= autoCED00EAD_ae) || (autoCED00EAD_ai < 0 && lv_i >= autoCED00EAD_ae) ) ; lv_i += autoCED00EAD_ai ) {
+            if (((PlayerGetCooldown(lv_fenixPlayer, (libE0EAE146_gv_cM_Fenix_AbilCmdArray[lv_i])) <= 0.0) && ((libE0EAE146_gv_cM_Fenix_AbilCmdArray[lv_i]) != (libE0EAE146_gv_cM_Fenix_ActiveHero_Abil[lv_fenixPlayer])))) {
+                PlayerAddCooldown(lv_fenixPlayer, (libE0EAE146_gv_cM_Fenix_AbilCmdArray[lv_i]), libE0EAE146_gv_cM_Fenix_SuitSwapCooldown);
+            }
+
+        }
+    }
+    else if (auto057CC64D_val == "FenixArbiter") {
+        libE0EAE146_gv_cM_Fenix_ActiveHero_Slot[lv_fenixPlayer] = 3;
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropLife, UnitGetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[3][lv_fenixPlayer], c_unitPropLife, c_unitPropCurrent));
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropShields, UnitGetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[3][lv_fenixPlayer], c_unitPropShields, c_unitPropCurrent));
+        UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], c_unitPropEnergy, UnitGetPropertyFixed(libE0EAE146_gv_cM_Fenix_Suits[3][lv_fenixPlayer], c_unitPropEnergy, c_unitPropCurrent));
+        libKCUI_gf_LinkUnitEnergyToGlobalCasterButton(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], UnitGetOwner(lv_fenixUnitNew), 3);
+        CutsceneGoToBookmark(CutsceneGetTriggerControl(libKCUI_gv_cU_GPCutscene[lv_fenixPlayer]), "WorkStart");
+        lv_i = 1;
+        for ( ; ( (autoCD058B6B_ai >= 0 && lv_i <= autoCD058B6B_ae) || (autoCD058B6B_ai < 0 && lv_i >= autoCD058B6B_ae) ) ; lv_i += autoCD058B6B_ai ) {
+            if (((PlayerGetCooldown(lv_fenixPlayer, (libE0EAE146_gv_cM_Fenix_AbilCmdArray[lv_i])) <= 0.0) && ((libE0EAE146_gv_cM_Fenix_AbilCmdArray[lv_i]) != (libE0EAE146_gv_cM_Fenix_ActiveHero_Abil[lv_fenixPlayer])))) {
+                PlayerAddCooldown(lv_fenixPlayer, (libE0EAE146_gv_cM_Fenix_AbilCmdArray[lv_i]), libE0EAE146_gv_cM_Fenix_SuitSwapCooldown);
+            }
+
+        }
+    }
+    else {
+    }
+    libE0EAE146_gf_CM_Fenix_SetActiveHeroUIState(EventUnitCreatedUnit(), true);
+    libKCUI_gf_SetHeroPanelUnit(libE0EAE146_gv_cMC_Fenix_HeroIndex, EventUnitCreatedUnit(), UnitGetOwner(EventUnitCreatedUnit()));
+    libE0EAE146_gf_CM_Fenix_SetActiveHeroRally(EventUnitCreatedUnit());
+    libKMIS_gf_TransferGuardianShell(lv_fenixUnitOld, lv_fenixUnitNew);
+    UnitCreateEffectUnit(lv_fenixUnitNew, "CopyTargetSelectionAndControlGroups", lv_fenixUnitOld);
+    if ((UnitGroupCount(lv_fenixPlayerSelectionGroup, c_unitCountAlive) > 0)) {
+        lv_fenixPlayerActivedSubGroup = UnitSubgroupSelected(lv_fenixPlayer);
+        lv_selected = UnitIsSelected(lv_fenixUnitOld, lv_fenixPlayer);
+        lv_activedSubGroupSelected = UnitGroupHasUnit(lv_fenixPlayerActivedSubGroup, lv_fenixUnitOld);
+    }
+
+    UnitSelect(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer], lv_fenixPlayer, false);
+    if ((lv_selected == true)) {
+        UnitGroupRemove(lv_fenixPlayerSelectionGroup, lv_fenixUnitOld);
+        UnitGroupRemove(lv_fenixPlayerActivedSubGroup, lv_fenixUnitOld);
+        UnitGroupAdd(lv_fenixPlayerSelectionGroup, lv_fenixUnitNew);
+        if ((lv_activedSubGroupSelected == true)) {
+            UnitGroupAdd(lv_fenixPlayerActivedSubGroup, lv_fenixUnitNew);
+        }
+
+        UnitClearSelection(lv_fenixPlayer);
+        Wait(0.0625, c_timeGame);
+        UnitGroupSelect(lv_fenixPlayerActivedSubGroup, lv_fenixPlayer, true);
+        UnitGroupSelect(lv_fenixPlayerSelectionGroup, lv_fenixPlayer, true);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_HeroSpawn_Init () {
+    libE0EAE146_gt_CM_Fenix_HeroSpawn = TriggerCreate("libE0EAE146_gt_CM_Fenix_HeroSpawn_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_HeroSpawn, false);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_CM_Fenix_HeroSpawn, null, "SOASummonFenix", null);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_CM_Fenix_HeroSpawn, null, "SOASummonFenixArbiter", null);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_CM_Fenix_HeroSpawn, null, "SOASummonFenixDragoon", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_HeroSpawnCleanup
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_HeroSpawnCleanup_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+
+    // Automatic Variable Declarations
+    unitgroup auto61952558_g;
+    int auto61952558_u;
+    unit auto61952558_var;
+
+    // Variable Initialization
+    lv_player = EventPlayer();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((EventPlayerEffectUsed() == "SOASummonFenixHeroSummonSelfCleanupDummy")) {
+        libE0EAE146_gf_CM_Fenix_VitalMatch(EventPlayerEffectUsedUnit(c_effectUnitTarget));
+        DialogControlSetVisible(libKCUI_gv_cU_GPCmdButtonActiveImage[1][lv_player], PlayerGroupSingle(lv_player), false);
+        DialogControlSetVisible(libKCUI_gv_cU_GPCmdButtonActiveImage[2][lv_player], PlayerGroupSingle(lv_player), false);
+        DialogControlSetVisible(libKCUI_gv_cU_GPCmdButtonActiveImage[3][lv_player], PlayerGroupSingle(lv_player), false);
+        libE0EAE146_gv_cM_Fenix_ActiveHero[lv_player] = null;
+        libE0EAE146_gv_cM_Fenix_ActiveHero_Abil[lv_player] = "";
+        UnitCreateEffectUnit(libKMIS_gv_cM_SoACasterUnit[EventPlayer()], "SOASummonFenixHeroSummonCasterBehaviorCleanup", libKMIS_gv_cM_SoACasterUnit[EventPlayer()]);
+        libKCUI_gv_cU_HeroExists[lv_player][libE0EAE146_gv_cMC_Fenix_HeroIndex] = false;
+        libE0EAE146_gf_CM_Fenix_SetActiveHeroUIState(EventPlayerEffectUsedUnit(c_effectUnitTarget), false);
+        libKCUI_gf_CU_ShowHideHeroPanel(false, libE0EAE146_gv_cMC_Fenix_HeroIndex);
+        CutsceneGoToBookmark(CutsceneGetTriggerControl(libKCUI_gv_cU_GPCutscene[lv_player]), "WorkEnd");
+        UnitBehaviorAddPlayer(EventPlayerEffectUsedUnit(c_effectUnitTarget), "SOASummonFenixWarpOutAnimation", EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), 1);
+        Wait(0.67, c_timeGame);
+        UnitRemove(EventPlayerEffectUsedUnit(c_effectUnitTarget));
+    }
+    else {
+        Wait(0.0625, c_timeGame);
+        auto61952558_g = libE0EAE146_gv_cM_Fenix_HeroGroup[lv_player];
+        auto61952558_u = UnitGroupCount(auto61952558_g, c_unitCountAll);
+        for (;; auto61952558_u -= 1) {
+            auto61952558_var = UnitGroupUnitFromEnd(auto61952558_g, auto61952558_u);
+            if (auto61952558_var == null) { break; }
+            if (((auto61952558_var != libE0EAE146_gv_cM_Fenix_ActiveHero[lv_player]))) {
+                libE0EAE146_gf_CM_Fenix_VitalMatch(auto61952558_var);
+                UnitBehaviorAddPlayer(auto61952558_var, "SOASummonFenixWarpOutAnimation", EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), 1);
+                Wait(0.67, c_timeGame);
+                UnitRemove(auto61952558_var);
+            }
+
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_HeroSpawnCleanup_Init () {
+    libE0EAE146_gt_CM_Fenix_HeroSpawnCleanup = TriggerCreate("libE0EAE146_gt_CM_Fenix_HeroSpawnCleanup_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_HeroSpawnCleanup, false);
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_Fenix_HeroSpawnCleanup, c_playerAny, "SOASummonFenixHeroSummonCleanupDummy");
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_Fenix_HeroSpawnCleanup, c_playerAny, "SOASummonFenixHeroSummonSelfCleanupDummy");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_HeroKilled
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_HeroKilled_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+    string lv_unitType;
+
+    // Automatic Variable Declarations
+    string auto735B6DBB_val;
+
+    // Variable Initialization
+    lv_player = UnitGetOwner(EventUnit());
+    lv_unitType = UnitGetType(EventUnit());
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupHasUnit(libE0EAE146_gv_cM_Fenix_HeroGroup[lv_player], EventUnit()) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetType(EventUnit()) == "FenixCoop")) {
+        libKMIS_gf_DisplayCampaignMessage(PlayerGroupSingle(lv_player), libKMIS_ge_CampaignMessageType_SimpleHint, StringExternal("Param/Value/lib_KMIS_FEB870A6"), libKMIS_ge_CampaignMessageFormatNotFormat_FormatMessage);
+        DialogControlSetVisible(libKCUI_gv_cU_GPCmdButtonActiveImage[1][lv_player], PlayerGroupSingle(lv_player), false);
+    }
+
+    if ((UnitGetType(EventUnit()) == "FenixDragoon")) {
+        libKMIS_gf_DisplayCampaignMessage(PlayerGroupSingle(lv_player), libKMIS_ge_CampaignMessageType_SimpleHint, StringExternal("Param/Value/lib_KMIS_7E24D489"), libKMIS_ge_CampaignMessageFormatNotFormat_FormatMessage);
+        DialogControlSetVisible(libKCUI_gv_cU_GPCmdButtonActiveImage[2][lv_player], PlayerGroupSingle(lv_player), false);
+    }
+
+    if ((UnitGetType(EventUnit()) == "FenixArbiter")) {
+        libKMIS_gf_DisplayCampaignMessage(PlayerGroupSingle(lv_player), libKMIS_ge_CampaignMessageType_SimpleHint, StringExternal("Param/Value/lib_KMIS_ACE8A237"), libKMIS_ge_CampaignMessageFormatNotFormat_FormatMessage);
+        DialogControlSetVisible(libKCUI_gv_cU_GPCmdButtonActiveImage[3][lv_player], PlayerGroupSingle(lv_player), false);
+    }
+
+    libE0EAE146_gf_CM_Fenix_VitalMatch(EventUnit());
+    libE0EAE146_gv_cM_Fenix_KillCount[UnitGetOwner(EventUnit())] = libNtve_gf_UnitGetPropertyKills(EventUnit(), c_unitPropCurrent);
+    UnitCreateEffectUnit(libKMIS_gv_cM_SoACasterUnit[EventPlayer()], "SOASummonFenixHeroSummonCasterBehaviorCleanup", libKMIS_gv_cM_SoACasterUnit[EventPlayer()]);
+    libKCUI_gv_cU_HeroExists[UnitGetOwner(EventUnit())][libE0EAE146_gv_cMC_Fenix_HeroIndex] = false;
+    if ((libNtve_gf_KillingUnit() == EventUnit()) && (libE0EAE146_gv_cM_Fenix_KilledSelf[lv_player] == false) && (EventUnitDamageEffect() == "FenixSuicide")) {
+        libE0EAE146_gv_cM_Fenix_KilledSelf[lv_player] = true;
+        libE0EAE146_gv_cM_Fenix_KillCount[lv_player] += 1;
+        TechTreeBehaviorAllow(lv_player, "FenixExplode", false);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "AStrongHeart", 1);
+        SoundChannelStop(PlayerGroupSingle(lv_player), c_soundCategoryVoice);
+        auto735B6DBB_val = lv_unitType;
+        if (auto735B6DBB_val == "FenixArbiter") {
+            libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread(lv_player, AbilityCommand("SOASummonFenixArbiter", 0), EventUnitDamageSourcePoint());
+        }
+        else if (auto735B6DBB_val == "FenixCoop") {
+            libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread(lv_player, AbilityCommand("SOASummonFenix", 0), EventUnitDamageSourcePoint());
+        }
+        else if (auto735B6DBB_val == "FenixDragoon") {
+            libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread(lv_player, AbilityCommand("SOASummonFenixDragoon", 0), EventUnitDamageSourcePoint());
+        }
+        else {
+            libE0EAE146_gf_CM_Fenix_SuicideRecallTalandarThread(lv_player, AbilityCommand("SOASummonFenix", 0), EventUnitDamageSourcePoint());
+        }
+    }
+    else {
+        PlayerAddCooldown(lv_player, (libE0EAE146_gv_cM_Fenix_ActiveHero_Abil[lv_player]), 180.0);
+    }
+    libE0EAE146_gv_cM_Fenix_ActiveHero_Abil[lv_player] = "";
+    libE0EAE146_gf_CM_Fenix_SetActiveHeroUIState(EventUnit(), false);
+    libKCUI_gf_CU_ShowHideHeroPanel(false, libE0EAE146_gv_cMC_Fenix_HeroIndex);
+    CutsceneGoToBookmark(CutsceneGetTriggerControl(libKCUI_gv_cU_GPCutscene[lv_player]), "WorkEnd");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_HeroKilled_Init () {
+    libE0EAE146_gt_CM_Fenix_HeroKilled = TriggerCreate("libE0EAE146_gt_CM_Fenix_HeroKilled_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_HeroKilled, false);
+    TriggerAddEventUnitDied(libE0EAE146_gt_CM_Fenix_HeroKilled, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_SuicideUpdateVital
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_SuicideUpdateVital_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libE0EAE146_gv_cM_Fenix_SuicideLife[EventPlayer()] = EventPlayerEffectUsedAmountFixed(c_effectAmountShieldsChanged, true);
+    libE0EAE146_gv_cM_Fenix_SuicideShield[EventPlayer()] = EventPlayerEffectUsedAmountFixed(c_effectAmountLifeChanged, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_SuicideUpdateVital_Init () {
+    libE0EAE146_gt_CM_Fenix_SuicideUpdateVital = TriggerCreate("libE0EAE146_gt_CM_Fenix_SuicideUpdateVital_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_SuicideUpdateVital, false);
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_Fenix_SuicideUpdateVital, c_playerAny, "FenixSuicide");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_ResearchRemoveSuicide
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ResearchRemoveSuicide_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_player = UnitGetOwner(EventUnit());
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libE0EAE146_gv_cM_Fenix_KilledSelf[lv_player] = true;
+    UnitBehaviorRemove(libE0EAE146_gv_cM_Fenix_ActiveHero[lv_player], "FenixExplode", 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ResearchRemoveSuicide_Init () {
+    libE0EAE146_gt_CM_Fenix_ResearchRemoveSuicide = TriggerCreate("libE0EAE146_gt_CM_Fenix_ResearchRemoveSuicide_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ResearchRemoveSuicide, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_CM_Fenix_ResearchRemoveSuicide, null, AbilityCommand("ForgeResearch", 16), c_unitAbilStageComplete, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_RallySetToFenix
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_RallySetToFenix_Func (bool testConds, bool runActions) {
+    int lv_fenixPlayer;
+    unit lv_activeHero;
+
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_fenixPlayer = libKCOR_gf_CC_PlayerOfCommanderInGroupFirst("ProtossFenix", libKCOR_gf_CommanderPlayers());
+    lv_activeHero = null;
+    if (lv_fenixPlayer != c_playerAny) {
+        lv_activeHero = libE0EAE146_gv_cM_Fenix_ActiveHero[lv_fenixPlayer];
+    }
+
+    if ((UnitIsAlive(EventUnitTargetUnit()) == true) && (lv_activeHero != null) && (EventUnitTargetUnit() == lv_activeHero)) {
+        UnitGroupAdd(libE0EAE146_gv_cM_Fenix_RalliedGroup, EventUnit());
+    }
+    else {
+        UnitGroupRemove(libE0EAE146_gv_cM_Fenix_RalliedGroup, EventUnit());
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_RallySetToFenix_Init () {
+    libE0EAE146_gt_CM_Fenix_RallySetToFenix = TriggerCreate("libE0EAE146_gt_CM_Fenix_RallySetToFenix_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_RallySetToFenix, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_CM_Fenix_RallySetToFenix, null, AbilityCommand("Rally", 0), c_abilRallyStagePlace, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_ChampionInitialSetup
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ChampionInitialSetup_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libE0EAE146_gv_cM_Fenix_ChampionUnitType[1] = "FenixKaldalisZealot";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitType[2] = "FenixTalisAdept";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitType[3] = "FenixMojoScout";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitType[4] = "FenixTaldarinImmortal";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitType[5] = "FenixWarbringerColossus";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitType[6] = "FenixClolarionCarrier";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[1] = "ZealotPurifier";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[2] = "AdeptFenix";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[3] = "Scout";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[4] = "Immortal";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[5] = "ColossusPurifier";
+    libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[6] = "Carrier";
+    libE0EAE146_gv_cM_Fenix_ChampionMorphAbil[1] = AbilityCommand("FenixKaldalisZealotMorph", 0);
+    libE0EAE146_gv_cM_Fenix_ChampionMorphAbil[2] = AbilityCommand("FenixTalisAdeptMorph", 0);
+    libE0EAE146_gv_cM_Fenix_ChampionMorphAbil[3] = AbilityCommand("FenixMojoScoutMorph", 0);
+    libE0EAE146_gv_cM_Fenix_ChampionMorphAbil[4] = AbilityCommand("FenixTaldarinImmortalMorph", 0);
+    libE0EAE146_gv_cM_Fenix_ChampionMorphAbil[5] = AbilityCommand("FenixWarbringerColossusMorph", 0);
+    libE0EAE146_gv_cM_Fenix_ChampionMorphAbil[6] = AbilityCommand("FenixClolarionCarrierMorph", 0);
+    libE0EAE146_gv_cM_Fenix_ChampionNetworkUpgrades[1] = "FenixNetworkedSuperiorityZealot";
+    libE0EAE146_gv_cM_Fenix_ChampionNetworkUpgrades[2] = "FenixNetworkedSuperiorityAdept";
+    libE0EAE146_gv_cM_Fenix_ChampionNetworkUpgrades[3] = "FenixNetworkedSuperiorityScout";
+    libE0EAE146_gv_cM_Fenix_ChampionNetworkUpgrades[4] = "FenixNetworkedSuperiorityImmortal";
+    libE0EAE146_gv_cM_Fenix_ChampionNetworkUpgrades[5] = "FenixNetworkedSuperiorityColossus";
+    libE0EAE146_gv_cM_Fenix_ChampionNetworkUpgrades[6] = "FenixNetworkedSuperiorityCarrier";
+    libE0EAE146_gv_cM_Fenix_ChampionShellCountEffects[1] = "FenixChampionShellCountZealot";
+    libE0EAE146_gv_cM_Fenix_ChampionShellCountEffects[2] = "FenixChampionShellCountAdept";
+    libE0EAE146_gv_cM_Fenix_ChampionShellCountEffects[3] = "FenixChampionShellCountScout";
+    libE0EAE146_gv_cM_Fenix_ChampionShellCountEffects[4] = "FenixChampionShellCountImmortal";
+    libE0EAE146_gv_cM_Fenix_ChampionShellCountEffects[5] = "FenixChampionShellCountColossus";
+    libE0EAE146_gv_cM_Fenix_ChampionShellCountEffects[6] = "FenixChampionShellCountCarrier";
+    libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBehaviors[1] = "FenixChampionSwapBoostZealot";
+    libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBehaviors[2] = "FenixChampionSwapBoostAdept";
+    libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBehaviors[3] = "FenixChampionSwapBoostScout";
+    libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBehaviors[4] = "FenixChampionSwapBoostImmortal";
+    libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBehaviors[5] = "FenixChampionSwapBoostColossus";
+    libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBehaviors[6] = "FenixChampionSwapBoostCarrier";
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionBuildingReBuilt, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionUpgradeResearched, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionMorphed, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionDies, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_NetworkedUnitDies, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ProbiusSwap, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_AvengingProtocol_BuffExpires, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ChampionInitialSetup_Init () {
+    libE0EAE146_gt_CM_Fenix_ChampionInitialSetup = TriggerCreate("libE0EAE146_gt_CM_Fenix_ChampionInitialSetup_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_Champion Potential Voluteer Trained
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+    int lv_player;
+
+    // Automatic Variable Declarations
+    const int autoF8A13B7A_ae = libE0EAE146_gv_cMC_Fenix_ChampionCount;
+    const int autoF8A13B7A_ai = 1;
+
+    // Variable Initialization
+    lv_player = UnitGetOwner(EventUnitCreatedUnit());
+
+    // Conditions
+    if (testConds) {
+        if (!((TechTreeUpgradeCount(lv_player, "FenixCommander", c_techCountCompleteOnly) == 1))) {
+            return false;
+        }
+
+        if (!(((UnitGetType(EventUnitCreatedUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[1]) || (UnitGetType(EventUnitCreatedUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[2]) || (UnitGetType(EventUnitCreatedUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[3]) || (UnitGetType(EventUnitCreatedUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[4]) || (UnitGetType(EventUnitCreatedUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[5]) || (UnitGetType(EventUnitCreatedUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[6])))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (((EventUnitCreatedAbil() == "WarpGateTrain") || (EventUnitCreatedAbil() == "StargateTrain"))) {
+        Wait(5.0, c_timeGame);
+    }
+
+    if ((UnitIsAlive(EventUnitCreatedUnit()) == true)) {
+        lv_i = 1;
+        for ( ; ( (autoF8A13B7A_ai >= 0 && lv_i <= autoF8A13B7A_ae) || (autoF8A13B7A_ai < 0 && lv_i >= autoF8A13B7A_ae) ) ; lv_i += autoF8A13B7A_ai ) {
+            if ((UnitGetType(EventUnitCreatedUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[lv_i])) {
+                UnitGroupAdd(libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[lv_i][lv_player], EventUnitCreatedUnit());
+                libE0EAE146_gf_CM_Fenix_UpdateNetworkValues(lv_i, UnitGetOwner(EventUnitCreatedUnit()));
+                libE0EAE146_gf_CM_Fenix_UpdateFenixChampionShellCountValues(lv_i, UnitGetOwner(EventUnitCreatedUnit()));
+            }
+
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained_Init () {
+    libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained = TriggerCreate("libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained, false);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained, null, "GatewayTrain", null);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained, null, "WarpGateTrain", null);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained, null, "StargateTrain", null);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained, null, "RoboticsFacilityTrain", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_Champion Building ReBuilt
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ChampionBuildingReBuilt_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnitCreatedUnit()) == "FenixAltarOfPsiStorms"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libE0EAE146_gv_cM_Fenix_ChampionStructure[UnitGetOwner(EventUnitCreatedUnit())] = EventUnitCreatedUnit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ChampionBuildingReBuilt_Init () {
+    libE0EAE146_gt_CM_Fenix_ChampionBuildingReBuilt = TriggerCreate("libE0EAE146_gt_CM_Fenix_ChampionBuildingReBuilt_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionBuildingReBuilt, false);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_CM_Fenix_ChampionBuildingReBuilt, null, "ProtossBuild", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_Champion Upgrade Researched
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ChampionUpgradeResearched_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+
+    // Automatic Variable Declarations
+    string auto012E2DC1_val;
+
+    // Variable Initialization
+    lv_player = EventPlayer();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto012E2DC1_val = libNtve_gf_TriggeringProgressUpgrade();
+    if (auto012E2DC1_val == "FenixChampionKaldalisZealot") {
+        libE0EAE146_gv_cM_Fenix_ChampionAvailable[1][lv_player] = true;
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionTimers, true);
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_NetworkedUnitDies, true);
+    }
+    else if (auto012E2DC1_val == "FenixChampionTalisAdept") {
+        libE0EAE146_gv_cM_Fenix_ChampionAvailable[2][lv_player] = true;
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionTimers, true);
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_NetworkedUnitDies, true);
+    }
+    else if (auto012E2DC1_val == "FenixChampionMojoScout") {
+        libE0EAE146_gv_cM_Fenix_ChampionAvailable[3][lv_player] = true;
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionTimers, true);
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_NetworkedUnitDies, true);
+    }
+    else if (auto012E2DC1_val == "FenixChampionTaldarinImmortal") {
+        libE0EAE146_gv_cM_Fenix_ChampionAvailable[4][lv_player] = true;
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionTimers, true);
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_NetworkedUnitDies, true);
+    }
+    else if (auto012E2DC1_val == "FenixChampionWarbringerColossus") {
+        libE0EAE146_gv_cM_Fenix_ChampionAvailable[5][lv_player] = true;
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionTimers, true);
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_NetworkedUnitDies, true);
+    }
+    else if (auto012E2DC1_val == "FenixChampionClolarionCarrier") {
+        libE0EAE146_gv_cM_Fenix_ChampionAvailable[6][lv_player] = true;
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionTimers, true);
+        TriggerEnable(libE0EAE146_gt_CM_Fenix_NetworkedUnitDies, true);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ChampionUpgradeResearched_Init () {
+    libE0EAE146_gt_CM_Fenix_ChampionUpgradeResearched = TriggerCreate("libE0EAE146_gt_CM_Fenix_ChampionUpgradeResearched_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionUpgradeResearched, false);
+    TriggerAddEventUnitResearchProgress(libE0EAE146_gt_CM_Fenix_ChampionUpgradeResearched, null, c_unitProgressStageComplete);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_Champion Timers
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ChampionTimers_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_volunteer;
+    int lv_i;
+    fixed lv_foundUnitRange;
+    unit lv_foundUnit;
+    int lv_itPlayerFenix;
+
+    // Automatic Variable Declarations
+    playergroup auto4D45DA5F_g;
+    const int auto795BEB7B_ae = libE0EAE146_gv_cMC_Fenix_ChampionCount;
+    const int auto795BEB7B_ai = 1;
+    const int auto21F69CB8_ae = libE0EAE146_gv_cMC_Fenix_ChampionCount;
+    const int auto21F69CB8_ai = 1;
+    unitgroup autoC93D1DB5_g;
+    int autoC93D1DB5_u;
+    unit autoC93D1DB5_var;
+
+    // Variable Initialization
+    lv_foundUnitRange = 500.0;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto4D45DA5F_g = libKCOR_gf_CC_PlayersOfCommander("ProtossFenix");
+    lv_itPlayerFenix = -1;
+    while (true) {
+        lv_itPlayerFenix = PlayerGroupNextPlayer(auto4D45DA5F_g, lv_itPlayerFenix);
+        if (lv_itPlayerFenix < 0) { break; }
+        lv_i = 1;
+        for ( ; ( (auto795BEB7B_ai >= 0 && lv_i <= auto795BEB7B_ae) || (auto795BEB7B_ai < 0 && lv_i >= auto795BEB7B_ae) ) ; lv_i += auto795BEB7B_ai ) {
+            libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer[lv_i][lv_itPlayerFenix] -= 1.0;
+        }
+        if (((UnitIsAlive(libE0EAE146_gv_cM_Fenix_ChampionStructure[lv_itPlayerFenix]) == true) && (UnitGetType(libE0EAE146_gv_cM_Fenix_ChampionStructure[lv_itPlayerFenix]) == "FenixAltarOfPsiStorms"))) {
+            lv_i = 1;
+            for ( ; ( (auto21F69CB8_ai >= 0 && lv_i <= auto21F69CB8_ae) || (auto21F69CB8_ai < 0 && lv_i >= auto21F69CB8_ae) ) ; lv_i += auto21F69CB8_ai ) {
+                if (((libE0EAE146_gv_cM_Fenix_ChampionAvailable[lv_i][lv_itPlayerFenix] == true) && (UnitIsAlive(libE0EAE146_gv_cM_Fenix_ChampionUnit[lv_i][lv_itPlayerFenix]) == false) && (libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer[lv_i][lv_itPlayerFenix] <= 0.0))) {
+                    lv_volunteer = null;
+                    autoC93D1DB5_g = libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[lv_i][lv_itPlayerFenix];
+                    autoC93D1DB5_u = UnitGroupCount(autoC93D1DB5_g, c_unitCountAll);
+                    for (;; autoC93D1DB5_u -= 1) {
+                        autoC93D1DB5_var = UnitGroupUnitFromEnd(autoC93D1DB5_g, autoC93D1DB5_u);
+                        if (autoC93D1DB5_var == null) { break; }
+                        if ((UnitIsAlive(autoC93D1DB5_var) == true) && (DistanceBetweenPoints(UnitGetPosition(autoC93D1DB5_var), libE0EAE146_gv_cM_Fenix_ChampionDeathPosition[lv_i][lv_itPlayerFenix]) < lv_foundUnitRange)) {
+                            lv_volunteer = autoC93D1DB5_var;
+                            lv_foundUnitRange = DistanceBetweenPoints(UnitGetPosition(autoC93D1DB5_var), libE0EAE146_gv_cM_Fenix_ChampionDeathPosition[lv_i][lv_itPlayerFenix]);
+                        }
+
+                    }
+                    if ((lv_volunteer != null)) {
+                        UnitIssueOrder(lv_volunteer, Order(libE0EAE146_gv_cM_Fenix_ChampionMorphAbil[lv_i]), c_orderQueueAddToFront);
+                    }
+
+                }
+
+            }
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ChampionTimers_Init () {
+    libE0EAE146_gt_CM_Fenix_ChampionTimers = TriggerCreate("libE0EAE146_gt_CM_Fenix_ChampionTimers_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionTimers, false);
+    TriggerAddEventTimePeriodic(libE0EAE146_gt_CM_Fenix_ChampionTimers, 1.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_ChampionMorphed
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ChampionMorphed_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+    int lv_player;
+    unit lv_newChampion;
+
+    // Automatic Variable Declarations
+    const int autoCA982A4A_ae = libE0EAE146_gv_cMC_Fenix_ChampionCount;
+    const int autoCA982A4A_ai = 1;
+
+    // Variable Initialization
+    lv_player = EventPlayer();
+    lv_newChampion = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_i = 1;
+    for ( ; ( (autoCA982A4A_ai >= 0 && lv_i <= autoCA982A4A_ae) || (autoCA982A4A_ai < 0 && lv_i >= autoCA982A4A_ae) ) ; lv_i += autoCA982A4A_ai ) {
+        if ((UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitCaster)) == libE0EAE146_gv_cM_Fenix_ChampionUnitType[lv_i])) {
+            PlayerCreateEffectPoint(UnitGetOwner(libE0EAE146_gv_cM_Fenix_ChampionStructure[lv_player]), "FenixChampionSwapLaunch", UnitGetPosition(libE0EAE146_gv_cM_Fenix_ChampionStructure[lv_player]));
+            UnitCreateEffectUnit(lv_newChampion, "CopyTargetSelectionAndControlGroups", libE0EAE146_gv_cM_Fenix_ChampionUnit[lv_i][lv_player]);
+            if ((UnitIsAlive(libE0EAE146_gv_cM_Fenix_ChampionUnit[lv_i][lv_player]) == false)) {
+                UnitRemove(libE0EAE146_gv_cM_Fenix_ChampionUnit[lv_i][lv_player]);
+            }
+
+            libE0EAE146_gv_cM_Fenix_ChampionUnit[lv_i][lv_player] = lv_newChampion;
+            UnitSetPropertyFixed(libE0EAE146_gv_cM_Fenix_ChampionUnit[lv_i][lv_player], c_unitPropKills, libE0EAE146_gv_cM_Fenix_ChampionKills[lv_i][lv_player]);
+            libE0EAE146_gf_CM_Fenix_AvengingProtocol(lv_i, lv_player, 5);
+            UnitGroupRemove(libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[lv_i][lv_player], lv_newChampion);
+            libE0EAE146_gf_CM_Fenix_UpdateNetworkValues(lv_i, UnitGetOwner(lv_newChampion));
+            libE0EAE146_gf_CM_Fenix_UpdateFenixChampionShellCountValues(lv_i, UnitGetOwner(lv_newChampion));
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ChampionMorphed_Init () {
+    libE0EAE146_gt_CM_Fenix_ChampionMorphed = TriggerCreate("libE0EAE146_gt_CM_Fenix_ChampionMorphed_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionMorphed, false);
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_Fenix_ChampionMorphed, c_playerAny, "FenixChampionSwapImpactUnit");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_ChampionDies
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ChampionDies_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_deadChampion;
+    int lv_player;
+
+    // Automatic Variable Declarations
+    string auto391C7C17_val;
+
+    // Variable Initialization
+    lv_deadChampion = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+    lv_player = UnitGetOwner(lv_deadChampion);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerCreateEffectPoint(UnitGetOwner(lv_deadChampion), "FenixChampionSwapLaunch", UnitGetPosition(lv_deadChampion));
+    auto391C7C17_val = UnitGetType(lv_deadChampion);
+    if (auto391C7C17_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[1]) {
+        libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer[1][lv_player] = 1.0;
+        libE0EAE146_gv_cM_Fenix_ChampionKills[1][lv_player] = libNtve_gf_UnitGetPropertyKills(lv_deadChampion, c_unitPropCurrent);
+        libE0EAE146_gv_cM_Fenix_ChampionDeathPosition[1][lv_player] = UnitGetPosition(lv_deadChampion);
+    }
+    else if (auto391C7C17_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[2]) {
+        libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer[2][lv_player] = 1.0;
+        libE0EAE146_gv_cM_Fenix_ChampionKills[2][lv_player] = libNtve_gf_UnitGetPropertyKills(lv_deadChampion, c_unitPropCurrent);
+        libE0EAE146_gv_cM_Fenix_ChampionDeathPosition[2][lv_player] = UnitGetPosition(lv_deadChampion);
+    }
+    else if (auto391C7C17_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[3]) {
+        libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer[3][lv_player] = 1.0;
+        libE0EAE146_gv_cM_Fenix_ChampionKills[3][lv_player] = libNtve_gf_UnitGetPropertyKills(lv_deadChampion, c_unitPropCurrent);
+        libE0EAE146_gv_cM_Fenix_ChampionDeathPosition[3][lv_player] = UnitGetPosition(lv_deadChampion);
+    }
+    else if (auto391C7C17_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[4]) {
+        libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer[4][lv_player] = 1.0;
+        libE0EAE146_gv_cM_Fenix_ChampionKills[4][lv_player] = libNtve_gf_UnitGetPropertyKills(lv_deadChampion, c_unitPropCurrent);
+        libE0EAE146_gv_cM_Fenix_ChampionDeathPosition[4][lv_player] = UnitGetPosition(lv_deadChampion);
+    }
+    else if (auto391C7C17_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[5]) {
+        libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer[5][lv_player] = 1.0;
+        libE0EAE146_gv_cM_Fenix_ChampionKills[5][lv_player] = libNtve_gf_UnitGetPropertyKills(lv_deadChampion, c_unitPropCurrent);
+        libE0EAE146_gv_cM_Fenix_ChampionDeathPosition[5][lv_player] = UnitGetPosition(lv_deadChampion);
+    }
+    else if (auto391C7C17_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[6]) {
+        libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer[6][lv_player] = 1.0;
+        libE0EAE146_gv_cM_Fenix_ChampionKills[6][lv_player] = libNtve_gf_UnitGetPropertyKills(lv_deadChampion, c_unitPropCurrent);
+        libE0EAE146_gv_cM_Fenix_ChampionDeathPosition[6][lv_player] = UnitGetPosition(lv_deadChampion);
+    }
+    else {
+    }
+    if ((UnitIsAlive(libE0EAE146_gv_cM_Fenix_ChampionStructure[lv_player]) == true)) {
+        PlayerCreateEffectPoint(UnitGetOwner(libE0EAE146_gv_cM_Fenix_ChampionStructure[lv_player]), "FenixChampionSwapImpact", UnitGetPosition(libE0EAE146_gv_cM_Fenix_ChampionStructure[lv_player]));
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ChampionDies_Init () {
+    libE0EAE146_gt_CM_Fenix_ChampionDies = TriggerCreate("libE0EAE146_gt_CM_Fenix_ChampionDies_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionDies, false);
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_Fenix_ChampionDies, c_playerAny, "FenixAIChampionDeathEvent");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_NetworkedUnitDies
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_NetworkedUnitDies_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+    int lv_avengingprotocolindex;
+    int lv_avengingprotocolstacks;
+
+    // Automatic Variable Declarations
+    string auto0E65C66C_val;
+
+    // Variable Initialization
+    lv_player = UnitGetOwner(EventUnit());
+
+    // Conditions
+    if (testConds) {
+        if (!(((libKCOR_gf_ActiveCommanderForPlayer(lv_player) == "ProtossFenix") && ((UnitGetType(EventUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[1]) || (UnitGetType(EventUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[2]) || (UnitGetType(EventUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[3]) || (UnitGetType(EventUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[4]) || (UnitGetType(EventUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[5]) || (UnitGetType(EventUnit()) == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[6]))))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto0E65C66C_val = UnitGetType(EventUnit());
+    if (auto0E65C66C_val == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[1]) {
+        UnitGroupRemove(libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[1][lv_player], EventUnit());
+        libE0EAE146_gf_CM_Fenix_UpdateNetworkValues(1, lv_player);
+        libE0EAE146_gf_CM_Fenix_UpdateFenixChampionShellCountValues(1, lv_player);
+        lv_avengingprotocolindex = 1;
+        lv_avengingprotocolstacks = 3;
+    }
+    else if (auto0E65C66C_val == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[2]) {
+        UnitGroupRemove(libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[2][lv_player], EventUnit());
+        libE0EAE146_gf_CM_Fenix_UpdateNetworkValues(2, lv_player);
+        libE0EAE146_gf_CM_Fenix_UpdateFenixChampionShellCountValues(2, lv_player);
+        lv_avengingprotocolindex = 2;
+        lv_avengingprotocolstacks = 2;
+    }
+    else if (auto0E65C66C_val == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[3]) {
+        UnitGroupRemove(libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[3][lv_player], EventUnit());
+        libE0EAE146_gf_CM_Fenix_UpdateNetworkValues(3, lv_player);
+        libE0EAE146_gf_CM_Fenix_UpdateFenixChampionShellCountValues(3, lv_player);
+        lv_avengingprotocolindex = 3;
+        lv_avengingprotocolstacks = 3;
+    }
+    else if (auto0E65C66C_val == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[4]) {
+        UnitGroupRemove(libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[4][lv_player], EventUnit());
+        libE0EAE146_gf_CM_Fenix_UpdateNetworkValues(4, lv_player);
+        libE0EAE146_gf_CM_Fenix_UpdateFenixChampionShellCountValues(4, lv_player);
+        lv_avengingprotocolindex = 4;
+        lv_avengingprotocolstacks = 4;
+    }
+    else if (auto0E65C66C_val == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[5]) {
+        UnitGroupRemove(libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[5][lv_player], EventUnit());
+        libE0EAE146_gf_CM_Fenix_UpdateNetworkValues(5, lv_player);
+        libE0EAE146_gf_CM_Fenix_UpdateFenixChampionShellCountValues(5, lv_player);
+        lv_avengingprotocolindex = 5;
+        lv_avengingprotocolstacks = 6;
+    }
+    else if (auto0E65C66C_val == libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType[6]) {
+        UnitGroupRemove(libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup[6][lv_player], EventUnit());
+        libE0EAE146_gf_CM_Fenix_UpdateNetworkValues(6, lv_player);
+        libE0EAE146_gf_CM_Fenix_UpdateFenixChampionShellCountValues(6, lv_player);
+        lv_avengingprotocolindex = 6;
+        lv_avengingprotocolstacks = 6;
+    }
+    else {
+    }
+    if ((lv_avengingprotocolindex > 0) && (lv_avengingprotocolstacks > 0) && (UnitHasBehavior2(EventUnit(), "FenixSuppressAvengingProtocol") == false)) {
+        libE0EAE146_gf_CM_Fenix_AvengingProtocol(lv_avengingprotocolindex, lv_player, lv_avengingprotocolstacks);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_NetworkedUnitDies_Init () {
+    libE0EAE146_gt_CM_Fenix_NetworkedUnitDies = TriggerCreate("libE0EAE146_gt_CM_Fenix_NetworkedUnitDies_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_NetworkedUnitDies, false);
+    TriggerAddEventUnitDied(libE0EAE146_gt_CM_Fenix_NetworkedUnitDies, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_ProbiusSwap
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ProbiusSwap_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_player = UnitGetOwner(EventUnitCreatedUnit());
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnitCreatedUnit()) == "Probe"))) {
+            return false;
+        }
+
+        if (!((TechTreeUpgradeCount(UnitGetOwner(EventUnitCreatedUnit()), "FenixChampionKaldalisZealot", c_techCountCompleteOnly) >= 1))) {
+            return false;
+        }
+
+        if (!((TechTreeUpgradeCount(UnitGetOwner(EventUnitCreatedUnit()), "FenixChampionClolarionCarrier", c_techCountCompleteOnly) >= 1))) {
+            return false;
+        }
+
+        if (!((TechTreeUpgradeCount(UnitGetOwner(EventUnitCreatedUnit()), "FenixChampionMojoScout", c_techCountCompleteOnly) >= 1))) {
+            return false;
+        }
+
+        if (!((TechTreeUpgradeCount(UnitGetOwner(EventUnitCreatedUnit()), "FenixChampionTalisAdept", c_techCountCompleteOnly) >= 1))) {
+            return false;
+        }
+
+        if (!((TechTreeUpgradeCount(UnitGetOwner(EventUnitCreatedUnit()), "FenixChampionTaldarinImmortal", c_techCountCompleteOnly) >= 1))) {
+            return false;
+        }
+
+        if (!((TechTreeUpgradeCount(UnitGetOwner(EventUnitCreatedUnit()), "FenixChampionWarbringerColossus", c_techCountCompleteOnly) >= 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerCreateEffectPoint(UnitGetOwner(libE0EAE146_gv_cM_Fenix_ChampionStructure[lv_player]), "FenixChampionSwapLaunch", UnitGetPosition(libE0EAE146_gv_cM_Fenix_ChampionStructure[UnitGetOwner(EventUnitCreatedUnit())]));
+    PlayerCreateEffectPoint(UnitGetOwner(EventUnitCreatedUnit()), "FenixChampionSwapImpactSet", UnitGetPosition(EventUnitCreatedUnit()));
+    UnitBehaviorAdd(EventUnitCreatedUnit(), "FenixProbiusProbe", EventUnitCreatedUnit(), 1);
+    UnitBehaviorAdd(EventUnitCreatedUnit(), "FenixChampionMorphStun", EventUnitCreatedUnit(), 1);
+    libNtve_gf_SendActorMessageToUnit(EventUnitCreatedUnit(), "Create FenixProbiusProbe");
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ProbiusSwap_Init () {
+    libE0EAE146_gt_CM_Fenix_ProbiusSwap = TriggerCreate("libE0EAE146_gt_CM_Fenix_ProbiusSwap_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ProbiusSwap, false);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_CM_Fenix_ProbiusSwap, null, "NexusTrain", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_AvengingProtocol_BuffExpires
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_AvengingProtocol_BuffExpires_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+
+    // Automatic Variable Declarations
+    string auto3E050160_val;
+
+    // Variable Initialization
+    lv_player = EventPlayer();
+
+    // Conditions
+    if (testConds) {
+        if (!(((libKCOR_gf_ActiveCommanderForPlayer(lv_player) == "ProtossFenix")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto3E050160_val = UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitCaster));
+    if (auto3E050160_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[1]) {
+        libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[1] = 0;
+    }
+    else if (auto3E050160_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[2]) {
+        libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[2] = 0;
+    }
+    else if (auto3E050160_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[3]) {
+        libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[3] = 0;
+    }
+    else if (auto3E050160_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[4]) {
+        libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[4] = 0;
+    }
+    else if (auto3E050160_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[5]) {
+        libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[5] = 0;
+    }
+    else if (auto3E050160_val == libE0EAE146_gv_cM_Fenix_ChampionUnitType[6]) {
+        libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks[6] = 0;
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_AvengingProtocol_BuffExpires_Init () {
+    libE0EAE146_gt_CM_Fenix_AvengingProtocol_BuffExpires = TriggerCreate("libE0EAE146_gt_CM_Fenix_AvengingProtocol_BuffExpires_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_AvengingProtocol_BuffExpires, false);
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_Fenix_AvengingProtocol_BuffExpires, c_playerAny, "FenixChampionAvengingProtocolExpireDummy");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_ConclaiveTrainStart
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ConclaiveTrainStart_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "FenixAltarOfPsiStorms"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TextExpressionSetToken("Param/Expression/lib_KMIS_48E58677", "UpgradeName", StringExternal((libNtve_gf_TriggeringProgressUpgrade())));
+    ActorSendAsText(libNtve_gf_MainActorofUnit(EventUnit()), TextExpressionAssemble("Param/Expression/lib_KMIS_48E58677"));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ConclaiveTrainStart_Init () {
+    libE0EAE146_gt_CM_Fenix_ConclaiveTrainStart = TriggerCreate("libE0EAE146_gt_CM_Fenix_ConclaiveTrainStart_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ConclaiveTrainStart, false);
+    TriggerAddEventUnitResearchProgress(libE0EAE146_gt_CM_Fenix_ConclaiveTrainStart, null, c_unitProgressStageStart);
+    TriggerAddEventUnitResearchProgress(libE0EAE146_gt_CM_Fenix_ConclaiveTrainStart, null, c_unitProgressStageResume);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_ConclaiveTrainStop
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ConclaiveTrainStop_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "FenixAltarOfPsiStorms"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TextExpressionSetToken("Param/Expression/lib_KMIS_4E78EA33", "UpgradeName", StringExternal((libNtve_gf_TriggeringProgressUpgrade())));
+    ActorSendAsText(libNtve_gf_MainActorofUnit(EventUnit()), TextExpressionAssemble("Param/Expression/lib_KMIS_4E78EA33"));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ConclaiveTrainStop_Init () {
+    libE0EAE146_gt_CM_Fenix_ConclaiveTrainStop = TriggerCreate("libE0EAE146_gt_CM_Fenix_ConclaiveTrainStop_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ConclaiveTrainStop, false);
+    TriggerAddEventUnitResearchProgress(libE0EAE146_gt_CM_Fenix_ConclaiveTrainStop, null, c_unitProgressStagePause);
+    TriggerAddEventUnitResearchProgress(libE0EAE146_gt_CM_Fenix_ConclaiveTrainStop, null, c_unitProgressStageCancel);
+    TriggerAddEventUnitResearchProgress(libE0EAE146_gt_CM_Fenix_ConclaiveTrainStop, null, c_unitProgressStageComplete);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_ChampionAugmentAbilitySoundTrigger
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ChampionAugmentAbilitySoundTrigger_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((DistanceBetweenPoints(UnitGetPosition(EventUnit()), UnitGetPosition(EventUnitTargetUnit())) > 8.0)) {
+        libNtve_gf_SendActorMessageToUnit(libE0EAE146_gv_cM_Fenix_ChampionUnit[3][EventPlayer()], "Signal TargetLongRange");
+    }
+    else {
+        libNtve_gf_SendActorMessageToUnit(libE0EAE146_gv_cM_Fenix_ChampionUnit[3][EventPlayer()], "Signal TargetShortRange");
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ChampionAugmentAbilitySoundTrigger_Init () {
+    libE0EAE146_gt_CM_Fenix_ChampionAugmentAbilitySoundTrigger = TriggerCreate("libE0EAE146_gt_CM_Fenix_ChampionAugmentAbilitySoundTrigger_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionAugmentAbilitySoundTrigger, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_CM_Fenix_ChampionAugmentAbilitySoundTrigger, null, AbilityCommand("FenixMojoMissiles", 0), c_unitAbilStageExecute, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_Charged Buster On Cost
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ChargedBusterOnCost_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CatalogFieldValueSet(c_gameCatalogAbil, "ChargedBuster", "Cost[" + IntToString(0) + "].Cooldown.TimeUse", EventPlayer(), "0");
+    CatalogFieldValueSet(c_gameCatalogAbil, "FenixDragoonAirBomb", "Cost[" + IntToString(0) + "].Cooldown.TimeUse", EventPlayer(), "0");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ChargedBusterOnCost_Init () {
+    libE0EAE146_gt_CM_Fenix_ChargedBusterOnCost = TriggerCreate("libE0EAE146_gt_CM_Fenix_ChargedBusterOnCost_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChargedBusterOnCost, false);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_CM_Fenix_ChargedBusterOnCost, null, "ChargeBuster", c_unitBehaviorChangeActivate);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_Charged Buster Off Cost
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_ChargedBusterOffCost_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CatalogFieldValueModifyBasedOnDefaultValue(c_gameCatalogAbil, "ChargedBuster", "Cost[" + IntToString(0) + "].Cooldown.TimeUse", EventPlayer(), 1.0, c_upgradeOperationMultiply);
+    libNtve_gf_CatalogFieldValueModifyBasedOnDefaultValue(c_gameCatalogAbil, "FenixDragoonAirBomb", "Cost[" + IntToString(0) + "].Cooldown.TimeUse", EventPlayer(), 1.0, c_upgradeOperationMultiply);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_ChargedBusterOffCost_Init () {
+    libE0EAE146_gt_CM_Fenix_ChargedBusterOffCost = TriggerCreate("libE0EAE146_gt_CM_Fenix_ChargedBusterOffCost_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChargedBusterOffCost, false);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_CM_Fenix_ChargedBusterOffCost, null, "ChargeBuster", c_unitBehaviorChangeDeactivate);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_FenixAutocastSettingsOn
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_FenixAutocastSettingsOn_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    abilcmd auto1242C3A3_val;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto1242C3A3_val = EventUnitAbility();
+    if (auto1242C3A3_val == AbilityCommand("FenixSoAWhirlwind", 0)) {
+        libE0EAE146_gv_fenixWhirlwindAutocast[EventPlayer()] = true;
+    }
+    else if (auto1242C3A3_val == AbilityCommand("VoidShieldCapacitor", 0)) {
+        libE0EAE146_gv_fenixShieldCapacitorAutocast[EventPlayer()] = true;
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_FenixAutocastSettingsOn_Init () {
+    libE0EAE146_gt_CM_FenixAutocastSettingsOn = TriggerCreate("libE0EAE146_gt_CM_FenixAutocastSettingsOn_Func");
+    TriggerEnable(libE0EAE146_gt_CM_FenixAutocastSettingsOn, false);
+    TriggerAddEventUnitAbilityAutoCastChange(libE0EAE146_gt_CM_FenixAutocastSettingsOn, null, AbilityCommand("FenixSoAWhirlwind", 0), c_unitAbilAutoCastChangeOn, false);
+    TriggerAddEventUnitAbilityAutoCastChange(libE0EAE146_gt_CM_FenixAutocastSettingsOn, null, AbilityCommand("VoidShieldCapacitor", 0), c_unitAbilAutoCastChangeOn, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_FenixAutocastSettingsOff
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_FenixAutocastSettingsOff_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    abilcmd auto603B686C_val;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto603B686C_val = EventUnitAbility();
+    if (auto603B686C_val == AbilityCommand("FenixSoAWhirlwind", 0)) {
+        libE0EAE146_gv_fenixWhirlwindAutocast[EventPlayer()] = false;
+    }
+    else if (auto603B686C_val == AbilityCommand("VoidShieldCapacitor", 0)) {
+        libE0EAE146_gv_fenixShieldCapacitorAutocast[EventPlayer()] = false;
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_FenixAutocastSettingsOff_Init () {
+    libE0EAE146_gt_CM_FenixAutocastSettingsOff = TriggerCreate("libE0EAE146_gt_CM_FenixAutocastSettingsOff_Func");
+    TriggerEnable(libE0EAE146_gt_CM_FenixAutocastSettingsOff, false);
+    TriggerAddEventUnitAbilityAutoCastChange(libE0EAE146_gt_CM_FenixAutocastSettingsOff, null, AbilityCommand("FenixSoAWhirlwind", 0), c_unitAbilAutoCastChangeOff, false);
+    TriggerAddEventUnitAbilityAutoCastChange(libE0EAE146_gt_CM_FenixAutocastSettingsOff, null, AbilityCommand("VoidShieldCapacitor", 0), c_unitAbilAutoCastChangeOff, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_FenixAutocastSuitSummonStateAdjust
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_FenixAutocastSuitSummonStateAdjust_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    string autoAA713098_val;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoAA713098_val = UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget));
+    if (autoAA713098_val == "FenixCoop") {
+        if ((libE0EAE146_gv_fenixWhirlwindAutocast[EventPlayerEffectUsedUnitOwner(c_effectPlayerTarget)] == true)) {
+            Wait(0.0625, c_timeGame);
+            UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitTarget), "FenixSoAWhirlwindSetAutocast", EventPlayerEffectUsedUnit(c_effectUnitTarget));
+        }
+
+        if ((libE0EAE146_gv_fenixShieldCapacitorAutocast[EventPlayerEffectUsedUnitOwner(c_effectPlayerTarget)] == true)) {
+            Wait(0.0625, c_timeGame);
+            UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitTarget), "FenixVoidShieldCapacitorSetAutocast", EventPlayerEffectUsedUnit(c_effectUnitTarget));
+        }
+
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_FenixAutocastSuitSummonStateAdjust_Init () {
+    libE0EAE146_gt_CM_FenixAutocastSuitSummonStateAdjust = TriggerCreate("libE0EAE146_gt_CM_FenixAutocastSuitSummonStateAdjust_Func");
+    TriggerEnable(libE0EAE146_gt_CM_FenixAutocastSuitSummonStateAdjust, false);
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_FenixAutocastSuitSummonStateAdjust, c_playerAny, "SOASummonFenixWarpInOutAB");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Fenix_TriggersInit
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Fenix_TriggersInit_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(libE0EAE146_gt_CM_Fenix_InitialDummySpawn, true, false);
+    TriggerExecute(libE0EAE146_gt_CM_Fenix_ChampionInitialSetup, true, false);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_SentryNullShield, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_TaldarinDetonationStore, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_TaldarinDetonationRelease, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_AchievementCarrierResearched, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_AchievementCarrierAmount, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ConclaiveTrainStart, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ConclaiveTrainStop, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChampionAugmentAbilitySoundTrigger, true);
+    TriggerEnable(libE0EAE146_gt_CM_FenixAutocastSettingsOn, true);
+    TriggerEnable(libE0EAE146_gt_CM_FenixAutocastSettingsOff, true);
+    TriggerEnable(libE0EAE146_gt_CM_FenixAutocastSuitSummonStateAdjust, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChargedBusterOnCost, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ChargedBusterOffCost, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_HeroSpawn, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_HeroSpawnCleanup, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_HeroKilled, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_SuicideUpdateVital, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_ResearchRemoveSuicide, true);
+    TriggerEnable(libE0EAE146_gt_CM_Fenix_RallySetToFenix, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Fenix_TriggersInit_Init () {
+    libE0EAE146_gt_CM_Fenix_TriggersInit = TriggerCreate("libE0EAE146_gt_CM_Fenix_TriggersInit_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Triggers Init
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_fenix_InitTriggers () {
+    libE0EAE146_gt_CM_Fenix_AchievementCarrierAmount_Init();
+    libE0EAE146_gt_CM_Fenix_AchievementCarrierResearched_Init();
+    libE0EAE146_gt_CM_Fenix_SentryNullShield_Init();
+    libE0EAE146_gt_CM_Fenix_TaldarinDetonationStore_Init();
+    libE0EAE146_gt_CM_Fenix_TaldarinDetonationRelease_Init();
+    libE0EAE146_gt_CM_Fenix_InitialDummySpawn_Init();
+    libE0EAE146_gt_CM_Fenix_HeroSpawn_Init();
+    libE0EAE146_gt_CM_Fenix_HeroSpawnCleanup_Init();
+    libE0EAE146_gt_CM_Fenix_HeroKilled_Init();
+    libE0EAE146_gt_CM_Fenix_SuicideUpdateVital_Init();
+    libE0EAE146_gt_CM_Fenix_ResearchRemoveSuicide_Init();
+    libE0EAE146_gt_CM_Fenix_RallySetToFenix_Init();
+    libE0EAE146_gt_CM_Fenix_ChampionInitialSetup_Init();
+    libE0EAE146_gt_CM_Fenix_ChampionPotentialVoluteerTrained_Init();
+    libE0EAE146_gt_CM_Fenix_ChampionBuildingReBuilt_Init();
+    libE0EAE146_gt_CM_Fenix_ChampionUpgradeResearched_Init();
+    libE0EAE146_gt_CM_Fenix_ChampionTimers_Init();
+    libE0EAE146_gt_CM_Fenix_ChampionMorphed_Init();
+    libE0EAE146_gt_CM_Fenix_ChampionDies_Init();
+    libE0EAE146_gt_CM_Fenix_NetworkedUnitDies_Init();
+    libE0EAE146_gt_CM_Fenix_ProbiusSwap_Init();
+    libE0EAE146_gt_CM_Fenix_AvengingProtocol_BuffExpires_Init();
+    libE0EAE146_gt_CM_Fenix_ConclaiveTrainStart_Init();
+    libE0EAE146_gt_CM_Fenix_ConclaiveTrainStop_Init();
+    libE0EAE146_gt_CM_Fenix_ChampionAugmentAbilitySoundTrigger_Init();
+    libE0EAE146_gt_CM_Fenix_ChargedBusterOnCost_Init();
+    libE0EAE146_gt_CM_Fenix_ChargedBusterOffCost_Init();
+    libE0EAE146_gt_CM_FenixAutocastSettingsOn_Init();
+    libE0EAE146_gt_CM_FenixAutocastSettingsOff_Init();
+    libE0EAE146_gt_CM_FenixAutocastSuitSummonStateAdjust_Init();
+    libE0EAE146_gt_CM_Fenix_TriggersInit_Init();
+}
+
