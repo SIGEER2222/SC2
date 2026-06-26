@@ -112,17 +112,6 @@ function Resolve-CommanderCatalogSource {
     return (Join-Path $workspaceRoot "Mods\7vs1\CommanderCatalog.SC2Mod")
 }
 
-function Resolve-SwannSourceGameData {
-    param([string]$SourceRoot)
-
-    $sourceGameData = Join-Path $SourceRoot "s2ma_packages\pkg01\extract\base.sc2data\GameData"
-    if (Test-Path -LiteralPath $sourceGameData) {
-        return $sourceGameData
-    }
-
-    return ""
-}
-
 function Resolve-WorkspacePath {
     param([string]$Path)
 
@@ -1153,7 +1142,6 @@ else {
 }
 $extensionSource = Resolve-ExtensionSource -SourceRoot $SourceRoot
 $commanderCatalogSource = Resolve-CommanderCatalogSource
-$swannSourceGameData = Resolve-SwannSourceGameData -SourceRoot $SourceRoot
 $mapLive = Join-Path (Join-Path $Sc2Root "Maps\7vs1") $LiveMapName
 $extensionLive = Join-Path $Sc2Root "Mods\7vs1\CoopZeroPop.SC2Mod"
 
@@ -1270,12 +1258,6 @@ $effectiveRuntimeBaseData = Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryP
 
 $liveGameData = Join-Path $extensionLive "Base.SC2Data\GameData"
 $liveCommanderCatalogGameData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/7vs1/CommanderCatalog.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data\GameData"
-if (($effectiveCommanders -contains "TerranSwann") -and $swannSourceGameData) {
-    Patch-LiveSwannKelMorianWorkerData -SourceGameData $swannSourceGameData -LiveGameData $liveGameData
-}
-elseif ($effectiveCommanders -contains "TerranSwann") {
-    throw "TerranSwann test requires SourceRoot with replay pkg01 GameData. Pass -SourceRoot to a replay extract root."
-}
 Merge-LiveCommanderCatalogUnitData -LiveGameDataRoot $liveCommanderCatalogGameData
 Validate-LiveBaseTestlineInstall -MapLive $mapLive -ExtensionLive $extensionLive -SelectedCommanders $effectiveCommanders
 
