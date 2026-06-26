@@ -64,7 +64,6 @@ if ([string]::IsNullOrWhiteSpace($TestRunId)) {
 
 . (Join-Path $PSScriptRoot "commander-power-metadata.ps1")
 . (Join-Path $PSScriptRoot "sc2\campaignxcore-bank.ps1")
-. (Join-Path $PSScriptRoot "sc2\live-runtime-patches.ps1")
 
 function Get-WorkspaceRoot {
     return (Split-Path -Parent $PSScriptRoot)
@@ -1257,13 +1256,6 @@ Sync-LiveMapRuntimeLibraries `
         $kitMutationsLiveBaseData
     )
 $effectiveRuntimeBaseData = Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryPath -MapLive $mapLive -ExtensionLive $extensionLive -LibraryName "LibKPVP.galaxy")
-Apply-LiveCommanderTestPatches `
-    -BaseDataRoot $effectiveRuntimeBaseData `
-    -SelectedCommanders $effectiveCommanders `
-    -ApplySupportPatches $true
-# LibE0EAE146_RuntimeSafety.galaxy is owned by the live extension mod, not the
-# effective LibKPVP location, so patch the extension Base.SC2Data directly.
-Set-LiveRuntimePrimaryCommanderOverride -BaseDataRoot $extensionBaseData -SelectedCommanders $effectiveCommanders
 
 $liveGameData = Join-Path $extensionLive "Base.SC2Data\GameData"
 $liveCommanderCatalogGameData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/7vs1/CommanderCatalog.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data\GameData"

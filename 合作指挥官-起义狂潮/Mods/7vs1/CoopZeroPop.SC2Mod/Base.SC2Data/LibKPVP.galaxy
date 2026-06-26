@@ -5,6 +5,7 @@ include "LibKCUI_h"
 include "LibE0EAE146_h"
 
 include "LibKPVP_h"
+include "LibKPVP_Commander"
 
 //--------------------------------------------------------------------------------------------------
 // Library: PVP
@@ -1443,7 +1444,7 @@ bool libKPVP_gt_init_Func (bool testConds, bool runActions) {
 
         libKPVP_gf_reset_skins_for_player(lv_player);
         libKPVP_gv_players_names[lv_player] = PlayerName(lv_player);
-        auto0C816381_val = GameAttributePlayerValue("[bnet:local/0.0/223536]1", lv_player);
+        auto0C816381_val = libKPVP_gf_codex_commander_attribute_for_runtime_player(lv_player);
         if (auto0C816381_val == "0001") {
             libKPVP_gf_set_commander_for_player("ZergAbathur", lv_player);
             PlayerGroupAdd(libKPVP_gv_abathur_players, lv_player);
@@ -1510,6 +1511,7 @@ bool libKPVP_gt_init_Func (bool testConds, bool runActions) {
     UnitEventSetNullVariableInvalid(true);
     libKMIS_gf_CM_DataUtilInit();
     libKPVP_gf_STARTPVP();
+    libKPVP_gf_codex_post_lobby_init();
     if ((lv_with_random_ai == true)) {
         UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/lib_KPVP_9C99DE4D"));
     }
