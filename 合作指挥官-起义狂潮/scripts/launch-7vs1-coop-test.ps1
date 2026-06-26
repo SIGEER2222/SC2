@@ -1050,11 +1050,22 @@ function Validate-LiveBaseTestlineInstall {
     if ($effectiveKpvp.Contains('libKPVP_gf_codex_commander_attribute_for_player')) {
         throw 'Live base testline still contains obsolete commander attribute helper on the effective LibKPVP.'
     }
+    if ($effectiveKpvp.Contains('include "LibKPVP_Commander"') -eq $false) {
+        throw 'Live base testline effective LibKPVP is not including LibKPVP_Commander.'
+    }
+    $effectiveKpvpCommander = Join-Path (Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKPVP.galaxy")) "LibKPVP_Commander.galaxy"
+    if (-not (Test-Path -LiteralPath $effectiveKpvpCommander)) {
+        throw 'Live base testline missing LibKPVP_Commander.galaxy.'
+    }
+    $kpvpCommander = Get-Content -LiteralPath $effectiveKpvpCommander -Raw
+    if ($kpvpCommander.Contains('string libKPVP_gf_codex_commander_attribute_from_bank_key (string lp_bankKey) {') -eq $false) {
+        throw 'Live base testline LibKPVP_Commander.galaxy is missing the commander attribute mapping helper.'
+    }
+    if ($kpvpCommander.Contains('string libKPVP_gf_codex_commander_attribute_for_runtime_player (int lp_player) {') -eq $false) {
+        throw 'Live base testline LibKPVP_Commander.galaxy is missing the runtime player attribute resolver.'
+    }
     if ($effectiveKpvp.Contains('auto0C816381_val = libKPVP_gf_codex_commander_attribute_for_runtime_player(lv_player);') -eq $false) {
         throw 'Live base testline effective LibKPVP is not bound to the XMRuntimeControl commander resolver.'
-    }
-    if ($effectiveKpvp.Contains('string libKPVP_gf_codex_commander_attribute_from_bank_key (string lp_bankKey) {') -eq $false) {
-        throw 'Live base testline effective LibKPVP is missing the XMRuntimeControl commander mapping helper.'
     }
     if ($effectiveKpvp.Contains('libKPVP_gf_codex_start_point')) {
         throw 'Live base testline still contains injected start point override on the effective LibKPVP.'
