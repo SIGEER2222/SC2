@@ -1,4 +1,5 @@
 include "LibKPVP_h"
+include "LibKPVP_Swann"
 
 //--------------------------------------------------------------------------------------------------
 // Commander attribute resolution: resolve from bank first, fallback to GameAttributePlayerValue
@@ -85,25 +86,6 @@ string libKPVP_gf_codex_commander_attribute_for_runtime_player (int lp_player) {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Swann Kel-Morian Worker tech initialization
-//--------------------------------------------------------------------------------------------------
-void libKPVP_gf_codex_apply_swann_worker_tech (int lp_player) {
-    int lv_build;
-
-    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "SwannCommander", 1);
-    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "CommanderLevel", 15);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("KelMorianWorkerBuild", 0), true);
-    lv_build = 1;
-    while (lv_build <= 24) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("KelMorianWorkerBuild", lv_build), true);
-        lv_build = lv_build + 1;
-    }
-    TechTreeAbilityAllow(lp_player, AbilityCommand("KelMorianWorkerRepair", 0), true);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("AdvancedConstructionAuto", 0), true);
-    UIDisplayMessage(PlayerGroupSingle(lp_player), c_messageAreaChat, StringToText(("Codex test init: TerranSwann KelMorianWorker tech enabled. Workers=" + IntToString(UnitGroupCount(UnitGroup("KelMorianWorker", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive)))));
-}
-
-//--------------------------------------------------------------------------------------------------
 // Post-lobby initialization for commander-specific runtime logic
 //--------------------------------------------------------------------------------------------------
 void libKPVP_gf_codex_post_lobby_init () {
@@ -118,7 +100,7 @@ void libKPVP_gf_codex_post_lobby_init () {
         if (lv_player < 0) { break; }
         lv_commander = libKCOR_gf_ActiveCommanderForPlayer(lv_player);
         if (lv_commander == "TerranSwann") {
-            libKPVP_gf_codex_apply_swann_worker_tech(lv_player);
+            libKPVP_gf_codex_swann_init(lv_player);
         }
     }
 }
