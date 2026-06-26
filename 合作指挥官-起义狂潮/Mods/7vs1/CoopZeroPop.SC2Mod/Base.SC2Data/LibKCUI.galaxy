@@ -3027,8 +3027,8 @@ bool auto_libKCUI_gf_UpdateTychusSquadAvailability_TriggerFunc (bool testConds, 
 
     // Variable Initialization
     lv_tychusplayer = lp_player;
-    lv_initialchargetime = (libKMIS_gv_cM_Tychus_InitialTrainTime + 1.0);
-    lv_rechargetime = libKMIS_gf_CalculateTychusRecruitmentChargeCooldown(lv_tychusplayer);
+    lv_initialchargetime = (libE0EAE146_gv_cM_Tychus_InitialTrainTime + 1.0);
+    lv_rechargetime = libE0EAE146_gf_CalculateTychusRecruitmentChargeCooldown(lv_tychusplayer);
     lv_numberofinitialheroesavailable = 1;
 
     // Implementation
@@ -3044,7 +3044,7 @@ bool auto_libKCUI_gf_UpdateTychusSquadAvailability_TriggerFunc (bool testConds, 
         DialogControlSetAnimationState(libKCUI_gv_cU_TychusSquadUnitFrames[lv_squadindex][lp_player], PlayerGroupAll(), "AvailabilityState", "Unlocking");
     }
     libKCUI_gf_UpdateTychusSquadAvailabilityProgressBar(lv_squadindex, lv_initialchargetime, lv_tychusplayer);
-    lv_rechargetime = libKMIS_gf_CalculateTychusRecruitmentChargeCooldown(lv_tychusplayer);
+    lv_rechargetime = libE0EAE146_gf_CalculateTychusRecruitmentChargeCooldown(lv_tychusplayer);
     auto91F11502_ae = (libKCUI_gv_cUC_TYCHUS_MAX_SQUAD_SIZE - lv_numberofheroeswithheld - 1);
     lv_squadindex = (lv_numberofinitialheroesavailable + 1);
     for ( ; ( (auto91F11502_ai >= 0 && lv_squadindex <= auto91F11502_ae) || (auto91F11502_ai < 0 && lv_squadindex >= auto91F11502_ae) ) ; lv_squadindex += auto91F11502_ai ) {
@@ -3106,11 +3106,11 @@ void libKCUI_gf_SetTychusSquadMember (unit lp_unit, int lp_squadIndex, string lp
     // Automatic Variable Declarations
     // Variable Initialization
     lv_abilIndex = IntToString((lp_squadIndex + 1));
-    lv_abil = UserDataGetGameLink(libKMIS_gv_cM_Tychus_UserTypeHeroList, libKMIS_gf_EventTychusHeroInstance(), "Active Abil", 1);
-    lv_button = UserDataGetGameLink(libKMIS_gv_cM_Tychus_UserTypeHeroList, libKMIS_gf_EventTychusHeroInstance(), "Active Button", 1);
+    lv_abil = UserDataGetGameLink(libE0EAE146_gv_cM_Tychus_UserTypeHeroList, libE0EAE146_gf_EventTychusHeroInstance(), "Active Abil", 1);
+    lv_button = UserDataGetGameLink(libE0EAE146_gv_cM_Tychus_UserTypeHeroList, libE0EAE146_gf_EventTychusHeroInstance(), "Active Button", 1);
     lv_replaceTarget = (libKCUI_gv_cM_Tychus_SharedAbil_ButtonBase + lv_abilIndex);
     lv_replaceTargetTop = (libKCUI_gv_cM_Tychus_SharedAbil_ButtonBase + lv_abilIndex + "Top");
-    lv_replacePlayer = UnitGetOwner(libKMIS_gf_EventTychusHero());
+    lv_replacePlayer = UnitGetOwner(libE0EAE146_gf_EventTychusHero());
     lv_structureGroup = UnitGroup(UserDataGetUnit("CoopTechTychusSquad", lp_squadInstance, "EquipmentStructure", 1), UnitGetOwner(lp_unit), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
 
     // Implementation
@@ -4155,8 +4155,8 @@ bool libKCUI_gt_CU_TychusSquadMemberTrained_Func (bool testConds, bool runAction
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_squadinstance = libKMIS_gf_EventTychusHeroInstance();
-    lv_hero = libKMIS_gf_EventTychusHero();
+    lv_squadinstance = libE0EAE146_gf_EventTychusHeroInstance();
+    lv_hero = libE0EAE146_gf_EventTychusHero();
 
     // Conditions
     if (testConds) {
@@ -4184,7 +4184,7 @@ bool libKCUI_gt_CU_TychusSquadMemberTrained_Func (bool testConds, bool runAction
 void libKCUI_gt_CU_TychusSquadMemberTrained_Init () {
     libKCUI_gt_CU_TychusSquadMemberTrained = TriggerCreate("libKCUI_gt_CU_TychusSquadMemberTrained_Func");
     TriggerEnable(libKCUI_gt_CU_TychusSquadMemberTrained, false);
-    libKMIS_gf_TychusHeroEvent(libKCUI_gt_CU_TychusSquadMemberTrained, "Event_TychusHeroCreate");
+    libE0EAE146_gf_TychusHeroEvent(libKCUI_gt_CU_TychusSquadMemberTrained, "Event_TychusHeroCreate");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -4292,8 +4292,8 @@ bool libKCUI_gt_CU_TychusSquadMemberRevived_Func (bool testConds, bool runAction
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_squadInstance = libKMIS_gf_EventTychusHeroInstance();
-    lv_squadIndex = UserDataGetInt("CoopTechTychusSquad", lv_squadInstance, "Squad Slot", UnitGetOwner(libKMIS_gf_EventTychusHero()));
+    lv_squadInstance = libE0EAE146_gf_EventTychusHeroInstance();
+    lv_squadIndex = UserDataGetInt("CoopTechTychusSquad", lv_squadInstance, "Squad Slot", UnitGetOwner(libE0EAE146_gf_EventTychusHero()));
 
     // Conditions
     if (testConds) {
@@ -4307,8 +4307,8 @@ bool libKCUI_gt_CU_TychusSquadMemberRevived_Func (bool testConds, bool runAction
         return true;
     }
 
-    DialogControlSetAnimationState(libKCUI_gv_cU_TychusSquadUnitFrames[lv_squadIndex][UnitGetOwner(libKMIS_gf_EventTychusHero())], PlayerGroupAll(), "DeathState", "NotDead");
-    DialogControlSetAnimationState(libKCUI_gv_cU_TychusSquadUnitFrames[lv_squadIndex][UnitGetOwner(libKMIS_gf_EventTychusHero())], PlayerGroupAll(), "TrainingState", "NotTraining");
+    DialogControlSetAnimationState(libKCUI_gv_cU_TychusSquadUnitFrames[lv_squadIndex][UnitGetOwner(libE0EAE146_gf_EventTychusHero())], PlayerGroupAll(), "DeathState", "NotDead");
+    DialogControlSetAnimationState(libKCUI_gv_cU_TychusSquadUnitFrames[lv_squadIndex][UnitGetOwner(libE0EAE146_gf_EventTychusHero())], PlayerGroupAll(), "TrainingState", "NotTraining");
     return true;
 }
 
@@ -4316,7 +4316,7 @@ bool libKCUI_gt_CU_TychusSquadMemberRevived_Func (bool testConds, bool runAction
 void libKCUI_gt_CU_TychusSquadMemberRevived_Init () {
     libKCUI_gt_CU_TychusSquadMemberRevived = TriggerCreate("libKCUI_gt_CU_TychusSquadMemberRevived_Func");
     TriggerEnable(libKCUI_gt_CU_TychusSquadMemberRevived, false);
-    libKMIS_gf_TychusHeroEvent(libKCUI_gt_CU_TychusSquadMemberRevived, "Event_TychusHeroRevive");
+    libE0EAE146_gf_TychusHeroEvent(libKCUI_gt_CU_TychusSquadMemberRevived, "Event_TychusHeroRevive");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -4329,8 +4329,8 @@ bool libKCUI_gt_CU_TychusSquadMemberDeath_Func (bool testConds, bool runActions)
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_squadInstance = libKMIS_gf_EventTychusHeroInstance();
-    lv_squadIndex = UserDataGetInt("CoopTechTychusSquad", lv_squadInstance, "Squad Slot", UnitGetOwner(libKMIS_gf_EventTychusHero()));
+    lv_squadInstance = libE0EAE146_gf_EventTychusHeroInstance();
+    lv_squadIndex = UserDataGetInt("CoopTechTychusSquad", lv_squadInstance, "Squad Slot", UnitGetOwner(libE0EAE146_gf_EventTychusHero()));
 
     // Conditions
     if (testConds) {
@@ -4344,7 +4344,7 @@ bool libKCUI_gt_CU_TychusSquadMemberDeath_Func (bool testConds, bool runActions)
         return true;
     }
 
-    DialogControlSetAnimationState(libKCUI_gv_cU_TychusSquadUnitFrames[lv_squadIndex][UnitGetOwner(libKMIS_gf_EventTychusHero())], PlayerGroupAll(), "DeathState", "Dead");
+    DialogControlSetAnimationState(libKCUI_gv_cU_TychusSquadUnitFrames[lv_squadIndex][UnitGetOwner(libE0EAE146_gf_EventTychusHero())], PlayerGroupAll(), "DeathState", "Dead");
     return true;
 }
 
@@ -4352,7 +4352,7 @@ bool libKCUI_gt_CU_TychusSquadMemberDeath_Func (bool testConds, bool runActions)
 void libKCUI_gt_CU_TychusSquadMemberDeath_Init () {
     libKCUI_gt_CU_TychusSquadMemberDeath = TriggerCreate("libKCUI_gt_CU_TychusSquadMemberDeath_Func");
     TriggerEnable(libKCUI_gt_CU_TychusSquadMemberDeath, false);
-    libKMIS_gf_TychusHeroEvent(libKCUI_gt_CU_TychusSquadMemberDeath, "Event_TychusHeroDeath");
+    libE0EAE146_gf_TychusHeroEvent(libKCUI_gt_CU_TychusSquadMemberDeath, "Event_TychusHeroDeath");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -4378,9 +4378,9 @@ bool libKCUI_gt_CU_TychusSquadStructureBuilt_Func (bool testConds, bool runActio
     autoAFAE43F4_i = 1;
     for ( ; autoAFAE43F4_i <= UserDataInstanceCount(autoAFAE43F4_userType) ; autoAFAE43F4_i += 1 ) {
         lv_squadinstance = UserDataInstance(autoAFAE43F4_userType, autoAFAE43F4_i);
-        lv_squadindex = UserDataGetInt("CoopTechTychusSquad", lv_squadinstance, "Squad Slot", UnitGetOwner(libKMIS_gf_EventTychusStructure()));
-        if ((lv_squadindex != -1) && (UnitGetType(libKMIS_gf_EventTychusStructure()) == UserDataGetUnit("CoopTechTychusSquad", lv_squadinstance, "EquipmentStructure", 1))) {
-            libNtve_gf_SetDialogItemUnit(libKCUI_gv_cU_TychusSquadEquipmentStructureTargets[lv_squadindex][UnitGetOwner(libKMIS_gf_EventTychusStructure())], libKMIS_gf_EventTychusStructure(), PlayerGroupAll());
+        lv_squadindex = UserDataGetInt("CoopTechTychusSquad", lv_squadinstance, "Squad Slot", UnitGetOwner(libE0EAE146_gf_EventTychusStructure()));
+        if ((lv_squadindex != -1) && (UnitGetType(libE0EAE146_gf_EventTychusStructure()) == UserDataGetUnit("CoopTechTychusSquad", lv_squadinstance, "EquipmentStructure", 1))) {
+            libNtve_gf_SetDialogItemUnit(libKCUI_gv_cU_TychusSquadEquipmentStructureTargets[lv_squadindex][UnitGetOwner(libE0EAE146_gf_EventTychusStructure())], libE0EAE146_gf_EventTychusStructure(), PlayerGroupAll());
         }
 
     }
@@ -4391,7 +4391,7 @@ bool libKCUI_gt_CU_TychusSquadStructureBuilt_Func (bool testConds, bool runActio
 void libKCUI_gt_CU_TychusSquadStructureBuilt_Init () {
     libKCUI_gt_CU_TychusSquadStructureBuilt = TriggerCreate("libKCUI_gt_CU_TychusSquadStructureBuilt_Func");
     TriggerEnable(libKCUI_gt_CU_TychusSquadStructureBuilt, false);
-    libKMIS_gf_TychusStructureEvent(libKCUI_gt_CU_TychusSquadStructureBuilt, "Event_TychusHeroStructureCreate");
+    libE0EAE146_gf_TychusStructureEvent(libKCUI_gt_CU_TychusSquadStructureBuilt, "Event_TychusHeroStructureCreate");
 }
 
 //--------------------------------------------------------------------------------------------------
