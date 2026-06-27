@@ -2096,12 +2096,357 @@ void libE0EAE146_gt_AIAttakcWaveUpgrade2_Init () {
     libE0EAE146_gt_AIAttakcWaveUpgrade2 = TriggerCreate("libE0EAE146_gt_AIAttakcWaveUpgrade2_Func");
 }
 
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_SoATargetingForceOff
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_SoATargetingForceOff_Func (bool testConds, bool runActions) {
+    int lv_indexPlayer;
+    playergroup autoDA5C7614_g;
+
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(libE0EAE146_gt_CM_SoATargetingCancel, false);
+    TriggerEnable(libE0EAE146_gt_CM_SoATargetingPointChosen, false);
+    TriggerEnable(libE0EAE146_gt_CM_SoATargetingDirectionChosen, false);
+    libKMIS_gv_cM_SoAExitInstantly = true;
+    autoDA5C7614_g = libKCOR_gf_CommanderPlayers();
+    lv_indexPlayer = -1;
+    while (true) {
+        lv_indexPlayer = PlayerGroupNextPlayer(autoDA5C7614_g, lv_indexPlayer);
+        if (lv_indexPlayer < 0) { break; }
+        if ((libKMIS_gv_cM_SoATargetingPhase[lv_indexPlayer] != libKMIS_ge_CM_SoATargetingPhaseType_None)) {
+            libKMIS_gv_cM_SoATargetingTransitioning[lv_indexPlayer] = false;
+            UISetTargetingOrder(PlayerGroupSingle(lv_indexPlayer), libKMIS_gv_cM_SoACasterGroup[lv_indexPlayer], null, false);
+            libKMIS_gf_CM_SoATargetingCancel(lv_indexPlayer);
+        }
+
+    }
+    libKMIS_gv_cM_SoATargetingUsageCount = 0;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_SoATargetingForceOff_Init () {
+    libE0EAE146_gt_CM_SoATargetingForceOff = TriggerCreate("libE0EAE146_gt_CM_SoATargetingForceOff_Func");
+    TriggerAddEventGeneric(libE0EAE146_gt_CM_SoATargetingForceOff, "CinematicModeOn");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_SoATargetingDeactivated
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_SoATargetingDeactivated_Func (bool testConds, bool runActions) {
+    int lv_casterPlayer;
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_casterPlayer = UnitGetOwner(EventUnit());
+    UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoACasterGroup[lv_casterPlayer], null, false);
+    libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer] = 0;
+    libKMIS_gf_CM_SoATargetingModeExit(lv_casterPlayer);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_SoATargetingDeactivated_Init () {
+    libE0EAE146_gt_CM_SoATargetingDeactivated = TriggerCreate("libE0EAE146_gt_CM_SoATargetingDeactivated_Func");
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_CM_SoATargetingDeactivated, null, "SOAOrbitalStrikeActivate", c_unitBehaviorChangeDeactivate);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_CM_SoATargetingDeactivated, null, "SOAGravitonBombActivate", c_unitBehaviorChangeDeactivate);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_CM_SoATargetingDeactivated, null, "SOAThermalLanceActivate", c_unitBehaviorChangeDeactivate);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_CM_SoATargetingDeactivated, null, "SOAStrafeAttackActivate", c_unitBehaviorChangeDeactivate);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_CM_SoATargetingDeactivated, null, "NovaGriffinBombingRunActivate", c_unitBehaviorChangeDeactivate);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_CM_SoATargetingDeactivated, null, "HornerAirFleetActivate", c_unitBehaviorChangeDeactivate);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_SoATargetingPointChosen
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_SoATargetingPointChosen_Func (bool testConds, bool runActions) {
+    point lv_targetPoint;
+    int lv_casterPlayer;
+
+    if (testConds) {
+        if (!((PlayerGroupHasPlayer(libKCOR_gf_CommanderPlayers(), EventPlayer()) == true))) {
+            return false;
+        }
+
+        if (!((libKMIS_gv_cM_SoATargetingPhase[EventPlayer()] == libKMIS_ge_CM_SoATargetingPhaseType_Location))) {
+            return false;
+        }
+
+        if (!((libKMIS_gv_cM_SoATargetingChargesSpent[EventPlayer()] < libKMIS_gv_cM_SoATargetingChargesTotal[EventPlayer()]))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_targetPoint = OrderGetTargetPoint(EventUnitOrder());
+    lv_casterPlayer = EventPlayer();
+    if ((VisIsVisibleForPlayer(lv_casterPlayer, lv_targetPoint) == false)) {
+        return true;
+    }
+
+    libKMIS_gv_cM_SoATargetingCycling[lv_casterPlayer] = true;
+    libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer] += 1;
+    libNtve_gf_CreateActorAtPoint(libKMIS_gv_cM_SoATargetingModel[lv_casterPlayer], lv_targetPoint);
+    libKMIS_gv_cM_SoATargetingActors[libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]][lv_casterPlayer] = libNtve_gf_ActorLastCreated();
+    libNtve_gf_CreateActorAtPoint("SOATargetingModeConfirmationSound", lv_targetPoint);
+    if ((libKMIS_gv_cM_SoATargetingUnitType[lv_casterPlayer] == null)) {
+        UnitIssueOrder(libKMIS_gv_cM_SoACasterUnit[lv_casterPlayer], OrderTargetingPoint(libKMIS_gv_cM_SoATargetingExecuteCommand[lv_casterPlayer], lv_targetPoint), c_orderQueueAddToEnd);
+        libKCUI_gf_CU_TargetingSetCharges((libKMIS_gv_cM_SoATargetingChargesTotal[lv_casterPlayer]-libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]), libKMIS_gv_cM_SoATargetingChargesTotal[lv_casterPlayer], lv_casterPlayer);
+        if ((libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer] == libKMIS_gv_cM_SoATargetingChargesTotal[lv_casterPlayer])) {
+            Wait(0.125, c_timeGame);
+            UnitBehaviorRemove(libKMIS_gv_cM_SoACasterUnit[lv_casterPlayer], libKMIS_gv_cM_SoATargetingBehavior[lv_casterPlayer], 1);
+        }
+        else {
+            Wait(0.1, c_timeGame);
+            UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoACasterGroup[lv_casterPlayer], libKMIS_gv_cM_SoATargetingOrder[lv_casterPlayer], false);
+        }
+    }
+    else {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, libKMIS_gv_cM_SoATargetingUnitType[lv_casterPlayer], 0, lv_casterPlayer, lv_targetPoint);
+        UnitSetState(UnitLastCreated(), c_unitStateTooltipable, false);
+        libKMIS_gv_cM_SoATargetingUnit[libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]][lv_casterPlayer] = UnitLastCreated();
+        libKMIS_gv_cM_SoATargetingDirectionGroup[lv_casterPlayer] = libNtve_gf_ConvertUnitToUnitGroup(libKMIS_gv_cM_SoATargetingUnit[libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]][lv_casterPlayer]);
+        Wait(0.1, c_timeGame);
+        if ((UnitIsValid(libKMIS_gv_cM_SoATargetingUnit[libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]][lv_casterPlayer]) == true)) {
+            UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoATargetingDirectionGroup[lv_casterPlayer], OrderTargetingPoint(libKMIS_gv_cM_SoATargetingExecuteCommand[lv_casterPlayer], UnitGetPosition(libKMIS_gv_cM_SoATargetingUnit[libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]][lv_casterPlayer])), false);
+            libKCUI_gf_CU_TargetingSetInstructionText(libKMIS_gv_cM_SoATargetingInstructionsSecondary[lv_casterPlayer], lv_casterPlayer);
+            libKMIS_gv_cM_SoATargetingPhase[lv_casterPlayer] = libKMIS_ge_CM_SoATargetingPhaseType_Direction;
+        }
+
+    }
+    libKMIS_gv_cM_SoATargetingCycling[lv_casterPlayer] = false;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_SoATargetingPointChosen_Init () {
+    libE0EAE146_gt_CM_SoATargetingPointChosen = TriggerCreate("libE0EAE146_gt_CM_SoATargetingPointChosen_Func");
+    TriggerEnable(libE0EAE146_gt_CM_SoATargetingPointChosen, false);
+    TriggerAddEventUnitOrder(libE0EAE146_gt_CM_SoATargetingPointChosen, null, AbilityCommand("SOAOrbitalStrikeTargetingDummy", 0));
+    TriggerAddEventUnitOrder(libE0EAE146_gt_CM_SoATargetingPointChosen, null, AbilityCommand("SOAThermalLanceTargetingDummy", 0));
+    TriggerAddEventUnitOrder(libE0EAE146_gt_CM_SoATargetingPointChosen, null, AbilityCommand("SOAGravitonBomb", 0));
+    TriggerAddEventUnitOrder(libE0EAE146_gt_CM_SoATargetingPointChosen, null, AbilityCommand("NovaGriffinBombingRunTargetingDummy", 0));
+    TriggerAddEventUnitOrder(libE0EAE146_gt_CM_SoATargetingPointChosen, null, AbilityCommand("HornerAirFleetTargetingDummy", 0));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_SoATargetingDirectionChosen
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_SoATargetingDirectionChosen_Func (bool testConds, bool runActions) {
+    point lv_targetPoint;
+    int lv_casterPlayer;
+
+    if (testConds) {
+        if (!((PlayerGroupHasPlayer(libKCOR_gf_CommanderPlayers(), EventPlayer()) == true))) {
+            return false;
+        }
+
+        if (!((libKMIS_gv_cM_SoATargetingPhase[EventPlayer()] == libKMIS_ge_CM_SoATargetingPhaseType_Direction))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_casterPlayer = EventPlayer();
+    libKMIS_gv_cM_SoATargetingCycling[lv_casterPlayer] = true;
+    lv_targetPoint = OrderGetTargetPoint(EventUnitOrder());
+    libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lv_casterPlayer] = true;
+    libNtve_gf_CreateActorAtPoint("SOATargetingModeConfirmationSound", lv_targetPoint);
+    ActorSend(libKMIS_gv_cM_SoATargetingActors[libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]][lv_casterPlayer], "Signal Destroy");
+    if ((UnitIsValid(libKMIS_gv_cM_SoATargetingUnit[libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]][lv_casterPlayer]) == false)) {
+        return true;
+    }
+
+    libNtve_gf_MakeUnitFacePoint(libKMIS_gv_cM_SoATargetingUnit[libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]][lv_casterPlayer], lv_targetPoint, 0.0);
+    libKCUI_gf_CU_TargetingSetCharges((libKMIS_gv_cM_SoATargetingChargesTotal[lv_casterPlayer]-libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer]), libKMIS_gv_cM_SoATargetingChargesTotal[lv_casterPlayer], lv_casterPlayer);
+    if ((libKMIS_gv_cM_SoATargetingChargesSpent[lv_casterPlayer] == libKMIS_gv_cM_SoATargetingChargesTotal[lv_casterPlayer])) {
+        UnitBehaviorRemove(libKMIS_gv_cM_SoACasterUnit[lv_casterPlayer], libKMIS_gv_cM_SoATargetingBehavior[lv_casterPlayer], 1);
+        Wait(0.1, c_timeGame);
+    }
+    else {
+        libKCUI_gf_CU_TargetingSetInstructionText(libKMIS_gv_cM_SoATargetingInstructionsPrimary[lv_casterPlayer], lv_casterPlayer);
+        Wait(0.1, c_timeGame);
+        if ((libKMIS_gv_cM_SoATargetingAlreadyCanceled[lv_casterPlayer] == false)) {
+            UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoACasterGroup[lv_casterPlayer], libKMIS_gv_cM_SoATargetingOrder[lv_casterPlayer], false);
+        }
+
+        libKMIS_gv_cM_SoATargetingPhase[lv_casterPlayer] = libKMIS_ge_CM_SoATargetingPhaseType_Location;
+    }
+    libKMIS_gv_cM_SoATargetingCycling[lv_casterPlayer] = false;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_SoATargetingDirectionChosen_Init () {
+    libE0EAE146_gt_CM_SoATargetingDirectionChosen = TriggerCreate("libE0EAE146_gt_CM_SoATargetingDirectionChosen_Func");
+    TriggerEnable(libE0EAE146_gt_CM_SoATargetingDirectionChosen, false);
+    TriggerAddEventUnitOrder(libE0EAE146_gt_CM_SoATargetingDirectionChosen, null, AbilityCommand("SOAThermalLanceExecute", 0));
+    TriggerAddEventUnitOrder(libE0EAE146_gt_CM_SoATargetingDirectionChosen, null, AbilityCommand("NovaGriffinBombingRunExecute", 0));
+    TriggerAddEventUnitOrder(libE0EAE146_gt_CM_SoATargetingDirectionChosen, null, AbilityCommand("HornerAirFleetExecute", 0));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_SoATargetingEffectFired
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_SoATargetingEffectFired_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+
+    libKMIS_gf_CM_SoATargetingCleanupActorsAndUnits(EventPlayer());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_SoATargetingEffectFired_Init () {
+    libE0EAE146_gt_CM_SoATargetingEffectFired = TriggerCreate("libE0EAE146_gt_CM_SoATargetingEffectFired_Func");
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_SoATargetingEffectFired, c_playerAny, "SOAOrbitalStrikeCP");
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_SoATargetingEffectFired, c_playerAny, "SOAGravitonBombLM");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_SoATargetingCancel
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_SoATargetingCancel_Func (bool testConds, bool runActions) {
+    if (testConds) {
+        if (!((libKMIS_gv_cM_SoATargetingCycling[EventPlayer()] == false))) {
+            return false;
+        }
+
+        if (!(((EventTargetModeAbilCmd() == AbilityCommand("SOAOrbitalStrikeTargetingDummy", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("SOAThermalLanceTargetingDummy", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("SOAGravitonBomb", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("SOAThermalLanceExecute", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("NovaGriffinBombingRunExecute", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("NovaGriffinBombingRunTargetingDummy", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("HornerAirFleetExecute", 0)) || (EventTargetModeAbilCmd() == AbilityCommand("HornerAirFleetTargetingDummy", 0))))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    libKMIS_gf_CM_SoATargetingCancel(EventPlayer());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_SoATargetingCancel_Init () {
+    libE0EAE146_gt_CM_SoATargetingCancel = TriggerCreate("libE0EAE146_gt_CM_SoATargetingCancel_Func");
+    TriggerEnable(libE0EAE146_gt_CM_SoATargetingCancel, false);
+    TriggerAddEventTargetModeUpdate(libE0EAE146_gt_CM_SoATargetingCancel, c_playerAny, null, c_targetModeStateOff);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_SoATargetingCancelFromUI
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_SoATargetingCancelFromUI_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+
+    libKMIS_gf_CM_SoATargetingCancel(libKCUI_gf_CU_TargetingTriggeringPlayer());
+    UISetTargetingOrder(PlayerGroupSingle(libKCUI_gf_CU_TargetingTriggeringPlayer()), libKMIS_gv_cM_GlobalCasterUnitGroup[libKCUI_gf_CU_TargetingTriggeringPlayer()], null, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_SoATargetingCancelFromUI_Init () {
+    libE0EAE146_gt_CM_SoATargetingCancelFromUI = TriggerCreate("libE0EAE146_gt_CM_SoATargetingCancelFromUI_Func");
+    libKCUI_gf_CU_TargetingCancel(libE0EAE146_gt_CM_SoATargetingCancelFromUI);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_SoATargetingCameraShake
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_SoATargetingCameraShake_Func (bool testConds, bool runActions) {
+    fixed lv_distance;
+    fixed[4] lv_cameraPosition;
+    fixed[4] lv_effectPosition;
+    int lv_player;
+    point lv_effectTargetPoint;
+    point lv_cameraTargetPoint;
+
+    lv_player = EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster);
+    lv_effectTargetPoint = EventPlayerEffectUsedPoint(c_effectLocationTargetPoint);
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_cameraTargetPoint = CameraGetTarget(lv_player);
+    lv_cameraPosition[0] = PointGetX(lv_cameraTargetPoint);
+    lv_cameraPosition[1] = (PointGetY(lv_cameraTargetPoint)-(Cos(CameraGetPitch(lv_player))*CameraGetDistance(lv_player)));
+    lv_cameraPosition[2] = (WorldHeight(c_heightMapGround, lv_cameraTargetPoint)+(Sin(CameraGetPitch(lv_player))*CameraGetDistance(lv_player)));
+    lv_effectPosition[0] = PointGetX(lv_effectTargetPoint);
+    lv_effectPosition[1] = PointGetY(lv_effectTargetPoint);
+    lv_effectPosition[2] = WorldHeight(c_heightMapGround, lv_effectTargetPoint);
+    lv_distance = SquareRoot((Pow((lv_cameraPosition[0]-lv_effectPosition[0]), 2.0) + Pow((lv_cameraPosition[1]-lv_effectPosition[1]), 2.0) + Pow((lv_cameraPosition[2]-lv_effectPosition[2]), 2.0)));
+    CameraShakeStart(lv_player, c_cameraPositionTarget, c_cameraDirectionZ, MaxF((1-(lv_distance/50)), 0.0), 2.5, 100.0, 0.1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_SoATargetingCameraShake_Init () {
+    libE0EAE146_gt_CM_SoATargetingCameraShake = TriggerCreate("libE0EAE146_gt_CM_SoATargetingCameraShake_Func");
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_SoATargetingCameraShake, c_playerAny, "SOAOrbitalStrikeImpactSearch");
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_SoATargetingCameraShake, c_playerAny, "SOAGravitonBombCP");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_SoAThermalLanceActivated
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_SoAThermalLanceActivated_Func (bool testConds, bool runActions) {
+    int lv_casterPlayer;
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_casterPlayer = UnitGetOwner(EventUnit());
+    libNtve_gf_StoreUnitSelection(lv_casterPlayer, libNtve_ge_UnitSelectionStoreOption_ClearUnitSelection);
+    libKMIS_gv_cM_SoATargetingActivateAbility[lv_casterPlayer] = "SOAThermalLanceActivate";
+    libKMIS_gv_cM_SoATargetingExecuteCommand[lv_casterPlayer] = AbilityCommand("SOAThermalLanceExecute", 0);
+    libKMIS_gv_cM_SoATargetingCooldown[lv_casterPlayer] = "Abil/SOAThermalLanceActivate";
+    libKMIS_gv_cM_SoATargetingBehavior[lv_casterPlayer] = "SOAThermalLanceActivate";
+    libKMIS_gv_cM_SoATargetingModel[lv_casterPlayer] = "SOAThermalLanceTargetingModel";
+    libKMIS_gv_cM_SoATargetingOrder[lv_casterPlayer] = OrderTargetingPoint(AbilityCommand("SOAThermalLanceTargetingDummy", 0), UnitGetPosition(libKMIS_gv_cM_SoACasterUnit[lv_casterPlayer]));
+    libKMIS_gv_cM_SoATargetingUnitType[lv_casterPlayer] = "SOAThermalLanceTargeter";
+    libKMIS_gv_cM_SoATargetingChargesTotal[lv_casterPlayer] = 3;
+    libKMIS_gv_cM_SoATargetingInstructionsPrimary[lv_casterPlayer] = StringExternal("Param/Value/lib_KMIS_FA8A12D3");
+    libKMIS_gv_cM_SoATargetingInstructionsSecondary[lv_casterPlayer] = StringExternal("Param/Value/lib_KMIS_B639B493");
+    libKMIS_gf_CM_SoATargetingModeEnter(lv_casterPlayer);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_SoAThermalLanceActivated_Init () {
+    libE0EAE146_gt_CM_SoAThermalLanceActivated = TriggerCreate("libE0EAE146_gt_CM_SoAThermalLanceActivated_Func");
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_CM_SoAThermalLanceActivated, null, "SOAThermalLanceActivate", c_unitBehaviorChangeActivate);
+}
+
 void libE0EAE146_InitTriggers () {
     lib81FF3B49_InitTriggers();
     libE0EAE146_gt_PickUpPickUp_Init();
     libE0EAE146_gt_RPG_Init();
     libE0EAE146_gt_PAttack_Init();
     libE0EAE146_gt_AIAttakcWaveUpgrade2_Init();
+    libE0EAE146_gt_CM_SoATargetingForceOff_Init();
+    libE0EAE146_gt_CM_SoATargetingDeactivated_Init();
+    libE0EAE146_gt_CM_SoATargetingPointChosen_Init();
+    libE0EAE146_gt_CM_SoATargetingDirectionChosen_Init();
+    libE0EAE146_gt_CM_SoATargetingEffectFired_Init();
+    libE0EAE146_gt_CM_SoATargetingCancel_Init();
+    libE0EAE146_gt_CM_SoATargetingCancelFromUI_Init();
+    libE0EAE146_gt_CM_SoATargetingCameraShake_Init();
+    libE0EAE146_gt_CM_SoAThermalLanceActivated_Init();
     libE0EAE146_tychus_InitTriggers();
     libE0EAE146_fenix_InitTriggers();
     libE0EAE146_mengsk_InitTriggers();
