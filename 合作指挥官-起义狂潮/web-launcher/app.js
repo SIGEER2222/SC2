@@ -24,10 +24,14 @@ import {
   updateSummaryDetailPanel as updateSummaryDetailPanelComponent,
   updateSummaryPanel as updateSummaryPanelComponent,
 } from "./components/summary-panels.js";
+import {
+  loadCodexManifest,
+  renderCodexPanel,
+} from "./components/codex-panels.js";
 import { escapeHtml, getStatusToneClass, initials } from "./lib/ui-helpers.js";
 
 const DEFAULT_ACTIVE_SHEET = "mutators";
-const SHEET_IDS = new Set(["mutators", "prestige", "startTalents", "voicepacks", "bonuses", "output"]);
+const SHEET_IDS = new Set(["mutators", "prestige", "startTalents", "voicepacks", "bonuses", "codex", "output"]);
 
 const state = {
   data: null,
@@ -175,6 +179,29 @@ function setActiveSheet(sheet, options = {}) {
   if (options.persist !== false && changed) {
     writeUiState({ activeSheet: state.activeSheet });
   }
+  if (nextSheet === "codex") {
+    ensureCodexLoaded();
+  }
+}
+
+let codexLoaded = false;
+async function ensureCodexLoaded() {
+  if (codexLoaded) {
+    renderCodex();
+    return;
+  }
+  codexLoaded = true;
+  await loadCodexManifest();
+  renderCodex();
+}
+
+function renderCodex() {
+  if (state.activeSheet !== "codex") return;
+  renderCodexPanel({
+    container: el.codexItemsPanel,
+    commanderSelectorContainer: el.codexCommanderSelector,
+    countElement: el.codexCountBadge,
+  });
 }
 
 const el = {
@@ -293,6 +320,9 @@ const el = {
   mutatorPoolStatus: document.querySelector("#mutatorPoolStatus"),
   launchHistory: document.querySelector("#launchHistory"),
   clearLaunchHistory: document.querySelector("#clearLaunchHistory"),
+  codexCommanderSelector: document.querySelector("#codexCommanderSelector"),
+  codexItemsPanel: document.querySelector("#codexItemsPanel"),
+  codexCountBadge: document.querySelector("#codexCountBadge"),
 };
 
 function clampNumber(value, min, max, fallback) {
