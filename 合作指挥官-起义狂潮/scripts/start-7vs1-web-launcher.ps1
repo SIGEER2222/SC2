@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
 Local Web launcher for 7vs1 coop commander test maps.
 
@@ -21,6 +21,7 @@ $ErrorActionPreference = "Stop"
 $script:WorkspaceRoot = Split-Path -Parent $PSScriptRoot
 $script:LaunchScript = Join-Path $PSScriptRoot "launch-7vs1-coop-test.ps1"
 $script:MetadataPath = Join-Path $script:WorkspaceRoot "Shared\CommanderPower\commander-power-metadata.json"
+$script:StartTalentsPath = Join-Path $script:WorkspaceRoot "Shared\CommanderPower\start-talents.json"
 $script:MapsRoot = Join-Path $script:WorkspaceRoot "Maps"
 $script:WebRoot = Join-Path $script:WorkspaceRoot "web-launcher"
 $script:AssetsCacheRoot = Join-Path $script:WebRoot "assets-cache"
@@ -578,6 +579,57 @@ function Get-MutatorIconMap {
     return $map
 }
 
+function Get-StartTalents {
+    if (-not (Test-Path -LiteralPath $script:StartTalentsPath)) {
+        return [pscustomobject]@{
+            commanders = @{}
+        }
+    }
+
+    $talentsData = Get-Content -LiteralPath $script:StartTalentsPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    return $talentsData
+}
+
+function Get-CommanderStartTalents {
+    param([string]$Runtime)
+
+    $talentsData = Get-StartTalents
+    $commanderKey = $Runtime
+    $commanderTalents = $null
+
+    if ($null -ne $talentsData.commanders) {
+        foreach ($prop in $talentsData.commanders.PSObject.Properties) {
+            if ($prop.Name -eq $commanderKey) {
+                $commanderTalents = $prop.Value
+                break
+            }
+        }
+    }
+
+    if ($null -eq $commanderTalents) {
+        return [pscustomobject]@{
+            talents = @()
+            defaultMask = 0
+        }
+    }
+
+    $talents = @($commanderTalents.talents | ForEach-Object {
+            $talentRecord = $_
+            [pscustomobject]@{
+                id = [string]$talentRecord.id
+                name = [string]$talentRecord.name
+                description = [string]$talentRecord.description
+                bitMask = [int]$talentRecord.bit_mask
+                defaultEnabled = ($(if ($null -ne $talentRecord.default_enabled) { [int]$talentRecord.default_enabled } else { 0 }) -gt 0)
+            }
+        })
+
+    return [pscustomobject]@{
+        talents = $talents
+        defaultMask = if ($null -ne $commanderTalents.default_mask) { [int]$commanderTalents.default_mask } else { 0 }
+    }
+}
+
 function Get-CommanderItems {
     $metadata = Get-Content -LiteralPath $script:MetadataPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
@@ -654,6 +706,23 @@ function Get-CommanderItems {
                             valueFormat = [string]$_.value_format
                         }
                     })
+                startTalents = $(
+                    $talentData = Get-CommanderStartTalents -Runtime $runtime
+                    $talentList = @()
+                    foreach ($t in $talentData.talents) {
+                        $talentList += [pscustomobject]@{
+                            id = [string]$t.id
+                            name = [string]$t.name
+                            description = [string]$t.description
+                            bitMask = [int]$t.bitMask
+                            defaultEnabled = [bool]$t.defaultEnabled
+                        }
+                    }
+                    [pscustomobject]@{
+                        defaultMask = [int]$talentData.defaultMask
+                        talents = $talentList
+                    }
+                )
             }
         } | Sort-Object displayName)
 }

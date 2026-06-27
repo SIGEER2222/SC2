@@ -8,6 +8,7 @@ import {
   renderGenericBonusPanel as renderGenericBonusPanelComponent,
   renderMasteryGridPanel as renderMasteryGridPanelComponent,
   renderPrestigePanel as renderPrestigePanelComponent,
+  renderStartTalentPanel as renderStartTalentPanelComponent,
   renderVoicePackPanel as renderVoicePackPanelComponent,
 } from "./components/commander-panels.js";
 import {
@@ -26,7 +27,7 @@ import {
 import { escapeHtml, getStatusToneClass, initials } from "./lib/ui-helpers.js";
 
 const DEFAULT_ACTIVE_SHEET = "mutators";
-const SHEET_IDS = new Set(["mutators", "prestige", "voicepacks", "bonuses", "output"]);
+const SHEET_IDS = new Set(["mutators", "prestige", "startTalents", "voicepacks", "bonuses", "output"]);
 
 const state = {
   data: null,
@@ -40,6 +41,7 @@ const state = {
   },
   selectedMutatorPanelExpanded: false,
   prestigeMaskMode: "default",
+  startTalentMaskMode: "default",
   activeSheet: DEFAULT_ACTIVE_SHEET,
   autosaveTimer: null,
   launchPollTimer: null,
@@ -232,6 +234,11 @@ const el = {
   scoreDetailText: document.querySelector("#scoreDetailText"),
   scoreRuleText: document.querySelector("#scoreRuleText"),
   masteryGrid: document.querySelector("#masteryGrid"),
+  startTalentList: document.querySelector("#startTalentList"),
+  startTalentStatus: document.querySelector("#startTalentStatus"),
+  startTalentMaskBadge: document.querySelector("#startTalentMaskBadge"),
+  startTalentMask: document.querySelector("#startTalentMask"),
+  enableStartTalents: document.querySelector("#enableStartTalents"),
   mutatorSearch: document.querySelector("#mutatorSearch"),
   mutatorPreset: document.querySelector("#mutatorPreset"),
   mutatorGrid: document.querySelector("#mutatorGrid"),
@@ -375,6 +382,25 @@ function getCommanderDefaultPrestigeMask(commander) {
 
 function getCommanderDefaultPrestigePointIndex(commander) {
   return clampNumber(commander?.defaultPrestigePointIndex, -1, 3, state.data?.defaults?.prestigePointIndex ?? -1);
+}
+
+function getCommanderStartTalents(commander = getCommander()) {
+  if (!commander) return { defaultMask: 0, talents: [] };
+  return commander.startTalents ?? { defaultMask: 0, talents: [] };
+}
+
+function getCommanderDefaultStartTalentMask(commander = getCommander()) {
+  const talents = getCommanderStartTalents(commander);
+  return Number(talents.defaultMask) || 0;
+}
+
+function getStartTalentMaxMask(commander = getCommander()) {
+  const talents = getCommanderStartTalents(commander);
+  let maxMask = 0;
+  for (const talent of talents.talents ?? []) {
+    maxMask |= Number(talent.bitMask) || 0;
+  }
+  return maxMask;
 }
 
 function getCommanderExtraOptions(commander = getCommander()) {
@@ -550,6 +576,7 @@ function scheduleAutosave() {
       writeUiState({
         selectedMutatorPanelExpanded: state.selectedMutatorPanelExpanded,
         prestigeMaskMode: state.prestigeMaskMode,
+        startTalentMaskMode: state.startTalentMaskMode,
         activeSheet: state.activeSheet,
       });
     } catch (error) {
@@ -1200,6 +1227,65 @@ function renderMasteries(commander) {
   });
 }
 
+function renderStartTalents(commander) {
+  const defaultMask = getCommanderDefaultStartTalentMask(commander);
+  const maxMask = getStartTalentMaxMask(commander);
+  const activeMask = Math.min(Number(el.startTalentMask.value) || 0, maxMask);
+  const enabled = el.enableStartTalents.checked;
+  renderStartTalentPanelComponent({
+    container: el.startTalentList,
+    commander,
+    activeMask,
+    defaultMask,
+    enabled,
+    onSelectMode: (mode) => {
+      const inputs = [...document.querySelectorAll(".start-talent-toggle-input")];
+      if (mode === "default") {
+        for (const input of inputs) {
+          const bitMask = Number(input.dataset.bitMask) || 0;
+          input.checked = (defaultMask & bitMask) === bitMask;
+        }
+        syncStartTalentMaskFromUI("default");
+      } else if (mode === "all") {
+        for (const input of inputs) input.checked = true;
+        syncStartTalentMaskFromUI("custom");
+      } else if (mode === "none") {
+        for (const input of inputs) input.checked = false;
+        syncStartTalentMaskFromUI("custom");
+      }
+      updateSummary();
+    },
+    onToggleTalent: () => {
+      syncStartTalentMaskFromUI("custom");
+      updateSummary();
+    },
+  });
+  const selectedCount = (commander?.startTalents?.talents ?? []).filter(
+    (talent) => (activeMask & Number(talent.bitMask)) === Number(talent.bitMask),
+  ).length;
+  if (el.startTalentStatus) {
+    el.startTalentStatus.textContent = `已选 ${selectedCount}`;
+  }
+  if (el.startTalentMaskBadge) {
+    el.startTalentMaskBadge.textContent = String(activeMask);
+  }
+}
+
+function syncStartTalentMaskFromUI(mode) {
+  const inputs = [...document.querySelectorAll(".start-talent-toggle-input")];
+  let mask = 0;
+  for (const input of inputs) {
+    if (input.checked) {
+      mask |= Number(input.dataset.bitMask) || 0;
+    }
+  }
+  el.startTalentMask.value = String(mask);
+  if (mode === "default" || mode === "custom") {
+    state.startTalentMaskMode = mode;
+  }
+  scheduleAutosave();
+}
+
 function renderCommanderDetails() {
   const commander = getCommander();
   if (!commander) return;
@@ -1209,8 +1295,12 @@ function renderCommanderDetails() {
   if (state.prestigeMaskMode === "default") {
     setPrestigeMaskValue(getCommanderDefaultPrestigeMask(commander));
   }
+  if (state.startTalentMaskMode === "default") {
+    el.startTalentMask.value = String(getCommanderDefaultStartTalentMask(commander));
+  }
   renderPrestiges(commander);
   renderMasteries(commander);
+  renderStartTalents(commander);
   syncCommanderOverrideSelection(commander);
   renderExtraOptions(commander);
   updateSummary();
@@ -1878,6 +1968,8 @@ function applyPayload(payload, options = {}) {
 
   el.enablePrestiges.checked = payload.enablePrestiges !== false;
   el.enableMasteries.checked = payload.enableMasteries !== false;
+  el.enableStartTalents.checked = payload.enableStartTalents !== false;
+  el.startTalentMask.value = String(Number(payload.startTalentMask) || 0);
   const payloadPrestigeSelections = Array.isArray(payload.prestigeSelections) ? payload.prestigeSelections : null;
   const restoredPrestigeMask = payloadPrestigeSelections
     ? getPrestigeMaskFromSelections(payloadPrestigeSelections)
@@ -1981,6 +2073,8 @@ function getDefaultPayload() {
     prestigeProfile: normalizePrestigeProfile(state.data.defaults.prestigeProfile),
     masteryLevel: state.data.defaults.masteryLevel,
     masteries: state.data.defaults.masterySlots,
+    enableStartTalents: true,
+    startTalentMask: 0,
     commanderOverrides: [...(state.data.defaults.commanderOverrides || [])],
     voicePack: normalizeVoicePackId(state.data.defaults.voicePack || "Default"),
     genericBonuses: [...(state.data.defaults.genericBonuses || [])],
@@ -2448,6 +2542,7 @@ function resetConfig() {
   applyPayload(getDefaultPayload(), { prestigeMaskAuto: true });
   state.selectedMutatorPanelExpanded = false;
   state.prestigeMaskMode = "default";
+  state.startTalentMaskMode = "default";
   state.activeSheet = DEFAULT_ACTIVE_SHEET;
   syncActiveSheetUI();
   el.launchState.textContent = "默认";
@@ -2571,6 +2666,8 @@ function buildLaunchPayload() {
     prestigeProfile: normalizePrestigeProfile(el.prestigeProfile.value),
     masteryLevel: parseLooseInteger(el.masteryLevel.value, 30),
     masteries: getMasteryValues(),
+    enableStartTalents: el.enableStartTalents.checked,
+    startTalentMask: Number(el.startTalentMask.value) || 0,
     commanderOverrides: [...state.selectedCommanderOverrides].sort(),
     voicePack: normalizeVoicePackId(state.selectedVoicePackId),
     genericBonuses: getSelectedGenericBonusIds(),
@@ -2616,6 +2713,7 @@ async function loadBootstrap() {
     const uiState = readUiState();
     state.selectedMutatorPanelExpanded = uiState.selectedMutatorPanelExpanded === true;
     state.prestigeMaskMode = uiState.prestigeMaskMode || "default";
+    state.startTalentMaskMode = uiState.startTalentMaskMode || "default";
     state.activeSheet = normalizeActiveSheet(uiState.activeSheet);
     if (!loadSavedConfig()) {
       applyPayload(getDefaultPayload(), { prestigeMaskAuto: true });
@@ -2943,6 +3041,11 @@ el.enablePrestiges.addEventListener("change", () => {
   scheduleAutosave();
 });
 el.enableMasteries.addEventListener("change", () => {
+  updateSummary();
+  scheduleAutosave();
+});
+el.enableStartTalents.addEventListener("change", () => {
+  renderStartTalents(getCommander());
   updateSummary();
   scheduleAutosave();
 });

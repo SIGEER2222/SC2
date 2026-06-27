@@ -232,6 +232,81 @@ export function renderGenericBonusPanel({
   });
 }
 
+export function renderStartTalentPanel({
+  container,
+  commander,
+  activeMask,
+  defaultMask,
+  enabled,
+  onSelectMode,
+  onToggleTalent,
+}) {
+  if (!container) return;
+  container.replaceChildren();
+
+  const talents = commander?.startTalents?.talents ?? [];
+
+  const summary = document.createElement("div");
+  summary.className = "prestige-summary-card";
+  summary.innerHTML = `
+    <div class="prestige-summary-copy">
+      <strong>开局天赋</strong>
+    </div>
+    <div class="prestige-summary-actions">
+      <button type="button" class="mini" data-talent-select="default">按默认</button>
+      <button type="button" class="mini" data-talent-select="all">全选</button>
+      <button type="button" class="mini" data-talent-select="none">全清</button>
+    </div>
+  `;
+  container.append(summary);
+
+  if (talents.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "extra-option-empty";
+    empty.textContent = "当前指挥官暂无可选开局天赋。";
+    container.append(empty);
+    return;
+  }
+
+  for (const talent of talents) {
+    const card = document.createElement("div");
+    card.className = "prestige-item";
+    const checked = (activeMask & talent.bitMask) === talent.bitMask;
+    const defaultSelected = (defaultMask & talent.bitMask) === talent.bitMask;
+    card.innerHTML = `
+      <label class="prestige-toggle">
+        <input class="start-talent-toggle-input" type="checkbox" data-bit-mask="${talent.bitMask}" ${checked ? "checked" : ""} ${!enabled ? "disabled" : ""}>
+        <span class="prestige-toggle-main">
+          <span class="prestige-name">
+            <strong>${escapeHtml(talent.name || talent.id)}</strong>
+            <span class="badge">掩码 ${talent.bitMask}</span>
+          </span>
+          <span class="prestige-tags">
+            <em class="${defaultSelected ? "status-ok" : ""}">${defaultSelected ? "默认启用" : "默认未选"}</em>
+            <em>${escapeHtml(talent.id)}</em>
+          </span>
+        </span>
+      </label>
+      <div class="prestige-tip">
+        <div class="prestige-tip-positive">${escapeHtml(talent.description || talent.id)}</div>
+      </div>
+    `;
+    container.append(card);
+  }
+
+  container.querySelectorAll("[data-talent-select]").forEach((button) => {
+    button.addEventListener("click", () => {
+      onSelectMode(button.dataset.talentSelect);
+    });
+  });
+
+  container.querySelectorAll(".start-talent-toggle-input").forEach((input) => {
+    input.addEventListener("change", () => {
+      onToggleTalent();
+    });
+  });
+}
+
 export function renderVoicePackPanel({
   container,
   voicePacks,
