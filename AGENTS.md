@@ -9,8 +9,10 @@
 - 只做当前任务需要的最小改动，不要顺手重构无关内容。
 - 编辑文件优先用 `apply_patch`。
 - 如果发现远端有新提交，先快进同步，再继续修改。
-- 涉及地图/触发器/运行时改动时，优先实际进图测试：
-  - 运行 `E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\launch-7vs1-coop-test.ps1` 启动游戏测试。
+- 涉及地图/触发器/运行时改动时，按以下优先级逐步校验：
+  1. **静态分析（秒级）**：先运行 `python E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\validate-galaxy-scripts.py`，检测 BOM、括号不匹配、禁用原生函数、include 缺失、跨库引用不一致等低级错误。
+  2. **快速编译验证（约 20-30 秒）**：静态分析通过后，运行 `powershell -NoProfile -ExecutionPolicy Bypass -File E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\quick-compile-check.ps1`，利用游戏编译阶段检测语法和链接错误，比完整进图快很多。
+  3. **完整进图测试**：以上都通过后，再运行 `E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\launch-7vs1-coop-test.ps1` 启动游戏测试。
   - 启动后等待 120 秒，检查 `C:\Users\22448\Documents\StarCraft II\GameLogs` 目录是否有报错日志。
   - 如有报错先修复再结束。
 
@@ -28,3 +30,5 @@
 | `git clean -fd` | `scripts/trae-clean.ps1` | `powershell -File scripts/trae-clean.ps1` |
 
 每次出现报错并修复之后，总结经验到本地文档 E:\Code\MyMod\SC2\合作指挥官-起义狂潮\docs\经验总结
+
+官方数据地址 E:\Code\MyMod\SC2\合作指挥官-起义狂潮\游戏数据\官方SC2原始文本镜像
