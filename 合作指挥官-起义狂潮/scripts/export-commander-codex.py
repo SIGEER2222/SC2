@@ -16,6 +16,10 @@ STRINGS_ROOT = ROOT / "Mods" / "7vs1" / "CoopZeroPop.SC2Mod" / "zhCN.SC2Data" / 
 STARCOOP_STRINGS_ROOT = ROOT / "游戏数据" / "官方SC2原始文本镜像" / "mods" / "starcoop" / "starcoop.sc2mod" / "zhcn.sc2data" / "localizeddata"
 VOID_STRINGS_ROOT = ROOT / "游戏数据" / "官方SC2原始文本镜像" / "mods" / "voidmulti.sc2mod" / "zhcn.sc2data" / "localizeddata"
 
+STARCOOP_DATA_ROOT = ROOT / "游戏数据" / "官方SC2原始文本镜像" / "mods" / "starcoop" / "starcoop.sc2mod" / "base.sc2data" / "gamedata"
+
+RUNTIME_ROOT = ROOT / "Mods" / "7vs1" / "CoopZeroPop.SC2Mod" / "Base.SC2Data"
+
 OUTPUT_DIR = ROOT / "web-launcher" / "exported-commander-codex"
 PORTRAIT_DIR = OUTPUT_DIR / "portraits"
 MANIFEST_PATH = OUTPUT_DIR / "manifest.json"
@@ -30,30 +34,32 @@ LOCAL_ICON_ROOTS = [
 ]
 
 COMMANDER_SPECS = [
-    {"runtime": "ZergAbathur", "name": "阿巴瑟", "unitData": "UnitData_Abathur.xml", "abilData": "AbilData_Abathur.xml"},
-    {"runtime": "ProtossAlarak", "name": "阿拉纳克", "unitData": "UnitData_Alarak.xml", "abilData": "AbilData_Alarak.xml"},
-    {"runtime": "ProtossArtanis", "name": "阿塔尼斯", "unitData": "UnitData_Artanis.xml", "abilData": "AbilData_Artanis.xml"},
-    {"runtime": "ZergDehaka", "name": "德哈卡", "unitData": "UnitData_Dehaka.xml", "abilData": "AbilData_Dehaka.xml"},
-    {"runtime": "ProtossFenix", "name": "菲尼克斯", "unitData": "UnitData_Fenix.xml", "abilData": "AbilData_Fenix.xml"},
-    {"runtime": "TerranHorner", "name": "汉与霍纳", "unitData": "UnitData_Horner.xml", "abilData": "AbilData_Horner.xml"},
-    {"runtime": "ProtossKarax", "name": "凯拉克斯", "unitData": "UnitData_Karax.xml", "abilData": "AbilData_Karax.xml"},
-    {"runtime": "ZergKerrigan", "name": "凯瑞甘", "unitData": "UnitData_Kerrigan.xml", "abilData": "AbilData_Kerrigan.xml"},
-    {"runtime": "TerranMengsk", "name": "蒙斯克", "unitData": "UnitData_Mengsk.xml", "abilData": "AbilData_Mengsk.xml"},
-    {"runtime": "TerranNova", "name": "诺娃", "unitData": "UnitData_Nova.xml", "abilData": "AbilData_Nova.xml"},
-    {"runtime": "TerranRaynor", "name": "雷诺", "unitData": "UnitData_Raynor.xml", "abilData": "AbilData_Raynor.xml"},
-    {"runtime": "ZergStetmann", "name": "斯台特曼", "unitData": "UnitData_Stetmann.xml", "abilData": "AbilData_Stetmann.xml"},
-    {"runtime": "ZergStukov", "name": "斯托科夫", "unitData": "UnitData_Stukov.xml", "abilData": "AbilData_Stukov.xml"},
-    {"runtime": "TerranSwann", "name": "斯旺", "unitData": "UnitData_Swann.xml", "abilData": "AbilData_Swann.xml"},
-    {"runtime": "TerranTychus", "name": "泰凯斯", "unitData": "UnitData_Tychus.xml", "abilData": "AbilData_Tychus.xml"},
-    {"runtime": "ProtossVorazun", "name": "沃拉尊", "unitData": "UnitData_Vorazun.xml", "abilData": "AbilData_Vorazun.xml"},
-    {"runtime": "ZergZagara", "name": "扎加拉", "unitData": "UnitData_Zagara.xml", "abilData": "AbilData_Zagara.xml"},
-    {"runtime": "ProtossZeratul", "name": "泽拉图", "unitData": "UnitData_Zeratul.xml", "abilData": "AbilData_Zeratul.xml"},
+    {"runtime": "ZergAbathur", "name": "阿巴瑟", "faction": "FactionEvolved", "prefixes": ["Abathur"], "unitData": "UnitData_Abathur.xml", "casterId": "CoopCasterAbathur"},
+    {"runtime": "ProtossAlarak", "name": "阿拉纳克", "faction": "FactionTaldarim", "prefixes": ["Alarak"], "unitData": "UnitData_Alarak.xml", "casterId": "CoopCasterAlarak"},
+    {"runtime": "ProtossArtanis", "name": "阿塔尼斯", "faction": "FactionKhalai", "prefixes": ["Artanis"], "unitData": "UnitData_Artanis.xml", "casterId": "SoACasterArtanis"},
+    {"runtime": "ZergDehaka", "name": "德哈卡", "faction": "", "prefixes": ["Dehaka"], "unitData": "UnitData_Dehaka.xml", "casterId": "CoopCasterDehaka"},
+    {"runtime": "ProtossFenix", "name": "菲尼克斯", "faction": "FactionPurifier", "prefixes": ["Fenix"], "unitData": "UnitData_Fenix.xml", "casterId": "SoACasterFenix"},
+    {"runtime": "TerranHorner", "name": "汉与霍纳", "faction": "", "prefixes": ["HH", "Horner", "Han"], "unitData": "UnitData_Horner.xml", "casterId": "CoopCasterHorner"},
+    {"runtime": "ProtossKarax", "name": "凯拉克斯", "faction": "FactionKhalai", "prefixes": ["Karax", "SOA"], "unitData": "UnitData_Karax.xml", "casterId": "SoACasterKarax"},
+    {"runtime": "ZergKerrigan", "name": "凯瑞甘", "faction": "", "prefixes": ["Kerrigan", "K5Kerrigan", "HotS"], "unitData": "UnitData_Kerrigan.xml", "casterId": "CoopCasterKerrigan"},
+    {"runtime": "TerranMengsk", "name": "蒙斯克", "faction": "", "prefixes": ["Mengsk"], "unitData": "UnitData_Mengsk.xml", "casterId": ""},
+    {"runtime": "TerranNova", "name": "诺娃", "faction": "FactionCovertOps", "prefixes": ["Nova"], "unitData": "UnitData_Nova.xml", "casterId": "CoopCasterNova"},
+    {"runtime": "TerranRaynor", "name": "雷诺", "faction": "FactionRaider", "prefixes": ["Raynor"], "unitData": "UnitData_Raynor.xml", "casterId": "CoopCasterRaynor"},
+    {"runtime": "ZergStetmann", "name": "斯台特曼", "faction": "", "prefixes": ["Stetmann", "Gary", "SuperGary"], "unitData": "UnitData_Stetmann.xml", "casterId": "CoopCasterStetmann"},
+    {"runtime": "ZergStukov", "name": "斯托科夫", "faction": "", "prefixes": ["Stukov", "InfestedStukov", "SIStukov"], "unitData": "UnitData_Stukov.xml", "casterId": "CoopCasterStukov"},
+    {"runtime": "TerranSwann", "name": "斯旺", "faction": "", "prefixes": ["Swann"], "unitData": "UnitData_Swann.xml", "casterId": "CoopCasterSwann"},
+    {"runtime": "TerranTychus", "name": "泰凯斯", "faction": "FactionOutlaw", "prefixes": ["Tychus"], "unitData": "", "casterId": "CoopCasterTychus"},
+    {"runtime": "ProtossVorazun", "name": "沃拉尊", "faction": "FactionNerazim", "prefixes": ["Vorazun"], "unitData": "UnitData_Vorazun.xml", "casterId": "SoACasterVorazun"},
+    {"runtime": "ZergZagara", "name": "扎加拉", "faction": "", "prefixes": ["Zagara"], "unitData": "UnitData_Zagara.xml", "casterId": "CoopCasterZagara"},
+    {"runtime": "ProtossZeratul", "name": "泽拉图", "faction": "FactionNerazim", "prefixes": ["Zeratul"], "unitData": "UnitData_Zeratul.xml", "casterId": "CoopCasterZeratul"},
 ]
 
 _casc_file_cache: dict[str, str] = {}
 _casc_cache_loaded = False
 _string_cache: dict[str, str] = {}
 _string_cache_loaded = False
+_global_unit_map: dict[str, ET.Element] = {}
+_global_unit_map_loaded = False
 
 
 def load_strings() -> None:
@@ -193,108 +199,6 @@ def convert_dds_to_png(source: Path, target: Path) -> bool:
         return False
 
 
-def parse_unit_xml(xml_path: Path, race: str = "") -> tuple[list[dict], list[dict]]:
-    units = []
-    buildings = []
-
-    if not xml_path.exists():
-        print(f"  Warning: {xml_path.name} not found")
-        return units, buildings
-
-    seen_ids: set[str] = set()
-
-    try:
-        content = xml_path.read_text(encoding="utf-8")
-        root = _parse_xml_flexible(content)
-
-        parent_map: dict[str, ET.Element] = {}
-        for elem in root:
-            eid = elem.get("id", "")
-            if eid:
-                parent_map[eid] = elem
-
-        def get_editor_categories(elem: ET.Element, visited: set[str] | None = None) -> str:
-            if visited is None:
-                visited = set()
-            eid = elem.get("id", "")
-            if eid in visited:
-                return ""
-            visited.add(eid)
-            cat_elem = elem.find("EditorCategories")
-            if cat_elem is not None:
-                val = cat_elem.get("value", "")
-                if val:
-                    return val
-            parent_id = elem.get("parent", "")
-            if parent_id and parent_id in parent_map:
-                return get_editor_categories(parent_map[parent_id], visited)
-            return ""
-
-        def get_first_face(elem: ET.Element, visited: set[str] | None = None) -> str:
-            if visited is None:
-                visited = set()
-            eid = elem.get("id", "")
-            if eid in visited:
-                return ""
-            visited.add(eid)
-            for card_layout in elem.findall(".//CardLayouts"):
-                first_btn = card_layout.find("LayoutButtons")
-                if first_btn is not None:
-                    face = first_btn.get("Face", "")
-                    if face:
-                        return face
-            parent_id = elem.get("parent", "")
-            if parent_id and parent_id in parent_map:
-                return get_first_face(parent_map[parent_id], visited)
-            return ""
-
-        for unit_elem in root:
-            tag = unit_elem.tag
-            if not tag.startswith("CUnit"):
-                continue
-            if unit_elem.get("removed") == "1":
-                continue
-
-            unit_id = unit_elem.get("id", "")
-            if not unit_id or unit_id in seen_ids:
-                continue
-            seen_ids.add(unit_id)
-
-            name = get_string(f"Unit/Name/{unit_id}", "")
-            tooltip = get_string(f"Unit/Tooltip/{unit_id}", "")
-            description = get_string(f"Unit/Description/{unit_id}", "")
-
-            editor_categories = get_editor_categories(unit_elem)
-
-            is_building = "ObjectType:Structure" in editor_categories or "ObjectType:Building" in editor_categories
-            is_unit = "ObjectType:Unit" in editor_categories or "ObjectType:Hero" in editor_categories
-
-            if not is_unit and not is_building:
-                continue
-
-            icon = get_first_face(unit_elem)
-
-            item = {
-                "id": unit_id,
-                "name": name or unit_id,
-                "description": tooltip or description or "",
-                "icon": icon,
-                "image": "",
-            }
-
-            if is_building:
-                buildings.append(item)
-            else:
-                units.append(item)
-
-    except Exception as e:
-        print(f"  Error parsing {xml_path.name}: {e}")
-        import traceback
-        traceback.print_exc()
-
-    return units, buildings
-
-
 def _parse_xml_flexible(content: str) -> ET.Element:
     try:
         return ET.fromstring(content)
@@ -336,65 +240,364 @@ def _parse_xml_flexible(content: str) -> ET.Element:
     return ET.fromstring(content)
 
 
-def parse_abil_xml(xml_path: Path, runtime: str = "") -> list[dict]:
-    abilities = []
+def load_all_units() -> None:
+    global _global_unit_map_loaded
+    if _global_unit_map_loaded:
+        return
 
+    print("Loading all unit definitions from XML files...")
+
+    xml_files = sorted(GAME_DATA_ROOT.glob("UnitData*.xml"))
+
+    if STARCOOP_DATA_ROOT.exists():
+        starcoop_unit_xml = STARCOOP_DATA_ROOT / "unitdata.xml"
+        if starcoop_unit_xml.exists():
+            xml_files.append(starcoop_unit_xml)
+        commanders_dir = STARCOOP_DATA_ROOT / "commanders"
+        if commanders_dir.exists():
+            for cmd_xml in sorted(commanders_dir.glob("*.xml")):
+                xml_files.append(cmd_xml)
+
+    for xml_path in xml_files:
+        try:
+            content = xml_path.read_text(encoding="utf-8")
+            root = _parse_xml_flexible(content)
+            count = 0
+            for elem in root:
+                tag = elem.tag
+                if not tag.startswith("CUnit"):
+                    continue
+                if elem.get("removed") == "1":
+                    continue
+                uid = elem.get("id", "")
+                if uid:
+                    if uid not in _global_unit_map:
+                        _global_unit_map[uid] = elem
+                    count += 1
+        except Exception as e:
+            print(f"  Error loading {xml_path.name}: {e}")
+
+    print(f"Loaded {len(_global_unit_map)} units from {len(xml_files)} files")
+    _global_unit_map_loaded = True
+
+
+def get_unit_elem(unit_id: str) -> ET.Element | None:
+    load_all_units()
+    return _global_unit_map.get(unit_id)
+
+
+def get_inherited_value(unit_id: str, getter, visited: set[str] | None = None) -> str:
+    if visited is None:
+        visited = set()
+    if unit_id in visited:
+        return ""
+    visited.add(unit_id)
+
+    elem = get_unit_elem(unit_id)
+    if elem is None:
+        return ""
+
+    val = getter(elem)
+    if val:
+        return val
+
+    parent_id = elem.get("parent", "")
+    if parent_id:
+        return get_inherited_value(parent_id, getter, visited)
+
+    return ""
+
+
+def get_editor_categories(unit_id: str) -> str:
+    def getter(elem):
+        cat = elem.find("EditorCategories")
+        return cat.get("value", "") if cat is not None else ""
+    return get_inherited_value(unit_id, getter)
+
+
+def get_unit_icon(unit_id: str) -> str:
+    def getter(elem):
+        for card_layout in elem.findall(".//CardLayouts"):
+            first_btn = card_layout.find("LayoutButtons")
+            if first_btn is not None:
+                face = first_btn.get("Face", "")
+                if face:
+                    return face
+        return ""
+    return get_inherited_value(unit_id, getter)
+
+
+BUILDING_KEYWORDS = [
+    "Hatchery", "Lair", "Hive", "Spire", "GreaterSpire",
+    "Den", "Pool", "Chamber", "Cavern", "Nest", "Pit",
+    "Forge", "Cybernetics", "Robotics", "Stargate", "Twilight", "Citadel", "Fleet",
+    "Armory", "Barracks", "Factory", "Starport", "Engineering",
+    "Turret", "Bunker", "Depot", "Refinery", "Extractor", "Assimilator",
+    "Nydus", "Crawler", "Beacon", "Cocoon", "Spine", "Spore",
+    "CommandCenter", "Orbital", "Planetary", "Nexus", "Hatchery",
+    "Building", "Structure", "Tower", "Shrine", "Templar",
+    "DarkShrine", "RoboticsFacility", "Bay", "Lab", "Academy",
+    "SupplyDepot", "MissileTurret", "SensorTower", "PhysicsLab",
+    "CovertOps", "GhostAcademy", "Reactor", "TechLab",
+    "EvolutionChamber", "HydraliskDen", "LurkerDen", "RoachWarren",
+    "UltraliskCavern", "BanelingNest", "InfestationPit",
+    "SpawningPool", "EvoChamber",
+    "Gateway", "WarpGate", "Pylon", "Cannon", "ShieldBattery",
+    "StasisTrap", "Mothership",
+    "PowerTower", "GarysDen", "Infested",
+    "ReviveBeacon", "ReviveCocoon",
+]
+
+UNIT_KEYWORDS = [
+    "Larva", "Egg", "Broodling", "Locust", "LavaWorm",
+    "Drone", "Overlord", "Overseer", "Zergling", "Baneling",
+    "Roach", "Ravager", "Hydralisk", "Lurker", "Mutalisk",
+    "Corruptor", "BroodLord", "Viper", "Ultralisk", "SwarmHost",
+    "Infestor", "Queen",
+    "Zealot", "Stalker", "Sentry", "Adept", "HighTemplar",
+    "DarkTemplar", "Immortal", "Colossus", "Disruptor",
+    "Phoenix", "VoidRay", "Carrier", "Mothership", "Oracle", "Tempest", "WarpPrism", "Observer",
+    "Marine", "Marauder", "Firebat", "Reaper", "Ghost", "Medic",
+    "Vulture", "SiegeTank", "Hellion", "Hellbat", "Cyclone", "Thor", "Goliath", "Diamondback",
+    "Wraith", "Viking", "Medivac", "Raven", "Banshee", "Battlecruiser", "Liberator",
+    "SCV", "MULE", "WidowMine", "AutoTurret",
+    "Hero", "Elite", "Elites",
+]
+
+
+def _has_building_keyword(unit_id: str) -> bool:
+    uid_lower = unit_id.lower()
+    for kw in BUILDING_KEYWORDS:
+        if kw.lower() in uid_lower:
+            return True
+    return False
+
+
+def _has_unit_keyword(unit_id: str) -> bool:
+    uid_lower = unit_id.lower()
+    for kw in UNIT_KEYWORDS:
+        if kw.lower() in uid_lower:
+            return True
+    return False
+
+
+def get_unit_type(unit_id: str) -> str:
+    cats = get_editor_categories(unit_id)
+    if "ObjectType:Structure" in cats or "ObjectType:Building" in cats:
+        return "building"
+    if "ObjectType:Unit" in cats or "ObjectType:Hero" in cats:
+        return "unit"
+
+    if _has_building_keyword(unit_id) and not _has_unit_keyword(unit_id):
+        return "building"
+    if _has_unit_keyword(unit_id) and not _has_building_keyword(unit_id):
+        return "unit"
+
+    elem = get_unit_elem(unit_id)
+    if elem is not None:
+        footprint = elem.find("Footprint")
+        if footprint is not None:
+            return "building"
+        speed = elem.find("Speed")
+        if speed is not None:
+            return "unit"
+        weapon = elem.find("WeaponArray")
+        if weapon is not None:
+            pass
+
+    return ""
+
+
+def unit_belongs_to_commander(unit_id: str, spec: dict, dedicated_units: set[str]) -> bool:
+    if unit_id in dedicated_units:
+        return True
+
+    if unit_id == spec.get("casterId", ""):
+        return True
+
+    faction = spec.get("faction", "")
+    if faction:
+        cats = get_editor_categories(unit_id)
+        if faction in cats:
+            return True
+
+    prefixes = spec.get("prefixes", [])
+    for prefix in prefixes:
+        if unit_id.startswith(prefix):
+            return True
+
+    return False
+
+
+def load_dedicated_unit_ids(xml_filename: str) -> set[str]:
+    if not xml_filename:
+        return set()
+    xml_path = GAME_DATA_ROOT / xml_filename
     if not xml_path.exists():
-        print(f"  Warning: {xml_path.name} not found")
-        return abilities
+        return set()
 
-    seen_ids: set[str] = set()
-
+    ids = set()
     try:
         content = xml_path.read_text(encoding="utf-8")
         root = _parse_xml_flexible(content)
+        for elem in root:
+            if elem.tag.startswith("CUnit") and elem.get("removed") != "1":
+                uid = elem.get("id", "")
+                if uid:
+                    ids.add(uid)
+    except Exception:
+        pass
+    return ids
 
-        for abil_elem in root:
-            tag = abil_elem.tag
-            if not tag.startswith("CAbil"):
+
+def load_runtime_unit_ids(runtime: str) -> set[str]:
+    short_name = runtime
+    for prefix in ["Zerg", "Protoss", "Terran"]:
+        if short_name.startswith(prefix):
+            short_name = short_name[len(prefix):]
+            break
+
+    runtime_file = RUNTIME_ROOT / f"LibE0EAE146_{short_name}Runtime.galaxy"
+    if not runtime_file.exists():
+        return set()
+
+    ids = set()
+    try:
+        content = runtime_file.read_text(encoding="utf-8")
+        allow_pattern = re.compile(r'AllowUnitIfPresent\(\w+,\s*"([A-Za-z0-9_]+)"\)')
+        for match in allow_pattern.finditer(content):
+            uid = match.group(1)
+            if uid:
+                ids.add(uid)
+    except Exception:
+        pass
+    return ids
+
+
+def collect_commander_units_and_buildings(spec: dict) -> tuple[list[dict], list[dict]]:
+    load_all_units()
+    load_strings()
+
+    dedicated_ids = load_dedicated_unit_ids(spec.get("unitData", ""))
+    runtime_ids = load_runtime_unit_ids(spec.get("runtime", ""))
+    all_dedicated = dedicated_ids | runtime_ids
+
+    units = []
+    buildings = []
+    seen_ids: set[str] = set()
+
+    for unit_id in _global_unit_map:
+        if unit_id in seen_ids:
+            continue
+
+        if not unit_belongs_to_commander(unit_id, spec, all_dedicated):
+            continue
+
+        utype = get_unit_type(unit_id)
+        if not utype:
+            continue
+
+        seen_ids.add(unit_id)
+
+        name = get_string(f"Unit/Name/{unit_id}", "")
+        tooltip = get_string(f"Unit/Tooltip/{unit_id}", "")
+        description = get_string(f"Unit/Description/{unit_id}", "")
+        icon = get_unit_icon(unit_id)
+
+        item = {
+            "id": unit_id,
+            "name": name or unit_id,
+            "description": tooltip or description or "",
+            "icon": icon,
+            "image": "",
+        }
+
+        if utype == "building":
+            buildings.append(item)
+        else:
+            units.append(item)
+
+    return units, buildings
+
+
+def get_inherited_card_layouts(unit_id: str, visited: set[str] | None = None) -> list[ET.Element]:
+    if visited is None:
+        visited = set()
+    if unit_id in visited:
+        return []
+    visited.add(unit_id)
+
+    elem = get_unit_elem(unit_id)
+    if elem is None:
+        return []
+
+    layouts = elem.findall("CardLayouts")
+    if layouts:
+        return layouts
+
+    parent_id = elem.get("parent", "")
+    if parent_id:
+        return get_inherited_card_layouts(parent_id, visited)
+
+    return []
+
+
+def extract_topbar_abilities(spec: dict) -> list[dict]:
+    caster_id = spec.get("casterId", "")
+    if not caster_id:
+        return []
+
+    caster_elem = get_unit_elem(caster_id)
+    if caster_elem is None:
+        return []
+
+    abilities = []
+    seen_icons: set[str] = set()
+
+    card_layouts = get_inherited_card_layouts(caster_id)
+    for card in card_layouts:
+        card_id = card.get("CardId", "")
+        if card_id:
+            continue
+        for btn in card.findall("LayoutButtons"):
+            btype = btn.get("Type", "")
+            face = btn.get("Face", "")
+            abil_cmd = btn.get("AbilCmd", "")
+            row = btn.get("Row", "")
+            col = btn.get("Column", "")
+
+            if not face or face == "CancelBuilding":
                 continue
-            if abil_elem.get("removed") == "1":
+
+            if btype == "Passive" and not abil_cmd:
                 continue
 
-            abil_id = abil_elem.get("id", "")
-            if not abil_id or abil_id in seen_ids:
+            if face in seen_icons:
                 continue
-            seen_ids.add(abil_id)
+            seen_icons.add(face)
 
-            name = get_string(f"Abil/Name/{abil_id}", "")
-            tooltip = get_string(f"Abil/Tooltip/{abil_id}", "")
-            description = get_string(f"Abil/Description/{abil_id}", "")
+            abil_id = ""
+            if abil_cmd and "," in abil_cmd:
+                abil_id = abil_cmd.split(",")[0]
 
-            icon = ""
-            btn_face = abil_elem.find(".//DefaultButtonFace")
-            if btn_face is not None:
-                icon = btn_face.get("value", "")
-            if not icon:
-                btn = abil_elem.find(".//Button")
-                if btn is not None:
-                    icon = btn.get("DefaultButtonFace", "")
-
-            editor_categories = ""
-            cat_elem = abil_elem.find("EditorCategories")
-            if cat_elem is not None:
-                editor_categories = cat_elem.get("value", "")
-
-            if not name and not icon:
-                continue
+            name = ""
+            tooltip = ""
+            if abil_id:
+                name = get_string(f"Abil/Name/{abil_id}", "")
+                tooltip = get_string(f"Abil/Tooltip/{abil_id}", "")
+            if not name:
+                name = get_string(f"Button/Name/{face}", "")
+            if not tooltip:
+                tooltip = get_string(f"Button/Tooltip/{face}", "")
 
             abilities.append({
-                "id": abil_id,
-                "name": name or abil_id,
-                "description": tooltip or description or "",
-                "icon": icon,
+                "id": abil_id or face,
+                "name": name or face,
+                "description": tooltip or "",
+                "icon": face,
                 "image": "",
-                "category": editor_categories,
+                "category": f"Row:{row},Col:{col}",
             })
-
-    except Exception as e:
-        print(f"  Error parsing {xml_path.name}: {e}")
-        import traceback
-        traceback.print_exc()
 
     return abilities
 
@@ -440,6 +643,7 @@ def main() -> int:
     PORTRAIT_DIR.mkdir(parents=True, exist_ok=True)
 
     load_strings()
+    load_all_units()
 
     manifest: dict = {
         "generated_at": datetime.now(timezone.utc).astimezone().isoformat(),
@@ -452,11 +656,8 @@ def main() -> int:
         race = get_commander_race(runtime)
         print(f"\nProcessing {name} ({runtime})...")
 
-        unit_xml = GAME_DATA_ROOT / spec["unitData"]
-        abil_xml = GAME_DATA_ROOT / spec["abilData"]
-
-        units, buildings = parse_unit_xml(unit_xml, race)
-        abilities = parse_abil_xml(abil_xml, runtime)
+        units, buildings = collect_commander_units_and_buildings(spec)
+        abilities = extract_topbar_abilities(spec)
 
         print(f"  Units: {len(units)}, Buildings: {len(buildings)}, Abilities: {len(abilities)}")
 
@@ -474,7 +675,8 @@ def main() -> int:
         portrait_target = PORTRAIT_DIR / portrait_filename
 
         if not portrait_target.exists():
-            portrait_src = resolve_icon(f"ui_btn_commanderportrait_{runtime.lower().replace('terran','').replace('protoss','').replace('zerg','')}.dds")
+            short_name = runtime.lower().replace("terran", "").replace("protoss", "").replace("zerg", "")
+            portrait_src = resolve_icon(f"ui_btn_commanderportrait_{short_name}.dds")
             if portrait_src:
                 convert_dds_to_png(portrait_src, portrait_target)
 
