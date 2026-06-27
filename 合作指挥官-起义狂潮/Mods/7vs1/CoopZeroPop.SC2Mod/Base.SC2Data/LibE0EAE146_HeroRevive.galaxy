@@ -433,6 +433,8 @@ bool libE0EAE146_gt_CommanderHeroDied_Func (bool testConds, bool runActions) {
         return true;
     }
 
+    return true;
+
     if (libE0EAE146_gf_CommanderHeroReviveMatches("Kerrigan", lv_hero) == true) {
         lv_commander = "Kerrigan";
     }
@@ -470,6 +472,11 @@ bool libE0EAE146_gt_CommanderHeroDied_Func (bool testConds, bool runActions) {
     lv_player = UnitGetOwner(lv_hero);
     lv_reviveUnitType = libE0EAE146_gf_CommanderHeroReviveUnitType(lv_commander);
     if ((lv_reviveUnitType == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lv_reviveUnitType))) {
+        return true;
+    }
+
+    if ((libE0EAE146_gf_FindFirstPlayerUnitOfType(lv_player, lv_reviveUnitType) != null)) {
+        libE0EAE146_gv_commanderHeroRevivePending = false;
         return true;
     }
 
