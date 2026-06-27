@@ -37,6 +37,17 @@ bool libE0EAE146_gv_mutatorRuntimeStarted;
 int libE0EAE146_gv_mutatorRuntimePreset;
 string libE0EAE146_gv_commanderPowerActiveCommander;
 bool libE0EAE146_gv_commanderPowerApplyTradeoffs;
+
+// Start Talent Variables
+bool libE0EAE146_gv_tychusQuickRebootEnabled;
+bool libE0EAE146_gv_swannDrillReadyEnabled;
+bool libE0EAE146_gv_kerriganStartCreepEnabled;
+bool libE0EAE146_gv_kerriganWarpInReadyEnabled;
+bool libE0EAE146_gv_abathurStartBiomassEnabled;
+int libE0EAE146_gv_abathurStartBiomassAmount;
+bool libE0EAE146_gv_abathurUltimateBiomassEnabled;
+int libE0EAE146_gv_abathurUltimateBiomassAmount;
+
 string[9] libE0EAE146_gv_xmProgressionSelectedBlessing;
 string[9] libE0EAE146_gv_xmProgressionActiveChallenge;
 bool libE0EAE146_gv_xmProgressionTriggersReady;
@@ -287,6 +298,7 @@ void libE0EAE146_gf_AbathurBiomassSetStack (unit lp_biomass, int lp_stack);
 void libE0EAE146_gf_AbathurBiomassScale (unit lp_biomassUnit, bool lp_instantScale);
 void libE0EAE146_gf_AbathurBiomassMerge (unit lp_biomassUnit, int lp_biomassUnitCount);
 int libE0EAE146_gf_AbathurUnitBiomassStacks (unit lp_unit);
+void libE0EAE146_gf_AbathurApplyStartBiomassToExistingUnits (int lp_player);
 int libE0EAE146_gf_AbathurBiomassMaxStacksForUnit (unit lp_unit);
 int libE0EAE146_gf_AbathurAddBiomassStacks (unit lp_unit, int lp_amount);
 void libE0EAE146_gf_AbathurSetUnitFullBiomass (unit lp_unit);
@@ -322,6 +334,10 @@ trigger libE0EAE146_gt_CM_KaraxUnitReviveBarrier;
 trigger libE0EAE146_gt_CM_KaraxSolarForgeSOAEnergy;
 trigger libE0EAE146_gt_CM_SoAOrbitalStrikeActivatedKarax;
 void libE0EAE146_gf_KerriganRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero);
+// Kerrigan Triggers
+trigger libE0EAE146_gt_CM_MasteryKerriganInstantReviveCooldown;
+trigger libE0EAE146_gt_KerriganPsiStrike;
+trigger libE0EAE146_gt_CM_Kerrigan_WeaponSwap;
 void libE0EAE146_gf_StukovRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero);
 // Dehaka Variables
 int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_DehakaReviveEatTextTag;
