@@ -155,4 +155,57 @@
         <IconArcLength value="1.000000"/>
         <RangeFlags index="Minimap" value="1"/>
     </CActorRange>
+    <!-- ===== 虚空裂隙 VoidRift 开始 ===== -->
+    <CActorAction id="VoidRiftTrainMalash" parent="GenericAttack" effectImpact="VoidRiftTrainPrecursorRBMalash" effectLaunch="VoidRiftTrainLMMalash">
+        <LaunchSiteOps Ops="SOpAttachOrigin SOpMoveDownBy1"/>
+        <LaunchAssets Model="" Sound="Hybrid_PlasmaBlastLaunch"/>
+        <Missile value="VoidRiftTrainMissile"/>
+        <ImpactSiteOps Ops="SOpAttachCenter"/>
+        <ShieldFlashType value="None"/>
+    </CActorAction>
+    <CActorModel id="VoidRiftTrainBirthMalash" parent="ModelAnimationStyleOneShot">
+        <On Terms="ActorCreation" Send="SetTintColor {255,255,255 2.000000}"/>
+        <On Terms="ActorCreation" Send="Create VoidRiftTrainBirthSound"/>
+        <On Terms="ActorCreation" Target="_Selectable" Send="SetOpacity"/>
+        <On Terms="ActorCreation" Target="_Selectable" Send="SetOpacity 1.000000 0.500000"/>
+        <On Terms="Effect.VoidRiftTrainPrecursorRBMalash.Start; At Target" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <Model value="VoidRiftTrainBirth"/>
+        <AutoScaleFactor value="1.000000"/>
+    </CActorModel>
+    <CActorUnit id="VoidRiftUnselectableMalash" parent="ProtossBuilding" unitName="VoidRiftUnselectableMalash">
+        <On Terms="UnitConstruction.VoidRiftUnselectableMalash.Start" Send="SetOpacity"/>
+        <On Terms="UnitConstruction.VoidRiftUnselectableMalash.Start" Send="Create VoidRiftUnselectableConstructionModel"/>
+        <On Terms="UnitBirth" Target="VoidRiftUnselectableConstructionModel" Send="SetOpacity 0.000000 1.000000"/>
+        <On Terms="UnitBirth" Send="SetOpacity 1.000000 1.000000"/>
+        <On Terms="UnitBirth" Send="Create VoidRiftSoundLoop"/>
+        <On Terms="UnitBirth" Send="Create VoidRiftConstructionSoundLoop"/>
+        <On Terms="AbilTrain.VoidRiftTrain.Cancel" Send="StatusDecrement Building"/>
+        <On Terms="AbilTrain.VoidRiftTrain.Finish" Send="StatusDecrement Building"/>
+        <On Terms="AbilTrain.VoidRiftTrain.Start" Send="StatusIncrement Building"/>
+        <On Terms="Signal.*.TrainOn" Send="StatusIncrement Building"/>
+        <On Terms="Signal.*.TrainOff" Send="StatusDecrement Building"/>
+        <On Terms="Effect.VoidRiftTrainLM.Start; At Caster" Send="AnimPlay Build Build"/>
+        <On Terms="Effect.VoidRiftTrainLM.Start; At Caster" Send="AnimSetTime Build 2.500000"/>
+        <Model value="VoidRiftUnselectable"/>
+        <CreepHeightClass value="Small"/>
+        <BuildModel value="VoidRiftUnselectable"/>
+        <DeathArray index="Normal" ModelLink="VoidRiftUnselectableDeath"/>
+        <PlacementModel value="PylonPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <PortraitModel value="ExecutorPortrait"/>
+        <BarOffset value="140"/>
+        <BarWidth value="160"/>
+        <HighlightTooltip value=""/>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-protoss-buildingplating.dds"/>
+        <NameOffset value="130"/>
+        <SnapshotActor value="SnapshotAnimating"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-voidrift.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <!-- ===== 虚空裂隙 VoidRift 结束 ===== -->
 </Catalog>
