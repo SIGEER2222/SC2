@@ -26,6 +26,7 @@ $script:MapsRoot = Join-Path $script:WorkspaceRoot "Maps"
 $script:WebRoot = Join-Path $script:WorkspaceRoot "web-launcher"
 $script:AssetsCacheRoot = Join-Path $script:WebRoot "assets-cache"
 $script:RealCommanderPortraitRoot = Join-Path $script:WebRoot "exported-real-commander-images"
+$script:RealMutatorIconRoot = Join-Path $script:WebRoot "exported-real-mutator-images"
 $script:LogsRoot = Join-Path $script:WorkspaceRoot "logs"
 $script:MutatorStringsPath = Join-Path $script:WorkspaceRoot "Mods\kit_mutations.SC2Mod\zhCN.SC2Data\LocalizedData\GameStrings.txt"
 $script:MutatorsGameDataPath = Join-Path $script:WorkspaceRoot "Mods\kit_mutations.SC2Mod\Base.SC2Data\GameData.xml"
@@ -277,6 +278,20 @@ function Get-RealCommanderPortraitPath {
     return ""
 }
 
+function Get-RealMutatorIconPath {
+    param([string]$Id)
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        return ""
+    }
+
+    $candidate = Join-Path $script:RealMutatorIconRoot ($Id + ".png")
+    if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        return $candidate
+    }
+    return ""
+}
+
 function Get-FileVersionQuery {
     param([string]$Path)
 
@@ -419,6 +434,28 @@ function Resolve-MutatorImage {
         [string]$Icon,
         [string]$Category
     )
+
+    $realIconPath = Get-RealMutatorIconPath -Id $Id
+    if ($realIconPath) {
+        $targetDir = Get-AssetCacheBucketPath -Bucket "mutators"
+        $targetName = $Id + [System.IO.Path]::GetExtension($realIconPath).ToLowerInvariant()
+        $targetPath = Join-Path $targetDir $targetName
+        $needsCopy = $true
+        if (Test-Path -LiteralPath $targetPath -PathType Leaf) {
+            $sourceInfo = Get-Item -LiteralPath $realIconPath
+            $targetInfo = Get-Item -LiteralPath $targetPath
+            $needsCopy = $sourceInfo.LastWriteTimeUtc -gt $targetInfo.LastWriteTimeUtc
+        }
+        if ($needsCopy) {
+            Copy-Item -LiteralPath $realIconPath -Destination $targetPath -Force
+        }
+        $versionQuery = Get-FileVersionQuery -Path $targetPath
+        return [pscustomobject]@{
+            image = "/assets-cache/mutators/$([System.IO.Path]::GetFileName($targetPath))$versionQuery"
+            source = "icon-exact"
+            sourceLabel = "游戏图标"
+        }
+    }
 
     $baseNames = New-Object System.Collections.Generic.List[string]
     $iconBaseName = Get-TextureBaseName -AssetRef $Icon
