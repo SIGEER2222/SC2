@@ -341,22 +341,6 @@ void libE0EAE146_gf_CommanderHeroReviveAfterDelay (int lp_player, string lp_comm
         lv_revivePoint = libE0EAE146_gf_CommanderHeroRevivePoint(lp_player, lp_commander, libE0EAE146_gf_CommanderHeroReviveUnitType(lp_commander));
     }
 
-    if (lp_commander == "Artanis") {
-        if ((UnitIsValid(lp_hero) == true) && (UnitIsAlive(lp_hero) == true)) {
-            libE0EAE146_gv_commanderHeroRevivePending = false;
-            return;
-        }
-        if (UnitIsValid(lp_reviver) == true) {
-            UnitRemove(lp_reviver);
-        }
-        if (UnitIsValid(lp_hero) == true) {
-            UnitRemove(lp_hero);
-        }
-        UnitCreate(1, "ArtanisVoid", c_unitCreateIgnorePlacement, lp_player, lv_revivePoint, 225.0);
-        libE0EAE146_gv_commanderHeroRevivePending = false;
-        return;
-    }
-
     if ((UnitIsValid(lp_hero) == false) || (UnitIsAlive(lp_hero) == true)) {
         libE0EAE146_gv_commanderHeroRevivePending = false;
         return;
