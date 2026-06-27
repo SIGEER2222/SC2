@@ -1312,8 +1312,6 @@ void libKMIS_gf_CM_DataUtilInit () {
             TriggerEnable(libKMIS_gt_CM_Alarak_EmpowerUpdate, true);
         }
         else if (autoCF24B7F2_val == "ZergZagara") {
-            TriggerEnable(libKMIS_gt_RoachDropScale, true);
-            TriggerEnable(libKMIS_gt_CM_Zagara_WeaponSwap, true);
         }
         else {
         }
@@ -17714,78 +17712,6 @@ void libKMIS_gt_CM_Stukov_InfestedSiegeTankDeath_Init () {
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Roach Drop Scale
-//--------------------------------------------------------------------------------------------------
-bool libKMIS_gt_RoachDropScale_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    fixed lv_scaleModifier;
-    fixed lv_upgradeCount;
-    fixed lv_newScale;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_scaleModifier = 0.02;
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    lv_upgradeCount = TechTreeUpgradeCount(UnitGetOwner(EventUnit()), "MasteryZagaraRoachDropDamageAndHealth", c_techCountCompleteOnly);
-    lv_newScale = (1+(lv_upgradeCount*lv_scaleModifier));
-    TextExpressionSetToken("Param/Expression/lib_KMIS_39D2BF93", "A", FixedToText(lv_newScale, c_fixedPrecisionAny));
-    ActorSendAsText(libNtve_gf_MainActorofUnit(EventUnit()), TextExpressionAssemble("Param/Expression/lib_KMIS_39D2BF93"));
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libKMIS_gt_RoachDropScale_Init () {
-    libKMIS_gt_RoachDropScale = TriggerCreate("libKMIS_gt_RoachDropScale_Func");
-    TriggerEnable(libKMIS_gt_RoachDropScale, false);
-    TriggerAddEventUnitBehaviorChange(libKMIS_gt_RoachDropScale, null, "ZagaraVoidCoopInfestedPodsTimedLife", c_unitBehaviorChangeCreate);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: CM_Zagara_WeaponSwap
-//--------------------------------------------------------------------------------------------------
-bool libKMIS_gt_CM_Zagara_WeaponSwap_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    if ((UnitGetType(EventUnit()) == "HunterKiller")) {
-        UnitWeaponRemove(EventUnit(), "HunterKillerMelee");
-        UnitWeaponRemove(EventUnit(), "HunterKiller");
-        UnitWeaponAdd(EventUnit(), "ZagaraHunterKillerMelee", null);
-        UnitWeaponAdd(EventUnit(), "ZagaraHunterKiller", null);
-        return true;
-    }
-
-    if ((UnitGetType(EventUnit()) == "Roach")) {
-        UnitWeaponRemove(EventUnit(), "AcidSaliva");
-        UnitWeaponRemove(EventUnit(), "RoachMelee");
-        UnitWeaponAdd(EventUnit(), "ZagaraAcidSaliva", null);
-        UnitWeaponAdd(EventUnit(), "ZagaraRoachMelee", null);
-        return true;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libKMIS_gt_CM_Zagara_WeaponSwap_Init () {
-    libKMIS_gt_CM_Zagara_WeaponSwap = TriggerCreate("libKMIS_gt_CM_Zagara_WeaponSwap_Func");
-    TriggerEnable(libKMIS_gt_CM_Zagara_WeaponSwap, false);
-    TriggerAddEventUnitBehaviorChange(libKMIS_gt_CM_Zagara_WeaponSwap, null, "ZagaraOwned", c_unitBehaviorChangeCreate);
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: CM_Zeratul_Entropic_Spawner
 //--------------------------------------------------------------------------------------------------
 bool libKMIS_gt_CM_Zeratul_Entropic_Spawner_Func (bool testConds, bool runActions) {
@@ -21799,8 +21725,6 @@ void libKMIS_InitTriggers () {
     libKMIS_gt_CM_Stukov_InfestedBunkerInitialSpawn_Init();
     libKMIS_gt_CM_Stukov_UnitCostRefund_Init();
     libKMIS_gt_CM_Stukov_InfestedSiegeTankDeath_Init();
-    libKMIS_gt_RoachDropScale_Init();
-    libKMIS_gt_CM_Zagara_WeaponSwap_Init();
     libKMIS_gt_CM_Zeratul_Entropic_Spawner_Init();
     libKMIS_gt_CM_Zeratul_Devolve_Init();
     libKMIS_gt_CM_ZeratulProphecyEventVision_Init();
