@@ -28,9 +28,11 @@ SC2_STORAGE_PATH = Path(r"E:\SC2\SC2new\StarCraft II")
 CASC_DUMP_EXE = Path(r"C:\tools\casc\CascDump\bin\Debug\net9.0\CascDump.exe")
 
 LOCAL_ICON_ROOTS = [
-    Path(r"C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\tools\launcher_mpq\Assets\Textures"),
-    Path(r"C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\整理输出\合作指挥官-起义狂潮\Mods\XM\XMCore.SC2Mod\Assets\Textures"),
-    Path(r"C:\Users\22448\Downloads\合作指挥官版起义狂潮0.81\Mods\XM\XMCore.SC2Mod\Assets\Textures"),
+    p for p in [
+        Path(r"C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\tools\launcher_mpq\Assets\Textures"),
+        Path(r"C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\整理输出\合作指挥官-起义狂潮\Mods\XM\XMCore.SC2Mod\Assets\Textures"),
+        Path(r"C:\Users\22448\Downloads\合作指挥官版起义狂潮0.81\Mods\XM\XMCore.SC2Mod\Assets\Textures"),
+    ] if p.exists() and p.is_dir()
 ]
 
 COMMANDER_SPECS = [
@@ -55,6 +57,7 @@ COMMANDER_SPECS = [
 ]
 
 _casc_file_cache: dict[str, str] = {}
+_casc_filename_index: dict[str, list[str]] = {}
 _casc_cache_loaded = False
 _string_cache: dict[str, str] = {}
 _string_cache_loaded = False
@@ -112,23 +115,45 @@ def load_casc_file_list() -> None:
     print(f"Loading file list from SC2 CASC storage: {SC2_STORAGE_PATH}")
     try:
         result = subprocess.run(
-            [str(CASC_DUMP_EXE), "list", str(SC2_STORAGE_PATH), "1000000"],
+            [str(CASC_DUMP_EXE), "list", str(SC2_STORAGE_PATH), "200000"],
             capture_output=True,
             text=True,
             timeout=300,
         )
+        btn_count = 0
+        portrait_count = 0
         for line in result.stdout.splitlines():
-            if "_coop.dds" in line and "Full" in line:
-                parts = line.split()
-                if len(parts) >= 4:
-                    file_path = parts[0]
-                    file_path_normalized = file_path.replace("\\", "/")
-                    _casc_file_cache[file_path_normalized] = file_path
-                    filename = file_path_normalized.split("/")[-1]
-                    assets_path = f"Assets/Textures/{filename}"
-                    _casc_file_cache[assets_path] = file_path
-                    _casc_file_cache[filename.lower()] = file_path
-        print(f"Found {len(_casc_file_cache)} coop DDS files in CASC storage")
+            if ".dds" not in line or "Full" not in line:
+                continue
+            parts = line.split()
+            if len(parts) < 4:
+                continue
+            file_path = parts[0]
+            file_path_normalized = file_path.replace("\\", "/")
+            filename = file_path_normalized.split("/")[-1]
+            filename_lower = filename.lower()
+
+            is_btn = filename_lower.startswith("btn-")
+            is_portrait = "commanderportrait" in filename_lower
+            is_coop = "_coop" in filename_lower or "coop" in file_path_normalized.lower()
+
+            if not (is_btn or is_portrait or is_coop):
+                continue
+
+            _casc_file_cache[file_path_normalized] = file_path
+            _casc_file_cache[filename_lower] = file_path
+
+            stem = Path(filename).stem.lower()
+            if stem not in _casc_filename_index:
+                _casc_filename_index[stem] = []
+            _casc_filename_index[stem].append(file_path)
+
+            if is_btn:
+                btn_count += 1
+            if is_portrait:
+                portrait_count += 1
+
+        print(f"Found {btn_count} btn icons, {portrait_count} commander portraits in CASC storage")
     except Exception as e:
         print(f"Failed to load CASC file list: {e}")
 
@@ -140,18 +165,95 @@ def extract_from_casc(casc_path: str, target_path: Path) -> bool:
         return False
     try:
         target_path.parent.mkdir(parents=True, exist_ok=True)
-        result = subprocess.run(
-            [str(CASC_DUMP_EXE), "extract", str(SC2_STORAGE_PATH), casc_path, str(target_path)],
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-        return result.returncode == 0 and target_path.exists()
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            file_list = tmpdir_path / "filelist.txt"
+            file_list.write_text(casc_path + "\n", encoding="utf-8")
+
+            result = subprocess.run(
+                [str(CASC_DUMP_EXE), "extract", str(SC2_STORAGE_PATH), str(tmpdir_path), str(file_list)],
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+
+            if result.returncode != 0:
+                return False
+
+            extracted = tmpdir_path / casc_path
+            if extracted.exists():
+                import shutil
+                shutil.copy2(extracted, target_path)
+                return True
+
+        return False
     except Exception:
         return False
 
 
-def resolve_icon(icon_path: str) -> Path | None:
+def _extract_from_casc_temp(casc_path: str) -> Path | None:
+    import tempfile
+    with tempfile.NamedTemporaryFile(suffix=".dds", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+    try:
+        if extract_from_casc(casc_path, tmp_path):
+            return tmp_path
+    except Exception:
+        pass
+    return None
+
+
+def _fuzzy_match_icon(icon_name: str, context: dict | None = None) -> Path | None:
+    load_casc_file_list()
+    if not _casc_filename_index:
+        return None
+
+    icon_lower = icon_name.lower()
+    context = context or {}
+    commander = (context.get("commander", "") or "").lower()
+    item_type = (context.get("type", "") or "").lower()
+
+    tokens = re.findall(r'[a-z0-9]+', icon_lower)
+    if not tokens:
+        return None
+
+    best_score = 0
+    best_path = None
+
+    for stem, paths in _casc_filename_index.items():
+        stem_lower = stem.lower()
+        score = 0
+
+        for token in tokens:
+            if len(token) < 3:
+                continue
+            if token in stem_lower:
+                score += len(token)
+
+        if commander and commander in stem_lower:
+            score += 10
+
+        if item_type:
+            if item_type == "ability" and "btn-ability" in stem_lower:
+                score += 5
+            elif item_type == "unit" and "btn-unit" in stem_lower:
+                score += 5
+            elif item_type == "building" and "btn-building" in stem_lower:
+                score += 5
+            elif item_type == "upgrade" and "btn-upgrade" in stem_lower:
+                score += 5
+
+        if score > best_score and score >= max(len(icon_lower) * 0.4, 6):
+            best_score = score
+            best_path = paths[0]
+
+    if best_path:
+        return _extract_from_casc_temp(best_path)
+    return None
+
+
+def resolve_icon(icon_path: str, context: dict | None = None) -> Path | None:
     normalized = icon_path.replace("\\", "/").lower()
     filename = normalized.split("/")[-1]
 
@@ -164,26 +266,49 @@ def resolve_icon(icon_path: str) -> Path | None:
             return candidate
 
     load_casc_file_list()
-    casc_key = normalized
-    if casc_key in _casc_file_cache:
-        import tempfile
-        with tempfile.NamedTemporaryFile(suffix=".dds", delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-        try:
-            if extract_from_casc(_casc_file_cache[casc_key], tmp_path):
-                return tmp_path
-        finally:
-            pass
+
+    if normalized in _casc_file_cache:
+        return _extract_from_casc_temp(_casc_file_cache[normalized])
 
     if filename in _casc_file_cache:
-        import tempfile
-        with tempfile.NamedTemporaryFile(suffix=".dds", delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-        try:
-            if extract_from_casc(_casc_file_cache[filename], tmp_path):
-                return tmp_path
-        finally:
-            pass
+        return _extract_from_casc_temp(_casc_file_cache[filename])
+
+    if context:
+        fuzzy_result = _fuzzy_match_icon(Path(icon_path).stem, context)
+        if fuzzy_result:
+            return fuzzy_result
+
+    return None
+
+
+def resolve_commander_portrait(runtime: str) -> Path | None:
+    short_name = runtime.lower()
+    for prefix in ["terran", "protoss", "zerg"]:
+        if short_name.startswith(prefix):
+            short_name = short_name[len(prefix):]
+            break
+
+    name_map = {
+        "horner": "hanandhorner",
+        "hanandhorner": "hanandhorner",
+    }
+    portrait_name = name_map.get(short_name, short_name)
+
+    filename = f"ui_commanderportrait_{portrait_name}.dds"
+    filename_lower = filename.lower()
+
+    for root in LOCAL_ICON_ROOTS:
+        candidate = root / filename
+        if candidate.exists():
+            return candidate
+
+    load_casc_file_list()
+    if filename_lower in _casc_file_cache:
+        return _extract_from_casc_temp(_casc_file_cache[filename_lower])
+
+    for stem, paths in _casc_filename_index.items():
+        if "commanderportrait" in stem and short_name in stem:
+            return _extract_from_casc_temp(paths[0])
 
     return None
 
@@ -602,28 +727,183 @@ def extract_topbar_abilities(spec: dict) -> list[dict]:
     return abilities
 
 
-def extract_and_save_icons(items: list[dict], output_dir: Path) -> int:
-    count = 0
+def resolve_icon_casc_path(icon_path: str, context: dict | None = None, item_id: str = "") -> str | None:
+    normalized = icon_path.replace("\\", "/").lower()
+    filename = normalized.split("/")[-1]
+
+    for root in LOCAL_ICON_ROOTS:
+        candidate = root / filename
+        if candidate.exists():
+            return str(candidate)
+        candidate = root / Path(icon_path).name
+        if candidate.exists():
+            return str(candidate)
+
+    load_casc_file_list()
+
+    if normalized in _casc_file_cache:
+        return _casc_file_cache[normalized]
+
+    if filename in _casc_file_cache:
+        return _casc_file_cache[filename]
+
+    if context:
+        fuzzy_casc = _fuzzy_match_casc_path(item_id or Path(icon_path).stem, context)
+        if fuzzy_casc:
+            return fuzzy_casc
+
+    return None
+
+
+def _fuzzy_match_casc_path(icon_name: str, context: dict | None = None) -> str | None:
+    load_casc_file_list()
+    if not _casc_filename_index:
+        return None
+
+    icon_lower = icon_name.lower()
+    context = context or {}
+    commander = (context.get("commander", "") or "").lower()
+    item_type = (context.get("type", "") or "").lower()
+
+    tokens = re.findall(r'[a-z0-9]+', icon_lower)
+    if not tokens:
+        return None
+
+    best_score = 0
+    best_path = None
+
+    for stem, paths in _casc_filename_index.items():
+        stem_lower = stem.lower()
+        score = 0
+
+        for token in tokens:
+            if len(token) < 3:
+                continue
+            if token in stem_lower:
+                score += len(token)
+
+        if commander and commander in stem_lower:
+            score += 10
+
+        if item_type:
+            if item_type == "ability" and "btn-ability" in stem_lower:
+                score += 5
+            elif item_type == "unit" and "btn-unit" in stem_lower:
+                score += 5
+            elif item_type == "building" and "btn-building" in stem_lower:
+                score += 5
+            elif item_type == "upgrade" and "btn-upgrade" in stem_lower:
+                score += 5
+
+        if score > best_score and score >= max(len(icon_lower) * 0.4, 6):
+            best_score = score
+            best_path = paths[0]
+
+    return best_path
+
+
+def batch_extract_and_save_icons(items: list[dict], output_dir: Path, context: dict | None = None) -> int:
+    pending: list[tuple[str, Path, dict]] = []
+    local_pending: list[tuple[Path, Path, dict]] = []
+
     for item in items:
         icon_path = item.get("icon", "")
-        if not icon_path:
+        item_id = item.get("id", "")
+        if not icon_path and not item_id:
             continue
 
-        filename = Path(icon_path).stem + ".png"
+        safe_name = re.sub(r'[^\w\-\.]', '_', item_id or Path(icon_path).stem)
+        filename = safe_name + ".png"
         target = output_dir / filename
 
         if target.exists():
             item["image"] = filename
-            count += 1
             continue
 
-        source = resolve_icon(icon_path)
-        if source is None:
-            source = resolve_icon(Path(icon_path).name + ".dds")
+        found_source = None
+        found_is_local = False
 
-        if source and convert_dds_to_png(source, target):
-            item["image"] = filename
+        if icon_path:
+            normalized = icon_path.replace("\\", "/").lower()
+            filename_only = normalized.split("/")[-1]
+
+            for root in LOCAL_ICON_ROOTS:
+                candidate = root / filename_only
+                if candidate.exists() and candidate.is_file():
+                    found_source = candidate
+                    found_is_local = True
+                    break
+                candidate = root / Path(icon_path).name
+                if candidate.exists() and candidate.is_file():
+                    found_source = candidate
+                    found_is_local = True
+                    break
+
+            if not found_source:
+                load_casc_file_list()
+                if normalized in _casc_file_cache:
+                    found_source = _casc_file_cache[normalized]
+                elif filename_only in _casc_file_cache:
+                    found_source = _casc_file_cache[filename_only]
+
+        if not found_source and icon_path:
+            dds_name = Path(icon_path).name + ".dds"
+            dds_lower = dds_name.lower()
+            load_casc_file_list()
+            if dds_lower in _casc_file_cache:
+                found_source = _casc_file_cache[dds_lower]
+
+        if not found_source and icon_path and context:
+            casc_path = _fuzzy_match_casc_path(Path(icon_path).stem, context)
+            if casc_path:
+                found_source = casc_path
+
+        if not found_source and context and item_id:
+            casc_path = _fuzzy_match_casc_path(item_id, context)
+            if casc_path:
+                found_source = casc_path
+
+        if found_source:
+            if found_is_local:
+                local_pending.append((found_source, target, item))
+            else:
+                pending.append((found_source, target, item))
+
+    count = sum(1 for item in items if item.get("image"))
+
+    for source_path, target, item in local_pending:
+        if convert_dds_to_png(source_path, target):
+            safe_name = re.sub(r'[^\w\-\.]', '_', item.get("id", ""))
+            item["image"] = safe_name + ".png"
             count += 1
+
+    if pending:
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            file_list_path = tmpdir_path / "filelist.txt"
+            with open(file_list_path, "w", encoding="utf-8") as f:
+                for casc_path, _, _ in pending:
+                    f.write(casc_path + "\n")
+
+            if CASC_DUMP_EXE.exists() and SC2_STORAGE_PATH.exists():
+                try:
+                    subprocess.run(
+                        [str(CASC_DUMP_EXE), "extract", str(SC2_STORAGE_PATH), str(tmpdir_path), str(file_list_path)],
+                        capture_output=True,
+                        text=True,
+                        timeout=300,
+                    )
+                except Exception:
+                    pass
+
+            for casc_path, target, item in pending:
+                extracted = tmpdir_path / casc_path
+                if extracted.exists() and extracted.is_file():
+                    if convert_dds_to_png(extracted, target):
+                        safe_name = re.sub(r'[^\w\-\.]', '_', item.get("id", ""))
+                        item["image"] = safe_name + ".png"
+                        count += 1
 
     return count
 
@@ -664,19 +944,27 @@ def main() -> int:
         commander_out_dir = OUTPUT_DIR / runtime
         commander_out_dir.mkdir(parents=True, exist_ok=True)
 
-        unit_icon_count = extract_and_save_icons(units, commander_out_dir)
-        building_icon_count = extract_and_save_icons(buildings, commander_out_dir)
-        abil_icon_count = extract_and_save_icons(abilities, commander_out_dir)
+        short_name = runtime
+        for prefix in ["Terran", "Protoss", "Zerg"]:
+            if short_name.startswith(prefix):
+                short_name = short_name[len(prefix):]
+                break
+
+        unit_ctx = {"commander": short_name, "type": "unit", "runtime": runtime}
+        building_ctx = {"commander": short_name, "type": "building", "runtime": runtime}
+        ability_ctx = {"commander": short_name, "type": "ability", "runtime": runtime}
+
+        unit_icon_count = batch_extract_and_save_icons(units, commander_out_dir, unit_ctx)
+        building_icon_count = batch_extract_and_save_icons(buildings, commander_out_dir, building_ctx)
+        abil_icon_count = batch_extract_and_save_icons(abilities, commander_out_dir, ability_ctx)
 
         print(f"  Icons saved: units={unit_icon_count}, buildings={building_icon_count}, abilities={abil_icon_count}")
 
-        portrait_src = None
         portrait_filename = f"{runtime}.png"
         portrait_target = PORTRAIT_DIR / portrait_filename
 
         if not portrait_target.exists():
-            short_name = runtime.lower().replace("terran", "").replace("protoss", "").replace("zerg", "")
-            portrait_src = resolve_icon(f"ui_btn_commanderportrait_{short_name}.dds")
+            portrait_src = resolve_commander_portrait(runtime)
             if portrait_src:
                 convert_dds_to_png(portrait_src, portrait_target)
 
