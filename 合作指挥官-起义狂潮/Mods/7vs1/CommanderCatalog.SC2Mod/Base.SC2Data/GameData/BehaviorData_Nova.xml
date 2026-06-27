@@ -1,83 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
-  <CBehaviorBuff id="NovaCoopCasterAdvancedOptics">
-    <Alignment value="Positive" />
-    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
-    <Duration value="15" />
-    <Modification SightMultiplier="2">
-      <StateFlags index="Detect" value="1" />
-    </Modification>
-    <BehaviorCategories index="Fast" value="1" />
-  </CBehaviorBuff>
-  <CBehaviorBuff id="NovaCoopCasterDefensiveMatrix">
-    <Alignment value="Positive" />
-    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
-    <Duration value="10" />
-    <Modification>
-      <VitalShieldBonusArray value="200" />
-    </Modification>
-    <BehaviorCategories index="Fast" value="1" />
-  </CBehaviorBuff>
-  <CBehaviorBuff id="NovaCoopCasterDisableDetectors">
-    <Alignment value="Negative" />
-    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
-    <Duration value="10" />
-    <Modification>
-      <StateFlags index="Detect" value="0" />
-    </Modification>
-    <BehaviorCategories index="Fast" value="1" />
-  </CBehaviorBuff>
   <CBehaviorBuff id="NovaCoopCasterStunGrenade">
     <Alignment value="Negative" />
+    <InfoIcon value="Assets\Textures\btn-upgrade-vorazun-shadowstun.dds" />
     <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
     <Duration value="3" />
     <Modification>
-      <StateFlags index="Stunned" value="1" />
+      <StateFlags index="Stun" value="1" />
+      <AbilClassDisableArray index="CAbilEffectTarget" value="1" />
     </Modification>
-    <BehaviorCategories index="Fast" value="1" />
+    <BehaviorCategories index="Stun" value="1" />
   </CBehaviorBuff>
   <CBehaviorBuff id="NovaCoopCasterStunGrenadeSlow">
     <Alignment value="Negative" />
+    <InfoIcon value="Assets\Textures\btn-upgrade-vorazun-shadowstun.dds" />
+    <BehaviorCategories index="Stun" value="1" />
     <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
-    <Duration value="5" />
-    <Modification MoveSpeedMultiplier="0.5" AttackSpeedMultiplier="0.5">
-      <StateFlags index="Uncommandable" value="0" />
-    </Modification>
-    <BehaviorCategories index="Fast" value="1" />
+    <Duration value="3" />
+    <Modification MoveSpeedMultiplier="0.5" AttackSpeedMultiplier="0.5" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="NovaGriffinTransportActivate">
-    <InfoFlags index="Hidden" value="1" />
+  <CBehaviorBuff id="NovaCoopCasterDefensiveMatrix">
+    <Alignment value="Positive" />
+    <InfoIcon value="Assets\Textures\btn-upgrade-swann-defensivematrix.dds" />
     <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
     <Duration value="30" />
+    <DamageResponse ModifyFraction="0" ModifyLimit="200" ModifyMinimumDamage="1">
+      <Chance value="1" />
+    </DamageResponse>
   </CBehaviorBuff>
-  <CBehaviorBuff id="NovaGriffinTransportAirUnits">
-    <InfoFlags index="Hidden" value="1" />
+  <CBehaviorBuff id="NovaCoopCasterAdvancedOptics">
+    <Alignment value="Positive" />
+    <InfoIcon value="Assets\Textures\btn-ability-terran-detectionconedebuff.dds" />
     <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
     <Duration value="30" />
+    <Modification Detect="11" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="NovaCoopCasterDisableDetectors">
+    <Alignment value="Negative" />
+    <InfoIcon value="Assets\Textures\btn-ability-protoss-confusion.dds" />
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Duration value="1" />
     <Modification>
-      <StateFlags index="Uncommandable" value="1" />
-      <StateFlags index="Invulnerable" value="1" />
-    </Modification>
-  </CBehaviorBuff>
-  <CBehaviorBuff id="NovaGriffinTransportGroundUnits">
-    <InfoFlags index="Hidden" value="1" />
-    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
-    <Duration value="30" />
-    <Modification>
-      <StateFlags index="Uncommandable" value="1" />
-      <StateFlags index="Invulnerable" value="1" />
+      <StateFlags index="SuppressDetection" value="1" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="NovaGriffinTransportUnloadUnitsDespawnDelay">
     <InfoFlags index="Hidden" value="1" />
-    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
-    <Duration value="2" />
+    <Alignment value="Negative" />
+    <InfoIcon value="Assets\Textures\btn-ability-protoss-stasistrap.dds" />
+    <EditorCategories value="Race:Zerg,AbilityorEffectType:Units" />
+    <Duration value="0.5" />
+    <ExpireEffect value="NovaGriffinTransportUnloadUnitsDespawnAB" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="NovaGriffinTransportUnloadUnitsDespawnDelayFallback">
+    <InfoFlags index="Hidden" value="1" />
+    <Alignment value="Negative" />
+    <InfoIcon value="Assets\Textures\btn-ability-protoss-stasistrap.dds" />
+    <EditorCategories value="Race:Zerg,AbilityorEffectType:Units" />
+    <Duration value="15" />
+    <ExpireEffect value="NovaGriffinTransportUnloadUnitsDespawnDelayTimeOut" />
     <FinalEffect value="NovaGriffinTransportUnloadUnitsDespawnAB" />
   </CBehaviorBuff>
   <CBehaviorBuff id="NovaGriffinTransportUnloadUnitsDespawn">
     <InfoFlags index="Hidden" value="1" />
-    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Alignment value="Negative" />
+    <InfoIcon value="Assets\Textures\btn-ability-protoss-stasistrap.dds" />
+    <EditorCategories value="Race:Zerg,AbilityorEffectType:Units" />
+    <Duration value="2" />
+    <ExpireEffect value="NovaGriffinTransportUnloadUnitsDespawn" />
+    <Modification>
+      <StateFlags index="Cloak" value="1" />
+    </Modification>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="NovaGriffinTransportActivate">
+    <InfoFlags index="Hidden" value="1" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="NovaGriffinTransportAirUnits">
+    <InfoFlags index="Hidden" value="1" />
+    <Modification>
+      <ModifyFlags index="DisableAbils" value="1" />
+      <ModifyFlags index="SuppressMoving" value="1" />
+      <ModifyFlags index="SuppressTurning" value="1" />
+      <StateFlags index="Invulnerable" value="1" />
+      <StateFlags index="Stun" value="1" />
+      <StateFlags index="NoDraw" value="1" />
+    </Modification>
+    <Duration value="15" />
+    <TimeScaleSource Value="Global" />
+    <BehaviorCategories index="User7" value="1" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="NovaGriffinTransportGroundUnits">
+    <InfoFlags index="Hidden" value="1" />
+    <Duration value="15" />
+    <Modification>
+      <ModifyFlags index="DisableAbils" value="1" />
+      <ModifyFlags index="SuppressMoving" value="1" />
+      <ModifyFlags index="SuppressTurning" value="1" />
+      <StateFlags index="Invulnerable" value="1" />
+      <StateFlags index="Stun" value="1" />
+      <StateFlags index="NoDraw" value="1" />
+    </Modification>
+    <TimeScaleSource Value="Global" />
+    <BehaviorCategories index="User7" value="1" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="NovaGriffinTransportDelay">
+    <InfoFlags index="Hidden" value="1" />
     <Duration value="0.5" />
-    <FinalEffect value="NovaGriffinTransportUnloadUnitsRemove" />
+    <Modification>
+      <StateFlags index="Cloak" value="1" />
+    </Modification>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="NovaGriffinTransportInitialCloak">
+    <InfoFlags index="Hidden" value="1" />
+    <DisplayDuration index="Self" value="1" />
+    <Duration value="0.25" />
+    <FinalEffect value="NovaGriffinTransportInitialCloakMU" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="NovaGriffinTransportFallbackLocation">
+    <InfoFlags index="Hidden" value="1" />
+    <Duration value="15" />
+    <ExpireEffect value="NovaGriffinTransportUnloadUnitsFallbackSearch" />
   </CBehaviorBuff>
 </Catalog>
