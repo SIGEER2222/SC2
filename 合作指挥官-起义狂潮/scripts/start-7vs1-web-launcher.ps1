@@ -1648,6 +1648,15 @@ function ConvertTo-LaunchArgumentList {
         }
     }
 
+    $enableStartTalents = if ($Request.enableStartTalents -eq $false) { $false } else { $true }
+    $startTalentMask = if ($null -ne $Request.startTalentMask) { [int]$Request.startTalentMask } else { 0 }
+    if ($enableStartTalents -and $startTalentMask -gt 0) {
+        $startTalentOverride = "{0}.StartTalentMask={1}" -f $commander, $startTalentMask
+        if (-not $selectedCommanderOverrides.Contains($startTalentOverride)) {
+            $selectedCommanderOverrides.Add($startTalentOverride)
+        }
+    }
+
     $args = New-Object System.Collections.Generic.List[string]
     foreach ($entry in @(
             "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $script:LaunchScript,

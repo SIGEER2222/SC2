@@ -1,0 +1,155 @@
+bool libE0EAE146_gv_hexTalents_initialized = false;
+int[16] libE0EAE146_gv_hexTalents_startMask;
+
+string libE0EAE146_gf_HexTalentsCommanderToBankKey (string lp_commander) {
+    if (lp_commander == "TerranRaynor") { return "Raynor"; }
+    if (lp_commander == "TerranMengsk") { return "Mengsk"; }
+    if (lp_commander == "TerranSwann") { return "Swann"; }
+    if (lp_commander == "TerranNova") { return "Nova"; }
+    if (lp_commander == "TerranHorner") { return "Horner"; }
+    if (lp_commander == "ProtossKarax") { return "Karax"; }
+    if (lp_commander == "ProtossFenix") { return "Fenix"; }
+    if (lp_commander == "ProtossArtanis") { return "Artanis"; }
+    if (lp_commander == "ProtossVorazun") { return "Vorazun"; }
+    if (lp_commander == "ProtossZeratul") { return "Zeratul"; }
+    if (lp_commander == "ZergKerrigan") { return "Kerrigan"; }
+    if (lp_commander == "ZergZagara") { return "Zagara"; }
+    if (lp_commander == "ZergAbathur") { return "Abathur"; }
+    if (lp_commander == "ZergStukov") { return "Stukov"; }
+    if (lp_commander == "ZergDehaka") { return "Dehaka"; }
+    if (lp_commander == "ZergTychus") { return "Tychus"; }
+    if (lp_commander == "ZergStetmann") { return "Stetmann"; }
+    return lp_commander;
+}
+
+void libE0EAE146_gf_HexTalentsApplyUpgrades (int lp_player) {
+    int lv_mask;
+
+    lv_mask = libE0EAE146_gv_hexTalents_startMask[lp_player];
+    if (lv_mask == 0) {
+        return;
+    }
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, 3)) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "HexTalent_01_HealthBonus", 1);
+    }
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, 4)) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "HexTalent_02_DamageBonus", 1);
+    }
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, 5)) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "HexTalent_03_MoveSpeedBonus", 1);
+    }
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, 6)) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "HexTalent_04_ArmorBonus", 1);
+    }
+    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, 7)) {
+        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "HexTalent_05_SightRangeBonus", 1);
+    }
+}
+
+void libE0EAE146_gf_HexTalentsApplyBehaviorToUnit (unit lp_unit, int lp_player) {
+    if (libE0EAE146_gv_hexTalents_startMask[lp_player] == 0) {
+        return;
+    }
+    if (UnitIsHero(lp_unit) == true) {
+        return;
+    }
+    if (UnitIsStructure(lp_unit) == true) {
+        return;
+    }
+    if (UnitGetType(lp_unit) == "CoopCaster") {
+        return;
+    }
+    if (UnitGetType(lp_unit) == "CoopCasterTychus") {
+        return;
+    }
+    if (UnitGetType(lp_unit) == "CoopCasterStetmann") {
+        return;
+    }
+    if (UnitGetType(lp_unit) == "CoopCasterNova") {
+        return;
+    }
+    if (UnitBehaviorCount(lp_unit, "HexTalentTotal") > 0) {
+        return;
+    }
+    UnitBehaviorAdd(lp_unit, "HexTalentTotal", lp_unit, 1);
+}
+
+bool libE0EAE146_gt_HexTalentsUnitCreated_Func (bool lp_testConditions) {
+    int lv_player;
+    unit lv_unit;
+
+    lv_unit = EventUnit();
+    lv_player = UnitGetOwner(lv_unit);
+    if (lv_player == 0) {
+        return false;
+    }
+    if (lv_player > 16) {
+        return false;
+    }
+    libE0EAE146_gf_HexTalentsApplyBehaviorToUnit(lv_unit, lv_player);
+    return false;
+}
+
+void libE0EAE146_gf_HexTalentsLoadStartMask (int lp_player) {
+    int lv_mask;
+    string lv_commander;
+    string lv_bankCommander;
+
+    lv_commander = libKCOR_gf_ActiveCommanderForPlayer(lp_player);
+    if (lv_commander == "") {
+        return;
+    }
+    lv_bankCommander = libE0EAE146_gf_HexTalentsCommanderToBankKey(lv_commander);
+    lv_mask = libE0EAE146_gf_CommanderPowerBankIntOrDefault(lv_bankCommander, "StartTalentMask", 0);
+    libE0EAE146_gv_hexTalents_startMask[lp_player] = lv_mask;
+}
+
+void libE0EAE146_gf_HexTalentsPlayerInit (int lp_player) {
+    libE0EAE146_gf_HexTalentsLoadStartMask(lp_player);
+    libE0EAE146_gf_HexTalentsApplyUpgrades(lp_player);
+}
+
+bool libE0EAE146_gt_HexTalentsGameStart_Func (bool lp_testConditions) {
+    int lv_player;
+
+    if (libE0EAE146_gv_hexTalents_initialized == true) {
+        return false;
+    }
+    libE0EAE146_gv_hexTalents_initialized = true;
+    lv_player = 1;
+    while (lv_player <= 16) {
+        if (PlayerIsActive(lv_player) == true) {
+            if (PlayerIsEnemy(PlayerNumberAny(), lv_player) == false) {
+                libE0EAE146_gf_HexTalentsPlayerInit(lv_player);
+            }
+        }
+        lv_player += 1;
+    }
+    return false;
+}
+
+void libE0EAE146_gt_HexTalentsUnitCreated_Init () {
+    libE0EAE146_gt_HexTalentsUnitCreated = TriggerCreate("libE0EAE146_gt_HexTalentsUnitCreated_Func");
+    TriggerAddEventUnitBorn(libE0EAE146_gt_HexTalentsUnitCreated, null, c_unitFilterAny);
+}
+
+void libE0EAE146_gt_HexTalentsGameStart_Init () {
+    libE0EAE146_gt_HexTalentsGameStart = TriggerCreate("libE0EAE146_gt_HexTalentsGameStart_Func");
+    TriggerAddEventGameStarted(libE0EAE146_gt_HexTalentsGameStart);
+}
+
+void libE0EAE146_hexTalents_InitVariables () {
+    int lv_i;
+
+    lv_i = 1;
+    while (lv_i <= 16) {
+        libE0EAE146_gv_hexTalents_startMask[lv_i] = 0;
+        lv_i += 1;
+    }
+    libE0EAE146_gv_hexTalents_initialized = false;
+}
+
+void libE0EAE146_hexTalents_InitTriggers () {
+    libE0EAE146_gt_HexTalentsUnitCreated_Init();
+    libE0EAE146_gt_HexTalentsGameStart_Init();
+}
