@@ -3,6 +3,8 @@ from __future__ import annotations
 import html
 import json
 import shutil
+import subprocess
+import tempfile
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,12 +23,89 @@ MANIFEST_PATH = OUTPUT_DIR / "manifest.json"
 INDEX_PATH = OUTPUT_DIR / "index.html"
 README_PATH = OUTPUT_DIR / "README.txt"
 
+# SC2 CASC storage path
+SC2_STORAGE_PATH = Path(r"E:\SC2\SC2new\StarCraft II")
+CASC_DUMP_EXE = Path(r"C:\tools\casc\CascDump\bin\Debug\net9.0\CascDump.exe")
+
 SOURCE_ROOTS = [
     Path(r"C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\游戏数据\官方合作指挥官\icon-assets\short-path"),
     Path(r"C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\tools\launcher_mpq"),
     Path(r"C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\整理输出\合作指挥官-起义狂潮"),
     Path(r"C:\Users\22448\Downloads\合作指挥官版起义狂潮0.81"),
 ]
+
+# Cache of files found in SC2 CASC storage
+# Maps normalized path (forward slashes) -> original CASC path (backslashes)
+_casc_file_cache: dict[str, str] = {}
+_casc_cache_loaded = False
+
+
+def _load_casc_file_list() -> None:
+    """Load the list of coop DDS files from SC2 CASC storage."""
+    global _casc_cache_loaded
+    if _casc_cache_loaded:
+        return
+
+    if not CASC_DUMP_EXE.exists():
+        print(f"CascDump.exe not found: {CASC_DUMP_EXE}")
+        _casc_cache_loaded = True
+        return
+
+    if not SC2_STORAGE_PATH.exists():
+        print(f"SC2 storage not found: {SC2_STORAGE_PATH}")
+        _casc_cache_loaded = True
+        return
+
+    print(f"Loading file list from SC2 CASC storage: {SC2_STORAGE_PATH}")
+    try:
+        result = subprocess.run(
+            [str(CASC_DUMP_EXE), "list", str(SC2_STORAGE_PATH), "1000000"],
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        for line in result.stdout.splitlines():
+            # Format: path size Full True
+            # Files are at mods\liberty.sc2mod\base.sc2assets\assets\textures\xxx_coop.dds
+            if "_coop.dds" in line and "Full" in line:
+                parts = line.split()
+                if len(parts) >= 4:
+                    file_path = parts[0]  # Keep original backslashes for extraction
+                    file_path_normalized = file_path.replace(chr(92), "/")
+                    # Store with normalized key (forward slashes) -> original path (backslashes)
+                    _casc_file_cache[file_path_normalized] = file_path
+                    # Also store without mods\liberty... prefix for matching Assets\Textures\xxx.dds
+                    # e.g. mods/liberty.sc2mod/base.sc2assets/assets/textures/avenger_coop.dds
+                    # -> Assets/Textures/avenger_coop.dds
+                    if "base.sc2assets/assets/textures/" in file_path_normalized:
+                        filename = file_path_normalized.split("/")[-1]
+                        assets_path = f"Assets/Textures/{filename}"
+                        _casc_file_cache[assets_path] = file_path
+        print(f"Found {len(_casc_file_cache)} coop DDS files in CASC storage")
+    except Exception as e:
+        print(f"Failed to load CASC file list: {e}")
+
+    _casc_cache_loaded = True
+
+
+def resolve_source(asset_path: str) -> tuple[Path | None, str | None]:
+    """Returns (source_path, casc_internal_path) where casc_internal_path is the CASC storage path if found."""
+    normalized = asset_path.replace("\\", "/")
+
+    # Check local source roots first
+    for root in SOURCE_ROOTS:
+        candidate = root / normalized
+        if candidate.exists():
+            return (candidate, None)
+
+    # Check SC2 CASC storage
+    _load_casc_file_list()
+    if normalized in _casc_file_cache:
+        # Return the CASC internal path for extraction
+        casc_internal_path = _casc_file_cache[normalized]
+        return (Path(casc_internal_path), casc_internal_path)
+
+    return (None, None)
 
 
 def load_strings(path: Path) -> dict[str, str]:
@@ -44,15 +123,6 @@ def resolve_text(key: str | None, zh_strings: dict[str, str], en_strings: dict[s
     if not key:
         return ""
     return zh_strings.get(key) or en_strings.get(key) or ""
-
-
-def resolve_source(asset_path: str) -> Path | None:
-    normalized = asset_path.replace("\\", "/")
-    for root in SOURCE_ROOTS:
-        candidate = root / normalized
-        if candidate.exists():
-            return candidate
-    return None
 
 
 def convert_image(source: Path, target: Path) -> dict[str, object]:
@@ -194,13 +264,21 @@ def main() -> int:
     en_strings = load_strings(EN_STRINGS_PATH)
     mutators = parse_mutators()
 
+    # Pre-load CASC file list
+    _load_casc_file_list()
+
     entries: list[dict[str, object]] = []
     resolved_count = 0
     missing_count = 0
+    temp_files: list[Path] = []
 
     for item in mutators:
         icon_ref = item["icon_ref"]
-        source = resolve_source(icon_ref) if icon_ref else None
+        result = resolve_source(icon_ref) if icon_ref else (None, None)
+        if not isinstance(result, tuple) or len(result) != 2:
+            source_path, casc_path = None, None
+        else:
+            source_path, casc_path = result
         output_file = f'{item["id"]}.png'
         entry: dict[str, object] = {
             "id": item["id"],
@@ -211,28 +289,81 @@ def main() -> int:
             "icon_ref": icon_ref,
             "base_name": item["base_name"],
             "status": "",
-            "source_path": str(source) if source else "",
+            "source_path": str(source_path) if source_path else "",
             "output_file": "",
             "output_path": "",
         }
 
-        if source is None:
+        if source_path is None:
             entry["status"] = "missing-exact-icon-file"
             missing_count += 1
         else:
+            # Check if source is a CASC path (needs extraction)
+            if casc_path:
+                # Need to extract from CASC
+                # CascDump extract: <storage> <out-dir> <file-list.txt>
+                # Output preserves directory structure: <out-dir>/<casc-path>
+                temp_base = Path(tempfile.gettempdir()) / f"casc_extract_{item['id']}"
+                temp_base.mkdir(exist_ok=True)
+                temp_files.append(temp_base)
+
+                # Create file list with the CASC path (original backslashes)
+                file_list = temp_base / "extract_list.txt"
+                file_list.write_text(casc_path + "\n")
+
+                try:
+                    result = subprocess.run(
+                        [str(CASC_DUMP_EXE), "extract", str(SC2_STORAGE_PATH), str(temp_base), str(file_list)],
+                        capture_output=True,
+                        text=True,
+                        timeout=60,
+                    )
+                    if result.returncode != 0:
+                        entry["status"] = f"casc-extract-failed: {result.stderr[:100] if result.stderr else 'unknown'}"
+                        missing_count += 1
+                        entries.append(entry)
+                        continue
+
+                    # Find the extracted file (it's in a subdirectory structure)
+                    extracted_file = temp_base / casc_path  # casc_path has backslashes
+                    if not extracted_file.exists():
+                        entry["status"] = f"extracted-file-not-found: {extracted_file}"
+                        missing_count += 1
+                        entries.append(entry)
+                        continue
+
+                    source_path = extracted_file
+                except Exception as e:
+                    entry["status"] = f"casc-extract-error: {e}"
+                    missing_count += 1
+                    entries.append(entry)
+                    continue
+
             target = OUTPUT_DIR / output_file
-            image_info = convert_image(source, target)
-            entry["status"] = "resolved-exact-icon-file"
-            entry["output_file"] = output_file
-            entry["output_path"] = str(target)
-            entry.update(image_info)
-            resolved_count += 1
+            try:
+                image_info = convert_image(source_path, target)
+                entry["status"] = "resolved-exact-icon-file"
+                entry["output_file"] = output_file
+                entry["output_path"] = str(target)
+                entry.update(image_info)
+                resolved_count += 1
+            except Exception as e:
+                entry["status"] = f"image-convert-error: {e}"
+                missing_count += 1
 
         entries.append(entry)
 
+    # Clean up temp files
+    for temp_file in temp_files:
+        try:
+            if temp_file.exists():
+                temp_file.unlink()
+        except Exception:
+            pass
+
     manifest = {
         "generated_at": datetime.now(timezone.utc).astimezone().isoformat(),
-        "mutators_xml": str(MUTATORS_XML_PATH),
+        "mutators_xml": str(MUTATORS_GAMEDATA_PATH),
         "source_roots": [str(path) for path in SOURCE_ROOTS],
         "resolved_count": resolved_count,
         "missing_count": missing_count,
