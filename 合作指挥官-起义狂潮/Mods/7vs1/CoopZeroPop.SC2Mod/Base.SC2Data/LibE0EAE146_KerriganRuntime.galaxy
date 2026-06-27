@@ -327,6 +327,137 @@ void libE0EAE146_gf_KerriganStartInReviveFlow (int lp_player, unit lp_hero) {
     UnitKill(lp_hero);
 }
 
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_MasteryKerriganInstantReviveCooldown
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_MasteryKerriganInstantReviveCooldown_Func (bool testConds, bool runActions) {
+    int lv_p;
+
+    lv_p = EventPlayer();
+
+    if (!runActions) {
+        return true;
+    }
+
+    UnitBehaviorAdd(libKMIS_gv_cM_HeroUnit[lv_p], "KerriganInstantReviveCooldown", libKMIS_gv_cM_HeroUnit[lv_p], 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_MasteryKerriganInstantReviveCooldown_Init () {
+    libE0EAE146_gt_CM_MasteryKerriganInstantReviveCooldown = TriggerCreate("libE0EAE146_gt_CM_MasteryKerriganInstantReviveCooldown_Func");
+    TriggerEnable(libE0EAE146_gt_CM_MasteryKerriganInstantReviveCooldown, false);
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_MasteryKerriganInstantReviveCooldown, c_playerAny, "MasteryKerriganInstantReviveChanced");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kerrigan Psi Strike
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_KerriganPsiStrike_Func (bool testConds, bool runActions) {
+    point lv_k;
+    point lv_t;
+    point lv_finalT;
+    fixed lv_facing;
+    fixed lv_distance;
+    bool lv_goodPositionFound;
+    int lv_i;
+    int lv_player;
+
+    const int autoABE5947F_ae = 14;
+    const int autoABE5947F_ai = 1;
+
+    lv_k = UnitGetPosition(EventUnit());
+    lv_t = EventUnitTargetPoint();
+    lv_facing = AngleBetweenPoints(UnitGetPosition(EventUnit()), EventUnitTargetPoint());
+    lv_distance = 8.0;
+    lv_player = UnitGetOwner(EventUnit());
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_t = libNtve_gf_PointOffsetTowardsPoint(lv_k, 8.0, lv_t);
+    lv_finalT = lv_t;
+    while ((lv_distance >= 0.6) && (lv_goodPositionFound == false)) {
+        lv_t = libNtve_gf_PointOffsetTowardsPoint(lv_k, lv_distance, lv_t);
+        if ((PointPathingCost(lv_k, lv_t) <= FixedToInt((lv_distance * 1.5))) && (WorldHeight(c_heightMapGround, lv_k) < (WorldHeight(c_heightMapGround, lv_t) + 1.0)) && (WorldHeight(c_heightMapGround, lv_k) > (WorldHeight(c_heightMapGround, lv_t) - 1.0))) {
+            lv_goodPositionFound = true;
+        }
+
+        lv_distance -= 0.5;
+    }
+    Wait(0.0625, c_timeGame);
+    if ((lv_goodPositionFound == true)) {
+        UnitIssueOrder(EventUnit(), OrderTargetingPoint(AbilityCommand("move", 0), lv_t), c_orderQueueReplace);
+        UnitIssueOrder(EventUnit(), OrderTargetingPoint(AbilityCommand("move", 0), lv_finalT), c_orderQueueAddToEnd);
+    }
+    else {
+        UnitIssueOrder(EventUnit(), OrderTargetingPoint(AbilityCommand("move", 0), lv_finalT), c_orderQueueReplace);
+    }
+    Wait(0.1875, c_timeGame);
+    lv_i = 1;
+    for ( ; ( (autoABE5947F_ai >= 0 && lv_i <= autoABE5947F_ae) || (autoABE5947F_ai < 0 && lv_i >= autoABE5947F_ae) ) ; lv_i += autoABE5947F_ai ) {
+        libKMIS_gv_kerriganPsiStrikeFacing[lv_player] = UnitGetFacing(EventUnit());
+        if ((lv_facing > 90.0)) {
+            if (((libKMIS_gv_kerriganPsiStrikeFacing[lv_player] < (lv_facing - 90.0)) && (libKMIS_gv_kerriganPsiStrikeFacing[lv_player] > (lv_facing - 270.0)))) {
+                UnitBehaviorRemove(EventUnit(), "PsiStrikeWalkSpeed", 1);
+                break;
+            }
+
+        }
+        else {
+            if ((lv_facing < -90.0)) {
+                if (((libKMIS_gv_kerriganPsiStrikeFacing[lv_player] > (lv_facing + 90.0)) && (libKMIS_gv_kerriganPsiStrikeFacing[lv_player] < (lv_facing + 270.0)))) {
+                    UnitBehaviorRemove(EventUnit(), "PsiStrikeWalkSpeed", 1);
+                    break;
+                }
+
+            }
+            else {
+                if (((libKMIS_gv_kerriganPsiStrikeFacing[lv_player] > (lv_facing + 90.0)) || (libKMIS_gv_kerriganPsiStrikeFacing[lv_player] < (lv_facing - 90.0)))) {
+                    UnitBehaviorRemove(EventUnit(), "PsiStrikeWalkSpeed", 1);
+                    break;
+                }
+
+            }
+        }
+        Wait(0.0625, c_timeGame);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_KerriganPsiStrike_Init () {
+    libE0EAE146_gt_KerriganPsiStrike = TriggerCreate("libE0EAE146_gt_KerriganPsiStrike_Func");
+    TriggerEnable(libE0EAE146_gt_KerriganPsiStrike, false);
+    TriggerAddEventUnitAbility(libE0EAE146_gt_KerriganPsiStrike, null, AbilityCommand("PsiStrikeWalk", 0), c_abilEffectStageCast, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Kerrigan_WeaponSwap
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_Kerrigan_WeaponSwap_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetType(EventUnit()) == "MutaliskBroodlord")) {
+        UnitWeaponRemove(EventUnit(), "GlaiveWurm");
+        UnitWeaponAdd(EventUnit(), "CoopGlaiveWurm", null);
+        return true;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_Kerrigan_WeaponSwap_Init () {
+    libE0EAE146_gt_CM_Kerrigan_WeaponSwap = TriggerCreate("libE0EAE146_gt_CM_Kerrigan_WeaponSwap_Func");
+    TriggerEnable(libE0EAE146_gt_CM_Kerrigan_WeaponSwap, false);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_CM_Kerrigan_WeaponSwap, null, "KerriganOwned", c_unitBehaviorChangeCreate);
+}
+
+//--------------------------------------------------------------------------------------------------
 void libE0EAE146_gf_KerriganRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     unit lv_caster;
 
@@ -342,6 +473,12 @@ void libE0EAE146_gf_KerriganRuntimeInit (int lp_player, point lp_heroPoint, bool
         libE0EAE146_gf_KerriganApplyTechFilter(lp_player);
     }
     libE0EAE146_gf_KerriganEconDropInit(lp_player);
+    libE0EAE146_gt_CM_MasteryKerriganInstantReviveCooldown_Init();
+    libE0EAE146_gt_KerriganPsiStrike_Init();
+    libE0EAE146_gt_CM_Kerrigan_WeaponSwap_Init();
+    TriggerEnable(libE0EAE146_gt_CM_MasteryKerriganInstantReviveCooldown, true);
+    TriggerEnable(libE0EAE146_gt_KerriganPsiStrike, true);
+    TriggerEnable(libE0EAE146_gt_CM_Kerrigan_WeaponSwap, true);
 
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterKerrigan", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
     lv_caster = UnitLastCreated();
