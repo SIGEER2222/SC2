@@ -29,7 +29,7 @@ string libE0EAE146_gf_CommanderHeroReviveUnitType (string lp_commander) {
         return "NovaReviveBeacon";
     }
     else if (lp_commander == "Karax") {
-        return "NovaReviveBeacon";
+        return "ArtanisReviveBeacon";
     }
 
     return "";
@@ -478,6 +478,11 @@ bool libE0EAE146_gt_CommanderHeroDied_Func (bool testConds, bool runActions) {
     lv_reviver = UnitLastCreated();
     if ((UnitIsValid(lv_reviver) == true) && (lv_reviveBehavior != "") && CatalogEntryIsValid(c_gameCatalogBehavior, lv_reviveBehavior)) {
         UnitBehaviorAdd(lv_reviver, lv_reviveBehavior, lv_reviver, 1);
+    }
+
+    // Karax 复活信标显示名称改为凯拉克斯
+    if (lv_commander == "Karax") {
+        UnitSetInfoTip(lv_reviver, StringToText("凯拉克斯"));
     }
 
     libE0EAE146_gf_CommanderHeroReviveAfterDelay(lv_player, lv_commander, lv_hero, lv_reviver, lv_duration);
