@@ -1267,10 +1267,6 @@ void libKMIS_gf_CM_DataUtilInit () {
         if (lv_indexPlayer < 0) { break; }
         autoCF24B7F2_val = libKCOR_gf_ActiveCommanderForPlayer(lv_indexPlayer);
         if (autoCF24B7F2_val == "ProtossKarax") {
-            TriggerEnable(libKMIS_gt_CM_KaraxUnitReviveBarrier, true);
-            TriggerEnable(libKMIS_gt_CM_KaraxSolarForgeSOAEnergy, true);
-            TriggerEnable(libKMIS_gt_CM_KaraxRepairBeamLimit, true);
-            TriggerExecute(libKMIS_gt_CM_KaraxRepairBeamLimit, false, true);
         }
         else if (autoCF24B7F2_val == "TerranRaynor") {
             TriggerEnable(libKMIS_gt_CM_HyperionMinimapIconDynamicFacingDisplay, true);
@@ -2115,12 +2111,6 @@ void libKMIS_gf_CM_Horner_BomberStatusCheck (int lp_player) {
     else {
         UnitBehaviorRemove(libKMIS_gv_cM_GlobalCasterUnit[lp_player], "HHBomberPlatformAreaBombTopBarDummyTimer", 1);
     }
-}
-
-void libKMIS_gf_CM_KaraxSetRepairBeamLimit (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "KaraxRepairBeamLimit", CatalogFieldValueGetAsInt(c_gameCatalogEffect, "KaraxRepairBeamLimit", "Amount", lp_player));
 }
 
 point libKMIS_gf_CM_LaserDrillTargetPoint (point lp_casterPoint, point lp_targetPoint, region lp_region, int lp_player) {
@@ -13316,130 +13306,6 @@ void libKMIS_gt_CM_Horner_TriggersInit_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: CM_KaraxRepairBeamLimit
-//--------------------------------------------------------------------------------------------------
-bool libKMIS_gt_CM_KaraxRepairBeamLimit_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    playergroup auto2DB4F5DC_g;
-    int auto2DB4F5DC_var;
-
-    // Conditions
-    if (testConds) {
-        if (!((EventUpgradeName() == "SOARepairBeamExtraTarget"))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    auto2DB4F5DC_g = libKCOR_gf_CC_PlayersOfCommander("ProtossKarax");
-    auto2DB4F5DC_var = -1;
-    while (true) {
-        auto2DB4F5DC_var = PlayerGroupNextPlayer(auto2DB4F5DC_g, auto2DB4F5DC_var);
-        if (auto2DB4F5DC_var < 0) { break; }
-        libKMIS_gf_CM_KaraxSetRepairBeamLimit(auto2DB4F5DC_var);
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libKMIS_gt_CM_KaraxRepairBeamLimit_Init () {
-    libKMIS_gt_CM_KaraxRepairBeamLimit = TriggerCreate("libKMIS_gt_CM_KaraxRepairBeamLimit_Func");
-    TriggerEnable(libKMIS_gt_CM_KaraxRepairBeamLimit, false);
-    TriggerAddEventUpgradeLevelChanged(libKMIS_gt_CM_KaraxRepairBeamLimit, c_playerAny);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: CM_KaraxUnitReviveBarrier
-//--------------------------------------------------------------------------------------------------
-bool libKMIS_gt_CM_KaraxUnitReviveBarrier_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    int lv_player;
-    int lv_alliedKaraxPlayer;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_player = UnitGetOwner(EventUnit());
-    lv_alliedKaraxPlayer = libKCOR_gf_CC_PlayerOfCommanderInGroupFirst("ProtossKarax", libKCOR_gf_MutualAlliedCommandersofPlayerCoutInactiveAndSelf(lv_player));
-
-    // Conditions
-    if (testConds) {
-        if (!((libKCOR_gf_PlayerIsCommander(lv_player) == true))) {
-            return false;
-        }
-
-        if (!((lv_alliedKaraxPlayer != c_playerAny))) {
-            return false;
-        }
-
-        if (!((TechTreeUpgradeCount(lv_alliedKaraxPlayer, "KaraxUnitSpawnBarrier", c_techCountCompleteOnly) == 1))) {
-            return false;
-        }
-
-        if (!((UnitFilterMatch(EventUnit(), 1, UnitFilter((1 << c_targetFilterVisible), 0, (1 << c_targetFilterNeutral) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterStasis - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)))) == true))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    UnitBehaviorAdd(EventUnit(), "KaraxUnitSpawnBarrier", libKMIS_gv_cM_GlobalCasterUnit[lv_alliedKaraxPlayer], 1);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libKMIS_gt_CM_KaraxUnitReviveBarrier_Init () {
-    libKMIS_gt_CM_KaraxUnitReviveBarrier = TriggerCreate("libKMIS_gt_CM_KaraxUnitReviveBarrier_Func");
-    TriggerEnable(libKMIS_gt_CM_KaraxUnitReviveBarrier, false);
-    TriggerAddEventUnitRevive(libKMIS_gt_CM_KaraxUnitReviveBarrier, null);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: CM_KaraxSolarForgeSOAEnergy
-//--------------------------------------------------------------------------------------------------
-bool libKMIS_gt_CM_KaraxSolarForgeSOAEnergy_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Conditions
-    if (testConds) {
-        if (!((TechTreeUpgradeCount(EventPlayer(), "KaraxCommander", c_techCountCompleteOnly) == 1))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    if ((TechTreeUpgradeCount(EventPlayer(), "SolarEfficiencyLevel3", c_techCountCompleteOnly) == 1)) {
-        UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitCaster), "SolarForgeSolarEfficiency3MU", libKMIS_gv_cM_GlobalCasterUnit[EventPlayer()]);
-        libKCUI_gf_CU_GPSoAUpdateVitals(EventPlayer());
-    }
-    else if ((TechTreeUpgradeCount(EventPlayer(), "SolarEfficiencyLevel2", c_techCountCompleteOnly) == 1)) {
-        UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitCaster), "SolarForgeSolarEfficiency2MU", libKMIS_gv_cM_GlobalCasterUnit[EventPlayer()]);
-        libKCUI_gf_CU_GPSoAUpdateVitals(EventPlayer());
-    }
-    else if ((TechTreeUpgradeCount(EventPlayer(), "SolarEfficiencyLevel1", c_techCountCompleteOnly) == 1)) {
-        UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitCaster), "SolarForgeSolarEfficiency1MU", libKMIS_gv_cM_GlobalCasterUnit[EventPlayer()]);
-        libKCUI_gf_CU_GPSoAUpdateVitals(EventPlayer());
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libKMIS_gt_CM_KaraxSolarForgeSOAEnergy_Init () {
-    libKMIS_gt_CM_KaraxSolarForgeSOAEnergy = TriggerCreate("libKMIS_gt_CM_KaraxSolarForgeSOAEnergy_Func");
-    TriggerEnable(libKMIS_gt_CM_KaraxSolarForgeSOAEnergy, false);
-    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_KaraxSolarForgeSOAEnergy, c_playerAny, "SolarForgeBeamImpactDummyMU");
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: CM_MasteryKerriganInstantReviveCooldown
 //--------------------------------------------------------------------------------------------------
 bool libKMIS_gt_CM_MasteryKerriganInstantReviveCooldown_Func (bool testConds, bool runActions) {
@@ -20118,40 +19984,6 @@ void libKMIS_gt_CM_SoAOrbitalStrikeActivated_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: CM_SoAOrbitalStrikeActivatedKarax
-//--------------------------------------------------------------------------------------------------
-bool libKMIS_gt_CM_SoAOrbitalStrikeActivatedKarax_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    int lv_casterPlayer;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Conditions
-    if (testConds) {
-        if (!((TechTreeUpgradeCount(EventPlayer(), "KaraxCommander", c_techCountCompleteOnly) == 1))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    lv_casterPlayer = UnitGetOwner(EventPlayerEffectUsedUnit(c_effectUnitCaster));
-    libKMIS_gv_cM_SoATargetingOrder[lv_casterPlayer] = OrderTargetingPoint(AbilityCommand("SOAOrbitalStrikeKarax", 0), UnitGetPosition(libKMIS_gv_cM_SoACasterUnit[lv_casterPlayer]));
-    UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoACasterGroup[lv_casterPlayer], libKMIS_gv_cM_SoATargetingOrder[lv_casterPlayer], false);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libKMIS_gt_CM_SoAOrbitalStrikeActivatedKarax_Init () {
-    libKMIS_gt_CM_SoAOrbitalStrikeActivatedKarax = TriggerCreate("libKMIS_gt_CM_SoAOrbitalStrikeActivatedKarax_Func");
-    TriggerAddEventPlayerEffectUsed(libKMIS_gt_CM_SoAOrbitalStrikeActivatedKarax, c_playerAny, "SOAOrbitalStrikeCP");
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: CM_SoAGravitonBombActivated
 //--------------------------------------------------------------------------------------------------
 bool libKMIS_gt_CM_SoAGravitonBombActivated_Func (bool testConds, bool runActions) {
@@ -21625,9 +21457,6 @@ void libKMIS_InitTriggers () {
     libKMIS_gt_CM_Horner_VikingTacticalJumpMorph_Init();
     libKMIS_gt_CM_Horner_MagMines_Init();
     libKMIS_gt_CM_Horner_TriggersInit_Init();
-    libKMIS_gt_CM_KaraxRepairBeamLimit_Init();
-    libKMIS_gt_CM_KaraxUnitReviveBarrier_Init();
-    libKMIS_gt_CM_KaraxSolarForgeSOAEnergy_Init();
     libKMIS_gt_CM_MasteryKerriganInstantReviveCooldown_Init();
     libKMIS_gt_KerriganPsiStrike_Init();
     libKMIS_gt_KerriganEconDrop_Init();
@@ -21784,7 +21613,6 @@ void libKMIS_InitTriggers () {
     libKMIS_gt_CM_SoATargetingCancelFromUI_Init();
     libKMIS_gt_CM_SoATargetingCameraShake_Init();
     libKMIS_gt_CM_SoAOrbitalStrikeActivated_Init();
-    libKMIS_gt_CM_SoAOrbitalStrikeActivatedKarax_Init();
     libKMIS_gt_CM_SoAGravitonBombActivated_Init();
     libKMIS_gt_CM_SoAThermalLanceActivated_Init();
     libKMIS_gt_CM_SoATimeFreezeOn_Init();

@@ -159,6 +159,152 @@ void libE0EAE146_gf_KaraxApplyTechFilter (int lp_player) {
     libE0EAE146_gf_KaraxAllowAbilityIfPresent(lp_player, "ShieldBatteryStructureBarrier", 0);
 }
 
+void libE0EAE146_gf_KaraxSetRepairBeamLimit (int lp_player) {
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "KaraxRepairBeamLimit", CatalogFieldValueGetAsInt(c_gameCatalogEffect, "KaraxRepairBeamLimit", "Amount", lp_player));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_KaraxRepairBeamLimit
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_KaraxRepairBeamLimit_Func (bool testConds, bool runActions) {
+    playergroup auto2DB4F5DC_g;
+    int auto2DB4F5DC_var;
+
+    if (testConds) {
+        if (!((EventUpgradeName() == "SOARepairBeamExtraTarget"))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    auto2DB4F5DC_g = libKCOR_gf_CC_PlayersOfCommander("ProtossKarax");
+    auto2DB4F5DC_var = -1;
+    while (true) {
+        auto2DB4F5DC_var = PlayerGroupNextPlayer(auto2DB4F5DC_g, auto2DB4F5DC_var);
+        if (auto2DB4F5DC_var < 0) { break; }
+        libE0EAE146_gf_KaraxSetRepairBeamLimit(auto2DB4F5DC_var);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_KaraxRepairBeamLimit_Init () {
+    libE0EAE146_gt_CM_KaraxRepairBeamLimit = TriggerCreate("libE0EAE146_gt_CM_KaraxRepairBeamLimit_Func");
+    TriggerEnable(libE0EAE146_gt_CM_KaraxRepairBeamLimit, false);
+    TriggerAddEventUpgradeLevelChanged(libE0EAE146_gt_CM_KaraxRepairBeamLimit, c_playerAny);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_KaraxUnitReviveBarrier
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_KaraxUnitReviveBarrier_Func (bool testConds, bool runActions) {
+    int lv_player;
+    int lv_alliedKaraxPlayer;
+
+    lv_player = UnitGetOwner(EventUnit());
+    lv_alliedKaraxPlayer = libKCOR_gf_CC_PlayerOfCommanderInGroupFirst("ProtossKarax", libKCOR_gf_MutualAlliedCommandersofPlayerCoutInactiveAndSelf(lv_player));
+
+    if (testConds) {
+        if (!((libKCOR_gf_PlayerIsCommander(lv_player) == true))) {
+            return false;
+        }
+
+        if (!((lv_alliedKaraxPlayer != c_playerAny))) {
+            return false;
+        }
+
+        if (!((TechTreeUpgradeCount(lv_alliedKaraxPlayer, "KaraxUnitSpawnBarrier", c_techCountCompleteOnly) == 1))) {
+            return false;
+        }
+
+        if (!((UnitFilterMatch(EventUnit(), 1, UnitFilter((1 << c_targetFilterVisible), 0, (1 << c_targetFilterNeutral) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterStasis - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)))) == true))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    UnitBehaviorAdd(EventUnit(), "KaraxUnitSpawnBarrier", libKMIS_gv_cM_GlobalCasterUnit[lv_alliedKaraxPlayer], 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_KaraxUnitReviveBarrier_Init () {
+    libE0EAE146_gt_CM_KaraxUnitReviveBarrier = TriggerCreate("libE0EAE146_gt_CM_KaraxUnitReviveBarrier_Func");
+    TriggerEnable(libE0EAE146_gt_CM_KaraxUnitReviveBarrier, false);
+    TriggerAddEventUnitRevive(libE0EAE146_gt_CM_KaraxUnitReviveBarrier, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_KaraxSolarForgeSOAEnergy
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_KaraxSolarForgeSOAEnergy_Func (bool testConds, bool runActions) {
+    if (testConds) {
+        if (!((TechTreeUpgradeCount(EventPlayer(), "KaraxCommander", c_techCountCompleteOnly) == 1))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    if ((TechTreeUpgradeCount(EventPlayer(), "SolarEfficiencyLevel3", c_techCountCompleteOnly) == 1)) {
+        UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitCaster), "SolarForgeSolarEfficiency3MU", libKMIS_gv_cM_GlobalCasterUnit[EventPlayer()]);
+        libKCUI_gf_CU_GPSoAUpdateVitals(EventPlayer());
+    }
+    else if ((TechTreeUpgradeCount(EventPlayer(), "SolarEfficiencyLevel2", c_techCountCompleteOnly) == 1)) {
+        UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitCaster), "SolarForgeSolarEfficiency2MU", libKMIS_gv_cM_GlobalCasterUnit[EventPlayer()]);
+        libKCUI_gf_CU_GPSoAUpdateVitals(EventPlayer());
+    }
+    else if ((TechTreeUpgradeCount(EventPlayer(), "SolarEfficiencyLevel1", c_techCountCompleteOnly) == 1)) {
+        UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitCaster), "SolarForgeSolarEfficiency1MU", libKMIS_gv_cM_GlobalCasterUnit[EventPlayer()]);
+        libKCUI_gf_CU_GPSoAUpdateVitals(EventPlayer());
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_KaraxSolarForgeSOAEnergy_Init () {
+    libE0EAE146_gt_CM_KaraxSolarForgeSOAEnergy = TriggerCreate("libE0EAE146_gt_CM_KaraxSolarForgeSOAEnergy_Func");
+    TriggerEnable(libE0EAE146_gt_CM_KaraxSolarForgeSOAEnergy, false);
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_KaraxSolarForgeSOAEnergy, c_playerAny, "SolarForgeBeamImpactDummyMU");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_SoAOrbitalStrikeActivatedKarax
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_CM_SoAOrbitalStrikeActivatedKarax_Func (bool testConds, bool runActions) {
+    int lv_casterPlayer;
+
+    if (testConds) {
+        if (!((TechTreeUpgradeCount(EventPlayer(), "KaraxCommander", c_techCountCompleteOnly) == 1))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_casterPlayer = UnitGetOwner(EventPlayerEffectUsedUnit(c_effectUnitCaster));
+    libKMIS_gv_cM_SoATargetingOrder[lv_casterPlayer] = OrderTargetingPoint(AbilityCommand("SOAOrbitalStrikeKarax", 0), UnitGetPosition(libKMIS_gv_cM_SoACasterUnit[lv_casterPlayer]));
+    UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), libKMIS_gv_cM_SoACasterGroup[lv_casterPlayer], libKMIS_gv_cM_SoATargetingOrder[lv_casterPlayer], false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_CM_SoAOrbitalStrikeActivatedKarax_Init () {
+    libE0EAE146_gt_CM_SoAOrbitalStrikeActivatedKarax = TriggerCreate("libE0EAE146_gt_CM_SoAOrbitalStrikeActivatedKarax_Func");
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_CM_SoAOrbitalStrikeActivatedKarax, c_playerAny, "SOAOrbitalStrikeCP");
+}
+
+//--------------------------------------------------------------------------------------------------
 void libE0EAE146_gf_KaraxRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     unit lv_caster;
 
@@ -171,6 +317,16 @@ void libE0EAE146_gf_KaraxRuntimeInit (int lp_player, point lp_heroPoint, bool lp
     if (libE0EAE146_gf_CommanderUsePrivateTechFilter("Karax")) {
         libE0EAE146_gf_KaraxApplyTechFilter(lp_player);
     }
+
+    libE0EAE146_gt_CM_KaraxRepairBeamLimit_Init();
+    libE0EAE146_gt_CM_KaraxUnitReviveBarrier_Init();
+    libE0EAE146_gt_CM_KaraxSolarForgeSOAEnergy_Init();
+    libE0EAE146_gt_CM_SoAOrbitalStrikeActivatedKarax_Init();
+    TriggerEnable(libE0EAE146_gt_CM_KaraxRepairBeamLimit, true);
+    TriggerEnable(libE0EAE146_gt_CM_KaraxUnitReviveBarrier, true);
+    TriggerEnable(libE0EAE146_gt_CM_KaraxSolarForgeSOAEnergy, true);
+    libE0EAE146_gf_KaraxSetRepairBeamLimit(lp_player);
+    TriggerExecute(libE0EAE146_gt_CM_KaraxRepairBeamLimit, false, true);
 
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "SoACasterKarax", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
     lv_caster = UnitLastCreated();
