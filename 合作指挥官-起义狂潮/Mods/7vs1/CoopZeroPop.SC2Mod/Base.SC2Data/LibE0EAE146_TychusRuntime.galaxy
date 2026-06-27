@@ -1653,7 +1653,6 @@ bool libE0EAE146_gt_CM_Tychus_Hero_Charge_Timing_Func (bool testConds, bool runA
     int lv_i;
     int lv_player;
     fixed lv_heroCooldown;
-    fixed lv_waitTime;
 
     // Automatic Variable Declarations
     playergroup auto2F37A26F_g;
@@ -1665,12 +1664,7 @@ bool libE0EAE146_gt_CM_Tychus_Hero_Charge_Timing_Func (bool testConds, bool runA
         return true;
     }
 
-    // 计算实际等待时间（快速召募天赋减半）
-    lv_waitTime = libE0EAE146_gv_cM_Tychus_InitialTrainTime;
-    if (libE0EAE146_gv_tychusQuickRebootEnabled) {
-        lv_waitTime = (lv_waitTime / 2.0);
-    }
-    while (!((GameGetMissionTime() >= lv_waitTime))) {
+    while (!((GameGetMissionTime() >= libE0EAE146_gv_cM_Tychus_InitialTrainTime))) {
         Wait(0.25, c_timeGame);
     }
     auto2F37A26F_g = libKCOR_gf_CommanderPlayers();
