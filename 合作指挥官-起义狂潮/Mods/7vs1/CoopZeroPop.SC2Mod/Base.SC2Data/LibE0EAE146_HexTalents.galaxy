@@ -112,10 +112,8 @@ bool libE0EAE146_gt_HexTalentsGameStart_Func (bool lp_testConditions) {
     libE0EAE146_gv_hexTalents_initialized = true;
     lv_player = 1;
     while (lv_player <= 16) {
-        if (PlayerIsActive(lv_player) == true) {
-            if (PlayerIsEnemy(PlayerNumberAny(), lv_player) == false) {
-                libE0EAE146_gf_HexTalentsPlayerInit(lv_player);
-            }
+        if (PlayerStatus(lv_player) == c_playerStatusActive) {
+            libE0EAE146_gf_HexTalentsPlayerInit(lv_player);
         }
         lv_player += 1;
     }
@@ -124,7 +122,7 @@ bool libE0EAE146_gt_HexTalentsGameStart_Func (bool lp_testConditions) {
 
 void libE0EAE146_gt_HexTalentsUnitCreated_Init () {
     libE0EAE146_gt_HexTalentsUnitCreated = TriggerCreate("libE0EAE146_gt_HexTalentsUnitCreated_Func");
-    TriggerAddEventUnitBorn(libE0EAE146_gt_HexTalentsUnitCreated, null, c_unitFilterAny);
+    TriggerAddEventUnitCreated(libE0EAE146_gt_HexTalentsUnitCreated, null, null, null);
 }
 
 void libE0EAE146_gt_HexTalentsGameStart_Init () {
