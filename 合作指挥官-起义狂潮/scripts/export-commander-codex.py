@@ -24,6 +24,8 @@ OUTPUT_DIR = ROOT / "web-launcher" / "exported-commander-codex"
 PORTRAIT_DIR = OUTPUT_DIR / "portraits"
 MANIFEST_PATH = OUTPUT_DIR / "manifest.json"
 
+ICON_LIBRARY_DIR = ROOT / "web-launcher" / "icon-library"
+
 SC2_STORAGE_PATH = Path(r"E:\SC2\SC2new\StarCraft II")
 CASC_DUMP_EXE = Path(r"C:\tools\casc\CascDump\bin\Debug\net9.0\CascDump.exe")
 
@@ -63,6 +65,11 @@ _string_cache: dict[str, str] = {}
 _string_cache_loaded = False
 _global_unit_map: dict[str, ET.Element] = {}
 _global_unit_map_loaded = False
+
+_icon_library_units: list[tuple[str, Path]] = []
+_icon_library_buildings: list[tuple[str, Path]] = []
+_icon_library_abilities: list[tuple[str, Path]] = []
+_icon_library_loaded = False
 
 
 def load_strings() -> None:
@@ -158,6 +165,29 @@ def load_casc_file_list() -> None:
         print(f"Failed to load CASC file list: {e}")
 
     _casc_cache_loaded = True
+
+
+def load_icon_library() -> None:
+    global _icon_library_loaded, _icon_library_units, _icon_library_buildings, _icon_library_abilities
+    if _icon_library_loaded:
+        return
+
+    def _scan_dir(cat_dir: Path) -> list[tuple[str, Path]]:
+        result = []
+        if not cat_dir.exists():
+            return result
+        for f in cat_dir.iterdir():
+            if f.is_file() and f.suffix.lower() == ".png":
+                stem = f.stem.lower()
+                result.append((stem, f))
+        return result
+
+    _icon_library_units = _scan_dir(ICON_LIBRARY_DIR / "units")
+    _icon_library_buildings = _scan_dir(ICON_LIBRARY_DIR / "buildings")
+    _icon_library_abilities = _scan_dir(ICON_LIBRARY_DIR / "abilities")
+    _icon_library_loaded = True
+
+    print(f"Loaded icon library: {len(_icon_library_units)} units, {len(_icon_library_buildings)} buildings, {len(_icon_library_abilities)} abilities")
 
 
 def extract_from_casc(casc_path: str, target_path: Path) -> bool:
@@ -853,6 +883,124 @@ def resolve_icon_casc_path(icon_path: str, context: dict | None = None, item_id:
     return None
 
 
+def _match_icon_library(icon_name: str, context: dict | None = None) -> Path | None:
+    load_icon_library()
+    icon_lower = icon_name.lower()
+    context = context or {}
+    commander = (context.get("commander", "") or "").lower()
+    item_type = (context.get("type", "") or "").lower()
+    race = (context.get("race", "") or "").lower()
+
+    if item_type == "unit":
+        icon_list = _icon_library_units
+    elif item_type == "building":
+        icon_list = _icon_library_buildings
+    elif item_type == "ability":
+        icon_list = _icon_library_abilities
+    else:
+        icon_list = _icon_library_units + _icon_library_buildings + _icon_library_abilities
+
+    if not icon_list:
+        return None
+
+    search_names = [icon_lower]
+    if commander and icon_lower.endswith(commander):
+        base_name = icon_lower[:-len(commander)]
+        if len(base_name) >= 3:
+            search_names.insert(0, base_name)
+    if commander and icon_lower.startswith(commander):
+        base_name = icon_lower[len(commander):]
+        if len(base_name) >= 3:
+            search_names.insert(0, base_name)
+    if icon_lower.endswith("mp"):
+        base_name = icon_lower[:-2]
+        if len(base_name) >= 3:
+            search_names.insert(0, base_name)
+    if "mp" in icon_lower:
+        base_name = icon_lower.replace("mp", "")
+        if len(base_name) >= 3:
+            search_names.append(base_name)
+
+    def _split_camel_case(name: str) -> list[str]:
+        parts = re.findall(r'[A-Z][a-z0-9]*|[a-z0-9]+', name)
+        return [p.lower() for p in parts if len(p) >= 3]
+
+    camel_parts = _split_camel_case(icon_name)
+    if len(camel_parts) >= 2:
+        for part in camel_parts:
+            if part not in search_names:
+                search_names.append(part)
+
+    tokens = re.findall(r'[a-z0-9]+', icon_lower)
+    if len(tokens) >= 2:
+        for i in range(len(tokens)):
+            part = tokens[i]
+            if len(part) >= 3 and part not in search_names:
+                search_names.append(part)
+
+    bad_keywords = [
+        'collection', 'mecha', 'primal', 'taldarim', 'purifier', 'covertops',
+        'umojan', 'junker', 'remastered', 'blizzcon', 'golden', 'collectoredition',
+        'eidolon', 'aquatic', 'bone', 'tauren', 'merc', 'mercenary', 'silver',
+        'iharii', 'dark', 'aiur', 'nerazim', 'nocord', 'hev',
+        'upgraded', 'upgrade', 'webby', 'mutant', 'commando',
+    ]
+
+    def _calc_score(stem: str, search_name: str) -> int:
+        score = 0
+        stem_lower = stem.lower()
+        name_tokens = re.findall(r'[a-z0-9]+', stem_lower)
+        search_tokens = re.findall(r'[a-z0-9]+', search_name)
+        meaningful_name = [t for t in name_tokens if t not in {'btn', 'unit', 'building', 'ability', 'zerg', 'terran', 'protoss'} and len(t) > 2]
+        meaningful_search = [t for t in search_tokens if len(t) > 2]
+
+        if not meaningful_search:
+            return -999
+
+        exact_match = False
+        for mt in meaningful_name:
+            for st in meaningful_search:
+                if mt == st:
+                    score += 50
+                    exact_match = True
+                elif st in mt and len(st) >= 4:
+                    score += 20
+                elif mt in st and len(mt) >= 4:
+                    score += 15
+
+        if not exact_match:
+            matched = sum(1 for t in meaningful_search if any(t in nt for nt in meaningful_name))
+            ratio = matched / max(len(meaningful_search), 1)
+            if ratio < 0.3:
+                return -999
+            score += int(ratio * 30)
+
+        if race and race in stem_lower:
+            score += 15
+
+        for kw in bad_keywords:
+            if kw in stem_lower:
+                score -= 30
+
+        score -= len(name_tokens) * 2
+
+        return score
+
+    best_score = -999
+    best_path = None
+
+    for search_name in search_names:
+        for stem, path in icon_list:
+            s = _calc_score(stem, search_name)
+            if s > best_score:
+                best_score = s
+                best_path = path
+
+    if best_score > 10:
+        return best_path
+    return None
+
+
 def _fuzzy_match_casc_path(icon_name: str, context: dict | None = None) -> str | None:
     load_casc_file_list()
     if not _casc_filename_index:
@@ -1058,9 +1206,12 @@ def _fuzzy_match_casc_path(icon_name: str, context: dict | None = None) -> str |
 def batch_extract_and_save_icons(items: list[dict], output_dir: Path, context: dict | None = None) -> int:
     pending: list[tuple[str, Path, dict]] = []
     local_pending: list[tuple[Path, Path, dict]] = []
+    icon_library_pending: list[tuple[Path, Path, dict]] = []
     context = context or {}
     item_type = (context.get("type", "") or "").lower()
     is_unit_or_building = item_type in ("unit", "building")
+
+    load_icon_library()
 
     for item in items:
         icon_path = item.get("icon", "")
@@ -1078,13 +1229,21 @@ def batch_extract_and_save_icons(items: list[dict], output_dir: Path, context: d
 
         found_source = None
         found_is_local = False
+        found_from_library = False
 
         if is_unit_or_building and item_id and context:
             unit_ctx = context.copy()
             unit_ctx["type"] = item_type
-            casc_path = _fuzzy_match_casc_path(item_id, unit_ctx)
-            if casc_path:
-                found_source = casc_path
+            lib_path = _match_icon_library(item_id, unit_ctx)
+            if lib_path:
+                found_source = lib_path
+                found_from_library = True
+
+        if not found_source and not is_unit_or_building and context and item_id:
+            lib_path = _match_icon_library(item_id, context)
+            if lib_path:
+                found_source = lib_path
+                found_from_library = True
 
         if not found_source and icon_path:
             normalized = icon_path.replace("\\", "/").lower()
@@ -1120,6 +1279,15 @@ def batch_extract_and_save_icons(items: list[dict], output_dir: Path, context: d
             ability_ctx = context.copy()
             if is_unit_or_building:
                 ability_ctx["type"] = "ability"
+            lib_path = _match_icon_library(Path(icon_path).stem, ability_ctx)
+            if lib_path:
+                found_source = lib_path
+                found_from_library = True
+
+        if not found_source and icon_path and context:
+            ability_ctx = context.copy()
+            if is_unit_or_building:
+                ability_ctx["type"] = "ability"
             casc_path = _fuzzy_match_casc_path(Path(icon_path).stem, ability_ctx)
             if casc_path:
                 found_source = casc_path
@@ -1130,12 +1298,24 @@ def batch_extract_and_save_icons(items: list[dict], output_dir: Path, context: d
                 found_source = casc_path
 
         if found_source:
-            if found_is_local:
+            if found_from_library:
+                icon_library_pending.append((found_source, target, item))
+            elif found_is_local:
                 local_pending.append((found_source, target, item))
             else:
                 pending.append((found_source, target, item))
 
     count = sum(1 for item in items if item.get("image"))
+
+    for source_path, target, item in icon_library_pending:
+        try:
+            import shutil
+            shutil.copy2(source_path, target)
+            safe_name = re.sub(r'[^\w\-\.]', '_', item.get("id", ""))
+            item["image"] = safe_name + ".png"
+            count += 1
+        except Exception:
+            pass
 
     for source_path, target, item in local_pending:
         if convert_dds_to_png(source_path, target):
