@@ -205,51 +205,9 @@ def _extract_from_casc_temp(casc_path: str) -> Path | None:
 
 
 def _fuzzy_match_icon(icon_name: str, context: dict | None = None) -> Path | None:
-    load_casc_file_list()
-    if not _casc_filename_index:
-        return None
-
-    icon_lower = icon_name.lower()
-    context = context or {}
-    commander = (context.get("commander", "") or "").lower()
-    item_type = (context.get("type", "") or "").lower()
-
-    tokens = re.findall(r'[a-z0-9]+', icon_lower)
-    if not tokens:
-        return None
-
-    best_score = 0
-    best_path = None
-
-    for stem, paths in _casc_filename_index.items():
-        stem_lower = stem.lower()
-        score = 0
-
-        for token in tokens:
-            if len(token) < 3:
-                continue
-            if token in stem_lower:
-                score += len(token)
-
-        if commander and commander in stem_lower:
-            score += 10
-
-        if item_type:
-            if item_type == "ability" and "btn-ability" in stem_lower:
-                score += 5
-            elif item_type == "unit" and "btn-unit" in stem_lower:
-                score += 5
-            elif item_type == "building" and "btn-building" in stem_lower:
-                score += 5
-            elif item_type == "upgrade" and "btn-upgrade" in stem_lower:
-                score += 5
-
-        if score > best_score and score >= max(len(icon_lower) * 0.4, 6):
-            best_score = score
-            best_path = paths[0]
-
-    if best_path:
-        return _extract_from_casc_temp(best_path)
+    casc_path = _fuzzy_match_casc_path(icon_name, context)
+    if casc_path:
+        return _extract_from_casc_temp(casc_path)
     return None
 
 
@@ -433,6 +391,123 @@ def get_inherited_value(unit_id: str, getter, visited: set[str] | None = None) -
     return ""
 
 
+def _find_name_by_suffix(core_name: str) -> str:
+    if not _string_cache:
+        load_strings()
+    core_lower = core_name.lower()
+    candidates: list[tuple[int, str]] = []
+    bad_prefixes = ['原始', '被感染', '帝国', '塔达林', '净化者', '奈拉齐姆', '萨古拉斯', '艾尔']
+    for key, val in _string_cache.items():
+        if not val or not any('\u4e00' <= c <= '\u9fff' for c in val):
+            continue
+        if not (key.startswith("Unit/Name/") or key.startswith("ArmyCategory/Name/")):
+            continue
+        key_parts = key.split("/")
+        if len(key_parts) < 3:
+            continue
+        unit_key = key_parts[-1].lower()
+        if unit_key.endswith(core_lower) and len(unit_key) > len(core_lower):
+            score = len(key)
+            for bp in bad_prefixes:
+                if val.startswith(bp):
+                    score += 100
+            candidates.append((score, val))
+    if candidates:
+        candidates.sort()
+        return candidates[0][1]
+    return ""
+
+
+def get_unit_name(unit_id: str) -> str:
+    name = _get_inherited_string(unit_id, lambda uid: get_string(f"Unit/Name/{uid}", ""))
+    if name:
+        return name
+
+    name = _get_inherited_string(unit_id, lambda uid: get_string(f"ArmyCategory/Name/{uid}", ""))
+    if name:
+        return name
+
+    name = get_string(f"UserData/TechUnit/{unit_id}_Name", "")
+    if name:
+        return name
+
+    name = get_string(f"Button/Name/{unit_id}Passive", "")
+    if name:
+        return name
+
+    def _split_camel_case(name: str) -> list[str]:
+        parts = re.findall(r'[A-Z][a-z0-9]*|[a-z0-9]+', name)
+        return [p for p in parts if len(p) >= 3]
+
+    camel_parts = _split_camel_case(unit_id)
+    if len(camel_parts) >= 2:
+        suffixes_to_skip = {
+            'burrowed', 'weapon', 'missile', 'egg', 'cocoon', 'dummy',
+            'split', 'hunterkiller', 'torrasque', 'raptor', 'swarmling',
+            'splitterling', 'hunter', 'leviathan', 'noxious',
+            'mp', 'coop', 'hero', 'taldarim', 'purifier', 'shakuras',
+            'aiur', 'nerazim', 'khalai', 'kerrigan', 'raynor',
+            'stetmann', 'stukov', 'swann', 'nova', 'mengsk',
+            'horner', 'han', 'tychus', 'vorazun', 'zeratul',
+            'dehaka', 'fenix', 'karax', 'alarak', 'artanis',
+            'zagara', 'abathur',
+        }
+        core_parts = [p for p in camel_parts if p.lower() not in suffixes_to_skip]
+        if core_parts:
+            for i in range(len(core_parts), 0, -1):
+                candidate = ''.join(core_parts[:i])
+                name = _get_inherited_string(candidate, lambda uid: get_string(f"Unit/Name/{uid}", ""))
+                if name:
+                    return name
+                name = _get_inherited_string(candidate, lambda uid: get_string(f"ArmyCategory/Name/{uid}", ""))
+                if name:
+                    return name
+                name = get_string(f"UserData/TechUnit/{candidate}_Name", "")
+                if name:
+                    return name
+                name = _find_name_by_suffix(candidate)
+                if name:
+                    return name
+
+    name = _find_name_by_suffix(unit_id)
+    if name:
+        return name
+
+    return ""
+
+
+def get_unit_tooltip(unit_id: str) -> str:
+    def getter(uid):
+        return get_string(f"Unit/Tooltip/{uid}", "")
+    return _get_inherited_string(unit_id, getter)
+
+
+def get_unit_description(unit_id: str) -> str:
+    def getter(uid):
+        return get_string(f"Unit/Description/{uid}", "")
+    return _get_inherited_string(unit_id, getter)
+
+
+def _get_inherited_string(unit_id: str, getter, visited: set[str] | None = None) -> str:
+    if visited is None:
+        visited = set()
+    if unit_id in visited:
+        return ""
+    visited.add(unit_id)
+
+    val = getter(unit_id)
+    if val:
+        return val
+
+    elem = get_unit_elem(unit_id)
+    if elem is not None:
+        parent_id = elem.get("parent", "")
+        if parent_id:
+            return _get_inherited_string(parent_id, getter, visited)
+
+    return ""
+
+
 def get_editor_categories(unit_id: str) -> str:
     def getter(elem):
         cat = elem.find("EditorCategories")
@@ -599,6 +674,26 @@ def load_runtime_unit_ids(runtime: str) -> set[str]:
     return ids
 
 
+def _is_non_combat_unit(unit_id: str) -> bool:
+    uid_lower = unit_id.lower()
+    exclude_suffixes = [
+        'weapon', 'missile', 'burrowed', 'egg', 'cocoon', 'dummy',
+        'corpse', 'shade', 'hallucination', 'phasing', 'rooted',
+        'attackmissile', 'bomber', 'attack',
+    ]
+    for suf in exclude_suffixes:
+        if uid_lower.endswith(suf):
+            return True
+    exclude_contains = [
+        'weapon', 'missile', 'dummy', 'corpse',
+    ]
+    for kw in exclude_contains:
+        if kw in uid_lower and uid_lower != kw:
+            if len(uid_lower) > len(kw) + 3:
+                return True
+    return False
+
+
 def collect_commander_units_and_buildings(spec: dict) -> tuple[list[dict], list[dict]]:
     load_all_units()
     load_strings()
@@ -618,15 +713,18 @@ def collect_commander_units_and_buildings(spec: dict) -> tuple[list[dict], list[
         if not unit_belongs_to_commander(unit_id, spec, all_dedicated):
             continue
 
+        if _is_non_combat_unit(unit_id):
+            continue
+
         utype = get_unit_type(unit_id)
         if not utype:
             continue
 
         seen_ids.add(unit_id)
 
-        name = get_string(f"Unit/Name/{unit_id}", "")
-        tooltip = get_string(f"Unit/Tooltip/{unit_id}", "")
-        description = get_string(f"Unit/Description/{unit_id}", "")
+        name = get_unit_name(unit_id)
+        tooltip = get_unit_tooltip(unit_id)
+        description = get_unit_description(unit_id)
         icon = get_unit_icon(unit_id)
 
         item = {
@@ -764,47 +862,205 @@ def _fuzzy_match_casc_path(icon_name: str, context: dict | None = None) -> str |
     context = context or {}
     commander = (context.get("commander", "") or "").lower()
     item_type = (context.get("type", "") or "").lower()
+    race = (context.get("race", "") or "").lower()
+
+    search_names = [icon_lower]
+    if commander and icon_lower.endswith(commander):
+        base_name = icon_lower[:-len(commander)]
+        if len(base_name) >= 3:
+            search_names.insert(0, base_name)
+    if commander and icon_lower.startswith(commander):
+        base_name = icon_lower[len(commander):]
+        if len(base_name) >= 3:
+            search_names.insert(0, base_name)
+    if icon_lower.endswith("mp"):
+        base_name = icon_lower[:-2]
+        if len(base_name) >= 3:
+            search_names.insert(0, base_name)
+    if "mp" in icon_lower:
+        base_name = icon_lower.replace("mp", "")
+        if len(base_name) >= 3:
+            search_names.append(base_name)
+
+    def _split_camel_case(name: str) -> list[str]:
+        parts = re.findall(r'[A-Z][a-z0-9]*|[a-z0-9]+', name)
+        return [p.lower() for p in parts if len(p) >= 3]
+
+    camel_parts = _split_camel_case(icon_name)
+    if len(camel_parts) >= 2:
+        for part in camel_parts:
+            if part not in search_names:
+                search_names.append(part)
 
     tokens = re.findall(r'[a-z0-9]+', icon_lower)
-    if not tokens:
-        return None
+    if len(tokens) >= 2:
+        for i in range(len(tokens)):
+            part = tokens[i]
+            if len(part) >= 3 and part not in search_names:
+                search_names.append(part)
 
-    best_score = 0
-    best_path = None
+    best_overall_score = -999
+    best_overall_path = None
 
-    for stem, paths in _casc_filename_index.items():
-        stem_lower = stem.lower()
-        score = 0
+    for search_name in search_names:
+        tokens = re.findall(r'[a-z0-9]+', search_name)
+        if not tokens:
+            continue
 
-        for token in tokens:
-            if len(token) < 3:
+        meaningful_tokens = [t for t in tokens if len(t) >= 3]
+        if not meaningful_tokens:
+            continue
+
+        best_score = -999
+        best_path = None
+
+        basic_suffix_keywords = ['rcz', 'ex3', 'classic']
+        bad_suffix_keywords = [
+            'collection', 'mecha', 'primal', 'taldarim', 'purifier', 'covertops',
+            'umojan', 'junker', 'remastered', 'blizzcon', 'golden', 'collectoredition',
+            'eidolon', 'aquatic', 'bone', 'tauren', 'merc', 'mercenary', 'silver',
+            'iharii', 'dark', 'aiur', 'nerazim', 'nocord', 'hev',
+            'upgraded', 'upgrade',
+        ]
+
+        generic_ability_keywords = [
+            'move', 'attack', 'stop', 'hold', 'patrol', 'cancel', 'repair',
+            'gather', 'return', 'load', 'unload', 'burrow', 'unburrow',
+            'siege', 'unsiege', 'morph', 'evolve', 'build', 'train',
+        ]
+
+        def _race_matches(stem: str) -> bool:
+            if not race:
+                return True
+            if race in stem:
+                return True
+            race_map = {
+                "zerg": ["zerg", "infested", "infestor"],
+                "protoss": ["protoss", "taldarim", "purifier", "nerazim", "khalai", "aiur"],
+                "terran": ["terran", "raynor", "swann", "nova", "mengsk", "horner", "han", "tychus"],
+            }
+            if race in race_map:
+                for r in race_map[race]:
+                    if r in stem:
+                        return True
+            return False
+
+        def _is_generic_ability(stem: str) -> bool:
+            for kw in generic_ability_keywords:
+                if kw == stem or f"-{kw}" in stem or stem.endswith(kw):
+                    return True
+            return False
+
+        def _version_score(stem: str) -> int:
+            score = 0
+            stem_lower = stem.lower()
+            parts = re.findall(r'[a-z0-9]+', stem_lower)
+            score -= len(parts) * 2
+
+            if item_type == "unit" and stem_lower.startswith("btn-unit-") and race:
+                prefix = f"btn-unit-{race}-"
+                if stem_lower.startswith(prefix):
+                    rest = stem_lower[len(prefix):]
+                    if rest == search_name:
+                        score += 40
+                    elif search_name in rest:
+                        extra = rest[len(search_name):]
+                        if extra and extra[0] == '-':
+                            score += 10
+
+            if item_type == "building" and stem_lower.startswith("btn-building-") and race:
+                prefix = f"btn-building-{race}-"
+                if stem_lower.startswith(prefix):
+                    rest = stem_lower[len(prefix):]
+                    if rest == search_name:
+                        score += 40
+                    elif search_name in rest:
+                        extra = rest[len(search_name):]
+                        if extra and extra[0] == '-':
+                            score += 10
+
+            for kw in bad_suffix_keywords:
+                if kw in stem_lower:
+                    score -= 12
+            for kw in basic_suffix_keywords:
+                if kw in stem_lower:
+                    score -= 3
+            return score
+
+        for stem, paths in _casc_filename_index.items():
+            stem_lower = stem.lower()
+            score = 0
+
+            matched_tokens = 0
+            for token in meaningful_tokens:
+                if token in stem_lower:
+                    matched_tokens += 1
+                    score += len(token) * 2
+
+            if matched_tokens == 0:
                 continue
-            if token in stem_lower:
-                score += len(token)
 
-        if commander and commander in stem_lower:
-            score += 10
+            token_match_ratio = matched_tokens / len(meaningful_tokens)
+            if token_match_ratio < 0.4:
+                continue
 
-        if item_type:
-            if item_type == "ability" and "btn-ability" in stem_lower:
-                score += 5
-            elif item_type == "unit" and "btn-unit" in stem_lower:
-                score += 5
-            elif item_type == "building" and "btn-building" in stem_lower:
-                score += 5
-            elif item_type == "upgrade" and "btn-upgrade" in stem_lower:
-                score += 5
+            if commander and commander in stem_lower:
+                score += 10
 
-        if score > best_score and score >= max(len(icon_lower) * 0.4, 6):
-            best_score = score
-            best_path = paths[0]
+            type_match = False
+            if item_type == "unit":
+                if "btn-unit" in stem_lower:
+                    score += 25
+                    type_match = True
+                elif "btn-building" in stem_lower:
+                        continue
+                elif "btn-upgrade" in stem_lower or "btn-progression" in stem_lower:
+                    continue
+                elif _is_generic_ability(stem_lower):
+                    continue
+            elif item_type == "building":
+                if "btn-building" in stem_lower:
+                    score += 25
+                    type_match = True
+                elif "btn-unit" in stem_lower:
+                    continue
+                elif "btn-upgrade" in stem_lower or "btn-progression" in stem_lower:
+                    continue
+                elif _is_generic_ability(stem_lower):
+                    continue
+            elif item_type == "ability":
+                if "btn-ability" in stem_lower:
+                    score += 10
+                    type_match = True
 
-    return best_path
+            if race and _race_matches(stem_lower):
+                score += 12
+            elif race and not _race_matches(stem_lower) and type_match:
+                score -= 5
+
+            score += _version_score(stem_lower)
+
+            min_score = max(sum(len(t) for t in meaningful_tokens) * 0.5, 8)
+            if type_match:
+                min_score = max(sum(len(t) for t in meaningful_tokens) * 0.3, 6)
+
+            if score > best_score and score >= min_score:
+                best_score = score
+                best_path = paths[0]
+
+        if best_score > best_overall_score:
+            best_overall_score = best_score
+            best_overall_path = best_path
+
+    return best_overall_path
 
 
 def batch_extract_and_save_icons(items: list[dict], output_dir: Path, context: dict | None = None) -> int:
     pending: list[tuple[str, Path, dict]] = []
     local_pending: list[tuple[Path, Path, dict]] = []
+    context = context or {}
+    item_type = (context.get("type", "") or "").lower()
+    is_unit_or_building = item_type in ("unit", "building")
 
     for item in items:
         icon_path = item.get("icon", "")
@@ -823,7 +1079,14 @@ def batch_extract_and_save_icons(items: list[dict], output_dir: Path, context: d
         found_source = None
         found_is_local = False
 
-        if icon_path:
+        if is_unit_or_building and item_id and context:
+            unit_ctx = context.copy()
+            unit_ctx["type"] = item_type
+            casc_path = _fuzzy_match_casc_path(item_id, unit_ctx)
+            if casc_path:
+                found_source = casc_path
+
+        if not found_source and icon_path:
             normalized = icon_path.replace("\\", "/").lower()
             filename_only = normalized.split("/")[-1]
 
@@ -854,11 +1117,14 @@ def batch_extract_and_save_icons(items: list[dict], output_dir: Path, context: d
                 found_source = _casc_file_cache[dds_lower]
 
         if not found_source and icon_path and context:
-            casc_path = _fuzzy_match_casc_path(Path(icon_path).stem, context)
+            ability_ctx = context.copy()
+            if is_unit_or_building:
+                ability_ctx["type"] = "ability"
+            casc_path = _fuzzy_match_casc_path(Path(icon_path).stem, ability_ctx)
             if casc_path:
                 found_source = casc_path
 
-        if not found_source and context and item_id:
+        if not found_source and not is_unit_or_building and context and item_id:
             casc_path = _fuzzy_match_casc_path(item_id, context)
             if casc_path:
                 found_source = casc_path
@@ -950,9 +1216,9 @@ def main() -> int:
                 short_name = short_name[len(prefix):]
                 break
 
-        unit_ctx = {"commander": short_name, "type": "unit", "runtime": runtime}
-        building_ctx = {"commander": short_name, "type": "building", "runtime": runtime}
-        ability_ctx = {"commander": short_name, "type": "ability", "runtime": runtime}
+        unit_ctx = {"commander": short_name, "type": "unit", "runtime": runtime, "race": race.lower()}
+        building_ctx = {"commander": short_name, "type": "building", "runtime": runtime, "race": race.lower()}
+        ability_ctx = {"commander": short_name, "type": "ability", "runtime": runtime, "race": race.lower()}
 
         unit_icon_count = batch_extract_and_save_icons(units, commander_out_dir, unit_ctx)
         building_icon_count = batch_extract_and_save_icons(buildings, commander_out_dir, building_ctx)
