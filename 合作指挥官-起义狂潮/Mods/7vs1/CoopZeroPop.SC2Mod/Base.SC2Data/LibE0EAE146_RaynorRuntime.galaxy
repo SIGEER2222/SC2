@@ -98,12 +98,6 @@ void libE0EAE146_gf_RaynorApplyTechFilter (int lp_player) {
     libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "CommandCenterFlying");
     libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "OrbitalCommand");
     libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "OrbitalCommandFlying");
-    libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "Barracks");
-    libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "BarracksFlying");
-    libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "Factory");
-    libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "FactoryFlying");
-    libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "Starport");
-    libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "StarportFlying");
     libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "SupplyDepot");
     libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "Refinery");
     libE0EAE146_gf_RaynorBlockUnitIfPresent(lp_player, "EngineeringBay");
@@ -155,12 +149,6 @@ void libE0EAE146_gf_RaynorApplyTechFilter (int lp_player) {
     libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "CommandCenterFlyingRaynor");
     libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "OrbitalCommandRaynor");
     libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "OrbitalCommandFlyingRaynor");
-    libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "BarracksRaynor");
-    libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "BarracksFlyingRaynor");
-    libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "FactoryRaynor");
-    libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "FactoryFlyingRaynor");
-    libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "StarportRaynor");
-    libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "StarportFlyingRaynor");
     libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "SupplyDepotRaynor");
     libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "RefineryRaynor");
     libE0EAE146_gf_RaynorAllowUnitIfPresent(lp_player, "EngineeringBayRaynor");
@@ -227,17 +215,11 @@ void libE0EAE146_gf_RaynorApplyTechFilter (int lp_player) {
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksTrainRaynor", 3);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksTrainRaynor", 4);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksTrainRaynor", 5);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksLiftOffRaynor", 0);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "BarracksLandRaynor", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "FactoryTrainRaynor", 1);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "FactoryTrainRaynor", 9);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "FactoryLiftOffRaynor", 0);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "FactoryLandRaynor", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StarportTrainRaynor", 1);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StarportTrainRaynor", 3);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StarportTrainRaynor", 4);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StarportLiftOffRaynor", 0);
-    libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "StarportLandRaynor", 0);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynor", 2);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynor", 3);
     libE0EAE146_gf_RaynorAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynor", 4);
@@ -323,15 +305,6 @@ bool libE0EAE146_gf_RaynorStructureNeedsRefresh (unit lp_unit) {
     if ((lv_unitType == "CommandCenterRaynor") || (lv_unitType == "CommandCenterFlyingRaynor") || (lv_unitType == "OrbitalCommandRaynor") || (lv_unitType == "OrbitalCommandFlyingRaynor")) {
         return true;
     }
-    if ((lv_unitType == "BarracksRaynor") || (lv_unitType == "BarracksFlyingRaynor")) {
-        return true;
-    }
-    if ((lv_unitType == "FactoryRaynor") || (lv_unitType == "FactoryFlyingRaynor")) {
-        return true;
-    }
-    if ((lv_unitType == "StarportRaynor") || (lv_unitType == "StarportFlyingRaynor")) {
-        return true;
-    }
 
     return false;
 }
@@ -354,24 +327,6 @@ string libE0EAE146_gf_RaynorMorphExpectedUnitType (abilcmd lp_abilCmd) {
     }
     if (lv_abil == "OrbitalCommandLandRaynor") {
         return "OrbitalCommandRaynor";
-    }
-    if (lv_abil == "BarracksLiftOffRaynor") {
-        return "BarracksFlyingRaynor";
-    }
-    if (lv_abil == "BarracksLandRaynor") {
-        return "BarracksRaynor";
-    }
-    if (lv_abil == "FactoryLiftOffRaynor") {
-        return "FactoryFlyingRaynor";
-    }
-    if (lv_abil == "FactoryLandRaynor") {
-        return "FactoryRaynor";
-    }
-    if (lv_abil == "StarportLiftOffRaynor") {
-        return "StarportFlyingRaynor";
-    }
-    if (lv_abil == "StarportLandRaynor") {
-        return "StarportRaynor";
     }
 
     return "";
@@ -643,7 +598,9 @@ bool libE0EAE146_gt_RaynorStructureMorphRefresh_Func (bool testConds, bool runAc
             UnitSelect(lv_newUnit, lv_player, true);
         }
     }
-    // 注意：不再在升空/降落后调用 ApplyTechFilter，因为游戏引擎会自动处理建筑状态变化
+    if (((lv_newUnit != null) && (libE0EAE146_gf_RaynorStructureNeedsRefresh(lv_newUnit) == true)) || (libE0EAE146_gf_RaynorStructureNeedsRefresh(EventUnit()) == true)) {
+        libE0EAE146_gf_RaynorApplyTechFilter(lv_player);
+    }
     return true;
 }
 
@@ -654,12 +611,6 @@ void libE0EAE146_gt_RaynorStructureMorphRefresh_Init () {
     TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("UpgradeToOrbitalRaynor", 0), c_abilMorphStageUnitEnd, false);
     TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("OrbitalLiftOffRaynor", 0), c_abilMorphStageUnitEnd, false);
     TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("OrbitalCommandLandRaynor", 0), c_abilMorphStageUnitEnd, false);
-    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("BarracksLiftOffRaynor", 0), c_abilMorphStageUnitEnd, false);
-    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("BarracksLandRaynor", 0), c_abilMorphStageUnitEnd, false);
-    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("FactoryLiftOffRaynor", 0), c_abilMorphStageUnitEnd, false);
-    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("FactoryLandRaynor", 0), c_abilMorphStageUnitEnd, false);
-    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("StarportLiftOffRaynor", 0), c_abilMorphStageUnitEnd, false);
-    TriggerAddEventUnitAbility(libE0EAE146_gt_RaynorStructureMorphRefresh, null, AbilityCommand("StarportLandRaynor", 0), c_abilMorphStageUnitEnd, false);
 }
 
 void libE0EAE146_gf_RaynorRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
