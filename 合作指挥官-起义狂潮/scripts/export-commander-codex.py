@@ -740,6 +740,7 @@ def get_unit_type(unit_id: str) -> str:
 
 
 _all_commander_dedicated: dict[str, set[str]] = {}
+_all_commander_disabled: dict[str, set[str]] = {}
 _all_commander_dedicated_loaded = False
 
 def load_all_commander_dedicated() -> None:
@@ -749,12 +750,15 @@ def load_all_commander_dedicated() -> None:
     for spec in COMMANDER_SPECS:
         name = spec["name"]
         dedicated = set()
+        disabled = set()
         xml_file = spec.get("unitData", "")
         if xml_file:
             dedicated = load_dedicated_unit_ids(xml_file)
-        runtime_ids = load_runtime_unit_ids(spec.get("runtime", ""))
-        dedicated = dedicated | runtime_ids
+        runtime_allowed, runtime_disabled = load_runtime_unit_ids(spec.get("runtime", ""))
+        dedicated = dedicated | runtime_allowed
+        disabled = disabled | runtime_disabled
         _all_commander_dedicated[name] = dedicated
+        _all_commander_disabled[name] = disabled
     _all_commander_dedicated_loaded = True
 
 
@@ -766,6 +770,11 @@ def get_other_commanders_dedicated(spec: dict) -> set[str]:
         if name != my_name:
             result |= ids
     return result
+
+
+def get_commander_disabled_units(spec: dict) -> set[str]:
+    load_all_commander_dedicated()
+    return _all_commander_disabled.get(spec["name"], set())
 
 
 def get_commander_race(spec: dict) -> str:
@@ -828,6 +837,12 @@ BASE_RACE_BUILDINGS = {
     },
 }
 
+# 某些指挥官是纯突变型/特殊型，不能使用基础种族单位
+# 只有当单位通过前缀匹配或明确在 dedicated_ids 中时才算有效
+COMMANDER_REQUIRES_PREFIX_ONLY = {
+    "阿巴瑟",  # 纯突变型，只能通过 Abathur 前缀单位进化
+}
+
 
 def _is_base_race_unit(unit_id: str, race: str) -> bool:
     return unit_id in BASE_RACE_UNITS.get(race, set())
@@ -873,6 +888,15 @@ def unit_belongs_to_commander(unit_id: str, spec: dict, dedicated_units: set[str
     if not race:
         return False
 
+    # 检查该指挥官是否禁用了这个单位
+    disabled_units = get_commander_disabled_units(spec)
+    if unit_id in disabled_units:
+        return False
+
+    # 对于纯突变型指挥官（如阿巴瑟），不接受基础种族单位
+    if spec["name"] in COMMANDER_REQUIRES_PREFIX_ONLY:
+        return False
+
     if _is_base_race_unit(unit_id, race) or _is_base_race_building(unit_id, race):
         return True
 
@@ -900,7 +924,7 @@ def load_dedicated_unit_ids(xml_filename: str) -> set[str]:
     return ids
 
 
-def load_runtime_unit_ids(runtime: str) -> set[str]:
+def load_runtime_unit_ids(runtime: str) -> tuple[set[str], set[str]]:
     short_name = runtime
     for prefix in ["Zerg", "Protoss", "Terran"]:
         if short_name.startswith(prefix):
@@ -909,22 +933,30 @@ def load_runtime_unit_ids(runtime: str) -> set[str]:
 
     runtime_file = RUNTIME_ROOT / f"LibE0EAE146_{short_name}Runtime.galaxy"
     if not runtime_file.exists():
-        return set()
+        return set(), set()
 
-    ids = set()
+    allowed_ids = set()
+    disabled_ids = set()
     try:
         content = runtime_file.read_text(encoding="utf-8")
         
-        pattern1 = re.compile(r'TechTreeUnitAllow\(\w+,\s*"([A-Za-z0-9_]+)",\s*true\)')
+        # 匹配 TechTreeUnitAllow(player, "UnitId", true/false)
+        pattern1 = re.compile(r'TechTreeUnitAllow\(\w+,\s*"([A-Za-z0-9_]+)",\s*(true|false)\)')
         for m in pattern1.finditer(content):
-            ids.add(m.group(1))
+            unit_id = m.group(1)
+            is_allowed = m.group(2).lower() == "true"
+            if is_allowed:
+                allowed_ids.add(unit_id)
+            else:
+                disabled_ids.add(unit_id)
         
+        # 匹配 gf_AbathurAllowUnit 等函数中的允许调用
         pattern2 = re.compile(r'gf_' + short_name + r'AllowUnit\w*\(\w+,\s*"([A-Za-z0-9_]+)"(?:,\s*true)?\)')
         for m in pattern2.finditer(content):
-            ids.add(m.group(1))
+            allowed_ids.add(m.group(1))
     except Exception:
         pass
-    return ids
+    return allowed_ids, disabled_ids
 
 
 def _is_non_combat_unit(unit_id: str) -> bool:
@@ -958,8 +990,8 @@ def collect_commander_units_and_buildings(spec: dict) -> tuple[list[dict], list[
     load_strings()
 
     dedicated_ids = load_dedicated_unit_ids(spec.get("unitData", ""))
-    runtime_ids = load_runtime_unit_ids(spec.get("runtime", ""))
-    all_dedicated = dedicated_ids | runtime_ids
+    runtime_allowed, runtime_disabled = load_runtime_unit_ids(spec.get("runtime", ""))
+    all_dedicated = dedicated_ids | runtime_allowed
 
     units = []
     buildings = []
