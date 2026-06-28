@@ -1104,10 +1104,13 @@
     </CmdButtonArray>
   </CAbilEffectInstant>
 
-  <!-- 排除F2选择技能 - 对选中单位切换F2排除状态 -->
-  <CAbilEffectInstant id="CoopZeroPopExcludeF2">
+  <!-- 排除F2选择技能 - 仿照重生虫心的CAbilBehavior实现 -->
+  <CAbilBehavior id="CoopZeroPopExcludeF2">
     <EditorCategories value="AbilityorEffectType:Units"/>
-    <Effect index="0" value="CoopZeroPopExcludeF2Dummy" />
-    <CmdButtonArray index="Execute" DefaultButtonFace="CoopZeroPopExcludeF2" State="Available" Requirements="" />
-  </CAbilEffectInstant>
+    <CmdButtonArray index="On" DefaultButtonFace="DisableArmySelect"/>
+    <CmdButtonArray index="Off" DefaultButtonFace="EnableArmySelect"/>
+    <Flags index="Toggle" value="1"/>
+    <Flags index="Transient" value="1"/>
+    <BehaviorArray value="CoopZeroPopExcludeF2"/>
+  </CAbilBehavior>
 </Catalog>
