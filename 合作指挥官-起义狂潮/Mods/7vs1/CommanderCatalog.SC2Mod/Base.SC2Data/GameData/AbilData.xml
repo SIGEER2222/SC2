@@ -768,4 +768,339 @@
     <CursorEffect value="TychusCalldownOdinSearchArea" />
   </CAbilEffectTarget>
 
+
+
+  <!-- RaynorX ability entries -->
+  <CAbilArmMagazine id="RaynorXCommandoMarineHangar">
+    <EditorCategories value="Race:Terr,AbilityorEffectType:Units" />
+    <Flags index="Retarget" value="1" />
+    <Leash value="8" />
+    <InfoArray index="Ammo1" CountStart="4" Manage="Recall" Unit="RaynorXCommandoMarine">
+      <Charge Link="Abil/##id##" />
+      <Cooldown Link="Abil/##id##" />
+      <Flags index="External" value="1" />
+    </InfoArray>
+    <Alert value="" />
+    <MaxCount value="4" />
+    <ExternalAngle value="-90" />
+    <ExternalAngle value="-30" />
+    <ExternalAngle value="30" />
+    <ExternalAngle value="90" />
+  </CAbilArmMagazine>
+
+  <CAbilMorph id="UpgradeToOrbitalRaynorX" parent="UpgradeToOrbitalCoop" unit="OrbitalCommandRaynorX">
+    <CmdButtonArray index="Execute" DefaultButtonFace="OrbitalCommand" State="Available" Requirements="" />
+    <InfoArray index="0" Unit="OrbitalCommandRaynorX">
+      <SectionArray index="Actor">
+        <EffectArray index="Start" value="CommandCenterIsMorphingAB" />
+        <EffectArray index="Finish" value="CommandCenterIsMorphingRB" />
+        <EffectArray index="Cancel" value="CommandCenterIsMorphingRB" />
+      </SectionArray>
+    </InfoArray>
+  </CAbilMorph>
+
+  <CAbilMorph id="CommandCenterLiftOffRaynorX" parent="CommandCenterLiftOff" unit="CommandCenterFlyingRaynorX" />
+
+  <CAbilMorphPlacement id="CommandCenterLandRaynorX" parent="CommandCenterLand" unit="CommandCenterRaynorX">
+    <InfoArray index="0" Unit="CommandCenterRaynorX" CollideRange="0" />
+  </CAbilMorphPlacement>
+
+  <CAbilMorph id="OrbitalLiftOffRaynorX" parent="OrbitalLiftOff" unit="OrbitalCommandFlyingRaynorX" />
+
+  <CAbilMorphPlacement id="OrbitalCommandLandRaynorX" parent="OrbitalCommandLand" unit="OrbitalCommandRaynorX">
+    <InfoArray index="0" Unit="OrbitalCommandRaynorX" CollideRange="0" />
+  </CAbilMorphPlacement>
+
+  <CAbilEffectTarget id="CalldownMULERaynorX" parent="CalldownMULE">
+    <CmdButtonArray index="Execute" DefaultButtonFace="RaynorXCalldownMULE" State="Available" Requirements="" />
+  </CAbilEffectTarget>
+
+  <CAbilEffectTarget id="ScannerSweepRaynorX" parent="ScannerSweep">
+    <CmdButtonArray index="Execute" DefaultButtonFace="RaynorXScan" State="Available" Requirements="" />
+  </CAbilEffectTarget>
+
+  <CAbilBuild id="TerranBuildRaynorX" parent="TerranBuild">
+    <InfoArray index="Build1" Unit="CommandCenterRaynorX" Time="100">
+      <Button DefaultButtonFace="CommandCenter" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build2" Unit="SupplyDepotRaynorX" Time="0">
+      <Button DefaultButtonFace="SupplyDepot" State="Available" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build3" Unit="RefineryRaynorX" Time="30">
+      <Button DefaultButtonFace="Refinery" State="Available" />
+      <ValidatorArray value="HasVespene" />
+    </InfoArray>
+    <InfoArray index="Build4" Unit="Barracks" Time="60">
+      <Button DefaultButtonFace="Barracks" State="Available" Requirements="" />
+    </InfoArray>
+    <InfoArray index="Build5" Unit="EngineeringBayRaynorX" Time="35">
+      <Button DefaultButtonFace="EngineeringBay" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build6" Unit="MissileTurretRaynorX" Time="25">
+      <Button DefaultButtonFace="MissileTurret" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build7" Unit="BunkerRaynorX" Time="40">
+      <Button DefaultButtonFace="Bunker" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build9" Unit="SensorTowerRaynorX" Time="25">
+      <Button DefaultButtonFace="SensorTower" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build11" Unit="Factory" Time="60">
+      <Button DefaultButtonFace="Factory" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build12" Unit="Starport" Time="50">
+      <Button DefaultButtonFace="Starport" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build14" Unit="ArmoryRaynorX" Time="65">
+      <Button DefaultButtonFace="Armory" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build16" Unit="FusionCoreRaynorX" Time="65">
+      <Button DefaultButtonFace="FusionCore" State="Available" />
+    </InfoArray>
+  </CAbilBuild>
+
+  <CAbilBuild default="1" id="RaynorXTerranAddOns">
+    <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+    <Alert value="AddOnComplete" />
+    <Type value="AddOn" />
+    <FlagArray index="InstantPlacement" value="1" />
+    <FlagArray index="PeonDisableAbils" value="1" />
+    <FlagArray index="ShowProgress" value="1" />
+    <Name value="Abil/Name/RaynorXTerranAddOns" />
+  </CAbilBuild>
+
+  <CAbilTrain id="CommandCenterTrainRaynorX" parent="CommandCenterTrain">
+    <InfoArray index="Train1" Time="12">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="SCVRaynorX" />
+      <Button DefaultButtonFace="SCV" State="Available" />
+    </InfoArray>
+  </CAbilTrain>
+
+  <CAbilTrain id="BarracksTrainRaynorX" parent="BarracksTrain">
+    <InfoArray index="Train1" Time="18" Effect="DropTrainFinalSet">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="MarineRaynorX" />
+      <Button DefaultButtonFace="Marine" State="Available" />
+    </InfoArray>
+    <InfoArray index="Train4" Time="30" Effect="DropTrainFinalSet">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="MarauderRaynorX" />
+      <Button DefaultButtonFace="Marauder" State="Available" />
+    </InfoArray>
+    <InfoArray index="Train5" Time="30" Effect="DropTrainFinalSet">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="MedicRaynorX" />
+      <Button DefaultButtonFace="Medic" State="Available" />
+    </InfoArray>
+    <InfoArray index="Train6" Time="30" Effect="DropTrainFinalSet">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="FirebatRaynorX" />
+      <Button DefaultButtonFace="Firebat" State="Available" />
+    </InfoArray>
+  </CAbilTrain>
+
+  <CAbilBuild id="BarracksAddOnsRaynorX" parent="RaynorXTerranAddOns">
+    <BuildMorphAbil value="BarracksLiftOffRaynorX" />
+    <InfoArray index="Build1" Unit="BarracksTechLabRaynorX" Time="25" AddOnParentCmdPriority="-1">
+      <Button DefaultButtonFace="TechLabBarracks" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build2" Unit="BarracksReactorRaynorX" Time="50" AddOnParentCmdPriority="-1">
+      <Button DefaultButtonFace="Reactor" State="Available" />
+    </InfoArray>
+  </CAbilBuild>
+
+  <CAbilMorph id="BarracksLiftOffRaynorX" parent="BarracksLiftOff" unit="BarracksFlyingRaynorX">
+    <CmdButtonArray index="Execute" DefaultButtonFace="Lift" State="Available">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+  </CAbilMorph>
+
+  <CAbilMorphPlacement id="BarracksLandRaynorX" parent="BarracksLand" unit="BarracksRaynorX">
+    <CmdButtonArray index="Execute" DefaultButtonFace="Land" State="Available">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+    <InfoArray index="0" Unit="BarracksRaynorX" CollideRange="0" />
+  </CAbilMorphPlacement>
+
+  <CAbilTrain id="FactoryTrainRaynorX" parent="FactoryTrain">
+    <InfoArray index="Train2" Time="45">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="SiegeTankRaynorX" />
+      <Button DefaultButtonFace="SiegeTank" State="Available" />
+    </InfoArray>
+    <InfoArray index="Train10" Time="30">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="VultureRaynorX" />
+      <Button DefaultButtonFace="Vulture" State="Available" />
+    </InfoArray>
+  </CAbilTrain>
+
+  <CAbilBuild id="FactoryAddOnsRaynorX" parent="RaynorXTerranAddOns">
+    <BuildMorphAbil value="FactoryLiftOffRaynorX" />
+    <InfoArray index="Build1" Unit="FactoryTechLabRaynorX" Time="25" AddOnParentCmdPriority="-1">
+      <Button DefaultButtonFace="TechLabFactory" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build2" Unit="FactoryReactorRaynorX" Time="50" AddOnParentCmdPriority="-1">
+      <Button DefaultButtonFace="Reactor" State="Available" />
+    </InfoArray>
+  </CAbilBuild>
+
+  <CAbilMorph id="FactoryLiftOffRaynorX" parent="FactoryLiftOff" unit="FactoryFlyingRaynorX">
+    <CmdButtonArray index="Execute" DefaultButtonFace="Lift" State="Available">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+  </CAbilMorph>
+
+  <CAbilMorphPlacement id="FactoryLandRaynorX" parent="FactoryLand" unit="FactoryRaynorX">
+    <CmdButtonArray index="Execute" DefaultButtonFace="Land" State="Available">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+    <InfoArray index="0" Unit="FactoryRaynorX" CollideRange="0" />
+  </CAbilMorphPlacement>
+
+  <CAbilTrain id="StarportTrainRaynorX" parent="StarportTrain">
+    <InfoArray index="Train2" Time="43">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="BansheeRaynorX" />
+      <Button DefaultButtonFace="Banshee" State="Available" />
+    </InfoArray>
+    <InfoArray index="Train4" Time="90">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="BattlecruiserRaynorX" />
+      <Button DefaultButtonFace="Battlecruiser" State="Available" />
+    </InfoArray>
+    <InfoArray index="Train5" Time="42">
+      <Unit index="0" removed="1" />
+      <Unit index="0" value="VikingRaynorX" />
+      <Button DefaultButtonFace="VikingFighter" State="Available" />
+    </InfoArray>
+  </CAbilTrain>
+
+  <CAbilBuild id="StarportAddOnsRaynorX" parent="RaynorXTerranAddOns">
+    <BuildMorphAbil value="StarportLiftOffRaynorX" />
+    <InfoArray index="Build1" Unit="StarportTechLabRaynorX" Time="25" AddOnParentCmdPriority="-1">
+      <Button DefaultButtonFace="TechLabStarport" State="Available" />
+    </InfoArray>
+    <InfoArray index="Build2" Unit="StarportReactorRaynorX" Time="50" AddOnParentCmdPriority="-1">
+      <Button DefaultButtonFace="Reactor" State="Available" />
+    </InfoArray>
+  </CAbilBuild>
+
+  <CAbilMorph id="StarportLiftOffRaynorX" parent="StarportLiftOff" unit="StarportFlyingRaynorX">
+    <CmdButtonArray index="Execute" DefaultButtonFace="Lift" State="Available">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+  </CAbilMorph>
+
+  <CAbilMorphPlacement id="StarportLandRaynorX" parent="StarportLand" unit="StarportRaynorX">
+    <CmdButtonArray index="Execute" DefaultButtonFace="Land" State="Available">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+    <InfoArray index="0" Unit="StarportRaynorX" CollideRange="0" />
+  </CAbilMorphPlacement>
+
+  <CAbilResearch id="EngineeringBayResearchRaynorX" parent="EngineeringBayResearch">
+    <InfoArray index="Research19" Time="220" Upgrade="TerranInfantryWeaponsLevel4">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="TerranInfantryWeaponsLevel4" State="Restricted" Requirements="LearnTerranInfantryWeapon4" />
+    </InfoArray>
+    <InfoArray index="Research20" Time="220" Upgrade="TerranInfantryArmorsLevel4">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="TerranInfantryArmorLevel4" State="Restricted" Requirements="LearnTerranInfantryArmor4" />
+    </InfoArray>
+    <InfoArray index="Research21" Time="220" Upgrade="TerranInfantryWeaponsLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="TerranInfantryWeaponsLevel5" State="Restricted" Requirements="LearnTerranInfantryWeapon5RaynorX" />
+    </InfoArray>
+    <InfoArray index="Research22" Time="220" Upgrade="TerranInfantryArmorsLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="TerranInfantryArmorLevel5" State="Restricted" Requirements="LearnTerranInfantryArmor5RaynorX" />
+    </InfoArray>
+  </CAbilResearch>
+
+  <CAbilResearch id="ArmoryResearchRaynorX" parent="ArmoryResearchVoidCoop">
+    <InfoArray index="Research9" Time="220" Upgrade="TerranVehicleAndShipWeaponsLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="TerranVehicleAndShipWeaponsLevel5" State="Restricted" Requirements="LearnTerranVehicleAndShipWeapon5RaynorX" />
+    </InfoArray>
+    <InfoArray index="Research10" Time="220" Upgrade="TerranVehicleAndShipArmorsLevel5">
+      <Resource index="Minerals" value="250" />
+      <Resource index="Vespene" value="250" />
+      <Button DefaultButtonFace="TerranVehicleAndShipPlatingLevel5" State="Restricted" Requirements="LearnTerranVehicleAndShipArmor5RaynorX" />
+    </InfoArray>
+  </CAbilResearch>
+
+  <CAbilResearch id="BarracksTechLabResearchRaynorX" parent="BarracksTechLabResearch">
+    <InfoArray index="Research4" Time="60" Upgrade="BearclawNozzles">
+      <Resource index="Minerals" value="50" />
+      <Resource index="Vespene" value="50" />
+      <Button DefaultButtonFace="ResearchIncineratorGauntlets" State="Restricted" Requirements="LearnIncineratorGauntlets" />
+    </InfoArray>
+    <InfoArray index="Research6" Time="60" Upgrade="StabilizerMedPacks">
+      <Resource index="Minerals" value="100" />
+      <Resource index="Vespene" value="100" />
+      <Button DefaultButtonFace="ResearchStabilizerMedpacks" State="Restricted" Requirements="LearnStabilizerMedPacks" />
+    </InfoArray>
+    <InfoArray index="Research7" Time="60" Upgrade="FirebatJuggernautPlating">
+      <Resource index="Minerals" value="100" />
+      <Resource index="Vespene" value="100" />
+      <Button DefaultButtonFace="ResearchJuggernautPlating" State="Restricted" Requirements="LearnFirebatJuggernautPlating" />
+    </InfoArray>
+    <InfoArray index="Research9" Time="90" Upgrade="MarineSuperStim">
+      <Resource index="Minerals" value="100" />
+      <Resource index="Vespene" value="100" />
+      <Button DefaultButtonFace="ResearchSuperStim" State="Restricted" Requirements="LearnMarineSuperStim" />
+    </InfoArray>
+    <InfoArray index="Research15" Time="60" Upgrade="ShieldWall">
+      <Resource index="Minerals" value="100" />
+      <Resource index="Vespene" value="100" />
+      <Button DefaultButtonFace="ResearchShieldWall" State="Restricted" Requirements="LearnShieldWallRaynorX" />
+    </InfoArray>
+  </CAbilResearch>
+
+  <CAbilResearch id="FactoryTechLabResearchRaynorX" parent="FactoryTechLabResearch" />
+
+  <CAbilResearch id="StarportTechLabResearchRaynorX" parent="StarportTechLabResearch" />
+
+  <CAbilMorph id="SiegeModeRaynorX" parent="SiegeMode" unit="SiegeTankSiegedRaynorX" />
+
+  <CAbilMorph id="UnsiegeRaynorX" parent="Unsiege" unit="SiegeTankRaynorX" />
+
+  <CAbilMorph id="AssaultModeRaynorX" parent="AssaultMode" unit="VikingAssaultRaynorX" />
+
+  <CAbilMorph id="FighterModeRaynorX" parent="FighterMode" unit="VikingRaynorX" />
+
+  <CAbilMorph id="RaynorXTechLabMorphToBarracks" parent="TechLabMorphToBarracks" unit="BarracksTechLabRaynorX" />
+
+  <CAbilMorph id="RaynorXTechLabMorphToFactory" parent="TechLabMorphToFactory" unit="FactoryTechLabRaynorX" />
+
+  <CAbilMorph id="RaynorXTechLabMorphToStarport" parent="TechLabMorphToStarport" unit="StarportTechLabRaynorX" />
+
+  <CAbilMorph id="RaynorXTechLabMorphToDetached" parent="TechLabMorphToDetached" unit="TechLabRaynorX" />
+
+  <CAbilMorph id="RaynorXReactorMorphToBarracks" parent="ReactorMorphToBarracks" unit="BarracksReactorRaynorX" />
+
+  <CAbilMorph id="RaynorXReactorMorphToFactory" parent="ReactorMorphToFactory" unit="FactoryReactorRaynorX" />
+
+  <CAbilMorph id="RaynorXReactorMorphToStarport" parent="ReactorMorphToStarport" unit="StarportReactorRaynorX" />
+
+  <CAbilMorph id="RaynorXReactorMorphToDetached" parent="ReactorMorphToDetached" unit="ReactorRaynorX" />
+
+  <CAbilEffectInstant id="SuperStimpackMarineRaynorX" parent="StimpackMarauder">
+    <Effect index="0" value="StimpackRaynorXApply" />
+    <Cost>
+      <Vital index="Life" value="20" />
+      <Charge Link="Abil/Stimpack" />
+      <Cooldown Link="Abil/Stimpack" />
+    </Cost>
+    <CmdButtonArray index="Execute" DefaultButtonFace="MarineSuperStimpack" State="Available" Requirements="">
+      <Flags index="ToSelection" value="1" />
+    </CmdButtonArray>
+  </CAbilEffectInstant>
 </Catalog>

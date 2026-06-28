@@ -32,3 +32,11 @@
 每次出现报错并修复之后，总结经验到本地文档 E:\Code\MyMod\SC2\合作指挥官-起义狂潮\docs\经验总结
 
 官方数据地址 E:\Code\MyMod\SC2\合作指挥官-起义狂潮\游戏数据\官方SC2原始文本镜像
+
+## 参考数据源
+
+| 路径 | 内容 | 用途 |
+|------|------|------|
+| `E:\Code\MyMod\SC2\sc2-data-trigger` | 完整官方触发器/GameData 镜像，包含 core/swarm/void/liberty 等所有资料片 mod | 触发器逻辑、GameData XML 参考 |
+| `E:\Code\MyMod\SC2\合作指挥官-起义狂潮\游戏数据\官方SC2原始文本镜像\mods\starcoop` | 合作指挥官 starcoop mod，包含 commanders/ 子目录（18个指挥官独立mod） | 指挥官特定数据、天赋/技能定义 |
+| `E:\Code\MyMod\SC2\解包数据\海克斯合作PVP0.110.SC2Mod` | 海克斯合作 PVP mod 解包数据 | Hex 天赋/技能系统参考 |
