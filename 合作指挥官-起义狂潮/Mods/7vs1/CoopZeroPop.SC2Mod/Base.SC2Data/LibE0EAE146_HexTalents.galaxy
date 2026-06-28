@@ -1,5 +1,6 @@
 //--------------------------------------------------------------------------------------------------
 // 海克斯天赋系统（与 WebUI StartTalentMask 对接）
+// 架构：单一核心 buff TNX_Ability_total + 升级叠加效果
 //--------------------------------------------------------------------------------------------------
 
 const int libE0EAE146_kc_hexTalentBit_healthBonus = 3;
@@ -8,11 +9,9 @@ const int libE0EAE146_kc_hexTalentBit_moveSpeedBonus = 5;
 const int libE0EAE146_kc_hexTalentBit_armorBonus = 6;
 const int libE0EAE146_kc_hexTalentBit_sightRangeBonus = 7;
 
-const string libE0EAE146_kc_hexTalent_healthBonus_behavior = "HexTalent_HealthBonus";
-const string libE0EAE146_kc_hexTalent_damageBonus_behavior = "HexTalent_DamageBonus";
-const string libE0EAE146_kc_hexTalent_moveSpeedBonus_behavior = "HexTalent_MoveSpeedBonus";
-const string libE0EAE146_kc_hexTalent_armorBonus_behavior = "HexTalent_ArmorBonus";
-const string libE0EAE146_kc_hexTalent_sightRangeBonus_behavior = "HexTalent_SightRangeBonus";
+const string libE0EAE146_kc_hexTalentBehavior = "TNX_Ability_total";
+
+const string[8] libE0EAE146_kc_hexTalentUpgrade;
 
 int[16] libE0EAE146_gv_hexTalents_startMask;
 
@@ -25,6 +24,12 @@ void libE0EAE146_hexTalents_InitVariables () {
         libE0EAE146_gv_hexTalents_startMask[lv_i] = 0;
         lv_i += 1;
     }
+
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_healthBonus] = "TNX_012";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_damageBonus] = "TNX_00";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_moveSpeedBonus] = "TNX_01";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_armorBonus] = "TNX_013";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_sightRangeBonus] = "TNX_019";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,9 +51,8 @@ bool libE0EAE146_gf_HexTalentsIsCasterUnit (string lp_unitType) {
 }
 
 //--------------------------------------------------------------------------------------------------
-void libE0EAE146_gf_HexTalentsApplyBehaviorToUnit (unit lp_unit, int lp_player) {
+void libE0EAE146_gf_HexTalentsApplyToUnit (unit lp_unit, int lp_player) {
     string lv_unitType;
-    int lv_mask;
 
     if (libE0EAE146_gv_hexTalents_startMask[lp_player] == 0) {
         return;
@@ -66,36 +70,25 @@ void libE0EAE146_gf_HexTalentsApplyBehaviorToUnit (unit lp_unit, int lp_player) 
         return;
     }
 
-    lv_mask = libE0EAE146_gv_hexTalents_startMask[lp_player];
-
-    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, libE0EAE146_kc_hexTalentBit_healthBonus) == true) {
-        if (UnitBehaviorCount(lp_unit, libE0EAE146_kc_hexTalent_healthBonus_behavior) == 0) {
-            UnitBehaviorAddPlayer(lp_unit, libE0EAE146_kc_hexTalent_healthBonus_behavior, lp_player, 1);
-        }
+    if (UnitBehaviorCount(lp_unit, libE0EAE146_kc_hexTalentBehavior) == 0) {
+        UnitBehaviorAddPlayer(lp_unit, libE0EAE146_kc_hexTalentBehavior, lp_player, 1);
     }
+}
 
-    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, libE0EAE146_kc_hexTalentBit_damageBonus) == true) {
-        if (UnitBehaviorCount(lp_unit, libE0EAE146_kc_hexTalent_damageBonus_behavior) == 0) {
-            UnitBehaviorAddPlayer(lp_unit, libE0EAE146_kc_hexTalent_damageBonus_behavior, lp_player, 1);
-        }
-    }
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gf_HexTalentsApplyUpgradesForPlayer (int lp_player, int lp_mask) {
+    int lv_bit;
+    string lv_upgrade;
 
-    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, libE0EAE146_kc_hexTalentBit_moveSpeedBonus) == true) {
-        if (UnitBehaviorCount(lp_unit, libE0EAE146_kc_hexTalent_moveSpeedBonus_behavior) == 0) {
-            UnitBehaviorAddPlayer(lp_unit, libE0EAE146_kc_hexTalent_moveSpeedBonus_behavior, lp_player, 1);
+    lv_bit = 0;
+    while (lv_bit <= 7) {
+        if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lp_mask, lv_bit) == true) {
+            lv_upgrade = libE0EAE146_kc_hexTalentUpgrade[lv_bit];
+            if (lv_upgrade != "") {
+                TechTreeUpgradeAddLevel(lp_player, lv_upgrade, 1);
+            }
         }
-    }
-
-    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, libE0EAE146_kc_hexTalentBit_armorBonus) == true) {
-        if (UnitBehaviorCount(lp_unit, libE0EAE146_kc_hexTalent_armorBonus_behavior) == 0) {
-            UnitBehaviorAddPlayer(lp_unit, libE0EAE146_kc_hexTalent_armorBonus_behavior, lp_player, 1);
-        }
-    }
-
-    if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, libE0EAE146_kc_hexTalentBit_sightRangeBonus) == true) {
-        if (UnitBehaviorCount(lp_unit, libE0EAE146_kc_hexTalent_sightRangeBonus_behavior) == 0) {
-            UnitBehaviorAddPlayer(lp_unit, libE0EAE146_kc_hexTalent_sightRangeBonus_behavior, lp_player, 1);
-        }
+        lv_bit += 1;
     }
 }
 
@@ -113,6 +106,10 @@ void libE0EAE146_gf_HexTalentsPlayerInit (int lp_player) {
 
     lv_mask = libE0EAE146_gf_CommanderPowerBankIntOrDefault(lv_commander, "StartTalentMask", 0);
     libE0EAE146_gv_hexTalents_startMask[lp_player] = lv_mask;
+
+    if (lv_mask != 0) {
+        libE0EAE146_gf_HexTalentsApplyUpgradesForPlayer(lp_player, lv_mask);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +133,7 @@ bool libE0EAE146_gt_HexTalentsUnitCreated_Func (bool testConds, bool runActions)
         return true;
     }
 
-    libE0EAE146_gf_HexTalentsApplyBehaviorToUnit(lv_unit, lv_player);
+    libE0EAE146_gf_HexTalentsApplyToUnit(lv_unit, lv_player);
 
     return true;
 }
