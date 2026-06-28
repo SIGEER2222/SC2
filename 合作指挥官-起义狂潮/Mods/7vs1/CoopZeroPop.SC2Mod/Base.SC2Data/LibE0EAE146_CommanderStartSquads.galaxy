@@ -804,6 +804,10 @@ void libE0EAE146_gf_CreateCommanderSupportSquad (int lp_player, point lp_point) 
         libE0EAE146_gf_RaynorCreateMapStartSquad("light", lp_player, lp_point);
         return;
     }
+    if (lv_commander == "RaynorX") {
+        libE0EAE146_gf_RaynorCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
     if (lv_commander == "Kerrigan") {
         libE0EAE146_gf_KerriganCreateMapStartSquad("light", lp_player, lp_point);
         return;
@@ -888,6 +892,10 @@ void libE0EAE146_gf_CreateCommanderCinematicDropSquad (string lp_kind, int lp_pl
 
     lv_commander = libE0EAE146_gv_commander;
     if (lv_commander == "Raynor") {
+        libE0EAE146_gf_RaynorCreateMapStartSquad(lp_kind, lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "RaynorX") {
         libE0EAE146_gf_RaynorCreateMapStartSquad(lp_kind, lp_player, lp_point);
         return;
     }
@@ -984,6 +992,10 @@ void libE0EAE146_gf_CreateCommanderCinematicTransportSquad (unit lp_container, s
 
     lv_commander = libE0EAE146_gv_commander;
     if (lv_commander == "Raynor") {
+        libE0EAE146_gf_RaynorCreateCargoSquad(lp_container, lp_kind);
+        return;
+    }
+    if (lv_commander == "RaynorX") {
         libE0EAE146_gf_RaynorCreateCargoSquad(lp_container, lp_kind);
         return;
     }

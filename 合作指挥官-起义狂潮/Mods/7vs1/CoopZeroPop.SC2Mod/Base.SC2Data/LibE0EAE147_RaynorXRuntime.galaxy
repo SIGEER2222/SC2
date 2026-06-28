@@ -1,0 +1,651 @@
+bool libE0EAE147_gv_raynorRuntimeInitialized;
+bool libE0EAE147_gv_raynorTrainProbeInitialized;
+int libE0EAE147_gv_raynorTrainProbePlayer;
+unit libE0EAE147_gv_raynorTrainProbeBarracks;
+int libE0EAE147_gv_raynorTrainProbeState;
+int libE0EAE147_gv_raynorTrainProbeTicks;
+int libE0EAE147_gv_raynorTrainProbeMedicRaynorXStart;
+int libE0EAE147_gv_raynorTrainProbeMedicStart;
+int libE0EAE147_gv_raynorTrainProbeFirebatRaynorXStart;
+int libE0EAE147_gv_raynorTrainProbeFirebatStart;
+trigger libE0EAE147_gt_RaynorXTrainProbePeriodic;
+
+int libE0EAE147_gf_RaynorXRuntimeUnitTypeCount (int lp_player, string lp_unitType) {
+    if ((lp_unitType == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unitType))) {
+        return 0;
+    }
+
+    return UnitGroupCount(UnitGroup(lp_unitType, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
+}
+
+void libE0EAE147_gf_RaynorXTrainProbeWriteInt (string lp_key, int lp_value) {
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", lp_key, lp_value);
+    BankSave(BankLastCreated());
+}
+
+void libE0EAE147_gf_RaynorXTrainProbeWriteString (string lp_key, string lp_value) {
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", lp_key, lp_value);
+    BankSave(BankLastCreated());
+}
+
+int libE0EAE147_gf_RaynorXBoolToInt (bool lp_value) {
+    if (lp_value) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void libE0EAE147_gf_RaynorXTrainProbeWriteOrderValidity (unit lp_unit, string lp_abil, int lp_maxCmdIndex, string lp_keyPrefix) {
+    int lv_cmdIndex;
+    order lv_order;
+
+    lv_cmdIndex = 0;
+    while ((lv_cmdIndex <= lp_maxCmdIndex)) {
+        lv_order = Order(AbilityCommand(lp_abil, lv_cmdIndex));
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt(lp_keyPrefix + IntToString(lv_cmdIndex) + "Valid", libE0EAE147_gf_RaynorXBoolToInt(UnitOrderIsValid(lp_unit, lv_order)));
+        lv_cmdIndex += 1;
+    }
+}
+
+void libE0EAE147_gf_RaynorXSetUpgradeAtLeast (int lp_player, string lp_upgrade, int lp_level) {
+    libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, lp_upgrade, lp_level);
+}
+
+void libE0EAE147_gf_RaynorXAllowUnitIfPresent (int lp_player, string lp_unit) {
+    if ((lp_unit == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unit))) {
+        return;
+    }
+    TechTreeUnitAllow(lp_player, lp_unit, true);
+}
+
+void libE0EAE147_gf_RaynorXBlockUnitIfPresent (int lp_player, string lp_unit) {
+    if ((lp_unit == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unit))) {
+        return;
+    }
+    TechTreeUnitAllow(lp_player, lp_unit, false);
+}
+
+void libE0EAE147_gf_RaynorXAllowAbilityIfPresent (int lp_player, string lp_abil, int lp_cmdIndex) {
+    if ((lp_abil == "") || (!CatalogEntryIsValid(c_gameCatalogAbil, lp_abil))) {
+        return;
+    }
+    TechTreeAbilityAllow(lp_player, AbilityCommand(lp_abil, lp_cmdIndex), true);
+}
+
+void libE0EAE147_gf_RaynorXAllowAddOnAbilityIfPresent (int lp_player, string lp_abil) {
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, lp_abil, 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, lp_abil, 1);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, lp_abil, 3);
+}
+
+void libE0EAE147_gf_RaynorXApplyFullLevelUpgrades (int lp_player) {
+    libE0EAE146_gf_CommanderPowerApplyRaynorFullLevel(lp_player);
+}
+
+void libE0EAE147_gf_RaynorXApplyFullMasteries (int lp_player) {
+    libE0EAE146_gf_CommanderPowerApplyRaynorMasteries(lp_player);
+}
+
+void libE0EAE147_gf_RaynorXApplyPositivePrestigeEffects (int lp_player) {
+    libE0EAE146_gf_CommanderPowerApplyRaynorPositivePrestige(lp_player);
+}
+
+void libE0EAE147_gf_RaynorXApplyTechFilter (int lp_player) {
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "SCV");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "CommandCenter");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "CommandCenterFlying");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "OrbitalCommand");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "OrbitalCommandFlying");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "SupplyDepot");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Refinery");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "EngineeringBay");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Armory");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "FusionCore");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "SensorTower");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Bunker");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "MissileTurret");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "TechLab");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "BarracksTechLab");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "FactoryTechLab");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "StarportTechLab");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Reactor");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "BarracksReactor");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "FactoryReactor");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "StarportReactor");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "TechReactor");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "BarracksTechReactor");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "FactoryTechReactor");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "StarportTechReactor");
+
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Marine");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Medic");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Firebat");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Marauder");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Reaper");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Ghost");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Vulture");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "SiegeTank");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "SiegeTankSieged");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Hellion");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "HellionTank");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Cyclone");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Thor");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Viking");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "VikingFighter");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "VikingAssault");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Banshee");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Battlecruiser");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Medivac");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Raven");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Liberator");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Wraith");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "ScienceVessel");
+    libE0EAE147_gf_RaynorXBlockUnitIfPresent(lp_player, "Goliath");
+
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "SCVRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "CommandCenterRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "CommandCenterFlyingRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "OrbitalCommandRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "OrbitalCommandFlyingRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "SupplyDepotRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "RefineryRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "EngineeringBayRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "ArmoryRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "FusionCoreRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "SensorTowerRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "BunkerRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "MissileTurretRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "TechLabRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "BarracksTechLabRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "FactoryTechLabRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "StarportTechLabRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "ReactorRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "BarracksReactorRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "FactoryReactorRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "StarportReactorRaynorX");
+
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "MarineRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "MedicRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "FirebatRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "MarauderRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "VultureRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "SiegeTankRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "SiegeTankSiegedRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "VikingRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "VikingAssaultRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "BansheeRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "BattlecruiserRaynorX");
+
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "CoopCasterRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "CoopAssistCasterRaynorX");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "RaynorXCommando");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "RaynorXCommandoMarine");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "DuskWing");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "HyperionVoidCoop");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "BansheeAirstrikePlaceholder");
+    libE0EAE147_gf_RaynorXAllowUnitIfPresent(lp_player, "BansheeAirstrikeFakeAttackWeapon");
+
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 1);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 2);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 3);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 4);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 5);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 6);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 7);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 8);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 9);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 10);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 11);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 12);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 13);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 14);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 15);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "TerranBuildRaynorX", 16);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "CommandCenterTrainRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "CommandCenterLiftOffRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "CommandCenterLandRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "OrbitalLiftOffRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "OrbitalCommandLandRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTrainRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTrainRaynorX", 1);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTrainRaynorX", 2);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTrainRaynorX", 3);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTrainRaynorX", 4);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTrainRaynorX", 5);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "FactoryTrainRaynorX", 1);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "FactoryTrainRaynorX", 9);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "StarportTrainRaynorX", 1);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "StarportTrainRaynorX", 3);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "StarportTrainRaynorX", 4);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynorX", 2);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynorX", 3);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynorX", 4);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynorX", 6);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynorX", 7);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynorX", 8);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynorX", 18);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynorX", 19);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynorX", 20);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "EngineeringBayResearchRaynorX", 21);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 1);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 2);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 3);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 4);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 5);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 6);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 7);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 8);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 9);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ArmoryResearchRaynorX", 9);
+    libE0EAE147_gf_RaynorXAllowAddOnAbilityIfPresent(lp_player, "BarracksAddOnsRaynorX");
+    libE0EAE147_gf_RaynorXAllowAddOnAbilityIfPresent(lp_player, "FactoryAddOnsRaynorX");
+    libE0EAE147_gf_RaynorXAllowAddOnAbilityIfPresent(lp_player, "StarportAddOnsRaynorX");
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "RaynorXTechLabMorphToBarracks", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "RaynorXTechLabMorphToDetached", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "RaynorXTechLabMorphToFactory", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "RaynorXTechLabMorphToStarport", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "RaynorXReactorMorphToBarracks", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "RaynorXReactorMorphToDetached", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "RaynorXReactorMorphToFactory", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "RaynorXReactorMorphToStarport", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 1);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 2);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 3);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 4);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 5);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 6);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 7);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 8);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 9);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 10);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 11);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 12);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 13);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 14);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BarracksTechLabResearchRaynorX", 15);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "SuperStimpackMarineRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "FactoryTechLabResearchRaynorX", 10);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "FactoryTechLabResearchRaynorX", 15);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "StarportTechLabResearchRaynorX", 9);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "StarportTechLabResearchRaynorX", 18);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "UpgradeToOrbitalRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "CalldownMULERaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "ScannerSweepRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "SiegeModeRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "UnsiegeRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "AssaultModeRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "FighterModeRaynorX", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "VoidCoopSummonHyperion", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BansheeAirstrike", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "VehicleAfterburners", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "BansheeCloak", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "Yamato", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "Hyperjump", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "HyperionVoidCoopHyperjump", 0);
+    libE0EAE147_gf_RaynorXAllowAbilityIfPresent(lp_player, "HyperionVoidCoopYamatoCannon", 0);
+}
+
+bool libE0EAE147_gf_RaynorXStructureNeedsRefresh (unit lp_unit) {
+    string lv_unitType;
+
+    if (UnitIsAlive(lp_unit) == false) {
+        return false;
+    }
+
+    if (libKCOR_gf_ActiveCommanderForPlayer(UnitGetOwner(lp_unit)) != "TerranRaynorX") {
+        return false;
+    }
+
+    lv_unitType = UnitGetType(lp_unit);
+    if ((lv_unitType == "CommandCenterRaynorX") || (lv_unitType == "CommandCenterFlyingRaynorX") || (lv_unitType == "OrbitalCommandRaynorX") || (lv_unitType == "OrbitalCommandFlyingRaynorX")) {
+        return true;
+    }
+
+    return false;
+}
+
+string libE0EAE147_gf_RaynorXMorphExpectedUnitType (abilcmd lp_abilCmd) {
+    string lv_abil;
+
+    lv_abil = AbilityCommandGetAbility(lp_abilCmd);
+    if (lv_abil == "CommandCenterLiftOffRaynorX") {
+        return "CommandCenterFlyingRaynorX";
+    }
+    if (lv_abil == "CommandCenterLandRaynorX") {
+        return "CommandCenterRaynorX";
+    }
+    if (lv_abil == "UpgradeToOrbitalRaynorX") {
+        return "OrbitalCommandRaynorX";
+    }
+    if (lv_abil == "OrbitalLiftOffRaynorX") {
+        return "OrbitalCommandFlyingRaynorX";
+    }
+    if (lv_abil == "OrbitalCommandLandRaynorX") {
+        return "OrbitalCommandRaynorX";
+    }
+
+    return "";
+}
+
+unit libE0EAE147_gf_RaynorXFindNearestOwnedUnitOfType (int lp_player, string lp_unitType, point lp_point, fixed lp_maxDistance) {
+    unitgroup lv_units;
+    int lv_count;
+    unit lv_unit;
+    unit lv_bestUnit;
+    fixed lv_distance;
+    fixed lv_bestDistance;
+
+    if ((lp_unitType == "") || (!CatalogEntryIsValid(c_gameCatalogUnit, lp_unitType))) {
+        return null;
+    }
+
+    lv_units = UnitGroup(lp_unitType, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_count = UnitGroupCount(lv_units, c_unitCountAlive);
+    lv_bestDistance = (lp_maxDistance + 0.5);
+    for (;; lv_count -= 1) {
+        lv_unit = UnitGroupUnitFromEnd(lv_units, lv_count);
+        if (lv_unit == null) { break; }
+        lv_distance = DistanceBetweenPoints(lp_point, UnitGetPosition(lv_unit));
+        if (lv_distance <= lp_maxDistance) {
+            if ((lv_bestUnit == null) || (lv_distance < lv_bestDistance)) {
+                lv_bestUnit = lv_unit;
+                lv_bestDistance = lv_distance;
+            }
+        }
+    }
+
+    return lv_bestUnit;
+}
+
+unit libE0EAE147_gf_RaynorXResolveMorphedStructure (unit lp_oldUnit, abilcmd lp_abilCmd) {
+    int lv_player;
+    string lv_expectedType;
+    point lv_oldPoint;
+    unit lv_newUnit;
+
+    lv_player = UnitGetOwner(lp_oldUnit);
+    lv_expectedType = libE0EAE147_gf_RaynorXMorphExpectedUnitType(lp_abilCmd);
+    lv_newUnit = libNtve_gf_LastReplacedUnit();
+    if ((lv_newUnit != null) && (UnitIsAlive(lv_newUnit) == true) && (UnitGetOwner(lv_newUnit) == lv_player)) {
+        if ((lv_expectedType == "") || (UnitGetType(lv_newUnit) == lv_expectedType)) {
+            return lv_newUnit;
+        }
+    }
+
+    lv_oldPoint = UnitGetPosition(lp_oldUnit);
+    return libE0EAE147_gf_RaynorXFindNearestOwnedUnitOfType(lv_player, lv_expectedType, lv_oldPoint, 6.0);
+}
+
+bool libE0EAE147_gf_RaynorXRuntimeHasTestRun () {
+    BankLoad("CampaignXCore", 1);
+    return (BankValueGetAsString(BankLastCreated(), "XMRuntimeControl", "TestRunId") != "");
+}
+
+void libE0EAE147_gf_RaynorXProbeTrainCatalog (int lp_player) {
+    int lv_train5UnitCount;
+    int lv_train6UnitCount;
+    string lv_train5Unit0;
+    string lv_train5Unit1;
+    string lv_train6Unit0;
+    string lv_train6Unit1;
+    string lv_ccTrain1Unit0;
+
+    if (!libE0EAE147_gf_RaynorXRuntimeHasTestRun()) {
+        return;
+    }
+
+    lv_train5UnitCount = CatalogFieldValueCount(c_gameCatalogAbil, "BarracksTrainRaynorX", "InfoArray[Train5].Unit", lp_player);
+    lv_train6UnitCount = CatalogFieldValueCount(c_gameCatalogAbil, "BarracksTrainRaynorX", "InfoArray[Train6].Unit", lp_player);
+    lv_train5Unit0 = CatalogFieldValueGet(c_gameCatalogAbil, "BarracksTrainRaynorX", "InfoArray[Train5].Unit[0]", lp_player);
+    lv_train6Unit0 = CatalogFieldValueGet(c_gameCatalogAbil, "BarracksTrainRaynorX", "InfoArray[Train6].Unit[0]", lp_player);
+    lv_ccTrain1Unit0 = CatalogFieldValueGet(c_gameCatalogAbil, "CommandCenterTrainRaynorX", "InfoArray[Train1].Unit[0]", lp_player);
+    lv_train5Unit1 = "";
+    lv_train6Unit1 = "";
+    if (lv_train5UnitCount > 1) {
+        lv_train5Unit1 = CatalogFieldValueGet(c_gameCatalogAbil, "BarracksTrainRaynorX", "InfoArray[Train5].Unit[1]", lp_player);
+    }
+    if (lv_train6UnitCount > 1) {
+        lv_train6Unit1 = CatalogFieldValueGet(c_gameCatalogAbil, "BarracksTrainRaynorX", "InfoArray[Train6].Unit[1]", lp_player);
+    }
+
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "RaynorXTrain5UnitCount", lv_train5UnitCount);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "RaynorXTrain6UnitCount", lv_train6UnitCount);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RaynorXTrain5Unit0", lv_train5Unit0);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RaynorXTrain5Unit1", lv_train5Unit1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RaynorXTrain6Unit0", lv_train6Unit0);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RaynorXTrain6Unit1", lv_train6Unit1);
+    BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "RaynorXCCTrain1Unit0", lv_ccTrain1Unit0);
+    BankSave(BankLastCreated());
+}
+
+bool libE0EAE147_gt_RaynorXTrainProbePeriodic_Func (bool testConds, bool runActions) {
+    int lv_medicRaynorXCount;
+    int lv_medicCount;
+    int lv_firebatRaynorXCount;
+    int lv_firebatCount;
+
+    if (testConds) {
+        if (!libE0EAE147_gf_RaynorXRuntimeHasTestRun()) {
+            return false;
+        }
+        if (libE0EAE147_gv_raynorTrainProbeInitialized == false) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    if ((libE0EAE147_gv_raynorTrainProbeState <= 0) || (libE0EAE147_gv_raynorTrainProbeBarracks == null)) {
+        return true;
+    }
+
+    libE0EAE147_gv_raynorTrainProbeTicks += 1;
+    lv_medicRaynorXCount = libE0EAE147_gf_RaynorXRuntimeUnitTypeCount(libE0EAE147_gv_raynorTrainProbePlayer, "MedicRaynorX");
+    lv_medicCount = libE0EAE147_gf_RaynorXRuntimeUnitTypeCount(libE0EAE147_gv_raynorTrainProbePlayer, "Medic");
+    lv_firebatRaynorXCount = libE0EAE147_gf_RaynorXRuntimeUnitTypeCount(libE0EAE147_gv_raynorTrainProbePlayer, "FirebatRaynorX");
+    lv_firebatCount = libE0EAE147_gf_RaynorXRuntimeUnitTypeCount(libE0EAE147_gv_raynorTrainProbePlayer, "Firebat");
+
+    if ((libE0EAE147_gv_raynorTrainProbeState == 10) && ((UnitBehaviorCount(libE0EAE147_gv_raynorTrainProbeBarracks, "BarracksTechLab") > 0) || (libE0EAE147_gv_raynorTrainProbeTicks >= 100))) {
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrainProbeTechLabAttached", libE0EAE147_gf_RaynorXBoolToInt(UnitBehaviorCount(libE0EAE147_gv_raynorTrainProbeBarracks, "BarracksTechLab") > 0));
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrainProbeTechLabTimeout", libE0EAE147_gf_RaynorXBoolToInt(libE0EAE147_gv_raynorTrainProbeTicks >= 100));
+        libE0EAE147_gf_RaynorXTrainProbeWriteOrderValidity(libE0EAE147_gv_raynorTrainProbeBarracks, "BarracksTrainRaynorX", 7, "RaynorXTrainTechLabCmd");
+        libE0EAE147_gv_raynorTrainProbeMedicRaynorXStart = lv_medicRaynorXCount;
+        libE0EAE147_gv_raynorTrainProbeMedicStart = lv_medicCount;
+        libE0EAE147_gv_raynorTrainProbeFirebatRaynorXStart = lv_firebatRaynorXCount;
+        libE0EAE147_gv_raynorTrainProbeFirebatStart = lv_firebatCount;
+        libE0EAE147_gv_raynorTrainProbeTicks = 0;
+        if (UnitBehaviorCount(libE0EAE147_gv_raynorTrainProbeBarracks, "BarracksTechLab") > 0) {
+            libE0EAE147_gv_raynorTrainProbeState = 1;
+            libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain5IssuedCmd", 4);
+            if (UnitIsAlive(libE0EAE147_gv_raynorTrainProbeBarracks) == true) {
+                UnitIssueOrder(libE0EAE147_gv_raynorTrainProbeBarracks, Order(AbilityCommand("BarracksTrainRaynorX", 4)), c_orderQueueReplace);
+            }
+        }
+        else {
+            libE0EAE147_gv_raynorTrainProbeState = 0;
+        }
+        return true;
+    }
+
+    if ((libE0EAE147_gv_raynorTrainProbeState == 1) && (((lv_medicRaynorXCount + lv_medicCount) > (libE0EAE147_gv_raynorTrainProbeMedicRaynorXStart + libE0EAE147_gv_raynorTrainProbeMedicStart)) || (libE0EAE147_gv_raynorTrainProbeTicks >= 75))) {
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain5MedicRaynorXDelta", (lv_medicRaynorXCount - libE0EAE147_gv_raynorTrainProbeMedicRaynorXStart));
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain5MedicDelta", (lv_medicCount - libE0EAE147_gv_raynorTrainProbeMedicStart));
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain5Timeout", libE0EAE147_gf_RaynorXBoolToInt(libE0EAE147_gv_raynorTrainProbeTicks >= 75));
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain5BarracksHasReactor", 0);
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain5BarracksHasTechLab", UnitBehaviorCount(libE0EAE147_gv_raynorTrainProbeBarracks, "BarracksTechLab"));
+
+        libE0EAE147_gv_raynorTrainProbeFirebatRaynorXStart = lv_firebatRaynorXCount;
+        libE0EAE147_gv_raynorTrainProbeFirebatStart = lv_firebatCount;
+        libE0EAE147_gv_raynorTrainProbeTicks = 0;
+        libE0EAE147_gv_raynorTrainProbeState = 2;
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain6IssuedCmd", 5);
+        if (UnitIsAlive(libE0EAE147_gv_raynorTrainProbeBarracks) == true) {
+            UnitIssueOrder(libE0EAE147_gv_raynorTrainProbeBarracks, Order(AbilityCommand("BarracksTrainRaynorX", 5)), c_orderQueueReplace);
+        }
+        return true;
+    }
+
+    if ((libE0EAE147_gv_raynorTrainProbeState == 2) && (((lv_firebatRaynorXCount + lv_firebatCount) > (libE0EAE147_gv_raynorTrainProbeFirebatRaynorXStart + libE0EAE147_gv_raynorTrainProbeFirebatStart)) || (libE0EAE147_gv_raynorTrainProbeTicks >= 75))) {
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain6FirebatRaynorXDelta", (lv_firebatRaynorXCount - libE0EAE147_gv_raynorTrainProbeFirebatRaynorXStart));
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain6FirebatDelta", (lv_firebatCount - libE0EAE147_gv_raynorTrainProbeFirebatStart));
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain6Timeout", libE0EAE147_gf_RaynorXBoolToInt(libE0EAE147_gv_raynorTrainProbeTicks >= 75));
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain6BarracksHasReactor", 0);
+        libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrain6BarracksHasTechLab", UnitBehaviorCount(libE0EAE147_gv_raynorTrainProbeBarracks, "BarracksTechLab"));
+        libE0EAE147_gv_raynorTrainProbeState = 0;
+        return true;
+    }
+
+    return true;
+}
+
+void libE0EAE147_gt_RaynorXTrainProbePeriodic_Init () {
+    if (libE0EAE147_gt_RaynorXTrainProbePeriodic != null) {
+        return;
+    }
+
+    libE0EAE147_gt_RaynorXTrainProbePeriodic = TriggerCreate("libE0EAE147_gt_RaynorXTrainProbePeriodic_Func");
+    TriggerAddEventTimePeriodic(libE0EAE147_gt_RaynorXTrainProbePeriodic, 0.5, c_timeGame);
+}
+
+void libE0EAE147_gf_RaynorXStartTrainProbe (int lp_player) {
+    string lv_barracksType;
+    point lv_point;
+
+    if (!libE0EAE147_gf_RaynorXRuntimeHasTestRun()) {
+        return;
+    }
+    if (libE0EAE147_gv_raynorTrainProbeInitialized == true) {
+        return;
+    }
+
+    libE0EAE147_gv_raynorTrainProbeInitialized = true;
+    libE0EAE147_gv_raynorTrainProbePlayer = lp_player;
+    PlayerModifyPropertyInt(lp_player, c_playerPropMinerals, c_playerPropOperAdd, 1000);
+    PlayerModifyPropertyInt(lp_player, c_playerPropVespene, c_playerPropOperAdd, 1000);
+    lv_barracksType = "";
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "BarracksRaynorX")) {
+        lv_barracksType = "BarracksRaynorX";
+    }
+    if ((lv_barracksType == "")) {
+        libE0EAE147_gf_RaynorXTrainProbeWriteString("RaynorXTrainProbeBarracksType", "missing");
+        return;
+    }
+    lv_point = PointWithOffsetPolar(PlayerStartLocation(lp_player), 6.0, 225.0);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_barracksType, 0, lp_player, lv_point);
+    libE0EAE147_gv_raynorTrainProbeBarracks = UnitLastCreated();
+    libE0EAE147_gv_raynorTrainProbeMedicRaynorXStart = libE0EAE147_gf_RaynorXRuntimeUnitTypeCount(lp_player, "MedicRaynorX");
+    libE0EAE147_gv_raynorTrainProbeMedicStart = libE0EAE147_gf_RaynorXRuntimeUnitTypeCount(lp_player, "Medic");
+    libE0EAE147_gv_raynorTrainProbeFirebatRaynorXStart = libE0EAE147_gf_RaynorXRuntimeUnitTypeCount(lp_player, "FirebatRaynorX");
+    libE0EAE147_gv_raynorTrainProbeFirebatStart = libE0EAE147_gf_RaynorXRuntimeUnitTypeCount(lp_player, "Firebat");
+    libE0EAE147_gv_raynorTrainProbeState = 10;
+    libE0EAE147_gv_raynorTrainProbeTicks = 0;
+
+    libE0EAE147_gf_RaynorXTrainProbeWriteString("RaynorXTrainProbeBarracksType", UnitGetType(libE0EAE147_gv_raynorTrainProbeBarracks));
+    libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrainProbeBarracksHasReactor", 0);
+    libE0EAE147_gf_RaynorXTrainProbeWriteInt("RaynorXTrainProbeBarracksHasTechLab", UnitBehaviorCount(libE0EAE147_gv_raynorTrainProbeBarracks, "BarracksTechLab"));
+    libE0EAE147_gf_RaynorXTrainProbeWriteOrderValidity(libE0EAE147_gv_raynorTrainProbeBarracks, "BarracksTrainRaynorX", 7, "RaynorXTrainCmd");
+    libE0EAE147_gf_RaynorXTrainProbeWriteOrderValidity(libE0EAE147_gv_raynorTrainProbeBarracks, "BarracksAddOnsRaynorX", 3, "RaynorXAddOnCmd");
+    UnitIssueOrder(libE0EAE147_gv_raynorTrainProbeBarracks, Order(AbilityCommand("BarracksAddOnsRaynorX", 0)), c_orderQueueReplace);
+}
+
+bool libE0EAE147_gt_RaynorXStructureMorphRefresh_Func (bool testConds, bool runActions) {
+    int lv_player;
+    unit lv_newUnit;
+    point lv_oldPoint;
+    unitgroup lv_selectedUnits;
+    bool lv_wasSelected;
+
+    if (testConds) {
+        if (libE0EAE147_gf_RaynorXStructureNeedsRefresh(EventUnit()) == false) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_player = UnitGetOwner(EventUnit());
+    lv_oldPoint = UnitGetPosition(EventUnit());
+    lv_selectedUnits = UnitGroupSelected(lv_player);
+    lv_wasSelected = UnitIsSelected(EventUnit(), lv_player);
+    Wait(0.125, c_timeGame);
+    lv_newUnit = libE0EAE147_gf_RaynorXResolveMorphedStructure(EventUnit(), EventUnitAbility());
+    if ((lv_newUnit != null) && (UnitIsAlive(lv_newUnit) == true)) {
+        libNtve_gf_CopyUnitControlGroups(EventUnit(), lv_newUnit);
+        UnitCreateEffectUnit(lv_newUnit, "CopyTargetSelectionAndControlGroups", EventUnit());
+        if (lv_wasSelected == true) {
+            UnitGroupRemove(lv_selectedUnits, EventUnit());
+            UnitGroupAdd(lv_selectedUnits, lv_newUnit);
+            UnitClearSelection(lv_player);
+            Wait(0.0625, c_timeGame);
+            UnitSelect(lv_newUnit, lv_player, true);
+            UnitGroupSelect(lv_selectedUnits, lv_player, true);
+        }
+    }
+    else if (lv_wasSelected == true) {
+        lv_newUnit = libE0EAE147_gf_RaynorXFindNearestOwnedUnitOfType(lv_player, libE0EAE147_gf_RaynorXMorphExpectedUnitType(EventUnitAbility()), lv_oldPoint, 8.0);
+        if ((lv_newUnit != null) && (UnitIsAlive(lv_newUnit) == true)) {
+            UnitClearSelection(lv_player);
+            UnitSelect(lv_newUnit, lv_player, true);
+        }
+    }
+    if (((lv_newUnit != null) && (libE0EAE147_gf_RaynorXStructureNeedsRefresh(lv_newUnit) == true)) || (libE0EAE147_gf_RaynorXStructureNeedsRefresh(EventUnit()) == true)) {
+        libE0EAE147_gf_RaynorXApplyTechFilter(lv_player);
+    }
+    return true;
+}
+
+void libE0EAE147_gt_RaynorXStructureMorphRefresh_Init () {
+    libE0EAE147_gt_RaynorXStructureMorphRefresh = TriggerCreate("libE0EAE147_gt_RaynorXStructureMorphRefresh_Func");
+    TriggerAddEventUnitAbility(libE0EAE147_gt_RaynorXStructureMorphRefresh, null, AbilityCommand("CommandCenterLiftOffRaynorX", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE147_gt_RaynorXStructureMorphRefresh, null, AbilityCommand("CommandCenterLandRaynorX", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE147_gt_RaynorXStructureMorphRefresh, null, AbilityCommand("UpgradeToOrbitalRaynorX", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE147_gt_RaynorXStructureMorphRefresh, null, AbilityCommand("OrbitalLiftOffRaynorX", 0), c_abilMorphStageUnitEnd, false);
+    TriggerAddEventUnitAbility(libE0EAE147_gt_RaynorXStructureMorphRefresh, null, AbilityCommand("OrbitalCommandLandRaynorX", 0), c_abilMorphStageUnitEnd, false);
+}
+
+void libE0EAE147_gf_RaynorXRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    unit lv_caster;
+    unit lv_hero;
+
+    libE0EAE146_gf_RuntimeCheckpoint("RaynorXRuntime.enter");
+    if (libE0EAE147_gv_raynorRuntimeInitialized == true) {
+        libE0EAE146_gf_RuntimeCheckpoint("RaynorXRuntime.alreadyInitialized");
+        return;
+    }
+
+    libE0EAE147_gv_raynorRuntimeInitialized = true;
+    libE0EAE146_gf_RuntimeCheckpoint("RaynorXRuntime.beforePower");
+    libE0EAE146_gf_CommanderPowerApplyProfile(lp_player, "RaynorX");
+    libE0EAE147_gf_RaynorXSetUpgradeAtLeast(lp_player, "ShieldWall", 1);
+    libE0EAE146_gf_RuntimeCheckpoint("RaynorXRuntime.afterPower");
+    if (libE0EAE146_gf_CommanderUsePrivateTechFilter("RaynorX")) {
+        libE0EAE147_gf_RaynorXApplyTechFilter(lp_player);
+    }
+    libE0EAE146_gf_RuntimeCheckpoint("RaynorXRuntime.afterTechFilter");
+    libE0EAE147_gf_RaynorXProbeTrainCatalog(lp_player);
+    libE0EAE147_gt_RaynorXStructureMorphRefresh_Init();
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterRaynorX", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+    libE0EAE146_gf_RuntimeCheckpoint("RaynorXRuntime.afterCasterCreate");
+    lv_caster = UnitLastCreated();
+    if ((lp_createHero == true) && CatalogEntryIsValid(c_gameCatalogUnit, "RaynorXCommando")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "RaynorXCommando", 0, lp_player, lp_heroPoint);
+        libE0EAE146_gt_CommanderHeroDied_Init();
+    }
+    lib67C0F0E7_gf_CU_GPInit(lp_player, "RaynorX", lv_caster, null);
+    libE0EAE146_gf_RuntimeCheckpoint("RaynorXRuntime.afterGPInit");
+    lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+    lib67C0F0E7_gf_ShowChooseButton();
+    libE0EAE146_gf_RuntimeCheckpoint("RaynorXRuntime.exit");
+}
