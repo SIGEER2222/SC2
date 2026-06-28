@@ -648,10 +648,14 @@ def get_editor_categories(unit_id: str) -> str:
 
 def get_unit_icon(unit_id: str) -> str:
     def getter(elem):
+        # 只取 index="0" 的 CardLayouts（主卡片布局）
         for card_layout in elem.findall(".//CardLayouts"):
-            first_btn = card_layout.find("LayoutButtons")
-            if first_btn is not None:
-                face = first_btn.get("Face", "")
+            if card_layout.get("index", "0") != "0":
+                continue
+            for btn in card_layout.findall("LayoutButtons"):
+                if btn.get("removed") == "1":
+                    continue
+                face = btn.get("Face", "")
                 if face:
                     return face
         return ""
