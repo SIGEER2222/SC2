@@ -210,21 +210,30 @@
         </InfoArray>
     </CAbilTrain>
     <!-- ===== 虚空裂隙 VoidRift 结束 ===== -->
+    <CAbilQueue id="RaynorCommandoHangarQueue">
+        <EditorCategories value="Race:Terr,AbilityorEffectType:Units"/>
+        <QueueSize value="4"/>
+        <Flags index="Passive" value="1"/>
+    </CAbilQueue>
     <CAbilArmMagazine id="RaynorCommandoMarineHangar">
         <EditorCategories value="Race:Terr,AbilityorEffectType:Units"/>
-        <Launch value="ReleaseAtSource"/>
+        <AbilSetId value="RaynorCommandoHangar"/>
         <Flags index="AutoCreate" value="1"/>
         <Flags index="Retarget" value="1"/>
-        <Leash value="8"/>
-        <InfoArray index="Ammo1" CountStart="4" Manage="Recall" Unit="RaynorCommandoMarine">
-            <Charge Link="Abil/##id##"/>
-            <Cooldown Link="Abil/##id##"/>
-            <Flags index="AutoBuild" value="1"/>
-            <Flags index="AutoBuildOn" value="1"/>
-            <Flags index="External" value="1"/>
-        </InfoArray>
-        <Alert value=""/>
+        <Leash value="12"/>
+        <EffectArray index="Create" value="SpawningUnitTrackerSet"/>
+        <EffectArray index="Death" value="InterceptorFate"/>
         <MaxCount value="4"/>
+        <InfoArray index="Ammo1" Time="8" CountStart="4" Manage="Recall" Unit="RaynorCommandoMarine">
+            <Charge Location="Unit"/>
+            <Button DefaultButtonFace="Marine">
+                <Flags index="ToSelection" value="1"/>
+            </Button>
+            <Flags index="AutoBuild" value="1"/>
+            <Flags index="External" value="1"/>
+            <Flags index="LeashRetarget" value="1"/>
+        </InfoArray>
+        <Alert value="TrainComplete"/>
         <ExternalAngle value="-90"/>
         <ExternalAngle value="-30"/>
         <ExternalAngle value="30"/>

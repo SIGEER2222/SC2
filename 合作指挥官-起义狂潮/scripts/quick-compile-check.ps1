@@ -29,6 +29,18 @@ $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "commander-power-metadata.ps1")
 . (Join-Path $PSScriptRoot "sc2\campaignxcore-bank.ps1")
 
+function Convert-TestCommanderToCommanderPowerKey {
+    param([string]$Commander)
+    return (Convert-CommanderPowerCommanderToBankKey -Commander $Commander -WorkspaceRoot (Get-WorkspaceRoot))
+}
+
+function Resolve-CommanderPowerPresetPath {
+    param([string]$Path)
+    if ([string]::IsNullOrWhiteSpace($Path)) { return "" }
+    if ([System.IO.Path]::IsPathRooted($Path)) { return [System.IO.Path]::GetFullPath($Path) }
+    return [System.IO.Path]::GetFullPath((Join-Path (Get-WorkspaceRoot) $Path))
+}
+
 function Get-WorkspaceRoot {
     return (Split-Path -Parent $PSScriptRoot)
 }
