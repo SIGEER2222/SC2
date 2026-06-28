@@ -876,20 +876,26 @@ def load_runtime_unit_ids(runtime: str) -> set[str]:
 def _is_non_combat_unit(unit_id: str) -> bool:
     uid_lower = unit_id.lower()
     exclude_suffixes = [
-        'weapon', 'missile', 'burrowed', 'egg', 'cocoon', 'dummy',
+        'weapon', 'missile', 'burrowed', 'cocoon', 'dummy',
         'corpse', 'shade', 'hallucination', 'phasing', 'rooted',
-        'attackmissile', 'bomber', 'attack',
+        'attackmissile', 'bomber', 'attack', 'flying', 'uprooted',
+        'sieged', 'morphing',
     ]
     for suf in exclude_suffixes:
         if uid_lower.endswith(suf):
             return True
     exclude_contains = [
         'weapon', 'missile', 'dummy', 'corpse',
+        'trainthregg', 'trainegg', 'evoegg',
+        'revivebeacon', 'revivecocoon',
+        'initialcocoonblocker',
+        'footprint',
     ]
     for kw in exclude_contains:
-        if kw in uid_lower and uid_lower != kw:
-            if len(uid_lower) > len(kw) + 3:
-                return True
+        if kw in uid_lower:
+            return True
+    if uid_lower.startswith('egg') and len(uid_lower) > 5:
+        return True
     return False
 
 
