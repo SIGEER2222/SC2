@@ -20,18 +20,24 @@
     - **超时（exit 2）**：180 秒内未检测到 Alerts.txt，需人工确认
   - 如脚本返回非零退出码，必须先修复报错再结束。
 
-## TRAE 辅助脚本
+## 禁止执行的危险命令
 
-以下命令在 TRAE 中需要二次确认，应使用包装脚本绕过：
+**以下命令严禁直接执行，必须调用 `safe-operations` Skill 并使用对应的包装脚本：**
 
-| 原命令 | 包装脚本 | 用法示例 |
-|--------|----------|----------|
+| 禁止的原生命令 | 包装脚本 | 用法示例 |
+|---------------|----------|----------|
 | `Remove-Item` | `scripts/trae-rm.ps1` | `powershell -File scripts/trae-rm.ps1 "file.txt"` |
 | `Remove-Item -Recurse` | `scripts/trae-rmdir.ps1` | `powershell -File scripts/trae-rmdir.ps1 "dir"` |
 | `git checkout <分支>` | `scripts/trae-checkout.ps1` | `powershell -File scripts/trae-checkout.ps1 "dev"` |
 | `git checkout -- <文件>` | `scripts/trae-checkout-file.ps1` | `powershell -File scripts/trae-checkout-file.ps1 "file.txt"` |
 | `git restore <文件>` | `scripts/trae-restore.ps1` | `powershell -File scripts/trae-restore.ps1 "file.txt"` |
 | `git clean -fd` | `scripts/trae-clean.ps1` | `powershell -File scripts/trae-clean.ps1` |
+
+**违反此规则将导致不可预知的后果，包括但不限于：**
+- 意外删除重要文件
+- 分支切换导致工作区混乱
+- 未提交的修改丢失
+- 未跟踪的新文件被清理
 
 每次出现报错并修复之后，总结经验到本地文档 E:\Code\MyMod\SC2\合作指挥官-起义狂潮\docs\经验总结
 
