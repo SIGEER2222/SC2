@@ -495,6 +495,95 @@ def _find_name_by_suffix(core_name: str) -> str:
     return ""
 
 
+BASE_UNIT_NAMES = {
+    "Zergling": "跳虫",
+    "Baneling": "爆虫",
+    "Roach": "蟑螂",
+    "Hydralisk": "刺蛇",
+    "Mutalisk": "异龙",
+    "Corruptor": "腐化者",
+    "Ultralisk": "雷兽",
+    "BroodLord": "巢虫领主",
+    "Infestor": "感染者",
+    "SwarmHost": "虫群宿主",
+    "Viper": "飞蛇",
+    "Queen": "虫后",
+    "Drone": "工蜂",
+    "Overlord": "王虫",
+    "Overseer": "监察王虫",
+    "Lurker": "潜伏者",
+    "Ravager": "破坏者",
+    "Liberator": "解放者",
+    "Hatchery": "孵化场",
+    "Lair": "虫穴",
+    "Hive": "主巢",
+    "SpawningPool": "分裂池",
+    "EvolutionChamber": "进化腔",
+    "HydraliskDen": "刺蛇巢",
+    "RoachWarren": "蟑螂温室",
+    "BanelingNest": "爆虫巢穴",
+    "Spire": "尖塔",
+    "GreaterSpire": "巨型尖塔",
+    "InfestationPit": "感染深渊",
+    "UltraliskCavern": "雷兽窟",
+    "NydusNetwork": "虫道网络",
+    "NydusCanal": "虫道坑道",
+    "VipersNest": "飞蛇巢",
+    "LurkerDen": "潜伏者巢穴",
+    "Extractor": "萃取房",
+    "CreepTumor": "菌瘤",
+    "Zealot": "狂热者",
+    "Stalker": "追猎者",
+    "Sentry": "哨兵",
+    "HighTemplar": "高阶圣堂武士",
+    "DarkTemplar": "黑暗圣堂武士",
+    "Obelisk": "水晶塔",
+    "WarpGate": "折跃门",
+    "CyberneticsCore": "控制芯核",
+    "Forge": "锻炉",
+    "PhotonCannon": "光子炮台",
+    "ShieldBattery": "护盾充能器",
+    "Stargate": "星门",
+    "RoboticsFacility": "机械台",
+    "RoboticsBay": "机械研究所",
+    "TwilightCouncil": "暮光议会",
+    "TemplarArchives": "圣堂文库",
+    "DarkShrine": "黑暗圣所",
+    "FleetBeacon": "舰队航标",
+    "Marine": "陆战队员",
+    "Marauder": "劫掠者",
+    "Reaper": "收割者",
+    "Ghost": "幽灵",
+    "Hellion": "恶火",
+    "SiegeTank": "攻城坦克",
+    "Medivac": "医疗运输机",
+    "Raven": "铁鸦",
+    "Banshee": "女妖",
+    "Battlecruiser": "战列巡洋舰",
+    "Thor": "雷神",
+    "Viking": "维京战机",
+    "SCV": "SCV",
+    "MULE": "矿骡",
+    "CommandCenter": "指挥中心",
+    "OrbitalCommand": "轨道控制基地",
+    "PlanetaryFortress": "行星要塞",
+    "SupplyDepot": "补给站",
+    "Refinery": "精炼厂",
+    "Barracks": "兵营",
+    "Factory": "重工厂",
+    "Starport": "星港",
+    "EngineeringBay": "工程站",
+    "Armory": "军械库",
+    "Bunker": "地堡",
+    "MissileTurret": "导弹塔",
+    "SensorTower": "感应塔",
+    "GhostAcademy": "幽灵学院",
+    "TechLab": "科技实验室",
+    "Reactor": "反应堆",
+    "FusionCore": "聚变芯体",
+}
+
+
 def get_unit_name(unit_id: str) -> str:
     name = _get_inherited_string(unit_id, lambda uid: get_string(f"Unit/Name/{uid}", ""))
     if name:
@@ -512,43 +601,8 @@ def get_unit_name(unit_id: str) -> str:
     if name:
         return name
 
-    def _split_camel_case(name: str) -> list[str]:
-        parts = re.findall(r'[A-Z][a-z0-9]*|[a-z0-9]+', name)
-        return [p for p in parts if len(p) >= 3]
-
-    camel_parts = _split_camel_case(unit_id)
-    if len(camel_parts) >= 2:
-        suffixes_to_skip = {
-            'burrowed', 'weapon', 'missile', 'egg', 'cocoon', 'dummy',
-            'split', 'hunterkiller', 'torrasque', 'raptor', 'swarmling',
-            'splitterling', 'hunter', 'leviathan', 'noxious',
-            'mp', 'coop', 'hero', 'taldarim', 'purifier', 'shakuras',
-            'aiur', 'nerazim', 'khalai', 'kerrigan', 'raynor',
-            'stetmann', 'stukov', 'swann', 'nova', 'mengsk',
-            'horner', 'han', 'tychus', 'vorazun', 'zeratul',
-            'dehaka', 'fenix', 'karax', 'alarak', 'artanis',
-            'zagara', 'abathur',
-        }
-        core_parts = [p for p in camel_parts if p.lower() not in suffixes_to_skip]
-        if core_parts:
-            for i in range(len(core_parts), 0, -1):
-                candidate = ''.join(core_parts[:i])
-                name = _get_inherited_string(candidate, lambda uid: get_string(f"Unit/Name/{uid}", ""))
-                if name:
-                    return name
-                name = _get_inherited_string(candidate, lambda uid: get_string(f"ArmyCategory/Name/{uid}", ""))
-                if name:
-                    return name
-                name = get_string(f"UserData/TechUnit/{candidate}_Name", "")
-                if name:
-                    return name
-                name = _find_name_by_suffix(candidate)
-                if name:
-                    return name
-
-    name = _find_name_by_suffix(unit_id)
-    if name:
-        return name
+    if unit_id in BASE_UNIT_NAMES:
+        return BASE_UNIT_NAMES[unit_id]
 
     return ""
 
@@ -1098,11 +1152,8 @@ def _match_icon_library(icon_name: str, context: dict | None = None) -> Path | N
     search_names.append(icon_name)
 
     bad_keywords = {
-        'collection', 'mecha', 'primal', 'taldarim', 'purifier', 'covertops',
-        'umojan', 'junker', 'remastered', 'blizzcon', 'golden', 'collectoredition',
-        'eidolon', 'aquatic', 'bone', 'tauren', 'merc', 'mercenary', 'silver',
-        'iharii', 'dark', 'aiur', 'nerazim', 'nocord', 'hev',
-        'upgraded', 'upgrade', 'webby', 'mutant', 'commando',
+        'mecha', 'blizzcon', 'golden', 'collectoredition',
+        'eidolon', 'aquatic', 'bone', 'tauren', 'silver',
         'locked', 'research', 'prestige',
     }
 
@@ -1126,6 +1177,8 @@ def _match_icon_library(icon_name: str, context: dict | None = None) -> Path | N
             if cp in base_tokens:
                 base_tokens.remove(cp)
 
+        base_combined = ''.join(sorted(base_tokens, key=lambda t: len(t), reverse=True))
+
         for stem, path in icon_list:
             stem_tokens = set(_stem_to_tokens(stem))
             if not stem_tokens:
@@ -1144,9 +1197,26 @@ def _match_icon_library(icon_name: str, context: dict | None = None) -> Path | N
             base_exact = base_tokens & stem_base
             score += len(base_exact) * 30
 
+            combined_match = False
+            for st in stem_base:
+                if len(st) >= 5 and base_combined and st == base_combined:
+                    combined_match = True
+                    break
+                if len(st) >= 5:
+                    all_in = True
+                    for bt in base_tokens:
+                        if bt not in st:
+                            all_in = False
+                            break
+                    if all_in and len(base_tokens) >= 2:
+                        combined_match = True
+                        break
+            if combined_match:
+                score += 60
+
             if len(base_tokens) > 0:
                 base_match_ratio = len(base_exact) / len(base_tokens)
-                if base_match_ratio < 0.3 and search_name != search_names[0]:
+                if base_match_ratio < 0.3 and search_name != search_names[0] and not combined_match:
                     continue
                 score += base_match_ratio * 20
 
