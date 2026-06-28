@@ -9,10 +9,10 @@
 - 只做当前任务需要的最小改动，不要顺手重构无关内容。
 - 编辑文件优先用 `apply_patch`。
 - 如果发现远端有新提交，先快进同步，再继续修改。
-- 涉及地图/触发器/运行时改动时，按以下优先级逐步校验：
+- 涉及地图/触发器/运行时改动时，**必须实际进入地图测试**，不可只做静态分析或快速编译就结束。按以下优先级逐步校验：
   1. **静态分析（秒级）**：先运行 `python E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\validate-galaxy-scripts.py`，检测 BOM、括号不匹配、禁用原生函数、include 缺失、跨库引用不一致等低级错误。
   2. **快速编译验证（约 20-30 秒）**：静态分析通过后，运行 `powershell -NoProfile -ExecutionPolicy Bypass -File E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\quick-compile-check.ps1`，利用游戏编译阶段检测语法和链接错误，比完整进图快很多。
-  3. **完整进图测试**：以上都通过后，再运行 `E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\launch-7vs1-coop-test.ps1` 启动游戏测试。
+  3. **完整进图测试（强制）**：以上都通过后，**必须**运行 `E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\launch-7vs1-coop-test.ps1` 启动游戏测试。
   - 启动后**必须**运行 `powershell -NoProfile -ExecutionPolicy Bypass -File E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\wait-for-game-ready.ps1` 并**等待脚本返回结果**，不可提前结束任务。
   - 智能等待逻辑（不会删除任何日志文件）：
     - **失败（exit 1）**：Alerts.txt 出现后 20 秒宽限期内出现新的 ScriptError，或游戏进程崩溃退出，脚本会输出完整的 ScriptError.txt 报错内容
