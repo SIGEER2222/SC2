@@ -8,10 +8,29 @@ const int libE0EAE146_kc_hexTalentBit_damageBonus = 4;
 const int libE0EAE146_kc_hexTalentBit_moveSpeedBonus = 5;
 const int libE0EAE146_kc_hexTalentBit_armorBonus = 6;
 const int libE0EAE146_kc_hexTalentBit_sightRangeBonus = 7;
+const int libE0EAE146_kc_hexTalentBit_energyBonus = 8;
+const int libE0EAE146_kc_hexTalentBit_lifeLeech = 9;
+const int libE0EAE146_kc_hexTalentBit_attackSpeedBonus1 = 10;
+const int libE0EAE146_kc_hexTalentBit_energyRegen = 11;
+const int libE0EAE146_kc_hexTalentBit_structureDamage = 12;
+const int libE0EAE146_kc_hexTalentBit_regenBonus = 13;
+const int libE0EAE146_kc_hexTalentBit_weaponRangeBonus = 14;
+const int libE0EAE146_kc_hexTalentBit_noArmorType = 15;
+const int libE0EAE146_kc_hexTalentBit_spellDamageLeech = 16;
+const int libE0EAE146_kc_hexTalentBit_berserker = 17;
+const int libE0EAE146_kc_hexTalentBit_detector = 18;
+const int libE0EAE146_kc_hexTalentBit_astralBody = 19;
+const int libE0EAE146_kc_hexTalentBit_strongRegen = 20;
+const int libE0EAE146_kc_hexTalentBit_glassCannon = 21;
+const int libE0EAE146_kc_hexTalentBit_lifeFountain = 22;
+const int libE0EAE146_kc_hexTalentBit_heroic = 23;
+const int libE0EAE146_kc_hexTalentBit_telescope = 24;
+const int libE0EAE146_kc_hexTalentBit_bladesOfDestroyer = 25;
+const int libE0EAE146_kc_hexTalentBit_quickShooter = 26;
 
-const string libE0EAE146_kc_hexTalentBehavior = "TNX_Ability_total";
+string libE0EAE146_kc_hexTalentBehavior = "TNX_Ability_total";
 
-const string[8] libE0EAE146_kc_hexTalentUpgrade;
+string[32] libE0EAE146_kc_hexTalentUpgrade;
 
 int[16] libE0EAE146_gv_hexTalents_startMask;
 
@@ -25,11 +44,36 @@ void libE0EAE146_hexTalents_InitVariables () {
         lv_i += 1;
     }
 
+    lv_i = 0;
+    while (lv_i <= 31) {
+        libE0EAE146_kc_hexTalentUpgrade[lv_i] = "";
+        lv_i += 1;
+    }
+
     libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_healthBonus] = "TNX_012";
     libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_damageBonus] = "TNX_00";
     libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_moveSpeedBonus] = "TNX_01";
     libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_armorBonus] = "TNX_013";
     libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_sightRangeBonus] = "TNX_019";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_energyBonus] = "TNX_014";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_lifeLeech] = "TNX_015";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_attackSpeedBonus1] = "TNX_016";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_energyRegen] = "TNX_017";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_structureDamage] = "TNX_018";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_regenBonus] = "TNX_0110";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_weaponRangeBonus] = "TNX_0111";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_noArmorType] = "TNX_0112";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_spellDamageLeech] = "TNX_0113";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_berserker] = "TNX_0114";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_detector] = "TNX_0115";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_astralBody] = "TNX_0116";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_strongRegen] = "TNX_0117";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_glassCannon] = "TNX_0118";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_lifeFountain] = "TNX_0119";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_heroic] = "TNX_01122";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_telescope] = "TNX_01112";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_bladesOfDestroyer] = "TNX_002";
+    libE0EAE146_kc_hexTalentUpgrade[libE0EAE146_kc_hexTalentBit_quickShooter] = "TNX_0162";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +125,7 @@ void libE0EAE146_gf_HexTalentsApplyUpgradesForPlayer (int lp_player, int lp_mask
     string lv_upgrade;
 
     lv_bit = 0;
-    while (lv_bit <= 7) {
+    while (lv_bit <= 31) {
         if (lib67C0F0E7_gf_BitMaskTrueIndexIs(lp_mask, lv_bit) == true) {
             lv_upgrade = libE0EAE146_kc_hexTalentUpgrade[lv_bit];
             if (lv_upgrade != "") {
