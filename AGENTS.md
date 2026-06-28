@@ -32,6 +32,9 @@
 | `git checkout -- <文件>` | `scripts/trae-checkout-file.ps1` | `powershell -File scripts/trae-checkout-file.ps1 "file.txt"` |
 | `git restore <文件>` | `scripts/trae-restore.ps1` | `powershell -File scripts/trae-restore.ps1 "file.txt"` |
 | `git clean -fd` | `scripts/trae-clean.ps1` | `powershell -File scripts/trae-clean.ps1` |
+| `git add <文件>` | `scripts/trae-add.ps1` | `powershell -File scripts/trae-add.ps1 "file.txt"` |
+
+**注意**：请勿使用 `git add .`、`git add -A` 或 `git add *`，必须明确指定要暂存的具体文件路径。
 
 **违反此规则将导致不可预知的后果，包括但不限于：**
 - 意外删除重要文件

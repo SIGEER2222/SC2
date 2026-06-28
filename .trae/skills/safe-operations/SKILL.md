@@ -15,6 +15,16 @@ description: "安全执行危险操作（删除文件/目录、git checkout/rest
 | `git checkout -- <文件>` | `scripts/trae-checkout-file.ps1` | `powershell -File scripts/trae-checkout-file.ps1 "file.txt"` |
 | `git restore <文件>` | `scripts/trae-restore.ps1` | `powershell -File scripts/trae-restore.ps1 "file.txt"` |
 | `git clean -fd` | `scripts/trae-clean.ps1` | `powershell -File scripts/trae-clean.ps1` |
+| `git add <文件>` | `scripts/trae-add.ps1` | `powershell -File scripts/trae-add.ps1 "file.txt"` |
+
+### 暂存文件
+```powershell
+powershell -File scripts/trae-add.ps1 "path/to/file.txt"
+# 支持多个文件
+powershell -File scripts/trae-add.ps1 "file1.txt" "file2.txt" "file3.txt"
+```
+
+**注意**：请勿使用 `git add .`、`git add -A` 或 `git add *`，必须明确指定要暂存的具体文件路径。
 
 ## 删除操作
 
