@@ -9,7 +9,6 @@ include "LibBE3BBD9F"
 include "Lib0940FFB7"
 include "Lib4B62E36B"
 include "Lib975E2FE9"
-include "LibKMIS_h"
 
 include "LibE0EAE146_h"
 include "LibE0EAE146_ProgressionRewards"
@@ -43,6 +42,7 @@ include "LibE0EAE146_IzshaRuntime"
 include "LibE0EAE146_ZeratulRuntime"
 include "LibE0EAE146_CommanderStartSquads"
 include "LibE0EAE146_HexTalents"
+include "LibE0EAE146_ExcludeF2"
 //--------------------------------------------------------------------------------------------------
 // Library: Final
 //--------------------------------------------------------------------------------------------------
@@ -1171,14 +1171,6 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
                     lv_mineralSampleAmount = FixedToInt(lv_resourceAmount);
                 }
             }
-            else {
-                // 处理没有匹配任何已知行为的矿物单位，仍然应用倍率
-                if (lp_doubleMineralsLevel > 0) {
-                    lv_resourceAmount = (lv_resourceAmount * lv_mineralMultiplier);
-                }
-                UnitSetPropertyFixed(lv_resourceUnit, c_unitPropResources, lv_resourceAmount);
-                lv_mineralNodeCount += 1;
-            }
         }
         else if ((lv_resourceType == "Vespene") && UnitFilterMatch(lv_resourceUnit, 1, UnitFilter((1 << c_targetFilterRawResource), 0, 0, 0))) {
             lv_resourceAmount = libNtve_gf_UnitGetPropertyResources(lv_resourceUnit, c_unitPropCurrent);
@@ -1227,14 +1219,6 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
                     lv_gasSampleBehavior = lv_behavior;
                     lv_gasSampleAmount = FixedToInt(lv_resourceAmount);
                 }
-            }
-            else {
-                // 处理没有匹配任何已知行为的油气单位，仍然应用倍率
-                if (lp_doubleVespeneLevel > 0) {
-                    lv_resourceAmount = (lv_resourceAmount * lv_gasMultiplier);
-                }
-                UnitSetPropertyFixed(lv_resourceUnit, c_unitPropResources, lv_resourceAmount);
-                lv_gasNodeCount += 1;
             }
         }
 
@@ -2478,60 +2462,11 @@ void libE0EAE146_InitTriggers () {
     libE0EAE146_gt_CM_SoATargetingCancelFromUI_Init();
     libE0EAE146_gt_CM_SoATargetingCameraShake_Init();
     libE0EAE146_gt_CM_SoAThermalLanceActivated_Init();
-    libE0EAE146_gt_CoopZeroPopExcludeF2_Init();
+    libE0EAE146_excludeF2_InitTriggers();
     libE0EAE146_tychus_InitTriggers();
     libE0EAE146_fenix_InitTriggers();
     libE0EAE146_mengsk_InitTriggers();
     libE0EAE146_hexTalents_InitTriggers();
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: CoopZeroPopExcludeF2 - 切换选中单位是否被F2选中
-//--------------------------------------------------------------------------------------------------
-bool libE0EAE146_gt_CoopZeroPopExcludeF2_Func (bool testConds, bool runActions) {
-    unit lv_unit;
-    unitgroup lv_selGroup;
-    string lv_behavior;
-    int lv_i;
-    int lv_player;
-
-    if (!runActions) {
-        return true;
-    }
-
-    lv_player = EventPlayer();
-    lv_behavior = "CoopZeroPopExcludeF2";
-    lv_selGroup = UnitGroupSelected(lv_player);
-
-    // 遍历所有选中的单位
-    lv_i = 1;
-    lv_unit = UnitGroupUnitFromEnd(lv_selGroup, lv_i);
-    while (lv_unit != null) {
-        // 只处理战斗单位（排除建筑、工人、资源单位等）
-        // UnitFilterMatch返回false表示单位不是建筑/工人/导弹/死亡单位
-        if ((UnitFilterMatch(lv_unit, lv_player, UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterWorker) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)))) == false) && UnitIsAlive(lv_unit)) {
-            // 检查单位是否已有该Behavior
-            if (UnitHasBehavior2(lv_unit, lv_behavior)) {
-                // 已有Behavior，移除它（恢复F2选择）
-                UnitBehaviorRemove(lv_unit, lv_behavior, 1);
-            }
-            else {
-                // 没有Behavior，添加它（排除F2选择）
-                UnitBehaviorAdd(lv_unit, lv_behavior, lv_unit, 1);
-            }
-        }
-        lv_i = lv_i + 1;
-        lv_unit = UnitGroupUnitFromEnd(lv_selGroup, lv_i);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libE0EAE146_gt_CoopZeroPopExcludeF2_Init () {
-    libE0EAE146_gt_CoopZeroPopExcludeF2 = TriggerCreate("libE0EAE146_gt_CoopZeroPopExcludeF2_Func");
-    // 监听技能使用
-    TriggerAddEventUnitAbility(libE0EAE146_gt_CoopZeroPopExcludeF2, c_playerAny, AbilityCommand("CoopZeroPopExcludeF2", 0), c_unitAbilStageExecute, false);
 }
 
 //--------------------------------------------------------------------------------------------------
