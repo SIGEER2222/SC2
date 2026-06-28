@@ -643,9 +643,7 @@ bool libE0EAE146_gt_RaynorStructureMorphRefresh_Func (bool testConds, bool runAc
             UnitSelect(lv_newUnit, lv_player, true);
         }
     }
-    if (((lv_newUnit != null) && (libE0EAE146_gf_RaynorStructureNeedsRefresh(lv_newUnit) == true)) || (libE0EAE146_gf_RaynorStructureNeedsRefresh(EventUnit()) == true)) {
-        libE0EAE146_gf_RaynorApplyTechFilter(lv_player);
-    }
+    // 注意：不再在升空/降落后调用 ApplyTechFilter，因为游戏引擎会自动处理建筑状态变化
     return true;
 }
 
