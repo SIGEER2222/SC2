@@ -641,6 +641,7 @@ void libE0EAE146_gf_RaynorRuntimeInit (int lp_player, point lp_heroPoint, bool l
     if ((lp_createHero == true) && CatalogEntryIsValid(c_gameCatalogUnit, "RaynorCommando")) {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "RaynorCommando", 0, lp_player, lp_heroPoint);
         libE0EAE146_gt_CommanderHeroDied_Init();
+        TriggerEnable(libKMIS_gt_CM_HeroDied, false);
     }
     lib67C0F0E7_gf_CU_GPInit(lp_player, "Raynor", lv_caster, null);
     libE0EAE146_gf_RuntimeCheckpoint("RaynorRuntime.afterGPInit");

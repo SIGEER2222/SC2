@@ -1,63 +1,123 @@
 string libE0EAE146_gf_ZeratulArtifactUnitType (int lp_artifactNumber) {
+
     if (lp_artifactNumber == 1) {
+
         return "ZeratulArtifactPickup1";
+
     }
+
     else if (lp_artifactNumber == 2) {
+
         return "ZeratulArtifactPickup2";
+
     }
+
     else if (lp_artifactNumber == 3) {
+
         return "ZeratulArtifactPickup3";
+
     }
+
     else {
+
         return "ZeratulArtifactPickupUnlimited";
+
     }
+
 }
+
+
 
 point libE0EAE146_gf_ZeratulArtifactPlacementPoint (int lp_player, int lp_artifactNumber) {
+
     // Keep the smoke-test artifact reachable without depending on official per-map placement UserData.
+
     point lv_candidate;
+
     point lv_placement;
+
     fixed lv_distance;
+
     fixed lv_angle;
 
+
+
     lv_distance = 24.0 + (IntToFixed(lp_artifactNumber) * 8.0);
+
     lv_angle = 45.0 + (IntToFixed(lp_artifactNumber) * 95.0);
+
     lv_candidate = PointWithOffsetPolar(PlayerStartLocation(lp_player), lv_distance, lv_angle);
+
     lv_placement = UnitTypePlacementFromPoint(libE0EAE146_gf_ZeratulArtifactUnitType(lp_artifactNumber), lp_player, lv_candidate, 12.0);
+
     if (lv_placement != null) {
+
         return lv_placement;
+
     }
+
+
 
     lv_candidate = MidPoint(RegionGetBoundsMin(RegionPlayableMap()), RegionGetBoundsMax(RegionPlayableMap()));
+
     lv_placement = UnitTypePlacementFromPoint(libE0EAE146_gf_ZeratulArtifactUnitType(lp_artifactNumber), lp_player, lv_candidate, 64.0);
+
     if (lv_placement != null) {
+
         return lv_placement;
+
     }
+
+
 
     return PlayerStartLocation(lp_player);
+
 }
+
+
 
 void libE0EAE146_gf_ZeratulPlaceArtifact (int lp_player) {
+
     point lv_point;
+
     string lv_unitType;
 
+
+
     if ((lp_player <= 0) || (libE0EAE146_gv_zeratulArtifactNumber <= 0)) {
+
         return;
+
     }
+
+
 
     lv_unitType = libE0EAE146_gf_ZeratulArtifactUnitType(libE0EAE146_gv_zeratulArtifactNumber);
+
     if (!CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType)) {
+
         return;
+
     }
+
+
 
     if (UnitIsValid(libE0EAE146_gv_zeratulArtifact) == true) {
+
         UnitRemove(libE0EAE146_gv_zeratulArtifact);
+
     }
 
+
+
     lv_point = libE0EAE146_gf_ZeratulArtifactPlacementPoint(lp_player, libE0EAE146_gv_zeratulArtifactNumber);
+
     UnitCreate(1, lv_unitType, 0, lp_player, lv_point, 225.0);
+
     libE0EAE146_gv_zeratulArtifact = UnitLastCreated();
+
 }
+
 
 //--------------------------------------------------------------------------------------------------
 // Zeratul CM Triggers
@@ -1903,32 +1963,57 @@ void libE0EAE146_gt_CM_Zeratul_RallySetToZeratul_Init () {
 }
 
 void libE0EAE146_gf_ZeratulRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+
     unit lv_mainCaster;
+
     unit lv_secondCaster;
 
+
+
     if (libE0EAE146_gv_zeratulRuntimeInitialized == true) {
+
         return;
+
     }
 
+
+
     libE0EAE146_gv_zeratulRuntimeInitialized = true;
+
     libE0EAE146_gv_zeratulRuntimePlayer = lp_player;
+
     libE0EAE146_gv_zeratulArtifactNumber = 1;
+
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterZeratul", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+
     lv_mainCaster = UnitLastCreated();
+
     libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterZeratulSpecialization", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+
     lv_secondCaster = UnitLastCreated();
+
     lib67C0F0E7_gf_CU_GPInit(lp_player, "Zeratul", lv_mainCaster, lv_secondCaster);
+
     lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+
     lib67C0F0E7_gf_ShowChooseButton();
+
     lib67C0F0E7_gf_ZeratulPanelControl(lp_player, 0, "Collected");
+
     TechTreeUpgradeAddLevel(lp_player, "ZeratulArtifactTier0", 1);
+
     libE0EAE146_gf_CreateCommanderHeroStructure(lp_player, "Zeratul");
+
+
 
     if (lp_createHero) {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulCoop", 0, lp_player, lp_heroPoint);
         libE0EAE146_gv_zeratulHero = UnitLastCreated();
         libE0EAE146_gt_CommanderHeroDied_Init();
+        TriggerEnable(libKMIS_gt_CM_HeroDied, false);
     }
+
+
 
     libE0EAE146_gt_ZeratulArtifactPickedUp_Init();
     libE0EAE146_gt_ZeratulArtifactRevealed_Init();
@@ -1985,151 +2070,301 @@ void libE0EAE146_gf_ZeratulRuntimeInit (int lp_player, point lp_heroPoint, bool 
     libE0EAE146_gf_ZeratulPlaceArtifact(lp_player);
 }
 
+
+
 int libE0EAE146_gf_ZeratulArtifactUpgradeButton (string lp_upgradeName) {
+
     if (((lp_upgradeName == "ZeratulArtifactUpgradeTier0A") || (lp_upgradeName == "ZeratulArtifactUpgradeTier0B") || (lp_upgradeName == "ZeratulArtifactUpgradeTier0C"))) {
+
         return 0;
+
     }
+
     else if (((lp_upgradeName == "ZeratulArtifactUpgradeTier1A") || (lp_upgradeName == "ZeratulArtifactUpgradeTier1B") || (lp_upgradeName == "ZeratulArtifactUpgradeTier1C"))) {
+
         return 1;
+
     }
+
     else if (((lp_upgradeName == "ZeratulArtifactUpgradeTier2A") || (lp_upgradeName == "ZeratulArtifactUpgradeTier2B") || (lp_upgradeName == "ZeratulArtifactUpgradeTier2C"))) {
+
         return 2;
+
     }
+
     else if (((lp_upgradeName == "ZeratulArtifactUpgradeTier3A") || (lp_upgradeName == "ZeratulArtifactUpgradeTier3B") || (lp_upgradeName == "ZeratulArtifactUpgradeTier3C"))) {
+
         return 3;
+
     }
+
     else {
+
         return -1;
+
     }
+
 }
+
+
 
 bool libE0EAE146_gt_ZeratulArtifactPickedUp_Func (bool testConds, bool runActions) {
+
     unit lv_artifact;
+
     int lv_player;
+
     string lv_artifactType;
+
     int lv_artifactNumber;
 
+
+
     lv_artifact = EventUnit();
+
     lv_player = UnitGetOwner(lv_artifact);
+
     lv_artifactType = UnitGetType(lv_artifact);
 
+
+
     if (testConds) {
+
         if (lv_player != libE0EAE146_gv_zeratulRuntimePlayer) {
+
             return false;
+
         }
+
         if (!((lv_artifactType == "ZeratulArtifactPickup1") || (lv_artifactType == "ZeratulArtifactPickup2") || (lv_artifactType == "ZeratulArtifactPickup3") || (lv_artifactType == "ZeratulArtifactPickupUnlimited"))) {
+
             return false;
+
         }
+
     }
 
+
+
     if (!runActions) {
+
         return true;
+
     }
+
+
 
     if (lv_artifactType == "ZeratulArtifactPickup1") {
+
         lv_artifactNumber = 1;
+
     }
+
     else if (lv_artifactType == "ZeratulArtifactPickup2") {
+
         lv_artifactNumber = 2;
+
     }
+
     else if (lv_artifactType == "ZeratulArtifactPickup3") {
+
         lv_artifactNumber = 3;
+
     }
+
     else {
+
         lv_artifactNumber = 4;
+
     }
+
+
 
     if (lv_artifactNumber == 1) {
+
         TechTreeUpgradeAddLevel(lv_player, "ZeratulArtifactTier1", 1);
+
     }
+
     else if (lv_artifactNumber == 2) {
+
         TechTreeUpgradeAddLevel(lv_player, "ZeratulArtifactTier2", 1);
+
     }
+
     else if (lv_artifactNumber == 3) {
+
         TechTreeUpgradeAddLevel(lv_player, "ZeratulArtifactTier3", 1);
+
     }
+
     else {
+
         if ((TechTreeUpgradeCount(lv_player, "CommanderPrestigeZeratulArtifactFragmentsUnlimitedUpgrade", c_techCountCompleteOnly) == 0)) {
+
             TechTreeUpgradeAddLevel(lv_player, "ProphecyArtifactsDiscovered", 1);
+
         }
+
     }
+
+
 
     lib67C0F0E7_gf_ZeratulPanelControl(lv_player, lv_artifactNumber, "Collected");
+
     libE0EAE146_gv_zeratulArtifactNumber = lv_artifactNumber + 1;
+
     libE0EAE146_gf_ZeratulPlaceArtifact(lv_player);
+
     return true;
+
 }
+
+
 
 void libE0EAE146_gt_ZeratulArtifactPickedUp_Init () {
+
     libE0EAE146_gt_ZeratulArtifactPickedUp = TriggerCreate("libE0EAE146_gt_ZeratulArtifactPickedUp_Func");
+
     TriggerAddEventUnitAbility(libE0EAE146_gt_ZeratulArtifactPickedUp, null, AbilityCommand("ZeratulArtifactPickup1", 0), c_unitAbilStageExecute, false);
+
     TriggerAddEventUnitAbility(libE0EAE146_gt_ZeratulArtifactPickedUp, null, AbilityCommand("ZeratulArtifactPickup2", 0), c_unitAbilStageExecute, false);
+
     TriggerAddEventUnitAbility(libE0EAE146_gt_ZeratulArtifactPickedUp, null, AbilityCommand("ZeratulArtifactPickup3", 0), c_unitAbilStageExecute, false);
+
     TriggerAddEventUnitAbility(libE0EAE146_gt_ZeratulArtifactPickedUp, null, AbilityCommand("ZeratulArtifactPickupUnlimited", 0), c_unitAbilStageExecute, false);
+
 }
+
+
 
 bool libE0EAE146_gt_ZeratulArtifactRevealed_Func (bool testConds, bool runActions) {
+
     return true;
+
 }
+
+
 
 void libE0EAE146_gt_ZeratulArtifactRevealed_Init () {
+
     libE0EAE146_gt_ZeratulArtifactRevealed = TriggerCreate("libE0EAE146_gt_ZeratulArtifactRevealed_Func");
+
     TriggerEnable(libE0EAE146_gt_ZeratulArtifactRevealed, false);
+
 }
+
+
 
 bool libE0EAE146_gt_ZeratulArtifactUsed_Func (bool testConds, bool runActions) {
+
     int lv_player;
+
     string lv_upgradeName;
+
     int lv_button;
 
+
+
     lv_player = EventPlayer();
+
     lv_upgradeName = EventUpgradeName();
 
+
+
     if (testConds) {
+
         if (lv_player != libE0EAE146_gv_zeratulRuntimePlayer) {
+
             return false;
+
         }
+
         if (libE0EAE146_gf_ZeratulArtifactUpgradeButton(lv_upgradeName) < 0) {
+
             return false;
+
         }
+
     }
 
+
+
     if (!runActions) {
+
         return true;
+
     }
+
+
 
     lv_button = libE0EAE146_gf_ZeratulArtifactUpgradeButton(lv_upgradeName);
+
     lib67C0F0E7_gf_ZeratulPanelControl(lv_player, lv_button, "Selected");
+
     return true;
+
 }
+
+
 
 void libE0EAE146_gt_ZeratulArtifactUsed_Init () {
+
     libE0EAE146_gt_ZeratulArtifactUsed = TriggerCreate("libE0EAE146_gt_ZeratulArtifactUsed_Func");
+
     TriggerAddEventUpgradeLevelChanged(libE0EAE146_gt_ZeratulArtifactUsed, c_playerAny);
+
 }
+
+
 
 bool libE0EAE146_gt_ZeratulProphecyCast_Func (bool testConds, bool runActions) {
+
     if (testConds) {
+
         if (UnitGetOwner(EventUnit()) != libE0EAE146_gv_zeratulRuntimePlayer) {
+
             return false;
+
         }
+
     }
+
+
 
     if (!runActions) {
+
         return true;
+
     }
+
+
 
     if (UnitIsValid(libE0EAE146_gv_zeratulArtifact) == false) {
+
         libE0EAE146_gf_ZeratulPlaceArtifact(libE0EAE146_gv_zeratulRuntimePlayer);
+
     }
+
+
 
     return true;
+
 }
 
+
+
 void libE0EAE146_gt_ZeratulProphecyCast_Init () {
+
     libE0EAE146_gt_ZeratulProphecyCast = TriggerCreate("libE0EAE146_gt_ZeratulProphecyCast_Func");
+
     TriggerAddEventUnitAbility(libE0EAE146_gt_ZeratulProphecyCast, null, AbilityCommand("ProphecyVision", 0), c_unitAbilStageExecute, false);
+
     if (CatalogEntryIsValid(c_gameCatalogAbil, "ProphecyVisiontzeratul01") == true) {
+
         TriggerAddEventUnitAbility(libE0EAE146_gt_ZeratulProphecyCast, null, AbilityCommand("ProphecyVisiontzeratul01", 0), c_unitAbilStageExecute, false);
+
     }
+
 }
+
