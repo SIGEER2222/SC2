@@ -353,6 +353,53 @@ def _parse_xml_flexible(content: str) -> ET.Element:
     return ET.fromstring(content)
 
 
+_global_button_icon_map: dict[str, str] = {}
+_global_button_map_loaded = False
+
+def load_all_buttons() -> None:
+    global _global_button_map_loaded
+    if _global_button_map_loaded:
+        return
+
+    print("Loading all button definitions from XML files...")
+
+    xml_files = sorted(GAME_DATA_ROOT.glob("ButtonData*.xml"))
+
+    if STARCOOP_DATA_ROOT.exists():
+        starcoop_btn_xml = STARCOOP_DATA_ROOT / "buttondata.xml"
+        if starcoop_btn_xml.exists():
+            xml_files.append(starcoop_btn_xml)
+
+    for xml_path in xml_files:
+        try:
+            content = xml_path.read_text(encoding="utf-8")
+            root = _parse_xml_flexible(content)
+            for elem in root:
+                tag = elem.tag
+                if not tag.startswith("CButton"):
+                    continue
+                if elem.get("removed") == "1":
+                    continue
+                bid = elem.get("id", "")
+                if not bid:
+                    continue
+                icon_elem = elem.find("Icon")
+                if icon_elem is not None:
+                    icon_val = icon_elem.get("value", "")
+                    if icon_val:
+                        _global_button_icon_map[bid] = icon_val
+        except Exception as e:
+            print(f"  Error loading {xml_path.name}: {e}")
+
+    print(f"Loaded {len(_global_button_icon_map)} buttons from {len(xml_files)} files")
+    _global_button_map_loaded = True
+
+
+def get_button_icon(button_id: str) -> str:
+    load_all_buttons()
+    return _global_button_icon_map.get(button_id, "")
+
+
 def load_all_units() -> None:
     global _global_unit_map_loaded
     if _global_unit_map_loaded:
@@ -638,23 +685,142 @@ def get_unit_type(unit_id: str) -> str:
     return ""
 
 
+_all_commander_dedicated: dict[str, set[str]] = {}
+_all_commander_dedicated_loaded = False
+
+def load_all_commander_dedicated() -> None:
+    global _all_commander_dedicated_loaded
+    if _all_commander_dedicated_loaded:
+        return
+    for spec in COMMANDER_SPECS:
+        name = spec["name"]
+        dedicated = set()
+        xml_file = spec.get("unitData", "")
+        if xml_file:
+            dedicated = load_dedicated_unit_ids(xml_file)
+        runtime_ids = load_runtime_unit_ids(spec.get("runtime", ""))
+        dedicated = dedicated | runtime_ids
+        _all_commander_dedicated[name] = dedicated
+    _all_commander_dedicated_loaded = True
+
+
+def get_other_commanders_dedicated(spec: dict) -> set[str]:
+    load_all_commander_dedicated()
+    result = set()
+    my_name = spec["name"]
+    for name, ids in _all_commander_dedicated.items():
+        if name != my_name:
+            result |= ids
+    return result
+
+
+def get_commander_race(spec: dict) -> str:
+    runtime = spec.get("runtime", "")
+    if runtime.startswith("Zerg"):
+        return "zerg"
+    if runtime.startswith("Protoss"):
+        return "protoss"
+    if runtime.startswith("Terran"):
+        return "terran"
+    return ""
+
+
+BASE_RACE_UNITS = {
+    "zerg": {
+        "Zergling", "Baneling", "Roach", "Ravager", "Hydralisk", "Lurker",
+        "Mutalisk", "Corruptor", "BroodLord", "Viper", "Ultralisk",
+        "SwarmHost", "Infestor", "Queen", "QueenCoop", "Drone", "Overlord", "Overseer",
+        "Larva", "Broodling", "Locust", "Changeling",
+        "OverseerSiegeMode",
+    },
+    "protoss": {
+        "Zealot", "Stalker", "Sentry", "Adept", "HighTemplar", "DarkTemplar",
+        "Immortal", "Colossus", "Disruptor", "Phoenix", "VoidRay", "Carrier",
+        "Mothership", "Oracle", "Tempest", "WarpPrism", "Observer", "Probe",
+        "Archon", "Reaver", "Scout", "Arbiter", "Corsair",
+        "ObserverSiegeMode",
+    },
+    "terran": {
+        "Marine", "Marauder", "Firebat", "Reaper", "Ghost", "Medic",
+        "Vulture", "SiegeTank", "Hellion", "Hellbat", "Cyclone", "Thor",
+        "Goliath", "Diamondback", "Wraith", "Viking", "Medivac", "Raven",
+        "Banshee", "Battlecruiser", "Liberator", "SCV", "MULE", "WidowMine",
+        "AutoTurret",
+    },
+}
+
+BASE_RACE_BUILDINGS = {
+    "zerg": {
+        "Hatchery", "Lair", "Hive", "Spire", "GreaterSpire",
+        "SpawningPool", "EvolutionChamber", "HydraliskDen", "LurkerDen",
+        "RoachWarren", "UltraliskCavern", "BanelingNest", "InfestationPit",
+        "NydusNetwork", "NydusCanal", "GreaterNydusWorm",
+        "Extractor", "SpineCrawler", "SporeCrawler",
+        "ScourgeNest", "ToxicNest",
+    },
+    "protoss": {
+        "Nexus", "Gateway", "WarpGate", "Pylon", "PhotonCannon",
+        "Forge", "CyberneticsCore", "RoboticsFacility", "RoboticsBay",
+        "Stargate", "TwilightCouncil", "CitadelOfAdun", "FleetBeacon",
+        "Assimilator", "TemplarArchives", "DarkShrine",
+        "ShieldBattery", "StasisTrap",
+    },
+    "terran": {
+        "CommandCenter", "OrbitalCommand", "PlanetaryFortress",
+        "Barracks", "Factory", "Starport",
+        "EngineeringBay", "Armory", "FusionCore",
+        "SupplyDepot", "Refinery", "Bunker", "MissileTurret", "SensorTower",
+        "TechLab", "Reactor", "GhostAcademy",
+    },
+}
+
+
+def _is_base_race_unit(unit_id: str, race: str) -> bool:
+    return unit_id in BASE_RACE_UNITS.get(race, set())
+
+
+def _is_base_race_building(unit_id: str, race: str) -> bool:
+    return unit_id in BASE_RACE_BUILDINGS.get(race, set())
+
+
+def _has_other_commander_prefix(unit_id: str, my_spec: dict) -> bool:
+    uid_lower = unit_id.lower()
+    for s in COMMANDER_SPECS:
+        if s["name"] == my_spec["name"]:
+            continue
+        for prefix in s.get("prefixes", []):
+            if uid_lower.startswith(prefix.lower()):
+                return True
+            if uid_lower.endswith(prefix.lower()):
+                return True
+    return False
+
+
 def unit_belongs_to_commander(unit_id: str, spec: dict, dedicated_units: set[str]) -> bool:
+    other_dedicated = get_other_commanders_dedicated(spec)
+    if unit_id in other_dedicated:
+        return False
+
     if unit_id in dedicated_units:
         return True
 
     if unit_id == spec.get("casterId", ""):
         return True
 
-    faction = spec.get("faction", "")
-    if faction:
-        cats = get_editor_categories(unit_id)
-        if faction in cats:
-            return True
-
     prefixes = spec.get("prefixes", [])
     for prefix in prefixes:
         if unit_id.startswith(prefix):
             return True
+
+    if _has_other_commander_prefix(unit_id, spec):
+        return False
+
+    race = get_commander_race(spec)
+    if not race:
+        return False
+
+    if _is_base_race_unit(unit_id, race) or _is_base_race_building(unit_id, race):
+        return True
 
     return False
 
@@ -694,11 +860,14 @@ def load_runtime_unit_ids(runtime: str) -> set[str]:
     ids = set()
     try:
         content = runtime_file.read_text(encoding="utf-8")
-        allow_pattern = re.compile(r'AllowUnitIfPresent\(\w+,\s*"([A-Za-z0-9_]+)"\)')
-        for match in allow_pattern.finditer(content):
-            uid = match.group(1)
-            if uid:
-                ids.add(uid)
+        
+        pattern1 = re.compile(r'TechTreeUnitAllow\(\w+,\s*"([A-Za-z0-9_]+)",\s*true\)')
+        for m in pattern1.finditer(content):
+            ids.add(m.group(1))
+        
+        pattern2 = re.compile(r'gf_' + short_name + r'AllowUnit\w*\(\w+,\s*"([A-Za-z0-9_]+)"(?:,\s*true)?\)')
+        for m in pattern2.finditer(content):
+            ids.add(m.group(1))
     except Exception:
         pass
     return ids
@@ -883,9 +1052,19 @@ def resolve_icon_casc_path(icon_path: str, context: dict | None = None, item_id:
     return None
 
 
+def _camel_to_tokens(name: str) -> list[str]:
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    s2 = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1)
+    tokens = [t.lower() for t in s2.replace('-', '_').split('_') if t and len(t) >= 3]
+    return tokens
+
+def _stem_to_tokens(stem: str) -> list[str]:
+    clean = stem.lower().replace('btn-', '').replace('unit-', '').replace('building-', '').replace('ability-', '')
+    tokens = [t for t in clean.replace('-', '_').split('_') if t and len(t) >= 3]
+    return tokens
+
 def _match_icon_library(icon_name: str, context: dict | None = None) -> Path | None:
     load_icon_library()
-    icon_lower = icon_name.lower()
     context = context or {}
     commander = (context.get("commander", "") or "").lower()
     item_type = (context.get("type", "") or "").lower()
@@ -903,100 +1082,85 @@ def _match_icon_library(icon_name: str, context: dict | None = None) -> Path | N
     if not icon_list:
         return None
 
-    search_names = [icon_lower]
-    if commander and icon_lower.endswith(commander):
-        base_name = icon_lower[:-len(commander)]
-        if len(base_name) >= 3:
-            search_names.insert(0, base_name)
-    if commander and icon_lower.startswith(commander):
-        base_name = icon_lower[len(commander):]
-        if len(base_name) >= 3:
-            search_names.insert(0, base_name)
-    if icon_lower.endswith("mp"):
-        base_name = icon_lower[:-2]
-        if len(base_name) >= 3:
-            search_names.insert(0, base_name)
-    if "mp" in icon_lower:
-        base_name = icon_lower.replace("mp", "")
-        if len(base_name) >= 3:
-            search_names.append(base_name)
+    search_names: list[str] = []
+    
+    btn_icon = get_button_icon(icon_name)
+    if btn_icon:
+        btn_filename = Path(btn_icon).stem
+        search_names.insert(0, btn_filename)
 
-    def _split_camel_case(name: str) -> list[str]:
-        parts = re.findall(r'[A-Z][a-z0-9]*|[a-z0-9]+', name)
-        return [p.lower() for p in parts if len(p) >= 3]
+    search_names.append(icon_name)
 
-    camel_parts = _split_camel_case(icon_name)
-    if len(camel_parts) >= 2:
-        for part in camel_parts:
-            if part not in search_names:
-                search_names.append(part)
-
-    tokens = re.findall(r'[a-z0-9]+', icon_lower)
-    if len(tokens) >= 2:
-        for i in range(len(tokens)):
-            part = tokens[i]
-            if len(part) >= 3 and part not in search_names:
-                search_names.append(part)
-
-    bad_keywords = [
+    bad_keywords = {
         'collection', 'mecha', 'primal', 'taldarim', 'purifier', 'covertops',
         'umojan', 'junker', 'remastered', 'blizzcon', 'golden', 'collectoredition',
         'eidolon', 'aquatic', 'bone', 'tauren', 'merc', 'mercenary', 'silver',
         'iharii', 'dark', 'aiur', 'nerazim', 'nocord', 'hev',
         'upgraded', 'upgrade', 'webby', 'mutant', 'commando',
-    ]
+        'locked', 'research', 'prestige',
+    }
 
-    def _calc_score(stem: str, search_name: str) -> int:
-        score = 0
-        stem_lower = stem.lower()
-        name_tokens = re.findall(r'[a-z0-9]+', stem_lower)
-        search_tokens = re.findall(r'[a-z0-9]+', search_name)
-        meaningful_name = [t for t in name_tokens if t not in {'btn', 'unit', 'building', 'ability', 'zerg', 'terran', 'protoss'} and len(t) > 2]
-        meaningful_search = [t for t in search_tokens if len(t) > 2]
-
-        if not meaningful_search:
-            return -999
-
-        exact_match = False
-        for mt in meaningful_name:
-            for st in meaningful_search:
-                if mt == st:
-                    score += 50
-                    exact_match = True
-                elif st in mt and len(st) >= 4:
-                    score += 20
-                elif mt in st and len(mt) >= 4:
-                    score += 15
-
-        if not exact_match:
-            matched = sum(1 for t in meaningful_search if any(t in nt for nt in meaningful_name))
-            ratio = matched / max(len(meaningful_search), 1)
-            if ratio < 0.3:
-                return -999
-            score += int(ratio * 30)
-
-        if race and race in stem_lower:
-            score += 15
-
-        for kw in bad_keywords:
-            if kw in stem_lower:
-                score -= 30
-
-        score -= len(name_tokens) * 2
-
-        return score
+    commander_prefixes = []
+    for s in COMMANDER_SPECS:
+        for p in s.get("prefixes", []):
+            p_lower = p.lower()
+            if p_lower not in commander_prefixes:
+                commander_prefixes.append(p_lower)
 
     best_score = -999
     best_path = None
 
     for search_name in search_names:
+        search_tokens = set(_camel_to_tokens(search_name))
+        if not search_tokens:
+            continue
+
+        base_tokens = set(search_tokens)
+        for cp in commander_prefixes:
+            if cp in base_tokens:
+                base_tokens.remove(cp)
+
         for stem, path in icon_list:
-            s = _calc_score(stem, search_name)
-            if s > best_score:
-                best_score = s
+            stem_tokens = set(_stem_to_tokens(stem))
+            if not stem_tokens:
+                continue
+
+            score = 0
+
+            stem_base = set(stem_tokens)
+            for cp in commander_prefixes:
+                if cp in stem_base:
+                    stem_base.remove(cp)
+
+            exact_matches = search_tokens & stem_tokens
+            score += len(exact_matches) * 50
+
+            base_exact = base_tokens & stem_base
+            score += len(base_exact) * 30
+
+            if len(base_tokens) > 0:
+                base_match_ratio = len(base_exact) / len(base_tokens)
+                if base_match_ratio < 0.3 and search_name != search_names[0]:
+                    continue
+                score += base_match_ratio * 20
+
+            if race and race in stem.lower():
+                score += 15
+
+            if commander and commander in stem.lower():
+                score += 20
+
+            stem_bad = bad_keywords & stem_tokens
+            score -= len(stem_bad) * 30
+
+            extra_stem = len(stem_base - base_tokens)
+            score -= extra_stem * 5
+
+            if score > best_score:
+                best_score = score
                 best_path = path
 
-    if best_score > 10:
+    if best_score > 30:
         return best_path
     return None
 
@@ -1354,16 +1518,6 @@ def batch_extract_and_save_icons(items: list[dict], output_dir: Path, context: d
     return count
 
 
-def get_commander_race(runtime: str) -> str:
-    if runtime.startswith("Terran"):
-        return "Terran"
-    if runtime.startswith("Protoss"):
-        return "Protoss"
-    if runtime.startswith("Zerg"):
-        return "Zerg"
-    return ""
-
-
 def main() -> int:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     PORTRAIT_DIR.mkdir(parents=True, exist_ok=True)
@@ -1379,7 +1533,7 @@ def main() -> int:
     for spec in COMMANDER_SPECS:
         runtime = spec["runtime"]
         name = spec["name"]
-        race = get_commander_race(runtime)
+        race = get_commander_race(spec)
         print(f"\nProcessing {name} ({runtime})...")
 
         units, buildings = collect_commander_units_and_buildings(spec)
