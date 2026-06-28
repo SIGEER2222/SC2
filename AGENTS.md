@@ -13,7 +13,10 @@
   1. **静态分析（秒级）**：先运行 `python E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\validate-galaxy-scripts.py`，检测 BOM、括号不匹配、禁用原生函数、include 缺失、跨库引用不一致等低级错误。
   2. **快速编译验证（约 20-30 秒）**：静态分析通过后，运行 `powershell -NoProfile -ExecutionPolicy Bypass -File E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\quick-compile-check.ps1`，利用游戏编译阶段检测语法和链接错误，比完整进图快很多。
   3. **完整进图测试**：以上都通过后，再运行 `E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\launch-7vs1-coop-test.ps1` 启动游戏测试。
-  - 启动后等待 120 秒，检查 `C:\Users\22448\Documents\StarCraft II\GameLogs` 目录是否有报错日志。
+  - 启动后运行 `powershell -NoProfile -ExecutionPolicy Bypass -File E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\wait-for-game-ready.ps1` 智能等待加载完成并检测错误。
+  - 智能等待通过以下硬性条件判断：
+    - **失败（立即终止）**：ScriptError.txt 出现脚本编译/运行错误，或游戏进程崩溃退出
+    - **成功（进入游戏）**：游戏进程存活 + Alerts.txt 10 秒无新内容（加载完成）+ 无严重脚本错误
   - 如有报错先修复再结束。
 
 ## TRAE 辅助脚本
