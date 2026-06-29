@@ -2009,6 +2009,8 @@ void libE0EAE146_gf_ZeratulRuntimeInit (int lp_player, point lp_heroPoint, bool 
     if (lp_createHero) {
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulCoop", 0, lp_player, lp_heroPoint);
         libE0EAE146_gv_zeratulHero = UnitLastCreated();
+        libKMIS_gv_cM_HeroUnit[lp_player] = libE0EAE146_gv_zeratulHero;
+        UnitGroupAdd(libKMIS_gv_cM_HeroUnitsOfAllCommanders, libE0EAE146_gv_zeratulHero);
         libE0EAE146_gt_CommanderHeroDied_Init();
         TriggerEnable(libKMIS_gt_CM_HeroDied, false);
     }
