@@ -159,28 +159,21 @@
     <DamageTakenXP value="0" />
   </CUnit>
   <CUnit id="Barracks">
-    <AbilArray Link="BarracksTrain" removed="1" />
-    <AbilArray Link="BarracksAddOns" removed="1" />
-    <AbilArray Link="BarracksLiftOff" removed="1" />
-    <AbilArray index="2" Link="BarracksTrainRaynor" />
-    <AbilArray index="4" Link="BarracksAddOnsRaynor" />
-    <AbilArray index="5" Link="BarracksLiftOffRaynor" />
+    <AbilArray Link="BarracksTrainRaynor" />
+    <AbilArray Link="BarracksAddOnsRaynor" />
     <CardLayouts index="0">
-      <LayoutButtons index="0" Face="Marine" Type="AbilCmd" AbilCmd="BarracksTrainRaynor,Train1" Row="0" Column="0" />
-      <LayoutButtons index="1" Face="Marauder" Type="AbilCmd" AbilCmd="BarracksTrainRaynor,Train4" Row="0" Column="1" />
-      <LayoutButtons index="2" Face="Rally" Type="AbilCmd" AbilCmd="Rally,Rally1" Row="1" Column="4" />
-      <LayoutButtons index="3" Face="Lift" Type="AbilCmd" AbilCmd="BarracksLiftOffRaynor,Execute" Row="2" Column="3" />
-      <LayoutButtons index="5" Face="Reactor" Type="AbilCmd" AbilCmd="BarracksAddOnsRaynor,Build2" Row="2" Column="1" />
-      <LayoutButtons index="6" Face="TechLabBarracks" Type="AbilCmd" AbilCmd="BarracksAddOnsRaynor,Build1" Row="2" Column="0" />
-      <LayoutButtons index="8" Face="Cancel" Type="AbilCmd" AbilCmd="BarracksAddOnsRaynor,Halt" Row="2" Column="4" />
-      <LayoutButtons index="11" Face="Medic" Type="AbilCmd" AbilCmd="BarracksTrainRaynor,Train5" Row="0" Column="3" />
-      <LayoutButtons index="12" Face="Firebat" Type="AbilCmd" AbilCmd="BarracksTrainRaynor,Train6" Row="0" Column="2" />
-      <LayoutButtons index="13" removed="1" />
-      <LayoutButtons index="14" removed="1" />
-      <LayoutButtons index="15" removed="1" />
-      <LayoutButtons index="16" removed="1" />
-      <LayoutButtons index="17" removed="1" />
-      <LayoutButtons index="18" removed="1" />
+      <LayoutButtons index="0" Face="Marine" Type="AbilCmd" AbilCmd="BarracksTrain,Train1" Row="0" Column="0" Requirements="NotHaveRaynorCommander" />
+      <LayoutButtons index="1" Face="Marauder" Type="AbilCmd" AbilCmd="BarracksTrain,Train4" Row="0" Column="1" Requirements="NotHaveRaynorCommander" />
+      <LayoutButtons index="5" Face="Reactor" Type="AbilCmd" AbilCmd="BarracksAddOns,Build2" Row="2" Column="1" Requirements="NotHaveRaynorCommander" />
+      <LayoutButtons index="6" Face="TechLabBarracks" Type="AbilCmd" AbilCmd="BarracksAddOns,Build1" Row="2" Column="0" Requirements="NotHaveRaynorCommander" />
+      <LayoutButtons index="11" Face="Medic" Type="AbilCmd" AbilCmd="BarracksTrain,Train5" Row="0" Column="3" Requirements="NotHaveRaynorCommander" />
+      <LayoutButtons index="12" Face="Firebat" Type="AbilCmd" AbilCmd="BarracksTrain,Train6" Row="0" Column="2" Requirements="NotHaveRaynorCommander" />
+      <LayoutButtons Face="Marine" Type="AbilCmd" AbilCmd="BarracksTrainRaynor,Train1" Row="1" Column="0" />
+      <LayoutButtons Face="Marauder" Type="AbilCmd" AbilCmd="BarracksTrainRaynor,Train4" Row="1" Column="1" />
+      <LayoutButtons Face="Medic" Type="AbilCmd" AbilCmd="BarracksTrainRaynor,Train5" Row="1" Column="3" />
+      <LayoutButtons Face="Firebat" Type="AbilCmd" AbilCmd="BarracksTrainRaynor,Train6" Row="1" Column="2" />
+      <LayoutButtons Face="TechLabBarracks" Type="AbilCmd" AbilCmd="BarracksAddOnsRaynor,Build1" Row="3" Column="0" />
+      <LayoutButtons Face="Reactor" Type="AbilCmd" AbilCmd="BarracksAddOnsRaynor,Build2" Row="3" Column="1" />
     </CardLayouts>
     <TechTreeProducedUnitArray value="MarineRaynor" />
     <TechTreeProducedUnitArray value="MarauderRaynor" />
@@ -553,8 +546,11 @@
     <AbilArray index="3" Link="RaynorTechLabMorphToFactory" />
     <AbilArray index="4" Link="RaynorTechLabMorphToStarport" />
     <AddedOnArray UnitLink="Barracks" BehaviorLink="BarracksTechLab" />
+    <AddedOnArray UnitLink="BarracksRaynor" BehaviorLink="BarracksTechLab" />
     <AddedOnArray UnitLink="Factory" BehaviorLink="FactoryTechLab" />
+    <AddedOnArray UnitLink="FactoryRaynor" BehaviorLink="FactoryTechLab" />
     <AddedOnArray UnitLink="Starport" BehaviorLink="StarportTechLab" />
+    <AddedOnArray UnitLink="StarportRaynor" BehaviorLink="StarportTechLab" />
   </CUnit>
   <CUnit id="ReactorRaynor" parent="Reactor">
     <Race value="Terr" />
@@ -563,8 +559,11 @@
     <AbilArray index="3" Link="RaynorReactorMorphToFactory" />
     <AbilArray index="4" Link="RaynorReactorMorphToStarport" />
     <AddedOnArray UnitLink="Barracks" BehaviorLink="BarracksReactor" />
+    <AddedOnArray UnitLink="BarracksRaynor" BehaviorLink="BarracksReactor" />
     <AddedOnArray UnitLink="Factory" BehaviorLink="FactoryReactor" />
+    <AddedOnArray UnitLink="FactoryRaynor" BehaviorLink="FactoryReactor" />
     <AddedOnArray UnitLink="Starport" BehaviorLink="StarportReactor" />
+    <AddedOnArray UnitLink="StarportRaynor" BehaviorLink="StarportReactor" />
   </CUnit>
   <CUnit id="BarracksTechLabRaynor" parent="TechLab">
     <Race value="Terr" />
@@ -582,12 +581,14 @@
       <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5Addon,CancelLast" Row="2" Column="4" />
     </CardLayouts>
     <AddedOnArray UnitLink="Barracks" BehaviorLink="BarracksTechLab" />
+    <AddedOnArray UnitLink="BarracksRaynor" BehaviorLink="BarracksTechLab" />
   </CUnit>
   <CUnit id="BarracksReactorRaynor" parent="BarracksReactor">
     <Race value="Terr" />
     <Mob value="Campaign" />
     <AbilArray index="2" Link="RaynorReactorMorphToDetached" />
     <AddedOnArray UnitLink="Barracks" BehaviorLink="BarracksReactor" />
+    <AddedOnArray UnitLink="BarracksRaynor" BehaviorLink="BarracksReactor" />
   </CUnit>
   <CUnit id="FactoryTechLabRaynor" parent="TechLab">
     <Race value="Terr" />
@@ -602,12 +603,14 @@
       <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5Addon,CancelLast" Row="2" Column="4" />
     </CardLayouts>
     <AddedOnArray UnitLink="Factory" BehaviorLink="FactoryTechLab" />
+    <AddedOnArray UnitLink="FactoryRaynor" BehaviorLink="FactoryTechLab" />
   </CUnit>
   <CUnit id="FactoryReactorRaynor" parent="FactoryReactor">
     <Race value="Terr" />
     <Mob value="Campaign" />
     <AbilArray index="3" Link="RaynorReactorMorphToDetached" />
     <AddedOnArray UnitLink="Factory" BehaviorLink="FactoryReactor" />
+    <AddedOnArray UnitLink="FactoryRaynor" BehaviorLink="FactoryReactor" />
   </CUnit>
   <CUnit id="StarportTechLabRaynor" parent="TechLab">
     <Race value="Terr" />
@@ -622,12 +625,14 @@
       <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que5Addon,CancelLast" Row="2" Column="4" />
     </CardLayouts>
     <AddedOnArray UnitLink="Starport" BehaviorLink="StarportTechLab" />
+    <AddedOnArray UnitLink="StarportRaynor" BehaviorLink="StarportTechLab" />
   </CUnit>
   <CUnit id="StarportReactorRaynor" parent="StarportReactor">
     <Race value="Terr" />
     <Mob value="Campaign" />
     <AbilArray index="4" Link="RaynorReactorMorphToDetached" />
     <AddedOnArray UnitLink="Starport" BehaviorLink="StarportReactor" />
+    <AddedOnArray UnitLink="StarportRaynor" BehaviorLink="StarportReactor" />
   </CUnit>
   <CUnit id="SupplyDepotRaynor" parent="SupplyDepot">
     <Race value="Terr" />
