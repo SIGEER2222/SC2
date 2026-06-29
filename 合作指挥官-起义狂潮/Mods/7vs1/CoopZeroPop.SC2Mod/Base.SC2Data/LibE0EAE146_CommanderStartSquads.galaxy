@@ -10,6 +10,7 @@ void libE0EAE146_gf_RaynorCreateMapStartSquad (string lp_kind, int lp_player, po
     string lv_kind;
     lv_kind = lp_kind;
     if ((lv_kind == "light")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "RaynorCommando", 0, lp_player, lp_point);
         libNtve_gf_CreateUnitsWithDefaultFacing(3, "MarineRaynor", 0, lp_player, lp_point);
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "MedicRaynor", 0, lp_player, lp_point);
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "FirebatRaynor", 0, lp_player, lp_point);
@@ -808,6 +809,10 @@ void libE0EAE146_gf_CreateCommanderSupportSquad (int lp_player, point lp_point) 
         libE0EAE146_gf_RaynorCreateMapStartSquad("light", lp_player, lp_point);
         return;
     }
+    if (lv_commander == "TerranRaynor") {
+        libE0EAE146_gf_RaynorCreateMapStartSquad("light", lp_player, lp_point);
+        return;
+    }
     if (lv_commander == "Kerrigan") {
         libE0EAE146_gf_KerriganCreateMapStartSquad("light", lp_player, lp_point);
         return;
@@ -896,6 +901,10 @@ void libE0EAE146_gf_CreateCommanderCinematicDropSquad (string lp_kind, int lp_pl
         return;
     }
     if (lv_commander == "RaynorX") {
+        libE0EAE146_gf_RaynorCreateMapStartSquad(lp_kind, lp_player, lp_point);
+        return;
+    }
+    if (lv_commander == "TerranRaynor") {
         libE0EAE146_gf_RaynorCreateMapStartSquad(lp_kind, lp_player, lp_point);
         return;
     }
