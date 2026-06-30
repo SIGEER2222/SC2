@@ -212,6 +212,104 @@ void libE0EAE146_gf_AbathurRunTestSpawnPreset (int lp_player) {
     TriggerAddEventTimeElapsed(TriggerCreate("libE0EAE146_gt_AbathurFusionProbeLate_Func"), 18.0, c_timeGame);
 }
 
+//--------------------------------------------------------------------------------------------------
+// 阿巴瑟开局天赋（与 WebUI StartTalentMask 对接）
+// Bit 0 (mask 1): AbathurStartBiomass - 所有出生的战斗单位开局自带 50 层生物质
+// Bit 1 (mask 2): AbathurStartUltimateBiomass - 莽兽和利维坦额外获得 25 层生物质
+//--------------------------------------------------------------------------------------------------
+
+int libE0EAE146_gv_abathurStartTalentMask;
+int libE0EAE146_gv_abathurStartTalentPlayer;
+bool libE0EAE146_gv_abathurStartTalentsEnabled;
+
+void libE0EAE146_gf_AbathurStartTalentApplyToUnit (unit lp_unit) {
+    int lv_amount;
+
+    if ((lp_unit == null)) {
+        return;
+    }
+    if ((libE0EAE146_gv_abathurStartTalentsEnabled == false)) {
+        return;
+    }
+    if ((UnitGetOwner(lp_unit) != libE0EAE146_gv_abathurStartTalentPlayer)) {
+        return;
+    }
+    if ((libE0EAE146_gf_AbathurCanCollectBiomass(lp_unit) == false)) {
+        return;
+    }
+    if ((libE0EAE146_gf_HexTalentsIsCasterUnit(UnitGetType(lp_unit)) == true)) {
+        return;
+    }
+
+    lv_amount = 0;
+    if ((lib67C0F0E7_gf_BitMaskTrueIndexIs(libE0EAE146_gv_abathurStartTalentMask, 0) == true)) {
+        lv_amount = 50;
+    }
+
+    if ((libE0EAE146_gf_AbathurIsUltimateBiomassUnit(lp_unit) == true)) {
+        if ((lib67C0F0E7_gf_BitMaskTrueIndexIs(libE0EAE146_gv_abathurStartTalentMask, 1) == true)) {
+            lv_amount += 25;
+        }
+    }
+
+    if ((lv_amount > 0)) {
+        libE0EAE146_gf_AbathurAddBiomassStacks(lp_unit, lv_amount);
+    }
+}
+
+bool libE0EAE146_gt_AbathurStartTalentUnitCreated_Func (bool testConds, bool runActions) {
+    unit lv_unit;
+
+    if (!runActions) {
+        return true;
+    }
+
+    lv_unit = EventUnit();
+    if ((lv_unit == null)) {
+        return true;
+    }
+
+    libE0EAE146_gf_AbathurStartTalentApplyToUnit(lv_unit);
+    return true;
+}
+
+void libE0EAE146_gf_AbathurStartTalentsInit (int lp_player) {
+    int lv_mask;
+    unitgroup lv_existingUnits;
+    int lv_count;
+    unit lv_unit;
+
+    libE0EAE146_gv_abathurStartTalentPlayer = lp_player;
+    libE0EAE146_gv_abathurStartTalentMask = 0;
+    libE0EAE146_gv_abathurStartTalentsEnabled = false;
+
+    lv_mask = libE0EAE146_gf_CommanderPowerBankIntOrDefault("Abathur", "StartTalentMask", 0);
+    libE0EAE146_gv_abathurStartTalentMask = lv_mask;
+
+    if ((lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, 0) == false)) {
+        if ((lib67C0F0E7_gf_BitMaskTrueIndexIs(lv_mask, 1) == false)) {
+            return;
+        }
+    }
+
+    libE0EAE146_gv_abathurStartTalentsEnabled = true;
+
+    libE0EAE146_gf_InitializeAbathurBiomass(lp_player, "BiomassPickupDummy");
+
+    libE0EAE146_gt_AbathurStartTalentUnitCreated = TriggerCreate("libE0EAE146_gt_AbathurStartTalentUnitCreated_Func");
+    TriggerAddEventUnitCreated(libE0EAE146_gt_AbathurStartTalentUnitCreated, null, null, null);
+
+    lv_existingUnits = UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_count = UnitGroupCount(lv_existingUnits, c_unitCountAlive);
+    for (;; lv_count -= 1) {
+        lv_unit = UnitGroupUnitFromEnd(lv_existingUnits, lv_count);
+        if (lv_unit == null) {
+            break;
+        }
+        libE0EAE146_gf_AbathurStartTalentApplyToUnit(lv_unit);
+    }
+}
+
 void libE0EAE146_gf_AbathurRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     unit lv_caster;
 
@@ -234,5 +332,6 @@ void libE0EAE146_gf_AbathurRuntimeInit (int lp_player, point lp_heroPoint, bool 
     lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
     lib67C0F0E7_gf_ShowChooseButton();
     libE0EAE146_gf_AbathurRunTestSpawnPreset(lp_player);
+    libE0EAE146_gf_AbathurStartTalentsInit(lp_player);
     libE0EAE146_gf_RuntimeCheckpoint("AbathurRuntime.exit");
 }
