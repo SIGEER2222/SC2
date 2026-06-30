@@ -859,7 +859,7 @@ bool libE0EAE146_gt_CM_TychusMedicTransportActived_Func (bool testConds, bool ru
     UISetCursorVisible(lv_pg, false);
     Wait(0.5, c_timeGame);
     UISetCursorVisible(lv_pg, true);
-    UISetTargetingOrder(PlayerGroupSingle(UnitGetOwner(libE0EAE146_gv_cM_TychusMedicTransportUnit[lv_p])), libE0EAE146_gv_cM_TychusMedicTransportUnitGroup[lv_p], OrderTargetingPoint(AbilityCommand("TychusMedicTransportUnload", 0), UnitGetPosition(libE0EAE146_gv_cM_TychusMedicTransportUnit[lv_p])), false);
+    UISetTargetingOrder(PlayerGroupSingle(UnitGetOwner(libE0EAE146_gv_cM_TychusMedicTransportUnit[lv_p])), libE0EAE146_gv_cM_TychusMedicTransportUnitGroup[lv_p], OrderTargetingPoint(AbilityCommand("TychusMedicTransportUnloadUnits", 0), UnitGetPosition(libE0EAE146_gv_cM_TychusMedicTransportUnit[lv_p])), false);
     return true;
 }
 
@@ -940,7 +940,7 @@ bool libE0EAE146_gt_CM_TychusMedicTransportTargetOn_Func (bool testConds, bool r
 void libE0EAE146_gt_CM_TychusMedicTransportTargetOn_Init () {
     libE0EAE146_gt_CM_TychusMedicTransportTargetOn = TriggerCreate("libE0EAE146_gt_CM_TychusMedicTransportTargetOn_Func");
     TriggerEnable(libE0EAE146_gt_CM_TychusMedicTransportTargetOn, false);
-    TriggerAddEventTargetModeUpdate(libE0EAE146_gt_CM_TychusMedicTransportTargetOn, c_playerAny, AbilityCommand("TychusMedicTransportLoad", 0), c_targetModeStateOn);
+    TriggerAddEventTargetModeUpdate(libE0EAE146_gt_CM_TychusMedicTransportTargetOn, c_playerAny, AbilityCommand("TychusMedicTransportLoadUnits", 0), c_targetModeStateOn);
 }
 
 // Trigger: CM_TychusMedicTransportTargetOff
@@ -980,7 +980,7 @@ bool libE0EAE146_gt_CM_TychusMedicTransportTargetOff_Func (bool testConds, bool 
 void libE0EAE146_gt_CM_TychusMedicTransportTargetOff_Init () {
     libE0EAE146_gt_CM_TychusMedicTransportTargetOff = TriggerCreate("libE0EAE146_gt_CM_TychusMedicTransportTargetOff_Func");
     TriggerEnable(libE0EAE146_gt_CM_TychusMedicTransportTargetOff, false);
-    TriggerAddEventTargetModeUpdate(libE0EAE146_gt_CM_TychusMedicTransportTargetOff, c_playerAny, AbilityCommand("TychusMedicTransportLoad", 0), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libE0EAE146_gt_CM_TychusMedicTransportTargetOff, c_playerAny, AbilityCommand("TychusMedicTransportLoadUnits", 0), c_targetModeStateOff);
 }
 
 // Trigger: CM_TychusMedicTransportStop
@@ -1012,7 +1012,7 @@ bool libE0EAE146_gt_CM_TychusMedicTransportStop_Func (bool testConds, bool runAc
 void libE0EAE146_gt_CM_TychusMedicTransportStop_Init () {
     libE0EAE146_gt_CM_TychusMedicTransportStop = TriggerCreate("libE0EAE146_gt_CM_TychusMedicTransportStop_Func");
     TriggerEnable(libE0EAE146_gt_CM_TychusMedicTransportStop, false);
-    TriggerAddEventTargetModeUpdate(libE0EAE146_gt_CM_TychusMedicTransportStop, c_playerAny, AbilityCommand("TychusMedicTransportUnload", 0), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libE0EAE146_gt_CM_TychusMedicTransportStop, c_playerAny, AbilityCommand("TychusMedicTransportUnloadUnits", 0), c_targetModeStateOff);
 }
 
 // Trigger: CM_TychusMedicTransportTimeOut

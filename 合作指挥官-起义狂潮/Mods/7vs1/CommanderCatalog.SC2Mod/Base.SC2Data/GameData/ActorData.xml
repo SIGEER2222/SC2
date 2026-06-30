@@ -853,4 +853,20 @@
     <Model value="MutatorAmonRaynor" />
     <PortraitModel value="MutatorAmonRaynorPortrait" />
   </CActorUnit>
+  <!-- 泰凯斯医疗运输机施法单位（不可见） -->
+  <CActorUnit id="TychusMedicTransportCaster" parent="GenericUnitBase" unitName="TychusMedicTransportCaster">
+    <Model value="Invisible" />
+  </CActorUnit>
+  <!-- 医疗运输机升空/降落透明度效果 -->
+  <CActorSimple id="TychusMedicTransportOpacity">
+    <On Terms="Effect.TychusMedicTransportPreAB.Start; At Target" Send="Create" />
+    <On Terms="ActorCreation" Target="_Unit" Send="SetOpacity 0.000000 0.500000 MassRecallOpacity" />
+    <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 100,100,255 0.500000 OneShot MassRecallTint" />
+    <On Terms="Effect.TychusMedicTransportFinAB.Start; At Target" Send="TimerSet 0.200000 ClearRecallOpacity" />
+    <On Terms="TimerExpired; TimerName ClearRecallOpacity" Target="_Unit" Send="ClearOpacity 0.500000 MassRecallOpacity" />
+    <On Terms="TimerExpired; TimerName ClearRecallOpacity" Target="_Unit" Send="ClearTintColor 0.500000 MassRecallTint" />
+    <On Terms="TimerExpired; TimerName ClearRecallOpacity" Send="Destroy" />
+    <On Terms="ActorCreation" Target="_Unit" Send="SetShowStatusBar 0 Custom" />
+    <On Terms="TimerExpired; TimerName ClearRecallOpacity" Target="_Unit" Send="SetShowStatusBar 1 Custom" />
+  </CActorSimple>
 </Catalog>
