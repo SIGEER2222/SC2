@@ -208,4 +208,50 @@
         </Wireframe>
     </CActorUnit>
     <!-- ===== 虚空裂隙 VoidRift 结束 ===== -->
+    <!-- ===== SOAPoint 框架 Actor（移植自 0.81 XMCore）===== -->
+    <CActorSplat id="SOAPointCursorSplat" parent="ProtossCursorSplat" abil="SOAPointPre">
+        <On Terms="Abil.SOAPointFin.Cursor" Send="Create"/>
+    </CActorSplat>
+    <CActorSimple id="SOAPointOpacity">
+        <On Terms="Behavior.SOAPointPre.On" Send="Create"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetOpacity 0.000000 0.500000 MassRecallOpacity"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 100,100,255 0.500000 OneShot MassRecallTint"/>
+        <On Terms="Behavior.SOAPointFin.Off" Send="TimerSet 0.200000 ClearRecallOpacity"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity" Target="_Unit" Send="ClearOpacity 0.500000 MassRecallOpacity"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity" Target="_Unit" Send="ClearTintColor 0.500000 MassRecallTint"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity" Send="Destroy"/>
+    </CActorSimple>
+    <CActorModel id="SOAPointFinImpact" parent="ModelAnimationStyleOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.SOAPointFin.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Model value="ArbiterMPRecalledImpact"/>
+        <AutoScaleFactor value="0.450000"/>
+    </CActorModel>
+    <CActorSound id="SOAPointFinImpactSound" parent="SoundOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.SOAPointFin.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <Sound value="ArbiterMP_RecallEnd"/>
+    </CActorSound>
+    <CActorModel id="SOAPointPreImpact" parent="ModelAnimationStyleOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.SOAPointPre.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Model value="ArbiterMPRecallingImpact"/>
+        <AutoScaleFactor value="0.450000"/>
+    </CActorModel>
+    <CActorSound id="SOAPointPreImpactSound" parent="SoundOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.SOAPointPre.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <Sound value="ArbiterMP_RecallStart"/>
+    </CActorSound>
+    <CActorUnit id="SOAPointCaster" parent="GenericUnitBase" unitName="SOAPointCaster">
+        <On Terms="Signal.*.GuideOn" Send="Create SOAThermalLanceTargetingGuide"/>
+        <On Terms="Effect.SOAThermalLanceCP.Start" Target="SOAThermalLanceTargetingGuide" Send="Destroy"/>
+        <Model value="Invisible"/>
+    </CActorUnit>
 </Catalog>

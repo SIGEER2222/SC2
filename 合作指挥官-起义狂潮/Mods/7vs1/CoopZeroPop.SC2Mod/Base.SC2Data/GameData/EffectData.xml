@@ -102,4 +102,65 @@
         <EffectArray value="GlazeShadowStart"/>
     </CEffectSet>
     <!-- ===== 虚空裂隙 VoidRift 结束 ===== -->
+    <!-- ===== SOAPoint 框架效果（移植自 0.81 XMCore）===== -->
+    <CEffectAddTrackedUnit id="SOAPointAT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAStickyPointT"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectApplyBehavior id="SOAPointFinAB">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="SOAPointFin"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SOAPointFinSet">
+        <EditorCategories value=""/>
+        <EffectArray value="SOAPointT"/>
+        <EffectArray value="SOAPointRB"/>
+        <EffectArray value="SOAPointFinAB"/>
+        <EffectArray value="SOAPointRT"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SOAPointPreAB">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="SOAPointPre"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SOAPointFinPoint">
+        <EditorCategories value=""/>
+        <EffectArray value="SOAPointTT"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectEnumArea id="SOAPointPreS">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Structure,Missile,Stasis,Dead,Hidden"/>
+        <AreaArray Radius="5" Effect="SOAPointPreSet"/>
+        <MinCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="SOAPointPreSet">
+        <ValidatorArray value="SOAPointFilter"/>
+        <EditorCategories value=""/>
+        <EffectArray value="SOAPointAT"/>
+        <EffectArray value="SOAPointPreAB"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="SOAPointRB">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAPointPre"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveTrackedUnit id="SOAPointRT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAStickyPointT"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectRemoveTrackedUnit>
+    <CEffectTeleport id="SOAPointT">
+        <EditorCategories value=""/>
+        <PlacementArc value="360"/>
+        <PlacementAround Effect="SOAPointFinPoint"/>
+        <SourceLocation Value="CasterPoint"/>
+        <TargetLocation Effect="SOAPointFinPoint" Value="TargetPoint"/>
+    </CEffectTeleport>
+    <CEffectEnumTrackedUnits id="SOAPointTT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="SOAStickyPointT"/>
+        <Effect value="SOAPointFinSet"/>
+    </CEffectEnumTrackedUnits>
 </Catalog>
