@@ -26,6 +26,50 @@ You produce drafts only. Do not edit SC2 assets, maps, Catalog XML, Galaxy runti
 Every claim must cite a source path. Mark uncertainty explicitly. Prefer JSONL, Markdown tables, and short summaries over long narrative.
 ```
 
+## Worker RKB Prompt: Galaxy Editor Reference KB Seed
+
+```text
+<COMMON WORKER HEADER>
+
+Task ID: S001-RKB
+Owner: Worker RKB
+Model tier: cheap
+
+Goal:
+Create the first Galaxy Editor / SC2 Editor reference knowledge-base seed before project-specific repo analysis.
+
+Inputs:
+- docs/sc2-modops/galaxy-editor-reference-kb-plan.md
+- Public SC2 Editor / Galaxy Editor / Data Editor / Trigger Editor / GalaxyScript reference sources.
+
+Do:
+- Collect candidate reference sources.
+- Classify each source by trust tier T0-T4 using galaxy-editor-reference-kb-plan.md.
+- Mark topics covered by each source.
+- Draft an editor concept glossary with source URLs.
+- Draft a reference chunking plan for RAG ingestion.
+- Flag outdated or version-sensitive sources.
+
+Do not:
+- Treat AI summaries as primary sources.
+- Produce final SC2 semantic rules.
+- Claim a source is official unless the source itself supports that.
+- Copy large copyrighted passages into the repository.
+- Edit SC2 assets.
+
+Output paths:
+- artifacts/sc2-modops/sprint-001/worker-rkb/source-trust-map.md
+- artifacts/sc2-modops/sprint-001/worker-rkb/reference-sources.jsonl
+- artifacts/sc2-modops/sprint-001/worker-rkb/editor-glossary-draft.md
+- artifacts/sc2-modops/sprint-001/worker-rkb/reference-chunking-plan.md
+
+JSONL fields for reference-sources:
+source_url, source_title, source_tier, retrieved_date, topics, summary, key_terms, version_notes, confidence, outdated_risk, usable_for, not_usable_for.
+
+Final response:
+List changed/created files, the top trusted source candidates, and the highest outdated-risk sources.
+```
+
 ## Worker A Prompt: Source Inventory And Module Map
 
 ```text

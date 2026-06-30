@@ -2,7 +2,7 @@
 
 ## Sprint Goal
 
-Create the first reviewable evidence base for the SC2Mod AI development platform. This sprint should produce inventories, classifications, draft knowledge records, and candidate validator coverage without changing SC2 assets.
+Create the first reviewable evidence base for the SC2Mod AI development platform. The first priority is a Galaxy Editor / SC2 Editor reference knowledge-base seed, followed by project inventories, classifications, draft knowledge records, and candidate validator coverage without changing SC2 assets.
 
 ## Execution Policy
 
@@ -27,9 +27,51 @@ Create the first reviewable evidence base for the SC2Mod AI development platform
 | Tool Runner | Deterministic | Executes scripts, schemas, stats, and validation commands. |
 | Reviewer | Strong | Reviews worker drafts and decides what becomes platform rules. |
 
-## Wave 1: Immediate Dispatch
+## Wave 0: Immediate Dispatch - Galaxy Editor Reference KB
 
-Wave 1 gives the leader enough visibility to plan implementation work.
+Wave 0 builds the external/reference knowledge layer before the platform overfits to the current repository. This is the first task group to dispatch.
+
+### S001-RKB: Galaxy Editor Reference KB Seed
+
+Owner: Worker RKB.
+
+Model tier: cheap.
+
+Priority: P0.
+
+Inputs:
+
+- Public Galaxy Editor / SC2 Editor documentation and tutorial sources.
+- `docs/sc2-modops/galaxy-editor-reference-kb-plan.md`.
+
+Forbidden:
+
+- Do not treat AI summaries as primary sources.
+- Do not produce final SC2 semantic rules.
+- Do not claim a source is official unless the source itself supports that.
+- Do not scrape or copy large copyrighted passages into the repository.
+
+Outputs:
+
+```text
+artifacts/sc2-modops/sprint-001/worker-rkb/source-trust-map.md
+artifacts/sc2-modops/sprint-001/worker-rkb/reference-sources.jsonl
+artifacts/sc2-modops/sprint-001/worker-rkb/editor-glossary-draft.md
+artifacts/sc2-modops/sprint-001/worker-rkb/reference-chunking-plan.md
+```
+
+Acceptance:
+
+- Sources are tiered by trust level.
+- Every glossary term cites a source URL.
+- Version-sensitive sources are flagged.
+- Strong reviewer can decide which sources are allowed into Reference KB.
+
+Reviewer: Strong reviewer.
+
+## Wave 1: Project Evidence Dispatch
+
+Wave 1 gives the leader enough repository visibility to plan implementation work. It should start after Wave 0 source tiers are drafted, but it can run in parallel once Worker RKB has produced the initial source list.
 
 ### S001-A: Source Inventory And Module Map
 
@@ -401,7 +443,9 @@ Goal:
 ## Dependency Order
 
 ```text
-S001-A + S001-B + S001-C
+S001-RKB
+  -> Strong review of source tiers
+  -> S001-A + S001-B + S001-C
   -> Leader review
   -> S001-D + S001-E
   -> Strong review
@@ -413,6 +457,7 @@ S001-A + S001-B + S001-C
 
 Sprint 001 is done when:
 
+- Galaxy Editor reference source tiers exist and are reviewed.
 - Wave 1 outputs exist and are reviewed.
 - Wave 2 outputs exist and are reviewed.
 - Draft skill and eval materials exist.

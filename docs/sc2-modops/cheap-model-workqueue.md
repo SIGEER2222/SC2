@@ -15,7 +15,41 @@ This queue contains work that can be delegated to cheap or free models now. Thes
 - Mark uncertainty explicitly.
 - Prefer JSONL or tables for large extracted data.
 
+## Queue 000: Galaxy Editor Reference KB Seed
+
+Model tier: cheap.
+
+Input:
+
+- Public Galaxy Editor / SC2 Editor / Data Editor / Trigger Editor / GalaxyScript reference sources.
+- `docs/sc2-modops/galaxy-editor-reference-kb-plan.md`.
+
+Task:
+
+- Collect candidate reference sources.
+- Classify each source by trust tier.
+- Mark covered topics and outdated risk.
+- Draft an editor glossary with source URLs.
+- Draft a RAG chunking plan.
+
+Output:
+
+```text
+artifacts/sc2-modops/sprint-001/worker-rkb/source-trust-map.md
+artifacts/sc2-modops/sprint-001/worker-rkb/reference-sources.jsonl
+artifacts/sc2-modops/sprint-001/worker-rkb/editor-glossary-draft.md
+artifacts/sc2-modops/sprint-001/worker-rkb/reference-chunking-plan.md
+```
+
+Acceptance:
+
+- Every source has a tier, topics, confidence, and outdated-risk field.
+- Glossary entries cite source URLs.
+- No final SC2 semantic rules are created.
+
 ## Queue 001: Source Inventory Draft
+
+This queue is now second priority after `Queue 000: Galaxy Editor Reference KB Seed`.
 
 Model tier: cheap.
 
@@ -293,12 +327,13 @@ Acceptance:
 
 ## Current Priority Order
 
-1. Queue 001: Source Inventory Draft.
-2. Queue 002: Existing Script Catalog.
-3. Queue 006: Validator Coverage Matrix Draft.
-4. Queue 003: Historical Fix Knowledge Cards.
-5. Queue 005: XML Field Candidate Extraction.
-6. Queue 007: Skill Checklist Drafts.
-7. Queue 010: Eval Seed Cases Draft.
+1. Queue 000: Galaxy Editor Reference KB Seed.
+2. Queue 001: Source Inventory Draft.
+3. Queue 002: Existing Script Catalog.
+4. Queue 006: Validator Coverage Matrix Draft.
+5. Queue 003: Historical Fix Knowledge Cards.
+6. Queue 005: XML Field Candidate Extraction.
+7. Queue 007: Skill Checklist Drafts.
+8. Queue 010: Eval Seed Cases Draft.
 
-The first three tasks give the leader enough visibility to design the next implementation sprint.
+Queue 000 gives the platform a reference knowledge base before repo-local evidence work starts. The next three tasks give the leader enough repository visibility to design the first implementation sprint.
