@@ -1,0 +1,155 @@
+// AbathurReborn runtime: 迁移自 crys_the_swarm_reborn 的实验体/变异系统。
+// 与现有官方合作版 Abathur（生物质系统）并存，id 全部加 Reborn 后缀。
+// 阶段 1：仅迁移变异购买系统数据/脚本/语音，单位临时复用目标 mod 现有虫族单位。
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: AbathurReborn Abilities（新单位进入监听，挂载变异能力）
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_gt_AbathurRebornAbilities_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((TechTreeUpgradeCount(EventPlayer(), "AbathurReborn", c_techCountCompleteOnly) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    // 阶段 1：单位过滤复用目标 mod 现有虫族单位 id。
+    // 变异能力（ArmoredCarapace 等）若在目标 mod 中不存在，UnitAbilityAdd 会安全无效。
+    if (((UnitGetType(EventUnit()) == "Zergling") || (UnitGetType(EventUnit()) == "Pygalisk") || (UnitGetType(EventUnit()) == "HotSRaptor") || (UnitGetType(EventUnit()) == "HotSSwarmling") || (UnitGetType(EventUnit()) == "ZerglingToxic"))) {
+        UnitAbilityAdd(EventUnit(), "ArmoredCarapace");
+        UnitAbilityAdd(EventUnit(), "KetamineInfusion");
+        UnitAbilityAdd(EventUnit(), "Kleptomania");
+        UnitAbilityAdd(EventUnit(), "Moonrage");
+        UnitAbilityAdd(EventUnit(), "Stealthling");
+    }
+    else {
+        if (((UnitGetType(EventUnit()) == "Overlord") || (UnitGetType(EventUnit()) == "Overseer"))) {
+            UnitAbilityAdd(EventUnit(), "OverlordRadar");
+            UnitAbilityAdd(EventUnit(), "OverlordZerglings");
+            UnitAbilityAdd(EventUnit(), "OverlordGun");
+            UnitAbilityAdd(EventUnit(), "OverlordGirth");
+            UnitAbilityAdd(EventUnit(), "OverlordZoomies");
+        }
+        else {
+            if (((UnitGetType(EventUnit()) == "Baneling") || (UnitGetType(EventUnit()) == "BileTitan") || (UnitGetType(EventUnit()) == "FrostFiend") || (UnitGetType(EventUnit()) == "HotSHunter") || (UnitGetType(EventUnit()) == "HotSSplitterlingBig"))) {
+                UnitAbilityAdd(EventUnit(), "BanelingCreep");
+                UnitAbilityAdd(EventUnit(), "BanelingNuke");
+                UnitAbilityAdd(EventUnit(), "BanelingShields");
+                UnitAbilityAdd(EventUnit(), "BanelingSpeed");
+                UnitAbilityAdd(EventUnit(), "BanelingZerglings");
+            }
+            else {
+                if (((UnitGetType(EventUnit()) == "Hydralisk") || (UnitGetType(EventUnit()) == "HydraliskImpaler") || (UnitGetType(EventUnit()) == "HydraliskLurker") || (UnitGetType(EventUnit()) == "HunterKiller") || (UnitGetType(EventUnit()) == "Hydralisk2"))) {
+                    UnitAbilityAdd(EventUnit(), "HydraliskBroodlings");
+                    UnitAbilityAdd(EventUnit(), "HydraliskCripple");
+                    UnitAbilityAdd(EventUnit(), "HydraliskMechanical");
+                    UnitAbilityAdd(EventUnit(), "HydraliskMelee");
+                    UnitAbilityAdd(EventUnit(), "HydraliskRange");
+                }
+                else {
+                    if (((UnitGetType(EventUnit()) == "Roach") || (UnitGetType(EventUnit()) == "RoachCorpser") || (UnitGetType(EventUnit()) == "Igniter") || (UnitGetType(EventUnit()) == "Ravager") || (UnitGetType(EventUnit()) == "RoachVile"))) {
+                        UnitAbilityAdd(EventUnit(), "AdrenalineOverdose");
+                        UnitAbilityAdd(EventUnit(), "BanelingGestation");
+                        UnitAbilityAdd(EventUnit(), "BileShield");
+                        UnitAbilityAdd(EventUnit(), "MeleeStrain");
+                        UnitAbilityAdd(EventUnit(), "RoachlingInfestation");
+                    }
+
+                }
+            }
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gt_AbathurRebornAbilities_Init () {
+    libE0EAE146_gt_AbathurRebornAbilities = TriggerCreate("libE0EAE146_gt_AbathurRebornAbilities_Func");
+    TriggerEnable(libE0EAE146_gt_AbathurRebornAbilities, false);
+    TriggerAddEventUnitRegion(libE0EAE146_gt_AbathurRebornAbilities, null, RegionEntireMap(), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// RuntimeInit：AbathurReborn 指挥官初始化入口
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gf_AbathurRebornRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    if (libE0EAE146_gv_abathurRebornRuntimeInitialized) {
+        return;
+    }
+    libE0EAE146_gv_abathurRebornRuntimeInitialized = true;
+
+    // 启用 AbathurReborn 主升级和播报员
+    if (CatalogEntryIsValid(c_gameCatalogUpgrade, "AbathurReborn")) {
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AbathurReborn", 1);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogUpgrade, "AbathurAnnouncerReborn")) {
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AbathurAnnouncerReborn", 1);
+    }
+
+    // 解锁变异系统相关能力（源 mod 的 CommanderUnits/ZergBuild 等能力）
+    // 阶段 1：这些能力若在目标 mod 中不存在，跳过以避免 ScriptError
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "CommanderUnits")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("CommanderUnits", 2), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("CommanderUnits", 1), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("CommanderUnits", 0), false);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "ZergBuild")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("ZergBuild", 26), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "NaturalCamouflage")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("NaturalCamouflage", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "Cliffjumper")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("Cliffjumper", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "CombatDrone")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("CombatDrone", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "MineralEfficiency")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("MineralEfficiency", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "VespeneEfficiency")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("VespeneEfficiency", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "FastMorphing")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("FastMorphing", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "AcidMortar")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("AcidMortar", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "BroodlingInfestation")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("BroodlingInfestation", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "CloudofFlies")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("CloudofFlies", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "Range")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("Range", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "RagingTentacle")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("RagingTentacle", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "AdrenalineOverdose")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("AdrenalineOverdose", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "BanelingGestation")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("BanelingGestation", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "BileShield")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("BileShield", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "MeleeStrain")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("MeleeStrain", 0), true);
+    }
+    if (CatalogEntryIsValid(c_gameCatalogAbil, "RoachlingInfestation")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("RoachlingInfestation", 0), true);
+    }
+
+    // 启用新单位监听触发器
+    TriggerEnable(libE0EAE146_gt_AbathurRebornAbilities, true);
+}
