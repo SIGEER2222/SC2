@@ -173,6 +173,16 @@
     <EffectArray value="TychusMedicTransportRT" />
   </CEffectSet>
   <CEffectSet id="TychusMedicTransportUnit" />
+  <!-- 对施法单位应用 Activate 行为，触发 CM_TychusMedicTransportActived 触发器 -->
+  <CEffectApplyBehavior id="TychusMedicTransportActivateAB">
+    <WhichUnit Value="Caster" />
+    <Behavior value="TychusMedicTransportActivate" />
+  </CEffectApplyBehavior>
+  <!-- Load 效果集合：先执行区域枚举装载，再通知触发器 -->
+  <CEffectSet id="TychusMedicTransportLoadSet">
+    <EffectArray value="TychusMedicTransportPreS" />
+    <EffectArray value="TychusMedicTransportActivateAB" />
+  </CEffectSet>
 
   <CEffectCreateUnit id="TychusCalldownOdinCreateUnit">
     <WhichLocation Value="TargetPoint" />
