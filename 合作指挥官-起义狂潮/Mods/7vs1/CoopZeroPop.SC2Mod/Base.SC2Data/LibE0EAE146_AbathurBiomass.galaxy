@@ -341,7 +341,21 @@ int libE0EAE146_gf_AbathurAddBiomassStacks (unit lp_unit, int lp_amount) {
     }
     libNtve_gf_SendActorMessageToUnit(lp_unit, ("SetScale " + FixedToString(libE0EAE146_gf_AbathurBiomassVisualScale(lv_current + lv_applied), c_fixedPrecisionAny)));
     libE0EAE146_gf_AbathurBiomassShowCount(lp_unit, (lv_current + lv_applied));
+    libE0EAE146_gf_AbathurBiomassSyncCounter(lp_unit);
     return lv_applied;
+}
+
+void libE0EAE146_gf_AbathurBiomassSyncCounter (unit lp_unit) {
+    int lv_total;
+
+    if ((lp_unit == null)) {
+        return;
+    }
+    lv_total = libE0EAE146_gf_AbathurUnitBiomassStacks(lp_unit);
+    UnitBehaviorRemove(lp_unit, "BiomassCounter", c_unitBehaviorCountAll);
+    if ((lv_total > 0)) {
+        UnitBehaviorAddPlayer(lp_unit, "BiomassCounter", UnitGetOwner(lp_unit), lv_total);
+    }
 }
 
 void libE0EAE146_gf_AbathurSetUnitFullBiomass (unit lp_unit) {
