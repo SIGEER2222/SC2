@@ -1,0 +1,1583 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectModifyPlayer default="1" id="TychusHeroPassive">
+        <EditorCategories value="Race:Terran"/>
+        <WhichPlayer Value="Caster"/>
+        <Upgrades Upgrade="##id##" Count="1"/>
+    </CEffectModifyPlayer>
+    <CEffectSet id="Event_TychusHeroMainBuilding">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectSet id="ReviveAbility10Tychus">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectSet id="ReviveAbility1Tychus">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectSet id="ReviveAbility2Tychus">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectSet id="ReviveAbility3Tychus">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectSet id="ReviveAbility4Tychus">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectSet id="ReviveAbility5Tychus">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectSet id="ReviveAbility6Tychus">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectSet id="ReviveAbility7Tychus">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectSet id="ReviveAbility8Tychus">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectSet id="ReviveAbility9Tychus">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TychusFirebatOilFireABC">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Source"/>
+        <Behavior value="TychusFirebatOilFire"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusGhostPsychicSnareB">
+        <EditorCategories value=""/>
+        <WhichUnit Effect="TychusGhostPsychicSnareLM"/>
+    </CEffectApplyBehavior>
+    <CEffectAddTrackedUnit id="TychusMedicTransportAT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="TychusMedicTransportT"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectApplyBehavior id="TychusMedicTransportFinAB">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="TychusMedicTransportFin"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="TychusMedicTransportFinPoint">
+        <EditorCategories value=""/>
+        <EffectArray value="TychusMedicTransportTT"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectSet id="TychusMedicTransportFinSet">
+        <EditorCategories value=""/>
+        <EffectArray value="TychusMedicTransportT"/>
+        <EffectArray value="TychusMedicTransportRB"/>
+        <EffectArray value="TychusMedicTransportFinAB"/>
+        <EffectArray value="TychusMedicTransportRT"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="TychusMedicTransportHeal">
+        <EditorCategories value=""/>
+        <VitalArray index="Life">
+            <ChangeFraction value="0.025"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectApplyBehavior id="TychusMedicTransportPreAB">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="TychusMedicTransportPre"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="TychusMedicTransportPreS">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Structure,User1,Missile,Stasis,Dead,Hidden"/>
+        <AreaArray Radius="5" Effect="TychusMedicTransportPreSet"/>
+        <MinCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="TychusMedicTransportPreSet">
+        <ValidatorArray value="SOAPointFilter"/>
+        <EditorCategories value=""/>
+        <EffectArray value="TychusMedicTransportAT"/>
+        <EffectArray value="TychusMedicTransportPreAB"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="TychusMedicTransportRB">
+        <EditorCategories value=""/>
+        <BehaviorAlignment value="Negative"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveTrackedUnit id="TychusMedicTransportRT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="TychusMedicTransportT"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectRemoveTrackedUnit>
+    <CEffectTeleport id="TychusMedicTransportT">
+        <EditorCategories value=""/>
+        <PlacementArc value="360"/>
+        <PlacementAround Effect="TychusMedicTransportFinPoint"/>
+        <SourceLocation Value="CasterPoint"/>
+        <TargetLocation Effect="TychusMedicTransportFinPoint" Value="TargetPoint"/>
+    </CEffectTeleport>
+    <CEffectEnumTrackedUnits id="TychusMedicTransportTT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="TychusMedicTransportT"/>
+        <Effect value="TychusMedicTransportFinSet"/>
+    </CEffectEnumTrackedUnits>
+    <CEffectApplyBehavior id="TychusACBandofBrothersAB">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="TychusACBandofBrothers"/>
+        <Count value="0">
+            <AccumulatorArray value="TychusACBandofBrothers"/>
+        </Count>
+        <Flags index="SetAttributePoints" value="1"/>
+    </CEffectApplyBehavior>
+    <CEffectAddTrackedUnit id="TychusACBandofBrothersAT">
+        <EditorCategories value=""/>
+        <BehaviorLink value="TychusACBandofBrothersT"/>
+        <TrackedUnit Value="Target"/>
+    </CEffectAddTrackedUnit>
+    <CEffectEnumArea id="TychusACBandofBrothersS">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="CasterUnit"/>
+        <ExcludeArray/>
+        <SearchFilters value="Heroic;Ally,Neutral,Enemy,Dead,Hidden,Summoned"/>
+        <AreaArray Radius="15" Effect="TychusACBandofBrothersAT"/>
+    </CEffectEnumArea>
+    <CEffectSet id="TychusACBandofBrothersSet">
+        <EditorCategories value=""/>
+        <EffectArray value="TychusACBandofBrothersS"/>
+        <EffectArray value="TychusACBandofBrothersAB"/>
+    </CEffectSet>
+    <CEffectModifyPlayer id="TychusLoneWolfU" parent="Upgrade">
+        <EditorCategories value=""/>
+        <WhichPlayer Value="Caster"/>
+    </CEffectModifyPlayer>
+    <CEffectSet id="TychusMedicTransportUnit">
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectModifyUnit id="TychusMedivacPeriodicHeal">
+        <EditorCategories value="Race:Terran"/>
+        <VitalArray index="Life">
+            <ChangeFraction value="0.0031"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectRemoveBehavior id="TychusMedivacPickupRB">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Source"/>
+        <BehaviorLink value="TychusMedicDrop"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreatePersistent id="OdinNukePersistent">
+        <ValidatorArray index="0" value="OdinRepairing"/>
+        <ValidatorArray index="1" removed="1"/>
+        <Flags index="Channeled" value="0"/>
+        <ExpireDelay value="1.25"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyForce id="TychusShredderGrenadeAF">
+        <EditorCategories value=""/>
+        <WhichLocation Effect="TychusShredderGrenadeDelay" Value="TargetPoint"/>
+        <Amount value="-5"/>
+    </CEffectApplyForce>
+    <CEffectCreatePersistent id="TychusShredderGrenadeAFCP">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="TychusShredderGrenadeAF"/>
+        <PeriodCount value="5"/>
+        <PeriodicEffectArray value="TychusShredderGrenadeAF"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectSwitch id="TychusShredderGrenadeKD9aSW">
+        <ValidatorArray value="NotStructure"/>
+        <EditorCategories value=""/>
+        <Chance value="0"/>
+        <CaseArray Validator="NotHeroic" Effect="TychusShredderGrenadeKD9aSet"/>
+        <CaseDefault value="TychusShredderGrenadeSlowAB"/>
+    </CEffectSwitch>
+    <CEffectSet id="TychusShredderGrenadeKD9aSet">
+        <EditorCategories value=""/>
+        <EffectArray value="TychusShredderGrenadeStunAB"/>
+        <EffectArray value="TychusShredderGrenadeAFCP"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="TychusWarhoundTurretTornadoMissileCP">
+        <ValidatorArray value="TychusTornadoMissileEnemyCheck"/>
+        <EditorCategories value="Race:Terran"/>
+        <TimeScaleSource Value="Caster"/>
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="TychusTornadoMissileCPSearch"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="TychusReaperSuperCloakAB">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Source"/>
+        <Behavior value="TychusReaperSuperCloak"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="TychusSCVAutoTurret" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="25"/>
+    </CEffectDamage>
+    <CEffectModifyPlayer id="TychusSpectreVisionSuit" parent="TychusHeroPassive"/>
+    <CEffectSet id="TychusWarhoundTurretWeaponSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusWarhoundTurretFearSearch"/>
+        <EffectArray value="TychusWarhoundAutoTurret"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="TychusTornadoMissileLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="TychusTornadoMissileDamage"/>
+        <AmmoUnit value="TychusTornadoMissileWeapon"/>
+        <ValidatorArray value="NotHidden"/>
+        <Movers Link="TornadoMissileWeaponClose" IfRangeLTE="6"/>
+        <Movers Link="TornadoMissileWeapon" IfRangeLTE="20"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="TychusTornadoMissileDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="100"/>
+        <ValidatorArray value="NotHidden"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="TychusWarhoundTornadoMissileCP">
+        <ValidatorArray value="TychusTornadoMissileEnemyCheck"/>
+        <EditorCategories value="Race:Terran"/>
+        <TimeScaleSource Value="Caster"/>
+        <PeriodCount value="8"/>
+        <PeriodicEffectArray value="TychusTornadoMissileCPSearch"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="TychusFirebatOilBombCP">
+        <EditorCategories value="Race:Terran"/>
+        <InitialEffect value="TychusFirebatOilBombSearch"/>
+        <PeriodCount value="30"/>
+        <PeriodicEffectArray value="TychusFirebatOilBombSearch"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="TychusFireBatOilFireDamage">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="2.5"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="TychusFirebatApplyOilBomb">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusFirebatOilBombed"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusFirebatOilFireAB">
+        <ValidatorArray value="NotInvulnerable"/>
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusFirebatOilFire"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="TychusFirebatOilFireSearch">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="SourceUnitOrPoint"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Missile,Item,Stasis,Dead,Invulnerable"/>
+        <AreaArray Radius="3" Effect="TychusFirebatOilFireAB"/>
+    </CEffectEnumArea>
+    <CEffectModifyPlayer id="TychusFirebatPremiumPetroleum" parent="TychusHeroPassive"/>
+    <CEffectModifyPlayer id="TychusFirebatBlueFlameOil" parent="TychusHeroPassive"/>
+    <CEffectModifyPlayer id="TychusFirebatIncendiaryPetroleum" parent="TychusHeroPassive"/>
+    <CEffectDamage id="OdinNukeDamage">
+        <Amount value="1000"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AINotifyFlags index="HurtFriend" value="1"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <AINotifyFlags index="MajorDanger" value="1"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Death value="Fire"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="SameCliff" value="0"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="TychusWarhoundAutoTurretTimedLife">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusShredderGrenadeStunAB">
+        <Behavior value="TychusShredderGrenadeStun"/>
+        <EditorCategories value="Race:Terran"/>
+        <ValidatorArray index="0" value="NotHeroic"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusShredderGrenadeSlowAB">
+        <Behavior value="TychusShredderGrenadeSlow"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="TychusWarhoundLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="TychusWarhoundRailgunSet"/>
+        <AmmoUnit value="TychusWarhoundWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="TychusWarhoundRailgunSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusWarhound"/>
+        <EffectArray value="TychusWarhoundFearSearch"/>
+    </CEffectSet>
+    <CEffectDamage id="TychusWarhound">
+        <Kind value="Ranged"/>
+        <EditorCategories value="Race:Terran"/>
+        <ArmorReduction value="1"/>
+        <Amount value="23"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+    </CEffectDamage>
+    <CEffectDamage id="TychusWarhoundDeathExplosion" parent="DU_WEAP_SPLASH">
+        <EditorCategories value="Race:Terran"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <Kind value="Spell"/>
+        <Amount value="300"/>
+        <Death value="Blast"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="4" Fraction="1"/>
+        <ArmorReduction value="0"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <Chance value="0"/>
+    </CEffectDamage>
+    <CEffectDamage id="TychusWarhoundTurretDeathExplosion" parent="DU_WEAP_SPLASH">
+        <EditorCategories value="Race:Terran"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <Kind value="Spell"/>
+        <Amount value="50"/>
+        <Death value="Blast"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="4" Fraction="1"/>
+        <ArmorReduction value="0"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <Chance value="0"/>
+    </CEffectDamage>
+    <CEffectSet id="Event_TychusHeroCreate">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectSet id="Event_TychusHeroDeath">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectSet id="Event_TychusHeroRevive">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectSet id="Event_TychusReviveStart">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectSet id="Event_TychusHeroStructureCreate">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectSet id="TychusWarhoundMeleeSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusWarhoundMelee"/>
+        <EffectArray value="TychusWarhoundFearSearch"/>
+    </CEffectSet>
+    <CEffectDamage id="TychusWarhoundMelee">
+        <Kind value="Melee"/>
+        <EditorCategories value="Race:Terran"/>
+        <ArmorReduction value="1"/>
+        <Amount value="23"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+    </CEffectDamage>
+    <CEffectSet id="TychusWarhoundAutoTurretSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusWarhoundAutoTurretTimedLife"/>
+        <EffectArray value="TychusWarhoundAutoTurretReleaseLaunch"/>
+    </CEffectSet>
+    <CEffectDamage id="TychusWarhoundAutoTurret" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="18"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="TychusWarhoundAutoTurretRelease">
+        <EditorCategories value="Race:Terran"/>
+        <SpawnEffect value="TychusWarhoundAutoTurretSet"/>
+        <SpawnUnit value="TychusWarhoundAutoTurret"/>
+        <SpawnRange value="0"/>
+        <WhichLocation Value="TargetPoint"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="TychusWarhoundAutoTurretReleaseLaunch">
+        <EffectArray value="TychusWarhoundAutoTurretReleaseLM"/>
+        <EffectArray value="MakePrecursor"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="TychusWarhoundAutoTurretReleaseLM">
+        <EditorCategories value="Race:Terran"/>
+        <FinishEffect value="RemovePrecursor"/>
+        <AmmoUnit value="TychusWarhoundAutoTurretReleaseWeapon"/>
+        <PlaceholderUnit value="TychusWarhoundAutoTurret"/>
+        <LaunchLocation Value="CasterUnit"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="TychusACArmorDebuffApply">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusACArmorDebuff"/>
+        <Chance value="0"/>
+    </CEffectApplyBehavior>
+    <CEffectModifyPlayer id="TychusGhostDominatingDomination" parent="TychusHeroPassive"/>
+    <CEffectModifyPlayer id="TychusGhostDominateBuff" parent="TychusHeroPassive"/>
+    <CEffectModifyPlayer id="TychusHercGrappleStun" parent="TychusHeroPassive"/>
+    <CEffectModifyPlayer id="TychusSpectreSuperUltrasonicPulse" parent="TychusHeroPassive"/>
+    <CEffectModifyPlayer id="TychusSpectreExtendedPulseGun" parent="TychusHeroPassive"/>
+    <CEffectApplyBehavior id="TychusHercGrappleRageBuffAB">
+        <ValidatorArray value="CasterHasTychusHercRage"/>
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusHercRageBuff"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="TychusMedicAoESearch">
+        <SearchFilters value="-;Structure,Missile,Stasis,Dead"/>
+        <AreaArray Radius="7" Effect="TychusMedicAoESearchSet"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectEnumArea>
+    <CEffectSet id="TychusMedicAoESearchSet">
+        <EffectArray value="TychusMedicAoESearchAlliance"/>
+        <EffectArray value="TychusMedicAoEApplyHoT"/>
+        <EditorCategories value="Race:Terran"/>
+        <ValidatorArray value="TargetIsAllyorPlayer"/>
+        <ValidatorArray value="NotUnrepairable"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="TychusMedicAoESearchAlliance">
+        <ValidatorArray value="TargetIsAllyorPlayer"/>
+        <VitalArray index="Life">
+            <Change value="100"/>
+        </VitalArray>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectApplyBehavior id="TychusMedicAoEApplyHoT">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusMedicAoEHoT"/>
+        <ValidatorArray index="0" value="TargetIsAllyorPlayer"/>
+        <ValidatorArray value="NotUnrepairable"/>
+    </CEffectApplyBehavior>
+    <CEffectModifyUnit id="TychusMedicAoEHoTHeal">
+        <ValidatorArray value="TargetIsAllyorPlayer"/>
+        <ValidatorArray value="NotUnderConstruction"/>
+        <VitalArray index="Life">
+            <Change value="5"/>
+        </VitalArray>
+        <LaunchUnit Value="Caster"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectDamage id="TychusSpecterU" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="30"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="TychusSpectreWeaponCost">
+        <ValidatorArray value="HasTychusSpectreSpecialistWeaponsAny"/>
+        <EditorCategories value="Race:Terran"/>
+        <ImpactUnit Value="Caster"/>
+        <VitalArray index="Energy">
+            <Change value="-5"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectSet id="TychusSpectreWeaponSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusSpectreWeaponCost"/>
+        <EffectArray value="TychusSpecterU"/>
+    </CEffectSet>
+    <!-- Tychus Spectre Ultrasonic -->
+    <CEffectEnumArea id="TychusSpectreUltrasonicSearchLv1">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="TargetPoint"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Player,Ally,Structure,Missile,Stasis,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="TychusSpectreUltrasonicDamageLv1"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="TychusSpectreUltrasonicDamageLv1">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="20"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="TychusSpectreUltrasonicPulseCPLv1">
+        <EditorCategories value="Race:Terran"/>
+        <InitialEffect value="TychusSpectreUltrasonicSearchLv1"/>
+        <PeriodicEffectArray value="TychusSpectreUltrasonicSearchLv1"/>
+        <PeriodicPeriodArray value="1"/>
+        <RevealRadius value="2"/>
+        <RevealFlags index="Unfog" value="1"/>
+        <RevealFlags index="Detect" value="1"/>
+        <PeriodCount value="5"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="TychusMedicHealSwitchSet">
+        <EffectArray value="TychusMedicHealSwitch"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectSwitch id="TychusMedicHealSwitch">
+        <EditorCategories value="Race:Terran"/>
+        <CaseArray Validator="TychusMedicHealUpgradePassive1" Effect="TychusMedicHeal1"/>
+        <CaseArray Validator="TychusMedicHealUpgradePassive2" Effect="TychusMedicHeal2"/>
+        <CaseArray Validator="TychusMedicHealUpgradePassive3" Effect="TychusMedicHeal3"/>
+        <CaseDefault value="TychusMedicHeal"/>
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NotStasis"/>
+        <ValidatorArray value="UnitIsBiologicalOrMechanical"/>
+        <ValidatorArray value="NotUnrepairable"/>
+        <ValidatorArray value="NotWarpingInAnywhere"/>
+    </CEffectSwitch>
+    <CEffectCreateHealer id="TychusMedicHeal">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NotStasis"/>
+        <ValidatorArray value="UnitIsBiologicalOrMechanical"/>
+        <ValidatorArray value="NotUnrepairable"/>
+        <ValidatorArray value="NotWarpingInAnywhere"/>
+        <RechargeVitalRate value="30"/>
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicValidator value="CasterNotDeadAndTargetNotDead"/>
+    </CEffectCreateHealer>
+    <CEffectCreateHealer id="TychusMedicHeal1">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NotStasis"/>
+        <ValidatorArray value="UnitIsBiologicalOrMechanical"/>
+        <ValidatorArray value="NotUnrepairable"/>
+        <RechargeVitalRate value="50"/>
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicValidator value="CasterNotDeadAndTargetNotDead"/>
+    </CEffectCreateHealer>
+    <CEffectCreateHealer id="TychusMedicHeal2">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NotStasis"/>
+        <ValidatorArray value="UnitIsBiologicalOrMechanical"/>
+        <ValidatorArray value="NotUnrepairable"/>
+        <RechargeVitalRate value="70"/>
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicValidator value="CasterNotDeadAndTargetNotDead"/>
+    </CEffectCreateHealer>
+    <CEffectCreateHealer id="TychusMedicHeal3">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NotStasis"/>
+        <ValidatorArray value="UnitIsBiologicalOrMechanical"/>
+        <ValidatorArray value="NotUnrepairable"/>
+        <RechargeVitalRate value="90"/>
+        <EditorCategories value="Race:Terran"/>
+        <PeriodicValidator value="CasterNotDeadAndTargetNotDead"/>
+    </CEffectCreateHealer>
+    <CEffectCreateUnit id="TychusHercGrappleCreatePlaceholder">
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnRange value="1.5"/>
+        <SpawnEffect value="TychusHercGrappleCreatePlaceholderSet"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnUnit value="HERCPlacement"/>
+        <EditorCategories value="Race:Terran"/>
+        <ValidatorArray value="Walkable"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="TychusHercGrappleCreatePlaceholderSet">
+        <EffectArray value="TychusGrappleCreatePlaceholderAB"/>
+        <EffectArray value="TychusHercGrappleLM"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TychusGrappleCreatePlaceholderAB">
+        <Behavior value="TychusGrappleCreatePlaceholder"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="TychusHercGrappleLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="TychusHercGrappleImpactSet"/>
+        <AmmoUnit value="GrappleWeapon"/>
+        <Movers Link="MissileDefault"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="TychusHercGrappleImpactSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusHercGrappleLaunchCasterSwitch"/>
+        <EffectArray value="TychusHercGrappleImpactDummy"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="TychusHercGrappleImpactDummy">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectSwitch id="TychusHercGrappleLaunchCasterSwitch">
+        <CaseArray Validator="HERCRooted" Effect="TychusHercGrappleCreatePlaceholderRemove"/>
+        <CaseDefault value="TychusHercGrappleLaunchCaster"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSwitch>
+    <CEffectLaunchMissile id="TychusHercGrappleLaunchCaster">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Effect="TychusHercGrappleCreatePlaceholder" Value="TargetPoint"/>
+        <Movers Link="HERCJump"/>
+        <DeathType value="Unknown"/>
+        <LaunchEffect value="GrappleCasterInMotionApplyBehavior"/>
+        <FinishEffect value="TychusHercGrappleLaunchCasterImpactSet"/>
+        <LaunchLocation Effect="TychusHercGrappleLaunchCasterSwitch" Value="CasterUnit"/>
+        <ValidatorArray value="CasterNotDead"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="TychusHercGrappleLaunchCasterImpactSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusHercGrappleCreatePlaceholderRemove"/>
+        <EffectArray value="GrappleCasterInMotionRemoveBehavior"/>
+        <EffectArray value="TychusHercGrappleLaunchCasterImpactSearch"/>
+    </CEffectSet>
+    <CEffectDamage id="TychusHercGrappleCreatePlaceholderRemove">
+        <ImpactLocation Effect="TychusHercGrappleCreatePlaceholderSet" Value="OriginUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Death value="Remove"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="TychusHercGrappleLaunchCasterImpactSearch">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="TychusHercGrappleLaunchCasterSearchSet"/>
+    </CEffectEnumArea>
+    <CEffectSet id="TychusHercGrappleLaunchCasterSearchSet">
+        <EffectArray value="TychusHercGrappleLaunchCasterPassiveSet"/>
+        <EffectArray value="TychusHercGrappleLaunchCasterImpactDamage"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectDamage id="TychusHercGrappleLaunchCasterImpactDamage">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="20"/>
+        <SearchFilters value="Ground;Player,Ally,Structure,Missile,Stasis,Dead,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectSet id="TychusHercGrappleLaunchCasterPassiveSet">
+        <EffectArray value="TychusHercGrappleLaunchCasterStunAB"/>
+        <EffectArray value="TychusHercGrappleLaunchCasterSlowAB"/>
+        <EffectArray value="TychusHercGrappleRageBuffAB"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TychusHercGrappleLaunchCasterStunAB">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusHercGrappleImpactStun"/>
+        <ValidatorArray index="0" value="NotHeroic"/>
+        <ValidatorArray value="TargetIsNotUnstoppable"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusHercGrappleLaunchCasterSlowAB">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusHercGrappleImpactSlow"/>
+        <ValidatorArray index="0" value="IsHeroic"/>
+        <ValidatorArray value="TargetIsNotUnstoppable"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusHercGrappleLaunchCasterArmorAB1">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusHercGrappleImpactArmor1"/>
+        <WhichUnit Value="Caster"/>
+        <ValidatorArray value="TychusHercArmorPassive1"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusHercRageAB">
+        <ValidatorArray value="TychusHercDamagePassive"/>
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="TychusHercRageDamageBuff"/>
+        <Chance value="0"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="TychusFirebatSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusFirebatCreatePersistent"/>
+        <EffectArray value="TychusFirebatDamage"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="TychusFirebatCreatePersistent">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="SourcePoint"/>
+        <OffsetVectorStartLocation Value="SourcePoint"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="TychusFirebatSearchArea"/>
+        <PeriodicOffsetArray value="0,-8,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="TychusFirebatSearchArea" parent="EA_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray RectangleWidth="2" RectangleHeight="16" Effect="TychusFirebatDamage"/>
+        <ExcludeArray Value="Target"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFlags index="CallForHelp" value="0"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="TychusFirebatDamage" parent="DU_WEAP_SPLASH">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="WeaponInRange"/>
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Light" value="17"/>
+        <Amount value="36"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="TychusShredderGrenadeRageGain">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactUnit Value="Caster"/>
+        <VitalArray index="Energy">
+            <Change value="25"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <!--    <CEffectLaunchMissile id="HammerSecurityLMOne">-->
+    <!--        <EditorCategories value="Race:Terran"/>-->
+    <!--        <ImpactEffect value="HammerSecuritySet"/>-->
+    <!--        <Movers Link="MarauderWeapon"/>-->
+    <!--        <AmmoUnit value="HammerSecurityLMWeapon"/>-->
+    <!--    </CEffectLaunchMissile>-->
+    <!--    <CEffectLaunchMissile id="HammerSecurityLMTwo">-->
+    <!--        <EditorCategories value="Race:Terran"/>-->
+    <!--        <ImpactEffect value="HammerSecuritySet"/>-->
+    <!--        <Movers Link="MarauderWeapon"/>-->
+    <!--        <AmmoUnit value="HammerSecurityLMWeapon"/>-->
+    <!--    </CEffectLaunchMissile> -->
+    <!--    <CEffectSet id="HammerSecuritySet">-->
+    <!--        <EditorCategories value="Race:Terran"/>-->
+    <!--        <EffectArray value="PunisherGrenadesSlow"/>-->
+    <!--        <EffectArray value="HammerSecuritySlowAOE"/>-->
+    <!--        <EffectArray value="HammerSecurityDamage"/>-->
+    <!--    </CEffectSet> -->
+    <!--    <CEffectEnumArea id="HammerSecuritySlowAOE">-->
+    <!--        <EditorCategories value="Race:Terran"/>-->
+    <!--        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>-->
+    <!--        <AreaArray Radius="1" Effect="PunisherGrenadesSlow"/>-->
+    <!--        <ExcludeArray Value="Target"/>-->
+    <!--        <ValidatorArray value="JackhammerConcussionGrenadesPurchased"/>-->
+    <!--    </CEffectEnumArea> -->
+    <CEffectDamage id="KelmorianMinerDamage">
+        <Amount value="18"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="TychusSGUnitKnockbackBy2">
+        <ValidatorArray value="NoPreventKnockback"/>
+        <ValidatorArray value="NotStructureTarget"/>
+        <EditorCategories value="Race:Terran"/>
+        <Origin Value="SourceUnit"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <CreateFlags index="NormalizeSpawnOffset" value="0"/>
+        <SpawnOwner Value="Neutral"/>
+        <SpawnEffect value="TychusSGUnitKnockbackBy2PHSet"/>
+        <SpawnRange value="3"/>
+        <SpawnOffset value="0,2"/>
+        <TypeFallbackUnit Value="Target"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="TychusSGUnitKnockbackBy2AB">
+        <WhichUnit Effect="TychusSGUnitKnockbackBy2"/>
+        <Behavior value="UnitKnockback"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="TychusSGUnitKnockbackBy2PHSet">
+        <EffectArray value="PrecursorUnitKnockbackAB"/>
+        <EffectArray value="TychusSGUnitKnockbackBy2AB"/>
+        <EffectArray value="TychusSGUnitKnockbackBy2LM"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="TychusSGUnitKnockbackBy2CP">
+        <WhichLocation Value="CasterUnit"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="TychusSGUnitKnockbackBy2RB"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="TychusSGUnitKnockbackBy2LM">
+        <LaunchLocation Effect="TychusSGUnitKnockbackBy2" Value="TargetUnit"/>
+        <ImpactEffect value="TychusSGUnitKnockbackBy2CP"/>
+        <Flags index="2D" value="1"/>
+        <Movers Link="UnitKnockbackMover2"/>
+        <DeathType value="Unknown"/>
+        <ValidatorArray value="TychusSGKnockbackBy2PHLMNotDead"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectLaunchMissile>
+    <CEffectRemoveBehavior id="TychusSGUnitKnockbackBy2RB">
+        <WhichUnit Effect="TychusSGUnitKnockbackBy2"/>
+        <BehaviorLink value="UnitKnockback"/>
+        <Count value="1"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreatePersistent id="TychusShredderGrenadeDelay">
+        <EditorCategories value="Race:Terran"/>
+        <Flags index="Channeled" value="1"/>
+        <ExpireDelay value="0.3125"/>
+        <FinalEffect value="TychusShredderGrenadeLaunchMissile"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="TychusShredderGrenadeSearch">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="-;Self,Player,Ally,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="4" Effect="TychusShredderGrenadeSearchSet"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFlags index="OffsetAreaByAngle" value="0"/>
+        <SearchFlags index="SameCliff" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="TychusShredderGrenadeSearchSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusShredderGrenadeDamage"/>
+        <EffectArray value="TychusShredderGrenadeKD9aSW"/>
+    </CEffectSet>
+    <CEffectDamage id="TychusShredderGrenadeDamage">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Amount value="75"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="TychusShredderGrenadeLaunchMissile">
+        <ValidatorArray value="HasVision"/>
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="TychusShredderGrenadeSearch"/>
+        <AmmoUnit value="TychusShredderGrenadeWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="TychusCoopChaingunDamageFriendly">
+        <ValidatorArray value="TargetIsAllyorPlayer"/>
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Ranged"/>
+        <Amount value="18"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="OffsetByUnitRadius" value="1"/>
+    </CEffectDamage>
+    <CEffectSet id="TychusChaingunSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusCoopChaingunDamage"/>
+        <EffectArray value="TychusACArmorDebuffApply"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TychusCalldownOdinApplyTimedLife">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusOdinTimedLife"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="TychusCalldownOdinCreateUnit">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="TychusCalldownOdinDamageSet"/>
+        <SpawnUnit value="TychusOdin"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SelectUnit Value="Caster"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="TychusCalldownOdinDamageSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusCalldownOdinApplyTimedLife"/>
+        <EffectArray value="TychusCalldownSearchAreaPersistent"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="TychusCalldownSearchAreaPersistent">
+        <EditorCategories value="Race:Terran"/>
+        <ExpireEffect value="TychusCalldownOdinSearchArea"/>
+        <ExpireDelay value="0.8"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="TychusCalldownOdinSearchArea">
+        <AreaArray Radius="2" Effect="TychusCalldownOdinDamage"/>
+        <SearchFilters value="-;Player,Ally,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="TychusCalldownOdinDamage">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="150"/>
+    </CEffectDamage>
+    <CEffectDamage id="TychusCoopChaingunDamage">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ArmorReduction value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Ranged"/>
+        <Amount value="18"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="OffsetByUnitRadius" value="1"/>
+    </CEffectDamage>
+    <CEffectDamage id="TychusGuassRifle" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="36"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="TychusPunisherGrenadesLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="TychusPunisherGrenadesSwitch"/>
+        <Movers Link="PunisherGrenadesWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="TychusPunisherGrenadesSet">
+        <EditorCategories value="Race:Terran"/>
+        <!--EffectArray value="TychusPunisherGrenadesSlow"/-->
+        <EffectArray value="TychusPunisherGrenadesUSwitch"/>
+    </CEffectSet>
+    <CEffectDamage id="TychusPunisherGrenadesU" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="40"/>
+        <Death value="Blast"/>
+        <AttributeBonus index="Armored" value="40"/>
+    </CEffectDamage>
+    <CEffectDamage id="TychusPunisherGrenadesU3" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="40"/>
+        <Death value="Blast"/>
+        <AttributeBonus index="Armored" value="40"/>
+        <AreaArray Radius="2" Fraction="0.5"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectDamage id="Tychus90mmCannons" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="25"/>
+        <Death value="Blast"/>
+        <AttributeBonus index="Armored" value="15"/>
+    </CEffectDamage>
+    <CEffectDamage id="TychusCrucioShockCannonBlast" parent="DU_WEAP">
+        <ValidatorArray value="TargetRadiusSmall"/>
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Armored" value="40"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="110"/>
+        <Death value="Blast"/>
+        <AreaArray Radius="0.4687" Fraction="1"/>
+        <AreaArray Radius="0.7812" Fraction="0.5"/>
+        <AreaArray Radius="1.25" Fraction="0.25"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="OffsetByUnitRadius" value="0"/>
+    </CEffectDamage>
+    <CEffectDamage id="TychusCrucioShockCannonDirected" parent="DU_WEAP">
+        <ValidatorArray value="TargetRadiusLarge"/>
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Armored" value="40"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="110"/>
+        <Death value="Blast"/>
+        <SearchFilters value="Ground;Self,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectDamage id="TychusCrucioShockCannonDummy" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Amount value="110"/>
+        <AttributeBonus index="Armored" value="40"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="TychusLanzerTorpedoes">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="2"/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodicEffectArray value="TychusLanzerTorpedoesLM"/>
+        <PeriodicEffectArray value="TychusLanzerTorpedoesLM"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.21"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="TychusLanzerTorpedoesLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="TychusLanzerTorpedoesDamage"/>
+        <AmmoUnit value="TychusVikingFighterWeapon"/>
+        <ValidatorArray value="RangeCheckLE15"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="TychusLanzerTorpedoesDamage" parent="DU_WEAP_SPLASH">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Kind value="Ranged"/>
+        <Amount value="10"/>
+        <AttributeBonus index="Armored" value="4"/>
+    </CEffectDamage>
+    <CEffectDamage id="TychusTwinGatlingCannons" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="12"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="TychusStimpackMarauder">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="TychusHERCWeaponDamage" parent="DU_WEAP_MISSILE">
+        <KindSplash value="Splash"/>
+        <Amount value="50"/>
+        <EditorCategories value="Race:Terran"/>
+        <!--AreaArray Arc="39.9792" Radius="2.1" Fraction="1"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="CenterAtLaunch" value="1"/>
+        <SearchFlags index="OffsetByUnitRadius" value="0"/-->
+    </CEffectDamage>
+    <CEffectCreateHealer id="TychusMedivacHeal">
+        <DrainVital value="Energy"/>
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NotStasis"/>
+        <ValidatorArray value="UnitIsBiologicalOrMechanical"/>
+        <ValidatorArray value="NotUnrepairable"/>
+        <PeriodicPeriod value="0.125"/>
+        <DrainVitalCostFactor value="0.33"/>
+        <RechargeVitalRate value="9"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectCreateHealer>
+    <CEffectSwitch id="TychusMedivacHealInitialSwitch">
+        <ValidatorArray value="NotMaxHP"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="TargetNotBeingTychusHealed"/>
+        <ValidatorArray value="NotWarpingInAnywhere"/>
+        <EditorCategories value="Race:Terran"/>
+        <CaseArray Validator="TychusHealBeamAvailable" Effect="TychusMedivacHealInitialSet"/>
+        <CaseDefault value="TychusMedivacHealIssueOrderSet"/>
+    </CEffectSwitch>
+    <CEffectCreatePersistent id="TychusMedivacHealIssueHealOrderDelay">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialDelay value="0.125"/>
+        <InitialEffect value="TychusMedivacHealIssueHealOrder"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="TychusMedivacHealIssueOrderSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusMedivacHealIssueStopOrder"/>
+        <EffectArray value="TychusMedivacHealIssueHealOrderDelay"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="TychusMedivacHealIssueStopOrder">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="stop"/>
+        <Player Value="Caster"/>
+    </CEffectIssueOrder>
+    <CEffectIssueOrder id="TychusMedivacHealIssueHealOrder">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="TychusMedivacDoubleHealPlusMech"/>
+        <Player Value="Caster"/>
+        <Target Value="TargetUnit"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="TychusMedivacHealApplyBehaviorSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusMedivacHealApplyCasterBehavior"/>
+        <EffectArray value="TychusMedivacHealApplyTargetBehavior"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TychusMedivacHealApplyCasterBehavior">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="TychusMedivacHealBeamBusy"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusMedivacHealApplyTargetBehavior">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusMedivacTargetBeingHealed"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="TychusMedivacHealInitialSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusMedivacHealTargetPersistent"/>
+        <EffectArray value="TychusHealScanPersistent"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="TychusMedivacHealTargetPersistent">
+        <ValidatorArray value="TargetNotBeingTychusHealed"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="NotMaxHP"/>
+        <ValidatorArray value="TychusHealBeamAvailable"/>
+        <ValidatorArray value="noMarkers"/>
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="TychusMedivacHealApplyBehaviorSet"/>
+        <FinalEffect value="TychusMedivacHealRemoveBehaviorSet"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicValidator value="TychusHealPeriodicCombine"/>
+        <PeriodicEffectArray value="TychusMedivacHealModifySet"/>
+        <PeriodicPeriodArray value="0.1"/>
+        <Marker Link="Abil/TychusMedivacDoubleHealPlusMech">
+            <MatchFlags index="Link" value="1"/>
+        </Marker>
+    </CEffectCreatePersistent>
+    <CEffectModifyUnit id="TychusMedivacHealModifyCasterEnergy">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchUnit Value="Caster"/>
+        <ImpactUnit Value="Caster"/>
+        <VitalArray index="Energy">
+            <Change value="-0.16"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectSet id="TychusMedivacHealModifySet">
+        <EditorCategories value="Race:Terran"/>
+        <!--EffectArray value="TychusMedivacHealModifyCasterEnergy"/-->
+        <EffectArray value="TychusMedivacHealModifyTargetLife"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="TychusMedivacHealModifyTargetLife">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchUnit Value="Caster"/>
+        <VitalArray index="Life">
+            <Change value="3"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectSet id="TychusMedivacHealRemoveBehaviorSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusMedivacHealRemoveCasterBehavior"/>
+        <EffectArray value="TychusHealRemoveTargetBehavior"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="TychusMedivacHealRemoveCasterBehavior">
+        <EditorCategories value="Race:Terran"/>
+        <BehaviorLink value="TychusMedivacHealBeamBusy"/>
+        <Count value="1"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectRemoveBehavior>
+    <CEffectEnumArea id="TychusMedivacHealSearch">
+        <ValidatorArray value="TychusHealBeamAvailable"/>
+        <!--ValidatorArray value="healCasterMinEnergy"/-->
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Visible;Self,Enemy,Structure,Missile,Uncommandable,UnderConstruction,Dead,Hidden,MapBoss"/>
+        <TargetSorts>
+            <SortArray value="TSAlliancePassive"/>
+            <SortArray value="TSLife"/>
+            <SortArray value="TSDistance"/>
+        </TargetSorts>
+        <AreaArray MaxCount="1" Radius="6" Effect="TychusMedivacHealTargetPersistent"/>
+        <MaxCount value="1"/>
+        <ImpactLocation Value="CasterUnit"/>
+    </CEffectEnumArea>
+    <CEffectRemoveBehavior id="TychusHealRemoveTargetBehavior">
+        <EditorCategories value="Race:Terran"/>
+        <BehaviorLink value="TychusMedivacTargetBeingHealed"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreatePersistent id="TychusHealScanPersistent">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="CasterUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicValidator value="TychusHealScanPeriodicCombine"/>
+        <PeriodicEffectArray value="TychusMedivacHealSearch"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <FinalEffect value="TychusMedivacHealIssueStopOrder"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="TychusGhostDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <AttributeBonus index="Light" value="20"/>
+        <Kind value="Ranged"/>
+        <Amount value="20"/>
+    </CEffectDamage>
+    <CEffectSet id="TychusHercWeaponSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusHERCWeaponDamage"/>
+        <EffectArray value="TychusHercRageAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TychusGhostPsychicSnare">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="TychusGhostPsychicSnareLM">
+        <ValidatorArray value="NotMinorGoal"/>
+        <ValidatorArray value="NotFrenzied"/>
+        <EditorCategories value="Race:Terran"/>
+        <LaunchEffect value="TychusGhostPsychicSnareB"/>
+        <ImpactEffect value="TychusGhostPsychicSnare"/>
+        <AmmoUnit value="TychusGhostPsychicSnareAttackMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="SuicideRemove">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectDamage>
+    <CEffectDamage id="NovaOdinAnnihilateDamage">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="300"/>
+        <ValidatorArray value="noMarkers"/>
+    </CEffectDamage>
+    <CEffectDamage id="OdinAADamage">
+        <Amount value="25"/>
+        <AreaArray Radius="1.5" Fraction="1"/>
+        <SearchFilters value="Air;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectDamage id="TychusOdinBarrageDamage">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Amount value="100"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="TychusOdinBarrageCP">
+        <EditorCategories value="Race:Terran"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="10"/>
+        <PeriodicEffectArray value="TychusOdinBarrageSearchArea"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <RevealRadius value="5"/>
+        <RevealFlags index="Unfog" value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="TychusOdinBarrageSearchArea">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="3" Effect="TychusOdinBarrageCannonsSet"/>
+    </CEffectEnumArea>
+    <CEffectSet id="TychusOdinBarrageCannonsSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusOdinBarrageDamage"/>
+        <EffectArray value="TychusOdinBarrageCannonsApplyBehavior"/>
+        <EffectArray value="TychusOdinBarrageCannonsSlowAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TychusOdinBarrageCannonsSlowAB">
+        <ValidatorArray index="0" value="TargetNotStunned"/>
+        <ValidatorArray value="NotTrain"/>
+        <ValidatorArray value="NotShuttle"/>
+        <Behavior value="TychusOdinBarrageCannonsSlow"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusOdinBarrageCannonsApplyBehavior">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusOdinBarrageCannons"/>
+        <ValidatorArray index="0" value="NotHeroic"/>
+        <ValidatorArray value="NotMassive"/>
+        <ValidatorArray value="TargetIsNotUnstoppable"/>
+    </CEffectApplyBehavior>
+    <!--CEffectModifyPlayer id="TychusHellbatFlamePotency" parent="TychusHeroPassive"/-->
+    <CEffectEnumArea id="TychusWarhoundFearSearch">
+        <SearchFilters value="-;Player,Ally,Structure,Heroic,Missile,Item,Uncommandable,Stasis,Dead,Hidden,MapBoss"/>
+        <AreaArray Radius="3" Effect="TychusWarhoundFearAB"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <Chance value="0.3"/>
+        <ValidatorArray value="TychusWarhoundFearUpgraded"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="TychusWarhoundTurretFearSearch">
+        <SearchFilters value="-;Player,Ally,Air,Structure,Heroic,Missile,Item,Uncommandable,Stasis,Dead,Hidden,MapBoss"/>
+        <AreaArray Radius="3" Effect="TychusWarhoundFearAB"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <Chance value="0.03"/>
+        <ValidatorArray value="TychusWarhoundFearUpgraded"/>
+        <ValidatorArray value="SourceIsTychusWarhoundAutoTurret"/>
+        <EditorCategories value="Race:Terran"/>
+        <!--ValidatorArray value="TychusWarhoundNearBy"/-->
+    </CEffectEnumArea>
+    <CEffectSet id="MedicFakeWeapon">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="TychusHeroTrainChargeAdd">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TychusBarracksTrain,Train1" ChargeCountUse="-1"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectModifyPlayer id="TychusReaperBombDamage" parent="TychusHeroPassive"/>
+    <CEffectModifyPlayer id="TychusReaperBombCharges" parent="TychusHeroPassive"/>
+    <CEffectModifyPlayer id="TychusReaperBombStun" parent="TychusHeroPassive"/>
+    <CEffectLaunchMissile id="TychusReaperBombDamageLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="TychusReaperBombSet"/>
+        <AmmoUnit value="TychusReaperBombMissile"/>
+        <Movers Link="TychusReaperBombMissile"/>
+        <ValidatorArray value="TargetNotBeingTychusReaperBombed"/>
+        <ValidatorArray value="TargetNotHaveTychusReaperBombMarker"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="TychusReaperBombSet">
+        <EffectArray value="TychusReaperBombAB"/>
+        <EffectArray value="TychusReaperBombStunAB"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectDamage id="TychusReaperBombU">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="500"/>
+        <Death value="Blast"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="TychusP38ScytheGuassPistolBurst">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="2"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodicEffectArray value="TychusP38ScytheGuassPistolBombChargeSet"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.122"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="TychusP38ScytheGuassPistol" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="30"/>
+        <ValidatorArray value="NotInvulnerable"/>
+        <ValidatorArray value="NotStasis"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="TychusReaperBombAB">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusReaperBomb"/>
+        <WhichUnit Effect="TychusReaperBombDamageLM"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusReaperBombStunAB">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusReaperBombStunUpgrade"/>
+        <ValidatorArray index="0" value="TychusReaperBombStunNotFrenzied"/>
+        <ValidatorArray value="TychusReaperBombStunTargetIsNotUnstoppable"/>
+        <WhichUnit Effect="TychusReaperBombDamageLM"/>
+        <Chance value="0"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusGhostDominateAB">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusGhostDominate"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="TychusGhostDominateCP">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialDelay value="0.4"/>
+        <FinalEffect value="TychusGhostDominateMU"/>
+    </CEffectCreatePersistent>
+    <CEffectModifyUnit id="TychusGhostDominateMU">
+        <EditorCategories value="Race:Terran"/>
+        <Chance value="0"/>
+        <VitalArray index="Life">
+            <ChangeFraction value="1"/>
+        </VitalArray>
+        <VitalArray index="Shields">
+            <ChangeFraction value="1"/>
+        </VitalArray>
+        <VitalArray index="Energy">
+            <ChangeFraction value="1"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectSet id="TychusGhostDominateSet">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="NoDarkArchonMindControlPrevention"/>
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="RemoveAllDebuffs"/>
+        <EffectArray value="TychusGhostDominateCP"/>
+        <EffectArray value="TychusGhostDominateAB"/>
+        <EffectArray value="TychusGhostConfusionSearch"/>
+    </CEffectSet>
+    <CEffectEnumArea id="TychusGhostConfusionSearch">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Structure,Heroic,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="TychusGhostConfusionApply"/>
+        <ValidatorArray value="HaveTychusGhostConfusion"/>
+        <ExcludeArray Value="Target"/>
+    </CEffectEnumArea>
+    <CEffectModifyUnit id="TychusWarhoundTurretChargeAdd">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TychusWarhoundBuildAutoTurret,Execute" ChargeCountUse="-5"/>
+        <Cost Abil="TychusWarhoundBuildAutoTurret,Execute" ChargeTimeUse="-15"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="TychusWarhoundTurretChargeRemove">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TychusWarhoundBuildAutoTurret,Execute" ChargeCountUse="4">
+            <Fraction Cooldown="1"/>
+        </Cost>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="TychusReaperBombChargeAttackAdd">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TychusReaperBomb,Execute" ChargeTimeUse="-1.5"/>
+        <EditorCategories value="Race:Terran"/>
+        <Chance value="0"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="TychusReaperBombChargeAdd">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TychusReaperBomb,Execute" ChargeCountUse="-3"/>
+        <Cost Abil="TychusReaperBomb,Execute" ChargeTimeUse="-15"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="TychusReaperBombChargeRemove">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TychusReaperBomb,Execute" ChargeCountUse="2">
+            <Fraction Cooldown="1"/>
+        </Cost>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectApplyBehavior id="TychusHERCShieldApply">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Source"/>
+        <Behavior value="TychusHERCShield"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusReaperBombMarker">
+        <WhichUnit Effect="TychusReaperBombDamageLM"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusGhostConfusionApply">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusGhostConfusion"/>
+        <ValidatorArray index="0" value="NotWarpPrism"/>
+        <ValidatorArray value="NotOverlord"/>
+        <ValidatorArray value="NotMedivac"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="TychusGhostConfusionAttack">
+        <EditorCategories value="Race:Terran"/>
+        <Abil value="attack"/>
+        <WhichUnit Value="Source"/>
+        <Target Value="TargetUnit"/>
+    </CEffectIssueOrder>
+    <CEffectEnumArea id="TychusGhostConfusionAttackSearch">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="4" Effect="TychusGhostConfusionAttack"/>
+        <ExcludeArray Value="Target"/>
+        <TargetSorts>
+            <SortArray value="TSRandom"/>
+            <SortArray value="TSConfused"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectSet id="TychusGhostConfusionStopInitialSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusGhostConfusionStopInitial"/>
+        <EffectArray value="TychusGhostConfusionAttackSearch"/>
+        <EffectArray value="DarkArachonConfusionInitialApplyBehavior"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="TychusGhostConfusionStopInitial">
+        <EditorCategories value="Race:Terran"/>
+        <Abil value="stop"/>
+    </CEffectIssueOrder>
+    <CEffectApplyBehavior id="DarkArachonConfusionInitialApplyBehavior">
+        <Behavior value="TychusGhostConfusionInitial"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="TychusGhostConfusionEndSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusGhostConfusionEnd"/>
+        <EffectArray value="IssueAIOrderSuicide"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="TychusGhostConfusionEnd">
+        <EditorCategories value="Race:Terran"/>
+        <Abil value="stop"/>
+    </CEffectIssueOrder>
+    <CEffectRemoveBehavior id="RemoveAllDebuffs">
+        <BehaviorAlignment value="Negative"/>
+        <Count value="4294967295"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="TychusP38ScytheGuassPistolBombChargeSet">
+        <EffectArray value="TychusP38ScytheGuassPistol"/>
+        <EffectArray value="TychusReaperBombChargeAttackAdd"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectEnumArea id="TychusMarauderHealingWardSearch">
+        <SearchFilters value="-;Neutral,Enemy,Structure,User1,Missile,Stasis,Dead,Invulnerable,MapBoss"/>
+        <AreaArray Radius="6" Effect="TychusMarauderHealingWardTargetAB"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectEnumArea>
+    <CEffectModifyUnit id="TychusMarauderHealingWardMU">
+        <VitalArray index="Life">
+            <ChangeFraction value="0.01"/>
+        </VitalArray>
+        <LaunchUnit Value="Caster"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectCreateUnit id="TychusMarauderHealingWardRelease">
+        <EditorCategories value="Race:Terran"/>
+        <SpawnEffect value="TychusMarauderHealingWardSet"/>
+        <SpawnUnit value="TychusMarauderHealingWard"/>
+        <SpawnRange value="3"/>
+        <WhichLocation Value="TargetPoint"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="TychusMarauderHealingWardSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusMarauderHealingWardReleaseLaunch"/>
+    </CEffectSet>
+    <CEffectSet id="TychusMarauderHealingWardReleaseLaunch">
+        <EffectArray value="TychusMarauderHealingWardReleaseLM"/>
+        <EffectArray value="MakePrecursor"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="TychusMarauderHealingWardReleaseLM">
+        <EditorCategories value="Race:Terran"/>
+        <FinishEffect value="RemovePrecursor"/>
+        <AmmoUnit value="TychusMarauderHealingWardReleaseWeapon"/>
+        <PlaceholderUnit value="TychusMarauderHealingWard"/>
+        <LaunchLocation Value="CasterUnit"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="TychusMarauderHealingWardTargetAB">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="TychusMarauderHealingWardTarget"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="TychusFirebatOilBombLM">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="TychusFirebatOilBombSearch"/>
+        <AmmoUnit value="TychusFirebatOilBomb"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="TychusFirebatOilBombSearch">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="TargetPoint"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2.5" Effect="TychusFirebatApplyOilBomb"/>
+    </CEffectEnumArea>
+    <CEffectModifyPlayer id="TychusMarauderHealingWardBuff" parent="TychusHeroPassive"/>
+    <CEffectModifyPlayer id="TychusMarauderHealingWardSpeedBuff" parent="TychusHeroPassive"/>
+    <CEffectModifyPlayer id="TychusMarauderAttackSplash" parent="TychusHeroPassive"/>
+    <CEffectSet id="TychusPunisherGrenadesAoESet">
+        <EffectArray value="TychusPunisherGrenadesSlowAOE"/>
+        <EffectArray value="TychusPunisherGrenadesU3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CEffectEnumArea id="TychusPunisherGrenadesSlowAOE">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="TychusPunisherGrenadesSlow"/>
+        <!--ValidatorArray value="PunisherGrenadesResearched"/-->
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="TychusPunisherGrenadesSlow">
+        <ValidatorArray value="NotStructure"/>
+        <ValidatorArray value="NotFrenzied"/>
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="Slow"/>
+    </CEffectApplyBehavior>
+    <CEffectSwitch id="TychusPunisherGrenadesSwitch">
+        <CaseArray Validator="HaveTychusMarauderAttackSplash" Effect="TychusPunisherGrenadesAoESet"/>
+        <CaseDefault value="TychusPunisherGrenadesU"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSwitch>
+    <CEffectEnumArea id="TychusTornadoMissileCPSearch">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <TargetSorts>
+            <SortArray value="TSRandom"/>
+        </TargetSorts>
+        <AreaArray MaxCount="1" Radius="7" Effect="TychusTornadoMissileLM"/>
+    </CEffectEnumArea>
+    <CEffectModifyUnit id="TychusHeroChargeAdd">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TychusBarracksTrain,Train1" ChargeCountUse="-4"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="TychusHeroChargeRemove">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TychusBarracksTrain,Train1" ChargeCountUse="3">
+            <Fraction Cooldown="1"/>
+        </Cost>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="TychusHeroLevel1ChargeAdd">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TychusBarracksTrain,Train1" ChargeCountUse="-3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="TychusHeroLevel1ChargeRemove">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="TychusBarracksTrain,Train1" ChargeCountUse="2">
+            <Fraction Cooldown="1"/>
+        </Cost>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectDamage id="MasteryTychusCommanderAttackSpeedDisplayDummy">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectDamage>
+    <CEffectDamage id="MasteryTychusGrenadeCooldownDisplayDummy">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectDamage>
+    <CEffectDamage id="MasteryTychusUpgradesIncreaseDisplayDummy">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectDamage>
+    <CEffectDamage id="MasteryTychusHeroCooldownDisplayDummy">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectDamage>
+    <CEffectDamage id="MasteryTychusMedivacBuffDisplayDummy">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectDamage>
+    <CEffectDamage id="MasteryTychusOdinCooldownDisplayDummy">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="TychusMedicDropMasteryAB">
+        <Behavior value="TychusMedicDrop"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectModifyUnit id="Healto20">
+        <VitalArray index="Life">
+            <ChangeFraction value="0.5"/>
+        </VitalArray>
+        <LaunchUnit Value="Caster"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectModifyUnit>
+    <CEffectApplyBehavior id="TychusWarhoundFearAB">
+        <Behavior value="TychusWarhoundFear"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusMarauderSuperStim">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TychusMedicDefensiveMatrix">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="TychusMedicDefensiveMatrixSet">
+        <ValidatorArray value="NotUnrepairable"/>
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="TychusMedicDefensiveMatrix"/>
+    </CEffectSet>
+    <CEffectDamage id="TychusSquadAttackSpeedDummy">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectDamage>
+</Catalog>

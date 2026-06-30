@@ -1,0 +1,2810 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CActorUnit id="TychusMedicTransportCaster" parent="GenericUnitBase" unitName="TychusMedicTransportCaster">
+        <Model value="Invisible"/>
+    </CActorUnit>
+    <CActorSimple id="TychusMedicTransportOpacity">
+        <On Terms="Effect.TychusMedicTransportPreAB.Start; At Target" Send="Create"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetOpacity 0.000000 0.500000 MassRecallOpacity"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 100,100,255 0.500000 OneShot MassRecallTint"/>
+        <On Terms="Effect.TychusMedicTransportFinAB.Start; At Target" Send="TimerSet 0.200000 ClearRecallOpacity"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity" Target="_Unit" Send="ClearOpacity 0.500000 MassRecallOpacity"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity" Target="_Unit" Send="ClearTintColor 0.500000 MassRecallTint"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity" Send="Destroy"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetShowStatusBar 0 Custom"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity" Target="_Unit" Send="SetShowStatusBar 1 Custom"/>
+    </CActorSimple>
+    <CActorModel id="CommanderPrestigeTychusLoneWolfVisual" parent="ModelAnimationStyleOneShot">
+        <Inherits index="CloakEffect" value="1"/>
+        <On Terms="Behavior.TychusLoneWolf.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead SOpMoveUpBy1"/>
+        <Model value="CommanderPrestigeTychusLoneWolf"/>
+    </CActorModel>
+    <CActorSound id="CommanderPrestigeTychusLoneWolfSound" parent="SoundOneShot">
+        <On Terms="Behavior.TychusLoneWolf.On" Send="Create"/>
+        <Sound value="Gary_Stetmann_Death_MetalGround"/>
+    </CActorSound>
+    <CActorProgress id="TerranConstructionTychus">
+        <On Terms="Abil.TychusTerranBuild.BuiltStart" Send="Create"/>
+        <On Terms="ProgressLevel.TerranConstruction.Start; Level 0" Send="SetTransferOverrideAnim Build,A,Stand"/>
+        <On Terms="ProgressLevel.TerranConstruction.Stop; Level 0" Send="SetTransferOverrideAnim"/>
+        <StageArray AnimProps="Build,A,Start" BlendTime="0.000000"/>
+        <StageArray AnimProps="Build,A,Stand"/>
+        <StageArray AnimProps="Build,B,Start"/>
+        <StageArray AnimProps="Build,B,Stand"/>
+        <StageArray AnimProps="Build,C,Start"/>
+        <StageArray AnimProps="Build,C,Stand"/>
+        <StageArray AnimProps="Build,D"/>
+    </CActorProgress>
+    <CActorModel id="Tychus_Heavens_COOP_WarpOut" parent="ModelAnimationStyleOneShotNoOrphan">
+        <Scale value="1.800000"/>
+    </CActorModel>
+    <CActorModel id="Heavens_COOP_GearDeliveryBeam">
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <On Terms="AnimDone; AnimName Birth" Send="Destroy"/>
+        <On Terms="Signal.*.Tychus" Send="SetTintColor 20,90,255 0.000000 OneShot SquadTint"/>
+        <On Terms="Signal.*.Reaper" Send="SetTintColor 0,234,255 0.000000 OneShot SquadTint"/>
+        <On Terms="Signal.*.Warhound" Send="SetTintColor 230,180,130 0.000000 OneShot SquadTint"/>
+        <On Terms="Signal.*.Firebat" Send="SetTintColor 255,120,0 0.000000 OneShot SquadTint"/>
+        <On Terms="Signal.*.Marauder" Send="SetTintColor 0,150,0 0.000000 OneShot SquadTint"/>
+        <On Terms="Signal.*.HERC" Send="SetTintColor 233,95,255 0.000000 OneShot SquadTint"/>
+        <On Terms="Signal.*.Ghost" Send="SetTintColor 255,220,0 0.000000 OneShot SquadTint"/>
+        <On Terms="Signal.*.Spectre" Send="SetTintColor 133,32,203 0.000000 OneShot SquadTint"/>
+        <On Terms="Signal.*.Medic" Send="SetTintColor 0,255,150 0.000000 OneShot SquadTint"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+    </CActorModel>
+    <CActorModel id="Heavens_COOP_GearDeliveryBeam_Source" parent="Heavens_COOP_GearDeliveryBeam">
+        <On Terms="ActorCreation" Send="$Birth FullMatch"/>
+        <On Terms="ActorCreation" Send="Create Heavens_COOP_GearDeliveryBeam_AS"/>
+    </CActorModel>
+    <CActorModel id="Heavens_COOP_GearDeliveryBeam_Target" parent="Heavens_COOP_GearDeliveryBeam">
+        <On Terms="ActorCreation" Send="$Birth,Alternate FullMatch"/>
+        <!--On Terms="ActorCreation" Send="Create Heavens_COOP_GearDeliveryBeam_AS"/>-->
+    </CActorModel>
+    <CActorSound id="Heavens_COOP_GearDeliveryBeam_AS" parent="SoundOneShot">
+        <Sound value="Tychus_AC_UpgradeUnit_SkyBeam"/>
+    </CActorSound>
+    <CActorSiteOpRotationExplicit id="TychusOdinDeathTimeoutFacing">
+        <Forward value="1.000000,1.000000,0.000000"/>
+        <IsLocal value="1"/>
+    </CActorSiteOpRotationExplicit>
+    <CActorModel id="TychusResearchCenterIntroDust" parent="ModelAnimationStyleOneShot">
+        <On Terms="ActorCreation" Send="Create TychusOdin_DropLand_AS"/>
+    </CActorModel>
+    <CActorSound id="TychusPenetratingShotTailExteriorSound" parent="SoundOneShot">
+        <Sound value="Nova_HellfireShotgun_Blast"/>
+        <Layers>
+            <Sound value="Nova_HellfireShotgun_Blast_Tails_L"/>
+            <PitchSource value="Sound"/>
+            <PlayDelaySource value="Sound"/>
+            <VolumeSource value="Sound"/>
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+        <Layers Sound="Nova_HellfireShotgun_Blast_Tails_R"/>
+    </CActorSound>
+    <CActorAction id="TychusPenetratingShotAttack" parent="GenericAttack" effectAttack="TychusPenetratingShotDamage">
+        <LaunchSiteOps Ops="SOpAttachHarnessStationary"/>
+        <LaunchAssets Sound="Nova_Snipe_AttackLaunch"/>
+        <LaunchSound value="TychusPenetratingShotTailExteriorSound"/>
+        <ImpactMap index="None" Sound="Nova_Snipe_AttackImpact"/>
+    </CActorAction>
+    <CActorBeamSimple id="TychusPenetratingShotAttackBeam" parent="GenericAttackBeam">
+        <Model value="NovaWeaponImprovedCanisterRifleSnipeAttackBeam"/>
+    </CActorBeamSimple>
+    <CActorRange id="TychusPenetratingShotRange" parent="RangeAbil" abil="TychusPenetratingShot"/>
+    <CActorModel id="TychusFirebatFireSpreadVisual" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.TychusFirebatOilFireSearch.Impact" Send="Create"/>
+        <On Terms="Effect.TychusFirebatOilFireSearchTrigger.Impact" Send="Create"/>
+        <Host Scope="Effect"/>
+        <Model value="Firebat_Heavens_COOP_ExplosiveFire"/>
+        <FogVisibility value="Hidden"/>
+    </CActorModel>
+    <CActorEventMacro id="TychusDecalMacro">
+        <On Terms="ActorCreation" Send="TextureSelectById Decal_Terran_0078_01"/>
+    </CActorEventMacro>
+    <CActorSite id="TychusMedivacBuildingAttachmentSite" parent="SiteUNIT">
+        <On Terms="UnitBirth.TychusMedivacPlatform" Send="Create"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachHardPoint"/>
+        <SiteFlags index="RequiresManualKill" value="1"/>
+        <Terms value="Cap 1"/>
+    </CActorSite>
+    <CActorSound id="TychusSuperCloakSound" parent="SoundOneShot">
+        <On Terms="Behavior.TychusReaperSuperCloak.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+        <Sound value="Raven_CloakOn"/>
+    </CActorSound>
+    <CActorAction id="TychusSCVAutoTurretAttack" parent="GenericAttack" effectAttack="TychusSCVAutoTurret">
+        <LaunchAssets Model="AutoTurretAttackLaunch" Sound="TychusSCVAutoTurret_AttackLaunch"/>
+        <ImpactMap index="None" Model="AutoTurretAttackImpact" Sound="TychusSCVAutoTurret_AttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+    </CActorAction>
+    <CActorUnit id="TychusSCVAutoTurret" parent="TerranBuilding" unitName="TychusSCVAutoTurret">
+        <Aliases value="_CreepEngulfable"/>
+        <Aliases value="_UnitMedium"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="Behavior.Precursor.Off" Send="Create AutoTurretReleaseMissileImpact"/>
+        <On Terms="Behavior.Precursor.Off" Send="$Birth"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Birth"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <CreepHeightClass value="Small"/>
+        <DeathArray index="Normal" ModelLink="TychusSCVAutoTurretDeath" SoundLink="TychusSCVAutoTurret_Explode"/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="TychusSCVAutoTurret_Explode"/>
+        <PlacementModel value="AutoTurretPlacement"/>
+        <PlacementSound value="TychusSCV_TurretPlacement"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarOffset value="50"/>
+        <ErrorArray Error="CantBuildLocationInvalid" Sound="Raven_Pissed"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-AutoTurret.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-terran-tychusturret.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-building-terran-tychusturret.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-AutoTurret.dds"/>
+        </Wireframe>
+        <Remove Send="$Birth 0 0.000000"/>
+        <DeathCustoms ModelLink="TychusSCVAutoTurretDeathRagdoll" Name="RagdollBasic" PhysicsMatchKeysOrdered="BasicAir,Basic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollBloodPrevent" ModelLink="MarineDeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+    </CActorUnit>
+    <CActorModel id="TychusGhostDominateState" parent="ModelAnimationStyleContinuousUNIT">
+        <On Terms="Behavior.TychusGhostDominate.On" Send="Create"/>
+        <On Terms="Behavior.TychusGhostDominate.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.TychusGhostDominateUpgraded.On" Send="Create"/>
+        <On Terms="Behavior.TychusGhostDominateUpgraded.Off" Send="AnimBracketStop BSD"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <Inherits index="Visibility" value="1"/>
+    </CActorModel>
+    <CActorModel id="TychusGhostDominateCast" parent="ModelAddition">
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="AnimBracketStop BSD"/>
+        <On Terms="Abil.TychusGhostDominate.SourceCastStart" Send="Create"/>
+        <HostSiteOps Ops="SOpAttachWeapon01"/>
+    </CActorModel>
+    <CActorModel id="TychusGhostDominateImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.TychusGhostDominateCP.Start; At Target" Send="Create"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorSound id="Tychus_Ghost_DominateImpact_AS" parent="SoundOneShot">
+        <On Terms="Effect.TychusGhostDominateCP.Start; At Target" Send="Create"/>
+        <Sound value="Tychus_Ghost_DomCast"/>
+        <Layers Sound="DehakaCoop_LevelUpSwtnr3"/>
+    </CActorSound>
+    <CActorRange id="TychusGhostDominateRange" parent="RangeAbil" abil="TychusGhostDominate"/>
+    <CActorModel id="TychusFirebatOilFireVisual" parent="ModelAddition">
+        <Inherits index="Opacity" value="0"/>
+        <Inherits index="TeamColor" value="0"/>
+        <Inherits index="TintColor" value="0"/>
+        <On index="0" Terms="ActorCreation" Send="AnimPlay BSD Stand"/>
+        <On Terms="Behavior.TychusFirebatOilFire.On" Send="Create"/>
+        <On Terms="Behavior.TychusFirebatOilFire.Off" Send="Destroy"/>
+        <On Terms="UnitDeath" Send="Destroy"/>
+        <On Terms="AnimDone.*.Complete; AnimName BSD" Send="AnimPlay BSD Stand"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="1.000000"/>
+    </CActorModel>
+    <CActorSound id="TychusFirebat_OilFire_Loop_AS" parent="SoundContinuous">
+        <On Terms="Behavior.TychusFirebatOilFire.On" Send="Create"/>
+        <On Terms="Behavior.TychusFirebatOilFire.Off" Send="Destroy"/>
+        <Sound value="Tychus_Firebat_OilSlick_Loop"/>
+        <Layers Sound="Tychus_Firebat_OilFire_Loop"/>
+    </CActorSound>
+    <!--CActorRange id="TychusWarHoundBuffRange">-->
+    <!--        <On Terms="UnitBirth.TychusWarhound" Send="Create"/>-->
+    <!--        <Range value="8.000000"/>-->
+    <!--    </CActorRange-->
+    <CActorSimple id="MedicAoEHoT">
+        <On Terms="Behavior.TychusMedicAoEHoT.On" Send="Create"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor {97,255,51 5.000000} 1.000000 Bounce TychusMedicAoEHoT"/>
+        <On Terms="Behavior.TychusMedicAoEHoT.Off" Target="_Unit" Send="ClearTintColor 0.000000 TychusMedicAoEHoT"/>
+        <On Terms="Behavior.TychusMedicAoEHoT.Off" Send="Destroy"/>
+    </CActorSimple>
+    <CActorUnit id="TychusDummyCaster" parent="GenericUnitMinimal" unitName="TychusDummyCaster"/>
+    <CActorSiteOpLocalOffset id="TychusFirebatFlamesOffset"/>
+    <CActorUnit id="TychusFirebat" parent="GenericUnitStandard" unitName="TychusFirebat">
+        <Aliases value="_UnitMedium"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="Abil.attack.ReadyStop" Target="TychusFirebatAttackModel" Send="SetOpacity 0.000000 0.250000"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Marauder_Land"/>
+        <On Terms="Abil.TychusFirebatOilBomb.SourceCastStart" Send="AnimPlay Spell Attack"/>
+        <!--On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Spell"/-->
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="TychusFirebatDeath" SoundLink="Tychus_Firebat_Death_Vx"/>
+        <PortraitModel value="Firebat_Heavens_COOP_Portrait"/>
+        <WalkAnimMoveSpeed value="1.875"/>
+        <BarOffset value="77"/>
+        <BarWidth value="45"/>
+        <CustomUnitStatusFrame value="Coop_UnitStatus_Tychus/TychusFirebat_StatusFrame"/>
+        <CustomUnitStatusOffset value="0,-30"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-firebat-mercenary.dds"/>
+        </GroupIcon>
+        <GroupSoundArray index="What" value="FirebatGroupWhat"/>
+        <GroupSoundArray index="Yes" value="FirebatGroupYes"/>
+        <GroupSoundArray index="Attack" value="FirebatGroupAttack"/>
+        <GroupSoundArray index="Board" value="FirebatGroupBoard"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychusfirebat.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychusfirebat.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <MinimapIcon value="Assets\Textures\ui_ingame_coop_minimap_tychus_heroicon_firebat.dds"/>
+        <MinimapIconScale value="0.550000"/>
+        <MinimapRenderPriority value="Hero"/>
+        <MinimapTooltip value="Unit/Name/TychusFirebatNickname"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+        <SoundArray index="Birth" value="Firebat_Birth"/>
+        <SoundArray index="Ready" value="Firebat_Ready"/>
+        <SoundArray index="Help" value="Firebat_Help"/>
+        <SoundArray index="What" value="Firebat_What"/>
+        <SoundArray index="Yes" value="Firebat_Yes"/>
+        <SoundArray index="Attack" value="Firebat_Attack"/>
+        <SoundArray index="Pissed" value="Firebat_Pissed"/>
+        <SoundArray index="Movement" value="Firebat_Mv_Start"/>
+        <SoundArray index="Turning" value="FirebatTurning"/>
+        <SoundArray index="Board" value="FirebatBoard"/>
+        <SoundArray index="Click" value="FirebatClick"/>
+        <SoundArray index="ClickError" value="FirebatClickError"/>
+        <SoundArray index="Highlight" value="FirebatHighlight"/>
+        <StatusBarOn index="Shields" value="1"/>
+        <StatusBarOn index="Life" value="1"/>
+        <StatusBarOn index="Energy" value="1"/>
+        <StatusBarOn index="Progress" value="1"/>
+        <StatusBarOn index="Duration" value="1"/>
+        <StatusBarOn index="Custom" value="1"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-firebat-mercenary.dds"/>
+        </Wireframe>
+        <HighlightTooltip value="Unit/Name/TychusFirebatNickname"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <DeathCustoms ModelLink="TychusFirebatDeathRagdoll" Name="RagdollBasic" PhysicsMatchKeysOrdered="BasicAir,Basic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollBloodPrevent" ModelLink="MarineDeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+    </CActorUnit>
+    <CActorModel id="TychusACArmorDebuff" parent="ModelAnimationStyleOneShot">
+        <On Terms="Behavior.TychusACArmorDebuff.On" Send="Create"/>
+        <HostForProps Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+    </CActorModel>
+    <CActorModel id="TychusMedicTransportHealVisual" parent="ModelAnimationStyleOneShot">
+        <On Terms="Behavior.TychusMedicTransportFin.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorModel id="TychusGrenadeStunModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="ActorCreation" Send="AnimBracketStart GL_BSD GLbirth GLstand GLdeath"/>
+        <On Terms="ActorCreation" Send="SetTintColor 255,0,0"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.500000"/>
+        <On Terms="Behavior.TychusShredderGrenadeStun.On" Send="Create"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart $BSD"/>
+        <On Terms="Behavior.TychusShredderGrenadeStun.Off" Send="AnimBracketStop BSD"/>
+        <Host Subject="_Selectable"/>
+        <Model value="MindBlastStun"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+    </CActorModel>
+    <CActorSplat id="TychusFirebatOilBombCursorSplat" parent="TerranCursorSplat" abil="TychusFirebatOilBomb"/>
+    <CActorAction id="TychusWarhoundAttack" parent="GenericAttack" effectImpact="TychusWarhound" effectLaunch="TychusWarhoundLM">
+        <BeamScope value="Caster"/>
+        <LaunchAssets Sound="TychusWarhound_AttackLaunch"/>
+        <ImpactMap index="None" Model="WarHoundAttackImpact" Sound="TychusWarhound_AttackImpact"/>
+        <ImpactPhysics Name="RailgunImpact" MatchKeys="Basic" Physics="RailgunAttackDeathForce"/>
+        <ActionFlags index="LaunchForceSite" value="1"/>
+    </CActorAction>
+    <CActorMissile id="TychusWarhoundAttackMissile" parent="GenericAttackMissile" unitName="TychusWarhoundWeapon">
+        <Model value="Invisible"/>
+    </CActorMissile>
+    <CActorBeamSimple id="TychusWarhoundBeam" parent="GenericAttackBeam">
+        <Host Subject="_Selectable"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon" HoldPosition="1" HoldRotation="1"/>
+        <HostLaunch Subject="_Selectable" Actor="Find"/>
+        <HostImpact Subject="_Missile" Actor="Find"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="Effect.TychusWarhoundLM.Start; At Caster" Send="Create"/>
+        <On Terms="Effect.TychusWarhound.Start" Send="Create WarHoundImpactHoldingSite"/>
+        <On Terms="Effect.TychusWarhound.Start" Send="RefSet ::HostImpact WarHoundImpactHoldingSite"/>
+        <Model value="WarHoundBeam"/>
+    </CActorBeamSimple>
+    <CActorModel id="TychusWarhoundDeathExplosion" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.TychusWarhoundDeathExplosion.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Model value="DOM_Explosion_Lg"/>
+        <Host Subject="_Selectable"/>
+    </CActorModel>
+    <CActorModel id="TychusWarhoundTurretDeathExplosion" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.TychusWarhoundTurretDeathExplosion.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Model value="DefaultExplosionTerranLarge"/>
+        <Host Subject="_Selectable"/>
+    </CActorModel>
+    <CActorUnit id="TychusWarhound" parent="GenericUnitBase" unitName="TychusWarhound">
+        <Aliases value="_UnitLarge"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="WeaponStart.TychusWarhoundRailgun.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.TychusWarhoundRailgun.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="WeaponStart.TychusWarhoundRailgun.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart AttackSuperior Attack,Superior"/>
+        <On Terms="WeaponStart.TychusWarhoundRailgun.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart AttackInferior Attack,Inferior"/>
+        <On Terms="WeaponStop.TychusWarhoundRailgun.AttackStop" Send="AnimBracketStop AttackSuperior"/>
+        <On Terms="WeaponStop.WarHound.AttackStop" Send="AnimBracketStop AttackInferior"/>
+        <On Terms="WeaponStart.TychusWarhoundMelee.AttackStart" Send="AnimBracketStart Attack Spell,A"/>
+        <On Terms="WeaponStop.TychusWarhoundMelee.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Effect.HHTornadoMissileCP.Start; At Caster" Send="AnimBracketStart Cover Cover,Start Cover Cover,End"/>
+        <On Terms="Effect.HHTornadoMissileCP.Stop; At Caster" Send="AnimBracketStop Cover"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Warhound_Land"/>
+        <On Terms="UnitDeathCustomize; Option Model Low" Send="DeathCustomize Low"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="TychusWarhoundDeath" SoundLink=""/>
+        <DeathCustoms ModelLink="TychusWarhoundDeathRagdoll" Name="RagdollBasic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ModelLink="TerranLargeUnitDeathLow" Name="Low"/>
+        <DeathCustoms>
+            <ModelLink value="DeathVoidShadowMedium"/>
+            <SoundLink value="ShadowUnit_DeathFX"/>
+            <VoiceLink value="ShadowUnit_DeathVox"/>
+            <Name value="Shadow"/>
+        </DeathCustoms>
+        <DeathActorModel value="UnitDeathModelUnscaled"/>
+        <PortraitModel value="Warhound_Heavens_COOP_Portrait"/>
+        <StandAnimTurnTime value="3.33"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="2.000000"/>
+            <RangeDown value="2.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleWarhound"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="2.7968"/>
+        <BarOffset value="40"/>
+        <BarWidth value="90"/>
+        <CustomUnitStatusFrame value="Coop_UnitStatus_Tychus/TychusWarhound_StatusFrame"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-warhound.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <MinimapIcon value="Assets\Textures\ui_ingame_coop_minimap_tychus_heroicon_warhound.dds"/>
+        <MinimapIconScale value="0.550000"/>
+        <MinimapRenderPriority value="Hero"/>
+        <MinimapTooltip value="Unit/Name/TychusWarhoundNickname"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+        <NameOffset value="20"/>
+        <SoundArray index="Birth" value=""/>
+        <SoundArray index="Ready" value=""/>
+        <SoundArray index="What" value="WarHound_What"/>
+        <SoundArray index="Yes" value="WarHound_Yes"/>
+        <SoundArray index="Attack" value="WarHound_Attack"/>
+        <SoundArray index="Pissed" value="WarHound_Pissed"/>
+        <SoundArray index="Movement" value="Tychus_WarHound_Mv"/>
+        <StatusBarOn index="Shields" value="1"/>
+        <StatusBarOn index="Life" value="1"/>
+        <StatusBarOn index="Energy" value="1"/>
+        <StatusBarOn index="Progress" value="1"/>
+        <StatusBarOn index="Duration" value="1"/>
+        <StatusBarOn index="Custom" value="1"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychuswarhound.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychuswarhound.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-warhound.dds"/>
+        </Wireframe>
+        <HighlightTooltip value="Unit/Name/TychusWarhoundNickname"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+    </CActorUnit>
+    <CActorAction id="TychusWarhoundMeleeAttack" parent="GenericAttack" effectAttack="TychusWarhoundMelee">
+        <ShieldFlashType value="Header"/>
+        <ImpactMap index="None" Sound="WarHound_MeleeAttackLaunch"/>
+        <ImpactPhysics>
+            <Name value="AttackOverhead"/>
+            <MatchKeys value="Basic"/>
+            <AttackAnimProps value="00"/>
+            <Physics value="WarhoundMeleeAttackForceOverhead"/>
+        </ImpactPhysics>
+        <ImpactPhysics>
+            <Name value="AttackSwipe"/>
+            <MatchKeys value="Basic"/>
+            <AttackAnimProps value="01"/>
+            <Physics value="WarhoundMeleeAttackForceLateral"/>
+        </ImpactPhysics>
+    </CActorAction>
+    <CActorUnit id="TychusWarhoundAutoTurret" parent="GenericUnitStandard" unitName="TychusWarhoundAutoTurret">
+        <Aliases value="_CreepEngulfable"/>
+        <Aliases value="_UnitMedium"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="Behavior.Precursor.Off" Send="Create AutoTurretReleaseMissileImpact"/>
+        <On Terms="Behavior.Precursor.Off" Send="$Birth"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Birth"/>
+        <On Terms="Upgrade.TychusWarhoundTurretUpgrade.Add" Send="SetScale 1.500000 1.000000"/>
+        <On Terms="ActorCreation; ValidateUnit TychusWarhoundTurretUpgraded" Send="SetScale 1.500000"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <CreepHeightClass value="Small"/>
+        <DeathArray index="Normal" ModelLink="TychusWarhoundAutoTurretDeath" SoundLink="Tychus_Warhound_AutoTurret_Death_00"/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="Tychus_Warhound_AutoTurret_Death_01"/>
+        <PlacementModel value="AutoTurret_Junker_Placement"/>
+        <PlacementSound value="TychusSCV_TurretPlacement"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarOffset value="50"/>
+        <ErrorArray Error="CantBuildLocationInvalid" Sound="Raven_Pissed"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-AutoTurret.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-terran-tychuswarhoundturret.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
+        <SoundArray index="Birth" value="Tychus_Warhound_AutoTurret_Birth"/>
+        <SoundArray index="Ready" value="Tychus_Warhound_AutoTurret_Ready"/>
+        <SoundArray index="What" value="Tychus_Warhound_AutoTurret_What"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-building-terran-tychuswarhoundturret.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-AutoTurret.dds"/>
+        </Wireframe>
+        <DeathCustoms ModelLink="TychusWarhoundAutoTurretDeathRagdoll" Name="RagdollBasic" PhysicsMatchKeysOrdered="BasicAir,Basic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollBloodPrevent" ModelLink="MarineDeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+    </CActorUnit>
+    <CActorAction id="TychusWarhoundAutoTurretAttack" parent="GenericAttack" effectAttack="TychusWarhoundAutoTurret">
+        <LaunchAssets Model="AutoTurretAttackLaunch" Sound="Tychus_Warhound_AutoTurret_AttackLaunch"/>
+        <ImpactMap index="None" Model="AutoTurretAttackImpact" Sound="Tychus_Warhound_AutoTurret_AttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+    </CActorAction>
+    <CActorMissile id="TychusWarhoundAutoTurretReleaseMissile" parent="GenericAttackMissile" unitName="TychusWarhoundAutoTurretReleaseWeapon"/>
+    <CActorAction id="TychusWarhoundAutoTurretRelease" parent="GenericAttack" effectImpact="RemovePrecursor" effectLaunch="TychusWarhoundAutoTurretReleaseLM">
+        <LaunchAssets Sound="Raven_AutoTurretReleaseLaunch"/>
+        <ImpactMap index="None" Sound=""/>
+        <!--Not Work-->
+        <ImpactSiteOps Ops="SOpAttachOrigin SOpShadow"/>
+        <ShieldFlashType value="None"/>
+        <LaunchAttachQuery Methods="AMFilterWarHound AMPatternWarHound"/>
+    </CActorAction>
+    <CActorRange id="TychusWarhoundAutoTurretRange" parent="RangeAbil" abil="TychusWarhoundBuildAutoTurret"/>
+    <CActorModel id="TychusMedicAoE" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.TychusMedicAoESearch.Start" Send="Create"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.500000 0.000000 BirthOpacity"/>
+        <HostSiteOps Ops="SOpTargetPointStationary SOpShadow"/>
+    </CActorModel>
+    <CActorSplat id="TychusSpectreUltrasonicPulseCursor" parent="TerranCursorSplat" abil="TychusSpectreUltrasonicPulse">
+        <HostSiteOps Ops="SOpBasicScopePositionFollowHoldRotation"/>
+    </CActorSplat>
+    <CActorAction id="TychusSpectreUnitAttack" parent="GenericAttack" effectAttack="TychusSpecterU">
+        <LaunchAssets Model="TychusSpecterLaunch" Sound="Spectre_UltrasonicPulseLaunch"/>
+        <ContainerAssets Model="TychusSpecterLaunch" Sound="Spectre_UltrasonicPulseLaunch"/>
+        <ImpactMap index="None" Model="TychusSpecterAttackImpact" Sound="Spectre_AttackImpact"/>
+    </CActorAction>
+    <CActorModel id="TychusSpectreBrillianceAura" parent="ModelAnimationStyleContinuous">
+        <On Terms="Behavior.TychusSpectreBrillianceAuraCasterLv1.On" Send="Create"/>
+        <On Terms="Behavior.TychusSpectreBrillianceAuraCasterLv2.On" Send="Create"/>
+        <On Terms="Behavior.TychusSpectreBrillianceAuraCasterLv3.On" Send="Create"/>
+        <On Terms="Behavior.TychusSpectreBrillianceAuraCasterLv1.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.TychusSpectreBrillianceAuraCasterLv2.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.TychusSpectreBrillianceAuraCasterLv3.Off" Send="AnimBracketStop BSD"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorModel>
+    <CActorSound id="Tychus_Spectre_SonicPulse_Electric_AS" parent="SoundContinuous">
+        <On Terms="Effect.TychusSpectreUltrasonicPulseCPLv1.Start" Send="Create"/>
+        <On Terms="Effect.TychusSpectreUltrasonicPulseCPLv1.Stop" Send="Destroy"/>
+        <Sound value="Tychus_Spectre_SonicPulseElectric_Loop"/>
+        <Layers Sound="Tychus_Spectre_SonicPulseElectric_LyrLoop"/>
+        <Layers Sound="Tychus_Spectre_SonicPulse_Impact"/>
+    </CActorSound>
+    <CActorSound id="Tychus_Spectre_SonicPulse_ElectricEnd_AS" parent="SoundOneShot">
+        <On Terms="Effect.TychusSpectreUltrasonicPulseCPLv1.Stop" Send="Create"/>
+        <Sound value="Tychus_Spectre_SonicPulse_ElectricEnd"/>
+    </CActorSound>
+    <CActorSound id="TychusSpectreUltrasonic_AttackLaunch_AS" parent="SoundOneShot">
+        <On Terms="Abil.TychusSpectreUltrasonicPulse.SourceCastStart" Send="Create"/>
+        <Sound value="Tychus_Spectre_SonicPulse_Launch"/>
+    </CActorSound>
+    <CActorUnit id="TychusSpectre" parent="GenericUnitStandard" unitName="TychusSpectre">
+        <Aliases value="_UnitSmall"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="Abil.TychusSpectreUltrasonicPulse.SourceCastStart" Send="AnimPlay Attack Attack 0 0.000000"/>
+        <On Terms="Abil.TychusSpectreUltrasonicPulse.SourceCastStart" Send="AnimSetTimeScale Attack 2.500000"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Ghost_Land"/>
+        <On Terms="UnitPortrait.*.Configure; ValidateUnit TychusSpectreVisionSuit" Target="::PortraitGameSelf" Send="AnimBracketStart Visor Morph,Start Morph,Stand Morph,End Instant"/>
+        <On Terms="UnitPortrait.*.Configure; !ValidateUnit TychusSpectreVisionSuit" Target="::PortraitGameSelf" Send="AnimBracketStop Visor Instant"/>
+        <On Terms="Behavior.TychusSpectreVisionSuit.On" Target="::PortraitGameSelf" Send="AnimBracketStart Visor Morph,Start Morph,Stand Morph,End"/>
+        <On Terms="Behavior.TychusSpectreVisionSuit.Off" Target="::PortraitGameSelf" Send="AnimBracketStop Visor"/>
+        <AnimBlendTime value="-0.800000"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="TychusSpectreDeath" SoundLink="Spectre_Explode"/>
+        <PortraitModel value="Spectre_Heavens_COOP_Portrait"/>
+        <WalkAnimMoveSpeed value="3"/>
+        <BarOffset value="50"/>
+        <BarWidth value="42"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Spectre.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Birth" value="Spectre_Birth"/>
+        <SoundArray index="Ready" value="Spectre_Yes"/>
+        <SoundArray index="Help" value="Spectre_Help"/>
+        <SoundArray index="What" value="Spectre_What"/>
+        <SoundArray index="Yes" value="Spectre_Yes"/>
+        <SoundArray index="Attack" value="Spectre_Attack"/>
+        <SoundArray index="Pissed" value="Spectre_Pissed"/>
+        <SoundArray index="Movement" value="Spectre_Movement"/>
+        <SoundArray index="Turning" value="Spectre_Turning"/>
+        <SoundArray index="Board" value="Spectre_Board"/>
+        <SoundArray index="Click" value="Spectre_Click"/>
+        <SoundArray index="ClickError" value="Spectre_ClickError"/>
+        <SoundArray index="Highlight" value="Spectre_Highlight"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychusspectre.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychusspectre.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Spectre.dds"/>
+        </Wireframe>
+        <CustomUnitStatusFrame value="Coop_UnitStatus_Tychus/TychusSpectre_StatusFrame"/>
+        <MinimapIcon value="Assets\Textures\ui_ingame_coop_minimap_tychus_heroicon_spectre.dds"/>
+        <MinimapIconScale value="0.550000"/>
+        <MinimapTooltip value="Unit/Name/TychusSpectre"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+        <MinimapRenderPriority value="Hero"/>
+        <CustomUnitStatusOffset value="0,-30"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <StatusBarOn index="Shields" value="1"/>
+        <StatusBarOn index="Life" value="1"/>
+        <StatusBarOn index="Energy" value="1"/>
+        <StatusBarOn index="Progress" value="1"/>
+        <StatusBarOn index="Duration" value="1"/>
+        <StatusBarOn index="Custom" value="1"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <DeathCustoms ModelLink="TychusSpectreDeathRagdoll" Name="RagdollBasic" PhysicsMatchKeysOrdered="BasicAir,Basic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollBloodPrevent" ModelLink="MarineDeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+    </CActorUnit>
+    <CActorBeamSimple id="TychusMedicHealBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <On Terms="Effect.TychusMedicHeal.TargetStart" Send="Create"/>
+        <On Terms="Effect.TychusMedicHeal.TargetStop" Send="Destroy"/>
+        <HostForProps Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
+        <Inherits index="Visibility" value="1"/>
+        <Model value="MedivacHealBeam"/>
+    </CActorBeamSimple>
+    <CActorModel id="TychusMedicHealModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="ActorCreation" Send="$Birth PlayForever"/>
+        <On Terms="Effect.TychusMedicHeal.TargetStart; At Target" Send="Create"/>
+        <On Terms="Effect.TychusMedicHeal.TargetStop; At Target" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Model value="MedicHealModel"/>
+    </CActorModel>
+    <CActorModel id="TychusHercGrappleImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.TychusHercGrappleLaunchCasterImpactSearch.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorModel>
+    <CActorAction id="TychusHercGrappleAttack" parent="GenericAttack" effectImpact="TychusHercGrappleImpactDummy" effectLaunch="TychusHercGrappleLM">
+        <LaunchAttachQuery Methods="Weapon 1"/>
+        <ImpactMap index="None" Model=""/>
+        <ImpactSite value="HercGrappleGenericAttackImpactSite"/>
+        <LaunchAssets Sound="Herc_Grapple_Shoot"/>
+        <AcquisitionYawHalfArc value="7.500000"/>
+        <AcquisitionPitchHalfArc value="15.000000"/>
+        <AccuracyHalfArc value="10.000000"/>
+        <On Terms="ActorCreation" Send="Create TychusHercGrappleBeam"/>
+        <On Terms="Signal.*.GrappleImpactModelCreated" Send="RefSetFromMsg ::actor.GrappleImpactActor ::Sender"/>
+        <On Terms="Signal.*.GrappleImpactModelCreated" Target="HercGrappleBeam" Send="RefSet ::actor.GrappleImpactActorB ::actor.GrappleImpactActor"/>
+        <On Terms="Signal.*.GrappleImpactModelCreated" Target="HercGrappleBeam" Send="Signal GrappleImpactModelCreatedB"/>
+        <ActionFlags index="IgnoresShields" value="1"/>
+        <ShieldFlashType value="None"/>
+        <Missile value="GrappleAttackMissile"/>
+    </CActorAction>
+    <CActorBeamSimple id="TychusHercGrappleBeam" parent="GenericAttackBeam">
+        <Model value="HERC_Heavens_COOP_GrapplingHook"/>
+        <Aliases value="_GrappleBeam"/>
+        <Host Subject="_Selectable"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon01"/>
+        <HostLaunch Subject="_Selectable" Actor="Find"/>
+        <HostImpact Subject="_Missile" Actor="Find"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="Effect.TychusHercGrappleImpactDummy.Start" Send="Create GrappleImpactHoldingSite"/>
+        <On Terms="Effect.TychusHercGrappleImpactDummy.Start" Send="RefSet ::HostImpact GrappleImpactHoldingSite"/>
+        <On Terms="Effect.TychusHercGrappleLaunchCasterImpactSet.Start" Send="Destroy"/>
+        <On Terms="Effect.TychusHercGrappleCreatePlaceholderRemove.Start" Send="Destroy"/>
+        <On Terms="Signal.*.GrappleImpactModelCreatedB" Send="RefSet ::HostImpact ::actor.GrappleImpactActorB"/>
+    </CActorBeamSimple>
+    <CActorModel id="GrappleStunModel" parent="ModelAnimationStyleContinuous">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <On Terms="Behavior.TychusHercGrappleImpactStun.On" Send="Create"/>
+        <On Terms="Behavior.TychusHercGrappleImpactStun.Off" Send="Destroy"/>
+    </CActorModel>
+    <CActorSound id="TychusMedicAoE_AS" parent="SoundOneShot">
+        <On Terms="Abil.TychusMedicAoE.SourceCastStart" Send="Create"/>
+        <Sound value="Tychus_Medic_HealMatrix_Start"/>
+        <Layers Sound="Tychus_Medic_HealMatrix_AOE"/>
+        <!--Layers Sound=""/>-->
+    </CActorSound>
+    <CActorUnit id="TychusMedic" parent="GenericUnitStandard" unitName="TychusMedic">
+        <Aliases value="_UnitSmall"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="ActorCreation" Send="SetScale 1.100000"/>
+        <On Terms="Abil.TychusMedivacHealPlusMech.SourceChannelStart" Send="$Spell PlayForever"/>
+        <On Terms="Abil.TychusMedivacHealPlusMech.SourceChannelStop" Send="AnimClear Spell"/>
+        <On Terms="Abil.TychusMedivacDoubleHealPlusMech.SourceChannelStart" Send="$Spell PlayForever"/>
+        <On Terms="Abil.TychusMedivacDoubleHealPlusMech.SourceChannelStop" Send="AnimClear Spell"/>
+        <On Terms="Abil.TychusMedicAoE.SourceCastStart" Send="$Spell"/>
+        <On Terms="Abil.TychusMedicDefensiveMatrix.SourceCastStart" Send="$Spell"/>
+        <On Terms="UnitMovementUpdate.*.Walk; AnimPlaying Spell" Send="AnimClear Spell"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="TychusMedicDeath" SoundLink="Medic_Explode"/>
+        <DeathArray index="Blast" ModelLink="TychusMedicDeath"/>
+        <PortraitModel value="Medic_Heavens_COOP_Portrait"/>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <BarOffset value="20"/>
+        <BarWidth value="36"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-terran-medic-mercenary.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Ready" value=""/>
+        <SoundArray index="Help" value="Medic_Help"/>
+        <SoundArray index="What" value="Medic_What"/>
+        <SoundArray index="Yes" value="Medic_Yes"/>
+        <SoundArray index="Attack" value="Medic_Attack"/>
+        <SoundArray index="Pissed" value="Medic_Pissed"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychusmedic.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychusmedic.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-terran-medic-mercenary.dds"/>
+        </Wireframe>
+        <CustomUnitStatusFrame value="Coop_UnitStatus_Tychus/TychusMedic_StatusFrame"/>
+        <MinimapIcon value="Assets\Textures\ui_ingame_coop_minimap_tychus_heroicon_medic.dds"/>
+        <MinimapIconScale value="0.550000"/>
+        <MinimapTooltip value="Unit/Name/TychusMedicNickname"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+        <MinimapRenderPriority value="Hero"/>
+        <CustomUnitStatusOffset value="0,-30"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <StatusBarOn index="Shields" value="1"/>
+        <StatusBarOn index="Life" value="1"/>
+        <StatusBarOn index="Energy" value="1"/>
+        <StatusBarOn index="Progress" value="1"/>
+        <StatusBarOn index="Duration" value="1"/>
+        <StatusBarOn index="Custom" value="1"/>
+        <HighlightTooltip value="Unit/Name/TychusMedicNickname"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <DeathCustoms ModelLink="TychusMedicDeathRagdoll" Name="RagdollBasic" PhysicsMatchKeysOrdered="BasicAir,Basic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollBloodPrevent" ModelLink="MarineDeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+    </CActorUnit>
+    <CActorModel id="TychusFirebatAttackModel" parent="ModelAnimationStyleOneShotNoOrphan">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <!--On Terms="ActorCreation" Send="SetScale 2.250000,1.800000,1.000000"/-->
+    </CActorModel>
+    <CActorAction id="TychusFirebatAttack" parent="GenericAttackBase" effectAttack="TychusFirebatCreatePersistent">
+        <LaunchAttachQuery Methods="Weapon"/>
+        <LaunchAssets Model="FirebatAttackLaunch" Sound="Firebat_AttackLaunch"/>
+        <LaunchModel value="TychusFirebatAttackModel"/>
+        <ContainerAssets Model="FirebatBunkerAttackLaunch" Sound="Firebat_AttackLaunch"/>
+        <ImpactMap index="None" Model="FirebatAttackImpact" Sound="Firebat_AttackImpact"/>
+        <On Terms="Effect.TychusFirebatSet.Start; At Caster" Send="Create"/>
+        <On Terms="Effect.TychusFirebatDamage.Start; At Caster; FromEffectTreeDescendant" Send="ActionDamage"/>
+        <LaunchSiteOps Ops="SOpAttachHarness TychusFirebatFlamesOffset"/>
+    </CActorAction>
+    <CActorModel id="TychusFirebatImpactModelFlames" parent="ModelAnimationStyleOneShot">
+        <Model value="ImpactModelFlames"/>
+        <Terms value="Cap 1"/>
+        <On Terms="Effect.TychusFirebatDamage.Start; At Target" Send="Create"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachRandomDamage"/>
+    </CActorModel>
+    <CActorUnit id="CoopCasterTychus" parent="ProtossBuilding" unitName="CoopCasterTychus">
+        <Model value="SoACaster"/>
+        <DeathArray index="Normal" ModelLink="SoACasterDeath" SoundLink="SoACaster_Explode"/>
+        <DeathArray index="UnderConstruction" ModelLink="ProtossWarpInDeath" SoundLink="Gateway_Explode"/>
+        <PlacementModel value="SoACaster"/>
+        <PlacementSound value="Protoss_BuildingPlacement"/>
+        <PortraitModel value="ExecutorPortrait"/>
+        <BarOffset value="140"/>
+        <BarWidth value="160"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-protoss-shipgeneratorsmall.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-protoss-obelisk.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-protoss-buildingplating.dds"/>
+        <NameOffset value="130"/>
+        <UnitIcon value="Assets\Textures\btn-building-protoss-obelisk.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-shipgeneratorsmall.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-protoss-shipgeneratorsmall-shield01.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-shipgeneratorsmall-shield02.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-shipgeneratorsmall-shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorModel id="TychusResearchCenterBuildWarpInFX" parent="ModelAnimationStyleOneShot">
+        <On Terms="Abil.TychusResearchCenterBuild.BuiltStart" Send="Create"/>
+    </CActorModel>
+    <CActorModel id="TychusShredderGrenadeInHand" parent="ModelAddition">
+        <Inherits index="BaseModelScale" value="0"/>
+        <Inherits index="Scale" value="0"/>
+        <On Terms="Effect.TychusShredderGrenadeDelay.Start" Target="::Creator" Send="Create"/>
+        <On Terms="Effect.TychusShredderGrenadeDelay.Stop" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachWeapon01"/>
+        <Model value="TychusTossGrenade"/>
+    </CActorModel>
+    <CActorAction id="TychusShredderGrenade" parent="GenericAttack" effectImpact="TychusShredderGrenadeSearch" effectLaunch="TychusShredderGrenadeLaunchMissile">
+        <LaunchAttachQuery Methods="Weapon 1"/>
+        <ImpactMap index="None" Model="Tychus_ShredderGrenade_Coop_Impact" Sound="TychusTossGrenadeImpact"/>
+        <ImpactModel value="TychusShredderGrenadeImpactModel"/>
+    </CActorAction>
+    <CActorSplat id="TychusShredderGrenadeCursorSplat" parent="TerranCursorSplat" abil="TychusShredderGrenade"/>
+    <CActorMissile id="TychusShredderGrenadeMissile" parent="GenericAttackMissile" unitName="TychusShredderGrenadeWeapon">
+        <Model value="TychusGrenadeWeapon"/>
+    </CActorMissile>
+    <CActorRange id="TychusShredderGrenadeRange" parent="RangeAbil" abil="TychusShredderGrenade"/>
+    <CActorSound id="TychusShredderGrenadeLaunch" parent="SoundOneShot">
+        <On Terms="Effect.TychusShredderGrenadeDelay.Stop" Send="Create"/>
+        <Sound value="Tychus_TossGrenadeLaunch"/>
+    </CActorSound>
+    <CActorSplat id="TychusResearchCenterSplat" parent="GenericUnitSplat" unitName="TychusResearchCenter">
+        <On Terms="UnitBirth.TychusResearchCenterUnlocked" Send="Create"/>
+    </CActorSplat>
+    <CActorUnit id="TychusOdin" parent="GenericUnitBase" unitName="TychusOdin">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="WeaponStart.OdinMKII.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.OdinMKII.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="ActorCreation" Send="SetVisibility"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.200000 VisibilityDelayTimer"/>
+        <On Terms="TimerExpired; TimerName VisibilityDelayTimer" Send="SetVisibility 1"/>
+        <On Terms="WeaponStart.Odin.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.Odin.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.TychusOdinBarrage.SourcePrepStart" Send="AnimPlay Morph Morph"/>
+        <On Terms="Abil.TychusOdinBarrage.SourceChannelStart" Send="AnimPlay LoopA Spell,00"/>
+        <On Terms="AnimDone; AnimName LoopA" Send="AnimPlay LoopB Spell,00"/>
+        <On Terms="AnimDone; AnimName LoopB" Send="AnimPlay LoopC Spell,00"/>
+        <On Terms="AnimDone; AnimName LoopC" Send="AnimPlay LoopD Spell,00"/>
+        <On Terms="Abil.TychusOdinBarrage.SourceChannelStop" Send="AnimClear LoopA"/>
+        <On Terms="Abil.TychusOdinBarrage.SourceChannelStop" Send="AnimClear LoopB"/>
+        <On Terms="Abil.TychusOdinBarrage.SourceChannelStop" Send="AnimClear LoopC"/>
+        <On Terms="Abil.TychusOdinBarrage.SourceChannelStop" Send="AnimClear LoopD"/>
+        <On Terms="Abil.TychusOdinBarrage.SourceChannelStop" Send="AnimPlay Morph Morph,End"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Birth"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Birth"/>
+        <On Terms="ModelEvent; ModelEventName LandDust" Send="Create TychusResearchCenterIntroDust"/>
+        <DeathArray index="Normal" ModelLink="TychusOdinDeath" SoundLink=""/>
+        <DeathArray index="Timeout" ActorModel="TychusOdinDeathTimeOutAttachment" AnimProps="IGNORE" ModelLink="TychusOdinDeathTimeOutAttachment"/>
+        <PortraitModel value="TychusOdin_Heavens_COOP_Portrait"/>
+        <StandAnimTurnTime value="5"/>
+        <WalkAnimMoveSpeed value="1.75"/>
+        <BarOffset value="200"/>
+        <BarWidth value="220"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Odin.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
+        <NameOffset value="40"/>
+        <SoundArray index="Birth" value="TychusHeroVO_OdinBirth"/>
+        <SoundArray index="Ready" value="TychusHeroVO_OdinReady"/>
+        <SoundArray index="Help" value="TychusHeroVO_OdinHelp"/>
+        <SoundArray index="What" value="TychusHeroVO_OdinWhat"/>
+        <SoundArray index="Yes" value="TychusHeroVO_OdinYes"/>
+        <SoundArray index="Attack" value="TychusHeroVO_OdinAttack"/>
+        <SoundArray index="Pissed" value="TychusHeroVO_OdinPissed"/>
+        <SoundArray index="Movement" value="Tychus_Movement"/>
+        <SoundArray index="Turning" value="Tychus_Turning"/>
+        <SoundArray index="Board" value="Tychus_Board"/>
+        <SoundArray index="Click" value="TychusCoop_Click"/>
+        <SoundArray index="ClickError" value="TychusCoop_ClickError"/>
+        <SoundArray index="Highlight" value="TychusCoop_Highlight"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychusodin.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychusodin.dds"/>
+        <UnitKillRank Text="UnitKillRank/Odin"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Odin.dds"/>
+        </Wireframe>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <MinimapIcon value="Assets\Textures\ui_ingame_coop_minimap_tychus_heroicon_tychus.dds"/>
+        <MinimapIconScale value="0.700000"/>
+        <MinimapTooltip value="Unit/Name/TychusOdin"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+        <MinimapRenderPriority value="Hero"/>
+    </CActorUnit>
+    <CActorSound id="TychusOdin_DropLand_AS" parent="SoundOneShot">
+        <Sound value="TychusOdin_Drop_Land"/>
+        <Layers Sound="TychusOdin_GroundImpact"/>
+        <Layers Sound="TychusOdin_GroundDeploy_Mx"/>
+    </CActorSound>
+    <CActorModel id="TychusArmoryBuild" parent="TerranBuildingBuild">
+        <Model value="ArmoryBuild"/>
+    </CActorModel>
+    <CActorModel id="TychusEngineeringBayBuild" parent="TerranBuildingBuild">
+        <Model value="EngineeringBayBuild"/>
+    </CActorModel>
+    <CActorUnit id="TychusArmory" parent="TerranBuilding" unitName="TychusArmory">
+        <Macros value="TychusDecalMacro"/>
+        <Aliases value="_UnitHuge"/>
+        <On Terms="Abil.que5.Start" Send="AnimSetTimeScale ::Baseline 5.000000"/>
+        <On Terms="Abil.que5.Stop" Send="AnimSetTimeScale ::Baseline 1.000000"/>
+        <Model value="TankDepot_Heavens_COOP"/>
+        <CreepHeightClass value="Small"/>
+        <BuildModel value="TankDepot_Heavens_COOP"/>
+        <DeathArray index="Normal" ModelLink="TankDepot_Heavens_COOP_Death" SoundLink=""/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranLargeBuildingDeath" SoundLink="Armory_Explode"/>
+        <PlacementModel value="ArmoryPlacement"/>
+        <PlacementSound value="Terran_BuildingPlacement"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarOffset value="115"/>
+        <BarWidth value="135"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Armory.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-terran-tychustankdepot.dds"/>
+        <UnitIcon value="Assets\Textures\btn-building-terran-tychustankdepot.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <NameOffset value="100"/>
+        <SoundArray index="Ready" value="Tychus_Armory_Ready"/>
+        <SoundArray index="What" value="Tychus_Armory_What"/>
+        <SoundArray index="Construction" value="Terran_ConstructionWhat"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Armory.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSplat id="TychusArmorySplat" parent="GenericUnitSplat" unitName="TychusArmory">
+        <Model value="ArmorySplat"/>
+    </CActorSplat>
+    <CActorSplat id="TychusCommandCenterSplat" parent="GenericUnitSplat" unitName="TychusCommandCenter">
+        <On Terms="AbilMorph.*.Start; MorphTo TychusCommandCenter; MorphFrom TychusCommandCenterFlying" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom TychusCommandCenter; MorphTo TychusCommandCenterFlying" Send="Destroy"/>
+        <Model value="CommandCenterSplat"/>
+    </CActorSplat>
+    <CActorModel id="TychusCommandCenterBuild" parent="TerranBuildingBuild">
+        <Model value="CommandCenterBuild"/>
+    </CActorModel>
+    <CActorUnit id="TychusEngineeringBay" parent="TerranBuilding" unitName="TychusEngineeringBay">
+        <Macros value="TychusDecalMacro"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="TychusDecalMacro"/>
+        <Aliases value="_UnitHuge"/>
+        <Model value="EngineeringBay_Heavens_COOP"/>
+        <CreepHeightClass value="Medium"/>
+        <BuildModel value="EngineeringBay_Heavens_COOP"/>
+        <DeathArray index="Normal" ModelLink="EngineeringBay_Heavens_COOP_Death" SoundLink=""/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="EngineeringBay_Explode"/>
+        <PlacementModel value="EngineeringBayPlacement"/>
+        <PlacementSound value="Terran_BuildingPlacement"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarOffset value="110"/>
+        <BarWidth value="135"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-EngineeringBay.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-terran-tychusengineeringbay.dds"/>
+        <UnitIcon value="Assets\Textures\btn-building-terran-tychusengineeringbay.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <NameOffset value="110"/>
+        <SoundArray index="Ready" value="Tychus_EngineeringBay_Ready"/>
+        <SoundArray index="What" value="Tychus_EngineeringBay_What"/>
+        <SoundArray index="Construction" value="Terran_ConstructionWhat"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-EngineeringBay.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSplat id="TychusEngineeringBaySplat" parent="GenericUnitSplat" unitName="TychusEngineeringBay">
+        <Model value="EngineeringBaySplat"/>
+    </CActorSplat>
+    <CActorSound id="TychusCommandCenterLand" parent="SoundOneShot">
+        <On Terms="AbilMorph.*.Start; MorphTo TychusCommandCenter; MorphFrom TychusCommandCenterFlying" Send="Create"/>
+        <Sound value="CommandCenter_Land"/>
+    </CActorSound>
+    <CActorUnit id="TychusResearchCenter" parent="TerranBuildingFlyer" unitName="TychusResearchCenter">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="TychusDecalMacro"/>
+        <DeathArray index="Normal" ModelLink="TychusResearchCenterDeath" SoundLink="Tychus_ResearchCenter_Death_MxFx"/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="GhostAcademy_Explode"/>
+        <PlacementModel value="TychusResearchCenterPlacement"/>
+        <PlacementSound value="Terran_BuildingPlacement"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarOffset value="125"/>
+        <BarWidth value="155"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-terran-civilianbar.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <NameOffset value="100"/>
+        <SoundArray index="What" value="Tychus_ResearchCenter_What"/>
+        <SoundArray index="Construction" value="Terran_ConstructionWhat"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitFlags index="StandAnimBirthVariation" value="0"/>
+        <HeroIcon value="Assets\Textures\btn-building-terran-tychusbar.dds"/>
+        <UnitIcon value="Assets\Textures\btn-building-terran-tychusbar.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-terran-civilianbar.dds"/>
+        </Wireframe>
+        <On Terms="UnitBirth.TychusResearchCenterUnlocked" Send="Create"/>
+        <On Terms="UnitConstruction.TychusResearchCenterUnlocked.Start" Send="Create"/>
+        <On Terms="UnitConstruction.TychusResearchCenterUnlocked.Finish" Send="AnimPlay ConstructionDeath Stand,Birth,Death FullMatch"/>
+        <On Terms="UnitConstruction.TychusResearchCenterUnlocked.Start" Send="Create TychusResearchCenterBuild"/>
+        <On Terms="UnitConstruction.TychusResearchCenterUnlocked.Start" Send="Create BuildingTerrainFlatten"/>
+        <On Terms="UnitConstruction.TychusResearchCenterUnlocked.Cancel" Target="_BuildingTerrainFlatten" Send="Destroy"/>
+        <On Terms="UnitConstruction.TychusResearchCenterUnlocked.Finish" Target="_BuildingTerrainFlatten" Send="Destroy"/>
+        <On Terms="UnitConstruction.TychusResearchCenterUnlocked.Start" Send="QueryRadius 1.750000 BuildingCrushQueryResponse"/>
+        <On Terms="UnitBirth.TychusResearchCenterUnlocked.Normal" Send="Create BuildingTerrainFlatten"/>
+        <On Terms="UnitBirth.TychusResearchCenterUnlocked.Suppressed" Send="Create BuildingTerrainFlattenInstant"/>
+        <On Terms="UnitBirth.TychusResearchCenterUnlocked.EditorPlaced" Send="Create BuildingTerrainFlattenEditor"/>
+        <On Terms="UnitDeath.TychusResearchCenterUnlocked" Target="_BuildingTerrainFlatten" Send="Destroy"/>
+        <On Terms="UnitBirth.TychusResearchCenter; IsStatus Built 0" Send="AnimBracketStart Cover {} Build,C,Stand Build,D,Start Instant"/>
+        <On Terms="AgeReached; Age 9.000000" Send="Signal IntroFailSafe"/>
+        <On Terms="Signal.*.IntroFailSafe" Send="RefClear ::Host"/>
+        <On Terms="Signal.*.IntroFailSafe" Target="TychusResearchCenterIntro" Send="Destroy"/>
+        <On Terms="Signal.*.IntroFailSafe" Send="AnimBracketStop Cover"/>
+        <On Terms="UnitConstruction.TychusResearchCenter.Start" Send="StatusSet Built 1"/>
+        <On Terms="UnitBirth.TychusResearchCenter; IsStatus Built 0" Send="Create TychusResearchCenterIntro"/>
+        <On Terms="ActorCreation" Send="TimerSet 9.000000 StartFailSafe"/>
+        <On Terms="TimerExpired; TimerName StartFailSafe" Send="TimerSet 2.000000 RepeatFailSafe"/>
+        <On Terms="TimerExpired; TimerName StartFailSafe" Send="Signal IntroFailSafe"/>
+        <On Terms="TimerExpired; TimerName RepeatFailSafe" Send="TimerSet 2.000000 RepeatFailSafe"/>
+        <On Terms="TimerExpired; TimerName RepeatFailSafe" Send="Signal IntroFailSafe"/>
+    </CActorUnit>
+    <CActorUnit id="TychusSCV" parent="GenericUnitBase" unitName="TychusSCV">
+        <Aliases value="_UnitSmall"/>
+        <Macros value="CarryAnim"/>
+        <Macros value="CarryTerrazineNodeAnim"/>
+        <Macros value="CarryAnimCampaign"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="Abil.SCVHarvest.Start" Send="TimerSet 0.000000,0.300000 Gather"/>
+        <On Terms="Abil.SCVHarvest.Stop" Send="AnimClear Gather"/>
+        <On Terms="Abil.SCVHarvest.Stop" Send="TimerKill Gather"/>
+        <On Terms="AnimDone.*.Complete; AnimName Gather" Send="TimerSet 0.000000,0.300000 Gather"/>
+        <On Terms="TimerExpired; TimerName Gather" Send="AnimPlay Gather Work NonLooping"/>
+        <On Terms="TimerExpired; TimerName Gather" Send="Create SCVGatherSound"/>
+        <On Terms="Abil.Repair.SourceChannelStart" Send="TimerSet 0.000000,0.300000 Repair"/>
+        <On Terms="Abil.Repair.SourceChannelStop" Send="TimerKill Repair"/>
+        <On Terms="Abil.Repair.SourceChannelStop" Send="AnimClear Repair"/>
+        <On Terms="AnimDone.*.Complete; AnimName Repair" Send="TimerSet 0.000000,0.300000 Repair"/>
+        <On Terms="TimerExpired; TimerName Repair" Send="AnimPlay Repair Work NonLooping"/>
+        <On Terms="TimerExpired; TimerName Repair" Send="Create SCVRepairSound"/>
+        <On Terms="Abil.*.WorkerStart" Send="TimerSet 0.000000,0.300000 Build"/>
+        <On Terms="Abil.*.WorkerStop" Send="TimerKill Build"/>
+        <On Terms="Abil.*.WorkerStop" Send="AnimClear Build"/>
+        <On Terms="Abil.*.WorkerCancel" Send="TimerKill Build"/>
+        <On Terms="Abil.*.WorkerCancel" Send="AnimClear Build"/>
+        <On Terms="AnimDone.*.Complete; AnimName Build" Send="TimerSet 0.000000,0.300000 Build"/>
+        <On Terms="TimerExpired; TimerName Build" Send="AnimPlay Build Work NonLooping"/>
+        <On Terms="TimerExpired; TimerName Build" Send="Create SCVBuildSound"/>
+        <On Terms="Abil.SCVHarvest.Start" Send="StatusSet CloakSound 1"/>
+        <On Terms="Behavior.CarryHarvestableVespeneGeyserGas.Create" Send="StatusSet CloakSound 1"/>
+        <On Terms="Confirmation.SCV.Start" Send="StatusSet CloakSound 0"/>
+        <On Terms="Behavior.CloakFieldEffect.Create; IsStatus CloakSound 0" Send="Create Worker_CloakFieldOn"/>
+        <On Terms="Behavior.CloakFieldEffect.Destroy; IsStatus CloakSound 0" Send="Create Worker_CloakFieldOff"/>
+        <On Terms="Abil.GatherSpecialObject.SourcePrepStart" Send="TimerSet 0.000000,0.300000 Gather"/>
+        <On Terms="Abil.GatherSpecialObject.SourceCastStop" Send="AnimClear Gather"/>
+        <On Terms="Abil.GatherSpecialObject.SourceCastStop" Send="TimerKill Gather"/>
+        <On Terms="AnimDone.*.Complete; AnimName Gather" Send="TimerSet 0.000000,0.300000 Gather"/>
+        <On Terms="TimerExpired; TimerName Gather" Send="AnimPlay Gather Work NonLooping"/>
+        <On Terms="TimerExpired; TimerName Gather" Send="Create SCVGatherSound"/>
+        <On Terms="Behavior.CarryChrysalisEgg.Create" Send="AnimGroupApply Gather"/>
+        <On Terms="Behavior.CarryChrysalisEgg.Destroy" Send="AnimGroupRemove Gather"/>
+        <On Terms="ActorCreation; ValidateUnit SCVUpgraded" Send="ModelSwap SCVFusionWelder"/>
+        <On Terms="Upgrade.FusionWelder.Add" Send="ModelSwap SCVFusionWelder"/>
+        <On Terms="Upgrade.DualFusionWelders.Add" Send="ModelSwap SCVFusionWelder"/>
+        <On Terms="Behavior.OracleCloakFieldEffect.Create; IsStatus CloakSound 0" Send="Create Worker_CloakFieldOn"/>
+        <On Terms="Behavior.OracleCloakFieldEffect.Destroy; IsStatus CloakSound 0" Send="Create Worker_CloakFieldOff"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create SCV_Land"/>
+        <On Terms="Behavior.SCVFakeRepair.On" Send="AnimPlay Work,A Work,A"/>
+        <On Terms="AnimDone; AnimName Work,A; ValidateUnit HaveSCVFakeRepair" Send="AnimPlay Work,B Work,B"/>
+        <On Terms="AnimDone; AnimName Work,B; ValidateUnit HaveSCVFakeRepair" Send="AnimPlay Work,A Work,A"/>
+        <On Terms="Behavior.SCVFakeRepair.Off" Send="AnimClear Work,A"/>
+        <On Terms="Behavior.SCVFakeRepair.Off" Send="AnimClear Work,B"/>
+        <AnimBlendTime value="0.500000"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <EventDataFootprint index="0" Actor="UnitFootprint" Model="SCVFootprint"/>
+        <DeathArray index="Normal" ModelLink="TychusSCVDeath" SoundLink="SCV_Explode" VoiceLink="SCVDeathVoice"/>
+        <DeathCustoms ModelLink="TychusSCVDeathRagdoll" Name="RagdollBasic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdoll" ModelLink="TychusSCVDeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <PortraitModel value="SCV_Heavens_COOP_Portrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.600000"/>
+            <RangeDown value="0.600000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleSmall"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="2"/>
+        <BarOffset value="40"/>
+        <BarWidth value="42"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-SCV.dds"/>
+        </GroupIcon>
+        <GroupSoundArray index="What" value="SCV_GroupWhat"/>
+        <GroupSoundArray index="Yes" value="SCV_GroupYes"/>
+        <GroupSoundArray index="Attack" value="SCV_GroupAttack"/>
+        <GroupSoundArray index="Board" value="SCV_GroupBoard"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychusscv.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychusscv.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Birth" value="SCV_Birth"/>
+        <SoundArray index="Ready" value="SCV_Ready"/>
+        <SoundArray index="Help" value="Alert_TerranEconomyUnderAttack"/>
+        <SoundArray index="What" value="SCV_What"/>
+        <SoundArray index="Yes" value="SCV_Yes"/>
+        <SoundArray index="Attack" value="SCV_Attack"/>
+        <SoundArray index="Pissed" value="SCV_Pissed"/>
+        <SoundArray index="Movement" value="SCV_Movement"/>
+        <SoundArray index="Turning" value="SCV_Turning"/>
+        <SoundArray index="Board" value="SCV_Board"/>
+        <SoundArray index="Click" value="SCV_Click"/>
+        <SoundArray index="ClickError" value="SCV_ClickError"/>
+        <SoundArray index="Highlight" value="SCV_Highlight"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-SCV.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorUnit id="TychusReviveBeacon" unitName="TychusReviveBeacon">
+        <CopySource value="_Unit"/>
+        <Aliases value="_Unit"/>
+        <Aliases value="_Selectable"/>
+        <AcceptedTransfers index="AnimProps" value="1"/>
+        <AcceptedTransfers index="Textures" value="1"/>
+        <AcceptedTransfers index="Status" value="1"/>
+        <AcceptedHostedPropTransfers index="BaseModelScale" value="0"/>
+        <On Terms="UnitBirth.TychusReviveBeacon" Send="Create"/>
+        <On Terms="UnitRevive.TychusReviveBeacon" Send="Create"/>
+        <On Terms="ActorCreation" Send="$Stand,Unpowered 0 0.000000 0.000000 241.699997 AsDuration"/>
+        <On Terms="UnitDeath" Target="NovaReviveCocoon_IdleLoop_ActorSound" Send="Destroy"/>
+        <Scale value="1.800000"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <ModelFlags index="NeedsVolumeMonitoring" value="1"/>
+        <ModelFlags index="UseSyncSeed" value="1"/>
+        <EventDataFootprint Actor="UnitFootprint" Model="TychusReviveBeaconFootprint"/>
+        <EventDataSound Actor="UnitSound"/>
+        <Baselines index="Stand" AnimProps="Stand" BlendIn="-1.000000" BlendOut="-1.000000"/>
+        <Baselines index="Walk" AnimProps="Walk" BlendIn="-1.000000" BlendOut="-1.000000"/>
+        <OverkillByDamagePastRemainingHealth Value="30" TestType="PercentageOfMaxLifePlusShields"/>
+        <OverkillByDamageOverInterval Value="70" Interval="1" TestType="PercentageOfMaxLifePlusShields"/>
+        <PhysicsMatchKeysOrdered value="Basic"/>
+        <PlacementActorModel value="PlacementModel"/>
+        <PlaceholderActorModel value="PlaceholderModel"/>
+        <PortraitActor value="SMX3_NovaPortrait"/>
+        <PortraitModel value="TychusPortrait"/>
+        <RandomScaleRange value="1.000000,1.000000"/>
+        <VarianceWindowStandIntro value="0.330000"/>
+        <VarianceWindowStand value="1.000000"/>
+        <VarianceWindowWalkIntro value="0.330000"/>
+        <VarianceWindowWalk value="1.000000"/>
+        <VarianceWindowWalkOutro value="0.330000"/>
+        <WalkAnimMoveSpeed value="3.75"/>
+        <BarDistance value="34"/>
+        <BarHeight value="7"/>
+        <BarOffset value="60"/>
+        <BarWidth value="78"/>
+        <GlossaryAnim value="Stand"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-terran-marine-tychus.dds"/>
+        </GroupIcon>
+        <GroupSoundArray index="What" value="TychusReviveBeacon_GroupWhat"/>
+        <GroupSoundArray index="Yes" value="TychusReviveBeacon_GroupYes"/>
+        <GroupSoundArray index="Attack" value="TychusReviveBeacon_GroupAttack"/>
+        <GroupSoundArray index="Board" value="TychusReviveBeacon_GroupBoard"/>
+        <GroupSoundThreshold value="2"/>
+        <HeroIcon value="Assets\Textures\btn-upgrade-nova-novarespawn.dds"/>
+        <HighlightTooltip value="Unit/Name/TychusReviveBeacon"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <MinimapIconScale value="1.000000"/>
+        <MinimapIconBackgroundScale value="1.000000"/>
+        <MinimapRenderPriority value="Normal"/>
+        <MinimapFlashWhenAttacked value="1"/>
+        <MinimapUseSelfColor value="1"/>
+        <MinimapUseSelectionColor value="1"/>
+        <NameOffset value="30"/>
+        <ShieldArmorIcon value="Assets\Textures\btn-upgrade-protoss-shieldslevel0.dds"/>
+        <SnapshotActor value="Snapshot"/>
+        <SoundArray index="Birth" value="NovaReviveCocoon_Birth"/>
+        <SoundArray index="Ready" value="NovaReviveCocoon_Birth"/>
+        <SoundArray index="Help" value="TychusReviveBeacon_Help"/>
+        <SoundArray index="What" value="NovaReviveCocoon_What"/>
+        <SoundArray index="Yes" value="TychusReviveBeacon_Yes"/>
+        <SoundArray index="Attack" value="TychusReviveBeacon_Attack"/>
+        <SoundArray index="Pissed" value="TychusReviveBeacon_Pissed"/>
+        <SoundArray index="Movement" value="TychusReviveBeacon_Movement"/>
+        <SoundArray index="Turning" value="TychusReviveBeacon_Turning"/>
+        <SoundArray index="Board" value="TychusReviveBeacon_Board"/>
+        <SoundArray index="Click" value="TychusReviveBeacon_Click"/>
+        <SoundArray index="ClickError" value="TychusReviveBeacon_ClickError"/>
+        <SoundArray index="Highlight" value="TychusReviveBeacon_Highlight"/>
+        <StatusBarFlags index="Shields" value="1"/>
+        <StatusBarFlags index="Life" value="1"/>
+        <StatusBarFlags index="Energy" value="1"/>
+        <StatusBarFlags index="Cargo" value="1"/>
+        <StatusBarFlags index="Progress" value="1"/>
+        <StatusBarFlags index="Duration" value="1"/>
+        <StatusBarFlags index="Magazine" value="1"/>
+        <StatusBarFlags index="Workers" value="1"/>
+        <StatusBarFlags index="Custom" value="1"/>
+        <StatusBarGroups index="Owner" value="1"/>
+        <StatusBarGroups index="Allied" value="1"/>
+        <StatusBarGroups index="Enemy" value="1"/>
+        <StatusBarGroups index="All" value="1"/>
+        <StatusColors index="Shields" BackgroundColor="255,0,0,0" EmptyColor="255,80,80,80">
+            <ColorArray value="255,0,0,255"/>
+        </StatusColors>
+        <StatusColors index="Life" BackgroundColor="255,0,0,0" EmptyColor="255,80,80,80">
+            <ColorArray value="255,208,34,0"/>
+            <ColorArray value="255,208,34,0"/>
+            <ColorArray value="255,229,129,0"/>
+            <ColorArray value="255,229,129,0"/>
+            <ColorArray value="255,229,221,0"/>
+            <ColorArray value="255,229,221,0"/>
+            <ColorArray value="255,22,229,0"/>
+            <ColorArray value="255,22,229,0"/>
+        </StatusColors>
+        <StatusColors index="Energy" BackgroundColor="255,0,0,0" EmptyColor="255,80,80,80">
+            <ColorArray value="255,150,40,220"/>
+        </StatusColors>
+        <StatusColors index="Cargo" BackgroundColor="255,0,0,0" EmptyColor="255,77,60,15">
+            <ColorArray value="255,255,255,255"/>
+        </StatusColors>
+        <StatusColors index="Progress" BackgroundColor="255,0,0,0" EmptyColor="255,80,80,80">
+            <ColorArray value="255,0,200,200"/>
+        </StatusColors>
+        <StatusColors index="Duration" BackgroundColor="255,0,0,0" EmptyColor="255,40,40,40">
+            <ColorArray value="255,120,120,120"/>
+        </StatusColors>
+        <StatusColors index="Magazine" BackgroundColor="255,0,0,0" EmptyColor="255,77,60,15">
+            <ColorArray value="255,128,128,64"/>
+        </StatusColors>
+        <StatusTextInfo>
+            <Offset value="0,16"/>
+            <Attachment value="Ref_StatusBar"/>
+            <FontSize value="16"/>
+            <BackgroundColor value="255,255,255,255"/>
+            <BackgroundImage value="Assets\Textures\ui_ingame_workercount_bg.dds"/>
+        </StatusTextInfo>
+        <UnitFlags index="ShowBlobShadow" value="1"/>
+        <UnitIcon value="Assets\Textures\btn-upgrade-nova-novarespawn.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-terran-marine-tychus.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorUnit id="TychusCoop" parent="GenericUnitStandard" unitName="TychusCoop">
+        <Aliases value="_UnitSmall"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <!--On index="35" Terms="UnitBirth.TychusCoop" Send="AnimPlay Birth Stand,Unpowered,End 0 0.000000"/-->
+        <On Terms="Abil.TychusShredderGrenade.SourceCastStart" Send="$Spell 0 -1.000000 -1.000000 2.000000 AsTimeScale"/>
+        <On Terms="ActorCreation" Send="TextureSelectById Decal_Campaign_Tychus_01"/>
+        <!--On Terms="UnitRevive.TychusCoop" Send="AnimPlay Birth Stand,Unpowered,End 0 0.000000"/-->
+        <!--On Terms="Behavior.TychusCalldownOdinInitialSelfStun.On" Send="SetOpacity 0.000000 1.000000 InsideOdin"/>
+        <On Terms="Behavior.TychusCalldownOdinInsideOdinStun.Off" Send="ClearOpacity 0.000000 InsideOdin"/-->
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Spell"/>
+        <On Terms="Behavior.TychusCalldownOdinInsideOdinStun.Off" Send="AnimPlay Exit Spell,Land 0 0.000000"/>
+        <On Terms="Behavior.TychusCalldownOdinInsideOdinStun.Off" Send="SetShowStatusBar"/>
+        <On Terms="AnimDone; AnimPlayingName Exit" Send="SetShowStatusBar 1"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Exit"/>
+        <On Terms="AnimDone; AnimPlayingName Exit" Target="PreSelection" Send="SetVisibility 1"/>
+        <On Terms="Behavior.TychusCalldownOdinInsideOdinStun.Off" Target="PreSelection" Send="SetVisibility"/>
+        <On Terms="AnimDone; AnimPlayingName Exit" Target="LocalSelection" Send="SetVisibility 1"/>
+        <On Terms="Behavior.TychusCalldownOdinInsideOdinStun.Off" Target="LocalSelection" Send="SetVisibility"/>
+        <On Terms="AnimDone; AnimPlayingName Exit" Target="SyncSelection" Send="SetVisibility 1"/>
+        <On Terms="Behavior.TychusCalldownOdinInsideOdinStun.Off" Target="SyncSelection" Send="SetVisibility"/>
+        <On Terms="Behavior.TychusCalldownOdinInitialSelfStun.On" Send="SetVisibility"/>
+        <On Terms="Behavior.TychusCalldownOdinInsideOdinStun.Off" Send="SetVisibility 1"/>
+        <On Terms="Behavior.TychusCalldownOdinInitialSelfStun.On" Send="Create Tychus_Heavens_COOP_WarpOut"/>
+        <ModelFlags index="SuppressPlayerDecals" value="1"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="TychusCoopDeath" SoundLink="Tychus_Explode" VoiceLink="Tychus_Hero_HeavensDeath_MxFx"/>
+        <PortraitModel value="Tychus_Heavens_COOP_Portrait"/>
+        <StandAnimTurnTime value="5"/>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <BarOffset value="60"/>
+        <BarWidth value="36"/>
+        <CustomUnitStatusFrame value="Coop_UnitStatus_Tychus/TychusCoop_StatusFrame"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-marine-tychus.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <MinimapIcon value="Assets\Textures\ui_ingame_coop_minimap_tychus_heroicon_tychus.dds"/>
+        <MinimapIconScale value="0.700000"/>
+        <MinimapTooltip value="Unit/Name/TychusNickname"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+        <MinimapRenderPriority value="Hero"/>
+        <SoundArray index="Birth" value="TychusHeroVO_Birth"/>
+        <SoundArray index="Ready" value="TychusHeroVO_Ready"/>
+        <SoundArray index="Help" value="TychusHeroVO_Help"/>
+        <SoundArray index="What" value="TychusHeroVO_What"/>
+        <SoundArray index="Yes" value="TychusHeroVO_Yes"/>
+        <SoundArray index="Attack" value="TychusHeroVO_Attack"/>
+        <SoundArray index="Pissed" value="TychusHeroVO_Pissed"/>
+        <SoundArray index="Movement" value="TychusHeroVO_Movement"/>
+        <SoundArray index="Turning" value="TychusHeroVO_Turning"/>
+        <SoundArray index="Board" value="TychusHeroVO_Board"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychuscoop.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychuscoop.dds"/>
+        <UnitKillRank Text="UnitKillRank/Tychus"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-marine-tychus.dds"/>
+        </Wireframe>
+        <Scale value="1.800000"/>
+        <CustomUnitStatusOffset value="0,-30"/>
+        <StatusBarOn index="Shields" value="1"/>
+        <StatusBarOn index="Life" value="1"/>
+        <StatusBarOn index="Energy" value="1"/>
+        <StatusBarOn index="Progress" value="1"/>
+        <StatusBarOn index="Duration" value="1"/>
+        <StatusBarOn index="Custom" value="1"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <HighlightTooltip value="Unit/Name/TychusNickname"/>
+        <DeathCustoms ModelLink="TychusCoopDeathRagdoll" Name="RagdollBasic" PhysicsMatchKeysOrdered="BasicAir,Basic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollBloodPrevent" ModelLink="MarineDeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+    </CActorUnit>
+    <CActorSound id="TychusOdin_Deploy_AS" parent="SoundOneShot">
+        <On Terms="Behavior.TychusCalldownOdinInitialSelfStun.On" Send="Create"/>
+        <Sound value="TychusOdin_Deploy_UI_Sound"/>
+        <Layers Sound="TychusOdin_Drop_In"/>
+    </CActorSound>
+    <CActorAction id="TychusCoopAttack" parent="GenericAttack" effectAttack="TychusCoopChaingunDamage">
+        <LaunchAssets Model="TychusChaingunAttackLaunch" Sound="TychusCoop_ChaingunAttackLaunch"/>
+        <ImpactMap index="None" Model="TychusChaingunAttackImpact" Sound="TychusCoop_ChaingunAttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <On Terms="Effect.TychusCoopChaingunDamageFriendly.Start; At Caster" Send="Create"/>
+    </CActorAction>
+    <CActorSound id="TychusCoopDeath" parent="SoundOneShot">
+        <On Terms="UnitDeath.TychusCoop; PassChance 100.000000" Send="Create"/>
+        <On Terms="UnitDeath.TychusCommando; PassChance 100.000000" Send="Create"/>
+        <Sound value="Tychus_Death"/>
+    </CActorSound>
+    <CActorUnit id="TychusCommandCenter" parent="TerranBuildingFlyer" unitName="TychusCommandCenter">
+        <Macros value="TychusDecalMacro"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="SprayHelperMacroCoop"/>
+        <Macros value="TerranTychusCommandCenterPlayerDecalMacro"/>
+        <On Terms="ActorCreation" Send="AnimGroupRemove A"/>
+        <On Terms="ActorCreation" Send="AnimGroupRemove B"/>
+        <On Terms="Abil.*.TransportOccupy" Send="AnimPlay StandC Stand,Work,C PlayForever"/>
+        <On Terms="Abil.*.TransportEmpty" Send="AnimClear StandC"/>
+        <On Terms="UnitDeathCustomize; AnimPlaying Morph; !ModelIsLowQuality" Send="Create TychusCommandCenterMorphDeath"/>
+        <On Terms="UnitDeathCustomize; AnimPlaying Morph" Send="DeathCustomize Variation2"/>
+        <On Terms="Abil.TychusCommandCenterLiftOff.Start" Send="StatusSet FlyDeathAnim 1"/>
+        <On Terms="Abil.TychusCommandCenterLiftOff.Start" Send="TimerSet 1.100000 FlyDeathAnimChange"/>
+        <On Terms="TimerExpired; TimerName FlyDeathAnimChange" Send="StatusSet FlyDeathAnim 2"/>
+        <On Terms="UnitBirth.TychusCommandCenterFlying" Send="StatusSet FlyDeathAnim 2"/>
+        <On Terms="Abil.TychusCommandCenterLand.Start" Send="TimerSet 0.700000 LandDeathAnimChange"/>
+        <On Terms="Abil.TychusCommandCenterLand.Start" Send="TimerSet 1.100000 LandDeathAnimChangeB"/>
+        <On Terms="TimerExpired; TimerName LandDeathAnimChange" Send="StatusSet FlyDeathAnim 1"/>
+        <On Terms="TimerExpired; TimerName LandDeathAnimChangeB" Send="StatusSet FlyDeathAnim 0"/>
+        <On Terms="UnitDeathCustomize; IsStatus FlyDeathAnim 1" Send="DeathCustomize Variation3"/>
+        <On Terms="UnitDeathCustomize; IsStatus FlyDeathAnim 2" Send="DeathCustomize Flying"/>
+        <On Terms="UnitBirth.TychusCommandCenterFlying" Send="HideWorkerCount 1"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom TychusCommandCenterFlying; MorphTo TychusCommandCenter" Send="HideWorkerCount"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom TychusCommandCenter; MorphTo TychusCommandCenterFlying" Send="HideWorkerCount 1"/>
+        <On Terms="UnitBirth.TychusCommandCenter" Send="Create PlayerLogoDoodadList"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom TychusCommandCenter; MorphTo TychusCommandCenterFlying" Target="PlayerLogoDoodadList" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom TychusCommandCenterFlying; MorphTo TychusCommandCenter" Send="Create PlayerLogoDoodadList"/>
+        <!-- Clan decal -->
+        <On Terms="AbilMorph.*.Start; MorphFrom TychusCommandCenter; MorphTo TychusCommandCenterFlying" Target="TerranClanFlag" Send="Signal DestroyFlag"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom TychusCommandCenterFlying; MorphTo TychusCommandCenter; PlayerHasClanDecal" Send="Create TerranClanFlag"/>
+        <On Terms="UnitBirth.TychusCommandCenter; PlayerHasClanDecal" Send="Create TerranClanFlag"/>
+        <!-- Player trophy -->
+        <On Terms="AbilMorph.*.Start; MorphFrom TychusCommandCenter; MorphTo TychusCommandCenterFlying" Target="PlayerTrophy" Send="Signal DestroyFlag"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom TychusCommandCenterFlying; MorphTo TychusCommandCenter; PlayerHasTrophy" Send="Create PlayerTrophy"/>
+        <On Terms="UnitBirth.TychusCommandCenter; PlayerHasTrophy" Send="Create PlayerTrophy"/>
+        <DeathCustoms ModelLink="CommandCenter_Heavens_COOP_Death" Name="Variation2"/>
+        <DeathCustoms ModelLink="CommandCenter_Heavens_COOP_FlyDeath" SoundLink="CommandCenter_Explode" Name="Flying"/>
+        <DeathCustoms ModelLink="CommandCenterDeathLow" Name="Variation3"/>
+        <DeathArray index="Normal" ModelLink="CommandCenter_Heavens_COOP_Death" SoundLink=""/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranLargeBuildingDeath" SoundLink="CommandCenter_Explode"/>
+        <PlacementModel value="CommandCenterPlacement"/>
+        <PlacementSound value="Terran_BuildingPlacement"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarWidth value="200"/>
+        <BarOffset value="165"/>
+        <NameOffset value="150"/>
+        <HeroIcon value="Assets\Textures\btn-building-terran-tychuscommandcenter.dds"/>
+        <UnitIcon value="Assets\Textures\btn-building-terran-tychuscommandcenter.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-CommandCenter.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-CommandCenter.dds"/>
+        </Wireframe>
+        <SoundArray index="Ready" value="CommandCenter_Ready"/>
+        <SoundArray index="What" value="CommandCenter_What"/>
+        <SoundArray index="Movement" value="CommandCenter_Movement2"/>
+        <SoundArray index="Construction" value="Terran_ConstructionWhat"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <HostSiteOps Ops="SOpBankerUnitBuilding"/>
+        <StatusHarvesterData Text="UI/HarvesterCountMinerals" SearchFilters="HarvestableResource;Player,Ally,Enemy" SearchRadius="8"/>
+        <AcceptedHostedPropTransfers index="Decal" value="0"/>
+        <Aliases value="_UnitHuge"/>
+        <Model value="CommandCenter_Heavens_COOP"/>
+        <BuildModel value="CommandCenter_Heavens_COOP"/>
+    </CActorUnit>
+    <!--CActorUnit id="TychusFirebat" parent="GenericUnitBase" unitName="TychusFirebat">-->
+    <!--        <Aliases value="_UnitMedium"/>-->
+    <!--        <Macros value="UnloadDropAnim"/>-->
+    <!--        <Macros value="TerrainSquibAnimations"/>-->
+    <!--        <Macros value="PhysicsDeathsSwarmGround"/>-->
+    <!--        <Macros value="PhysicsDeathsVoidGround"/>-->
+    <!--        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>-->
+    <!--        <On Terms="ActorCreation" Send="StatusSet WeaponNext 0"/>-->
+    <!--        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster" Send="StatusIncrement WeaponNext"/>-->
+    <!--        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster; IsStatus WeaponNext 2" Send="StatusSet WeaponNext 0"/>-->
+    <!--        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster; IsStatus WeaponNext 0" Send="AnimClear AttackRight"/>-->
+    <!--        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster; IsStatus WeaponNext 0" Send="AnimPlay AttackLeft Attack,Left"/>-->
+    <!--        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster; IsStatus WeaponNext 1" Send="AnimClear AttackLeft"/>-->
+    <!--        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster; IsStatus WeaponNext 1" Send="AnimPlay AttackRight Attack,Right"/>-->
+    <!--        <On Terms="Abil.TychusFirebatHealFull.SourceCastStart; !UnitWalking" Send="AnimPlay Morph Attack"/>-->
+    <!--        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear AttackLeft"/>-->
+    <!--        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear AttackRight"/>-->
+    <!--        <On Terms="ModelEvent; ModelEventName AnimClear" Send="AnimClear AttackLeft"/>-->
+    <!--        <On Terms="ModelEvent; ModelEventName AnimClear" Send="AnimClear AttackRight"/>-->
+    <!--        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>-->
+    <!--        <On Terms="UnitHeightUpdate.*.Land" Send="Create Marauder_Land"/>-->
+    <!--        <On Terms="Abil.TychusFirebatClap.SourceCastStart" Send="AnimPlay Spell Attack"/>-->
+    <!--        <On Terms="Abil.TychusFirebatClap.SourceCastStart" Send="Create TychusFirebatClapSound"/>-->
+    <!--        <On Terms="UnitMovementUpdate.*.Walk; AnimPlaying Spell" Send="AnimClear Spell"/>-->
+    <!--        <ModelFlags index="OutlineEmitter" value="1"/>-->
+    <!--        <DeathArray index="Normal" ModelLink="TychusFirebatDeath" SoundLink="Marauder_Explode"/>-->
+    <!--        <DeathArray index="Eviscerate" ModelLink="TychusFirebatDeathEviscerate" SoundLink="Uni_DeathFXEviscerate"/>-->
+    <!--        <DeathArray index="Silentkill" SoundLink="Uni_DeathFXSilentKill"/>-->
+    <!--        <DeathCustoms ActorModel="UnitDeathRagdollBloodPrevent" ModelLink="TychusFirebatDeathRagdoll" Name="RagdollBasic">-->
+    <!--            <BodySquibs Name="None"/>-->
+    <!--        </DeathCustoms>-->
+    <!--        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>-->
+    <!--        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">-->
+    <!--            <BodySquibs Name="Fire"/>-->
+    <!--        </DeathCustoms>-->
+    <!--        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">-->
+    <!--            <BodySquibs Name="Fire"/>-->
+    <!--        </DeathCustoms>-->
+    <!--        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">-->
+    <!--            <BodySquibs Name="Acid"/>-->
+    <!--        </DeathCustoms>-->
+    <!--        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">-->
+    <!--            <BodySquibs Name="Acid"/>-->
+    <!--        </DeathCustoms>-->
+    <!--        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>-->
+    <!--        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>-->
+    <!--        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>-->
+    <!--        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>-->
+    <!--        <DeathCustoms>-->
+    <!--            <ModelLink value="DeathVoidShadowMedium"/>-->
+    <!--            <SoundLink value="ShadowUnit_DeathFX"/>-->
+    <!--            <VoiceLink value="ShadowUnit_DeathVox"/>-->
+    <!--            <Name value="Shadow"/>-->
+    <!--        </DeathCustoms>-->
+    <!--        <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>-->
+    <!--        <PortraitModel value="TychusFirebatPortrait"/>-->
+    <!--        <TerrainSquibs>-->
+    <!--            <MovementDistance value="0.150000,0.150000"/>-->
+    <!--            <IdlePeriod value="0.100000,0.250000"/>-->
+    <!--            <RangeUp value="0.800000"/>-->
+    <!--            <RangeDown value="0.800000"/>-->
+    <!--            <AttachQuery Methods="AMFilterCenter"/>-->
+    <!--            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleLarge"/>-->
+    <!--        </TerrainSquibs>-->
+    <!--        <WalkAnimMoveSpeed value="2.25"/>-->
+    <!--        <BarOffset value="60"/>-->
+    <!--        <BarWidth value="50"/>-->
+    <!--        <GroupIcon>-->
+    <!--            <Image value="Assets\Textures\Wireframe-Terran-Marauder.dds"/>-->
+    <!--        </GroupIcon>-->
+    <!--        <HeroIcon value="Assets\Textures\btn-unit-terran-marauder.dds"/>-->
+    <!--        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>-->
+    <!--        <UnitIcon value="Assets\Textures\btn-unit-terran-marauder.dds"/>-->
+    <!--        <Wireframe>-->
+    <!--            <Image value="Assets\Textures\Wireframe-Terran-Marauder.dds"/>-->
+    <!--        </Wireframe>-->
+    <!--        <CustomUnitStatusFrame value="LotV_UnitStatus/HeroUnitEnergyStatusFrameTemplate"/>-->
+    <!--        <MinimapIcon value="Assets\Textures\btn-ac-terran-novamapicon.dds"/>-->
+    <!--        <MinimapIconScale value="0.700000"/>-->
+    <!--        <MinimapTooltip value="Unit/Name/TychusFirebat"/>-->
+    <!--        <MinimapUseSelfColor value="0"/>-->
+    <!--        <MinimapUseSelectionColor value="0"/>-->
+    <!--        <MinimapRenderPriority value="Hero"/>-->
+    <!--        <CustomUnitStatusOffset value="0,-30"/>-->
+    <!--        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>-->
+    <!--        <StatusBarOn index="Shields" value="1"/>-->
+    <!--        <StatusBarOn index="Life" value="1"/>-->
+    <!--        <StatusBarOn index="Energy" value="1"/>-->
+    <!--        <StatusBarOn index="Progress" value="1"/>-->
+    <!--        <StatusBarOn index="Duration" value="1"/>-->
+    <!--        <StatusBarOn index="Custom" value="1"/>-->
+    <!--    </CActorUnit-->
+    <CActorUnit id="TychusHERC" parent="GenericUnitStandard" unitName="TychusHERC">
+        <Aliases value="_UnitMedium"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Marauder_Land"/>
+        <On Terms="Abil.TychusGrapple.SourceCastStart" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="Effect.TychusGrappleLaunchCasterImpact.Start" Send="AnimBracketStop Work"/>
+        <On Terms="Effect.TychusGrappleCreatePlaceholderRemove.Start" Send="AnimBracketStop Work"/>
+        <On Terms="Abil.TychusHercGrapple.SourceCastStart" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="Effect.TychusHercGrappleLaunchCasterImpact.Start" Send="AnimBracketStop Work"/>
+        <On Terms="Effect.TychusHercGrappleCreatePlaceholderRemove.Start" Send="AnimBracketStop Work"/>
+        <On Terms="Behavior.TychusHERCShieldCooldownDisplay.On" Send="AnimBracketStart Cover Cover,Start Cover Cover,End"/>
+        <On Terms="Behavior.TychusHERCShieldWeakness.On" Send="AnimBracketStop Cover"/>
+        <On Terms="Behavior.TychusHERCShieldWeakness.Off" Send="AnimBracketStart Cover Cover,Start Cover Cover,End"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="TychusHERCDeath" SoundLink=""/>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>
+        <PortraitModel value="HERC_Heavens_COOP_Portrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.400000"/>
+            <RangeDown value="0.400000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleSmall"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <BarOffset value="55"/>
+        <BarWidth value="55"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-terran-herc.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Ready" value=""/>
+        <SoundArray index="Help" value="Jumper_Help"/>
+        <SoundArray index="What" value="Jumper_What"/>
+        <SoundArray index="Yes" value="Jumper_Yes"/>
+        <SoundArray index="Attack" value="Jumper_Attack"/>
+        <SoundArray index="Pissed" value="Jumper_Pissed"/>
+        <SoundArray index="Movement" value="Tychus_Herc_Mv_Start"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychusherc.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychusherc.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-terran-herc.dds"/>
+        </Wireframe>
+        <CustomUnitStatusFrame value="Coop_UnitStatus_Tychus/TychusHERC_StatusFrame"/>
+        <MinimapIcon value="Assets\Textures\ui_ingame_coop_minimap_tychus_heroicon_herc.dds"/>
+        <MinimapIconScale value="0.550000"/>
+        <MinimapTooltip value="Unit/Name/TychusHERCNickname"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+        <MinimapRenderPriority value="Hero"/>
+        <CustomUnitStatusOffset value="0,-30"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <StatusBarOn index="Shields" value="1"/>
+        <StatusBarOn index="Life" value="1"/>
+        <StatusBarOn index="Energy" value="1"/>
+        <StatusBarOn index="Progress" value="1"/>
+        <StatusBarOn index="Duration" value="1"/>
+        <StatusBarOn index="Custom" value="1"/>
+        <HighlightTooltip value="Unit/Name/TychusHERCNickname"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <DeathCustoms ModelLink="TychusHERCDeathRagdoll" Name="RagdollBasic" PhysicsMatchKeysOrdered="BasicAir,Basic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollBloodPrevent" ModelLink="MarineDeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+    </CActorUnit>
+    <CActorUnit id="TychusMedivac" parent="GenericUnitStandard" unitName="TychusMedivac">
+        <Aliases value="_UnitLarge"/>
+        <Macros value="MedivacTransportAnim"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="PhysicsDeathsSwarmAir"/>
+        <Macros value="PhysicsDeathsVoidAir"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Medivac_Land"/>
+        <HostSiteOps Ops="SOpBankerMedivac"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <Baselines index="Walk" BlendIn="1.500000" BlendOut="2.000000"/>
+        <DeathArray index="Normal" ModelLink="TychusMedivacDeath" SoundLink="Medivac_Explode"/>
+        <DeathCustoms>
+            <ActorModel value="MedivacDeathRagdoll"/>
+            <ModelLink value="TychusMedivacDeathRagdoll"/>
+            <Name value="RagdollBasic"/>
+            <PhysicsMatchKeysOrdered value="BasicAir,Basic"/>
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms>
+            <ModelLink value="DeathVoidShadowMedium"/>
+            <SoundLink value="ShadowUnit_DeathFX"/>
+            <VoiceLink value="ShadowUnit_DeathVox"/>
+            <Name value="Shadow"/>
+        </DeathCustoms>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionFlier"/>
+        <PhysicsMatchKeysOrdered value="BasicAir,Basic"/>
+        <PortraitModel value="TychusMedivacPortrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.250000,0.500000"/>
+            <RangeDown value="5.000000"/>
+            <RangeDownFade value="1.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleMassive15"/>
+        </TerrainSquibs>
+        <AbilSoundArray AbilCmd="MedivacHeal,Execute" Sound="Medivac_HealVO"/>
+        <AbilSoundArray AbilCmd="MedivacTransport,Load" Sound="Medivac_LoadVO"/>
+        <AbilSoundArray AbilCmd="MedivacTransport,UnloadAt" Sound="Medivac_UnloadVO"/>
+        <BarOffset value="50"/>
+        <BarWidth value="80"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-medivac.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds"/>
+        <NameOffset value="50"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-medivac.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorMissile id="TychusMarauderAttackMissile" parent="GenericAttackMissile" unitName="TychusPunisherGrenadesLMWeapon">
+        <Model value="PunisherGrenadesLMWeapon"/>
+    </CActorMissile>
+    <CActorAction id="TychusMarauderAttack" parent="MarauderAttackBase" effectImpact="TychusPunisherGrenadesU" effectLaunch="TychusPunisherGrenadesLM">
+        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster" Send="Create"/>
+        <LaunchAttachQuery Methods="AMPatternMarauder"/>
+        <LaunchAssets Model="MarauderAttackLaunch"/>
+        <ImpactPhysics Name="PunisherGrenadesImpact" MatchKeys="Basic" Physics="MarauderAttackDeathForce"/>
+        <Missile value="TychusMarauderAttackMissile"/>
+    </CActorAction>
+    <CActorAction id="TychusHERCAttack" parent="GenericAttack" effectAttack="TychusHERCWeaponDamage">
+        <LaunchAssets Model="HERCAttackLaunch" Sound="Herc_AttackLaunch"/>
+        <LaunchModel value="HERCAttackLaunch"/>
+        <ContainerAssets Model="HERCAttackLaunch" Sound="Herc_AttackLaunch"/>
+        <ImpactMap index="None" Model="GhostAttackImpact" Sound="Ghost_AttackImpact"/>
+    </CActorAction>
+    <CActorModel id="TychusMedivacHealModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="ActorCreation" Send="$Birth PlayForever"/>
+        <On Terms="Effect.TychusMedivacHeal.TargetStart; At Target" Send="Create"/>
+        <On Terms="Effect.TychusMedivacHeal.TargetStop; At Target" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Model value="MedicHealModel"/>
+    </CActorModel>
+    <CActorBeamSimple id="TychusMedivacHealBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <Model value="MedivacHealBeam"/>
+        <On Terms="Effect.TychusMedivacHeal.TargetStart" Send="Create"/>
+        <On Terms="Effect.TychusMedivacHeal.TargetStop" Send="Destroy"/>
+        <HostForProps Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>
+        <HostLaunchSiteOps Ops="SOpAttachCenter"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
+        <Inherits index="Visibility" value="1"/>
+    </CActorBeamSimple>
+    <CActorSound id="TychusMedivacHealSound" parent="SoundContinuous">
+        <Sound value="Medivac_HealLoop"/>
+        <On Terms="Abil.TychusMedivacHealPlusMech.TargetChannelStart" Send="Create"/>
+        <On Terms="Abil.TychusMedivacHealPlusMech.TargetChannelStop" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="Create MedivacHealSoundStart"/>
+        <On Terms="ActorDestruction" Send="Create MedivacHealSoundStop"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+    </CActorSound>
+    <CActorSite id="TychusMedivacDoubleHealBeamLaunchSite" parent="SiteCenter">
+        <On Terms="Abil.TychusMedivacHealPlusMech.SourceChannelStart" Send="Create"/>
+        <On Terms="Abil.TychusMedivacDoubleHealPlusMech.SourceChannelStart" Send="Create"/>
+        <On Terms="StatusOff.*.Beams" Send="Destroy"/>
+    </CActorSite>
+    <CActorSite id="TychusMedivacDoubleHealBeamImpactSite" parent="SiteCenter">
+        <On Terms="Effect.TychusMedivacHealTargetPersistent.Start; At Target" Send="Create"/>
+        <On Terms="Effect.TychusMedivacHealTargetPersistent.Stop" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="RefSetFromRequest ::scope.TychusMedivacHealLaunch TychusMedivacDoubleHealBeamLaunchSite Caster Find"/>
+        <On Terms="ActorCreation" Send="Create TychusMedivacDoubleHealBeam"/>
+    </CActorSite>
+    <CActorBeamSimple id="TychusMedivacDoubleHealBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <Model value="MedivacHealBeam"/>
+        <On Terms="ActorCreation" Target="::scope.TychusMedivacHealLaunch" Send="StatusIncrement Beams"/>
+        <On Terms="Effect.TychusMedivacHealTargetPersistent.Stop" Send="Destroy"/>
+        <On Terms="ActorDestruction" Target="::scope.TychusMedivacHealLaunch" Send="StatusDecrement Beams"/>
+        <HostLaunch Subject="::scope.TychusMedivacHealLaunch"/>
+        <HostImpact Subject="::Creator"/>
+    </CActorBeamSimple>
+    <CActorModel id="TychusMedivacDoubleHealModel">
+        <Model value="MedicHealModel"/>
+        <On Terms="ActorCreation" Send="$Birth PlayForever"/>
+        <On Terms="Effect.TychusMedivacHealTargetPersistent.Start; At Target" Send="Create"/>
+        <On Terms="Effect.TychusMedivacHealTargetPersistent.Stop" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+    </CActorModel>
+    <CActorSound id="TychusMedivacDoubleHealSound" parent="SoundContinuous">
+        <Sound value="Medivac_HealLoop"/>
+        <On Terms="Effect.TychusMedivacHealTargetPersistent.Start; At Target" Send="Create"/>
+        <On Terms="ActorCreation" Send="Create MedivacHealSoundStart"/>
+        <On Terms="ActorDestruction" Send="Create MedivacHealSoundStop"/>
+        <On Terms="Effect.TychusMedivacHealTargetPersistent.Stop" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+    </CActorSound>
+    <CActorUnit id="TychusGhost" parent="GenericUnitBase" unitName="TychusGhost">
+        <Aliases value="_UnitSmall"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="UnitMovementUpdate.*.Walk; AnimPlaying SpellC" Send="AnimClear SpellC"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Ghost_Land"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimBracketClear Spell"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketClear Spell"/>
+        <On Terms="Abil.TychusGhostDominate.SourcePrepStart" Send="AnimBaselineStop"/>
+        <On Terms="Abil.TychusGhostDominate.SourcePrepStart" Send="AnimPlay SpellA Spell,A"/>
+        <On Terms="Abil.TychusGhostDominate.SourcePrepStop" Send="AnimClear SpellA"/>
+        <On Terms="Abil.TychusGhostDominate.SourcePrepStop" Send="AnimBaselineStart"/>
+        <On Terms="Effect.TychusGhostDominateSet.Start; At Caster" Send="AnimPlay SpellC Spell,C"/>
+        <AnimBlendTime value="-0.800000"/>
+        <DeathArray index="Normal" ModelLink="TychusGhostDeath" SoundLink="Ghost_Explode"/>
+        <DeathCustoms ModelLink="TerranSmallBiologicalUnitDeathLow" Name="AntiGravTerran"/>
+        <DeathCustoms ModelLink="TychusGhostDeathRagdoll" Name="RagdollBasic" PhysicsMatchKeysOrdered="BasicAir,Basic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollBloodPrevent" ModelLink="MarineDeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>
+        <PortraitModel value="Ghost_Heavens_COOP_Portrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.400000"/>
+            <RangeDown value="0.400000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleSmall"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <AbilSoundArray AbilCmd="GhostCloak,On" Sound="GhostAlternate_CloakOnVO"/>
+        <AbilSoundArray AbilCmd="EMP,Execute" Sound="GhostAlternate_EmpVO"/>
+        <AbilSoundArray AbilCmd="TacNukeStrike,Execute" Sound="GhostAlternate_NuclearStrikeVO"/>
+        <BarOffset value="50"/>
+        <BarWidth value="42"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-ghostfemale.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychusghost.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychusghost.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SelectAbilCmd value="EMP,Execute"/>
+        <SoundArray index="Ready" value=""/>
+        <SoundArray index="Help" value="GhostAlternate_Help"/>
+        <SoundArray index="What" value="GhostAlternate_What"/>
+        <SoundArray index="Yes" value="GhostAlternate_Yes"/>
+        <SoundArray index="Attack" value="GhostAlternate_Attack"/>
+        <SoundArray index="Pissed" value="GhostAlternate_Pissed"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-ghostfemale.dds"/>
+        </Wireframe>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <CustomUnitStatusFrame value="Coop_UnitStatus_Tychus/TychusGhost_StatusFrame"/>
+        <MinimapIcon value="Assets\Textures\ui_ingame_coop_minimap_tychus_heroicon_ghost.dds"/>
+        <MinimapIconScale value="0.550000"/>
+        <MinimapTooltip value="Unit/Name/TychusGhost"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+        <MinimapRenderPriority value="Hero"/>
+        <CustomUnitStatusOffset value="0,-30"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <StatusBarOn index="Shields" value="1"/>
+        <StatusBarOn index="Life" value="1"/>
+        <StatusBarOn index="Energy" value="1"/>
+        <StatusBarOn index="Progress" value="1"/>
+        <StatusBarOn index="Duration" value="1"/>
+        <StatusBarOn index="Custom" value="1"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+    </CActorUnit>
+    <CActorSplat id="TychusHercGrappleSearch" parent="TerranCursorSplat" abil="TychusHercGrapple"/>
+    <CActorModel id="Medic_TeleportIn_COOP" parent="ModelAnimationStyleOneShot">
+        <EditorCategories value=""/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin" HoldPosition="1" HoldRotation="1"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <Model value="AirUnits_TeleportIn_COOP"/>
+    </CActorModel>
+    <CActorModel id="Medic_TeleportOut_COOP" parent="ModelAnimationStyleOneShot">
+        <EditorCategories value=""/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin" HoldPosition="1"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <Model value="AirUnits_TeleportOut_COOP"/>
+    </CActorModel>
+    <CActorSplat id="TychusMedicTransportUnitTargetingSplat" parent="TerranCursorSplat" abil="TychusMedicTransportLoad">
+        <On Terms="Abil.TychusMedicTransportUnload.Cursor" Send="Create"/>
+    </CActorSplat>
+    <CActorAction id="TychusGhostAttack" parent="GenericAttack" effectAttack="TychusGhostDamage">
+        <LaunchAssets Model="Ghost_BlackOpsAttackLaunch" Sound="Ghost_AttackLaunch"/>
+        <ContainerAssets Model="GhostBunkerAttackLaunch" Sound="Ghost_BunkerAttackLaunch"/>
+        <Beam value="Ghost_BlackOpsAttackBeam"/>
+        <Missile value="Ghost_BlackOpsAttackMissile"/>
+        <ImpactMap index="None" Model="Ghost_BlackOpsAttackImpact" Sound="Ghost_AttackImpact" ModelReaction="Ghost_BlackOpsAttackImpactReaction"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <ImpactMap index="Shield" Sound="Ghost_BlackOpsAttackImpactShield" ModelReaction="Ghost_BlackOpsAttackImpactReactionShield"/>
+        <ImpactPhysics Name="CannisterRifleImpact" MatchKeys="Basic" Physics="GhostAttackDeathForce"/>
+        <DamageMap index="None" Model="Ghost_BlackOpsAttackDamage" Sound="Ghost_BlackOpsAttackDamage" ModelReaction="Ghost_BlackOpsAttackDamageReaction"/>
+        <DamageMap index="Shield" Sound="Ghost_BlackOpsAttackDamageShield" ModelReaction="Ghost_BlackOpsAttackDamageReactionShield"/>
+        <AcquisitionYawHalfArc value="10.000000"/>
+        <AcquisitionPitchHalfArc value="15.000000"/>
+        <AccuracyHalfArc value="5.000000"/>
+    </CActorAction>
+    <CActorModel id="TychusGhostPsychicSnare" parent="ModelAddition">
+        <On Terms="Behavior.TychusGhostPsychicSnare.On" Send="Create"/>
+        <On Terms="Behavior.TychusGhostPsychicSnare.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="ActorCreation" Send="SetScale 1.800000 0.400000 Growth"/>
+        <On Terms="ActorCreation" Target="_Selectable" Send="AnimPlay Flail Flail PlayForever"/>
+        <On Terms="ActorDestruction" Target="_Selectable" Send="AnimClear Flail"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Model value="MindBlastStun"/>
+        <AutoScaleFactor value="1.000000"/>
+    </CActorModel>
+    <CActorSound id="TychusGhostPsychicSnare_End_AS" parent="SoundOneShot">
+        <On Terms="Behavior.TychusGhostPsychicSnare.Off" Send="Create"/>
+        <Sound value="Tychus_Ghost_PsiProjector_SpellEnd"/>
+    </CActorSound>
+    <CActorAction id="TychusGhostPsychicSnareAttack" parent="GenericAttack" effectImpact="TychusGhostPsychicSnare" effectLaunch="TychusGhostPsychicSnareLM">
+        <LaunchAttachQuery Methods="Weapon 0" Fallback="Weapon"/>
+        <LaunchAssets Sound="Tychus_Ghost_PsiProjector_Launch"/>
+        <ImpactMap index="None" Model="ArtanisVoidUlnarAttackImpactModel" Sound="Tychus_Ghost_PsiProjector_Impact"/>
+    </CActorAction>
+    <CActorMissile id="TychusGhostPsychicSnareAttackMissile" parent="GenericAttackMissile" unitName="TychusGhostPsychicSnareAttackMissile">
+        <Model value="MindSiphonReturnWeapon"/>
+    </CActorMissile>
+    <CActorRange id="TychusGhostPsychicSnareRange" parent="RangeAbil" abil="TychusGhostPsychicSnare"/>
+    <CActorModel id="TychusMedivacPlatformBuild" parent="TerranBuildingBuild">
+        <Model value="HHBomberPlatformBuild"/>
+    </CActorModel>
+    <CActorModel id="TychusResearchCenterBuild" parent="TerranBuildingBuild">
+        <Model value="GhostAcademyBuild"/>
+    </CActorModel>
+    <CActorUnit id="TychusMedivacPlatform" parent="TerranBuildingFlyer" unitName="TychusMedivacPlatform">
+        <Macros value="TychusDecalMacro"/>
+        <Macros value="BuildAnim"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <HostSiteOps Ops="SOpBankerUnitBuilding"/>
+        <DeathArray index="Normal" ModelLink="MedivacPlatform_Heavens_COOP_Death" SoundLink="HH_StrikeFighterPlatform_DeathExplosion"/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="HH_StrikeFighterPlatform_DeathExplosion"/>
+        <PlacementModel value="MedivacPlatform_Heavens_COOP_Placement"/>
+        <PlacementSound value="Terran_BuildingPlacement"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.250000,0.500000"/>
+            <RangeDown value="5.000000"/>
+            <RangeDownFade value="1.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleMassive3"/>
+        </TerrainSquibs>
+        <BarOffset value="105"/>
+        <BarWidth value="160"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\WireFrame-HornerHan-BomberPlatform.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-terran-tychusmedivacplatform.dds"/>
+        <UnitIcon value="Assets\Textures\btn-building-terran-tychusmedivacplatform.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <NameOffset value="110"/>
+        <SoundArray index="Ready" value="Tychus_MedivacPlatform_Ready"/>
+        <SoundArray index="What" value="Tychus_MedivacPlatform_What"/>
+        <SoundArray index="Movement" value="Starport_Movement"/>
+        <SoundArray index="Construction" value="Terran_ConstructionWhat"/>
+        <Wireframe>
+            <Image value="Assets\Textures\WireFrame-HornerHan-BomberPlatform.dds"/>
+        </Wireframe>
+        <StatusBarOn index="Duration" value="1"/>
+        <Model value="MedivacPlatform_Heavens_COOP"/>
+        <BuildModel value="MedivacPlatform_Heavens_COOP"/>
+    </CActorUnit>
+    <CActorModel id="TychusOdinBarrageModel" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.TychusOdinBarrageSearchArea.Impact" Send="Create"/>
+        <HostSiteOps Ops="SOpTargetPoint OdinBarrageVariance"/>
+        <Model value="BarrageModel"/>
+    </CActorModel>
+    <CActorSound id="TychusOdinBarrageMorph" parent="SoundOneShot">
+        <On Terms="Abil.TychusOdinBarrage.SourceCastStart" Send="Create"/>
+        <Sound value="BarrageMorph"/>
+    </CActorSound>
+    <CActorSound id="TychusOdinBarrageSound" parent="SoundOneShot">
+        <On Terms="Effect.TychusOdinBarrageSearchArea.Impact" Send="Create"/>
+        <Sound value="TychusOdin_BarrageSound"/>
+    </CActorSound>
+    <CActorSound id="TychusOdinBarrageUnmorph" parent="SoundOneShot">
+        <On Terms="Abil.TychusOdinBarrage.SourceFinishStart" Send="Create"/>
+        <Sound value="BarrageUnMorph"/>
+    </CActorSound>
+    <CActorSquib id="OdinNukeLaunch">
+        <On Terms="Effect.OdinNukePersistent.Start" Send="Create"/>
+    </CActorSquib>
+    <CActorSound id="TychusOdin_NukeLaunch_AS" parent="SoundOneShot">
+        <On Terms="Effect.OdinNukePersistent.Start" Send="Create"/>
+        <Sound value="TychusOdin_MxFx_NukeLaunch"/>
+    </CActorSound>
+    <CActorSound id="OdinNukeSeek" parent="SoundContinuous">
+        <Sound value="Odin_NukeSeek"/>
+        <On Terms="Effect.OdinNukePersistent.Initial" Send="Create"/>
+        <On Terms="Effect.OdinNukePersistent.Stop; At Effect" Send="Destroy"/>
+    </CActorSound>
+    <CActorSquib id="OdinNukeDrop">
+        <Map index="None" Sound="TychusOdin_NukeDrop"/>
+        <On Terms="Effect.OdinNukeDetonate.Start" Send="Create"/>
+    </CActorSquib>
+    <CActorSquib id="OdinNukeExplode">
+        <Map index="None" Sound="TychusOdin_NukeExplode"/>
+        <On Terms="ActorCreation" Send="Create TychusOdin_CollateralFire_AS"/>
+        <On Terms="Effect.OdinNukeDamage.Start; At Effect" Send="Create"/>
+    </CActorSquib>
+    <CActorModel id="OdinNukeCollateralFire">
+        <On Terms="Effect.OdinNukeDamage.Start; At Target" Send="Create"/>
+    </CActorModel>
+    <CActorSound id="TychusOdin_CollateralFire_AS" parent="SoundOneShot">
+        <!--On Terms="Effect.OdinNukeDamage.Start; At Target" Send="Create"/>-->
+        <Sound value="COD_Nuke_Payload_FireCloud"/>
+        <Layers Sound="COD_Nuke_Payload_FireCloud_Small"/>
+    </CActorSound>
+    <CActorModel id="TychusOdinBarrageCursorModel" parent="TerranCursorModel" abil="TychusOdinBarrage"/>
+    <CActorSplat id="TychusOdinBarrageCursorSplat" parent="TerranCursorSplat" abil="TychusOdinBarrage"/>
+    <CActorSplat id="TychusOdinCalldownCursorSplat" parent="TerranCursorSplat" abil="TychusCalldownOdinTargeted"/>
+    <CActorRange id="TychusOdinBarrageRange" parent="RangeAbil" abil="TychusOdinBarrage"/>
+    <CActorModel id="TychusOdinBarrageWarning" parent="ModelAnimationStyleContinuous">
+        <FogVisibility value="Visible"/>
+        <On Terms="Abil.TychusOdinBarrage.TargetCastStart" Send="Create"/>
+        <On Terms="Abil.TychusOdinBarrage.TargetChannelStop" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <ScopeBearingsTracking value="ForceOff"/>
+        <Model value="TerranAOECursorSplat"/>
+        <Scale value="3.000000"/>
+    </CActorModel>
+    <CActorModel id="TychusFirebatShieldViz" parent="ModelAnimationStyleOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.TychusFirebatShield.DamageHandled" Send="Create"/>
+        <On Terms="AnimDone" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <Model value="HardenedWillViz"/>
+    </CActorModel>
+    <CActorSound id="TychusFirebatShieldSound" parent="SoundOneShot">
+        <On Terms="Behavior.TychusFirebatShield.DamageHandled" Send="Create"/>
+        <Sound value="Taldarin_BarrierOn"/>
+    </CActorSound>
+    <CActorRange id="TychusOdinNuclearStrikeRange" parent="RangeAbil" abil="TychusOdinNuclearStrike"/>
+    <CActorSplat id="TychusOdinNuclearStrikeCursorSplat" parent="TerranCursorSplat" abil="TychusOdinNuclearStrike">
+        <Model value="nukeCursorSplat"/>
+    </CActorSplat>
+    <CActorMissile id="TychusReaperBombAttackMissile" parent="GenericAttackMissile" unitName="TychusReaperBombMissile">
+        <Remove Terms="UnitBirth" Send="AnimBracketStart Lifetime Birth Stand"/>
+        <On Terms="UnitBirth" Send="AnimPlay Spell Stand PlayForever"/>
+        <!--On Terms="ActorCreation" Send="Create Tychus_Reaper_BombToss_AS"/>-->
+    </CActorMissile>
+    <CActorMissile id="TychusHercGrappleMissile" parent="GenericAttackMissile" unitName="TychusHERCGrappleHookMissile">
+        <Remove Terms="UnitBirth" Send="AnimBracketStart Lifetime Birth Stand"/>
+        <On Terms="UnitBirth" Send="AnimBracketStart BSD Birth Stand Death"/>
+    </CActorMissile>
+    <CActorSound id="Tychus_Reaper_BombToss_AS" parent="SoundOneShot">
+        <On Terms="Abil.TychusReaperBomb.SourceCastStart" Send="Create"/>
+        <Sound value="Tychus_Reaper_FireBombToss"/>
+        <Layers Sound="Tychus_Grenade_Toss"/>
+    </CActorSound>
+    <CActorMissile id="TychusReaper" parent="GenericUnitBase" unitName="TychusReaper">
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.TychusP38ScytheGuassPistol.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.TychusP38ScytheGuassPistol.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create HHReaper_Land_AS"/>
+        <On Terms="Abil.TychusReaperBomb.SourceCastStart" Send="$Spell"/>
+        <PortraitModel value="Reaper_Heavens_COOP_Portrait"/>
+        <DeathArray index="Normal" ModelLink="TychusReaperDeath" SoundLink="Reaper_Explode"/>
+        <Aliases value="_MissileHybrids"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="TychusDecalMacro"/>
+        <WalkAnimMoveSpeed value="2"/>
+        <BarWidth value="36"/>
+        <BarOffset value="40"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychusreaper.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychusreaper.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-terran-reaper-mercenary.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-terran-reaper-mercenary.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Ready" value=""/>
+        <SoundArray index="Help" value="Reaper_Help"/>
+        <SoundArray index="What" value="Reaper_What"/>
+        <SoundArray index="Yes" value="Reaper_Yes"/>
+        <SoundArray index="Attack" value="Reaper_Attack"/>
+        <SoundArray index="Pissed" value="Reaper_Pissed"/>
+        <SoundArray index="Movement" value="Reaper_Movement"/>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>
+        <DeathCustoms ActorModel="UnitDeathRagdollBloodPrevent" ModelLink="TychusReaperDeathRagdoll" Name="RagdollBasic">
+            <!-- Reducing blood on Terran units, for now... -->
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollBloodPrevent" ModelLink="ReaperDeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.250000,0.500000"/>
+            <RangeUp value="0.600000"/>
+            <RangeDown value="1.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleReaper"/>
+        </TerrainSquibs>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <CustomUnitStatusFrame value="Coop_UnitStatus_Tychus/TychusReaper_StatusFrame"/>
+        <MinimapIcon value="Assets\Textures\ui_ingame_coop_minimap_tychus_heroicon_reaper.dds"/>
+        <MinimapIconScale value="0.550000"/>
+        <MinimapTooltip value="Unit/Name/TychusReaperNickname"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+        <MinimapRenderPriority value="Hero"/>
+        <CustomUnitStatusOffset value="0,-30"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <StatusBarOn index="Shields" value="1"/>
+        <StatusBarOn index="Life" value="1"/>
+        <StatusBarOn index="Energy" value="1"/>
+        <StatusBarOn index="Progress" value="1"/>
+        <StatusBarOn index="Duration" value="1"/>
+        <StatusBarOn index="Custom" value="1"/>
+        <HighlightTooltip value="Unit/Name/TychusReaperNickname"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+    </CActorMissile>
+    <CActorAction id="TychusReaperAttack" parent="GenericAttack" effectAttack="TychusP38ScytheGuassPistol">
+        <LaunchAttachQuery Methods="AMPatternReaper"/>
+        <ContainerAssets Model="ReaperBunkerAttackLaunch" Sound="Reaper_BunkerAttackLaunch"/>
+        <ImpactMap index="None" Model="ReaperAttackImpact" Sound="Reaper_AttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <ImpactPhysics Name="BulletImpact" MatchKeys="Basic" Physics="ReaperAttackDeathForce"/>
+        <LaunchAssets Model="ReaperAttackLaunch" Sound="Reaper_AttackLaunch"/>
+    </CActorAction>
+    <CActorAction id="TychusReaperBombAttack" parent="GenericAttack" effectImpact="TychusReaperBombSet" effectLaunch="TychusReaperBombDamageLM">
+        <LaunchAttachQuery Methods="AMFilterWeaponRight"/>
+    </CActorAction>
+    <CActorModel id="TychusReaperBomb">
+        <On Terms="ActorCreation" Send="AnimPlay Spell Stand PlayForever"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="Behavior.TychusReaperBomb.On" Send="Create"/>
+        <On Terms="Behavior.TychusReaperBomb.Off" Send="Destroy"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+    </CActorModel>
+    <CActorSound id="TychusReaperBombTarget_AS" parent="SoundOneShot">
+        <On Terms="Behavior.TychusReaperBomb.On" Send="Create"/>
+        <Sound value="Tychus_Reaper_Bomb_TargetHit"/>
+        <Layers Sound="Tychus_Reaper_Bomb_On" PitchSource="Actor">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="-2.000000,-2.000000"/>
+        </Layers>
+        <Layers Sound="Tychus_Reaper_FireBomb_Impact"/>
+        <Layers/>
+    </CActorSound>
+    <CActorModel id="TychusReaperBombImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.TychusReaperBombU.Start; At Target" Send="Create"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <AutoScaleFactor value="1.000000"/>
+        <FogVisibility value="Hidden"/>
+    </CActorModel>
+    <CActorSound id="TychusReaperBombImpact_AS" parent="SoundOneShot">
+        <On Terms="Effect.TychusReaperBombU.Start" Send="Create"/>
+        <Sound value="FenixPurificationNova_Explosion"/>
+        <Layers Sound="Blast_SubLow_Large_Building" PitchSource="Actor">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="-2.000000,-2.000000"/>
+        </Layers>
+    </CActorSound>
+    <CActorModelMaterial id="GlazeTychusHERCShield" parent="GlazeParent">
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <On Terms="Behavior.TychusHERCShield.On" Send="Create"/>
+        <On Terms="ActorCreation" Send="ModelMaterialApplyTo ::Main"/>
+        <On Terms="Behavior.TychusHERCShield.Off" Send="ModelMaterialRemoveFrom ::Main"/>
+        <On Terms="Behavior.TychusHERCShield.Off" Send="Destroy"/>
+    </CActorModelMaterial>
+    <CActorModel id="TychusHercShieldExplosion" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.TychusHERCShieldApply.Start; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="SetTintColor {0,255,255 5.000000}"/>
+    </CActorModel>
+    <CActorUnit id="TychusMarauder" parent="GenericUnitBase" unitName="TychusMarauder">
+        <Aliases value="_UnitMedium"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="ActorCreation" Send="StatusSet WeaponNext 0"/>
+        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster" Send="StatusIncrement WeaponNext"/>
+        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster; IsStatus WeaponNext 2" Send="StatusSet WeaponNext 0"/>
+        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster; IsStatus WeaponNext 0" Send="AnimClear AttackLeft"/>
+        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster; IsStatus WeaponNext 0" Send="AnimPlay AttackRight Attack,Right"/>
+        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster; IsStatus WeaponNext 1" Send="AnimClear AttackRight"/>
+        <On Terms="Effect.TychusPunisherGrenadesLM.Start; At Caster; IsStatus WeaponNext 1" Send="AnimPlay AttackLeft Attack,Left"/>
+        <On Terms="Abil.TychusMarauderHealFull.SourceCastStart; !UnitWalking" Send="AnimPlay Morph Attack"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear AttackLeft"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear AttackRight"/>
+        <On Terms="ModelEvent; ModelEventName AnimClear" Send="AnimClear AttackLeft"/>
+        <On Terms="ModelEvent; ModelEventName AnimClear" Send="AnimClear AttackRight"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Marauder_Land"/>
+        <On Terms="Abil.TychusMarauderClap.SourceCastStart" Send="AnimPlay Spell Attack"/>
+        <On Terms="Abil.TychusMarauderClap.SourceCastStart" Send="Create TychusMarauderClapSound"/>
+        <On Terms="UnitMovementUpdate.*.Walk; AnimPlaying Spell" Send="AnimClear Spell"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="TychusMarauderDeath" SoundLink="" VoiceLink="DxFx_MarauderDeath_Exerts"/>
+        <DeathArray index="Eviscerate" SoundLink="Uni_DeathFXEviscerate"/>
+        <DeathArray index="Silentkill" SoundLink="Uni_DeathFXSilentKill"/>
+        <DeathCustoms ActorModel="UnitDeathRagdollBloodPrevent" ModelLink="TychusMarauderDeathRagdoll" Name="RagdollBasic">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms>
+            <ModelLink value="DeathVoidShadowMedium"/>
+            <SoundLink value="ShadowUnit_DeathFX"/>
+            <VoiceLink value="ShadowUnit_DeathVox"/>
+            <Name value="Shadow"/>
+        </DeathCustoms>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>
+        <PortraitModel value="Marauder_Heavens_COOP_Portrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.800000"/>
+            <RangeDown value="0.800000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleLarge"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <BarOffset value="60"/>
+        <BarWidth value="50"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Marauder.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-tychusmarauder.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-tychusmarauder.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Marauder.dds"/>
+        </Wireframe>
+        <CustomUnitStatusFrame value="Coop_UnitStatus_Tychus/TychusMarauder_StatusFrame"/>
+        <MinimapIcon value="Assets\Textures\ui_ingame_coop_minimap_tychus_heroicon_marauder.dds"/>
+        <MinimapIconScale value="0.550000"/>
+        <MinimapTooltip value="Unit/Name/TychusMarauderNickname"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+        <MinimapRenderPriority value="Hero"/>
+        <CustomUnitStatusOffset value="0,-30"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <StatusBarOn index="Shields" value="1"/>
+        <StatusBarOn index="Life" value="1"/>
+        <StatusBarOn index="Energy" value="1"/>
+        <StatusBarOn index="Progress" value="1"/>
+        <StatusBarOn index="Duration" value="1"/>
+        <StatusBarOn index="Custom" value="1"/>
+        <SoundArray index="Ready" value=""/>
+        <SoundArray index="Help" value="Marauder_Help"/>
+        <SoundArray index="What" value="Marauder_What"/>
+        <SoundArray index="Yes" value="Marauder_Yes"/>
+        <SoundArray index="Attack" value="Marauder_Attack"/>
+        <SoundArray index="Pissed" value="Marauder_Pissed"/>
+        <SoundArray index="Movement" value="Tychus_Marauder_Mv_Start"/>
+        <HighlightTooltip value="Unit/Name/TychusMarauderNickname"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+    </CActorUnit>
+    <CActorModel id="TychusGhostConfusionModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Behavior.TychusGhostConfusion.On" Send="Create"/>
+        <On Terms="Behavior.TychusGhostConfusion.Off" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+    </CActorModel>
+    <CActorUnit id="TychusMarauderHealingWard" parent="GenericUnitStandard" unitName="TychusMarauderHealingWard">
+        <Aliases value="_CreepEngulfable"/>
+        <Aliases value="_UnitMedium"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="TychusDecalMacro"/>
+        <On Terms="ActorCreation" Send="AnimPlay Spell Stand,Work PlayForever"/>
+        <On Terms="ActorCreation" Send="Create Tychus_Marauder_HealingDrone_Deploy_AS"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <CreepHeightClass value="Small"/>
+        <DeathArray index="Normal" ModelLink="TychusMarauderHealingWardDeath" SoundLink="Tychus_Marauder_HealingDrone_Explode" VoiceLink="Tychus_Marauder_HealingDrone_Death_Vx"/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="Tychus_Marauder_HealingDrone_Explode"/>
+        <PlacementModel value="HealingWard_Heavens_COOP_Placement"/>
+        <PlacementSound value="Terran_BuildingPlacement"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <BarOffset value="50"/>
+        <ErrorArray Error="CantBuildLocationInvalid" Sound="Raven_Pissed"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-terran-shredderminedeployed.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-terran-tychushealingward.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <SoundArray index="Birth" value="NovaBoombot_Drone_PowerUp"/>
+        <SoundArray index="Ready" value="Tychus_Marauder_HealingDrone_What"/>
+        <SoundArray index="What" value="Tychus_Marauder_HealingDrone_What"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-building-terran-tychushealingward.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-terran-shredderminedeployed.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSound id="Tychus_Marauder_HealingDrone_Deploy_AS" parent="SoundOneShot">
+        <Sound value="Tychus_Marauder_HealingDrone_Deploy"/>
+    </CActorSound>
+    <CActorModel id="TychusMarauderHealingWardSearch" parent="ModelAnimationStyleContinuous">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="Behavior.TychusMarauderHealingWardCaster.On" Send="Create"/>
+        <On Terms="Behavior.TychusMarauderHealingWardCaster.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="ActorCreation" Send="SetScale 0.050000,0.050000,1.000000 0.000000 Grow"/>
+        <On Terms="ActorCreation" Send="ClearScale 0.250000 Grow"/>
+    </CActorModel>
+    <CActorSound id="Tychus_Marauder_HealingWard_Loop_AS" parent="SoundContinuous">
+        <On Terms="Behavior.TychusMarauderHealingWardCaster.On" Send="Create"/>
+        <On Terms="Behavior.TychusMarauderHealingWardCaster.Off" Send="Destroy"/>
+        <Sound value="Tychus_Marauder_HealingWard_Loop"/>
+        <Layers Sound="Tychus_Marauder_HealingDrone_Impact">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+        <Layers Sound="Tychus_Marauder_HealingDrone_Scan">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+        <Layers/>
+    </CActorSound>
+    <CActorMissile id="TychusMarauderHealingWardReleaseMissile" parent="GenericAttackMissile" unitName="TychusMarauderHealingWardReleaseWeapon"/>
+    <CActorAction id="TychusMarauderHealingWardRelease" parent="GenericAttack" effectImpact="RemovePrecursor" effectLaunch="TychusMarauderHealingWardReleaseLM">
+        <LaunchAssets Sound="Tychus_Marauder_HealingDrone_Launch"/>
+        <ImpactMap index="None" Sound=""/>
+        <ImpactSiteOps Ops="SOpAttachOrigin SOpShadow"/>
+        <ShieldFlashType value="None"/>
+    </CActorAction>
+    <CActorModel id="TychusFirebatOilBombSlowImpact" parent="ModelAnimationStyleOneShot">
+        <Inherits index="CloakEffect" value="1"/>
+        <On Terms="Effect.TychusFirebatOilBombImpactSet.Start; At Target" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+        <Model value="HHHellionBombSlowImpact"/>
+        <AutoScaleFactor value="1.000000"/>
+    </CActorModel>
+    <CActorRange id="TychusFirebatOilBomb" parent="RangeAbil" abil="TychusFirebatOilBomb"/>
+    <CActorAction id="TychusFirebatOilBombAttack" parent="GenericAttack" effectImpact="TychusFirebatOilBombSearch" effectLaunch="TychusFirebatOilBombLM">
+        <LaunchSiteOps Ops="SOpAttachHardPoint"/>
+        <LaunchAssets Sound="TychusFirebat_OilBomb_AttackLaunch"/>
+        <ImpactMap index="None" Model="HHHellionRocketAttackImpact" Scale="1.500000" Sound="TychusFirebat_OilBomb_AttackImpact"/>
+        <ImpactMap index="Shield" Model="HHHellionRocketAttackImpact" Scale="1.500000"/>
+    </CActorAction>
+    <CActorMissile id="TychusFirebatOilBombAttackMissile" parent="GenericAttackMissileWithDeathAnim" unitName="TychusFirebatOilBomb">
+        <Model value="HHHellionRocket"/>
+        <DeathArray index="Normal" ModelLink="HHHellionRocket"/>
+    </CActorMissile>
+    <CActorUnit id="TychusGhostAcademy" parent="TerranBuildingFlyer" unitName="TychusGhostAcademy">
+        <Macros value="TychusDecalMacro"/>
+        <Macros value="QueueAnim"/>
+        <DeathArray index="Normal" ModelLink="SpecialistDepot_Heavens_COOP_Death" SoundLink=""/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="GhostAcademy_Explode"/>
+        <PlacementModel value="GhostAcademyPlacement"/>
+        <PlacementSound value="Terran_BuildingPlacement"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitFlags index="StandAnimBirthVariation" value="0"/>
+        <BarWidth value="155"/>
+        <BarOffset value="125"/>
+        <NameOffset value="100"/>
+        <HeroIcon value="Assets\Textures\btn-building-terran-tychusspecialistdepot.dds"/>
+        <UnitIcon value="Assets\Textures\btn-building-terran-tychusspecialistdepot.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-GhostAcademy.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-GhostAcademy.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <SoundArray index="Ready" value="Tychus_GhostAcadamy_Ready"/>
+        <SoundArray index="What" value="Tychus_GhostAcadamy_What"/>
+        <SoundArray index="Construction" value="Terran_ConstructionWhat"/>
+        <Aliases value="_UnitHuge"/>
+        <Model value="SpecialistDepot_Heavens_COOP"/>
+        <BuildModel value="SpecialistDepot_Heavens_COOP"/>
+    </CActorUnit>
+    <CActorSplat id="TychusGhostAcademySplat" parent="GenericUnitSplat" unitName="TychusGhostAcademy">
+        <Model value="GhostAcademySplat"/>
+    </CActorSplat>
+    <CActorUnit id="TychusMercCompound" parent="TerranBuilding" unitName="TychusMercCompound">
+        <Macros value="TychusDecalMacro"/>
+        <Macros value="QueueAnim"/>
+        <CreepHeightClass value="Medium"/>
+        <DeathArray index="Normal" ModelLink="AssaultDepot_Heavens_COOP_Death" SoundLink=""/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="MercCompound_Explode"/>
+        <DeathActorModel value="ColonyInfestationBuildingDeath"/>
+        <PlacementModel value="TychusMercCompoundPlacement"/>
+        <PlacementSound value="Terran_BuildingPlacement"/>
+        <PortraitModel value="AdjutantPortrait"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <BarWidth value="135"/>
+        <BarOffset value="120"/>
+        <NameOffset value="150"/>
+        <HeroIcon value="Assets\Textures\btn-building-terran-tychusassaultdepot.dds"/>
+        <UnitIcon value="Assets\Textures\btn-building-terran-tychusassaultdepot.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-terran-merccompound.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-terran-merccompound.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <SoundArray index="Ready" value="Tychus_MercCompound_Ready"/>
+        <SoundArray index="What" value="Tychus_MercCompound_What"/>
+        <SoundArray index="Construction" value="Terran_ConstructionWhat"/>
+        <Aliases value="_UnitHuge"/>
+        <Model value="AssaultDepot_Heavens_COOP"/>
+        <BuildModel value="AssaultDepot_Heavens_COOP"/>
+    </CActorUnit>
+    <CActorSplat id="TychusMercCompoundSplat" parent="GenericUnitSplat" unitName="TychusMercCompound"/>
+    <CActorModel id="TychusGhostAcademyBuild" parent="TerranBuildingBuild">
+        <Model value="GhostAcademyBuild"/>
+    </CActorModel>
+    <CActorModel id="TychusMercCompoundBuild" parent="TerranBuildingBuild"/>
+    <CActorModel id="TychusMedivacBuildingAttachment" parent="ModelAdditionNoAnims">
+        <Macros value="TychusDecalMacro"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <Model value="TychusMedivac"/>
+        <Inherits index="BaseModelScale" value="0"/>
+        <Inherits index="Scale" value="0"/>
+        <Inherits index="TintColor" value="0"/>
+        <Remove Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="Signal.*.MoverAttach" Send="RefSetFromMsg ::Host ::Sender"/>
+        <On Terms="Signal.*.MoverAttach" Send="HostSiteOpsSet ::Host"/>
+        <On Terms="Signal.*.MoverAttach" Send="SetOpacity"/>
+        <On Terms="Signal.*.MoverAttach" Send="SetOpacity 1.000000 2.000000"/>
+        <On Terms="Signal.*.MoverAttach" Send="TimerSet 4.700000 ShockModel"/>
+        <On Terms="UnitDeathCustomize" Send="TimerKill ShockModel"/>
+        <On Terms="TimerExpired; TimerName ShockModel" Send="Create HHBomberBoosterShock"/>
+        <On Terms="UnitConstruction.*.Start" Send="SetVisibility"/>
+        <On Terms="UnitConstruction.*.Finish" Send="SetVisibility 1"/>
+        <On Terms="UnitDeathCustomize" Send="ModelSwap TychusMedivacDeath"/>
+        <On Terms="UnitDeathCustomize" Send="$Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="AnimGroupApply Work Work,Start Work,End"/>
+        <On Terms="Signal.*.PickUpTarget" Send="AnimGroupRemove Work"/>
+        <On Terms="Signal.*.PickUpCancel" Send="AnimGroupApply Work Work,Start Work,End"/>
+        <On Terms="Signal.*.PickUpActivate" Send="Create AirUnits_TeleportOut_COOP"/>
+        <On Terms="Signal.*.PickUpActivate" Target="AirUnits_TeleportOut_COOP" Send="SetPositionFrom ::Sender"/>
+        <On Terms="Signal.*.PickUpActivate" Send="SetVisibility"/>
+        <On Terms="Signal.*.PickUpActivate" Target="TychusMedivacBuildingAttachmentMover" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="$Stand PlayForever"/>
+        <Terms value="Cap 1"/>
+    </CActorModel>
+    <CActorSiteMover id="TychusMedivacBuildingAttachmentMover">
+        <Acceleration value="5.000000"/>
+        <Deceleration value="1.000000"/>
+        <Speed value="2.000000"/>
+        <SpeedMax value="2.000000"/>
+        <On Terms="Signal.*.Intro" Target="TychusMedivacBuildingAttachment" Send="Signal MoverAttach"/>
+        <On Terms="MoverArrived" Target="TychusMedivacBuildingAttachment" Send="Signal MoverArrived"/>
+        <On Terms="Signal.*.Intro" Send="SetPositionFrom TychusMedivacBuildingAttachmentSite"/>
+        <On Terms="Signal.*.Intro" Send="SetHeight 12.000000"/>
+        <On Terms="Signal.*.Intro" Send="MoverSetDestinationFrom TychusMedivacBuildingAttachmentSite"/>
+        <On Terms="Signal.*.PickUpTarget" Send="MoverSetDestinationH 5.000000"/>
+        <On Terms="Signal.*.PickUpCancel" Send="MoverSetDestinationFrom TychusMedivacBuildingAttachmentSite"/>
+        <On Terms="Signal.*.Intro" Send="MoverMove"/>
+        <On Terms="Signal.*.PickUpTarget" Send="MoverMove"/>
+        <On Terms="Signal.*.PickUpCancel" Send="MoverMove"/>
+        <On Terms="ActorCreation" Send="Signal Intro"/>
+        <SiteFlags index="RequiresManualKill" value="1"/>
+        <Terms value="Cap 1"/>
+    </CActorSiteMover>
+    <CActorSiteOpLocalOffset id="TychusMedivacBuildingAttachmentLandingOffset">
+        <LocalOffset value="0.450000,0.000000,5.000000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorMissile id="TychusTornadoMissileAttackMissile" parent="GenericAttackMissile" unitName="TychusTornadoMissileWeapon"/>
+    <CActorAction id="TychusTornadoMissileAttack" parent="GenericAttack" effectImpact="TychusTornadoMissileDamage" effectLaunch="TychusTornadoMissileLM">
+        <LaunchAttachQuery Methods="AMFilterWarHound AMPatternWarHound"/>
+        <LaunchAssets Sound="HH_TornadoMissile_Launch"/>
+        <ImpactMap index="None" Sound="HH_TornadoMissile_Impact"/>
+        <ImpactPhysics Name="TornadoMissileImpact" MatchKeys="Basic" Physics="WarhoundMissileAttackForce"/>
+    </CActorAction>
+    <CActorModel id="TychusMarauderStimpackEndImpact" parent="ModelAnimationStyleOneShot">
+        <Inherits index="CloakEffect" value="1"/>
+        <On Terms="Behavior.TychusMarauderSuperStim.Off; ValidateUnit NotDead" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Model value="SuperStimpackEndImpact"/>
+    </CActorModel>
+    <CActorModel id="TychusMarauderStimpackStartImpact" parent="ModelAnimationStyleOneShot">
+        <Inherits index="CloakEffect" value="1"/>
+        <On Terms="Abil.TychusMarauderSuperStimpack.SourceCastStart" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Model value="SuperStimpackStartImpact"/>
+    </CActorModel>
+    <CActorSound id="TychusMarauderSuperStimAS" parent="SoundOneShot">
+        <On Terms="Abil.TychusMarauderSuperStimpack.SourceCastStart" Send="Create"/>
+        <Sound value="Marine_Stimpack"/>
+    </CActorSound>
+    <CActorModel id="TychusWarhoundFear" parent="ModelAnimationStyleContinuous">
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <On Terms="Behavior.TychusWarhoundFear.On" Send="Create"/>
+        <On Terms="Behavior.TychusWarhoundFear.Off" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorModel id="TychusSpectreUltrasonicPulseModel" parent="ModelAnimationStyleContinuous">
+        <!--On Terms="ActorCreation" Send="Create Tychus_Spectre_SonicPulse_Electric_AS"/>-->
+        <On Terms="Effect.TychusSpectreUltrasonicPulseCPLv1.Start" Send="Create"/>
+        <On Terms="Effect.TychusSpectreUltrasonicPulseCPLv1.Stop" Send="AnimBracketStop BSD"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Model value="Spectre_Heavens_COOP_UltrasonicPulse"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModel>
+    <CActorModelMaterial id="Glaze_TychusFirebat_OilSpill" parent="BehaviorGlaze" buff="TychusFirebatOilBombed"/>
+    <CActorModel id="TychusShredderGrenadeImpactModel">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <!--On Terms="AnimBracketState.*.AfterClosing; !AnimBracketExitReason ModelSwap; AnimName BSD" Send="Destroy"/-->
+        <!--On Terms="ActorCreation; ValidateEffect HaveTychusACImplosionGrenades" Send="Signal Implosion"/>
+        <On Terms="Signal.*.Implosion" Send="ModelSwap Tychus_ImplosionGrenade_Coop_Impact"/-->
+        <On Terms="ActorCreation; ValidateEffect HaveTychusACImplosionGrenades" Send="ModelSwap Tychus_ImplosionGrenade_Coop_Impact"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce"/>
+        <On Terms="ModelSwapped" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce"/>
+        <On Terms="AnimBracketState.*.AfterClosing; !AnimBracketExitReason ModelSwap; AnimName BSD" Send="Destroy"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorSiteOpRotationExplicit id="TychusResearchCenterIntroFacing">
+        <Forward value="-1.000000,1.000000,0.000000"/>
+    </CActorSiteOpRotationExplicit>
+    <CActorModel id="TychusResearchCenterIntro">
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Spell,00 {} {} ContentPlayOnce"/>
+        <On Terms="ActorOrphan" Send="AnimBracketStop BSD"/>
+        <!--On Terms="UnitBirth.TychusResearchCenter" Send="Create"/-->
+        <On Terms="ActorCreation" Send="Attach ::Main AMFilterHardpoint"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <On Terms="ModelEvent; ModelEventName TurnOn" Target="::Main" Send="AnimBracketStop Cover"/>
+        <On Terms="ModelEvent; ModelEventName TurnOn" Target="::Main" Send="Create TychusResearchCenterIntroDust"/>
+        <HostSiteOps Ops="TychusResearchCenterIntroFacing"/>
+        <Model value="Odin_Heavens_COOP_Transport"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <InheritType value="OneShot"/>
+        <Macros value="TychusDecalMacro"/>
+    </CActorModel>
+    <CActorModel id="TychusOdinDeathTimeOut">
+        <Aliases value="_DeathModel"/>
+        <!--HostSiteOps Ops="TychusOdinDeathTimeoutFacing" HoldRotation="1"/-->
+        <Macros value="TychusDecalMacro"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="CastShadows" value="1"/>
+        <Inherits index="CreepEngulfment" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <Inherits index="TeamColor" value="1"/>
+        <Inherits index="TintColor" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <AcceptedHostedPropTransfers index="TimeScale" value="0"/>
+        <On Terms="Signal.*.ClearDeathModel" Send="Destroy"/>
+        <On Terms="ActorDestruction" Target="TychusOdinDeathTimeOutAttachment" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="AnimPlay Birth Spell,B NonLooping"/>
+        <On Terms="AnimDone; AnimName Birth" Send="Destroy"/>
+        <Model value="Odin_Heavens_COOP_Transport"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <ModelFlags index="SuppressMissingAttachErrors" value="1"/>
+        <ModelFlags index="UpdateVisibility" value="0"/>
+        <ModelFlags index="UseSyncSeed" value="1"/>
+        <ModelFlags index="OutlineOccluder" value="1"/>
+    </CActorModel>
+    <CActorModel id="TychusOdinDeathTimeOutAttachment">
+        <Aliases value="_Snapshot"/>
+        <Aliases value="_Main"/>
+        <Aliases value="_Unit"/>
+        <Aliases value="_DeathModel"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="CastShadows" value="1"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="CreepEngulfment" value="1"/>
+        <Inherits index="Decal" value="1"/>
+        <Inherits index="ModelMaterials" value="1"/>
+        <Inherits index="Opacity" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <Inherits index="TeamColor" value="1"/>
+        <Inherits index="TimeScale" value="1"/>
+        <Inherits index="TintColor" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Inherits index="WarpGroup" value="1"/>
+        <On Terms="ActorCreation" Send="$Stand PlayForever"/>
+        <On Terms="AnimBracketState.*.AfterClosing; !AnimBracketExitReason ModelSwap; AnimName BSD" Send="Destroy"/>
+        <Host Subject="TychusOdinDeathTimeOut"/>
+        <HostSiteOps Ops="SOpAttachHardPoint"/>
+        <Macros value="TychusDecalMacro"/>
+        <ModelFlags index="SuppressMissingAttachErrors" value="1"/>
+        <ModelFlags index="UpdateVisibility" value="0"/>
+        <ModelFlags index="UseSyncSeed" value="1"/>
+        <!--Host Subject="::Creator"/-->
+        <AcceptedHostedPropTransfers index="TimeScale" value="0"/>
+    </CActorModel>
+    <CActorSound id="TychusOdinDeathTimeOut_AS" parent="SoundOneShot">
+        <Sound value="AC_TychusOdin_Pkup"/>
+        <Layers Sound="AC_TychusOdin_Pkup_Mech"/>
+    </CActorSound>
+    <CActorModel id="TychusSCVAutoTurretBuild" parent="TerranBuildingBuildSmall"/>
+    <CActorModel id="Medic_Heavens_COOP_MatrixGenerator" parent="ModelAddition">
+        <On Terms="ActorCreation" Send="AnimBracketStart GL_BSD GLbirth GLstand GLdeath"/>
+        <On Terms="ActorCreation; ValidateUnit IsHyperionVoidCoop" Send="SetScale 0.600000,0.750000,0.500000"/>
+        <On Terms="Behavior.TychusMedicDefensiveMatrix.On" Send="Create"/>
+        <On Terms="Behavior.TychusMedicDefensiveMatrix.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.TychusMedicDefensiveMatrix.Off" Send="AnimBracketStop GL_BSD"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="1.000000"/>
+    </CActorModel>
+    <CActorRange id="TychusSpectreUltrasonicPulseRange" parent="RangeAbil" abil="TychusSpectreUltrasonicPulse"/>
+    <CActorRange id="TychusMedicAoERange">
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <Range value="6.000000"/>
+        <On Terms="Abil.TychusMedicAoE.ButtonHoverOn" Send="Create"/>
+        <On Terms="Abil.TychusMedicAoE.ButtonHoverOff" Send="Destroy"/>
+    </CActorRange>
+    <CActorRange id="TychusHercGrappleRange" parent="RangeAbil" abil="TychusHercGrapple"/>
+    <CActorRange id="TychusReaperBombRange" parent="RangeAbil" abil="TychusReaperBomb"/>
+    <CActorRange id="TychusMarauderBuildHealingWardRange" parent="RangeAbil" abil="TychusMarauderBuildHealingWard"/>
+    <CActorUnit id="TychusOdinPrecursor" parent="GenericUnitStandardNoAutoSoundLinks" unitName="TychusOdinPrecursor">
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <Model value="Invisible"/>
+        <EditorModel value="Sphere"/>
+        <WalkAnimMoveSpeed value="0"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+    </CActorUnit>
+    <CActorSound id="HHReaper_Land_AS" parent="SoundOneShot">
+        <Sound value="HH_Reaper_Land"/>
+    </CActorSound>
+    <CActorModel id="HHBomberBoosterShock" parent="ModelAnimationStyleOneShot">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Host Subject="_HHBomber"/>
+        <HostSiteOps Ops="SOpShadow SOpHHBomberBoosterShockOffset" HoldPosition="1" HoldRotation="1"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <On Terms="ActorCreation" Send="Create HHBomberBoosterShock_AS"/>
+    </CActorModel>
+    <CActorSound id="HHBomberBoosterShock_AS" parent="SoundOneShot">
+        <Sound value="HH_StrikeFighter_Boosters"/>
+    </CActorSound>
+    <CActorSound id="HH_StrikeFighter_Pad_Descent_ActorSound" parent="SoundContinuous">
+        <Sound value="HH_StrikeFighter_Pad_Descent"/>
+    </CActorSound>
+    <CActorSiteOpLocalOffset id="SOpHHBomberBoosterShockOffset">
+        <LocalOffset value="0.000000,0.000000,1.300000"/>
+    </CActorSiteOpLocalOffset>
+</Catalog>

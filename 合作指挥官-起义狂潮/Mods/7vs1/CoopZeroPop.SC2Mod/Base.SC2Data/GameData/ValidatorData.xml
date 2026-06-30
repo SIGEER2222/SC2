@@ -68,4 +68,24 @@
         <Type value="And"/>
         <CombineArray value="BiomassBuff100CountLT1"/>
     </CValidatorCombine>
+    <!-- ===== SOAStickyPoint 框架验证器（移植自 0.81 XMCore）===== -->
+    <CValidatorUnitFilters id="IsUncommandable">
+        <Filters value="Uncommandable;-"/>
+    </CValidatorUnitFilters>
+    <CValidatorCombine id="MinorGoalAndUncommandable">
+        <Type value="And"/>
+        <CombineArray value="MinorGoal"/>
+        <CombineArray value="IsUncommandable"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="NotMinorGoal">
+        <Behavior value="MinorGoal"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="MinorGoal">
+        <Compare value="GT"/>
+        <Behavior value="MinorGoal"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="SOAPointFilter">
+        <CombineArray value="NotMinorGoal"/>
+        <CombineArray value="MinorGoalAndUncommandable"/>
+    </CValidatorCombine>
 </Catalog>

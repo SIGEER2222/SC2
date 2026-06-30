@@ -734,9 +734,7 @@ void lib67C0F0E7_gf_WarpinP (unitgroup lp_unitGroup) {
             if (lv_u == null) { break; }
             UnitBehaviorAdd(lv_u, "PWarpInG", lv_u, 1);
         }
-        if (CatalogEntryIsValid(c_gameCatalogActor, "SOAPointFinImpactSound")) {
-            libNtve_gf_CreateActorAtPoint("SOAPointFinImpactSound", UnitGroupCenterOfGroup(lp_unitGroup));
-        }
+        libNtve_gf_CreateActorAtPoint("SOAPointFinImpactSound", UnitGroupCenterOfGroup(lp_unitGroup));
 }
 
 void lib67C0F0E7_gf_AIIgnoreCost (int lp_p) {
@@ -1901,16 +1899,11 @@ string lib67C0F0E7_gf_SOAStickyLineUDI (int lp_player) {
 void lib67C0F0E7_gf_SOAStickyPoint (int lp_player, string lp_userDataInstanse) {
     // Variable Declarations
     abilcmd lv_ab;
-    string lv_casterUnit;
 
     // Automatic Variable Declarations
     // Variable Initialization
 
     // Implementation
-    lv_casterUnit = UserDataGetUnit("SOAStickyPoint", lp_userDataInstanse, "CasterUnit", 1);
-    if (!(CatalogEntryIsValid(c_gameCatalogUnit, lv_casterUnit))) {
-        return;
-    }
     lv_ab = UserDataGetAbilCmd("SOAStickyPoint", lp_userDataInstanse, "AbilityFin", 1);
     DataTableSetString(true, ("SPUDI" + IntToString(lp_player)), (lp_userDataInstanse));
         TriggerAddEventUnitOrder(lib67C0F0E7_gt_SOAStickyPointActive,null,UserDataGetAbilCmd("SOAStickyPoint",lp_userDataInstanse,"AbilityPre",1));
@@ -3760,21 +3753,24 @@ void lib67C0F0E7_gt_SOAStickyLineExit_Init () {
 // Trigger: SOAStickyPointActive
 //--------------------------------------------------------------------------------------------------
 bool lib67C0F0E7_gt_SOAStickyPointActive_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    string lv_casterUnit;
-
     // Automatic Variable Declarations
+    string lv_debugUDI;
+    string lv_debugCasterUnit;
     // Actions
     if (!runActions) {
         return true;
     }
 
-    lv_casterUnit = UserDataGetUnit("SOAStickyPoint", lib67C0F0E7_gf_SOAStickyPointUDI(EventPlayer()), "CasterUnit", 1);
-    if (!(CatalogEntryIsValid(c_gameCatalogUnit, lv_casterUnit))) {
-        return true;
+    lv_debugUDI = lib67C0F0E7_gf_SOAStickyPointUDI(EventPlayer());
+    if (lv_debugUDI == "") {
+        lv_debugUDI = "TychusMedicTransport";
+    }
+    lv_debugCasterUnit = UserDataGetUnit("SOAStickyPoint", lv_debugUDI, "CasterUnit", 1);
+    if (lv_debugCasterUnit == "") {
+        lv_debugCasterUnit = "TychusMedicTransportCaster";
     }
     libNtve_gf_StoreUnitSelection(EventPlayer(), libNtve_ge_UnitSelectionStoreOption_ClearUnitSelection);
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_casterUnit, c_unitCreateIgnorePlacement, EventPlayer(), OrderGetTargetPosition(EventUnitOrder()));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_debugCasterUnit, c_unitCreateIgnorePlacement, EventPlayer(), OrderGetTargetPosition(EventUnitOrder()));
     DataTableSetUnitGroup(true, ("SPUG" + IntToString(EventPlayer())), libNtve_gf_ConvertUnitToUnitGroup(UnitLastCreated()));
     UISetTargetingOrder(PlayerGroupSingle(EventPlayer()), lib67C0F0E7_gf_SOAStickyPointUG(EventPlayer()), OrderTargetingPoint(UserDataGetAbilCmd("SOAStickyPoint", lib67C0F0E7_gf_SOAStickyPointUDI(EventPlayer()), "AbilityFin", 1), CameraInfoGetTarget(CameraInfoDefault())), true);
     DataTableSetBool(true, ("SPActive" + IntToString(EventPlayer())), true);

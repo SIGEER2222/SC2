@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CValidatorCombine id="CasterLifeNotFullOrCasterFiringWeapon">
+        <CombineArray value="CasterLifeNotFull"/>
+        <CombineArray value="CasterIsAttacking"/>
+    </CValidatorCombine>
+    <CValidatorPlayerRequirement id="HaveTychusLoneWolf">
+        <Find value="1"/>
+        <Value value="HaveTychusLoneWolf"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitType id="IsTychusCommandCenter">
+        <Value value="TychusCommandCenter"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusEngineeringBay">
+        <Value value="TychusEngineeringBay"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusMedivacPlatform">
+        <Value value="TychusMedivacPlatform"/>
+    </CValidatorUnitType>
+    <CValidatorUnitCompareCooldown id="MedivacPlatformNoCooldown">
+        <CooldownLink value="Abil/TychusMedicTransportLoadUnits"/>
+        <Ability value="TychusMedicTransportLoad"/>
+    </CValidatorUnitCompareCooldown>
+    <CValidatorCombine id="MedivacPlatformReady">
+        <Type value="And"/>
+        <CombineArray value="NotUnderConstruction"/>
+        <CombineArray value="MedivacPlatformNoCooldown"/>
+    </CValidatorCombine>
+    <CValidatorCombine id="HasTychusSpectreSpecialistWeaponsAny">
+        <CombineArray value="HasTychusSpectreSpecialistWeaponsLv1"/>
+        <CombineArray value="HasTychusSpectreSpecialistWeaponsLv2"/>
+        <CombineArray value="HasTychusSpectreSpecialistWeaponsLv3"/>
+    </CValidatorCombine>
+    <CValidatorPlayerRequirement id="HaveMasteryTychusGrenadeCooldown">
+        <Find value="1"/>
+        <Value value="HaveMasteryTychusGrenadeCooldown"/>
+        <UnitSelectionNotRequired value="1"/>
+        <WhichPlayer Value="Creator"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveMasteryTychusTriHeroUpgrades">
+        <Find value="1"/>
+        <Value value="HaveMasteryTychusTriHeroUpgrades"/>
+        <UnitSelectionNotRequired value="1"/>
+        <WhichPlayer Value="Creator"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveMasteryTychusHeroAvailability">
+        <Find value="1"/>
+        <Value value="HaveMasteryTychusHeroAvailability"/>
+        <UnitSelectionNotRequired value="1"/>
+        <WhichPlayer Value="Creator"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveMasteryTychusMedivacHealingIncrease">
+        <Find value="1"/>
+        <Value value="HaveMasteryTychusMedivacHealingIncrease"/>
+        <UnitSelectionNotRequired value="1"/>
+        <WhichPlayer Value="Creator"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveMasteryTychusOdinCooldown">
+        <Find value="1"/>
+        <Value value="HaveMasteryTychusOdinCooldown"/>
+        <UnitSelectionNotRequired value="1"/>
+        <WhichPlayer Value="Creator"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorCombine id="CanProcSuperCloak">
+        <Type value="And"/>
+        <CombineArray value="SuperCloakAutoCastOn"/>
+        <CombineArray value="HaveTychusReaperSuperCloak"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="NoTychusGhostPsychicSnareB">
+        <Behavior value="TychusGhostPsychicSnareB"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HaveTychusLoneWolfB">
+        <Compare value="GT"/>
+        <Behavior value="TychusLoneWolf"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitOrder id="SuperCloakAutoCastOff">
+        <AbilLink value="TychusReaperSuperCloak"/>
+        <CmdFlags index="SetAutoCast" value="1"/>
+        <CmdFlags index="SetAutoCastOn" value="1"/>
+    </CValidatorUnitOrder>
+    <CValidatorCombine id="SuperCloakAutoCastOn">
+        <CombineArray value="SuperCloakAutoCastOff"/>
+        <Negate value="1"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="NotSuperCloaked">
+        <Behavior value="TychusReaperSuperCloak"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationEnumArea id="TychusLoneWolf">
+        <WhichLocation Value="SourceUnit"/>
+        <AreaArray Radius="12" Validator="HaveTychusLoneWolfB"/>
+        <Compare value="LE"/>
+        <LaunchLocation Value="SourceUnit"/>
+        <SearchFilters value="Heroic;Self,Ally,Neutral,Enemy,Structure,Missile,Dead,Hidden,Summoned"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorUnitCompareBehaviorCount id="TychusWarhoundNearBy">
+        <Compare value="GT"/>
+        <Behavior value="TychusWarhoundNearyBy"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorPlayerRequirement id="ResearchedTychusSquadDetection">
+        <Find value="1"/>
+        <Value value="HaveTychusSquadDetection"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorCombine id="NotLarvaAndNotEncasedAndDominatedOrPlayerOwned">
+        <ResultFailed value="CantTargetThatUnit"/>
+        <Type value="And"/>
+        <CombineArray value="NotLarva"/>
+        <CombineArray value="TargetIsDominatedorPlayerOwned"/>
+        <CombineArray value="NotSlaynElementalCocooned"/>
+        <CombineArray value="TargetNotUndergoingMassTransport"/>
+    </CValidatorCombine>
+    <CValidatorCombine id="TargetIsDominatedorPlayerOwned">
+        <CombineArray value="TargetIsDominated"/>
+        <CombineArray value="TargetIsPlayer"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="TargetIsDominated">
+        <Compare value="GT"/>
+        <Behavior value="TychusGhostDominate"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TargetIsOilBombed">
+        <Compare value="GT"/>
+        <Behavior value="TychusFirebatOilBombed"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TargetIsOilFired">
+        <WhichUnit Value="Source"/>
+        <Compare value="GT"/>
+        <Behavior value="TychusFirebatOilFire"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationEnumArea id="TychusTornadoMissileEnemyCheck">
+        <WhichLocation Value="CasterUnit"/>
+        <AreaArray Compare="GE" Count="1" Radius="7"/>
+        <SearchFilters value="Air,Visible;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <ResultFailed value="CantFindEnoughTargets"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorPlayerRequirement id="TychusWarhoundTurretUpgraded">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="HaveTychusWarhoundTurretUpgrade"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="TychusWarhoundFearUpgraded">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="HaveTychusWarhoundFearUpgrade"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitType id="SourceIsTychusWarhound">
+        <WhichUnit Value="Source"/>
+        <Value value="TychusWarhound"/>
+    </CValidatorUnitType>
+    <CValidatorPlayerRequirement id="TychusWarhoundDeathExplosionUpgraded">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="HaveTychusWarhoundDeathExplosionUpgrade"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitType id="SourceIsTychusWarhoundAutoTurret">
+        <WhichUnit Value="Source"/>
+        <Value value="TychusWarhoundAutoTurret"/>
+    </CValidatorUnitType>
+    <CValidatorCombine id="TychusWarhoundAndTurret">
+        <CombineArray value="SourceIsTychusWarhound"/>
+        <CombineArray value="SourceIsTychusWarhoundAutoTurret"/>
+    </CValidatorCombine>
+    <CValidatorCombine id="TychusWarhoundExplosion">
+        <Type value="And"/>
+        <CombineArray value="TychusWarhoundAndTurret"/>
+        <CombineArray value="TychusWarhoundDeathExplosionUpgraded"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="CasterHasTychusHercRage">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="TychusHercRage"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TychusHeroCount">
+        <Behavior value="TychusHeroCount"/>
+        <Compare value="GT"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TargetNotHaveNewDefensiveMatrix">
+        <Behavior value="DefensiveMatrixNew"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationCompareRange id="TychusGrappleMinTriggerDistance">
+        <WhichLocation Effect="TychusGrappleCreatePlaceholder"/>
+        <Compare value="GT"/>
+        <Range value="1"/>
+        <Value Value="SourceUnit"/>
+        <ResultFailed value="TargetIsTooClose"/>
+    </CValidatorLocationCompareRange>
+    <CValidatorPlayerRequirement id="TychusHercGrappleArmorPassive">
+        <Find value="1"/>
+        <Value value="HaveTychusHercGrappleArmor"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitCompareBehaviorCount id="TychusHercGrapple">
+        <WhichUnit Value="Caster"/>
+        <Behavior value="TychusHercGrappleStunPassive1"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorPlayerRequirement id="TychusHercDamagePassive">
+        <Find value="1"/>
+        <Value value="HaveTychusHercRage"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitFilters id="IsRevivable">
+        <Filters value="Revivable;-"/>
+    </CValidatorUnitFilters>
+    <CValidatorUnitType id="IsNotTychusCoop">
+        <Value value="TychusCoop"/>
+        <Find value="0"/>
+        <Type value="SelectAlias"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusSCV">
+        <Value value="TychusSCV"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusCoop">
+        <Value value="TychusCoop"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusReaper">
+        <Value value="TychusReaper"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusMarauder">
+        <Value value="TychusMarauder"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusHERC">
+        <Value value="TychusHERC"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusFirebat">
+        <Value value="TychusFirebat"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusGhost">
+        <Value value="TychusGhost"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusSpectre">
+        <Value value="TychusSpectre"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusWarhound">
+        <Value value="TychusWarhound"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsTychusMedic">
+        <Value value="TychusMedic"/>
+    </CValidatorUnitType>
+    <CValidatorUnitOrderQueue id="TychusMedivacIsHealing">
+        <AbilLink value="TychusMedivacDoubleHealPlusMech"/>
+    </CValidatorUnitOrderQueue>
+    <CValidatorUnitCompareBehaviorCount id="TychusHealBeamAvailable">
+        <WhichUnit Value="Caster"/>
+        <Compare value="LT"/>
+        <Value value="2"/>
+        <Behavior value="TychusMedivacHealBeamBusy"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="TychusHealScanPeriodicCombine">
+        <Type value="And"/>
+        <!--CombineArray value="CasterHasEnergy"/-->
+        <CombineArray value="AtLeastOneTychusHealBeamBusy"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="AtLeastOneTychusHealBeamBusy">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="1"/>
+        <Behavior value="TychusMedivacHealBeamBusy"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="TychusHealPeriodicCombine">
+        <Type value="And"/>
+        <!--CombineArray value="CasterHasEnergy"/-->
+        <CombineArray value="TychusMedivacIsHealing"/>
+        <CombineArray value="LifeGTZero"/>
+        <CombineArray value="NotMaxHP"/>
+        <CombineArray value="HealTargetInRange"/>
+        <CombineArray value="NotHidden"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="TargetNotBeingTychusHealed">
+        <Behavior value="TychusMedivacTargetBeingHealed"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationEnumArea id="TychusTransportPickupMinimum">
+        <ResultFailed value="CantFindEnoughTargets"/>
+        <AreaArray>
+            <Compare value="GE"/>
+            <Count value="1"/>
+            <Radius value="3"/>
+            <Validator value="NotLarvaAndNotEncasedAndDominatedOrPlayerOwned"/>
+        </AreaArray>
+        <SearchFilters value="-;Ally,Structure,User1,Worker,Missile,Item,Stasis,Dead,Invulnerable"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationEnumArea id="EnemyMissilesWithinRange5">
+        <AreaArray Compare="GT" Radius="5"/>
+        <SearchFilters value="Missile;Player,Ally,Neutral,Dead,Invulnerable"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorPlayerRequirement id="TychusFirebatIncendiaryPetroleum">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="HaveTychusFirebatIncendiaryPetroleum"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="TychusFirebatShieldUpgraded">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="HaveTychusFirebatShield"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="TychusFirebatPremiumPetroleum">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="HaveTychusFirebatPremiumPetroleum"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="TychusFirebatBlueFlameOil">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="HaveTychusFirebatBlueFlameOil"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitCompareBehaviorCount id="TychusACEquipImplosionGrenades">
+        <WhichUnit Value="Caster"/>
+        <Behavior value="TychusACEquipImplosionGrenades"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TychusACEquipRageGrenades">
+        <WhichUnit Value="Caster"/>
+        <Behavior value="TychusACEquipRageGrenades"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TychusACEquipPiercingRounds">
+        <WhichUnit Value="Caster"/>
+        <Behavior value="TychusACEquipPiercingRounds"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="TychusWarhoundDeathExplosion">
+        <Type value="And"/>
+        <CombineArray value="SourceIsTychusWarhound"/>
+        <CombineArray value="TychusWarhoundDeathExplosionUpgraded"/>
+    </CValidatorCombine>
+    <CValidatorCombine id="TychusWarhoundTurretDeathExplosion">
+        <Type value="And"/>
+        <CombineArray value="SourceIsTychusWarhoundAutoTurret"/>
+        <CombineArray value="TychusWarhoundDeathExplosionUpgraded"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="TargetNotBeingTychusReaperBombed">
+        <Behavior value="TychusReaperBomb"/>
+        <ResultFailed value="CantTargetThatUnit,Error/CannotTargetSameUnit"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorPlayerRequirement id="TychusHercCritPassive">
+        <Find value="1"/>
+        <Value value="HaveTychusHercCrit"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitCompareBehaviorCount id="DoesNotHaveTychusHERCShield">
+        <WhichUnit Value="Source"/>
+        <Behavior value="TychusHERCShield"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="DoesNotHaveTychusHERCShieldWeakness">
+        <WhichUnit Value="Source"/>
+        <Behavior value="TychusHERCShieldWeakness"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="OnDeathTychusHercGrappleArmorPassive">
+        <Type value="And"/>
+        <CombineArray value="SourceIsTychusHERC"/>
+        <CombineArray value="TychusHercGrappleArmorPassive"/>
+        <CombineArray value="DoesNotHaveTychusHERCShieldWeakness"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="TargetisBeingTychusReaperBombed">
+        <Behavior value="TychusReaperBomb"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TargetNotHaveTychusReaperBombMarker">
+        <Behavior value="TychusReaperBombMarker"/>
+        <ResultFailed value="CantTargetThatUnit,Error/CannotTargetSameUnit"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorPlayerRequirement id="HaveTychusReaperBomb">
+        <Find value="1"/>
+        <Value value="TychusReaperBombLearned"/>
+        <WhichUnit Effect="TychusReaperBombDamageLM"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitCompareBehaviorCount id="TychusReaperBombStunNotFrenzied">
+        <Behavior value="Frenzy"/>
+        <ResultFailed value="MustTargetStructures,Error/CantTargetFrenziedUnits"/>
+        <WhichUnit Effect="TychusReaperBombDamageLM"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitFilters id="TychusReaperBombStunTargetIsNotUnstoppable">
+        <Filters value="-;Unstoppable"/>
+        <WhichUnit Effect="TychusReaperBombDamageLM"/>
+    </CValidatorUnitFilters>
+    <CValidatorPlayerRequirement id="HaveTychusGhostConfusion">
+        <Find value="1"/>
+        <Value value="HaveTychusGhostConfusingDomination"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusSpectreBrillianceAura">
+        <Find value="1"/>
+        <Value value="HaveTychusSpectreBrillianceAura"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusSpectreVisionSuit">
+        <Find value="1"/>
+        <Value value="HaveTychusSpectreVisionSuit"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusReaperQuickfireGrenades">
+        <Find value="1"/>
+        <Value value="TychusReaperQuickfireGrenadesLearned"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusMarauderAttackSplash">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="HaveTychusMarauderAttackSplash"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusACBandofBrothers">
+        <Find value="1"/>
+        <Value value="HaveTychusACBandofBrothers"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusACImplosionGrenades">
+        <Find value="1"/>
+        <Value value="HaveTychusACImplosionGrenades"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusACPiercingRounds">
+        <Find value="1"/>
+        <Value value="HaveTychusACPiercingRounds"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusACRageGrenades">
+        <Find value="1"/>
+        <Value value="HaveTychusACRageGrenades"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusReaperBombDamage">
+        <Find value="1"/>
+        <Value value="HaveTychusReaperBombDamage"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusReaperBombCharges">
+        <Find value="1"/>
+        <Value value="HaveTychusReaperBombCharges"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusReaperBombStun">
+        <Find value="1"/>
+        <Value value="HaveTychusReaperBombStun"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveTychusReaperSuperCloak">
+        <Find value="1"/>
+        <Value value="HaveTychusReaperSuperCloak"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitType id="SourceIsTychusHERC">
+        <WhichUnit Value="Source"/>
+        <Value value="TychusHERC"/>
+    </CValidatorUnitType>
+    <CValidatorUnitCompareBehaviorCount id="TychusSpectreVisionSuit">
+        <Compare value="GT"/>
+        <Behavior value="TychusSpectreVisionSuit"/>
+    </CValidatorUnitCompareBehaviorCount>
+</Catalog>

@@ -2208,12 +2208,24 @@
   <CUser id="RaynorXCommander">
     <Value>TerranRaynorX</Value>
   </CUser>
-  <!-- SOAStickyPoint: 粘性点系统，用于泰凯斯医疗运输机 Load→自动弹出 Unload 目标模式 -->
+  <!-- ===== SOAStickyPoint 框架（移植自 0.81 XMCore + XMTychus）===== -->
+  <!-- 为了避免跨文件 CUser Instances 合并问题，Fields + 所有 Instances（含 TychusMedicTransport）均在此定义 -->
   <CUser id="SOAStickyPoint">
-    <Fields Id="AbilityPre" Type="AbilCmd" EditorColumn="1"/>
     <Fields Id="AbilityFin" Type="AbilCmd" EditorColumn="2"/>
     <Fields Id="CasterUnit" Type="Unit" EditorColumn="3"/>
+    <Fields Id="AbilityPre" Type="AbilCmd" EditorColumn="1"/>
     <Instances Id="[Default]"/>
+    <Instances Id="SOAPoint">
+      <AbilCmd Abil="SOAPointFin">
+        <Field Id="AbilityFin"/>
+      </AbilCmd>
+      <AbilCmd Abil="SOAPointPre">
+        <Field Id="AbilityPre"/>
+      </AbilCmd>
+      <Unit Unit="SOAPointCaster">
+        <Field Id="CasterUnit"/>
+      </Unit>
+    </Instances>
     <Instances Id="TychusMedicTransport">
       <AbilCmd Abil="TychusMedicTransportLoad">
         <Field Id="AbilityPre"/>
