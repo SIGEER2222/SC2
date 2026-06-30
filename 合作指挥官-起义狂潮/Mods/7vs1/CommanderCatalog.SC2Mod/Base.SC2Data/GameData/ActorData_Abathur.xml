@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
+    <CActorUnit id="BrutaliskAbathur" parent="Brutalisk" unitName="BrutaliskAbathur">
+        <On Terms="UnitBirth.BrutaliskAbathur" Send="Create"/>
+        <On Terms="UnitBirth.BrutaliskAbathur" Send="$Birth"/>
+        <On Terms="AbilMorph.BurrowBrutaliskAbathurDown.Finish; MorphFrom BrutaliskAbathur; MorphTo BrutaliskAbathurBurrowed" Send="Destroy"/>
+        <On Terms="AbilMorph.BurrowBrutaliskAbathurUp.Finish; MorphFrom BrutaliskAbathurBurrowed; MorphTo BrutaliskAbathur" Send="Create"/>
+    </CActorUnit>
     <CActorUnit id="BrutaliskCocoon" parent="GenericUnitMorph" unitName="BrutaliskCocoon">
         <Aliases value="_UnitMedium"/>
         <On Terms="UnitBirth.BrutaliskCocoon" Send="Create"/>
