@@ -1,0 +1,2052 @@
+# RevolutionOverdrive mod 自身单位的生产链（按依赖指向）
+
+RO mod 共定义/修改 328 个单位（新增 73 / 修改已有 255）
+
+说明：只列出 RO mod 自己定义或修改的单位，不包含 starcoop/CommanderCatalog 等其他 mod 的原生单位。
+箭头 → 表示依赖指向（A→B 即 A 依赖 B / A 生产 B / A 建造 B / A 变形为 B）。
+标注：[新增] = RO 首次定义；[修改] = RO 修改了其他 mod 已有单位（括号内为首次定义 mod）。
+
+
+## Raynor
+
+RO 新增 0 / RO 修改 3
+
+
+### 兵种（→ 技能/武器）
+
+- **[Raynor]** (单位) Raynor [修改](首次定义: starcoop)
+- **[Raynor01]** (单位) Raynor01 [修改](首次定义: starcoop)
+- **[RaynorCommando]** (单位) RaynorCommando [修改](首次定义: starcoop)
+    - [CAbilArmMagazine] RaynorCommandoMarineHangar
+    - [CAbilQueue] RaynorCommandoHangarQueue
+    - [CAbilEffectTarget] NovaSnipe
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil1
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil3
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil2
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil4
+  - ← 被生产由:
+    - ← RaynorCommando[SummonMercenaries/Train9]
+
+## Kerrigan
+
+RO 新增 0 / RO 修改 2
+
+
+### 兵种（→ 技能/武器）
+
+- **[KerriganChar]** (单位) KerriganChar [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] KerriganVoidKineticBlast
+    - [CAbilEffectTarget] K5DropPods
+- **[KerriganInfestBroodling]** (单位) KerriganInfestBroodling [修改](首次定义: starcoop)
+  - 武器: NeedleClawsLessRange
+
+## Artanis
+
+RO 新增 0 / RO 修改 1
+
+
+### 兵种（→ 技能/武器）
+
+- **[Artanis]** (单位) Artanis [修改](首次定义: starcoop)
+
+## Swann
+
+RO 新增 0 / RO 修改 4
+
+
+### 研究建筑（→ 可研究科技）
+
+- **[DrakkenLaserDrillCoop]** (建筑) 德拉肯激光钻机 [修改](首次定义: starcoop)
+  - → 可研究科技:
+    - → DrakkenLaserDrillBFG (升级1级激光钻机)
+    - → DrakkenLaserDrillNuke (升级2级激光钻机)
+
+### 兵种（→ 技能/武器）
+
+- **[DrakkenLaserDrill]** (单位) DrakkenLaserDrill [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] Kit@LaserDrillHoldFire
+    - [CAbilEffectInstant] Kit@LaserDrillRemoveHoldFire
+- **[DrakkenLaserDrillNukeAttackMissile]** (单位) Drakken Laser Drill Nuke Attack Missile [修改](首次定义: starcoop)
+- **[Swann]** (单位) Swann [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil1
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil2
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil3
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil4
+  - ← 被生产由:
+    - ← Swann[SummonMercenaries/Train12]
+
+## Zagara
+
+RO 新增 0 / RO 修改 4
+
+
+### 兵种（→ 技能/武器）
+
+- **[HotSHunter]** (单位) HotSHunter [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] Explode
+    - [CAbilEffectInstant] BanelingCreep
+    - [CAbilEffectInstant] BanelingNuke
+    - [CAbilEffectInstant] BanelingShields
+    - [CAbilEffectInstant] BanelingSpeed
+    - [CAbilEffectInstant] BanelingZerglings
+  - ← 被生产由:
+    - ← HotSHunter[ZagaraVoidCoopBanelingSpawnerTrain/Train2]
+- **[HotSLeviathan]** (单位) HotSLeviathan [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] SymbioteCarapace
+    - [CAbilArmMagazine] AbathurSymbioteHangerLeviathan
+    - [CAbilQueue] que1Passive
+  - ← 被生产由:
+    - ← HotSLeviathan[EvolveToLeviathan/Train1]
+- **[HotSNoxious]** (单位) HotSNoxious [修改](首次定义: starcoop)
+  - ← 被生产由:
+    - ← HotSNoxious[LarvaTrainSwarm/Train18]
+- **[HotSTorrasque]** (单位) HotSTorrasque [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] UltraliskBurrowCharge
+  - ← 被生产由:
+    - ← HotSTorrasque[LarvaTrainSwarm/Train17]
+    - ← HotSTorrasque[LarvaTrainKerrigan/Train7]
+
+## Vorazun
+
+RO 新增 0 / RO 修改 2
+
+
+### 兵种（→ 技能/武器）
+
+- **[DarkArchon]** (单位) 折跃黑暗执政官 [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] DarkArchonConfusionPlayer
+  - ← 被生产由:
+    - ← DarkArchon[GatewayTrain/Train9]
+- **[DarkTemplarTaldarim]** (单位) 折跃复仇者 [修改](首次定义: starcoop)
+
+## Karax
+
+RO 新增 0 / RO 修改 2
+
+
+### 兵种（→ 技能/武器）
+
+- **[KhaydarinMonolith]** (单位) KhaydarinMonolith [修改](首次定义: starcoop)
+- **[Monitor]** (单位) 折跃浩劫 [修改](首次定义: starcoop)
+  - ← 被生产由:
+    - ← Monitor[GatewayTrain/Train10]
+
+## Alarak
+
+RO 新增 0 / RO 修改 2
+
+
+### 兵种（→ 技能/武器）
+
+- **[HighTemplarTaldarim]** (单位) 折跃晋升者 [修改](首次定义: starcoop)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilEffectInstant] AscendantSacrificeInstant
+- **[TalDarimMothership]** (单位) TalDarimMothership [修改](首次定义: starcoop)
+
+## Abathur
+
+RO 新增 0 / RO 修改 4
+
+
+### 兵种（→ 技能/武器）
+
+- **[Brutalisk]** (单位) 莽兽 [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] BrutaliskDeepTunnel
+    - [CAbilEffectInstant] SymbioteCarapace
+    - [CAbilMorph] BurrowBrutaliskDown
+    - [CAbilArmMagazine] AbathurSymbioteHangerBrutalisk
+    - [CAbilQueue] que1Passive
+    - [CAbilEffectInstant] BrutaliskTramplingCarapacePurchaseReborn
+    - [CAbilEffectInstant] BrutaliskSavageRendPurchaseReborn
+    - [CAbilEffectInstant] BrutaliskFleshRecompositionPurchaseReborn
+    - [CAbilEffectTarget] BrutaliskLeapAttack
+  - → 可变形为:
+    - → BrutaliskBurrowed
+  - ← 被生产由:
+    - ← Brutalisk[LarvaTrain/Train30]
+    - ← Brutalisk[LarvaTrain/Train23]
+    - ← Brutalisk[LarvaTrainSwarm/Train29]
+    - ← Brutalisk[LarvaTrainSwarm2/Train29]
+    - ← Brutalisk[CommanderUnits/Train3]
+  - 武器: Brutalize, FerociousSpew
+- **[Devourer]** (单位) 吞噬者 [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] CorrosiveAcid
+    - [CAbilTrain] EvolveToLeviathanDevourer
+    - [CAbilQueue] que1
+    - [CAbilEffectTarget] CausticSpray
+    - [CAbilEffectInstant] AbathurDevourerAcidCloudSacsPurchaseReborn
+    - [CAbilEffectInstant] AbathurDevourerCorrosiveGlandsPurchaseReborn
+    - [CAbilEffectInstant] AbathurDevourerStomachOverloadPurchaseReborn
+  - ← 被生产由:
+    - ← Devourer[LarvaTrain/Train14]
+    - ← Devourer[MutaliskMorphToDevourer/Train1]
+    - ← Devourer[CommanderUnits/Train15]
+- **[Leviathan]** (单位) Leviathan [修改](首次定义: starcoop)
+  - ← 被生产由:
+    - ← Leviathan[LarvaTrainSwarm2/Train30]
+    - ← Leviathan[CommanderUnits/Train18]
+- **[Viper]** (单位) Viper [修改](首次定义: swarm)
+    - [CAbilEffectTarget] ViperConsumeStructure
+    - [CAbilEffectTarget] BlindingCloud
+    - [CAbilEffectTarget] Yoink
+    - [CAbilEffectTarget] Yoink
+    - [CAbilTrain] EvolveToLeviathanViper
+    - [CAbilQueue] que1
+    - [CAbilEffectTarget] BlindingCloud
+    - [CAbilEffectTarget] ViperConsumption
+    - [CAbilEffectTarget] ParasiticBomb
+    - [CAbilEffectInstant] AbathurCasterBrainPoolPurchaseReborn
+    - [CAbilEffectInstant] AbathurCasterNeuralTethersPurchaseReborn
+    - [CAbilEffectInstant] AbathurCasterFleshReactorPurchaseReborn
+    - [CAbilEffectInstant] AbathurCasterMimeticMembranePurchaseReborn
+  - ← 被生产由:
+    - ← Viper[LarvaTrain/Train13]
+    - ← Viper[LarvaTrainSwarm/Train25]
+    - ← Viper[VoidRiftTrainMalash/Train21]
+
+## Mengsk
+
+RO 新增 0 / RO 修改 11
+
+
+### 兵种（→ 技能/武器）
+
+- **[MengskBC]** (单位) MengskBC [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] ShadowYamato
+  - ← 被生产由:
+    - ← MengskBC[StarportTrain/Train30]
+  - 武器: DRBattlecruiserG, DRBattlecruiserA
+- **[MengskBanshee]** (单位) MengskBanshee [修改](首次定义: starcoop)
+- **[MengskFirebat]** (单位) MengskFirebat [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] StimpackMarauder
+- **[MengskHellion]** (单位) MengskHellion [修改](首次定义: starcoop)
+- **[MengskMarauder]** (单位) MengskMarauder [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] StimpackMarauder
+- **[MengskMarine]** (单位) MengskMarine [修改](首次定义: starcoop)
+- **[MengskMedic]** (单位) MengskMedic [修改](首次定义: starcoop)
+- **[MengskSiegeTank]** (单位) MengskSiegeTank [修改](首次定义: starcoop)
+- **[MengskThor]** (单位) MengskThor [修改](首次定义: starcoop)
+  - ← 被生产由:
+    - ← MengskThor[FactoryTrain/Train30]
+- **[MengskVikingAssault]** (单位) MengskVikingAssault [修改](首次定义: starcoop)
+- **[MengskVikingFighter]** (单位) MengskVikingFighter [修改](首次定义: starcoop)
+
+## Nova
+
+RO 新增 1 / RO 修改 3
+
+
+### 兵种（→ 技能/武器）
+
+- **[NovaGriffinTransportUnit]** (单位) 狮鹫号 [修改](首次定义: starcoop)
+    - [CAbilTransport] GriffinTransport
+    - [CAbilEffectTarget] NovaGriffinTransportUnloadUnits
+    - [CAbilEffectInstant] NovaGriffinTransportUnloadUnitsInstant
+- **[NovaHero]** (单位) 诺娃 [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] HeroNuclearStrike
+    - [CAbilEffectInstant] SuperStimpackNova
+    - [CAbilEffectTarget] NovaHelmetDomination
+    - [CAbilEffectTarget] NovaArmorBlinkSuitBlink
+    - [CAbilEffectTarget] NovaWeaponBlazefireBladeShadowFury
+  - ← 被生产由:
+    - ← NovaHero[MengskMercTrain/Train16]
+- **[NovaInfestedBanshee]** (单位) NovaInfestedBanshee [修改](首次定义: starcoop)
+- **[NovaPlayerHero]** (单位) NovaPlayerHero [新增]
+    - [CAbilEffectInstant] SuperStimpackNova
+    - [CAbilEffectTarget] NovaHelmetDomination
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil1
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil2
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil3
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil4
+  - ← 被生产由:
+    - ← NovaPlayerHero[SummonMercenaries/Train18]
+  - 武器: NovaWeaponCanisterRifle
+
+## Stukov (SI)
+
+RO 新增 0 / RO 修改 1
+
+
+### 兵种（→ 技能/武器）
+
+- **[SIStukovRallyBeaconPsiEmitterPoint]** (单位) 灵能发射器 [修改](首次定义: starcoop)
+
+## Fenix
+
+RO 新增 0 / RO 修改 5
+
+
+### 兵种（→ 技能/武器）
+
+- **[Dragoon]** (单位) Dragoon [修改](首次定义: starcoop)
+- **[Purifier]** (单位) Purifier [修改](首次定义: starcoop)
+- **[Scout]** (单位) Scout [修改](首次定义: starcoop)
+    - [CAbilMorph] FenixMojoScoutMorph
+  - → 可变形为:
+    - → FenixMojoScout
+  - 武器: ScoutAir, ScoutGround
+- **[Selendis]** (单位) Selendis [修改](首次定义: starcoop)
+  - ← 被生产由:
+    - ← Selendis[NexusTrain/Train2]
+- **[SelendisInterceptor]** (单位) SelendisInterceptor [修改](首次定义: starcoop)
+
+## Stetmann
+
+RO 新增 1 / RO 修改 1
+
+
+### 兵种（→ 技能/武器）
+
+- **[GaryMk05]** (单位) GaryMk05 [新增]
+    - [CAbilEffectTarget] HealingWave
+- **[Stetmann]** (单位) Stetmann [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] TychusMedicAoE
+    - [CAbilArmMagazine] MiniGaryHanger
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil1
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil2
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil3
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil4
+  - ← 被生产由:
+    - ← Stetmann[SummonMercenaries/Train11]
+  - 武器: StetmannFakeWeapon
+
+## Tychus
+
+RO 新增 1 / RO 修改 7
+
+
+### 兵种（→ 技能/武器）
+
+- **[DevilDog]** (单位) DevilDog [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] StimpackMarauder
+- **[DuskWing]** (单位) DuskWing [修改](首次定义: starcoop)
+    - [CAbilWarpable] WarpableNova
+- **[HERC]** (单位) HERC [修改](首次定义: void)
+    - [CAbilArmMagazine] RepairDroneHanger
+    - [CAbilEffectTarget] PlaceSJPointDefenseDrone2
+    - [CAbilQueue] HangarQueue5
+  - ← 被生产由:
+    - ← HERC[BarracksTrain/Train9]
+    - ← HERC[InstabuildHeroes/Train1]
+    - ← HERC[InstabuildHeroes/Train19]
+  - 武器: HERCWeapon
+- **[HammerSecurity]** (单位) HammerSecurity [修改](首次定义: starcoop)
+    - [CAbilWarpable] WarpableNova
+    - [CAbilEffectInstant] StimpackMarauder
+- **[SpartanCompany]** (单位) SpartanCompany [修改](首次定义: starcoop)
+    - [CAbilWarpable] WarpableNova
+    - [CAbilEffectTarget] DisablingCloud
+    - [CAbilEffectInstant] SpinUp
+  - ← 被生产由:
+    - ← SpartanCompany[FactoryTrain/Train15]
+    - ← SpartanCompany[InstabuildHeroes/Train26]
+  - 武器: SpartanCompanyA, SpartanCompanyAUpgraded
+- **[TychusChaingun]** (单位) TychusChaingun [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] BonesTossGrenade
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil1
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil2
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil3
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil4
+  - ← 被生产由:
+    - ← TychusChaingun[SummonMercenaries/Train10]
+- **[TychusCommando]** (单位) TychusCommando [修改](首次定义: starcoop)
+- **[WarPig]** (单位) WarPig [新增]
+
+## HH (Han&Horner)
+
+RO 新增 0 / RO 修改 6
+
+
+### 其他建筑（防御/附件/特殊）
+
+- **[HHBomberPlatform]** (建筑) 攻击战斗机平台 [修改](首次定义: starcoop)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilArmMagazine] HHBomberPlatformHangar
+    - [CAbilEffectTarget] HHBomberPlatformAreaBombOrder
+    - [CAbilQueue] Queue1Passive
+
+### 兵种（→ 技能/武器）
+
+- **[HHBomber]** (单位) 攻击战斗机 [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] HHBomberAreaBomb
+- **[HHBomberAreaBombMissile]** (单位) HHBomberAreaBombMissile [修改](首次定义: starcoop)
+- **[SJFighter1PH]** (单位) SJFighter1PH [修改](首次定义: starcoop)
+- **[SJGriffon]** (单位) SJGriffon [修改](首次定义: starcoop)
+- **[SJPointDefenseDrone]** (单位) SJPointDefenseDrone [修改](首次定义: starcoop)
+
+## Zeratul
+
+RO 新增 3 / RO 修改 5
+
+
+### 兵种（→ 技能/武器）
+
+- **[Karass]** (单位) Karass [修改](首次定义: starcoop)
+- **[VoidConduit]** (单位) VoidConduit [新增]
+    - [CAbilEffectTarget] DevouringRift
+    - [CAbilEffectTarget] RendMind
+  - ← 被生产由:
+    - ← VoidConduit[StarportTrain/Train12]
+  - 武器: VoidCascade
+- **[VoidRayTaldarim]** (单位) VoidRayTaldarim [修改](首次定义: starcoop)
+    - [CAbilWarpable] CommanderPrestigeAlarakDeathFleetWarpable
+- **[XelNagaChargedCrystal]** (单位) XelNagaChargedCrystal [新增]
+- **[XelNagaConstruct]** (单位) XelNagaConstruct [修改](首次定义: starcoop)
+- **[XelNagaCrystal]** (单位) XelNagaCrystal [修改](首次定义: starcoop)
+    - [CAbilTrain] TrainHybrid
+- **[XelNagaWorldshipSentinel]** (单位) XelNagaWorldshipSentinel [新增]
+  - 武器: XelNagaChargedCrystal
+- **[Zeratul]** (单位) Zeratul [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] ZeratulBlinkAiur01
+    - [CAbilEffectTarget] ZeratulStun
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil1
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil2
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil3
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil4
+  - ← 被生产由:
+    - ← Zeratul[SummonMercenaries/Train14]
+
+## 其他单位（不匹配指挥官前缀，共 259 个）
+
+包含：基础种族单位（RO 修改）、特殊单位（RO 新增）、投射物等。
+
+
+### Terran 基础种族单位（建筑 25 / 单位 39）
+
+- **[Armory]** (建筑) Armory [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilResearch] ArmoryResearch
+    - [CAbilResearch] ArmoryResearchVoidCoop
+  - → 可研究科技:
+    - → TerranVehicleArmorsLevel1
+    - → TerranVehicleArmorsLevel2
+    - → TerranVehicleArmorsLevel3
+    - → TerranVehicleWeaponsLevel1
+    - → TerranVehicleWeaponsLevel2
+    - → TerranVehicleWeaponsLevel3
+    - → TerranShipArmorsLevel1
+    - → TerranShipArmorsLevel2
+    - → TerranShipArmorsLevel3
+    - → TerranShipWeaponsLevel1
+    - → TerranShipWeaponsLevel2
+    - → TerranShipWeaponsLevel3
+    - → TerranVehicleAndShipWeaponsLevel1
+    - → TerranVehicleAndShipWeaponsLevel2
+    - → TerranVehicleAndShipWeaponsLevel3
+    - → TerranVehicleAndShipArmorsLevel1
+    - → TerranVehicleAndShipArmorsLevel2
+    - → TerranVehicleAndShipArmorsLevel3
+    - → TerranVehicleAndShipWeaponsLevel4 (升级战车及舰船武器等级4)
+    - → TerranVehicleAndShipArmorsLevel4 (升级战车及舰船钢板等级4)
+    - → SwannCommanderVehicleWeaponRange (研究高级光学)
+    - → RegenerativeBioSteel (研究再生型生物钢)
+    - → VehicleAfterburners (研究后燃充能)
+    - → HHVehicleAndShipWeaponsLevel1 (升级武器等级1)
+    - → HHVehicleAndShipWeaponsLevel2 (升级武器等级2)
+    - → HHVehicleAndShipWeaponsLevel3 (升级武器等级3)
+    - → HHVehicleAndShipArmorsLevel1 (升级护甲等级1)
+    - → HHVehicleAndShipArmorsLevel2 (升级护甲等级2)
+    - → HHVehicleAndShipArmorsLevel3 (升级护甲等级3)
+    - → TerranVehicleAndShipWeaponsLevel5
+    - → TerranVehicleAndShipArmorsLevel5
+- **[Barracks]** (建筑) Barracks [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilTrain] BarracksTrain
+    - [CAbilBuild] BarracksAddOns
+    - [CAbilMorph] BarracksLiftOff
+    - [CAbilWarpTrain] BarracksTrainNova
+    - [CAbilTrain] BarracksTrainRaynorX
+    - [CAbilBuild] BarracksAddOnsRaynorX
+    - [CAbilTrain] MengskMercTrain
+  - → 可生产单位:
+    - → Marine [Marine]
+    - → Reaper [Reaper]
+    - → Ghost [Ghost]
+    - → Marauder [Marauder]
+    - → IronWarrior [IronWarrior]
+    - → HERC [HERC]
+    - → ShockTrooper [ShockTrooper]
+    - → Saboteur [Saboteur]
+    - → VanguardGhost [VanguardGhost]
+    - → MarineRaynorX [MarineRaynorX]
+    - → MarauderRaynorX [MarauderRaynorX]
+    - → MedicRaynorX [MedicRaynorX]
+    - → FirebatRaynorX [FirebatRaynorX]
+    - → NovaHero [诺娃]
+  - → 可建造建筑:
+    - → BarracksTechLab [BarracksTechLab]
+    - → BarracksReactor [BarracksReactor]
+    - → BarracksTechLabRaynorX [BarracksTechLabRaynorX]
+    - → BarracksReactorRaynorX [BarracksReactorRaynorX]
+- **[BarracksReactor]** (建筑) BarracksReactor [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilMorph] FactoryReactorMorph
+    - [CAbilMorph] StarportReactorMorph
+    - [CAbilMorph] ReactorMorph
+- **[BarracksTechLab]** (建筑) BarracksTechLab [修改](首次定义: liberty)
+    - [CAbilMorph] TechLabMorph
+    - [CAbilResearch] BarracksTechLabResearch
+    - [CAbilResearch] MercCompoundResearch
+    - [CAbilQueue] que5Addon
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilMorph] BarracksTechLabMorph
+    - [CAbilMorph] FactoryTechLabMorph
+    - [CAbilMorph] StarportTechLabMorph
+    - [CAbilQueue] que5LongBlend
+  - → 可研究科技:
+    - → Stimpack
+    - → ShieldWall
+    - → PunisherGrenades
+    - → BearclawNozzles (研发焚烧臂铠)
+    - → ClusterBomb (研发G-4型集束炸弹)
+    - → StabilizerMedPacks (研发稳定剂医疗包)
+    - → FirebatJuggernautPlating (研发铁人装甲)
+    - → ReaperSpiderMines (研发蜘蛛雷)
+    - → MarineSuperStim (研究超级强化剂)
+    - → MarauderMagrailMunitions (研究磁轨武器)
+    - → NovaConcussiveShells (研究压制弹)
+    - → LaserTargetingSystemNova (研究激光瞄准系统)
+    - → GhostBlackOpsEMP (研究EMP弹)
+    - → GhostBlackOpsTripleTap (研究三连击)
+    - → ReaperSpeed
+- **[Bunker]** (建筑) Bunker [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilTransport] BunkerTransport
+    - [CAbilBehavior] SalvageShared
+    - [CAbilEffectInstant] SalvageBunkerRefund
+    - [CAbilRedirectInstant] StimpackRedirect
+    - [CAbilRedirectInstant] StimpackMarauderRedirect
+    - [CAbilRedirectInstant] StopRedirect
+    - [CAbilRedirectTarget] AttackRedirect
+- **[CommandCenter]** (建筑) CommandCenter [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5CancelToSelection
+    - [CAbilTrain] CommandCenterTrain
+    - [CAbilTransport] CommandCenterTransport
+    - [CAbilMorph] CommandCenterLiftOff
+    - [CAbilMorph] UpgradeToPlanetaryFortress
+    - [CAbilMorph] UpgradeToOrbital
+    - [CAbilMorph] UpgradeToOrbitalCoop
+    - [CAbilEffectTarget] VespeneDroneCast
+    - [CAbilTrain] CommandCenterTrainRaynor
+    - [CAbilEffectInstant] SynthesizeMinerals
+    - [CAbilEffectInstant] SynthesizeVespene
+    - [CAbilMorph] InstantOrbitalMorph
+    - [CAbilEffectInstant] RunRampant
+  - → 可生产单位:
+    - → SCV [SCV]
+    - → KelMorianWorker [凯莫瑞安工人]
+    - → SCVRaynor [SCVRaynor]
+- **[CommandCenterFlying]** (建筑) CommandCenterFlying [修改](首次定义: liberty)
+    - [CAbilMorphPlacement] CommandCenterLand
+    - [CAbilTransport] CommandCenterTransport
+- **[EngineeringBay]** (建筑) EngineeringBay [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilResearch] EngineeringBayResearch
+  - → 可研究科技:
+    - → HiSecAutoTracking
+    - → TerranBuildingArmor
+    - → TerranInfantryWeaponsLevel1
+    - → TerranInfantryWeaponsLevel2
+    - → TerranInfantryWeaponsLevel3
+    - → NeosteelFrame
+    - → TerranInfantryArmorsLevel1
+    - → TerranInfantryArmorsLevel2
+    - → TerranInfantryArmorsLevel3
+    - → TerranInfantryWeaponsUltraCapacitorsLevel1
+    - → TerranInfantryWeaponsUltraCapacitorsLevel2
+    - → TerranInfantryWeaponsUltraCapacitorsLevel3
+    - → TerranInfantryArmorsVanadiumPlatingLevel1
+    - → TerranInfantryArmorsVanadiumPlatingLevel2
+    - → TerranInfantryArmorsVanadiumPlatingLevel3
+    - → HailstormMissilePods (研究地狱风暴炮组)
+    - → TerranInfantryWeaponsLevel4 (升级步兵武器等级4)
+    - → TerranInfantryArmorsLevel4 (升级步兵护甲等级4)
+    - → FireSuppressionSystems (研究消防系统)
+    - → DualFusionWelders (研究双熔切焊枪)
+    - → SwannTurretIncreasedAttackSpeed (研究KMC自动填弹装置)
+    - → ShrikeTurret (研究尖牙炮塔)
+    - → FortifiedBunkerCarapace (研究加固地堡)
+    - → TerranInfantryWeaponsLevel5
+    - → TerranInfantryArmorsLevel5
+- **[Factory]** (建筑) Factory [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilTrain] FactoryTrain
+    - [CAbilBuild] FactoryAddOns
+    - [CAbilMorph] FactoryLiftOff
+    - [CAbilWarpTrain] FactoryTrainNova
+    - [CAbilTrain] FactoryTrainRaynorX
+    - [CAbilBuild] FactoryAddOnsRaynorX
+  - → 可生产单位:
+    - → SiegeTank [SiegeTank]
+    - → Thor [Thor]
+    - → Hellion [Hellion]
+    - → Desecrator [Desecrator]
+    - → WidowMine [WidowMine]
+    - → HellionTank [HellionTank]
+    - → Cyclone [Cyclone]
+    - → OdinMKII [奥丁MKII]
+    - → WarHound [WarHound]
+    - → Radbat [Radbat]
+    - → SpartanCompany [SpartanCompany]
+    - → BileTank [BileTank]
+    - → TitanMechAssault [TitanMechAssault]
+    - → Titan [Titan]
+    - → MengskThor [MengskThor]
+    - → SiegeTankRaynorX [SiegeTankRaynorX]
+    - → VultureRaynorX [VultureRaynorX]
+  - → 可建造建筑:
+    - → FactoryTechLab [FactoryTechLab]
+    - → FactoryReactor [FactoryReactor]
+    - → FactoryTechLabRaynorX [FactoryTechLabRaynorX]
+    - → FactoryReactorRaynorX [FactoryReactorRaynorX]
+- **[FactoryReactor]** (建筑) FactoryReactor [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilMorph] BarracksReactorMorph
+    - [CAbilMorph] StarportReactorMorph
+    - [CAbilMorph] ReactorMorph
+- **[FactoryTechLab]** (建筑) FactoryTechLab [修改](首次定义: liberty)
+    - [CAbilMorph] TechLabMorph
+    - [CAbilResearch] FactoryTechLabResearch
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5Addon
+    - [CAbilMorph] BarracksTechLabMorph
+    - [CAbilMorph] FactoryTechLabMorph
+    - [CAbilMorph] StarportTechLabMorph
+    - [CAbilQueue] que5LongBlend
+  - → 可研究科技:
+    - → HighCapacityBarrels
+    - → 330mmBarrageCannons (研究330毫米口径弹幕火炮)
+    - → TransformationServos
+    - → DrillClaws
+    - → CycloneLockOnRangeUpgrade
+    - → CycloneAirUpgrade (研究地对空瞄准)
+    - → TriLithiumPowerCells (研究三锂能源电池)
+    - → NanoConstructor (研究可装填式雷仓)
+    - → LockOnTargetAddUpgrade (研究额外锁定目标)
+    - → CerberusMines (研究地狱犬地雷)
+    - → MultilockTargetingSystems (研究多重锁定武器系统)
+    - → HellbatHellArmor (研究地狱火装甲)
+    - → MaelstromRounds (研究漩流弹)
+    - → AresClassWeaponsSystem (研究后燃充能)
+    - → RaynorImprovedSiegeMode (研究高级攻城科技)
+    - → CycloneLockOnDamageUpgrade (研究电磁力场加速器)
+    - → NovaUnitLockdown (研究锁定飞弹)
+    - → SiegeTankSiegeModeProgressiveRangeIncease (研究射程调节)
+    - → DeploySpiderMines (研究蜘蛛雷)
+    - → HoverSiegeTank (研究攻城坦克喷气背包)
+    - → HellbatJumpJetAssault (研究喷气背包突击)
+- **[FlamingBetty]** (建筑) FlamingBetty [修改](首次定义: starcoop)
+- **[GhostAcademy]** (建筑) GhostAcademy [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilArmMagazine] ArmSiloWithNuke
+    - [CAbilResearch] GhostAcademyResearch
+    - [CAbilResearch] MercCompoundResearch
+  - → 可研究科技:
+    - → PersonalCloaking
+    - → GhostMoebiusReactor
+    - → NovaDetector (研究幽灵面罩)
+    - → NovaImprovedWeaponDamage (研究诺娃强化版武器伤害)
+    - → NovaSnipeRefund (研究作战效能)
+    - → NovaShotgunBlastRange (研究狱火爆弹)
+    - → NovaLifeRegen (研究卡度休斯反应堆)
+    - → ReaperSpeed
+- **[MissileTurret]** (建筑) MissileTurret [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilBehavior] SalvageShared
+  - 武器: LongboltMissile
+- **[OrbitalCommand]** (建筑) OrbitalCommand [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilEffectTarget] CalldownMULE
+    - [CAbilEffectTarget] SupplyDrop
+    - [CAbilQueue] que5CancelToSelection
+    - [CAbilTrain] CommandCenterTrain
+    - [CAbilEffectTarget] ScannerSweep
+    - [CAbilMorph] OrbitalLiftOff
+    - [CAbilBuild] OrbitalCommandSupplyDepotDrop
+    - [CAbilTrain] CommandCenterTrainRaynor
+    - [CAbilEffectInstant] SynthesizeMinerals
+    - [CAbilEffectInstant] SynthesizeVespene
+    - [CAbilEffectInstant] RunRampant
+  - → 可生产单位:
+    - → SCV [SCV]
+    - → KelMorianWorker [凯莫瑞安工人]
+    - → SCVRaynor [SCVRaynor]
+  - → 可建造建筑:
+    - → SupplyDepot [SupplyDepot]
+- **[OrbitalCommandFlying]** (建筑) OrbitalCommandFlying [修改](首次定义: liberty)
+    - [CAbilMorphPlacement] OrbitalCommandLand
+    - [CAbilTransport] CommandCenterTransport
+- **[PlanetaryFortress]** (建筑) PlanetaryFortress [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilTrain] CommandCenterTrain
+    - [CAbilQueue] que5PassiveCancelToSelection
+    - [CAbilTransport] CommandCenterTransport
+    - [CAbilEffectTarget] VespeneDroneCast
+  - → 可生产单位:
+    - → SCV [SCV]
+    - → KelMorianWorker [凯莫瑞安工人]
+  - 武器: TwinIbiksCannon
+- **[Reactor]** (建筑) Reactor [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilMorph] BarracksReactorMorph
+    - [CAbilMorph] FactoryReactorMorph
+    - [CAbilMorph] StarportReactorMorph
+- **[SensorTower]** (建筑) SensorTower [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+- **[Starport]** (建筑) Starport [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilTrain] StarportTrain
+    - [CAbilBuild] StarportAddOns
+    - [CAbilMorph] StarportLiftOff
+    - [CAbilWarpTrain] StarportTrainNova
+  - → 可生产单位:
+    - → Medivac [Medivac]
+    - → Banshee [Banshee]
+    - → Raven [Raven]
+    - → Battlecruiser [Battlecruiser]
+    - → VikingFighter [VikingFighter]
+    - → Liberator [Liberator]
+    - → Phantom [Phantom]
+    - → SpecOpsRaven [SpecOpsRaven]
+    - → VoidConduit [VoidConduit]
+    - → MengskBC [MengskBC]
+  - → 可建造建筑:
+    - → StarportTechLab [StarportTechLab]
+    - → StarportReactor [StarportReactor]
+- **[StarportReactor]** (建筑) StarportReactor [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilMorph] BarracksReactorMorph
+    - [CAbilMorph] FactoryReactorMorph
+    - [CAbilMorph] ReactorMorph
+- **[StarportTechLab]** (建筑) StarportTechLab [修改](首次定义: liberty)
+    - [CAbilMorph] TechLabMorph
+    - [CAbilResearch] StarportTechLabResearch
+    - [CAbilResearch] FusionCoreResearch
+    - [CAbilQueue] que5Addon
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilMorph] BarracksTechLabMorph
+    - [CAbilMorph] FactoryTechLabMorph
+    - [CAbilMorph] StarportTechLabMorph
+    - [CAbilQueue] que5LongBlend
+  - → 可研究科技:
+    - → BansheeCloak
+    - → MedivacCaduceusReactor
+    - → RavenCorvidReactor
+    - → HunterSeeker
+    - → DurableMaterials
+    - → LiberatorMorph
+    - → HHMultiLock (研究多线程传感器)
+    - → AdvancedHealingAI (研究高级治疗AI)
+    - → ClusterWarheads (研究冲击波导弹巢)
+    - → DynamicPowerRouting (研究战斧能源电池)
+    - → CloakDistortionField (研究偏转力场)
+    - → AresClassWeaponsSystemViking (研究福波斯武器系统)
+    - → ScienceVesselResearchDefensiveMatrix (研究防御矩阵)
+    - → LiberatorImprovedAARange (研究解放者强化对空射程)
+    - → WraithImprovedBurstLaser (研究脉冲增幅器)
+    - → ScienceVesselFreeRepair (研究强化纳米修复)
+    - → HALORockets (研究破浪飞弹)
+    - → HHVikingRockets (研究狂暴飞弹)
+    - → BansheePermaCloak (研究高级隐形力场)
+    - → BansheeAirstrike (研究火箭弹幕)
+    - → MultiTaskMAFServosLiberator (研究智能伺服器)
+    - → HealingDroneCloakHealBeam (研究隐秘检伤)
+    - → LiberatorStructureAttack (研究掠袭火炮)
+    - → HHWraithFury (研究火控复检)
+    - → HHWraithQuadAttackSpeed
+    - → HHWraithPermaCloak (研究未登记的隐形系统)
+    - → HHVikingPiercingAttacks (研究撕裂弹)
+    - → RavenSuperScience (研究强化加工)
+    - → BattlecruiserEnableSpecializations
+    - → BattlecruiserBehemothReactor
+    - → HHBattlecruiserYamatoAttacks (研究超载反应堆)
+    - → FleetwideJump (研究战术跳跃)
+    - → HHBomberNapalm (研究装载凝固汽油弹)
+- **[SupplyDepot]** (建筑) SupplyDepot [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilMorph] SupplyDepotLower
+    - [CAbilTransport] SupplyDepotRiftTransport
+- **[SupplyDepotLowered]** (建筑) SupplyDepotLowered [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilMorph] SupplyDepotRaise
+    - [CAbilTransport] SupplyDepotRiftTransport
+- **[TechLab]** (建筑) TechLab [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5Addon
+    - [CAbilMorph] BarracksTechLabMorph
+    - [CAbilMorph] FactoryTechLabMorph
+    - [CAbilMorph] StarportTechLabMorph
+    - [CAbilQueue] que5LongBlend
+- **[Banshee]** (单位) Banshee [修改](首次定义: liberty)
+    - [CAbilBehavior] BansheeCloak
+    - [CAbilEffectInstant] VehicleAfterburners
+  - ← 被生产由:
+    - ← Banshee[StarportTrain/Train2]
+    - ← Banshee[VoidRiftTrainMalash/Train13]
+  - 武器: BacklashRockets
+- **[BarracksTechReactor]** (单位) BarracksTechReactor [修改](首次定义: starcoop)
+    - [CAbilResearch] BarracksTechLabResearch (研究激光瞄准系统)
+- **[Battlecruiser]** (单位) Battlecruiser [修改](首次定义: liberty)
+    - [CAbilEffectTarget] Yamato
+    - [CAbilQueue] que1
+    - [CAbilEffectTarget] HyperjumpNoVision
+    - [CAbilEffectInstant] VehicleAfterburners
+    - [CAbilEffectTarget] Hyperjump
+  - ← 被生产由:
+    - ← Battlecruiser[StarportTrain/Train4]
+    - ← Battlecruiser[VoidRiftTrainMalash/Train23]
+  - 武器: ATSLaserBattery, ATALaserBattery, SwitchLaserBattery
+- **[FactoryTechReactor]** (单位) FactoryTechReactor [修改](首次定义: starcoop)
+    - [CAbilResearch] FactoryTechLabResearch
+- **[Firebat]** (单位) Firebat [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] StimpackMarauder
+- **[Ghost]** (单位) Ghost [修改](首次定义: liberty)
+    - [CAbilBehavior] GhostCloak
+    - [CAbilEffectTarget] Snipe
+    - [CAbilEffectTarget] TacNukeStrike
+    - [CAbilEffectInstant] GhostHoldFire
+    - [CAbilEffectTarget] EMP
+    - [CAbilEffectInstant] GhostWeaponsFree
+    - [CAbilEffectTarget] ChannelSnipe
+  - ← 被生产由:
+    - ← Ghost[BarracksTrain/Train3]
+    - ← Ghost[VoidRiftTrainMalash/Train11]
+  - 武器: C10CanisterRifle
+- **[Goliath]** (单位) Goliath [修改](首次定义: starcoop)
+    - [CAbilMorph] GoliathWreckage
+  - → 可变形为:
+    - → GoliathWreckage
+- **[Hellion]** (单位) Hellion [修改](首次定义: liberty)
+    - [CAbilMorph] MorphToHellionTank
+    - [CAbilMorph] HellionWreckage
+  - → 可变形为:
+    - → HellionTank
+    - → HellionWreckage
+  - ← 被生产由:
+    - ← Hellion[FactoryTrain/Train6]
+  - 武器: InfernalFlameThrower
+- **[HellionTank]** (单位) HellionTank [修改](首次定义: swarm)
+    - [CAbilMorph] MorphToHellion
+    - [CAbilMorph] HellbatWreckage
+  - → 可变形为:
+    - → Hellion
+    - → HellbatWreckage
+  - ← 被生产由:
+    - ← HellionTank[FactoryTrain/Train7]
+  - 武器: HellionTank
+- **[Hercules]** (单位) Hercules [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] Hyperjump
+    - [CAbilEffectInstant] HerculesSpeedBoost
+    - [CAbilBehavior] RemoveFromF2Toggle
+- **[HiveMindEmulator]** (单位) HiveMindEmulator [修改](首次定义: starcoop)
+- **[Liberator]** (单位) Liberator [修改](首次定义: void)
+    - [CAbilMorph] LiberatorMorphtoAG
+    - [CAbilEffectTarget] LiberatorAGTarget
+    - [CAbilWarpable] WarpableNova
+    - [CAbilEffectInstant] VehicleAfterburners
+    - [CAbilBehavior] RemoveFromF2Toggle
+  - → 可变形为:
+    - → LiberatorAG
+  - ← 被生产由:
+    - ← Liberator[StarportTrain/Train7]
+    - ← Liberator[VoidRiftTrainMalash/Train24]
+  - 武器: LiberatorMissileLaunchers
+- **[LiberatorAG]** (单位) LiberatorAG [修改](首次定义: void)
+    - [CAbilMorph] LiberatorMorphtoAA
+    - [CAbilMorph] LiberatorMorphtoAG
+    - [CAbilEffectInstant] LiberatorAATarget
+    - [CAbilBehavior] RemoveFromF2Toggle
+  - → 可变形为:
+    - → Liberator
+    - → LiberatorAG
+  - 武器: LiberatorAGWeapon, LiberatorAGWeaponNew, LiberatorMissileLaunchersSiegeMode, LiberatorDummyAGWeapon
+- **[MULE]** (单位) MULE [修改](首次定义: liberty)
+    - [CAbilHarvest] MULEGather
+    - [CAbilEffectTarget] MULERepair
+    - [CAbilHarvest] SCVHarvest
+- **[Marauder]** (单位) Marauder [修改](首次定义: liberty)
+    - [CAbilEffectInstant] StimpackMarauder
+  - ← 被生产由:
+    - ← Marauder[BarracksTrain/Train4]
+  - 武器: PunisherGrenades
+- **[Marine]** (单位) Marine [修改](首次定义: liberty)
+    - [CAbilEffectInstant] Stimpack
+  - ← 被生产由:
+    - ← Marine[BarracksTrain/Train1]
+    - ← Marine[VoidRiftTrainMalash/Train10]
+  - 武器: GuassRifle
+- **[Medic]** (单位) Medic [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] HealPlusMech
+- **[Medivac]** (单位) Medivac [修改](首次定义: liberty)
+    - [CAbilEffectTarget] MedivacHeal
+    - [CAbilTransport] MedivacTransport
+    - [CAbilEffectInstant] MedivacSpeedBoost
+    - [CAbilWarpable] WarpableNova
+  - ← 被生产由:
+    - ← Medivac[StarportTrain/Train1]
+    - ← Medivac[VoidRiftTrainMalash/Train25]
+- **[MercCompound]** (单位) MercCompound [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] MassMercDrop
+    - [CAbilEffectTarget] EmergencyMedivacs
+    - [CAbilEffectTarget] BansheeAirstrike
+    - [CAbilEffectTarget] VoidCoopSummonHyperion
+    - [CAbilResearch] HeroSelection
+    - [CAbilTrain] InstabuildHeroes
+    - [CAbilTrain] SummonMercenaries
+    - [CAbilBuildable] BuildInProgress
+- **[PerditionTurret]** (单位) PerditionTurret [修改](首次定义: starcoop)
+    - [CAbilBehavior] SalvageShared
+    - [CAbilEffectInstant] Kit@PerditionTurretHoldFire
+    - [CAbilEffectInstant] Kit@PerditionTurretRemoveHoldFire
+    - [CAbilEffectInstant] SalvageTerran
+    - [CAbilBuildable] BuildInProgress
+- **[PerditionTurretUnderground]** (单位) PerditionTurretUnderground [修改](首次定义: starcoop)
+    - [CAbilBehavior] SalvageShared
+    - [CAbilEffectInstant] Kit@PerditionTurretHoldFire
+    - [CAbilEffectInstant] Kit@PerditionTurretRemoveHoldFire
+    - [CAbilEffectInstant] SalvageTerran
+  - 武器: PerditionTurretBurrowed, Kit@PerditionTurretBurrowed
+- **[Predator]** (单位) Predator [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] NovaArmorBlinkSuitBlink
+  - ← 被生产由:
+    - ← Predator[InstabuildHeroes/Train24]
+    - ← Predator[InstabuildHeroes/Train27]
+- **[PsiDisruptor]** (单位) PsiDisruptor [修改](首次定义: starcoop)
+- **[Reaper]** (单位) Reaper [修改](首次定义: liberty)
+    - [CAbilEffectTarget] ReaperSpiderMines
+  - ← 被生产由:
+    - ← Reaper[BarracksTrain/Train2]
+  - 武器: P38ScytheGuassPistol, D8Charge, D8Charge
+- **[RefineryPipes]** (单位) RefineryPipes [修改](首次定义: starcoop)
+    - [CAbilMorph] Kit@RefineryPipesMorph
+  - → 可变形为:
+    - → Refinery
+- **[SCV]** (单位) SCV [修改](首次定义: liberty)
+    - [CAbilEffectTarget] Repair
+    - [CAbilHarvest] SCVHarvest
+    - [CAbilBuild] TerranBuild
+    - [CAbilEffectTarget] MapObjectInteract
+    - [CAbilEffectInstant] MutatorRemoveWorkerSleep
+    - [CAbilBuild] TerranBuildFullRefund
+    - [CAbilEffectTarget] AdvancedConstructionAuto
+    - [CAbilEffectTarget] SprayTerran
+    - [CAbilEffectTarget] Kit@AdvancedConstructionAuto
+  - ← 被生产由:
+    - ← SCV[CommandCenterTrain/Train1]
+  - 武器: FusionCutter
+- **[SiegeTank]** (单位) SiegeTank [修改](首次定义: liberty)
+    - [CAbilMorph] SiegeMode
+    - [CAbilMorph] SiegeTankWreckage
+    - [CAbilEffectInstant] VehicleAfterburners
+  - → 可变形为:
+    - → SiegeTankSieged
+    - → SiegeTankWreckage
+  - ← 被生产由:
+    - ← SiegeTank[FactoryTrain/Train2]
+    - ← SiegeTank[VoidRiftTrainMalash/Train12]
+  - 武器: 90mmCannons, 90mmCannonsLookAt, Kit@90mmCannonsFake
+- **[SiegeTankSieged]** (单位) SiegeTankSieged [修改](首次定义: liberty)
+    - [CAbilMorph] Unsiege
+    - [CAbilMorph] SiegeTankWreckage
+    - [CAbilEffectInstant] VehicleAfterburners
+  - → 可变形为:
+    - → SiegeTank
+    - → SiegeTankWreckage
+  - 武器: CrucioShockCannon
+- **[Spectre]** (单位) Spectre [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] TacNukeStrike
+    - [CAbilEffectTarget] MindBlast
+    - [CAbilEffectInstant] VoodooShield
+    - [CAbilEffectTarget] SpectreDomination
+    - [CAbilEffectInstant] SpectreReleaseMinion
+    - [CAbilEffectTarget] Obliterate
+    - [CAbilEffectTarget] PsionicLift
+    - [CAbilEffectInstant] TerrazineFury
+- **[SpiderMine]** (单位) SpiderMine [修改](首次定义: starcoop)
+- **[SpiderMineBurrowed]** (单位) SpiderMineBurrowed [修改](首次定义: starcoop)
+- **[StarportTechReactor]** (单位) StarportTechReactor [修改](首次定义: starcoop)
+    - [CAbilResearch] StarportTechLabResearch (研究掠袭火炮)
+- **[Thor]** (单位) Thor [修改](首次定义: liberty)
+    - [CAbilEffectTarget] 250mmStrikeCannons
+    - [CAbilMorph] ThorAPMode
+    - [CAbilMorph] ThorWreckageSwann
+    - [CAbilEffectInstant] SelfRepair
+    - [CAbilEffectTarget] 330mmBarrageCannons
+  - → 可变形为:
+    - → ThorAP
+    - → ThorWreckageSwann
+  - ← 被生产由:
+    - ← Thor[FactoryTrain/Train5]
+    - ← Thor[VoidRiftTrainMalash/Train22]
+  - 武器: JavelinMissileLaunchers, ThorsHammer
+- **[VikingAssault]** (单位) VikingAssault [修改](首次定义: liberty)
+    - [CAbilMorph] FighterMode
+    - [CAbilEffectInstant] VehicleAfterburners
+  - → 可变形为:
+    - → VikingFighter
+  - 武器: TwinGatlingCannon
+- **[VikingFighter]** (单位) VikingFighter [修改](首次定义: liberty)
+    - [CAbilMorph] AssaultMode
+    - [CAbilEffectInstant] VehicleAfterburners
+  - → 可变形为:
+    - → VikingAssault
+  - ← 被生产由:
+    - ← VikingFighter[StarportTrain/Train5]
+    - ← VikingFighter[HHStarportTrain/Train2]
+  - 武器: LanzerTorpedoes
+- **[Vulture]** (单位) Vulture [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] VehicleAfterburners
+- **[WidowMine]** (单位) WidowMine [修改](首次定义: swarm)
+    - [CAbilMorph] WidowMineBurrow
+    - [CAbilEffectTarget] WidowMineAttack
+  - → 可变形为:
+    - → WidowMineBurrowed
+  - ← 被生产由:
+    - ← WidowMine[FactoryTrain/Train25]
+- **[WidowMineBurrowed]** (单位) WidowMineBurrowed [修改](首次定义: swarm)
+    - [CAbilMorph] WidowMineUnburrow
+    - [CAbilEffectTarget] WidowMineAttack
+  - → 可变形为:
+    - → WidowMine
+- **[Wraith]** (单位) Wraith [修改](首次定义: starcoop)
+
+### Zerg 基础种族单位（建筑 4 / 单位 37）
+
+- **[Hatchery]** (建筑) Hatchery [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5CancelToSelection
+    - [CAbilMorph] UpgradeToLair
+    - [CAbilTrain] TrainQueen
+    - [CAbilResearch] LairResearch
+    - [CAbilEffectTarget] NaturalCamouflage
+    - [CAbilTrain] CommanderUnits
+    - [CAbilEffectTarget] Cliffjumper
+    - [CAbilEffectTarget] CombatDrone
+    - [CAbilEffectTarget] MineralEfficiency
+    - [CAbilEffectTarget] VespeneEfficiency
+    - [CAbilEffectTarget] FastMorphing
+    - [CAbilEffectInstant] BaseGasExchange
+  - → 可研究科技:
+    - → overlordspeed
+    - → overlordtransport
+    - → Burrow
+    - → QueenClassicFullStartingEnergy (进化后虫初始能量全满)
+    - → QueenClassicEnsnareUpgrade (进化后虫强化诱捕)
+    - → OverlordspeedCoop
+  - → 可生产单位:
+    - → Queen [虫后]
+    - → SIQueen [虫巢女王]
+    - → Drone [Drone]
+    - → BroodMother [BroodMother]
+    - → ZaGara [ZaGara]
+    - → Blightbringer [Blightbringer]
+    - → Omegalisk [Omegalisk]
+    - → Brutalisk [莽兽]
+    - → MutaliskAnkylos [MutaliskAnkylos]
+    - → MutaliskChar [MutaliskChar]
+    - → Mamba [Mamba]
+    - → Mesmer [Mesmer]
+    - → BroodLord [BroodLord]
+    - → Devourer [吞噬者]
+    - → IzshaGuardian [IzshaGuardian]
+    - → Kraken [Kraken]
+    - → Leviathan [Leviathan]
+- **[Hive]** (建筑) Hive [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5CancelToSelection
+    - [CAbilResearch] LairResearch
+    - [CAbilTrain] TrainQueen
+    - [CAbilTrain] CommanderUnits
+    - [CAbilEffectTarget] Cliffjumper
+    - [CAbilEffectTarget] CombatDrone
+    - [CAbilEffectTarget] MineralEfficiency
+    - [CAbilEffectTarget] VespeneEfficiency
+    - [CAbilEffectTarget] FastMorphing
+    - [CAbilEffectInstant] BaseGasExchange
+    - [CAbilEffectTarget] NaturalCamouflage
+  - → 可研究科技:
+    - → overlordspeed
+    - → overlordtransport
+    - → Burrow
+    - → QueenClassicFullStartingEnergy (进化后虫初始能量全满)
+    - → QueenClassicEnsnareUpgrade (进化后虫强化诱捕)
+    - → OverlordspeedCoop
+  - → 可生产单位:
+    - → Queen [虫后]
+    - → SIQueen [虫巢女王]
+    - → Drone [Drone]
+    - → BroodMother [BroodMother]
+    - → ZaGara [ZaGara]
+    - → Blightbringer [Blightbringer]
+    - → Omegalisk [Omegalisk]
+    - → Brutalisk [莽兽]
+    - → MutaliskAnkylos [MutaliskAnkylos]
+    - → MutaliskChar [MutaliskChar]
+    - → Mamba [Mamba]
+    - → Mesmer [Mesmer]
+    - → BroodLord [BroodLord]
+    - → Devourer [吞噬者]
+    - → IzshaGuardian [IzshaGuardian]
+    - → Kraken [Kraken]
+    - → Leviathan [Leviathan]
+- **[Lair]** (建筑) Lair [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5CancelToSelection
+    - [CAbilResearch] LairResearch
+    - [CAbilMorph] UpgradeToHive
+    - [CAbilTrain] TrainQueen
+    - [CAbilTrain] CommanderUnits
+    - [CAbilEffectTarget] Cliffjumper
+    - [CAbilEffectTarget] CombatDrone
+    - [CAbilEffectTarget] MineralEfficiency
+    - [CAbilEffectTarget] NaturalCamouflage
+    - [CAbilEffectTarget] VespeneEfficiency
+    - [CAbilEffectTarget] FastMorphing
+    - [CAbilEffectInstant] BaseGasExchange
+    - [CAbilBuild] CreepTumorBuild
+  - → 可研究科技:
+    - → overlordspeed
+    - → overlordtransport
+    - → Burrow
+    - → QueenClassicFullStartingEnergy (进化后虫初始能量全满)
+    - → QueenClassicEnsnareUpgrade (进化后虫强化诱捕)
+    - → OverlordspeedCoop
+  - → 可生产单位:
+    - → Queen [虫后]
+    - → SIQueen [虫巢女王]
+    - → Drone [Drone]
+    - → BroodMother [BroodMother]
+    - → ZaGara [ZaGara]
+    - → Blightbringer [Blightbringer]
+    - → Omegalisk [Omegalisk]
+    - → Brutalisk [莽兽]
+    - → MutaliskAnkylos [MutaliskAnkylos]
+    - → MutaliskChar [MutaliskChar]
+    - → Mamba [Mamba]
+    - → Mesmer [Mesmer]
+    - → BroodLord [BroodLord]
+    - → Devourer [吞噬者]
+    - → IzshaGuardian [IzshaGuardian]
+    - → Kraken [Kraken]
+    - → Leviathan [Leviathan]
+  - → 可建造建筑:
+    - → CreepTumor [CreepTumor]
+- **[NydusCanal]** (建筑) NydusCanal [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildinProgressNydusCanal
+    - [CAbilTransport] NydusCanalTransport
+    - [CAbilTransport] NydusWormTransport
+- **[Baneling]** (单位) Baneling [修改](首次定义: liberty)
+    - [CAbilMorph] BurrowBanelingDown
+    - [CAbilEffectTarget] SapStructure
+    - [CAbilEffectInstant] Explode
+    - [CAbilEffectInstant] BanelingCreep
+    - [CAbilEffectInstant] BanelingNuke
+    - [CAbilEffectInstant] BanelingShields
+    - [CAbilEffectInstant] BanelingSpeed
+    - [CAbilEffectInstant] BanelingZerglings
+  - → 可变形为:
+    - → BanelingBurrowed
+  - ← 被生产由:
+    - ← Baneling[MorphZerglingToBaneling/Train1]
+    - ← Baneling[ZagaraVoidCoopBanelingSpawnerTrain/Train1]
+  - 武器: VolatileBurst
+- **[BanelingBurrowed]** (单位) BanelingBurrowed [修改](首次定义: liberty)
+    - [CAbilEffectInstant] Explode
+    - [CAbilMorph] BurrowBanelingUp
+  - → 可变形为:
+    - → Baneling
+- **[Blightbringer]** (单位) Blightbringer [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] ParasiticBomb
+    - [CAbilEffectTarget] AcidVomit
+    - [CAbilEffectTarget] BlightbringerCreateEggs
+    - [CAbilEffectTarget] BlightbringerCreateLargeEggs
+  - ← 被生产由:
+    - ← Blightbringer[LarvaTrain/Train24]
+    - ← Blightbringer[LarvaTrainSwarm2/Train27]
+    - ← Blightbringer[CommanderUnits/Train1]
+  - 武器: SpitBaneling
+- **[BlightbringerBurrowed]** (单位) BlightbringerBurrowed [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] ParasiticBomb
+- **[BlightbringerEgg]** (单位) BlightbringerEgg [修改](首次定义: starcoop)
+- **[BlightbringerLargeEgg]** (单位) BlightbringerLargeEgg [修改](首次定义: starcoop)
+- **[BroodLord]** (单位) BroodLord [修改](首次定义: liberty)
+    - [CAbilArmMagazine] BroodLordHangar
+    - [CAbilQueue] BroodLordQueue2
+  - ← 被生产由:
+    - ← BroodLord[LarvaTrainSwarm/Train24]
+    - ← BroodLord[VoidRiftTrainMalash/Train20]
+    - ← BroodLord[CommanderUnits/Train14]
+  - 武器: BroodlingStrike
+- **[Broodling]** (单位) Broodling [修改](首次定义: liberty)
+  - 武器: NeedleClaws
+- **[BroodmotherNaisha]** (单位) BroodmotherNaisha [新增]
+    - [CAbilBuild] QueenBuild
+    - [CAbilMorph] BurrowQueenDown
+    - [CAbilEffectTarget] AcidicBlood
+    - [CAbilEffectTarget] QueenBurstHeal
+    - [CAbilEffectTarget] SpawnLarva
+  - → 可变形为:
+    - → QueenBurrowed
+  - 武器: CorrosiveSpines, ColossalTalons
+- **[Choker]** (单位) 扼喉怪 [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] TentacleAttack
+    - [CAbilEffectTarget] Transfusion
+    - [CAbilEffectTarget] Frenzy
+  - ← 被生产由:
+    - ← Choker[LarvaTrain/Train9]
+  - 武器: Spit
+- **[Corruptor]** (单位) Corruptor [修改](首次定义: liberty)
+    - [CAbilEffectTarget] Corruption
+    - [CAbilMorph] MorphToBroodLord
+    - [CAbilEffectTarget] CausticSpray
+  - → 可变形为:
+    - → BroodLordCocoon
+    - → BroodLord
+  - ← 被生产由:
+    - ← Corruptor[LarvaTrain/Train12]
+  - 武器: ParasiteSpore
+- **[DefilerMP]** (单位) DefilerMP [修改](首次定义: void)
+    - [CAbilEffectTarget] DefilerMPConsume
+    - [CAbilEffectTarget] DefilerMPDarkSwarm
+    - [CAbilEffectTarget] DefilerMPPlague
+    - [CAbilMorph] DefilerMPBurrow
+    - [CAbilEffectTarget] InfestorConsumption
+    - [CAbilTrain] EvolveToBrutaliskDefiler
+    - [CAbilQueue] que1
+    - [CAbilEffectInstant] AbathurCasterBrainPoolPurchaseReborn
+    - [CAbilEffectInstant] AbathurCasterNeuralTethersPurchaseReborn
+    - [CAbilEffectInstant] AbathurCasterFleshReactorPurchaseReborn
+    - [CAbilEffectInstant] AbathurCasterMimeticMembranePurchaseReborn
+  - → 可变形为:
+    - → DefilerMPBurrowed
+  - ← 被生产由:
+    - ← DefilerMP[LarvaTrain/Train17]
+    - ← DefilerMP[LarvaTrainSwarm/Train3]
+  - 武器: Spit
+- **[Drone]** (单位) Drone [修改](首次定义: liberty)
+    - [CAbilBuild] ZergBuild
+    - [CAbilHarvest] DroneHarvest
+    - [CAbilMorph] BurrowDroneDown
+    - [CAbilEffectTarget] MapObjectInteract
+    - [CAbilEffectInstant] MutatorRemoveWorkerSleep
+    - [CAbilEffectTarget] SprayZerg
+  - → 可变形为:
+    - → DroneBurrowed
+  - ← 被生产由:
+    - ← Drone[LarvaTrain/Train1]
+    - ← Drone[TrainQueen/Train4]
+  - 武器: Spines
+- **[Egg]** (单位) 异虫茧 [修改](首次定义: liberty)
+    - [CAbilQueue] que1
+- **[EggPurple]** (单位) EggPurple [修改](首次定义: starcoop)
+- **[GuardianMP]** (单位) GuardianMP [修改](首次定义: void)
+    - [CAbilTrain] EvolveToLeviathanGuardianMP
+    - [CAbilQueue] que1
+  - ← 被生产由:
+    - ← GuardianMP[LarvaTrain/Train22]
+    - ← GuardianMP[MutaliskMorphToGuardian/Train1]
+  - 武器: GuardianMPWeapon, HybridNemesisWeapon
+- **[HunterKiller]** (单位) HunterKiller [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] HydraliskFrenzy
+    - [CAbilEffectInstant] HydraliskBroodlings
+    - [CAbilEffectInstant] HydraliskCripple
+    - [CAbilEffectInstant] HydraliskMechanical
+    - [CAbilEffectInstant] HydraliskMelee
+    - [CAbilEffectInstant] HydraliskRange
+  - ← 被生产由:
+    - ← HunterKiller[LarvaTrain/Train21]
+    - ← HunterKiller[LarvaTrainSwarm2/Train7]
+- **[Hunterling]** (单位) 猎杀体 [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] LeapAttack
+  - ← 被生产由:
+    - ← Hunterling[LarvaTrain/Train6]
+  - 武器: HunterlingClaws
+- **[HunterlingLeaping]** (单位) 猎杀体 [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] LeapAttack
+    - [CAbilMorph] LeapAttackMorphToFlyingForm
+    - [CAbilMorph] LeapAttackMorphToNormalForm
+  - → 可变形为:
+    - → HunterlingLeaping
+    - → Hunterling
+  - 武器: HunterlingClaws
+- **[HunterlingPlaceholder]** (单位) HunterlingPlaceholder [修改](首次定义: starcoop)
+- **[Hydralisk]** (单位) Hydralisk [修改](首次定义: liberty)
+    - [CAbilMorph] BurrowHydraliskDown
+    - [CAbilMorph] LurkerAspectMP
+    - [CAbilEffectInstant] HydraliskBroodlings
+    - [CAbilEffectInstant] HydraliskCripple
+    - [CAbilEffectInstant] HydraliskMechanical
+    - [CAbilEffectInstant] HydraliskMelee
+    - [CAbilEffectInstant] HydraliskRange
+  - → 可变形为:
+    - → HydraliskBurrowed
+    - → LurkerMPEgg
+    - → LurkerMP
+  - ← 被生产由:
+    - ← Hydralisk[VoidRiftTrainMalash/Train7]
+  - 武器: HydraliskMelee, NeedleSpines
+- **[InfestedCivilian]** (单位) InfestedCivilian [修改](首次定义: starcoop)
+- **[InfestedRefinery]** (单位) InfestedRefinery [修改](首次定义: starcoop)
+- **[InfestedSupply]** (单位) InfestedSupply [修改](首次定义: starcoop)
+- **[InfestedTerranCampaign]** (单位) InfestedTerranCampaign [修改](首次定义: starcoop)
+    - [CAbilEffectInstant] Stimpack
+  - 武器: InfestedGuassRifle
+- **[Infestor]** (单位) Infestor [修改](首次定义: liberty)
+    - [CAbilMorph] BurrowInfestorDown
+    - [CAbilEffectTarget] NeuralParasite
+    - [CAbilEffectTarget] Leech
+    - [CAbilEffectTarget] FungalGrowth
+    - [CAbilEffectTarget] InfestedTerrans
+    - [CAbilEffectTarget] FungalGrowth
+    - [CAbilEffectTarget] InfestedTerrans
+    - [CAbilEffectTarget] NPSwarm
+    - [CAbilEffectTarget] InfestorConsumption
+    - [CAbilEffectInstant] AbathurCasterBrainPoolPurchaseReborn
+    - [CAbilEffectInstant] AbathurCasterNeuralTethersPurchaseReborn
+    - [CAbilEffectInstant] AbathurCasterFleshReactorPurchaseReborn
+    - [CAbilEffectInstant] AbathurCasterMimeticMembranePurchaseReborn
+  - → 可变形为:
+    - → InfestorBurrowed
+  - ← 被生产由:
+    - ← Infestor[LarvaTrain/Train11]
+    - ← Infestor[SILarvaTrain/Train2]
+  - 武器: AcidSpittle
+- **[InfestorTerran]** (单位) InfestorTerran [修改](首次定义: liberty)
+    - [CAbilMorph] BurrowInfestorTerranDown
+    - [CAbilEffectInstant] Stimpack
+  - → 可变形为:
+    - → InfestorTerranBurrowed
+  - ← 被生产由:
+    - ← InfestorTerran[InfestedMonsterTrain/Train2]
+  - 武器: InfestedGuassRifle
+- **[Larva]** (单位) Larva [修改](首次定义: liberty)
+    - [CAbilTrain] LarvaTrain
+    - [CAbilQueue] que1
+    - [CAbilTrain] LarvaTrainSwarm2
+    - [CAbilTrain] LarvaTrainSwarm
+- **[Locust]** (单位) Locust [修改](首次定义: starcoop)
+  - 武器: Locust
+- **[LurkerMP]** (单位) LurkerMP [修改](首次定义: swarm)
+    - [CAbilMorph] BurrowLurkerMPDown
+  - → 可变形为:
+    - → LurkerMPBurrowed
+- **[LurkerMPBurrowed]** (单位) LurkerMPBurrowed [修改](首次定义: swarm)
+    - [CAbilMorph] BurrowLurkerMPUp
+    - [CAbilMorph] BurrowLurkerMPDown
+    - [CAbilEffectInstant] LurkerHoldFire
+    - [CAbilEffectInstant] LurkerRemoveHoldFire
+  - → 可变形为:
+    - → LurkerMP
+    - → LurkerMPBurrowed
+  - 武器: LurkerMP, LurkerMP
+- **[Overlord]** (单位) Overlord [修改](首次定义: liberty)
+    - [CAbilTransport] OverlordTransport
+    - [CAbilMorph] MorphToOverseer
+    - [CAbilBehavior] GenerateCreep
+    - [CAbilEffectInstant] OverlordRadar
+    - [CAbilEffectInstant] OverlordZerglings
+    - [CAbilEffectInstant] OverlordGun
+    - [CAbilEffectInstant] OverlordGirth
+    - [CAbilEffectInstant] OverlordZoomies
+  - → 可变形为:
+    - → OverlordCocoon
+    - → Overseer
+  - ← 被生产由:
+    - ← Overlord[LarvaTrain/Train3]
+- **[Ravager]** (单位) Ravager [修改](首次定义: void)
+    - [CAbilMorph] BurrowRavagerDown
+    - [CAbilEffectTarget] RavagerCorrosiveBile
+    - [CAbilEffectTarget] RavagerCorrosiveBile
+    - [CAbilTrain] EvolveToBrutaliskRavager (进化为莽兽)
+    - [CAbilEffectInstant] AdrenalineOverdose
+    - [CAbilEffectInstant] BanelingGestation
+    - [CAbilEffectInstant] BileShield
+    - [CAbilEffectInstant] MeleeStrain
+    - [CAbilEffectInstant] RoachlingInfestation
+  - → 可变形为:
+    - → RavagerBurrowed
+  - ← 被生产由:
+    - ← Ravager[LarvaTrainSwarm2/Train6]
+  - 武器: RavagerWeapon
+- **[Roach]** (单位) Roach [修改](首次定义: liberty)
+    - [CAbilMorph] BurrowRoachDown
+    - [CAbilQueue] que1
+    - [CAbilTrain] MorphRoachToRavager
+    - [CAbilTrain] EvolveToBrutaliskRoach
+    - [CAbilEffectTarget] AbathurDeepTunnelImproved
+    - [CAbilMorph] MorphToRavager
+    - [CAbilEffectInstant] AdrenalineOverdose
+    - [CAbilEffectInstant] BanelingGestation
+    - [CAbilEffectInstant] BileShield
+    - [CAbilEffectInstant] MeleeStrain
+    - [CAbilEffectInstant] RoachlingInfestation
+  - → 可变形为:
+    - → RoachBurrowed
+    - → RavagerCocoon
+    - → Ravager
+  - ← 被生产由:
+    - ← Roach[LarvaTrain/Train10]
+    - ← Roach[VoidRiftTrainMalash/Train18]
+  - 武器: RoachMelee, AcidSaliva
+- **[RoachCorpser]** (单位) RoachCorpser [修改](首次定义: starcoop)
+    - [CAbilQueue] que1
+    - [CAbilTrain] MorphRoachToRavager
+    - [CAbilEffectInstant] AdrenalineOverdose
+    - [CAbilEffectInstant] BanelingGestation
+    - [CAbilEffectInstant] BileShield
+    - [CAbilEffectInstant] MeleeStrain
+    - [CAbilEffectInstant] RoachlingInfestation
+- **[RoachVile]** (单位) RoachVile [修改](首次定义: starcoop)
+    - [CAbilQueue] que1
+    - [CAbilTrain] MorphRoachVileToRavager
+    - [CAbilTrain] EvolveToBrutaliskRoachVile
+    - [CAbilEffectTarget] AbathurDeepTunnelImproved
+    - [CAbilEffectInstant] AdrenalineOverdose
+    - [CAbilEffectInstant] BanelingGestation
+    - [CAbilEffectInstant] BileShield
+    - [CAbilEffectInstant] MeleeStrain
+    - [CAbilEffectInstant] RoachlingInfestation
+- **[Ultralisk]** (单位) Ultralisk [修改](首次定义: liberty)
+    - [CAbilMorph] BurrowUltraliskDown
+    - [CAbilEffectInstant] UltraliskWeaponCooldown
+    - [CAbilEffectTarget] UltraliskBurrowCharge
+  - → 可变形为:
+    - → UltraliskBurrowed
+  - ← 被生产由:
+    - ← Ultralisk[LarvaTrain/Train7]
+    - ← Ultralisk[VoidRiftTrainMalash/Train9]
+  - 武器: KaiserBlades, Ram
+
+### Protoss 基础种族单位（建筑 7 / 单位 18）
+
+- **[Nexus]** (建筑) Nexus [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilEffectTarget] TimeWarp
+    - [CAbilQueue] que5
+    - [CAbilTrain] NexusTrain
+    - [CAbilTrain] NexusTrainMothership
+    - [CAbilEffectTarget] NexusInvulnerability
+    - [CAbilQueue] que5Passive
+    - [CAbilTrain] NexusTrainMothershipCore
+    - [CAbilEffectTarget] PhotonOvercharge
+    - [CAbilBuild] NexusBuild
+    - [CAbilEffectTarget] TimeWarp
+    - [CAbilEffectTarget] NexusMassRecall
+  - → 可生产单位:
+    - → Probe [Probe]
+    - → Selendis [Selendis]
+    - → Mothership [Mothership]
+    - → MothershipCore [MothershipCore]
+  - → 可建造建筑:
+    - → AutomatedAssimilatorZeratul [古代吸纳舱]
+- **[PhotonCannon]** (建筑) PhotonCannon [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+  - 武器: PhotonCannon
+- **[PlasmaTurret]** (建筑) PlasmaTurret [新增]
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilEffectInstant] SalvageTerran
+  - 武器: NovaWeaponPlasmaRifle
+- **[Pylon]** (建筑) Pylon [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilMorph] PhotonOverchargeMorphPylon
+    - [CAbilMorph] DarkPylonMorph
+- **[RoboticsFacility]** (建筑) RoboticsFacility [修改](首次定义: liberty)
+    - [CAbilTrain] GatewayTrain
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilTrain] RoboticsFacilityTrain
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilTrain] RoboticsFacilityTrain
+    - [CAbilMorph] UpgradeToRoboticsFacilityWarp
+  - → 可生产单位:
+    - → Zealot [Zealot]
+    - → Stalker [Stalker]
+    - → HighTemplar [HighTemplar]
+    - → DarkTemplar [DarkTemplar]
+    - → Sentry [Sentry]
+    - → Adept [Adept]
+    - → DarkArchon [折跃黑暗执政官]
+    - → Monitor [折跃浩劫]
+    - → Supplicant [死徒]
+    - → SentryFenix [保护者]
+    - → WarpPrism [WarpPrism]
+    - → Observer [Observer]
+    - → Colossus [Colossus]
+    - → Immortal [Immortal]
+    - → Disruptor [Disruptor]
+    - → WarpPrismTaldarim [战争棱镜]
+- **[Stargate]** (建筑) Stargate [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilTrain] StargateTrain
+    - [CAbilMorph] UpgradeToStargateWarp
+  - → 可生产单位:
+    - → Phoenix [Phoenix]
+    - → Carrier [Carrier]
+    - → VoidRay [VoidRay]
+    - → Oracle [Oracle]
+    - → Tempest [Tempest]
+    - → SOAMothershipv4 [SOAMothershipv4]
+- **[TwilightCouncil]** (建筑) TwilightCouncil [修改](首次定义: liberty)
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilResearch] TwilightCouncilResearch
+    - [CAbilWarpTrain] ChampionWarpTrain
+  - → 可研究科技:
+    - → Charge
+    - → BlinkTech (研究闪现)
+    - → ZealotResearchWhirlwind (研究旋风斩)
+    - → StalkerResearchBlinkCharges (研究闪现充能)
+    - → ZealotResearchShadowCharge (研究暗影冲锋)
+    - → StalkerResearchDragoonRange (研究奇点充能)
+    - → StalkerResearchDragoonHealth (研究万亿压缩系统)
+    - → StalkerResearchBlinkShieldRestore (研究闪现)
+    - → ZealotResearchShadowStun (研究黑暗缠绕)
+    - → ZealotResearchReconstruction (研究重构)
+    - → AdeptShadeDebuff (研究使徒阴影负面效果)
+    - → AdeptPiercingAttack
+    - → EnergizerReclamation (研究回收)
+    - → KaraxEnergyRegenUpgrade (研究快速恢复)
+    - → AlarakZealotFrenziedOverload (研究疯狂超载)
+    - → AlarakStalkerForceBlast (研究力场冲击)
+    - → AlarakStalkerPhasingArmor (研究相位护甲)
+    - → AlarakSupplicantMaxShields (研究灵魂强化)
+    - → AlarakSupplicantShieldArmor (研究鲜血护盾)
+    - → FenixChampionTalisAdeptBounceShotUpgrade (研究衰弱系统)
+    - → AdeptFenixShadeSpawn (研究灵能投射)
+    - → FenixKaldalisCleave (研究充能利刃)
+- **[Archon]** (单位) Archon [修改](首次定义: liberty)
+    - [CAbilMergeable] Mergeable
+    - [CAbilEffectTarget] FeedbackArchon
+    - [CAbilEffectTarget] PsiStormArchon
+  - ← 被生产由:
+    - ← Archon[VoidRiftTrainMalash/Train15]
+  - 武器: PsionicShockwave
+- **[Carrier]** (单位) Carrier [修改](首次定义: liberty)
+    - [CAbilArmMagazine] CarrierHangar
+    - [CAbilQueue] HangarQueue5
+    - [CAbilWarpable] Warpable
+    - [CAbilMorph] FenixClolarionCarrierMorph
+  - → 可变形为:
+    - → FenixClolarionCarrier
+  - ← 被生产由:
+    - ← Carrier[StargateTrain/Train3]
+    - ← Carrier[VoidRiftTrainMalash/Train5]
+  - 武器: InterceptorLaunch
+- **[CarrierAiur]** (单位) CarrierAiur [修改](首次定义: starcoop)
+    - [CAbilArmMagazine] CarrierRepairDroneHanger
+- **[DarkTemplar]** (单位) DarkTemplar [修改](首次定义: liberty)
+    - [CAbilWarpable] Warpable
+    - [CAbilMerge] ArchonWarp
+    - [CAbilEffectTarget] DarkTemplarBlink
+  - ← 被生产由:
+    - ← DarkTemplar[GatewayTrain/Train5]
+  - 武器: WarpBlades
+- **[Disruptor]** (单位) Disruptor [修改](首次定义: void)
+    - [CAbilWarpable] Warpable
+    - [CAbilEffectTarget] PurificationNovaTargeted
+    - [CAbilEffectTarget] FenixPurificationNova
+  - ← 被生产由:
+    - ← Disruptor[RoboticsFacilityTrain/Train19]
+  - 武器: DisruptorPsiBlast, Dragoon
+- **[HighTemplar]** (单位) HighTemplar [修改](首次定义: liberty)
+    - [CAbilEffectTarget] PsiStorm
+    - [CAbilMerge] ArchonWarp
+    - [CAbilWarpable] Warpable
+    - [CAbilEffectTarget] Feedback
+    - [CAbilBuildable] BuildInProgress
+  - ← 被生产由:
+    - ← HighTemplar[GatewayTrain/Train4]
+- **[Observer]** (单位) Observer [修改](首次定义: liberty)
+    - [CAbilWarpable] Warpable
+    - [CAbilMorph] ObserverMorphtoObserverSiege
+    - [CAbilMorph] Kit@ObserverMorphtoObserverSiege
+    - [CAbilBehavior] RemoveFromF2Toggle
+  - → 可变形为:
+    - → ObserverSiegeMode
+    - → Kit@ObserverSiegeMode
+  - ← 被生产由:
+    - ← Observer[RoboticsFacilityTrain/Train2]
+- **[Oracle]** (单位) Oracle [修改](首次定义: swarm)
+    - [CAbilEffectTarget] OracleRevelation
+    - [CAbilWarpable] Warpable
+    - [CAbilEffectTarget] ResourceStun
+    - [CAbilEffectTarget] VoidSiphon
+    - [CAbilBehavior] OracleWeapon
+    - [CAbilBuild] OracleStasisTrapBuild
+    - [CAbilBuild] OracleStasisTrapBuild
+    - [CAbilWarpable] Warpable
+  - ← 被生产由:
+    - ← Oracle[StargateTrain/Train9]
+    - ← Oracle[VoidRiftTrainMalash/Train17]
+  - 武器: Oracle
+- **[Phoenix]** (单位) Phoenix [修改](首次定义: liberty)
+    - [CAbilEffectTarget] GravitonBeam
+    - [CAbilWarpable] Warpable
+    - [CAbilEffectTarget] GravitonBeamVoidCampaign
+  - ← 被生产由:
+    - ← Phoenix[StargateTrain/Train1]
+    - ← Phoenix[VoidRiftTrainMalash/Train16]
+  - 武器: IonCannons, IonCannons
+- **[Probe]** (单位) Probe [修改](首次定义: liberty)
+    - [CAbilBuild] ProtossBuild
+    - [CAbilHarvest] ProbeHarvest
+    - [CAbilEffectTarget] MapObjectInteract
+    - [CAbilEffectInstant] MutatorRemoveWorkerSleep
+    - [CAbilEffectTarget] SprayProtoss
+  - ← 被生产由:
+    - ← Probe[NexusTrain/Train1]
+  - 武器: ParticleBeam
+- **[RipFieldGenerator]** (单位) RipFieldGenerator [新增]
+- **[Sentry]** (单位) Sentry [修改](首次定义: liberty)
+    - [CAbilWarpable] Warpable
+    - [CAbilEffectTarget] ForceField
+    - [CAbilEffectInstant] GuardianShield
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilEffectInstant] HallucinationArchon
+    - [CAbilEffectInstant] HallucinationColossus
+    - [CAbilEffectInstant] HallucinationHighTemplar
+    - [CAbilEffectInstant] HallucinationImmortal
+    - [CAbilEffectInstant] HallucinationPhoenix
+    - [CAbilEffectInstant] HallucinationProbe
+    - [CAbilEffectInstant] HallucinationStalker
+    - [CAbilEffectInstant] HallucinationVoidRay
+    - [CAbilEffectInstant] HallucinationWarpPrism
+    - [CAbilEffectInstant] HallucinationZealot
+    - [CAbilEffectInstant] HallucinationOracle
+    - [CAbilEffectInstant] HallucinationDisruptor
+    - [CAbilEffectInstant] HallucinationAdept
+  - ← 被生产由:
+    - ← Sentry[GatewayTrain/Train6]
+  - 武器: DisruptionBeam
+- **[SentryAiur]** (单位) SentryAiur [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] VoidSentryShieldRepair
+- **[ShieldBattery]** (单位) ShieldBattery [修改](首次定义: starcoop)
+    - [CAbilEffectTarget] ShieldBatteryStructureBarrier
+- **[Tempest]** (单位) Tempest [修改](首次定义: swarm)
+    - [CAbilWarpable] Warpable
+    - [CAbilEffectTarget] LightningBomb
+  - ← 被生产由:
+    - ← Tempest[StargateTrain/Train10]
+  - 武器: Tempest
+- **[Zealot]** (单位) Zealot [修改](首次定义: liberty)
+    - [CAbilWarpable] Warpable
+    - [CAbilAugment] Charge
+  - ← 被生产由:
+    - ← Zealot[GatewayTrain/Train1]
+    - ← Zealot[VoidRiftTrainMalash/Train1]
+  - 武器: PsiBlades
+- **[ZealotAiur]** (单位) ZealotAiur [修改](首次定义: starcoop)
+- **[ZealotShakuras]** (单位) ZealotShakuras [修改](首次定义: starcoop)
+
+### RO 新增特殊单位/建筑（110 个）
+
+- **[1testcaster]** (单位) 1testcaster [新增]
+    - [CAbilEffectTarget] HHBomberPlatformAreaBombTopBarOrder
+    - [CAbilEffectTarget] HHBomberPlatformAreaBombTopBarDummyTimer
+    - [CAbilEffectTarget] ScatterMines
+    - [CAbilEffectTarget] SpecialDelivery
+    - [CAbilEffectTarget] GeneticScrambler
+    - [CAbilEffectTarget] MaximumDefenseDrone
+- **[Amon]** (单位) Amon [新增]
+    - [CAbilEffectTarget] KerriganVoidApocalypse
+    - [CAbilEffectTarget] ArtanisFeedback
+    - [CAbilEffectTarget] ShadowsoftheVoid
+    - [CAbilEffectTarget] SpawnAetherMaw
+  - 武器: HybridBehemoth, HybridBehemothAntiAirAttack
+- **[AntiGravityTurret]** (建筑) AntiGravityTurret [新增]
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilEffectTarget] PhoenixAiurGravitonBeam
+- **[Artifact]** (单位) Artifact [新增]
+    - [CAbilEffectTarget] ViperConsumeStructure
+- **[BileTank]** (单位) BileTank [新增]
+    - [CAbilEffectTarget] TerrorRounds
+    - [CAbilEffectInstant] TacticalBulwark
+    - [CAbilEffectInstant] DisengageBulwark
+    - [CAbilBehavior] WeaponRefit
+  - ← 被生产由:
+    - ← BileTank[FactoryTrain/Train16]
+    - ← BileTank[InstabuildHeroes/Train22]
+    - ← BileTank[InstabuildHeroes/Train23]
+  - 武器: BileCannon, CorrosiveBarrage
+- **[BileTankCorrosiveRound]** (单位) BileTankCorrosiveRound [新增]
+- **[Caboose]** (单位) 埃蒙的列车 [新增]
+- **[CargoTruckUnitFlatbed]** (单位) CargoTruckUnitFlatbed [新增]
+- **[CharBileLauncher]** (建筑) CharBileLauncher [新增]
+    - [CAbilBuildable] BuildInProgress
+  - 武器: BileBomb
+- **[DamagedDrakkenLaserDrillCoop]** (建筑) 受损的德拉肯激光钻机 [新增]
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilMorph] RepairDrakkenLaserDrillCoop
+  - → 可变形为:
+    - → DrakkenLaserDrillCoop
+- **[Desecrator]** (单位) Desecrator [新增]
+    - [CAbilMorph] MorphtoRadbat
+    - [CAbilEffectTarget] DeployRadiationMine
+  - → 可变形为:
+    - → Radbat
+  - ← 被生产由:
+    - ← Desecrator[FactoryTrain/Train13]
+    - ← Desecrator[InstabuildHeroes/Train21]
+  - 武器: Ruiner
+- **[DestructibleRock6x62]** (建筑) DestructibleRock6x62 [新增]
+- **[Diamondback]** (单位) Diamondback [新增]
+    - [CAbilMorph] DiamondbackWreckage
+  - → 可变形为:
+    - → DiamondbackWreckage
+- **[DukesRevenge]** (单位) DukesRevenge [新增]
+    - [CAbilEffectTarget] Yamato
+    - [CAbilEffectTarget] Hyperjump
+- **[ElectromagneticDampener]** (建筑) ElectromagneticDampener [新增]
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilEffectTarget] ElectromagneticDisruptionField
+- **[FlatbedTruck]** (单位) FlatbedTruck [新增]
+- **[FreightCar]** (单位) 埃蒙的列车 [新增]
+- **[GehennaCruiser]** (单位) GehennaCruiser [新增]
+    - [CAbilEffectTarget] ApocalypseClassYamatoBarrageGorgon
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil1
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil2
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil3
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil4
+  - ← 被生产由:
+    - ← GehennaCruiser[SummonMercenaries/Train17]
+  - 武器: EuryaleClassPlasmaLance
+- **[GhostLaserLines]** (单位) GhostLaserLines [新增]
+    - [CAbilBehavior] GhostCloak
+- **[Guardian]** (单位) Guardian [新增]
+  - ← 被生产由:
+    - ← Guardian[LarvaTrain/Train19]
+- **[Hazrad]** (单位) Hazrad [新增]
+    - [CAbilEffectTarget] MissileShot
+  - 武器: RendingTalons, BioBarrage
+- **[HelsAngelAssault]** (单位) HelsAngelAssault [新增]
+- **[HelsAngelFighter]** (单位) HelsAngelFighter [新增]
+- **[HiveMindSiphoner]** (建筑) HiveMindSiphoner [新增]
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilEffectTarget] ViperConsumeStructure
+- **[HybridDestroyer]** (单位) HybridDestroyer [新增]
+    - [CAbilEffectTarget] ArtanisFeedback
+  - ← 被生产由:
+    - ← HybridDestroyer[TrainHybrid/Train2]
+- **[HybridDominatorVoid]** (单位) HybridDominatorVoid [新增]
+    - [CAbilEffectTarget] VoidImprisonment
+    - [CAbilEffectTarget] Inevitable
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil1
+    - [CAbilEffectTarget] HybridDominatorVoidPlasmaBlast
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil2
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil3
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil4
+  - ← 被生产由:
+    - ← HybridDominatorVoid[SummonMercenaries/Train15]
+- **[HybridReaver]** (单位) HybridReaver [新增]
+  - ← 被生产由:
+    - ← HybridReaver[TrainHybrid/Train1]
+- **[InfestableBiodome]** (单位) InfestableBiodome [新增]
+- **[InfestableColonistBiodome]** (单位) InfestableColonistBiodome [新增]
+- **[InfestableColonistHut]** (单位) InfestableColonistHut [新增]
+- **[InfestableHut]** (单位) InfestableHut [新增]
+- **[Interceptor]** (单位) Interceptor [新增]
+    - [CAbilMorph] FenixClolarionInterceptorMorph
+  - → 可变形为:
+    - → FenixClolarionInterceptor
+  - 武器: InterceptorBeam
+- **[IronWarrior]** (单位) IronWarrior [新增]
+    - [CAbilEffectInstant] ViralRounds
+  - ← 被生产由:
+    - ← IronWarrior[BarracksTrain/Train8]
+    - ← IronWarrior[InstabuildHeroes/Train20]
+  - 武器: UmojanBurstRifle
+- **[JoriumStockpile]** (单位) JoriumStockpile [新增]
+- **[Kaboomer]** (单位) 炸弹怪 [新增]
+  - ← 被生产由:
+    - ← Kaboomer[LarvaTrain/Train8]
+  - 武器: Spew
+- **[Kit@ObserverSiegeMode]** (单位) Kit@ObserverSiegeMode [新增]
+    - [CAbilMorph] Kit@ObserverSiegeMorphtoObserver
+    - [CAbilBehavior] RemoveFromF2Toggle
+    - [CAbilWarpable] Warpable
+    - [CAbilMorph] ObserverMorphtoObserverSiege
+    - [CAbilMorph] Kit@ObserverMorphtoObserverSiege
+  - → 可变形为:
+    - → Observer
+- **[KorhalSporeCannon]** (单位) KorhalSporeCannon [新增]
+- **[LabBot]** (单位) LabBot [新增]
+    - [CAbilEffectTarget] RepairDroneHeal
+    - [CAbilEffectTarget] MedivacDoubleBeamHeal
+- **[LightArray]** (建筑) LightArray [新增]
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilEffectInstant] SalvageTerran
+  - 武器: SearingBeam
+- **[Loki]** (单位) Loki [新增]
+- **[Maar]** (单位) Maar [新增]
+    - [CAbilEffectTarget] ShadowsoftheVoid
+    - [CAbilEffectTarget] SlaynElementalGrabAOE
+    - [CAbilEffectTarget] KerriganVoidApocalypse
+- **[MarineWarfield]** (单位) MarineWarfield [新增]
+    - [CAbilEffectInstant] RallyingCry
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil1
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil2
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil3
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil4
+  - ← 被生产由:
+    - ← MarineWarfield[SummonMercenaries/Train16]
+- **[MassiveVoidRift]** (建筑) MassiveVoidRift [新增]
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+- **[MaximumDefenseDrone]** (建筑) MaximumDefenseDrone [新增]
+  - 武器: PointDefenseLaser
+- **[Mohandar]** (单位) 佐拉亚 [新增]
+- **[MutatorPropagator]** (单位) 同化体 [新增]
+  - 武器: MutatorPropagate
+- **[MutatorTornado]** (单位) 龙卷风 [新增]
+- **[Odin]** (单位) Odin [新增]
+    - [CAbilEffectTarget] NovaOdinAnnihilate
+    - [CAbilEffectTarget] OdinCoopDashAttack
+    - [CAbilEffectTarget] GungnirEnergyLance
+    - [CAbilArmMagazine] RavenEscort
+    - [CAbilQueue] HangarQueue5
+- **[OdinEscortRaven]** (单位) OdinEscortRaven [新增]
+    - [CAbilEffectTarget] BuildAutoTurret2
+    - [CAbilEffectTarget] PlacePointDefenseDrone
+  - 武器: SJWraith
+- **[OdinWreckage]** (单位) OdinWreckage [新增]
+- **[Phantom]** (单位) Phantom [新增]
+    - [CAbilEffectTarget] WitheringDrain
+  - ← 被生产由:
+    - ← Phantom[StarportTrain/Train10]
+    - ← Phantom[InstabuildHeroes/Train28]
+  - 武器: SpectralBlast, HurricaneLaser
+- **[PhantomGround]** (单位) PhantomGround [新增]
+- **[PlatformConnector]** (单位) PlatformConnector [新增]
+- **[PlatformPowerCore]** (单位) PlatformPowerCore [新增]
+  - 武器: VolatileEnergy
+- **[PsiIndoctrinator]** (单位) PsiIndoctrinator [新增]
+- **[PsiIndoctrinatorBurrowed]** (单位) PsiIndoctrinatorBurrowed [新增]
+    - [CAbilMorph] UprootIndoctrinator
+    - [CAbilEffectTarget] MindControl
+    - [CAbilBuildable] BuildInProgress
+  - → 可变形为:
+    - → PsiIndoctrinatorResearch
+- **[PsiIndoctrinatorResearch]** (单位) PsiIndoctrinatorResearch [新增]
+    - [CAbilMorphPlacement] BurrowIndoctrinator
+- **[Queen]** (单位) 虫后 [新增]
+    - [CAbilBuild] QueenBuild
+    - [CAbilMorph] BurrowQueenDown
+    - [CAbilEffectTarget] SpawnLarva
+    - [CAbilEffectTarget] Transfusion
+    - [CAbilQueue] que1
+    - [CAbilTrain] EvolveToBrutaliskQueen
+    - [CAbilEffectTarget] BioMechanicalTransfusion
+    - [CAbilEffectTarget] QueenBurstHeal
+    - [CAbilMorph] BurrowBanelingDown
+    - [CAbilMorph] BurrowHydraliskDown
+    - [CAbilMorph] BurrowRavagerDown
+    - [CAbilMorph] MorphToSwarmHostBurrowedMP
+    - [CAbilMorph] BurrowInfestorTerranDown
+    - [CAbilMorph] BurrowInfestorDown
+    - [CAbilMorph] BurrowUltraliskDown
+  - → 可变形为:
+    - → QueenBurrowed
+    - → BanelingBurrowed
+    - → HydraliskBurrowed
+    - → RavagerBurrowed
+    - → SwarmHostBurrowedMP
+    - → InfestorTerranBurrowed
+    - → InfestorBurrowed
+    - → UltraliskBurrowed
+  - ← 被生产由:
+    - ← Queen[TrainQueen/Train1]
+  - 武器: AcidSpines, Talons, TalonsMissile
+- **[QueenClassic]** (单位) 虫巢女王 [新增]
+    - [CAbilEffectTarget] SpawnLarva
+    - [CAbilEffectTarget] QueenMPEnsnare
+    - [CAbilEffectTarget] QueenMPSpawnBroodlings
+  - ← 被生产由:
+    - ← QueenClassic[LarvaTrain/Train16]
+    - ← QueenClassic[LarvaTrainSwarm/Train19]
+  - 武器: QueenClassicDummyWeapon
+- **[Radbat]** (单位) Radbat [新增]
+    - [CAbilMorph] MorphtoDesecrator
+    - [CAbilEffectTarget] DeployRadiationMine
+  - → 可变形为:
+    - → Desecrator
+  - ← 被生产由:
+    - ← Radbat[FactoryTrain/Train14]
+  - 武器: RadioactiveSpew
+- **[RavagerCorrosiveBileMissile22]** (单位) RavagerCorrosiveBileMissile22 [新增]
+- **[SNARE_PLACEHOLDER]** (单位) SNARE_PLACEHOLDER ///Auto - Copied from enUS Locale [新增]
+- **[SNARE_PLACEHOLDER2]** (单位) SNARE_PLACEHOLDER2 [新增]
+- **[SOAMothershipv4]** (单位) SOAMothershipv4 [新增]
+    - [CAbilEffectTarget] AlarakMothershipMassRecall
+    - [CAbilEffectTarget] AlarakACSoAMothershipV4BlackHole
+    - [CAbilWarpTrain] AlarakMothershipWarpTrain
+    - [CAbilEffectTarget] SOAMothershipLineAttack
+  - ← 被生产由:
+    - ← SOAMothershipv4[StargateTrain/Train14]
+  - 武器: SOAMothershipLineAttack
+- **[Saboteur]** (单位) Saboteur [新增]
+    - [CAbilEffectTarget] Lockdown
+    - [CAbilEffectInstant] GhostHoldFire
+    - [CAbilEffectInstant] GhostWeaponsFree
+    - [CAbilEffectTarget] LockdownBio
+    - [CAbilBehavior] SaboteurSlowdown
+  - ← 被生产由:
+    - ← Saboteur[BarracksTrain/Train11]
+  - 武器: HellfireRocket
+- **[SaboteurLockdown]** (单位) SaboteurLockdown [新增]
+- **[SaboteurRocket]** (单位) SaboteurRocket [新增]
+- **[ScatterMine]** (单位) ScatterMine [新增]
+    - [CAbilMorph] ScatterMineBurrow
+  - → 可变形为:
+    - → SpiderMineBurrowed2
+  - 武器: VultureSpiderMines2
+- **[ScourgeNestChar]** (建筑) ScourgeNestChar [新增]
+  - 武器: ZergTowerArtillery2
+- **[SeismicCharge]** (建筑) SeismicCharge [新增]
+    - [CAbilBuildable] BuildInProgress
+    - [CAbilQueue] que5
+    - [CAbilArmMagazine] HeroArmNuke
+- **[SentryMine]** (单位) SentryMine [新增]
+    - [CAbilEffectTarget] DrakkenTranslocator
+- **[ShadowBattlecruiser]** (单位) ShadowBattlecruiser [新增]
+    - [CAbilEffectTarget] ApocalypseClassYamatoBarrage
+  - 武器: ATSLaserBatteryLoki, GorgonCruiserGround1
+- **[ShamblingHorror]** (单位) ShamblingHorror [新增]
+  - 武器: MutatorPropagate
+- **[ShockTrooper]** (单位) ShockTrooper [新增]
+    - [CAbilEffectTarget] ArtanisLightningDash
+  - ← 被生产由:
+    - ← ShockTrooper[BarracksTrain/Train10]
+    - ← ShockTrooper[InstabuildHeroes/Train25]
+  - 武器: TeslaCannon
+- **[SiegeBreaker]** (单位) SiegeBreaker [新增]
+    - [CAbilWarpable] WarpableNova
+  - 武器: Kit@SiegeBreakerFake
+- **[SiegeBreakerSieged]** (单位) SiegeBreakerSieged [新增]
+- **[SlaynElementalGrabAOEAirUnit225]** (单位) 太阳能茧 [新增]
+- **[SlaynElementalGrabAOEGroundUnit225]** (单位) 太阳能茧 [新增]
+- **[SlaynMissileTurretRight]** (单位) SlaynMissileTurretRight [新增]
+- **[SolarLanceCasterDummy]** (单位) SolarLanceCasterDummy [新增]
+    - [CAbilEffectTarget] SOAThermalLanceExecute
+- **[SoulAbsorptionMissleConduit]** (单位) SoulAbsorptionMissleConduit [新增]
+- **[SpecOpsRaven]** (单位) SpecOpsRaven [新增]
+    - [CAbilEffectTarget] PlaceAntiGravityTurret
+    - [CAbilEffectTarget] RavenTargetLock
+    - [CAbilEffectTarget] KaraxEmergencyShield
+  - ← 被生产由:
+    - ← SpecOpsRaven[StarportTrain/Train11]
+  - 武器: HHNomadFakeWeapon
+- **[SpewMissile2]** (单位) SpewMissile2 [新增]
+- **[SpiderMineBurrowed2]** (建筑) SpiderMineBurrowed2 [新增]
+    - [CAbilMorph] ScatterMineUnburrow
+  - → 可变形为:
+    - → ScatterMine
+- **[Spotter]** (单位) 监控体 [新增]
+    - [CAbilEffectTarget] SpotterCorruption
+    - [CAbilEffectTarget] HybridGeneralPhaseShift
+  - ← 被生产由:
+    - ← Spotter[LarvaTrain/Train20]
+  - 武器: BioDischarge
+- **[StoneZealot]** (单位) StoneZealot [新增]
+- **[SunkenColony]** (单位) 变异为潜隐集群 [新增]
+- **[SupplyDepotDrop]** (单位) SupplyDepotDrop [新增]
+- **[TalDarimPrison]** (单位) TalDarimPrison [新增]
+- **[TalDarimPrisonCrystal]** (单位) TalDarimPrisonCrystal [新增]
+- **[TarsonisEngine]** (单位) 埃蒙的列车 [新增]
+- **[TechReactor]** (单位) TechReactor [新增]
+- **[TerrazineTank]** (单位) TerrazineTank [新增]
+- **[ThorAP]** (单位) ThorAP [新增]
+    - [CAbilMorph] ThorNormalMode
+    - [CAbilMorph] ThorWreckageSwann
+    - [CAbilEffectInstant] SelfRepair
+  - → 可变形为:
+    - → Thor
+    - → ThorWreckageSwann
+  - 武器: ThorsHammer, LanceMissileLaunchers, LanceMissileLaunchers, ThorsHammer
+- **[Titan]** (单位) Titan [新增]
+    - [CAbilArmMagazine] DroneFighterHanger
+    - [CAbilQueue] HangarQueue5
+    - [CAbilEffectTarget] ReleaseInterceptors
+  - ← 被生产由:
+    - ← Titan[FactoryTrain/Train18]
+  - 武器: AtlasPlasmaLance, FistoftheHeavens
+- **[TitanMechAssault]** (单位) TitanMechAssault [新增]
+  - ← 被生产由:
+    - ← TitanMechAssault[FactoryTrain/Train17]
+- **[TorrasqueChrysalis]** (单位) TorrasqueChrysalis [新增]
+- **[Tosh]** (单位) Tosh [新增]
+    - [CAbilEffectTarget] MindBlast
+    - [CAbilEffectInstant] VoodooShield
+    - [CAbilEffectTarget] SpectreNuke
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil1
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil2
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil3
+    - [CAbilEffectInstant] TValerian02aHeroCommonAbil4
+  - ← 被生产由:
+    - ← Tosh[SummonMercenaries/Train13]
+- **[TruckFlatbedUnit]** (单位) TruckFlatbedUnit [新增]
+- **[UmojanLabGenerator]** (单位) UmojanLabGenerator [新增]
+- **[UmojanLabMicrobot]** (单位) UmojanLabMicrobot [新增]
+- **[UmojanLabWarbot]** (单位) UmojanLabWarbot [新增]
+- **[UncleanOne]** (单位) UncleanOne [新增]
+    - [CAbilEffectTarget] DefilerMPConsume
+    - [CAbilEffectTarget] DefilerMPDarkSwarm
+    - [CAbilEffectTarget] DefilerMPPlague
+    - [CAbilMorph] DefilerMPBurrow
+    - [CAbilEffectTarget] InfestorConsumption
+  - → 可变形为:
+    - → DefilerMPBurrowed
+  - 武器: Spit
+- **[Urun]** (单位) Urun [新增]
+    - [CAbilEffectTarget] GravitonBeamVoidCampaign
+- **[VanguardGhost]** (单位) VanguardGhost [新增]
+    - [CAbilBehavior] GhostCloak
+    - [CAbilEffectTarget] TacNukeStrike
+    - [CAbilEffectInstant] GhostHoldFire
+    - [CAbilEffectInstant] GhostWeaponsFree
+    - [CAbilEffectTarget] HighIntensityEMP
+    - [CAbilEffectTarget] PsiHijack
+  - ← 被生产由:
+    - ← VanguardGhost[BarracksTrain/Train12]
+  - 武器: NovaWeaponHellfireShotgun
+- **[VorazunChampion]** (单位) VorazunChampion [新增]
+- **[XelnagaForge]** (建筑) XelnagaForge [新增]
+- **[ZaGara]** (单位) ZaGara [新增]
+    - [CAbilQueue] HangarQueue5
+    - [CAbilEffectTarget] NoxiousPoison
+    - [CAbilEffectTarget] SpawnBanelingsZagara
+  - ← 被生产由:
+    - ← ZaGara[TrainQueen/Train21]
+  - 武器: ZaGaraTalons, ZaGaraAcidSpines
+- **[ZergTowerArtillery]** (单位) ZergTowerArtillery [新增]
+- **[ZergTowerArtilleryLaunchSquidMissile2]** (单位) ZergTowerArtilleryLaunchSquidMissile2 [新增]
+
+### 投射物/武器/效果（19 个）
+
+- [AcidSpinesWeaponBroodmother] [新增]
+- [AntiAirAttackWeapon] [新增]
+- [BileLauncherCharMissile] [新增]
+- [BileTankTerrorRoundWeapon] [新增]
+- [BioDischargeMissile] [修改](首次定义: starcoop)
+- [BurningResidueMissile] [新增]
+- [EMP2Weapon2] [新增]
+- [GravitonCannonMissile] [新增]
+- [Kit@InfernalFlameThrowerWeapon] [新增]
+- [MaximumDefenseDroneRelease] [新增]
+- [MutatorPropagateDummyWeapon] [修改](首次定义: starcoop)
+- [PointDefenseDroneReleaseWeapon2] [新增]
+- [QueenMPEnsnareMissile] [修改](首次定义: void)
+- [RailgunTurretReleaseWeapon] [新增]
+- [SlaynElementalGrabAOEWeapon] [修改](首次定义: starcoop)
+- [SpewMissile] [修改](首次定义: starcoop)
+- [SpitMissile] [修改](首次定义: starcoop)
+- [StukovInfestedDiamondbackSnareAttackMissile] [修改](首次定义: starcoop)
+- [SuicideBomberMissile] [新增]
