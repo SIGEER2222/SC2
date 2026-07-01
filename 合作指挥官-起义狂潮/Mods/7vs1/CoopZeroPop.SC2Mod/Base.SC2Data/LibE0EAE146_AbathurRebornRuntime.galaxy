@@ -1,9 +1,120 @@
 // AbathurReborn runtime: 迁移自 crys_the_swarm_reborn 的实验体/变异系统。
 // 与现有官方合作版 Abathur（生物质系统）并存，id 全部加 Reborn 后缀。
-// 阶段 1：仅迁移变异购买系统数据/脚本/语音，单位临时复用目标 mod 现有虫族单位。
+// 阶段 2-B：独立 TechFilter（不禁用基础单位）+ Purchase 能力注入到原单位。
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: AbathurReborn Abilities（新单位进入监听，挂载变异能力）
+// AbathurRebornApplyTechFilter：独立 TechFilter
+// 与 AbathurApplyTechFilter 的关键区别：不禁用 Devourer/Viper/SwarmHost 等基础单位，
+// 让 AbathurReborn 玩家可以生产原单位，然后通过触发器注入 Reborn Purchase 变异能力。
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gf_AbathurRebornApplyTechFilter (int lp_player) {
+    // 解锁 Abathur 特色战斗单位（目标 mod 中存在的）
+    TechTreeUnitAllow(lp_player, "Brutalisk", true);
+    TechTreeUnitAllow(lp_player, "BrutaliskBurrowed", true);
+    TechTreeUnitAllow(lp_player, "HotSLeviathan", true);
+    TechTreeUnitAllow(lp_player, "Mutalisk", true);
+    TechTreeUnitAllow(lp_player, "RoachVile", true);
+    TechTreeUnitAllow(lp_player, "RavagerAbathur", true);
+    TechTreeUnitAllow(lp_player, "RavagerAbathurBurrowed", true);
+    libE0EAE146_gf_AbathurAllowUnitIfValid(lp_player, "BrutaliskAbathur", true);
+    libE0EAE146_gf_AbathurAllowUnitIfValid(lp_player, "BrutaliskAbathurBurrowed", true);
+
+    // 解锁 9 个 Reborn 变异单位（用于 TechTree 检查，实际通过触发器注入能力到原单位）
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "BrutaliskReborn")) { TechTreeUnitAllow(lp_player, "BrutaliskReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "DevourerReborn")) { TechTreeUnitAllow(lp_player, "DevourerReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "MutaliskReborn")) { TechTreeUnitAllow(lp_player, "MutaliskReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "HydraliskImpalerReborn")) { TechTreeUnitAllow(lp_player, "HydraliskImpalerReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "HydraliskLurkerReborn")) { TechTreeUnitAllow(lp_player, "HydraliskLurkerReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "SwarmHostReborn")) { TechTreeUnitAllow(lp_player, "SwarmHostReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "InfestorReborn")) { TechTreeUnitAllow(lp_player, "InfestorReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "DefilerMPReborn")) { TechTreeUnitAllow(lp_player, "DefilerMPReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "ViperReborn")) { TechTreeUnitAllow(lp_player, "ViperReborn", true); }
+
+    // 启用 Abathur 特色能力
+    TechTreeAbilityAllow(lp_player, AbilityCommand("MorphRoachVileToRavager", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("RavagerAbathurCorrosiveBile", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("BurrowRavagerAbathurDown", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("BurrowRavagerAbathurUp", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("MutaliskMorphToDevourer", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("MutaliskMorphToGuardian", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskRoach", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskRoach", 1), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskRoachVile", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskRoachVile", 1), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskRavager", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskRavager", 1), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskSwarmHost", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("EvolveToBrutaliskSwarmHost", 1), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("AbathurDeepTunnel", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("AbathurDeepTunnelImproved", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("BrutaliskDeepTunnel", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("SymbioteCarapace", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("BurrowBrutaliskDown", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("BurrowBrutaliskUp", 0), true);
+    libE0EAE146_gf_AbathurAllowAbilityIfValid(lp_player, "BurrowBrutaliskAbathurDown", 0, true);
+    libE0EAE146_gf_AbathurAllowAbilityIfValid(lp_player, "BurrowBrutaliskAbathurUp", 0, true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("CorrosiveAcid", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("LocustLaunch", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("ViperConsumeStructure", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("Yoink", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("ParasiticBomb", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("SpawnToxicNest", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("AbathurMend", 0), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// AbathurRebornAddPurchaseAbilities：给原单位注入 Reborn Purchase 变异能力
+// 当 AbathurReborn 玩家生产出原单位时，调用此函数添加对应的 Purchase 变异能力。
+// 这样原单位就能使用 Reborn 版本的变异升级，无需替换单位。
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gf_AbathurRebornAddPurchaseAbilities (unit lp_unit) {
+    string lv_type;
+
+    if ((lp_unit == null)) {
+        return;
+    }
+    lv_type = UnitGetType(lp_unit);
+
+    if (lv_type == "Brutalisk") {
+        UnitAbilityAdd(lp_unit, "BrutaliskTramplingCarapacePurchaseReborn");
+        UnitAbilityAdd(lp_unit, "BrutaliskSavageRendPurchaseReborn");
+        UnitAbilityAdd(lp_unit, "BrutaliskFleshRecompositionPurchaseReborn");
+    }
+    else if (lv_type == "Devourer") {
+        UnitAbilityAdd(lp_unit, "AbathurDevourerAcidCloudSacsPurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurDevourerCorrosiveGlandsPurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurDevourerStomachOverloadPurchaseReborn");
+    }
+    else if (lv_type == "Mutalisk") {
+        UnitAbilityAdd(lp_unit, "AbathurMutaliskExplosiveGlaivePurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurMutaliskViciousGlaivePurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurMutaliskRapidRegenerationPurchaseReborn");
+    }
+    else if (lv_type == "HydraliskImpaler") {
+        UnitAbilityAdd(lp_unit, "AbathurImpalerArmorPiercingSpinesPurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurImpalerEarthveinGlidePurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurImpalerAftershockImpalePurchaseReborn");
+    }
+    else if (lv_type == "HydraliskLurker") {
+        UnitAbilityAdd(lp_unit, "AbathurLurkerRiftSpinesPurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurLurkerStalkerGlidePurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurLurkerVenomAmbushPurchaseReborn");
+    }
+    else if (lv_type == "SwarmHost") {
+        UnitAbilityAdd(lp_unit, "AbathurHostRapidIncubationPurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurHostLocustSpeedPurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurHostPressurizedGlandsPurchaseReborn");
+    }
+    else if ((lv_type == "Infestor") || (lv_type == "DefilerMP") || (lv_type == "Viper")) {
+        UnitAbilityAdd(lp_unit, "AbathurCasterBrainPoolPurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurCasterNeuralTethersPurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurCasterFleshReactorPurchaseReborn");
+        UnitAbilityAdd(lp_unit, "AbathurCasterMimeticMembranePurchaseReborn");
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: AbathurReborn Abilities（新单位进入监听，挂载变异能力 + Purchase 能力）
 //--------------------------------------------------------------------------------------------------
 bool libE0EAE146_gt_AbathurRebornAbilities_Func (bool testConds, bool runActions) {
     // Conditions
@@ -18,8 +129,7 @@ bool libE0EAE146_gt_AbathurRebornAbilities_Func (bool testConds, bool runActions
         return true;
     }
 
-    // 阶段 1：单位过滤复用目标 mod 现有虫族单位 id。
-    // 变异能力（ArmoredCarapace 等）若在目标 mod 中不存在，UnitAbilityAdd 会安全无效。
+    // 阶段 1：变异开关能力（复用目标 mod 现有虫族单位 id）
     if (((UnitGetType(EventUnit()) == "Zergling") || (UnitGetType(EventUnit()) == "Pygalisk") || (UnitGetType(EventUnit()) == "HotSRaptor") || (UnitGetType(EventUnit()) == "HotSSwarmling") || (UnitGetType(EventUnit()) == "ZerglingToxic"))) {
         UnitAbilityAdd(EventUnit(), "ArmoredCarapace");
         UnitAbilityAdd(EventUnit(), "KetamineInfusion");
@@ -64,6 +174,9 @@ bool libE0EAE146_gt_AbathurRebornAbilities_Func (bool testConds, bool runActions
             }
         }
     }
+
+    // 阶段 2-B：给原单位注入 Reborn Purchase 变异能力
+    libE0EAE146_gf_AbathurRebornAddPurchaseAbilities(EventUnit());
     return true;
 }
 
@@ -96,21 +209,8 @@ void libE0EAE146_gf_AbathurRebornRuntimeInit (int lp_player, point lp_heroPoint,
     // 应用指挥官 profile（AbathurReborn 已在 commander-power-metadata.json 注册）
     libE0EAE146_gf_CommanderPowerApplyProfile(lp_player, "AbathurReborn");
 
-    // 应用 TechFilter（复用 Abathur 的 TechFilter，解锁可变异建筑和战斗单位）
-    // AbathurApplyTechFilter 解锁：HatcheryAbathur/LarvaAbathur/DroneAbathur/SpawningPoolAbathur 等
-    // 以及 RavagerAbathur/BrutaliskAbathur/Mutalisk/HotSLeviathan 等战斗单位
-    libE0EAE146_gf_AbathurApplyTechFilter(lp_player);
-
-    // 额外解锁 9 个 Reborn 变异单位（在 Abathur 体系之上扩展）
-    if (CatalogEntryIsValid(c_gameCatalogUnit, "BrutaliskReborn")) { TechTreeUnitAllow(lp_player, "BrutaliskReborn", true); }
-    if (CatalogEntryIsValid(c_gameCatalogUnit, "DevourerReborn")) { TechTreeUnitAllow(lp_player, "DevourerReborn", true); }
-    if (CatalogEntryIsValid(c_gameCatalogUnit, "MutaliskReborn")) { TechTreeUnitAllow(lp_player, "MutaliskReborn", true); }
-    if (CatalogEntryIsValid(c_gameCatalogUnit, "HydraliskImpalerReborn")) { TechTreeUnitAllow(lp_player, "HydraliskImpalerReborn", true); }
-    if (CatalogEntryIsValid(c_gameCatalogUnit, "HydraliskLurkerReborn")) { TechTreeUnitAllow(lp_player, "HydraliskLurkerReborn", true); }
-    if (CatalogEntryIsValid(c_gameCatalogUnit, "SwarmHostReborn")) { TechTreeUnitAllow(lp_player, "SwarmHostReborn", true); }
-    if (CatalogEntryIsValid(c_gameCatalogUnit, "InfestorReborn")) { TechTreeUnitAllow(lp_player, "InfestorReborn", true); }
-    if (CatalogEntryIsValid(c_gameCatalogUnit, "DefilerMPReborn")) { TechTreeUnitAllow(lp_player, "DefilerMPReborn", true); }
-    if (CatalogEntryIsValid(c_gameCatalogUnit, "ViperReborn")) { TechTreeUnitAllow(lp_player, "ViperReborn", true); }
+    // 应用独立 TechFilter（不禁用基础单位，让 Devourer/Viper 等可生产）
+    libE0EAE146_gf_AbathurRebornApplyTechFilter(lp_player);
 
     // 创建 CoopCaster（复用 Abathur 的 CoopCaster，因为 AbathurReborn 没有自己的）
     if (CatalogEntryIsValid(c_gameCatalogUnit, "CoopCasterAbathur")) {
@@ -121,6 +221,6 @@ void libE0EAE146_gf_AbathurRebornRuntimeInit (int lp_player, point lp_heroPoint,
         lib67C0F0E7_gf_ShowChooseButton();
     }
 
-    // 启用变异系统监听触发器（监听新单位进入，挂载变异开关能力）
+    // 启用变异系统监听触发器（监听新单位进入，挂载变异开关能力 + Purchase 能力）
     TriggerEnable(libE0EAE146_gt_AbathurRebornAbilities, true);
 }
