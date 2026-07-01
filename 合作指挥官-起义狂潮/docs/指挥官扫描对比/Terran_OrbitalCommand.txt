@@ -1,0 +1,22 @@
+■ [OrbitalCommand]  (Attrs=Armored+Mechanical+Structure)
+  ├─ 能力 AbilArray:
+  │  • CAbilBuildable(BuildInProgress)
+  │  • CAbilEffectTarget(CalldownMULE) → 卡牌[Execute(轨道空投：矿骡)]
+  │  • CAbilEffectTarget(SupplyDrop) → 卡牌[Execute(SupplyDrop)]
+  │  • CAbilQueue(que5CancelToSelection) → 卡牌[CancelLast(Cancel)]
+  │  • CAbilRally(RallyCommand) → 卡牌[Rally2(Rally)]
+  │  • CAbilTrain(CommandCenterTrain)
+  │  • CAbilEffectTarget(ScannerSweep) → 卡牌[Execute(Scan)]
+  │  • CAbilMorph(OrbitalLiftOff) → 卡牌[Execute(Lift)]
+  │  • CAbilBuild(OrbitalCommandSupplyDepotDrop) «轨道控制基地补给站空投» → 卡牌[Build1(空投：补给站)]
+  │  • CAbilTrain(CommandCenterTrainRaynor) → 卡牌[Train1(SCV)]
+  ├─ 可生产单位 (Train):
+  │  • [SCV] {t=17s, 图标=SCV}
+  │  • 凯莫瑞安工人 [KelMorianWorker] {t=17s, 图标=训练凯莫瑞安工人, 需求=HaveSwannCommander}
+  │  • [SCVRaynor] {t=12s, 图标=SCV}
+  ├─ 可建造建筑 (Build):
+  │  • [SupplyDepot] (矿-100) {t=1s, 图标=空投：补给站}
+  ├─ 可变形为 (Morph):
+  │  • [OrbitalCommandFlying] via CAbilMorph(OrbitalLiftOff)
+  ├─ ← 被变异由:
+  │  • [CommandCenter] via UpgradeToOrbital
