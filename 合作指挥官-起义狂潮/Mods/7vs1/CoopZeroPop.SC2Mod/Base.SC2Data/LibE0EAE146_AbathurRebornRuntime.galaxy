@@ -78,6 +78,8 @@ void libE0EAE146_gt_AbathurRebornAbilities_Init () {
 // RuntimeInit：AbathurReborn 指挥官初始化入口
 //--------------------------------------------------------------------------------------------------
 void libE0EAE146_gf_AbathurRebornRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
+    unit lv_caster;
+
     if (libE0EAE146_gv_abathurRebornRuntimeInitialized) {
         return;
     }
@@ -91,65 +93,34 @@ void libE0EAE146_gf_AbathurRebornRuntimeInit (int lp_player, point lp_heroPoint,
         libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AbathurAnnouncerReborn", 1);
     }
 
-    // 解锁变异系统相关能力（源 mod 的 CommanderUnits/ZergBuild 等能力）
-    // 阶段 1：这些能力若在目标 mod 中不存在，跳过以避免 ScriptError
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "CommanderUnits")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("CommanderUnits", 2), true);
-        TechTreeAbilityAllow(lp_player, AbilityCommand("CommanderUnits", 1), true);
-        TechTreeAbilityAllow(lp_player, AbilityCommand("CommanderUnits", 0), false);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "ZergBuild")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("ZergBuild", 26), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "NaturalCamouflage")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("NaturalCamouflage", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "Cliffjumper")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("Cliffjumper", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "CombatDrone")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("CombatDrone", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "MineralEfficiency")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("MineralEfficiency", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "VespeneEfficiency")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("VespeneEfficiency", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "FastMorphing")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("FastMorphing", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "AcidMortar")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("AcidMortar", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "BroodlingInfestation")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("BroodlingInfestation", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "CloudofFlies")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("CloudofFlies", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "Range")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("Range", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "RagingTentacle")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("RagingTentacle", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "AdrenalineOverdose")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("AdrenalineOverdose", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "BanelingGestation")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("BanelingGestation", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "BileShield")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("BileShield", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "MeleeStrain")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("MeleeStrain", 0), true);
-    }
-    if (CatalogEntryIsValid(c_gameCatalogAbil, "RoachlingInfestation")) {
-        TechTreeAbilityAllow(lp_player, AbilityCommand("RoachlingInfestation", 0), true);
+    // 应用指挥官 profile（AbathurReborn 已在 commander-power-metadata.json 注册）
+    libE0EAE146_gf_CommanderPowerApplyProfile(lp_player, "AbathurReborn");
+
+    // 应用 TechFilter（复用 Abathur 的 TechFilter，解锁可变异建筑和战斗单位）
+    // AbathurApplyTechFilter 解锁：HatcheryAbathur/LarvaAbathur/DroneAbathur/SpawningPoolAbathur 等
+    // 以及 RavagerAbathur/BrutaliskAbathur/Mutalisk/HotSLeviathan 等战斗单位
+    libE0EAE146_gf_AbathurApplyTechFilter(lp_player);
+
+    // 额外解锁 9 个 Reborn 变异单位（在 Abathur 体系之上扩展）
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "BrutaliskReborn")) { TechTreeUnitAllow(lp_player, "BrutaliskReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "DevourerReborn")) { TechTreeUnitAllow(lp_player, "DevourerReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "MutaliskReborn")) { TechTreeUnitAllow(lp_player, "MutaliskReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "HydraliskImpalerReborn")) { TechTreeUnitAllow(lp_player, "HydraliskImpalerReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "HydraliskLurkerReborn")) { TechTreeUnitAllow(lp_player, "HydraliskLurkerReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "SwarmHostReborn")) { TechTreeUnitAllow(lp_player, "SwarmHostReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "InfestorReborn")) { TechTreeUnitAllow(lp_player, "InfestorReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "DefilerMPReborn")) { TechTreeUnitAllow(lp_player, "DefilerMPReborn", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "ViperReborn")) { TechTreeUnitAllow(lp_player, "ViperReborn", true); }
+
+    // 创建 CoopCaster（复用 Abathur 的 CoopCaster，因为 AbathurReborn 没有自己的）
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "CoopCasterAbathur")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterAbathur", c_unitCreateIgnorePlacement, lp_player, RegionGetBoundsMin(RegionEntireMap()));
+        lv_caster = UnitLastCreated();
+        lib67C0F0E7_gf_CU_GPInit(lp_player, "Abathur", lv_caster, null);
+        lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+        lib67C0F0E7_gf_ShowChooseButton();
     }
 
-    // 启用新单位监听触发器
+    // 启用变异系统监听触发器（监听新单位进入，挂载变异开关能力）
     TriggerEnable(libE0EAE146_gt_AbathurRebornAbilities, true);
 }
