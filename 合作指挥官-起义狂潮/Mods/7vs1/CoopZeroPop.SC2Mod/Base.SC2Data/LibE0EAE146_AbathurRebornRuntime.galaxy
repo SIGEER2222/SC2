@@ -60,6 +60,64 @@ void libE0EAE146_gf_AbathurRebornApplyTechFilter (int lp_player) {
     TechTreeAbilityAllow(lp_player, AbilityCommand("ParasiticBomb", 0), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("SpawnToxicNest", 0), true);
     TechTreeAbilityAllow(lp_player, AbilityCommand("AbathurMend", 0), true);
+
+    // ===== 阶段 3-E：启用新生产体系 =====
+    // CommanderUnits：基地生产大型单位（index 0=Blightbringer 禁用，与 LarvaTrainSwarm2 重复；index 1=Omegalisk；index 2=Brutalisk）
+    TechTreeAbilityAllow(lp_player, AbilityCommand("CommanderUnits", 0), false);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("CommanderUnits", 1), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("CommanderUnits", 2), true);
+
+    // ZergBuild：5 个新建筑（Build23=AshWorm2, Build24=PrimalTownHall, Build25=MercCompound, Build26=InfestedBarracks2, Build27=PrimalSunkenColony）
+    TechTreeAbilityAllow(lp_player, AbilityCommand("ZergBuild", 22), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("ZergBuild", 23), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("ZergBuild", 24), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("ZergBuild", 25), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("ZergBuild", 26), true);
+
+    // 工蜂升级能力（6 个）
+    TechTreeAbilityAllow(lp_player, AbilityCommand("NaturalCamouflage", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("Cliffjumper", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("CombatDrone", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("MineralEfficiency", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("VespeneEfficiency", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("FastMorphing", 0), true);
+
+    // 解锁 LarvaTrainSwarm2 生产的 22 个变异单位
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "Pygalisk")) { TechTreeUnitAllow(lp_player, "Pygalisk", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "ZerglingToxic")) { TechTreeUnitAllow(lp_player, "ZerglingToxic", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "FrostFiend")) { TechTreeUnitAllow(lp_player, "FrostFiend", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "BileTitan")) { TechTreeUnitAllow(lp_player, "BileTitan", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "Igniter")) { TechTreeUnitAllow(lp_player, "Igniter", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "HunterKiller")) { TechTreeUnitAllow(lp_player, "HunterKiller", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "Hydralisk2")) { TechTreeUnitAllow(lp_player, "Hydralisk2", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "MutaliskChar")) { TechTreeUnitAllow(lp_player, "MutaliskChar", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "Mamba")) { TechTreeUnitAllow(lp_player, "Mamba", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "MutaliskAnkylos")) { TechTreeUnitAllow(lp_player, "MutaliskAnkylos", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "Mesmer")) { TechTreeUnitAllow(lp_player, "Mesmer", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "BaneHost")) { TechTreeUnitAllow(lp_player, "BaneHost", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "VespidHost")) { TechTreeUnitAllow(lp_player, "VespidHost", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "UltraliskSavage")) { TechTreeUnitAllow(lp_player, "UltraliskSavage", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "UltraliskKaldir")) { TechTreeUnitAllow(lp_player, "UltraliskKaldir", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "IzshaGuardian")) { TechTreeUnitAllow(lp_player, "IzshaGuardian", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "Kraken")) { TechTreeUnitAllow(lp_player, "Kraken", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "Blightbringer")) { TechTreeUnitAllow(lp_player, "Blightbringer", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "Omegalisk")) { TechTreeUnitAllow(lp_player, "Omegalisk", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "Leviathan")) { TechTreeUnitAllow(lp_player, "Leviathan", true); }
+
+    // 解锁 CommanderUnits 生产的单位（部分与 LarvaTrainSwarm2 重复，此处确保全部可用）
+    // Brutalisk 和 HotSLeviathan 已在上方解锁
+
+    // 解锁 5 个新建筑
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "AshWorm2")) { TechTreeUnitAllow(lp_player, "AshWorm2", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "PrimalTownHall")) { TechTreeUnitAllow(lp_player, "PrimalTownHall", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "MercCompound")) { TechTreeUnitAllow(lp_player, "MercCompound", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "InfestedBarracks2")) { TechTreeUnitAllow(lp_player, "InfestedBarracks2", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "PrimalSunkenColony")) { TechTreeUnitAllow(lp_player, "PrimalSunkenColony", true); }
+
+    // 解锁 3 个女王单位（TrainQueen 扩展）
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "SIQueen")) { TechTreeUnitAllow(lp_player, "SIQueen", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "BroodMother")) { TechTreeUnitAllow(lp_player, "BroodMother", true); }
+    if (CatalogEntryIsValid(c_gameCatalogUnit, "ZaGara")) { TechTreeUnitAllow(lp_player, "ZaGara", true); }
 }
 
 //--------------------------------------------------------------------------------------------------
