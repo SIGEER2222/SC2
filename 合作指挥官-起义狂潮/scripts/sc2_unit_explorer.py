@@ -324,6 +324,7 @@ class AbilityRef:
     face: Optional[str] = None  # 按钮图标
     button_id: Optional[str] = None  # 按钮ID（如果通过 Button 字段指定）
     tooltip_key: Optional[str] = None
+    runtime: bool = False  # 是否由 galaxy 脚本运行时注入（UnitAbilityAdd）
 
 
 @dataclass
@@ -375,6 +376,9 @@ class UnitNode:
     researches: List[ResearchEntry] = field(default_factory=list)
     morphs_to: List[MorphEntry] = field(default_factory=list)
     weapons: List[str] = field(default_factory=list)
+    # 运行时：科技树锁定状态（galaxy TechTreeAllow 的结果）
+    tech_locked: bool = False  # 是否被 TechTreeUnitAllow 禁用
+    tech_unlocked: bool = False  # 是否被显式启用
     # 反向（谁能生产/建造/变异成我）
     produced_by: List[TrainEntry] = field(default_factory=list)
     built_by: List[TrainEntry] = field(default_factory=list)
@@ -399,6 +403,13 @@ class CatalogDB:
         self._reverse_research_upgrade: Dict[str, List[Tuple[str, str, ET.Element]]] = defaultdict(list)
         self.strings: Dict[str, str] = {}
         self._loaded = False
+        # galaxy 脚本运行时解析结果
+        # 单位 → [能力 ID]（通过 UnitAbilityAdd 动态注入）
+        self.galaxy_unit_abilities: Dict[str, List[str]] = defaultdict(list)
+        # 单位 → True/False（TechTreeUnitAllow 的启用/禁用状态）
+        self.galaxy_unit_tech: Dict[str, bool] = {}
+        # 能力 → True/False（TechTreeAbilityAllow 的启用/禁用状态）
+        self.galaxy_abil_tech: Dict[str, bool] = {}
 
     # ---- 加载 ----
     def load(self) -> None:
@@ -412,6 +423,8 @@ class CatalogDB:
             merge_catalogs(self.catalogs, data)
         self.strings = load_localization(self.mod_paths, self.lang)
         self._build_reverse_index()
+        # 解析 galaxy 脚本的运行时动态修改
+        self._load_galaxy_scripts()
         self._loaded = True
 
     def _build_reverse_index(self) -> None:
@@ -472,6 +485,107 @@ class CatalogDB:
             if v:  # 非空才记录（空 value 不覆盖）
                 result = v
         return result
+
+    # ---- galaxy 脚本运行时解析 ----
+    def _load_galaxy_scripts(self) -> None:
+        """扫描所有 mod 下的 galaxy 脚本，解析运行时动态修改。
+
+        解析三类调用：
+          1. UnitAbilityAdd(var, "AbilId")       → 单位能力注入
+          2. TechTreeUnitAllow(p, "UnitId", bool) → 单位科技树解锁/锁定
+          3. TechTreeAbilityAllow(p, AbilityCommand("AbilId", cmd), bool) → 能力科技树解锁/锁定
+
+        UnitAbilityAdd 的单位类型通过上下文推断：
+          - 同一函数内最近的 `UnitGetType(var) == "UnitId"` 或 `lv_type == "UnitId"`
+          - 支持复合 || 条件中的多个单位类型
+        """
+        galaxy_files: List[Path] = []
+        for mod in self.mod_paths:
+            if not mod.is_dir():
+                continue
+            # galaxy 脚本通常在 Base.SC2Data 根目录
+            base_dir = mod / "Base.SC2Data"
+            if base_dir.is_dir():
+                galaxy_files.extend(sorted(base_dir.glob("*.galaxy")))
+        if not galaxy_files:
+            return
+
+        total_inject = 0
+        total_tech = 0
+        for gf in galaxy_files:
+            try:
+                text = gf.read_text(encoding="utf-8-sig", errors="replace")
+            except OSError:
+                continue
+            n_inj, n_tech = self._parse_galaxy_text(text)
+            total_inject += n_inj
+            total_tech += n_tech
+        if total_inject or total_tech:
+            print(f"[INFO] galaxy 脚本解析: {len(galaxy_files)} 个文件, "
+                  f"动态注入能力 {total_inject} 项, 科技树解锁/锁定 {total_tech} 项",
+                  file=sys.stderr)
+
+    def _parse_galaxy_text(self, text: str) -> Tuple[int, int]:
+        """解析单个 galaxy 文件文本，返回 (注入能力数, 科技树操作数)"""
+        lines = text.splitlines()
+        n_inj = 0
+        n_tech = 0
+        # 当前上下文中的单位类型集合（由 UnitGetType 条件推断）
+        # 用栈处理嵌套 if，但简化为：遇到新的条件就替换，遇到 } 不处理（保守）
+        current_units: List[str] = []
+
+        # 正则模式
+        # UnitAbilityAdd(var, "AbilId")
+        re_add = re.compile(r'UnitAbilityAdd\s*\([^,]+,\s*"([^"]+)"')
+        # TechTreeUnitAllow(p, "UnitId", true/false)
+        re_unit_allow = re.compile(r'TechTreeUnitAllow\s*\([^,]+,\s*"([^"]+)"\s*,\s*(true|false)')
+        # TechTreeAbilityAllow(p, AbilityCommand("AbilId", cmd), true/false)
+        re_abil_allow = re.compile(
+            r'TechTreeAbilityAllow\s*\([^,]+,\s*AbilityCommand\s*\(\s*"([^"]+)"'
+            r'\s*,\s*\d+\s*\)\s*,\s*(true|false)')
+        # UnitGetType(var) == "UnitId" 或 lv_type == "UnitId"
+        # 注意：UnitGetType(EventUnit()) 有嵌套括号，分两步匹配
+        # 1. 行内含 UnitGetType 或 lv_type 关键字
+        # 2. 提取所有 == "XXX" 的单位 ID
+        for line in lines:
+            stripped = line.strip()
+
+            # 跳过注释行
+            if stripped.startswith("//"):
+                continue
+
+            # 先检测上下文：含 UnitGetType/lv_type 的条件行，提取所有 == "XXX"
+            if 'UnitGetType' in line or 'lv_type' in line:
+                type_matches = re.findall(r'==\s*"([^"]+)"', line)
+                if type_matches:
+                    current_units = type_matches  # 替换为当前条件的单位列表
+
+            # TechTreeUnitAllow
+            for m in re_unit_allow.finditer(line):
+                unit_id, flag = m.group(1), m.group(2) == "true"
+                # 后定义覆盖前者
+                self.galaxy_unit_tech[unit_id] = flag
+                n_tech += 1
+
+            # TechTreeAbilityAllow
+            for m in re_abil_allow.finditer(line):
+                abil_id, flag = m.group(1), m.group(2) == "true"
+                self.galaxy_abil_tech[abil_id] = flag
+                n_tech += 1
+
+            # UnitAbilityAdd —— 只在上下文有单位类型时关联
+            for m in re_add.finditer(line):
+                abil_id = m.group(1)
+                for uid in current_units:
+                    if abil_id not in self.galaxy_unit_abilities[uid]:
+                        self.galaxy_unit_abilities[uid].append(abil_id)
+                        n_inj += 1
+
+        return n_inj, n_tech
+
+    def get_runtime_abilities(self, unit_id: str) -> List[str]:
+        """获取单位通过 UnitAbilityAdd 动态注入的能力 ID 列表"""
+        return self.galaxy_unit_abilities.get(unit_id, [])
 
     # ---- 查询 ----
     def get_unit(self, unit_id: str) -> Optional[ET.Element]:
@@ -696,6 +810,21 @@ def parse_unit(db: CatalogDB, unit_id: str) -> Optional[UnitNode]:
     node.morphs_to = _dedup_by_unit(node.morphs_to, key_field="target_unit_id")
     node.researches = _dedup_by_upgrade(node.researches)
 
+    # galaxy 脚本运行时注入的能力（UnitAbilityAdd）
+    existing_abil_ids = {a.abil_id for a in node.abilities}
+    for runtime_abil_id in db.get_runtime_abilities(unit_id):
+        if runtime_abil_id in existing_abil_ids:
+            continue
+        node.abilities.append(AbilityRef(abil_id=runtime_abil_id, runtime=True))
+        existing_abil_ids.add(runtime_abil_id)
+
+    # 科技树状态（TechTreeUnitAllow）
+    if unit_id in db.galaxy_unit_tech:
+        if db.galaxy_unit_tech[unit_id]:
+            node.tech_unlocked = True
+        else:
+            node.tech_locked = True
+
     return node
 
 
@@ -816,6 +945,11 @@ def render_text_tree(db: CatalogDB, root_unit: str, depth: int = 1) -> str:
             meta.append(f"HP={node.raw_attrs['LifeMax']}")
         if node.raw_attrs.get("Sight"):
             meta.append(f"Sight={node.raw_attrs['Sight']}")
+        # 科技树状态标记
+        if node.tech_locked:
+            meta.append("科技树:锁定")
+        elif node.tech_unlocked:
+            meta.append("科技树:已解锁")
         lines.append(f"{prefix}■ {title}" + (f"  ({', '.join(meta)})" if meta else ""))
 
         sub_prefix = prefix + "  "
@@ -829,6 +963,7 @@ def render_text_tree(db: CatalogDB, root_unit: str, depth: int = 1) -> str:
                     continue
                 seen_abil.add(ab.abil_id)
                 desc = _abil_desc(ab.abil_id)
+                runtime_tag = " [运行时注入]" if ab.runtime else ""
                 # 找该能力的卡牌按钮（如果有），按 cmd 去重
                 card_btns = [c for c in node.card_layouts if c.get("abil_id") == ab.abil_id]
                 btn_str = ""
@@ -844,7 +979,7 @@ def render_text_tree(db: CatalogDB, root_unit: str, depth: int = 1) -> str:
                         face_name = db.button_name(face) if face else ""
                         parts.append(f"{cmd}({face_name or face})")
                     btn_str = " → 卡牌[" + ", ".join(parts) + "]"
-                lines.append(f"{sub_prefix}│  • {desc}{btn_str}")
+                lines.append(f"{sub_prefix}│  • {desc}{runtime_tag}{btn_str}")
 
         # 卡牌中没有 AbilArray 声明的按钮（如纯 Passive 按钮等）
         orphan_btns = [c for c in node.card_layouts if not c.get("abil_id")]
@@ -1013,6 +1148,7 @@ def to_json(db: CatalogDB, root_unit: str, depth: int = 1) -> str:
                     "abil_id": a.abil_id,
                     "abil_tag": db.get_abil(a.abil_id).tag if db.get_abil(a.abil_id) else None,
                     "name": db.abil_name(a.abil_id),
+                    "runtime": a.runtime,
                 }
                 for a in node.abilities
             ],
@@ -1022,6 +1158,8 @@ def to_json(db: CatalogDB, root_unit: str, depth: int = 1) -> str:
             "researches": [asdict(r) for r in node.researches],
             "morphs_to": [asdict(m) for m in node.morphs_to],
             "weapons": node.weapons,
+            "tech_locked": node.tech_locked,
+            "tech_unlocked": node.tech_unlocked,
             "produced_by": [asdict(p) for p in node.produced_by],
             "built_by": [asdict(p) for p in node.built_by],
             "morphed_from": [asdict(m) for m in node.morphed_from],
