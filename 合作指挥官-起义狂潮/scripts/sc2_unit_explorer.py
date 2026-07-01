@@ -837,6 +837,44 @@ def parse_unit(db: CatalogDB, unit_id: str) -> Optional[UnitNode]:
     for abil_id, info in db._reverse_morph.get(unit_id, []):
         node.morphed_from.append(MorphEntry(abil_id=abil_id, target_unit_id=unit_id))
 
+    # parent 继承：当单位自身没有定义某类数据时，从父类继承
+    # （SC2 数据中 parent="Bunker" 会继承 Bunker 的 AbilArray/CardLayouts/能力等）
+    if node.parent and node.parent in db.catalogs.get("Unit", {}):
+        parent_node = parse_unit(db, node.parent)
+        if parent_node:
+            # 继承规则：子类已有的不覆盖，子类没有的从父类继承
+            # 能力：合并（子类优先，但保留父类独有的）
+            existing_abil_ids = {a.abil_id for a in node.abilities}
+            for pa in parent_node.abilities:
+                if pa.abil_id not in existing_abil_ids:
+                    node.abilities.append(AbilityRef(
+                        abil_id=pa.abil_id, cmd=pa.cmd, face=pa.face,
+                        button_id=pa.button_id, tooltip_key=pa.tooltip_key
+                    ))
+                    existing_abil_ids.add(pa.abil_id)
+            # 卡牌按钮：合并（子类优先）
+            existing_cards = {(c.get("row"), c.get("column"), c.get("abil_id"))
+                              for c in node.card_layouts}
+            for pc in parent_node.card_layouts:
+                key = (pc.get("row"), pc.get("column"), pc.get("abil_id"))
+                if key not in existing_cards:
+                    node.card_layouts.append(pc)
+            # 可生产/可建造/可研究/可变形：子类为空时继承父类
+            if not node.trains:
+                node.trains = list(parent_node.trains)
+            if not node.builds:
+                node.builds = list(parent_node.builds)
+            if not node.researches:
+                node.researches = list(parent_node.researches)
+            if not node.morphs_to:
+                node.morphs_to = list(parent_node.morphs_to)
+            # 武器：合并
+            if not node.weapons:
+                node.weapons = list(parent_node.weapons)
+            # 属性：合并
+            if not node.attributes:
+                node.attributes = list(parent_node.attributes)
+
     # 去重：按 unit_id/upgrade_id 保留第一个（多个能力可能指向同一目标）
     node.trains = _dedup_by_unit(node.trains)
     node.builds = _dedup_by_unit(node.builds)
