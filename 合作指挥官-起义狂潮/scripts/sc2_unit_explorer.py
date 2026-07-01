@@ -44,7 +44,7 @@ from typing import Dict, List, Optional, Set, Tuple, Iterable
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 NATIVE_MODS_ROOT = Path(r"E:\Code\MyMod\SC2\sc2-data-trigger\mods")
 STARCOOP_NATIVE_ROOT = PROJECT_ROOT / "游戏数据" / "官方SC2原始文本镜像" / "mods" / "starcoop"
-XM_DIR = PROJECT_ROOT / "Mods" / "XM"
+XM_DIR = PROJECT_ROOT / "XM"
 
 # 默认加载顺序：后者覆盖前者
 DEFAULT_MOD_PATHS: List[Path] = [
