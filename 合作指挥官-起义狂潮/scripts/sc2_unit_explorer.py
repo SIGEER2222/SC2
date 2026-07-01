@@ -543,6 +543,15 @@ class CatalogDB:
         re_abil_allow = re.compile(
             r'TechTreeAbilityAllow\s*\([^,]+,\s*AbilityCommand\s*\(\s*"([^"]+)"'
             r'\s*,\s*\d+\s*\)\s*,\s*(true|false)')
+        # 封装函数调用（雷诺/凯瑞甘/通用 RuntimeSafety 等）
+        # 模式：gf_*Allow*Unit*(..., "UnitId")  → 解锁单位
+        #       gf_*Block*Unit*(..., "UnitId")  → 锁定单位
+        #       gf_*Allow*Ability*(..., "AbilId", ...)  → 解锁能力
+        #       gf_*Block*Ability*(..., "AbilId", ...)  → 锁定能力
+        re_wrap_allow_unit = re.compile(r'gf_\w*Allow\w*Unit\w*\s*\([^,]+,\s*"([^"]+)"')
+        re_wrap_block_unit = re.compile(r'gf_\w*Block\w*Unit\w*\s*\([^,]+,\s*"([^"]+)"')
+        re_wrap_allow_abil = re.compile(r'gf_\w*Allow\w*Abil\w*\s*\([^,]+,\s*"([^"]+)"')
+        re_wrap_block_abil = re.compile(r'gf_\w*Block\w*Abil\w*\s*\([^,]+,\s*"([^"]+)"')
         # UnitGetType(var) == "UnitId" 或 lv_type == "UnitId"
         # 注意：UnitGetType(EventUnit()) 有嵌套括号，分两步匹配
         # 1. 行内含 UnitGetType 或 lv_type 关键字
@@ -571,6 +580,30 @@ class CatalogDB:
             for m in re_abil_allow.finditer(line):
                 abil_id, flag = m.group(1), m.group(2) == "true"
                 self.galaxy_abil_tech[abil_id] = flag
+                n_tech += 1
+
+            # 封装函数：AllowUnit
+            for m in re_wrap_allow_unit.finditer(line):
+                unit_id = m.group(1)
+                self.galaxy_unit_tech[unit_id] = True
+                n_tech += 1
+
+            # 封装函数：BlockUnit
+            for m in re_wrap_block_unit.finditer(line):
+                unit_id = m.group(1)
+                self.galaxy_unit_tech[unit_id] = False
+                n_tech += 1
+
+            # 封装函数：AllowAbility
+            for m in re_wrap_allow_abil.finditer(line):
+                abil_id = m.group(1)
+                self.galaxy_abil_tech[abil_id] = True
+                n_tech += 1
+
+            # 封装函数：BlockAbility
+            for m in re_wrap_block_abil.finditer(line):
+                abil_id = m.group(1)
+                self.galaxy_abil_tech[abil_id] = False
                 n_tech += 1
 
             # UnitAbilityAdd —— 只在上下文有单位类型时关联
