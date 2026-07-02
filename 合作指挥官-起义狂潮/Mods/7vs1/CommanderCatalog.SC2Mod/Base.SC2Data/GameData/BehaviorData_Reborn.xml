@@ -520,4 +520,60 @@
             <VitalRegenArray index="Life" value="12"/>
         </Modification>
     </CBehaviorBuff>
+
+    <!-- ===== Queen Purchase Behaviors (migrated from source mod) ===== -->
+    <CBehaviorBuff id="QueenFleshyAbundancePurchasedBuff">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\btn-ability-zerg-creepspread.dds"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="QueenBurstHealFleshyAbundanceBuff" parent="QueenBurstHeal">
+        <InfoIcon value="Assets\Textures\btn-ability-zerg-creepspread.dds"/>
+        <Modification>
+            <DamageTakenFraction index="Spell" value="-0.2"/>
+            <DamageTakenFraction index="Melee" value="-0.2"/>
+            <DamageTakenFraction index="Ranged" value="-0.2"/>
+            <DamageTakenFraction index="Splash" value="-0.2"/>
+            <DamageTakenFraction index="NoProc" value="-0.2"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="QueenNornQueenPurchasedBuff">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\btn-ability-nova-furyofone.dds"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Modification RangedWeaponRange="-3">
+            <DamageDealtFraction index="Spell" value="0.5"/>
+            <DamageDealtFraction index="Melee" value="0.5"/>
+            <DamageDealtFraction index="Ranged" value="0.5"/>
+            <DamageDealtFraction index="Splash" value="0.5"/>
+            <DamageDealtFraction index="NoProc" value="0.5"/>
+            <AbilLinkDisableArray value="QueenBurstHeal"/>
+            <VitalDamageLeechArray index="Life">
+                <KindArray index="Spell" value="0.25"/>
+                <KindArray index="Melee" value="0.25"/>
+                <KindArray index="Ranged" value="0.25"/>
+                <KindArray index="Splash" value="0.25"/>
+                <KindArray index="NoProc" value="0.25"/>
+            </VitalDamageLeechArray>
+        </Modification>
+    </CBehaviorBuff>
+
+    <!-- ===== Hatchery/Lair/Hive Building Behaviors (migrated from source mod) ===== -->
+    <!-- BaseGasExchangeAutoBehavior: 每30秒自动施放 BaseGasExchangeAutoSet 效果（自动矿气转化） -->
+    <CBehaviorBuff id="BaseGasExchangeAutoBehavior">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Structures"/>
+        <BuffFlags index="DisableWhileUnderConstruction" value="1"/>
+        <Period value="30"/>
+        <PeriodicEffect value="BaseGasExchangeAutoSet"/>
+    </CBehaviorBuff>
+    <!-- IzshaQueue: 伊兹莎队列，允许建筑额外排队1个单位（队列大小3） -->
+    <CBehaviorBuff id="IzshaQueue">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Structures"/>
+        <Requirements value="Izsha"/>
+        <Modification QueueCount="1" QueueSize="3"/>
+    </CBehaviorBuff>
 </Catalog>

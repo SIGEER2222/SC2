@@ -265,7 +265,11 @@ def _read_xml_lenient(path: Path) -> Optional[ET.Element]:
 
 
 def load_mod_xml(mod_root: Path) -> Dict[str, Dict[str, ET.Element]]:
-    """加载一个 mod 的所有 GameData XML，返回 {catalog: {id: Element}}"""
+    """加载一个 mod 的所有 GameData XML，返回 {catalog: {id: Element}}
+
+    同一 mod 内若多个 XML 文件定义了相同 id 的 catalog 条目，按 SC2 引擎规则
+    递归合并（而非后者覆盖前者）。
+    """
     gd = _game_data_dir(mod_root)
     if gd is None:
         return {}
@@ -283,7 +287,17 @@ def load_mod_xml(mod_root: Path) -> Dict[str, Dict[str, ET.Element]]:
             for cl in elem.findall("CardLayouts"):
                 if "index" not in cl.attrib:
                     cl.set("index", "0")
-            catalogs.setdefault(cat, {})[elem.attrib["id"]] = elem
+            elem_id = elem.attrib["id"]
+            cat_map = catalogs.setdefault(cat, {})
+            if elem_id in cat_map:
+                # 同 mod 内同 id 条目：递归合并（SC2 引擎行为）
+                existing = cat_map[elem_id]
+                for k, v in elem.attrib.items():
+                    if k != "removed":
+                        existing.set(k, v)
+                merge_element(existing, elem)
+            else:
+                cat_map[elem_id] = elem
     return catalogs
 
 

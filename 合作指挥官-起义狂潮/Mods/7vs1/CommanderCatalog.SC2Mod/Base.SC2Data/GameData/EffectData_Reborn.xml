@@ -243,4 +243,33 @@
         <WhichUnit Value="Caster"/>
         <Behavior value="BrutaliskFleshRecompositionBuffReborn"/>
     </CEffectApplyBehavior>
+
+    <!-- ===== Queen Purchase Abilities (migrated from source mod) ===== -->
+    <CEffectApplyBehavior id="QueenFleshyAbundancePurchaseEffect">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="QueenFleshyAbundancePurchasedBuff"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="QueenNornQueenPurchaseEffect">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="QueenNornQueenPurchasedBuff"/>
+    </CEffectApplyBehavior>
+
+    <!-- ===== BaseGasExchange Auto-Cast Effects (migrated from source mod) ===== -->
+    <!-- BaseConvertMineralsToVespene25: 增加25点瓦斯 -->
+    <CEffectModifyPlayer id="BaseConvertMineralsToVespene25">
+        <EditorCategories value="Race:Zerg"/>
+        <Resources index="Vespene" value="25"/>
+    </CEffectModifyPlayer>
+    <!-- BaseSubtract50Minerals: 扣除50点矿物 -->
+    <CEffectModifyPlayer id="BaseSubtract50Minerals">
+        <EditorCategories value="Race:Zerg"/>
+        <Resources index="Minerals" value="-50"/>
+    </CEffectModifyPlayer>
+    <!-- BaseGasExchangeAutoSet: 自动矿气转化效果集合（需50矿物可用时触发） -->
+    <CEffectSet id="BaseGasExchangeAutoSet">
+        <ValidatorArray value="Have50MineralsForBaseGasExchange"/>
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="BaseSubtract50Minerals"/>
+        <EffectArray value="BaseConvertMineralsToVespene25"/>
+    </CEffectSet>
 </Catalog>
