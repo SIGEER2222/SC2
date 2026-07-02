@@ -667,7 +667,20 @@ class CatalogDB:
                 return v
         # 备选：Button/Name/<id>
         v = self.tr(f"Button/Name/{unit_id}")
-        return v or unit_id
+        if v:
+            return v
+        # 备选：Button/Name/Spawn<id>（如 SpawnBlightbringer=生产灾厄使者 → 灾厄使者）
+        # 兼容带数字后缀的按钮名（如 SpawnBroodLord2=生产巢虫领主）
+        for i in ("", "2", "3", "4"):
+            v = self.tr(f"Button/Name/Spawn{unit_id}{i}")
+            if v:
+                return re.sub(r"^(生产|制造|召唤|孵化)", "", v)
+        # 备选：Button/Name/Morph<id>（如 MorphBrutalisk=进化为莽兽 → 莽兽）
+        for i in ("", "2", "3", "4"):
+            v = self.tr(f"Button/Name/Morph{unit_id}{i}")
+            if v:
+                return re.sub(r"^(进化为|变异为|转化为)", "", v)
+        return unit_id
 
     def button_name(self, face_or_id: str) -> str:
         """根据 button face id 查询名称。只用 Button/Name/* 不用 Tooltip（Tooltip 是详细描述）"""
@@ -1237,7 +1250,10 @@ def to_json(db: CatalogDB, root_unit: str, depth: int = 1) -> str:
                 }
                 for a in node.abilities
             ],
-            "card_layouts": node.card_layouts,
+            "card_layouts": [
+                {**c, "face_name": db.button_name(c["face"]) if c.get("face") else ""}
+                for c in node.card_layouts
+            ],
             "trains": [asdict(t) for t in node.trains],
             "builds": [asdict(b) for b in node.builds],
             "researches": [asdict(r) for r in node.researches],
