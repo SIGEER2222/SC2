@@ -85,6 +85,8 @@ Write-Host "动态提取 Abathur 单位/建筑..." -ForegroundColor Cyan
 $larvaJson = & python $Explorer Larva --depth 1 --format json @modArgs 2>$null | ConvertFrom-Json
 $droneJson = & python $Explorer Drone --depth 1 --format json @modArgs 2>$null | ConvertFrom-Json
 $abathurIds = [System.Collections.Generic.List[string]]::new()
+# 记录 ZergBuild 产出的建筑 ID（用于摘要函数强制标记"建筑"类型，即使 UnitData 无 Structure 属性）
+$abathurBuildingIds = @{}
 # Larva 可变异单位（含跳虫、幼雷兽、莽兽等）
 foreach ($t in $larvaJson.trains) {
     if ($t.unit_id -and (-not $abathurIds.Contains($t.unit_id))) { $abathurIds.Add($t.unit_id) }
@@ -93,17 +95,31 @@ foreach ($t in $larvaJson.trains) {
 foreach ($b in $droneJson.builds) {
     if ($b.abil_id -eq "ZergBuild" -and $b.unit_id -and (-not $abathurIds.Contains($b.unit_id))) {
         $abathurIds.Add($b.unit_id)
+        $abathurBuildingIds[$b.unit_id] = $true
     }
 }
 # 补充：Corruptor 可变异为 Devourer/BroodLord（morphs_to 不在 Larva trains 中）
+# 注意：跳过 Cocoon 茧态中间单位（如 BroodLordCocoon），它们不是独立可造单位
 $corruptorJson = & python $Explorer Corruptor --depth 1 --format json @modArgs 2>$null | ConvertFrom-Json
 if ($corruptorJson.morphs_to) {
     foreach ($m in $corruptorJson.morphs_to) {
-        if ($m.target_unit_id -and (-not $abathurIds.Contains($m.target_unit_id))) {
-            $abathurIds.Add($m.target_unit_id)
-        }
+        $tid = $m.target_unit_id
+        if (-not $tid) { continue }
+        if ($tid -match "Cocoon$") { continue }  # 跳过茧态中间单位
+        if (-not $abathurIds.Contains($tid)) { $abathurIds.Add($tid) }
     }
 }
+
+# 过滤掉非 Abathur 的建筑（Drone 的 ZergBuild 包含其他指挥官的建筑）
+# 依据：galaxy 触发器中 Dehaka/Raynor 等指挥官独占的建筑
+# - AshWorm2/PrimalTownHall/Digester: Dehaka 体系
+# - MercCompound: Raynor 佣兵营地
+# - InfestedBarracks2: Stukov 主题（死数据，无触发器启用）
+$NonAbathurBuildings = @("AshWorm2", "PrimalTownHall", "Digester", "MercCompound", "InfestedBarracks2")
+$before = $abathurIds.Count
+foreach ($bad in $NonAbathurBuildings) { $abathurIds.Remove($bad) | Out-Null }
+Write-Host "  Abathur: 过滤非专属建筑 $($abathurIds.Count)/$before 个 (排除 Dehaka/Raynor/Stukov 的建筑)" -ForegroundColor Gray
+
 $groups["Abathur"] = $abathurIds
 Write-Host "  Abathur: $($abathurIds.Count) 个 (Larva变异 + ZergBuild建筑 + Corruptor变异)" -ForegroundColor Gray
 
@@ -131,7 +147,7 @@ $NativeZhNames = @{
     # 基础单位
     "Zergling" = "跳虫"; "Mutalisk" = "异龙"; "Ultralisk" = "雷兽"
     "Corruptor" = "腐化者"; "Viper" = "飞蛇"; "SwarmHostMP" = "虫群宿主"
-    "Scourge" = "蝎虫"; "Ravager" = "破坏者"
+    "Scourge" = "蝎虫"; "Ravager" = "破坏者"; "Pygalisk" = "幼雷兽"
     "HotSHunter" = "猎手"; "HotSSplitterlingBig" = "分裂虫"
     "BroodLordCocoon" = "巢虫领主茧"; "Digester" = "消化者"
     # 建筑
@@ -144,8 +160,12 @@ $NativeZhNames = @{
 }
 
 # 从 JSON 节点提取摘要信息：返回 [中文名, 类型, 主要技能(中文，逗号分隔)]
-function Get-UnitSummary($json) {
-    if ($null -eq $json) { return @("[未知]", "?", "") }
+function Get-UnitSummary($json, $forceBuilding = $false, $unitId = "") {
+    if ($null -eq $json) {
+        # JSON 解析失败（单位在 Train 列表里但 UnitData 无定义）
+        $nm = if ($NativeZhNames.ContainsKey($unitId)) { $NativeZhNames[$unitId] } else { "[未定义]" }
+        return @($nm, "单位", "")
+    }
     $name = $json.name
     # 若 python 工具返回的是 ID（无中文名），尝试用原生映射表补充
     if ((-not $name) -or ($name -eq $json.unit_id)) {
@@ -153,10 +173,11 @@ function Get-UnitSummary($json) {
         if ($NativeZhNames.ContainsKey($uid)) { $name = $NativeZhNames[$uid] }
     }
     if (-not $name) { $name = $json.unit_id }
-    # 类型判断：attributes 含 Structure → 建筑；否则单位
+    # 类型判断：attributes 含 Structure，或在 ZergBuild 建筑列表中 → 建筑；否则单位
     $attrs = $json.attributes
     $type = "单位"
-    if ($attrs -and ($attrs -contains "Structure")) { $type = "建筑" }
+    if ($forceBuilding) { $type = "建筑" }
+    elseif ($attrs -and ($attrs -contains "Structure")) { $type = "建筑" }
     # 主要技能：从 card_layouts 取 face_name（已由 python 工具解析为中文）
     # 过滤掉标准能力（stop/move/attack）和重复项
     $skills = @()
@@ -216,7 +237,9 @@ foreach ($cmd in $Commanders.Keys) {
         if ($jsonOut) {
             try { $jsonData = $jsonOut | ConvertFrom-Json } catch { $jsonData = $null }
         }
-        $info = Get-UnitSummary $jsonData
+        # 判断是否为建筑：在 ZergBuild 建筑列表中（仅 Abathur 分组有此集合）
+        $isBuilding = ($cmd -eq "Abathur") -and $abathurBuildingIds.ContainsKey($uid)
+        $info = Get-UnitSummary $jsonData $isBuilding $uid
         $summaryRows += [PSCustomObject]@{
             No   = $i
             Name = $info[0]
