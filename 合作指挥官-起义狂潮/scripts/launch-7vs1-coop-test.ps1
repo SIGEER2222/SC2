@@ -450,7 +450,8 @@ function Sync-LiveMapRuntimeLibraries {
         New-Item -ItemType Directory -Path $mapBaseDataRoot -Force | Out-Null
     }
 
-    Get-ChildItem -LiteralPath $mapBaseDataRoot -Filter 'Lib*.galaxy' -File -ErrorAction SilentlyContinue | ForEach-Object {
+    # 保留地图自带的测试库（如 LibEmptyTestCatalog.galaxy），只删除从 runtime 注入的库文件
+    Get-ChildItem -LiteralPath $mapBaseDataRoot -Filter 'Lib*.galaxy' -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -notlike 'LibEmptyTest*.galaxy' } | ForEach-Object {
         Remove-Item -LiteralPath $_.FullName -Force
     }
 

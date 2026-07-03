@@ -1,0 +1,153 @@
+//==================================================================================================
+//
+// Generated Map Script
+//
+// Name:   emptytest - 指挥官单位清单测试图
+//
+// 改动说明:
+//   - include CoopZeroPop 7vs1 框架所需的所有运行时库
+//   - 新增 spawn 触发器: 读取 CampaignXCore bank 中的 PrimaryCommander
+//     并在地图上为该指挥官的所有建筑/单位动态生成实例, 便于人工排查
+//   - 指挥官单位清单由 LibEmptyTestCatalog.galaxy 提供（自动生成）
+//
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+include "TriggerLibs/LibertyLib"
+include "TriggerLibs/CampaignLib"
+include "LibA070801C"
+include "Lib67C0F0E7"
+include "LibC0F50AA6"
+include "Lib81FF3B49"
+include "LibDF8E6945"
+include "Lib0940FFB7"
+include "Lib975E2FE9"
+include "LibE0EAE146"
+include "LibEmptyTestCatalog"
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+    libLbty_InitLib();
+    libCamp_InitLib();
+    libA070801C_InitLib();
+    lib67C0F0E7_InitLib();
+    libC0F50AA6_InitLib();
+    lib81FF3B49_InitLib();
+    libDF8E6945_InitLib();
+    lib0940FFB7_InitLib();
+    lib975E2FE9_InitLib();
+    libE0EAE146_InitLib();
+    libEmptyTestCatalog_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_E5AFB9E68898E5889DE5A78BE58C96;
+trigger gt_EmptyTestSpawn;
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: 对战初始化（保留原 MeleeInit 逻辑）
+//--------------------------------------------------------------------------------------------------
+bool gt_E5AFB9E68898E5889DE5A78BE58C96_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    MeleeInitResources();
+    MeleeInitUnits();
+    MeleeInitAI();
+    MeleeInitOptions();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_E5AFB9E68898E5889DE5A78BE58C96_Init () {
+    gt_E5AFB9E68898E5889DE5A78BE58C96 = TriggerCreate("gt_E5AFB9E68898E5889DE5A78BE58C96_Func");
+    TriggerAddEventMapInit(gt_E5AFB9E68898E5889DE5A78BE58C96);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EmptyTestSpawn
+//   读取当前 PrimaryCommander（来自 CampaignXCore bank），按 LibEmptyTestCatalog
+//   清单在地图上生成该指挥官的所有建筑/单位实例, 方便人工排查。
+//--------------------------------------------------------------------------------------------------
+bool gt_EmptyTestSpawn_Func (bool testConds, bool runActions) {
+    string lv_commander;
+    int lv_count;
+    int lv_i;
+    string lv_unitType;
+    fixed lv_originX;
+    fixed lv_originY;
+    fixed lv_x;
+    fixed lv_y;
+    int lv_col;
+    int lv_row;
+    int lv_perRow;
+    fixed lv_spacing;
+
+    if (!runActions) {
+        return true;
+    }
+
+    // 读取当前 -Commanders 参数通过 CampaignXCore bank 设置的 PrimaryCommander
+    lv_commander = libKPVP_gf_CodexPrimaryCommanderName();
+    if (lv_commander == "") {
+        return true;
+    }
+
+    lv_count = libEmptyTestCatalog_gf_UnitCountOf(lv_commander);
+    if (lv_count <= 0) {
+        return true;
+    }
+
+    // 在地图上排布, 每行 16 个, 间隔 3.0; 行间距 3.0
+    // 起点 x=10, y=120, 可容纳 295 个单位（19 行）
+    lv_originX = 10.0;
+    lv_originY = 120.0;
+    lv_perRow = 16;
+    lv_spacing = 3.0;
+
+    for (lv_i = 0; lv_i < lv_count; lv_i += 1) {
+        lv_unitType = libEmptyTestCatalog_gf_UnitAt(lv_commander, lv_i);
+        if (lv_unitType == "") {
+            continue;
+        }
+
+        lv_col = ModI(lv_i, lv_perRow);
+        lv_row = lv_i / lv_perRow;
+        lv_x = lv_originX + (lv_col * lv_spacing);
+        lv_y = lv_originY - (lv_row * lv_spacing);
+
+        // UnitCreate 不返回值, 失败会跳过该单位, 不影响其他单位生成
+        UnitCreate(1, lv_unitType, 0, 1, Point(lv_x, lv_y), 270.0);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_EmptyTestSpawn_Init () {
+    gt_EmptyTestSpawn = TriggerCreate("gt_EmptyTestSpawn_Func");
+    TriggerAddEventMapInit(gt_EmptyTestSpawn);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_E5AFB9E68898E5889DE5A78BE58C96_Init();
+    gt_EmptyTestSpawn_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitTriggers();
+}
