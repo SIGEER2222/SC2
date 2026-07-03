@@ -32,15 +32,6 @@ void libE0EAE146_gf_KerriganAllowAbilityIfPresent (int lp_player, string lp_abil
     TechTreeAbilityAllow(lp_player, AbilityCommand(lp_abil, lp_cmdIndex), true);
 }
 
-void libE0EAE146_gf_TestZergApplyTechFilter (int lp_player) {
-    CatalogFieldValueSet(c_gameCatalogBehavior, "SpawnLarvaKerrigan", "InfoArray[0].Unit", lp_player, "Larva");
-    CatalogFieldValueSet(c_gameCatalogBehavior, "SpawnLarvaKerrigan", "InfoArray[1].Unit", lp_player, "Larva");
-    CatalogFieldValueSet(c_gameCatalogBehavior, "SpawnLarvaKerrigan", "InfoArray[2].Unit", lp_player, "Larva");
-    CatalogFieldValueSet(c_gameCatalogUnit, "DroneKerrigan", "AbilArray[0].Link", lp_player, "ZergBuild");
-    TechTreeUnitAllowAll(lp_player, c_raceZerg, true);
-    TechTreeAbilityAllowAll(lp_player, c_raceZerg, true);
-}
-
 void libE0EAE146_gf_KerriganSetUnitTechAliasIfPresent (int lp_player, string lp_unit, string lp_alias) {
     if ((lp_unit == "") || (lp_alias == "")) {
         return;
@@ -469,26 +460,17 @@ void libE0EAE146_gt_CM_Kerrigan_WeaponSwap_Init () {
 //--------------------------------------------------------------------------------------------------
 void libE0EAE146_gf_KerriganRuntimeInit (int lp_player, point lp_heroPoint, bool lp_createHero) {
     unit lv_caster;
-    bool lv_isTestZerg;
 
     if (libE0EAE146_gv_kerriganRuntimeInitialized == true) {
         return;
     }
 
-    lv_isTestZerg = (libE0EAE146_gv_commander == "TestZerg");
-
     libE0EAE146_gv_kerriganRuntimeInitialized = true;
     libE0EAE146_gv_kerriganRuntimePlayer = lp_player;
-    if (lv_isTestZerg) {
-        libE0EAE146_gf_CommanderPowerApplyProfile(lp_player, "Kerrigan");
-        libE0EAE146_gf_TestZergApplyTechFilter(lp_player);
-    }
-    else {
-        libE0EAE146_gf_CommanderPowerApplyProfile(lp_player, "Kerrigan");
-        libE0EAE146_gf_KerriganApplyDefaultCosmetic(lp_player);
-        if (libE0EAE146_gf_CommanderUsePrivateTechFilter("Kerrigan")) {
-            libE0EAE146_gf_KerriganApplyTechFilter(lp_player);
-        }
+    libE0EAE146_gf_CommanderPowerApplyProfile(lp_player, "Kerrigan");
+    libE0EAE146_gf_KerriganApplyDefaultCosmetic(lp_player);
+    if (libE0EAE146_gf_CommanderUsePrivateTechFilter("Kerrigan")) {
+        libE0EAE146_gf_KerriganApplyTechFilter(lp_player);
     }
     libE0EAE146_gf_KerriganEconDropInit(lp_player);
     libE0EAE146_gt_CM_MasteryKerriganInstantReviveCooldown_Init();
