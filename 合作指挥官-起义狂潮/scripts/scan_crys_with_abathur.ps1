@@ -150,6 +150,23 @@ $NativeZhNames = @{
     "Scourge" = "蝎虫"; "Ravager" = "破坏者"; "Pygalisk" = "幼雷兽"
     "HotSHunter" = "猎手"; "HotSSplitterlingBig" = "分裂虫"
     "BroodLordCocoon" = "巢虫领主茧"; "Digester" = "消化者"
+    "Omegalisk" = "欧米伽雷兽"; "PrimalSunkenColony" = "原始穿刺者巢群"
+    # 其他指挥官单位（mod zhCN 未定义）
+    "SimulantHydraliskBurrowed" = "仿生刺蛇(钻地)"; "SiegeBreaker" = "攻城破坏者"
+    "SiegeBreakerSieged" = "攻城破坏者(攻城模式)"; "BroodMother" = "虫母"
+    "BroodMotherBurrowed" = "虫母(钻地)"
+    "DarkTemplarAiur" = "艾尔黑暗圣堂武士"; "DarkTemplarShakuras" = "萨库拉斯黑暗圣堂武士"
+    "DarkTemplarTaldarim" = "塔达林黑暗圣堂武士"; "HighTemplarTaldarim" = "塔达林高阶圣堂武士"
+    "HighArchonTemplar" = "高阶执政官"; "Kraith" = "卡拉斯"
+    "HybridDestroyer" = "混合体毁灭者"; "HybridBehemoth" = "混合体巨兽"
+    "HybridNemesis" = "混合体复仇者"; "HybridReaver" = "混合体劫掠者"
+    "HybridDominatorVoid" = "混合体主宰(虚空)"; "VoidPylon" = "虚空水晶塔"
+    "Spectre" = "幽魂"; "SpartanCompany" = "斯巴达连队"; "Spartan" = "斯巴达"
+    "ZeratulVoidAiur01" = "泽拉图(虚空艾尔)"
+    # HotS 虫族单位变种（Naktul BroodMother 训练列表）
+    "HotSRaptor" = "迅猛虫"; "HotSSwarmling" = "群虫"
+    "RoachCorpser" = "腐蚀蟑螂"; "RoachVile" = "恶性蟑螂"
+    "HydraliskImpaler" = "穿刺者刺蛇"; "HydraliskLurker" = "潜伏者刺蛇"
     # 建筑
     "Hatchery" = "孵化场"; "CreepTumor" = "蠕变肿瘤"; "Extractor" = "萃取厂"
     "SpawningPool" = "血池"; "EvolutionChamber" = "进化腔"
@@ -157,6 +174,73 @@ $NativeZhNames = @{
     "InfestationPit" = "感染坑"; "NydusNetwork" = "尼德斯网络"
     "BanelingNest" = "爆虫巢"; "RoachWarren" = "蟑螂穴"
     "SpineCrawler" = "脊针爬虫"; "SporeCrawler" = "孢子爬虫"
+}
+
+# SC2 原生按钮/技能(face)中文名映射（原生 mods 只有 enUS，需手动补充）
+# 用于 card_layouts.face_name 为空时回退查表
+$NativeButtonZh = @{
+    # 通用
+    "Stop" = "停止"; "Move" = "移动"; "Attack" = "攻击"; "HoldPos" = "原地待命"; "Patrol" = "巡逻"
+    "Cancel" = "取消"; "CancelBuilding" = "取消建造"; "Rally" = "集结点"; "SetRallyPoint" = "设置集结点"
+    "Detector" = "侦测器"
+    # 虫族通用
+    "BurrowDown" = "钻地"; "BurrowUp" = "破土"; "BurrowMove" = "潜地移动"
+    "MorphToOverseer" = "变异为监察王虫"; "StopGenerateCreep" = "停止制造菌毯"
+    "OverlordTransportLoad" = "装载"; "OverlordTransportUnload" = "卸载"
+    "RapidRegeneration" = "快速再生"; "Frenzied" = "狂暴"; "CancelLast" = "取消上一个"
+    # 虫族建筑升级/研究
+    "GreaterSpire" = "升级为巨型尖塔"; "SpineCrawlerUproot" = "拔根"; "SporeCrawlerUproot" = "拔根"
+    "zerglingmovementspeed" = "代谢加速"; "zerglingattackspeed" = "肾上腺素"
+    "hydraliskspeed" = "肌腱增强"; "HydraliskDenLurkerPassive" = "潜伏者基因"
+    "zerggroundarmor3" = "地面单位护甲"; "zergmeleeweapons3" = "近战攻击"; "zergmissileweapons3" = "远程攻击"
+    "zergflyerattack3" = "空中攻击"; "zergflyerarmor3" = "空中护甲"
+    "EvolveChitinousPlating" = "进化甲壳硬化"; "EvolveCentrificalHooks" = "进化离心飞钩"
+    "EvolveGlialRegeneration" = "进化神经胶质再生"; "EvolveTunnelingClaws" = "进化挖掘利爪"
+    "EvolveInfestorEnergyUpgrade" = "进化病原体增生"; "ResearchNeuralParasite" = "研究神经寄生"
+    # 虫族单位技能
+    "Baneling" = "变异为爆虫"; "SwarmHost" = "孵化蝗虫"; "Explode" = "爆炸"; "SapStructure" = "腐蚀建筑"
+    "CorruptionAbility" = "腐化"; "BroodLord" = "变异为巢虫领主"
+    "NeuralParasite" = "神经寄生"; "InfestedTerrans" = "感染虫族"; "FungalGrowth" = "真菌生长"
+    "ViperConsume" = "吞噬"; "BlindingCloud" = "致盲之云"; "FaceEmbrace" = "束缚之拥"
+    "SwarmHostBurrowDown" = "钻地"; "BurrowSwarmHost" = "钻地"
+    # 飞龙系通用
+    "MutaliskRegeneration" = "快速再生"; "CancelCocoonMorph" = "取消变异"
+    # 爬虫系
+    "NydusCanalLoad" = "装载"; "HerculesLoad" = "装载"; "HerculesUnloadAll" = "全部卸载"
+    "SummonNydusWorm" = "召唤尼德斯虫道"; "SummonNydusCanalCreeper" = "召唤菌毯虫道"
+    "SummonNydusCanalAttacker" = "召唤进攻虫道"
+    # 雷兽系
+    "TissueAssimilation" = "组织同化"; "BurrowChargeCampaign" = "钻地冲锋"; "MonarchBlades" = "君主之刃"
+    # 刺蛇系
+    "AncillaryCarapaceHydralisk" = "附加甲壳"; "HydraliskFrenzy" = "狂暴"
+    # Drone 建造按钮（face=建筑 ID，显示为"建造 XX"）
+    "InfestationPit" = "建造感染坑"; "MercCompound" = "建造佣兵营地"
+    "NydusNetwork" = "建造尼德斯网络"; "Spire" = "建造尖塔"
+    "RoachWarren" = "建造蟑螂穴"; "SporeCrawler" = "建造孢子爬虫"
+    "BanelingNest" = "建造爆虫巢"; "SpawningPool" = "建造血池"
+    "EvolutionChamber" = "建造进化腔"; "HydraliskDen" = "建造刺蛇穴"
+    "UltraliskCavern" = "建造雷兽窟"; "SpineCrawler" = "建造脊针爬虫"
+    "Extractor" = "建造萃取厂"; "Hatchery" = "建造孵化场"
+    "PrimalSunkenColony" = "变异为穿刺者巢群"; "AshWorm2" = "生产灰烬虫"
+    # Abathur mod 特殊技能（按钮 ID → 中文）
+    "HotSMetabolicBoost" = "代谢加速"; "HotSRoachShield" = "灼热护盾"
+    "HotSPressurizedGlands" = "加压腺体"; "RapidIncubation" = "快速孵化"
+    "LocustSpeed" = "蝗群提速"; "BanelingHeal" = "爆虫治疗"
+    "BanelingCorrosiveBile" = "腐蚀胆汁"; "SwarmSeeds" = "虫群种子"
+    "BlightbringerCreateEggs" = "生产虫卵"; "BlightbringerCreateLargeEggs" = "生产大型虫卵"
+    # 雷兽/欧米伽技能
+    "UltraliskElectricShock" = "电击"; "UltraliskHighVoltage" = "高压"
+    "UltraliskLightningRaid" = "闪电突袭"; "UltraliskThunderstorm" = "雷暴"
+    "OmegaliskThickArmor" = "厚重装甲"; "OmegaliskBattleCry" = "战斗怒吼"
+    "OmegaliskKingStrike" = "王者打击"; "OmegaliskDeterrenceOrder" = "威慑指令"
+    # 其他指挥官技能（mod zhCN 未定义）
+    "GroovedSpines" = "沟槽脊针"; "SIQueenEnergy" = "西女王能量"
+    "EternalWar" = "永恒之战"; "GravitonPrison" = "重力囚笼"
+    "RadarField" = "雷达区域"; "HybridFAoEStun" = "范围眩晕"
+    "GhostHoldFire" = "停火"; "WeaponsFree" = "自由开火"
+    "VoodooShield" = "巫毒护盾"; "BattlecruiserWeaponsIgnoreArmor" = "战巡武器无视护甲"
+    "JetPack" = "喷气背包"; "CombatDrugs" = "战斗药剂"; "CloakOff" = "解除隐形"
+    "SwarmQueenZergling" = "虫后跳虫"
 }
 
 # 从 JSON 节点提取摘要信息：返回 [中文名, 类型, 主要技能(中文，逗号分隔)]
@@ -180,14 +264,23 @@ function Get-UnitSummary($json, $forceBuilding = $false, $unitId = "") {
     elseif ($attrs -and ($attrs -contains "Structure")) { $type = "建筑" }
     # 主要技能：从 card_layouts 取 face_name（已由 python 工具解析为中文）
     # 过滤掉标准能力（stop/move/attack）和重复项
+    # 中文化优先级：face_name(中文) > $NativeButtonZh[face] > face(英文 ID)
     $skills = @()
     if ($json.card_layouts) {
         foreach ($card in $json.card_layouts) {
             $aid = $card.abil_id
             # 跳过标准能力 stop/move/attack
             if ($aid -and ($StandardAbils -contains $aid)) { continue }
-            # 优先用 face_name（中文），无则用 face（英文 ID）
+            # 优先用 face_name（中文）
             $nm = $card.face_name
+            # face_name 为空或等于 face（说明未中文化）时，查原生按钮映射表
+            if ((-not $nm) -or ($nm -eq $card.face)) {
+                $faceId = $card.face
+                if ($faceId -and $NativeButtonZh.ContainsKey($faceId)) {
+                    $nm = $NativeButtonZh[$faceId]
+                }
+            }
+            # 仍无中文名，用 face 英文 ID 兜底
             if (-not $nm) { $nm = $card.face }
             if (-not $nm) { continue }
             # 去重（不同卡牌可能同名）
