@@ -1221,7 +1221,9 @@ $mapDependencies = @(
     Get-DocumentInfoDependencies -Path (Join-Path $mapLive "DocumentInfo")
 )
 $mapDependencies = Normalize-MapRuntimeDependencies -Dependencies $mapDependencies
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CoopZeroPop.SC2Mod"
+if ($LiveMapName -ne "emptytest.SC2Map") {
+    $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CoopZeroPop.SC2Mod"
+}
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CommanderCatalog.SC2Mod"
 
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $extensionDependencies -DependencyOwner "extension dependencies"
@@ -1249,18 +1251,22 @@ $installedWorkspaceDependencyMods = Install-WorkspaceModDependencyClosure `
 
 $extensionBaseData = Join-Path $extensionLive "Base.SC2Data"
 $kitMutationsLiveBaseData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/kit_mutations.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data"
-Sync-LiveMapRuntimeLibraries `
-    -MapLive $mapLive `
-    -RuntimeBaseRoots @(
-        $extensionBaseData,
-        $kitMutationsLiveBaseData
-    )
+if ($LiveMapName -ne "emptytest.SC2Map") {
+    Sync-LiveMapRuntimeLibraries `
+        -MapLive $mapLive `
+        -RuntimeBaseRoots @(
+            $extensionBaseData,
+            $kitMutationsLiveBaseData
+        )
+}
 $effectiveRuntimeBaseData = Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryPath -MapLive $mapLive -ExtensionLive $extensionLive -LibraryName "LibKPVP.galaxy")
 
 $liveGameData = Join-Path $extensionLive "Base.SC2Data\GameData"
 $liveCommanderCatalogGameData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/7vs1/CommanderCatalog.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data\GameData"
 Merge-LiveCommanderCatalogUnitData -LiveGameDataRoot $liveCommanderCatalogGameData
-Validate-LiveBaseTestlineInstall -MapLive $mapLive -ExtensionLive $extensionLive -SelectedCommanders $effectiveCommanders
+if ($LiveMapName -ne "emptytest.SC2Map") {
+    Validate-LiveBaseTestlineInstall -MapLive $mapLive -ExtensionLive $extensionLive -SelectedCommanders $effectiveCommanders
+}
 
 # Re-apply the CommanderPower bank preset at the end of the install path so
 # the final bank state wins even if any install/validation helper touched it.

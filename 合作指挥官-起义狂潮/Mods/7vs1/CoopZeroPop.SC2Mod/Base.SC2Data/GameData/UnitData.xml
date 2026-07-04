@@ -1049,4 +1049,101 @@
         <MinimapRadius value="0"/>
         <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
     </CUnit>
+
+    <!-- TestZerg 测试用幼虫：继承普通 Larva，移除所有继承的生产能力和按钮冲突，使用独立的生产能力 -->
+    <CUnit id="LarvaTestZerg" parent="Larva">
+        <!-- 移除所有继承的生产能力（避免按钮位置冲突） -->
+        <AbilArray Link="LarvaTrain" removed="1"/>
+        <AbilArray Link="LarvaTrainSwarm" removed="1"/>
+        <AbilArray Link="LarvaTrainSwarm2" removed="1"/>
+        <!-- 添加 TestZerg 专用生产能力（所有变种单位，State=Available，无 Requirements） -->
+        <AbilArray Link="LarvaTrainTestZerg"/>
+        <!-- 主卡片：移除所有继承的按钮（index 0-30），只保留子菜单入口 -->
+        <CardLayouts index="0">
+            <LayoutButtons index="0" removed="1"/>
+            <LayoutButtons index="1" removed="1"/>
+            <LayoutButtons index="2" removed="1"/>
+            <LayoutButtons index="3" removed="1"/>
+            <LayoutButtons index="4" removed="1"/>
+            <LayoutButtons index="5" removed="1"/>
+            <LayoutButtons index="6" removed="1"/>
+            <LayoutButtons index="7" removed="1"/>
+            <LayoutButtons index="8" removed="1"/>
+            <LayoutButtons index="9" removed="1"/>
+            <LayoutButtons index="10" removed="1"/>
+            <LayoutButtons index="11" removed="1"/>
+            <LayoutButtons index="12" removed="1"/>
+            <LayoutButtons index="13" removed="1"/>
+            <LayoutButtons index="14" removed="1"/>
+            <LayoutButtons index="15" removed="1"/>
+            <LayoutButtons index="16" removed="1"/>
+            <LayoutButtons index="17" removed="1"/>
+            <LayoutButtons index="18" removed="1"/>
+            <LayoutButtons index="19" removed="1"/>
+            <LayoutButtons index="20" removed="1"/>
+            <LayoutButtons index="21" removed="1"/>
+            <LayoutButtons index="22" removed="1"/>
+            <LayoutButtons index="23" removed="1"/>
+            <LayoutButtons index="24" removed="1"/>
+            <LayoutButtons index="25" removed="1"/>
+            <LayoutButtons index="26" removed="1"/>
+            <LayoutButtons index="27" removed="1"/>
+            <LayoutButtons index="28" removed="1"/>
+            <LayoutButtons index="29" removed="1"/>
+            <LayoutButtons index="30" removed="1"/>
+            <!-- 子菜单入口 -->
+            <LayoutButtons Face="HotSLeviathan" Type="Submenu" SubmenuCardId="TZ01" Row="0" Column="0"/>
+            <LayoutButtons Face="MorphBrutalisk" Type="Submenu" SubmenuCardId="TZ02" Row="0" Column="1"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="que1,CancelLast" Row="0" Column="4"/>
+        </CardLayouts>
+        <!-- 子菜单卡片1：Train0-Train19（20个变种单位）+ 导航 -->
+        <CardLayouts CardId="TZ01">
+            <LayoutButtons Face="MorphToRaptor" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train0" Row="0" Column="0"/>
+            <LayoutButtons Face="MorphToSwarmling" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train1" Row="0" Column="1"/>
+            <LayoutButtons Face="MorphtoToxicZergling" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train2" Row="0" Column="2"/>
+            <LayoutButtons Face="MorphtoPygalisk" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train3" Row="0" Column="3"/>
+            <LayoutButtons Face="RoachVile" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train4" Row="0" Column="4"/>
+            <LayoutButtons Face="Roach" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train5" Row="1" Column="0"/>
+            <LayoutButtons Face="MorphtoRavager" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train6" Row="1" Column="1"/>
+            <LayoutButtons Face="HydraliskImpaler" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train7" Row="1" Column="2"/>
+            <LayoutButtons Face="HydraliskLurker" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train8" Row="1" Column="3"/>
+            <LayoutButtons Face="MorphtoHunterKiller" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train9" Row="1" Column="4"/>
+            <LayoutButtons Face="MorphtoParalyticHydralisk" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train10" Row="2" Column="0"/>
+            <LayoutButtons Face="Lurker" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train11" Row="2" Column="1"/>
+            <LayoutButtons Face="Baneling" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train12" Row="2" Column="2"/>
+            <LayoutButtons Face="MorphtoHunter" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train13" Row="2" Column="3"/>
+            <LayoutButtons Face="MorphtoSplitterling" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train14" Row="2" Column="4"/>
+            <LayoutButtons Face="MorphtoFrostFiend" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train15" Row="3" Column="0"/>
+            <LayoutButtons Face="MorphtoBileTitan" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train16" Row="3" Column="1"/>
+            <LayoutButtons Face="MorphtoIgniter" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train17" Row="3" Column="2"/>
+            <LayoutButtons Face="MutaliskBroodlord" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train18" Row="3" Column="3"/>
+            <LayoutButtons Face="MorphtoMutaliskChar" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train19" Row="3" Column="4"/>
+            <LayoutButtons Face="Cancel" Type="CancelSubmenu" Row="4" Column="4"/>
+        </CardLayouts>
+        <!-- 子菜单卡片2：Train20-Train40（21个变种单位）+ 导航 -->
+        <CardLayouts CardId="TZ02">
+            <LayoutButtons Face="MorphtoMamba" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train20" Row="0" Column="0"/>
+            <LayoutButtons Face="MorphtoAnkylos" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train21" Row="0" Column="1"/>
+            <LayoutButtons Face="MorphtoMesmer" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train22" Row="0" Column="2"/>
+            <LayoutButtons Face="MorphtoDevourer" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train23" Row="0" Column="3"/>
+            <LayoutButtons Face="MorphtoGuardian" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train24" Row="0" Column="4"/>
+            <LayoutButtons Face="MorphtoKraken" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train25" Row="1" Column="0"/>
+            <LayoutButtons Face="HotSTorrasque" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train26" Row="1" Column="1"/>
+            <LayoutButtons Face="HotSNoxious" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train27" Row="1" Column="2"/>
+            <LayoutButtons Face="MorphtoUltraliskSavage" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train28" Row="1" Column="3"/>
+            <LayoutButtons Face="MorphtoUltraliskIndra" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train29" Row="1" Column="4"/>
+            <LayoutButtons Face="MorphtoBaneHost" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train30" Row="2" Column="0"/>
+            <LayoutButtons Face="MorphtoVespidHost" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train31" Row="2" Column="1"/>
+            <LayoutButtons Face="Aberration" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train32" Row="2" Column="2"/>
+            <LayoutButtons Face="MorphBrutalisk" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train33" Row="2" Column="3"/>
+            <LayoutButtons Face="Scourge" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train34" Row="2" Column="4"/>
+            <LayoutButtons Face="Defiler" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train35" Row="3" Column="0"/>
+            <LayoutButtons Face="QueenClassic" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train36" Row="3" Column="1"/>
+            <LayoutButtons Face="Viper" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train37" Row="3" Column="2"/>
+            <LayoutButtons Face="SpawnBlightbringer" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train38" Row="3" Column="3"/>
+            <LayoutButtons Face="MorphtoOmegalisk" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train39" Row="3" Column="4"/>
+            <LayoutButtons Face="HotSLeviathan" Type="AbilCmd" AbilCmd="LarvaTrainTestZerg,Train40" Row="4" Column="0"/>
+            <LayoutButtons Face="Cancel" Type="CancelSubmenu" Row="4" Column="4"/>
+        </CardLayouts>
+    </CUnit>
 </Catalog>

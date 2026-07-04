@@ -1,6 +1,6 @@
 param(
     [string]$Sc2Root = "E:\SC2\SC2new\StarCraft II",
-    [string]$RebornModPath = "C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn_workrepo\crys_the_swarm_reborn.SC2Mod",
+    [string]$RebornModPath = "",
     [string]$StarCoopPath = ""
 )
 
@@ -9,9 +9,31 @@ $ErrorActionPreference = "Stop"
 $workspaceRoot = Split-Path -Parent $PSScriptRoot
 $mapSource = Join-Path $workspaceRoot "Mods\emptytest.SC2Map"
 if ([string]::IsNullOrEmpty($StarCoopPath)) {
-    $StarCoopPath = [System.IO.Path]::GetFullPath((Join-Path $workspaceRoot "游戏数据\官方SC2原始文本镜像\mods\starcoop"))
+    $starCoopCandidates = @(
+        [System.IO.Path]::GetFullPath((Join-Path $workspaceRoot "游戏数据\官方SC2原始文本镜像\mods\starcoop")),
+        "E:\Code\MyMod\SC2\合作指挥官-起义狂潮\游戏数据\官方SC2原始文本镜像\mods\starcoop"
+    )
+    foreach ($candidate in $starCoopCandidates) {
+        if (Test-Path -LiteralPath $candidate) {
+            $StarCoopPath = $candidate
+            break
+        }
+    }
     if (-not (Test-Path -LiteralPath $StarCoopPath)) {
         $StarCoopPath = ""
+    }
+}
+
+# auto-search reborn mod (avoid non-ASCII path encoding issues, prefer workrepo)
+if ([string]::IsNullOrEmpty($RebornModPath)) {
+    $downloadsDir = [System.IO.Path]::Combine($env:USERPROFILE, "Downloads")
+    $allFound = Get-ChildItem -LiteralPath $downloadsDir -Recurse -Directory -Filter "crys_the_swarm_reborn.SC2Mod" -ErrorAction SilentlyContinue
+    # prefer version with Base.SC2Data (workrepo)
+    $workrepo = $allFound | Where-Object { Test-Path (Join-Path $_.FullName "Base.SC2Data") } | Select-Object -First 1
+    if ($workrepo) {
+        $RebornModPath = $workrepo.FullName
+    } elseif ($allFound) {
+        $RebornModPath = $allFound[0].FullName
     }
 }
 

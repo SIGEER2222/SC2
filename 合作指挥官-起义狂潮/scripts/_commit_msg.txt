@@ -1,0 +1,19 @@
+迁移阿巴瑟Reborn阶段3-I：Queen能力+Drone建筑+BaseGasExchange依赖链+工具修复
+
+## 主要改动
+1. Queen 两个购买能力完整迁移（QueenFleshyAbundancePurchase、QueenNornQueenPurchase）
+   - AbilData/EffectData/BehaviorData/ButtonData/RequirementData/RequirementNodeData/UnitData
+   - 中英文本地化
+2. Drone CardLayouts 添加 5 个新建筑按钮（Build23-27：AshWorm/PrimalHive/MercCompound/InfestedBarracks/ImpalerColony）
+3. BaseGasExchange 依赖链迁移（解决 Hatchery/Lair/Hive 引用缺失）
+   - BehaviorData: BaseGasExchangeAutoBehavior + IzshaQueue
+   - EffectData: BaseConvertMineralsToVespene25 + BaseSubtract50Minerals + BaseGasExchangeAutoSet
+   - ValidatorData: Have50MineralsForBaseGasExchange
+4. sc2_unit_explorer.py 修复 load_mod_xml 合并 bug
+   - 同 mod 内同 id 条目按 SC2 引擎规则递归合并（而非后者覆盖前者）
+   - 修复后 Queen 扫描能正确显示 12 个能力（含 2 个购买能力）
+5. 新增 AbathurReborn 完整扫描报告（Larva/Drone/Queen/Hatchery + 9 个 Reborn 变体单位）
+
+## 验证
+- 静态扫描确认所有能力正确显示
+- 待进图测试验证

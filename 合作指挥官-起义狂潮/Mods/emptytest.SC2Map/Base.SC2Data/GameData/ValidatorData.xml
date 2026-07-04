@@ -1,0 +1,828 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CValidatorCombine id="AscendantSacrificeAutocast">
+        <Type value="And"/>
+        <CombineArray value="CasterEnergyLT150"/>
+        <CombineArray value="TargetisBiological"/>
+    </CValidatorCombine>
+    <CValidatorCombine id="BroodQueenSet">
+        <Type value="And"/>
+        <CombineArray value="Vitality150"/>
+        <CombineArray value="NoSpawnBroodling"/>
+    </CValidatorCombine>
+    <CValidatorPlayerRequirement id="DogsOverseerCap">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="OverseerCap"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitCompareBehaviorCount id="NoSpawnBroodling">
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="SpawnBroodlingDummy"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HeartoftheSwarm">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="HeartoftheSwarmTimedLife"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HydraliskBroodling">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="HydraliskBroodlings"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="BanelingNotNuke">
+        <WhichUnit Value="Caster"/>
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="BanelingNuke"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="BanelingNotCreep">
+        <WhichUnit Value="Caster"/>
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="BanelingCreep"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="BanelingCreep">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="BanelingCreep"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="BanelingZerglings">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="BanelingZerglings"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="QueenCasterHasFleshyAbundancePurchased">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="QueenFleshyAbundancePurchasedBuff"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="QueenCasterNotFleshyAbundancePurchased">
+        <WhichUnit Value="Caster"/>
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="QueenFleshyAbundancePurchasedBuff"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareVital id="CasterEnergyGE25" parent="CasterEnergyLT50">
+        <Compare value="GE"/>
+        <Value value="25"/>
+    </CValidatorUnitCompareVital>
+    <CValidatorCombine id="CasterFiringOrAnimatingWeapon">
+        <CombineArray value="CasterIsAnimatingWeapon"/>
+        <CombineArray value="CasterIsFiringWeapon"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareAbilLevel id="DehakaPackTactics1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="PackTactics"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="DehakaPackTactics12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="PackTactics"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="DehakaPackTactics122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="PackTactics"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareBehaviorCount id="HydraliskCripple">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="HydraliskCripple"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HydraliskMech">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="HydraliskMechanical"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HydraliskRange">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="HydraliskRange"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HydraliskMelee">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="HydraliskMelee"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationEnumArea id="NoNearbyAlliesTunnel" parent="HostileSearchEmpty">
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <AreaArray Radius="0.3"/>
+        <SearchFilters value="Ground,Visible;Neutral,Enemy,Missile,Stasis,Dead,Hidden,Hallucination,Invulnerable"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorUnitCompareBehaviorCount id="NotOverlordGun">
+        <WhichUnit Value="Caster"/>
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="OverlordGun"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitType id="IsMatterConverter">
+        <Value value="MatterConversionField"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsMurlocMarine">
+        <WhichUnit Value="Caster"/>
+        <Value value="MurlocMarine"/>
+    </CValidatorUnitType>
+    <CValidatorUnitCompareBehaviorCount id="MatterExtractorAlreadyExists">
+        <Behavior value="MatterConversionField"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HasWarlockOvercharge">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="1"/>
+        <Behavior value="PsionicOvercharge"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationEnumArea id="GoodAOETarget">
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <AreaArray Compare="GE" Count="2" Radius="1"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorPlayerRequirement id="HaveK5AutomatedExtractors">
+        <WhichPlayer Value="Caster"/>
+        <Find value="1"/>
+        <Value value="HaveK5AutoExtractor"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveK5AutomatedExtractorsNot">
+        <WhichPlayer Value="Caster"/>
+        <Value value="HaveK5AutoExtractor"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="HaveK5GasBonusesNot">
+        <WhichPlayer Value="Caster"/>
+        <Value value="HaveK5GasBonuses"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitCompareAbilLevel id="NaktulAbilityAura12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="PsionicConduit"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="NaktulAbilityAura122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="PsionicConduit"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="NaktulHealAura1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Cathexis"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="NaktulHealAura12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Cathexis"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="NaktulHealAura122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Cathexis"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="NaktulShieldAura1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Embrace"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="NaktulPoison">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="DebilitatingPoison"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorLocationEnumArea id="AtomicBlast">
+        <AreaArray Compare="GE" Count="1" Radius="3"/>
+        <SearchFilters value="Visible;Self,Player,Ally,Neutral,Air,Structure,RawResource,HarvestableResource,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationEnumArea id="NoEnemiesNearTarget">
+        <ResultFailed value="CantTargetEnemyUnits"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <AreaArray Count="0" Radius="6"/>
+        <Compare value="Eq"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationEnumArea id="NoWorkersNearby">
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <AreaArray Count="0" Radius="6"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="Worker;Self,Player,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <ResultFailed value="CantTargetFriendlyUnits"/>
+        <Compare value="Eq"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationEnumArea id="NoMatterConverter">
+        <WhichLocation Value="TargetUnit"/>
+        <AreaArray Count="0" Radius="0.1" Validator="IsMatterConverter"/>
+        <Compare value="Eq"/>
+        <ResultFailed value="CantHarvestThatResource"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorUnitCompareBehaviorCount id="NoSeerHeal">
+        <ResultFailed value="Error,Error/QueenAlreadyHealing"/>
+        <Behavior value="AberrantGrowth"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorPlayerCompareResource id="OutOfMinerals"/>
+    <CValidatorPlayerCompareResource id="Have50MineralsForBaseGasExchange">
+        <WhichPlayer Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="50"/>
+        <Resource value="Minerals"/>
+    </CValidatorPlayerCompareResource>
+    <CValidatorPlayerCompareResource id="OutofVespene">
+        <Compare value="GT"/>
+        <Resource value="Vespene"/>
+    </CValidatorPlayerCompareResource>
+    <CValidatorLocationPathable id="OverPathableTerrain">
+        <ResultFailed value="MustTargetWalkableLocation"/>
+        <WhichLocation Value="CasterUnitOrPoint"/>
+        <Types index="Building" value="0"/>
+    </CValidatorLocationPathable>
+    <CValidatorPlayerRequirement id="Stukov">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="Stukov"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitType id="TargetIsNotVoidPylon">
+        <Value value="VoidPylon"/>
+        <Find value="0"/>
+    </CValidatorUnitType>
+    <CValidatorUnitCompareDamageTakenTime id="TargetNotInCombat3">
+        <Compare value="GE"/>
+        <Value value="3"/>
+    </CValidatorUnitCompareDamageTakenTime>
+    <CValidatorUnitFilters id="TargetisHeroic">
+        <Filters value="Heroic;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CValidatorUnitFilters>
+    <CValidatorUnitFilters id="TargetisBiological">
+        <Filters value="Biological;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CValidatorUnitFilters>
+    <CValidatorUnitCompareAbilLevel id="ZagaraMassFrenzy1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="MassFrenzy"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="NaktulShieldAura2">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Embrace"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="NaktulShieldAura22">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Embrace"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovArmorAura12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="LordoftheHorde"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovArmorAura122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="LordoftheHorde"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="NaktulAbilityAura1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="PsionicConduit"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovCorrosiveBlast12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="DevastatingShot"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovCorrosiveBlast122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="DevastatingShot"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovInfestedTerrans1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="StukovInfestedTerrans"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitType id="IsDehakaBurrowed">
+        <Value value="DehakaBurrowed"/>
+        <Type value="SelectAlias"/>
+    </CValidatorUnitType>
+    <CValidatorUnitCompareBehaviorCount id="OverlordNotSpreadingCreep">
+        <ResultFailed value="Error,NotLockingOn"/>
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="OverlordCreepGrowth"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareAbilLevel id="StukovInfestedTerrans12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="StukovInfestedTerrans"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovInfestedTerrans122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="StukovInfestedTerrans"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovNoxiousCreep12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="NoxiousCreepStukov"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovNoxiousCreep122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="NoxiousCreepStukov"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovRegenAura1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="FrightfulFleshwelder"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovRegenAura12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="FrightfulFleshwelder"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovRegenAura122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="FrightfulFleshwelder"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovCorrosiveBlast1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="DevastatingShot"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovArmorAura1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="LordoftheHorde"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="StukovNoxiousCreep1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="NoxiousCreepStukov"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareDamageTakenTime id="TargetNotInCombat5">
+        <Compare value="GE"/>
+        <Value value="5"/>
+    </CValidatorUnitCompareDamageTakenTime>
+    <CValidatorPlayerRequirement id="CommanderBrakk">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="Dehaka"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitCompareBehaviorCount id="HasSpawnBaneling">
+        <WhichUnit Value="Source"/>
+        <Compare value="GT"/>
+        <Behavior value="MengskSpawnBaneling"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="MengskAIController">
+        <WhichUnit Value="Caster"/>
+        <Value value="1"/>
+        <Behavior value="GarrisonAI"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="NotHasMarauderCap">
+        <WhichUnit Value="Source"/>
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="RangerCap"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="NotHasGhostCap">
+        <WhichUnit Value="Source"/>
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="RangerCap"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="NotHasMarineCap">
+        <WhichUnit Value="Source"/>
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="MarineCap"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HasSpawnMutalisk">
+        <WhichUnit Value="Source"/>
+        <Compare value="GT"/>
+        <Behavior value="MengskSpawnMutalisk"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HasSpawnUltralisk">
+        <WhichUnit Value="Source"/>
+        <Compare value="GT"/>
+        <Behavior value="MengskSpawnUltralisk"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HasSpawnRoach">
+        <WhichUnit Value="Source"/>
+        <Compare value="GT"/>
+        <Behavior value="MengskSpawnRoach"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HasSpawnHydralisk">
+        <WhichUnit Value="Source"/>
+        <Compare value="GT"/>
+        <Behavior value="MengskSpawnHydralisk"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="HasSpawnZergling2">
+        <WhichUnit Value="Source"/>
+        <Compare value="GT"/>
+        <Behavior value="MengskSpawnZergling2"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="EnthralledSpawnerActive">
+        <WhichUnit Value="Source"/>
+        <Compare value="GT"/>
+        <Behavior value="EnthralledZergSpawner"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorPlayerRequirement id="IsNotCommanderDehaka">
+        <WhichPlayer Value="Target"/>
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="NotDehaka"/>
+        <WhichUnit Value="Target"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitCompareBehaviorCount id="DroneNotFastMorph">
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="FastMorphing"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="DroneNotCombat">
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="CombatDrone"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="DroneNotMineralEfficiency">
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="MineralEfficiency"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="DroneNotVespeneEfficiency">
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="VespeneEfficiency"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="DroneNotCliffjumper">
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="Cliffjumper"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="IsADrone">
+        <CombineArray value="IsDrone"/>
+        <CombineArray value="IsLeaperDrone"/>
+    </CValidatorCombine>
+    <CValidatorCombine id="IsHotSZergling">
+        <CombineArray value="IsToxicZergling"/>
+        <CombineArray value="IsToxicZerglingBurrowed"/>
+        <CombineArray value="IsPygalisk"/>
+    </CValidatorCombine>
+    <CValidatorPlayerRequirement id="IsNotCommanderBrakk">
+        <WhichPlayer Value="Target"/>
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="NotBrakk"/>
+        <WhichUnit Value="Target"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorCombine id="IsaZergling">
+        <CombineArray value="IsRaptor"/>
+        <CombineArray value="IsRaptorBurrowed"/>
+        <CombineArray value="IsSwarmling"/>
+        <CombineArray value="IsSwarmlingBurrowed"/>
+        <CombineArray value="IsZergling"/>
+        <CombineArray value="IsZerglingBurrowed"/>
+        <CombineArray value="IsToxicZergling"/>
+        <CombineArray value="IsToxicZerglingBurrowed"/>
+        <CombineArray value="IsPygalisk"/>
+    </CValidatorCombine>
+    <CValidatorUnitType id="IsToxicZergling">
+        <Value value="ZerglingToxic"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsLeaperDrone">
+        <Value value="LeaperDrone"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsLeaperDrone2">
+        <Value value="LeaperDrone"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsPygalisk">
+        <Value value="Pygalisk"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsToxicZerglingBurrowed">
+        <Value value="ToxicZerglingBurrowed"/>
+    </CValidatorUnitType>
+    <CValidatorLocationEnumArea id="GroundEnemiesNearby8">
+        <WhichLocation Value="SourceUnit"/>
+        <AreaArray Compare="GE" Count="1" Radius="8"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationEnumArea id="NoEnemiesNearbyButLikeForReal">
+        <WhichLocation Value="CasterUnitOrPoint"/>
+        <AreaArray Count="0" Radius="6"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Compare value="Eq"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationEnumArea id="NoEnemiesNearby8">
+        <WhichLocation Value="CasterUnitOrPoint"/>
+        <AreaArray Count="0" Radius="8"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorPlayerRequirement id="NotBrakk">
+        <Value value="HaveK5CreepBonuses"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitCompareBehaviorCount id="HasSpawnZergling">
+        <WhichUnit Value="Source"/>
+        <Compare value="GT"/>
+        <Behavior value="MengskSpawnZergling"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="NotHasRangerCap">
+        <WhichUnit Value="Source"/>
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="RangerCap"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="NotHasFirebatCap">
+        <WhichUnit Value="Source"/>
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="RangerCap"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="PsiDecimatorDamageFilters">
+        <CombineArray index="0" value="IsNotCommanderBrakk"/>
+        <CombineArray index="1" value="IsNotCommanderDehaka"/>
+        <CombineArray index="2" removed="1"/>
+        <CombineArray index="3" removed="1"/>
+        <CombineArray index="4" removed="1"/>
+        <CombineArray index="5" removed="1"/>
+        <CombineArray index="6" removed="1"/>
+        <CombineArray index="7" removed="1"/>
+        <CombineArray index="8" removed="1"/>
+        <CombineArray index="9" removed="1"/>
+        <CombineArray index="10" removed="1"/>
+        <CombineArray index="11" removed="1"/>
+        <CombineArray index="12" removed="1"/>
+        <CombineArray index="13" removed="1"/>
+        <CombineArray index="14" removed="1"/>
+        <CombineArray index="15" removed="1"/>
+        <CombineArray index="16" removed="1"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="NotMengskElite">
+        <WhichUnit Value="Source"/>
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="MengskVeterancy"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitFilters id="TargetisLight">
+        <Filters value="Light;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CValidatorUnitFilters>
+    <CValidatorUnitFilters id="TargetisStructure">
+        <Filters value="Structure;-"/>
+    </CValidatorUnitFilters>
+    <CValidatorUnitCompareBehaviorCount id="NotGroundbound">
+        <WhichUnit Value="Caster"/>
+        <Compare value="LE"/>
+        <Behavior value="Groundbound"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationEnumArea id="NoAirEnemiesNearby">
+        <AreaArray Count="0" Radius="6"/>
+        <SearchFilters value="Air,Visible;Self,Player,Ally,Neutral,Ground,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <WhichLocation Value="CasterUnitOrPoint"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorCombine id="CasterNotDeadandTargetNotInvulnerable">
+        <Type value="And"/>
+        <CombineArray value="CasterNotDead"/>
+        <CombineArray value="NotInvulnerable"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareDamageTakenTime id="CasterNotInCombat5">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="5"/>
+    </CValidatorUnitCompareDamageTakenTime>
+    <CValidatorCombine id="CorruptorCorruption">
+        <CombineArray value="NotCorruptioned"/>
+        <CombineArray value="TargetRadiusGT0Dot5"/>
+    </CValidatorCombine>
+    <CValidatorLocationEnumArea id="GroundEnemiesNearby">
+        <AreaArray Compare="GE" Count="1" Radius="5"/>
+        <SearchFilters value="Ground,Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <WhichLocation Value="CasterUnitOrPoint"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationEnumArea id="AirEnemiesNearby">
+        <AreaArray Compare="GE" Count="1" Radius="6"/>
+        <SearchFilters value="Air,Visible;Self,Player,Ally,Neutral,Ground,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <WhichLocation Value="CasterUnitOrPoint"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationEnumArea id="NoGroundEnemiesNearby">
+        <AreaArray Count="0" Radius="5"/>
+        <SearchFilters value="Ground,Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <WhichLocation Value="CasterUnitOrPoint"/>
+        <Compare value="Eq"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorPlayerRequirement id="HaveChainTransfusion">
+        <Find value="1"/>
+        <Value value="RapidTransfusion"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="CommanderDehaka">
+        <ResultNoPlayer value="Error"/>
+        <Find value="1"/>
+        <Value value="Dehaka"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorUnitType id="IsDehakaGuardian">
+        <Value value="PrimalGuardian"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsDehakaRavager">
+        <Value value="PrimalRavager"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsDehakaAshWorm">
+        <Value value="AshWorm2"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsDehakaViper">
+        <Value value="Viper"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsDehakaTyrannozaur">
+        <Value value="PrimalTyrannozor"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsDehakaRavasaur">
+        <Value value="PrimalRavasaur"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsDehakaPrimalHost">
+        <Value value="PrimalHost"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsDehakaIgniter">
+        <Value value="PrimalIgniter"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsDehakaHydralisk">
+        <Value value="PrimalHydralisk2"/>
+    </CValidatorUnitType>
+    <CValidatorUnitType id="IsDehakaMutalisk">
+        <Value value="PrimalMutalisk2"/>
+    </CValidatorUnitType>
+    <CValidatorUnitFilters id="IsNotMechanical">
+        <Filters value="-;Mechanical"/>
+    </CValidatorUnitFilters>
+    <CValidatorCombine id="IsPrimalZerg">
+        <CombineArray value="IsDehakaHydralisk"/>
+        <CombineArray value="IsDehakaIgniter"/>
+        <CombineArray value="IsDehakaMutalisk"/>
+        <CombineArray value="IsDehakaPrimalHost"/>
+        <CombineArray value="IsDehakaRavasaur"/>
+        <CombineArray value="IsDehakaTyrannozaur"/>
+        <CombineArray value="IsDehakaViper"/>
+        <CombineArray value="IsDehakaZergling"/>
+        <CombineArray value="IsDehakaRavager"/>
+        <CombineArray value="IsDehakaAshWorm"/>
+        <CombineArray value="IsDehakaGuardian"/>
+    </CValidatorCombine>
+    <CValidatorUnitType id="IsDehakaZergling">
+        <Value value="PrimalZergling2"/>
+    </CValidatorUnitType>
+    <CValidatorUnitCompareVital id="LifeGreaterThan200">
+        <Compare value="GE"/>
+        <Type value="Maximum"/>
+        <Value value="200"/>
+    </CValidatorUnitCompareVital>
+    <CValidatorUnitCompareVital id="LifeGreaterThan2002">
+        <Compare value="GE"/>
+        <Type value="Maximum"/>
+        <Value value="150"/>
+    </CValidatorUnitCompareVital>
+    <CValidatorUnitCompareVital id="LifeGreaterThan20022">
+        <Compare value="GE"/>
+        <Type value="Maximum"/>
+        <Value value="150"/>
+        <Vital value="Shields"/>
+    </CValidatorUnitCompareVital>
+    <CValidatorUnitCompareSpeed id="CasterisMoving">
+        <Compare value="GT"/>
+    </CValidatorUnitCompareSpeed>
+    <CValidatorLocationVision id="StukovInfestedInfestedCivilianLeapHasVision">
+        <WhichLocation Value="TargetUnitOrPoint"/>
+    </CValidatorLocationVision>
+    <CValidatorLocationCompareRange id="StukovInfestedInfestedCivilianLeapMaxDistance">
+        <ResultFailed value="TargetIsOutOfRange"/>
+        <WhichLocation Value="TargetUnit"/>
+        <Compare value="LT"/>
+        <Range value="4"/>
+    </CValidatorLocationCompareRange>
+    <CValidatorUnitCompareOrderTargetRange id="StukovInfestedInfestedCivilianLeapMinTriggerDistance">
+        <ResultFailed value="TargetIsTooClose"/>
+        <WhichUnit Value="Caster"/>
+        <OtherUnit Value="Target"/>
+        <Compare value="GT"/>
+        <AbilLink value="attack"/>
+        <Value value="0.6"/>
+    </CValidatorUnitCompareOrderTargetRange>
+    <CValidatorCombine id="LifeOrShieldsGreaterThan150">
+        <CombineArray value="LifeGreaterThan2002"/>
+        <CombineArray value="LifeGreaterThan20022"/>
+    </CValidatorCombine>
+    <CValidatorPlayerCompareFoodAvailable id="SupplyAvailable4">
+        <Compare value="GE"/>
+        <Value value="4"/>
+    </CValidatorPlayerCompareFoodAvailable>
+    <CValidatorCombine id="TakeOffSet">
+        <Type value="And"/>
+        <CombineArray value="HasGroundbound"/>
+        <CombineArray value="NoEnemiesNearby"/>
+    </CValidatorCombine>
+    <CValidatorCombine id="SwoopSet">
+        <Type value="And"/>
+        <CombineArray value="NotGroundbound"/>
+        <CombineArray value="NoAirEnemiesNearby"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareDamageTakenTime id="TargetInCombat5">
+        <Compare value="LT"/>
+        <Value value="5"/>
+    </CValidatorUnitCompareDamageTakenTime>
+    <CValidatorUnitFilters id="TargetisArmored">
+        <Filters value="Armored;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CValidatorUnitFilters>
+    <CValidatorUnitFilters id="TargetisMassive">
+        <Filters value="Massive;-"/>
+    </CValidatorUnitFilters>
+    <CValidatorUnitCompareVeterancyLevel id="VeterancyLevel1">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareVeterancyLevel>
+    <CValidatorUnitCompareVeterancyLevel id="VeterancyLevel2">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="3"/>
+    </CValidatorUnitCompareVeterancyLevel>
+    <CValidatorUnitCompareVeterancyLevel id="VeterancyLevel3">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="4"/>
+    </CValidatorUnitCompareVeterancyLevel>
+    <CValidatorUnitCompareVeterancyLevel id="VeterancyLevel4">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="5"/>
+    </CValidatorUnitCompareVeterancyLevel>
+    <CValidatorUnitCompareVeterancyLevel id="VeterancyLevel5">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="6"/>
+    </CValidatorUnitCompareVeterancyLevel>
+    <CValidatorUnitCompareVeterancyLevel id="VeterancyTargetLevelBelow5">
+        <Compare value="LT"/>
+        <Value value="6"/>
+    </CValidatorUnitCompareVeterancyLevel>
+    <CValidatorUnitCompareVitality id="TargetVitality200">
+        <Compare value="GE"/>
+        <Type value="Maximum"/>
+        <Value value="200"/>
+    </CValidatorUnitCompareVitality>
+    <CValidatorUnitCompareVitality id="Vitality150">
+        <Compare value="GE"/>
+        <Type value="Maximum"/>
+        <Value value="150"/>
+    </CValidatorUnitCompareVitality>
+    <CValidatorUnitCompareBehaviorCount id="HasGroundbound">
+        <Behavior value="Groundbound"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="DroneNotCloaked">
+        <Compare value="LT"/>
+        <Value value="1"/>
+        <Behavior value="NaturalCamouflage"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="BanelingNuke">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="BanelingNuke"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareAbilLevel id="ZagaraMassFrenzy12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="MassFrenzy"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="ZagaraMassFrenzy122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="MassFrenzy"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="ZagaraResilience12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Resilience"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="ZagaraResilience122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Resilience"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="ZagaraVoracity1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Voracity"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="ZagaraMedusaTalons">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="MassFrenzy"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="ZagaraVoracity12">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Voracity"/>
+        <Value value="1"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="ZagaraVoracity122">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Voracity"/>
+        <Value value="2"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorUnitCompareAbilLevel id="ZagaraResilience1">
+        <WhichUnit Value="Caster"/>
+        <AbilLink value="Resilience"/>
+    </CValidatorUnitCompareAbilLevel>
+    <CValidatorLocationEnumArea id="ZeratulXelNagaConstructPsiStormMinimum3EnemyTargets">
+        <ResultFailed value="CantFindEnoughTargets"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <AreaArray Compare="GE" Radius="2.3"/>
+        <Compare value="GE"/>
+        <Count value="3"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="Visible;Player,Ally,Neutral,Structure,Missile,Destructible,Dead,Hidden"/>
+    </CValidatorLocationEnumArea>
+</Catalog>
