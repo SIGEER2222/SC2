@@ -19,8 +19,8 @@ if ([string]::IsNullOrEmpty($StarCoopPath)) {
             break
         }
     }
-    if (-not (Test-Path -LiteralPath $StarCoopPath)) {
-        $StarCoopPath = ""
+    if ([string]::IsNullOrEmpty($StarCoopPath)) {
+        Write-Host "  (StarCoop not found, skipping)"
     }
 }
 
