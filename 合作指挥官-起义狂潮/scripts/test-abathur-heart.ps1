@@ -22,7 +22,11 @@ param(
     [int]$GracePeriodSeconds = 25,
     [switch]$SkipInstall,
     [switch]$SkipWait,
-    [string[]]$ModFilter = @()
+    [string[]]$ModFilter = @(),
+    # -Commander: 按指挥官 identifier 过滤（不区分大小写，包含匹配）
+    #   例: "Cmdr_Abathur" / "Violets_Kerrigan" / "Violets_"（前缀匹配所有 Violets 子组）
+    #   空字符串 = 不过滤，生成全部 25 个指挥官组
+    [string]$Commander = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -159,6 +163,28 @@ function Sync-Directory {
     Copy-Item -LiteralPath $Source -Destination $Destination -Recurse -Force
 }
 
+function Set-CommanderFilter {
+    param([string]$MapScriptPath, [string]$Commander)
+    if (-not (Test-Path -LiteralPath $MapScriptPath)) {
+        throw "MapScript.galaxy not found: $MapScriptPath"
+    }
+    $content = [System.IO.File]::ReadAllText($MapScriptPath)
+    # 匹配 gv_commanderFilter = "..."; （无论原值是什么）
+    $pattern = 'gv_commanderFilter\s*=\s*"[^"]*"\s*;'
+    if ($Commander -eq "") {
+        $replacement = 'gv_commanderFilter = "";'
+    } else {
+        $replacement = 'gv_commanderFilter = "' + $Commander + '";'
+    }
+    $newContent = [regex]::Replace($content, $pattern, $replacement)
+    if ($newContent -eq $content) {
+        Write-Host "  [WARN] 未找到 gv_commanderFilter 赋值语句，未做修改" -ForegroundColor Yellow
+        return
+    }
+    [System.IO.File]::WriteAllText($MapScriptPath, $newContent, [System.Text.UTF8Encoding]::new($false))
+    Write-Host "  gv_commanderFilter 已设置为: `"$Commander`"" -ForegroundColor Green
+}
+
 # ============================================================
 # Main
 # ============================================================
@@ -169,6 +195,11 @@ try {
     Write-Host "SourceModsRoot:  $SourceModsRoot"
     Write-Host "MapSourceDir:    $MapSourceDir"
     Write-Host "MapLive:         $mapLive"
+    if ($Commander -ne "") {
+        Write-Host "Commander:       $Commander （仅生成匹配的指挥官组）" -ForegroundColor Magenta
+    } else {
+        Write-Host "Commander:       （未指定，生成全部 25 个指挥官组）"
+    }
     Write-Host ""
 
     if (-not (Test-Path -LiteralPath $sc2exe)) { throw "SC2_x64.exe not found: $sc2exe" }
@@ -238,6 +269,12 @@ try {
         Write-Host ""
         Write-Host "[3/5] 同步地图到 $mapLive ..." -ForegroundColor Cyan
         Sync-Directory -Source $MapSourceDir -Destination $mapLive
+
+        # 应用 Commander 过滤（修改 mapLive 下的 MapScript.galaxy，不动源文件）
+        if ($Commander -ne "") {
+            Write-Host "  应用 Commander 过滤..." -ForegroundColor Cyan
+            Set-CommanderFilter -MapScriptPath (Join-Path $mapLive "MapScript.galaxy") -Commander $Commander
+        }
 
         # ---- 4. 设置依赖 ----
         Write-Host ""

@@ -16,6 +16,12 @@ include "LibAbathurHeartCatalog"
 //   0..N = 仅生成指定 mod（在中心位置生成）
 int gv_activeModIndex = -1;
 
+// gv_commanderFilter:
+//   ""  = 不过滤（按 gv_activeModIndex 决定生成范围）
+//   非空 = 在全部 mod 中筛选 identifier 包含该字符串的组（不区分大小写）
+//   例: "Cmdr_Abathur" / "Violets_Kerrigan" / "Violets_"（前缀匹配所有 Violets 子组）
+string gv_commanderFilter = "";
+
 //--------------------------------------------------------------------------------------------------
 // Library Initialization
 //--------------------------------------------------------------------------------------------------
@@ -59,29 +65,79 @@ void gf_SpawnModUnits (int modIndex, fixed baseX, fixed baseY, int perRow, fixed
 }
 
 //--------------------------------------------------------------------------------------------------
+// 辅助函数: 判断指挥官 identifier 是否匹配过滤字符串
+//   - filter 为空 → 总是匹配
+//   - 非空 → 不区分大小写，identifier 包含 filter 即匹配
+//--------------------------------------------------------------------------------------------------
+bool gf_CommanderMatchesFilter (string identifier, string filter) {
+    if (filter == "") {
+        return true;
+    }
+    if (StringFind(identifier, filter, false) > 0) {
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 // 生成全部指挥官组：5 列 x N 行布局
+//   - 若 gv_commanderFilter 非空，只生成匹配的组
+//   - 匹配 1 个组时放在地图中央偏上（30, 110）
+//   - 匹配多个组时从中央开始向右下排列
 //--------------------------------------------------------------------------------------------------
 void gf_SpawnAllMods () {
     int lv_cols = 5;
     fixed lv_blockW = 25.0;
     fixed lv_blockH = 40.0;
-    fixed lv_startX = 4.0;
-    fixed lv_startY = 124.0;
     int lv_perRow = 8;
     fixed lv_spacing = 2.8;
 
     int lv_modIndex;
+    int lv_matchedCount;
+    int lv_visibleIndex;
     int lv_col;
     int lv_row;
+    fixed lv_startX;
+    fixed lv_startY;
     fixed lv_x;
     fixed lv_y;
+    string lv_identifier;
 
+    // 先统计匹配的组数
+    lv_matchedCount = 0;
     for (lv_modIndex = 0; lv_modIndex < gv_c_AH_ModCount; lv_modIndex += 1) {
-        lv_col = lv_modIndex - (lv_modIndex / lv_cols) * lv_cols;
-        lv_row = lv_modIndex / lv_cols;
-        lv_x = lv_startX + (lv_col * lv_blockW);
-        lv_y = lv_startY - (lv_row * lv_blockH);
-        gf_SpawnModUnits(lv_modIndex, lv_x, lv_y, lv_perRow, lv_spacing);
+        lv_identifier = gv_AH_ModIdentifiers[lv_modIndex];
+        if (gf_CommanderMatchesFilter(lv_identifier, gv_commanderFilter)) {
+            lv_matchedCount += 1;
+        }
+    }
+
+    if (lv_matchedCount == 0) {
+        return;
+    }
+
+    // 无过滤：用左上角铺开布局
+    // 有过滤：用地图中央偏上布局（30, 110）
+    if (gv_commanderFilter == "") {
+        lv_startX = 4.0;
+        lv_startY = 124.0;
+    }
+    else {
+        lv_startX = 30.0;
+        lv_startY = 110.0;
+    }
+
+    lv_visibleIndex = 0;
+    for (lv_modIndex = 0; lv_modIndex < gv_c_AH_ModCount; lv_modIndex += 1) {
+        lv_identifier = gv_AH_ModIdentifiers[lv_modIndex];
+        if (gf_CommanderMatchesFilter(lv_identifier, gv_commanderFilter)) {
+            lv_col = lv_visibleIndex - (lv_visibleIndex / lv_cols) * lv_cols;
+            lv_row = lv_visibleIndex / lv_cols;
+            lv_x = lv_startX + (lv_col * lv_blockW);
+            lv_y = lv_startY - (lv_row * lv_blockH);
+            gf_SpawnModUnits(lv_modIndex, lv_x, lv_y, lv_perRow, lv_spacing);
+            lv_visibleIndex += 1;
+        }
     }
 }
 
@@ -109,7 +165,10 @@ bool gt_spawnUnits_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    if (gv_activeModIndex == -1) {
+    if (gv_commanderFilter != "") {
+        gf_SpawnAllMods();
+    }
+    else if (gv_activeModIndex == -1) {
         gf_SpawnAllMods();
     }
     else {
