@@ -4,6 +4,10 @@ include "LibEmptyTestCatalog"
 // 生成的指挥官过滤，空字符串 = 生成所有指挥官
 string gv_spawnCommanderFilter = "Reborn";
 
+// F2 排除选中功能相关全局变量
+unitgroup gv_excludedUnits;      // 被排除选中的单位组（不再被 F2 选中）
+bool gv_excludeMode = false;     // 排除模式开关（开启后选中单位将其从 F2 排除）
+
 void InitLibs () {
     libNtve_InitLib();
     libEmptyTestCatalog_InitLib();
@@ -167,9 +171,122 @@ void gt_resetResources_Init () {
     TriggerAddEventTimeElapsed(gt_resetResources, 1.0, c_timeReal);
 }
 
+//--------------------------------------------------------------------------------------------------
+// F2 排除选中功能
+// 为玩家1所有建筑添加"排除选中"能力（AHExcludeFromSelectAll，即时技能）
+// 点击基地按钮 → 切换"排除模式" → 选中任何单位将其从 F2 选中中排除
+// 再次点击按钮 → 关闭排除模式
+// 聊天指令 -unlock → 恢复所有被排除的单位
+//--------------------------------------------------------------------------------------------------
+
+// 给玩家1所有建筑添加"排除选中"能力
+void gf_AddExcludeAbilityToAllBuildings () {
+    unitgroup autoGroup;
+    int autoCount;
+    unit autoUnit;
+
+    autoGroup = UnitGroup(null, 1, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    autoCount = UnitGroupCount(autoGroup, c_unitCountAll);
+    for (;; autoCount -= 1) {
+        autoUnit = UnitGroupUnitFromEnd(autoGroup, autoCount);
+        if (autoUnit == null) { break; }
+        UnitAbilityAdd(autoUnit, "AHExcludeFromSelectAll");
+    }
+}
+
+// 触发器: 单位生成完成后给所有 P1 建筑添加排除选中能力
+trigger gt_applyExclusionButtons;
+bool gt_applyExclusionButtons_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_AddExcludeAbilityToAllBuildings();
+    return true;
+}
+void gt_applyExclusionButtons_Init () {
+    gt_applyExclusionButtons = TriggerCreate("gt_applyExclusionButtons_Func");
+    TriggerAddEventMapInit(gt_applyExclusionButtons);
+}
+
+// 触发器: 排除选中能力被使用（基地按钮点击）→ 切换"排除模式"
+trigger gt_excludeAbilityUsed;
+bool gt_excludeAbilityUsed_Func (bool testConds, bool runActions) {
+    abilcmd lv_abil;
+
+    if (!runActions) { return true; }
+
+    lv_abil = EventUnitAbility();
+
+    if (!((lv_abil == AbilityCommand("AHExcludeFromSelectAll", 0)))) {
+        return false;
+    }
+
+    gv_excludeMode = !gv_excludeMode;
+    if (gv_excludeMode) {
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("[EXCLUDE ON] 排除模式已开启，选中单位将其从 F2 排除"));
+    } else {
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("[EXCLUDE OFF] 排除模式已关闭"));
+    }
+    return true;
+}
+void gt_excludeAbilityUsed_Init () {
+    gt_excludeAbilityUsed = TriggerCreate("gt_excludeAbilityUsed_Func");
+    TriggerAddEventUnitAbility(gt_excludeAbilityUsed, null, null, c_unitAbilStageExecute, false);
+}
+
+// 触发器: 单位被选中（排除模式下生效）
+// 在排除模式下，玩家选中的单位会变为不可选中，不再被 F2 选中
+trigger gt_unitSelected;
+bool gt_unitSelected_Func (bool testConds, bool runActions) {
+    unit lv_selected;
+
+    if (!runActions) { return true; }
+
+    if (!gv_excludeMode) { return false; }
+
+    lv_selected = EventUnit();
+    if ((lv_selected == null)) { return false; }
+
+    UnitSetState(lv_selected, c_unitStateSelectable, false);
+    UnitGroupAdd(gv_excludedUnits, lv_selected);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("[LOCK] 单位已从 F2 排除，输入 -unlock 恢复"));
+    return true;
+}
+void gt_unitSelected_Init () {
+    gt_unitSelected = TriggerCreate("gt_unitSelected_Func");
+    TriggerAddEventUnitSelected(gt_unitSelected, null, c_playerAny, true);
+}
+
+// 指令: -unlock (恢复所有被排除的单位)
+trigger gt_cmd_unlock;
+bool gt_cmd_unlock_Func (bool testConds, bool runActions) {
+    unitgroup autoGroup;
+    int autoCount;
+    unit autoUnit;
+
+    if (!runActions) { return true; }
+
+    autoGroup = gv_excludedUnits;
+    autoCount = UnitGroupCount(autoGroup, c_unitCountAll);
+    for (;; autoCount -= 1) {
+        autoUnit = UnitGroupUnitFromEnd(autoGroup, autoCount);
+        if (autoUnit == null) { break; }
+        UnitSetState(autoUnit, c_unitStateSelectable, true);
+    }
+    UnitGroupClear(gv_excludedUnits);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("[UNLOCK] 所有单位已恢复可选中"));
+    return true;
+}
+void gt_cmd_unlock_Init () {
+    gt_cmd_unlock = TriggerCreate("gt_cmd_unlock_Func");
+    TriggerAddEventChatMessage(gt_cmd_unlock, c_playerAny, "-unlock", true);
+}
+
 void InitTriggers () {
     gt_spawn_Init();
     gt_resetResources_Init();
+    gt_applyExclusionButtons_Init();
+    gt_excludeAbilityUsed_Init();
+    gt_unitSelected_Init();
+    gt_cmd_unlock_Init();
 }
 
 void InitMap () {

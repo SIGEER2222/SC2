@@ -1,2 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Catalog></Catalog>
+<Catalog>
+    <!-- 排除选中按钮：基地即时技能，点击切换"排除模式" -->
+    <!-- 在排除模式下，选中任何单位会将其从 F2"选中全部单位"中排除 -->
+    <!-- 用 CAbilEffectInstant 确保按钮显示在主命令卡片 -->
+    <CAbilEffectInstant id="AHExcludeFromSelectAll">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="AHExcludeFromSelectAllButton">
+            <Flags index="UseDefaultButton" value="1"/>
+            <Flags index="CreateDefaultButton" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectInstant>
+</Catalog>
