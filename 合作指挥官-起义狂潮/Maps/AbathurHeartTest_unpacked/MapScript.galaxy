@@ -1,0 +1,143 @@
+//==================================================================================================
+//
+// Generated Map Script - 阿巴瑟之心 mod 单位测试
+// 依赖: C:\Users\22448\Downloads\阿巴瑟之心\Mods 下全部 mod
+// 用途: 把每个 mod 的所有自定义单位按 mod 来源分块生成到地图上，便于逐个查看
+//
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+include "LibAbathurHeartCatalog"
+
+//--------------------------------------------------------------------------------------------------
+// 全局控制变量
+//--------------------------------------------------------------------------------------------------
+// gv_activeModIndex:
+//   -1  = 生成全部 mod（默认，按 6 列 x N 行布局铺开）
+//   0..N = 仅生成指定 mod（在中心位置生成）
+int gv_activeModIndex = -1;
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+    libAbathurHeartCatalog_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// 辅助函数: 生成一个 mod 的所有单位
+//--------------------------------------------------------------------------------------------------
+void gf_SpawnModUnits (int modIndex, fixed baseX, fixed baseY, int perRow, fixed spacing) {
+    int lv_count;
+    int lv_i;
+    int lv_created;
+    int lv_skipped;
+    int lv_col;
+    int lv_row;
+    string lv_unitType;
+    point lv_pos;
+
+    lv_count = gv_AH_UnitCounts[modIndex];
+    lv_created = 0;
+    lv_skipped = 0;
+
+    for (lv_i = 0; lv_i < lv_count; lv_i += 1) {
+        lv_unitType = libAbathurHeartCatalog_gf_UnitAt(modIndex, lv_i);
+        if (lv_unitType != "") {
+            if (CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType) == false) {
+                lv_skipped += 1;
+            }
+            else {
+                lv_col = lv_created - (lv_created / perRow) * perRow;
+                lv_row = lv_created / perRow;
+                lv_pos = Point(baseX + (lv_col * spacing), baseY - (lv_row * spacing));
+                libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
+                lv_created += 1;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// 生成全部指挥官组：5 列 x N 行布局
+//--------------------------------------------------------------------------------------------------
+void gf_SpawnAllMods () {
+    int lv_cols = 5;
+    fixed lv_blockW = 25.0;
+    fixed lv_blockH = 40.0;
+    fixed lv_startX = 4.0;
+    fixed lv_startY = 124.0;
+    int lv_perRow = 8;
+    fixed lv_spacing = 2.8;
+
+    int lv_modIndex;
+    int lv_col;
+    int lv_row;
+    fixed lv_x;
+    fixed lv_y;
+
+    for (lv_modIndex = 0; lv_modIndex < gv_c_AH_ModCount; lv_modIndex += 1) {
+        lv_col = lv_modIndex - (lv_modIndex / lv_cols) * lv_cols;
+        lv_row = lv_modIndex / lv_cols;
+        lv_x = lv_startX + (lv_col * lv_blockW);
+        lv_y = lv_startY - (lv_row * lv_blockH);
+        gf_SpawnModUnits(lv_modIndex, lv_x, lv_y, lv_perRow, lv_spacing);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// 仅生成一个 mod：放在地图中央偏上
+//--------------------------------------------------------------------------------------------------
+void gf_SpawnSingleMod (int modIndex) {
+    fixed lv_centerX = 30.0;
+    fixed lv_centerY = 110.0;
+    int lv_perRow = 8;
+    fixed lv_spacing = 3.0;
+    gf_SpawnModUnits(modIndex, lv_centerX, lv_centerY, lv_perRow, lv_spacing);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_spawnUnits;
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: 生成单位
+//--------------------------------------------------------------------------------------------------
+bool gt_spawnUnits_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+
+    if (gv_activeModIndex == -1) {
+        gf_SpawnAllMods();
+    }
+    else {
+        if ((gv_activeModIndex >= 0) && (gv_activeModIndex < gv_c_AH_ModCount)) {
+            gf_SpawnSingleMod(gv_activeModIndex);
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_spawnUnits_Init () {
+    gt_spawnUnits = TriggerCreate("gt_spawnUnits_Func");
+    TriggerAddEventMapInit(gt_spawnUnits);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_spawnUnits_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitTriggers();
+}
