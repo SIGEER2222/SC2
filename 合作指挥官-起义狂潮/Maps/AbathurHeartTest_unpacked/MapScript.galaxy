@@ -81,9 +81,8 @@ bool gf_CommanderMatchesFilter (string identifier, string filter) {
 
 //--------------------------------------------------------------------------------------------------
 // 生成全部指挥官组：5 列 x N 行布局
-//   - 若 gv_commanderFilter 非空，只生成匹配的组
-//   - 匹配 1 个组时放在地图中央偏上（30, 110）
-//   - 匹配多个组时从中央开始向右下排列
+//   - 若 gv_commanderFilter 非空，只生成匹配的组，并居中排列在地图中央
+//   - 无过滤时从左上角 (4, 124) 铺开全部 25 个组
 //--------------------------------------------------------------------------------------------------
 void gf_SpawnAllMods () {
     int lv_cols = 5;
@@ -101,7 +100,14 @@ void gf_SpawnAllMods () {
     fixed lv_startY;
     fixed lv_x;
     fixed lv_y;
+    fixed lv_mapCenterX;
+    fixed lv_mapCenterY;
+    fixed lv_totalWidth;
+    fixed lv_totalHeight;
     string lv_identifier;
+    region lv_mapRegion;
+    point lv_minPoint;
+    point lv_maxPoint;
 
     // 先统计匹配的组数
     lv_matchedCount = 0;
@@ -116,15 +122,34 @@ void gf_SpawnAllMods () {
         return;
     }
 
-    // 无过滤：用左上角铺开布局
-    // 有过滤：用地图中央偏上布局（30, 110）
     if (gv_commanderFilter == "") {
+        // 无过滤：用左上角铺开布局
         lv_startX = 4.0;
         lv_startY = 124.0;
     }
     else {
-        lv_startX = 30.0;
-        lv_startY = 110.0;
+        // 有过滤：动态获取地图中心，让区块居中
+        lv_mapRegion = RegionEntireMap();
+        lv_minPoint = RegionGetBoundsMin(lv_mapRegion);
+        lv_maxPoint = RegionGetBoundsMax(lv_mapRegion);
+        lv_mapCenterX = (PointGetX(lv_minPoint) + PointGetX(lv_maxPoint)) / 2.0;
+        lv_mapCenterY = (PointGetY(lv_minPoint) + PointGetY(lv_maxPoint)) / 2.0;
+
+        // 计算匹配组占用的总宽高，让整体居中
+        // 列数 = min(匹配数, 5)；行数 = ceil(匹配数 / 5)
+        if (lv_matchedCount < lv_cols) {
+            lv_totalWidth = (lv_matchedCount - 1) * lv_blockW;
+        }
+        else {
+            lv_totalWidth = (lv_cols - 1) * lv_blockW;
+        }
+        lv_totalHeight = ((lv_matchedCount - 1) / lv_cols) * lv_blockH;
+
+        // 起始点 = 中心 - 总宽高的一半
+        // 单个 block 内部：8 个单位 perRow，spacing 2.8，宽 22.4，高 ~N*2.8
+        // 把 block 的左上角对齐到 (中心 - 总宽/2, 中心 + 总高/2)
+        lv_startX = lv_mapCenterX - (lv_totalWidth / 2.0);
+        lv_startY = lv_mapCenterY + (lv_totalHeight / 2.0);
     }
 
     lv_visibleIndex = 0;
