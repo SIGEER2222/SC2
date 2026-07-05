@@ -387,6 +387,60 @@ void gt_cmd_replace_Init () {
     TriggerAddEventChatMessage(gt_cmd_replace, c_playerAny, "-replace", true);
 }
 
+//--- 指令: -mengsk2vanilla (把 Mengsk 兵种替换为原版单位) ---------------
+trigger gt_cmd_mengsk2vanilla;
+bool gt_cmd_mengsk2vanilla_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_ReplaceAllUnits("MengskMarine", "Marine");
+    gf_ReplaceAllUnits("MengskMarauder", "Marauder");
+    gf_ReplaceAllUnits("MengskReaper", "Reaper");
+    gf_ReplaceAllUnits("MengskFirebat", "Firebat");
+    gf_ReplaceAllUnits("MengskHellion", "Hellion");
+    gf_ReplaceAllUnits("MengskGoliath", "Goliath");
+    gf_ReplaceAllUnits("MengskSiegeTank", "SiegeTank");
+    gf_ReplaceAllUnits("MengskMedic", "Medic");
+    gf_ReplaceAllUnits("MengskDiamondback", "Diamondback");
+    gf_ReplaceAllUnits("MengskBanshee", "Banshee");
+    gf_ReplaceAllUnits("MengskWraith", "Wraith");
+    gf_ReplaceAllUnits("MengskVikingAssault", "VikingAssault");
+    gf_ReplaceAllUnits("MengskVikingFighter", "VikingFighter");
+    gf_ReplaceAllUnits("MengskBC", "Battlecruiser");
+    gf_ReplaceAllUnits("MengskThor", "Thor");
+    gf_DebugPrint("已将 Mengsk 兵种替换为原版单位");
+    return true;
+}
+void gt_cmd_mengsk2vanilla_Init () {
+    gt_cmd_mengsk2vanilla = TriggerCreate("gt_cmd_mengsk2vanilla_Func");
+    TriggerAddEventChatMessage(gt_cmd_mengsk2vanilla, c_playerAny, "-mengsk2vanilla", true);
+}
+
+//--- 指令: -mengskrestore (把原版单位换回 Mengsk) ----------------------
+trigger gt_cmd_mengskrestore;
+bool gt_cmd_mengskrestore_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_ReplaceAllUnits("Marine", "MengskMarine");
+    gf_ReplaceAllUnits("Marauder", "MengskMarauder");
+    gf_ReplaceAllUnits("Reaper", "MengskReaper");
+    gf_ReplaceAllUnits("Firebat", "MengskFirebat");
+    gf_ReplaceAllUnits("Hellion", "MengskHellion");
+    gf_ReplaceAllUnits("Goliath", "MengskGoliath");
+    gf_ReplaceAllUnits("SiegeTank", "MengskSiegeTank");
+    gf_ReplaceAllUnits("Medic", "MengskMedic");
+    gf_ReplaceAllUnits("Diamondback", "MengskDiamondback");
+    gf_ReplaceAllUnits("Banshee", "MengskBanshee");
+    gf_ReplaceAllUnits("Wraith", "MengskWraith");
+    gf_ReplaceAllUnits("VikingAssault", "MengskVikingAssault");
+    gf_ReplaceAllUnits("VikingFighter", "MengskVikingFighter");
+    gf_ReplaceAllUnits("Battlecruiser", "MengskBC");
+    gf_ReplaceAllUnits("Thor", "MengskThor");
+    gf_DebugPrint("已将原版单位换回 Mengsk");
+    return true;
+}
+void gt_cmd_mengskrestore_Init () {
+    gt_cmd_mengskrestore = TriggerCreate("gt_cmd_mengskrestore_Func");
+    TriggerAddEventChatMessage(gt_cmd_mengskrestore, c_playerAny, "-mengskrestore", true);
+}
+
 //--- 指令: -skinlist ----------------------------------------------------
 trigger gt_cmd_skinlist;
 bool gt_cmd_skinlist_Func (bool testConds, bool runActions) {
@@ -416,11 +470,10 @@ void gt_cmd_rewardlist_Init () {
 // 时序（秒）：
 //   5  : -test        验证聊天框架
 //   10 : -help        显示指令列表
-//   15 : -dva         解锁 D.Va 播报员
-//   20 : -skintaldarim 替换为 Taldarim 皮肤单位
-//   27 : -skinreset   重置
-//   34 : -skinblizzcon17 替换为 Blizzcon17 皮肤单位
-//   41 : -skinreset   重置
+//   15 : -mengsk2vanilla  把 Mengsk 兵种替换为原版单位（验证皮肤替换机制）
+//   22 : -skinreset   把原版单位换回 Mengsk
+//   29 : -dva         D.Va 提示（mod 环境下 PlayerAddReward 不可用）
+//   36 : 测试完成
 //--------------------------------------------------------------------------------------------------
 trigger gt_autoTest;
 int gv_autoTestStep = 0;
@@ -439,35 +492,51 @@ bool gt_autoTest_Func (bool testConds, bool runActions) {
     }
     else if (lv_step == 2) {
         gf_DebugPrint("[AUTO 10s] -help");
-        gf_DebugPrint("cmds: -test -dva -skintaldarim -skinblizzcon17 -skinreset -replace");
+        gf_DebugPrint("cmds: -test -help -mengsk2vanilla -skinreset -dva");
     }
     else if (lv_step == 3) {
-        gf_DebugPrint("[AUTO 15s] -dva (mod 环境下 PlayerAddReward 不可用，仅提示)");
+        gf_DebugPrint("[AUTO 15s] -mengsk2vanilla Mengsk->原版");
+        // 把 Mengsk 兵种替换为原版单位（参考 RevolutionOverdrive 的 ReplaceUnit 模式）
+        gf_ReplaceAllUnits("MengskMarine", "Marine");
+        gf_ReplaceAllUnits("MengskMarauder", "Marauder");
+        gf_ReplaceAllUnits("MengskReaper", "Reaper");
+        gf_ReplaceAllUnits("MengskFirebat", "Firebat");
+        gf_ReplaceAllUnits("MengskHellion", "Hellion");
+        gf_ReplaceAllUnits("MengskGoliath", "Goliath");
+        gf_ReplaceAllUnits("MengskSiegeTank", "SiegeTank");
+        gf_ReplaceAllUnits("MengskMedic", "Medic");
+        gf_ReplaceAllUnits("MengskDiamondback", "Diamondback");
+        gf_ReplaceAllUnits("MengskBanshee", "Banshee");
+        gf_ReplaceAllUnits("MengskWraith", "Wraith");
+        gf_ReplaceAllUnits("MengskVikingAssault", "VikingAssault");
+        gf_ReplaceAllUnits("MengskVikingFighter", "VikingFighter");
+        gf_ReplaceAllUnits("MengskBC", "Battlecruiser");
+        gf_ReplaceAllUnits("MengskThor", "Thor");
     }
     else if (lv_step == 4) {
-        gf_DebugPrint("[AUTO 20s] -skintaldarim Zealot->ZealotTaldarim");
-        gf_ReplaceAllUnits("Zealot", "ZealotTaldarim");
-        gf_ReplaceAllUnits("Stalker", "StalkerTaldarim");
-        gf_ReplaceAllUnits("Immortal", "ImmortalTaldarim");
+        gf_DebugPrint("[AUTO 22s] -skinreset 原版->Mengsk");
+        // 把原版单位换回 Mengsk
+        gf_ReplaceAllUnits("Marine", "MengskMarine");
+        gf_ReplaceAllUnits("Marauder", "MengskMarauder");
+        gf_ReplaceAllUnits("Reaper", "MengskReaper");
+        gf_ReplaceAllUnits("Firebat", "MengskFirebat");
+        gf_ReplaceAllUnits("Hellion", "MengskHellion");
+        gf_ReplaceAllUnits("Goliath", "MengskGoliath");
+        gf_ReplaceAllUnits("SiegeTank", "MengskSiegeTank");
+        gf_ReplaceAllUnits("Medic", "MengskMedic");
+        gf_ReplaceAllUnits("Diamondback", "MengskDiamondback");
+        gf_ReplaceAllUnits("Banshee", "MengskBanshee");
+        gf_ReplaceAllUnits("Wraith", "MengskWraith");
+        gf_ReplaceAllUnits("VikingAssault", "MengskVikingAssault");
+        gf_ReplaceAllUnits("VikingFighter", "MengskVikingFighter");
+        gf_ReplaceAllUnits("Battlecruiser", "MengskBC");
+        gf_ReplaceAllUnits("Thor", "MengskThor");
     }
     else if (lv_step == 5) {
-        gf_DebugPrint("[AUTO 27s] -skinreset restore");
-        gf_ReplaceAllUnits("ZealotTaldarim", "Zealot");
-        gf_ReplaceAllUnits("StalkerTaldarim", "Stalker");
-        gf_ReplaceAllUnits("ImmortalTaldarim", "Immortal");
+        gf_DebugPrint("[AUTO 29s] -dva (mod 环境下 PlayerAddReward 不可用，仅提示)");
     }
     else if (lv_step == 6) {
-        gf_DebugPrint("[AUTO 34s] -skinblizzcon17 Drone/Probe/SCV");
-        gf_ReplaceAllUnits("Drone", "DroneBlizzcon17");
-        gf_ReplaceAllUnits("Probe", "ProbeBlizzcon17");
-        gf_ReplaceAllUnits("SCV", "SCVBlizzcon17");
-    }
-    else if (lv_step == 7) {
-        gf_DebugPrint("[AUTO 41s] -skinreset restore");
-        gf_ReplaceAllUnits("DroneBlizzcon17", "Drone");
-        gf_ReplaceAllUnits("ProbeBlizzcon17", "Probe");
-        gf_ReplaceAllUnits("SCVBlizzcon17", "SCV");
-        gf_DebugPrint("[AUTO] test done, can input cmds manually");
+        gf_DebugPrint("[AUTO 36s] test done, can input cmds manually");
         return true;
     }
 
@@ -496,6 +565,8 @@ void InitTriggers () {
     gt_cmd_skinBlizzcon17_Init();
     gt_cmd_skinReset_Init();
     gt_cmd_replace_Init();
+    gt_cmd_mengsk2vanilla_Init();
+    gt_cmd_mengskrestore_Init();
     gt_cmd_skinlist_Init();
     gt_cmd_rewardlist_Init();
     gt_autoTest_Init();
