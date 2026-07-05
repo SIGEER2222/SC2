@@ -20,8 +20,11 @@ int gv_activeModIndex = -1;
 //   ""  = 不过滤（按 gv_activeModIndex 决定生成范围）
 //   非空 = 在全部 mod 中筛选 identifier 包含该字符串的组（不区分大小写）
 //   例: "Cmdr_Abathur" / "Violets_Kerrigan" / "Violets_"（前缀匹配所有 Violets 子组）
-// 当前: "Cmdr_Taldarim" 只生成塔达林便于查看 Taldarim 单位
-string gv_commanderFilter = "Cmdr_Taldarim";
+// 当前: "Cmdr_MadEmpire" 只生成疯批帝国便于查看 MadEmpire 单位
+string gv_commanderFilter = "Cmdr_MadEmpire";
+
+// 被排除选中的单位组（点击"排除选中"按钮后加入此组，不再被 F2 选中）
+unitgroup gv_excludedUnits;
 
 //--------------------------------------------------------------------------------------------------
 // 聊天指令相关全局变量
@@ -286,6 +289,45 @@ void gf_ReplaceAllUnits (string fromType, string toType) {
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+// 排除选中按钮功能
+// 为玩家1所有建筑添加"排除选中"能力（AHExcludeFromSelectAll）
+// 点击基地按钮 → 选择目标单位 → 目标单位变为不可选中 → 不再被 F2"选中全部单位"选中
+// 聊天指令 -unlock → 恢复所有被排除的单位
+//--------------------------------------------------------------------------------------------------
+
+// 给玩家1所有建筑添加"排除选中"能力
+// 筛选条件：c_targetFilterStructure(14) 在 allowLo，排除导弹和死单位
+void gf_AddExcludeAbilityToAllBuildings () {
+    unitgroup autoGroup;
+    int autoCount;
+    unit autoUnit;
+
+    autoGroup = UnitGroup(null, 1, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    autoCount = UnitGroupCount(autoGroup, c_unitCountAll);
+    for (;; autoCount -= 1) {
+        autoUnit = UnitGroupUnitFromEnd(autoGroup, autoCount);
+        if (autoUnit == null) { break; }
+        UnitAbilityAdd(autoUnit, "AHExcludeFromSelectAll");
+    }
+    gf_DebugPrint("[OK] 已为所有 P1 建筑添加排除选中能力");
+}
+
+//--------------------------------------------------------------------------------------------------
+// 触发器: 生成完成后给所有 P1 建筑添加排除选中能力
+// 用独立 MapInit 触发器避免前向引用（gt_spawnUnits 定义在前，无法调用后定义的函数）
+//--------------------------------------------------------------------------------------------------
+trigger gt_applyExclusionButtons;
+bool gt_applyExclusionButtons_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_AddExcludeAbilityToAllBuildings();
+    return true;
+}
+void gt_applyExclusionButtons_Init () {
+    gt_applyExclusionButtons = TriggerCreate("gt_applyExclusionButtons_Func");
+    TriggerAddEventMapInit(gt_applyExclusionButtons);
+}
+
 //--- 指令: test ---------------------------------------------------------
 trigger gt_cmd_test;
 bool gt_cmd_test_Func (bool testConds, bool runActions) {
@@ -302,7 +344,7 @@ void gt_cmd_test_Init () {
 trigger gt_cmd_help;
 bool gt_cmd_help_Func (bool testConds, bool runActions) {
     if (!runActions) { return true; }
-    gf_DebugPrint("指令: -test -dva -skintaldarim -skinblizzcon17 -skinreset -replace -taldarim2vanilla -taldarimrestore -skinlist -rewardlist");
+    gf_DebugPrint("指令: -test -unlock -dva -skintaldarim -skinblizzcon17 -skinreset -replace -taldarim2vanilla -taldarimrestore -skinlist -rewardlist -setcolor");
     return true;
 }
 void gt_cmd_help_Init () {
@@ -620,10 +662,77 @@ void gt_autoTest_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// 触发器: 排除选中能力被使用
+// 监听所有单位的 ability 使用事件，过滤出 AHExcludeFromSelectAll
+// 由建筑（施法者）使用能力 → 点选目标单位 → 目标单位变为不可选中
+//--------------------------------------------------------------------------------------------------
+trigger gt_excludeAbilityUsed;
+bool gt_excludeAbilityUsed_Func (bool testConds, bool runActions) {
+    unit lv_target;
+    abilcmd lv_abil;
+
+    if (!runActions) { return true; }
+
+    lv_abil = EventUnitAbility();
+
+    // 只处理 AHExcludeFromSelectAll 能力
+    if (!((lv_abil == AbilityCommand("AHExcludeFromSelectAll", 0)))) {
+        return false;
+    }
+
+    // 取目标单位（被点选的单位）
+    lv_target = EventUnitTargetUnit();
+    if ((lv_target == null)) {
+        gf_DebugPrint("[WARN] 没有目标单位");
+        return false;
+    }
+
+    // 设置目标单位不可选中 → 不再被 F2 选中全部单位 选中
+    UnitSetState(lv_target, c_unitStateSelectable, false);
+    UnitGroupAdd(gv_excludedUnits, lv_target);
+    gf_DebugPrint("[LOCK] 目标单位已从 F2 排除，输入 -unlock 恢复");
+    return true;
+}
+void gt_excludeAbilityUsed_Init () {
+    gt_excludeAbilityUsed = TriggerCreate("gt_excludeAbilityUsed_Func");
+    TriggerAddEventUnitAbility(gt_excludeAbilityUsed, null, null, c_unitAbilStageExecute, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// 指令: -unlock (恢复所有被排除的单位)
+//--------------------------------------------------------------------------------------------------
+trigger gt_cmd_unlock;
+bool gt_cmd_unlock_Func (bool testConds, bool runActions) {
+    unitgroup autoGroup;
+    int autoCount;
+    unit autoUnit;
+
+    if (!runActions) { return true; }
+
+    // 遍历 gv_excludedUnits，恢复每个单位的 selectable 状态
+    autoGroup = gv_excludedUnits;
+    autoCount = UnitGroupCount(autoGroup, c_unitCountAll);
+    for (;; autoCount -= 1) {
+        autoUnit = UnitGroupUnitFromEnd(autoGroup, autoCount);
+        if (autoUnit == null) { break; }
+        UnitSetState(autoUnit, c_unitStateSelectable, true);
+    }
+    // 清空排除组
+    UnitGroupClear(gv_excludedUnits);
+    gf_DebugPrint("[UNLOCK] 所有单位已恢复可选中");
+    return true;
+}
+void gt_cmd_unlock_Init () {
+    gt_cmd_unlock = TriggerCreate("gt_cmd_unlock_Func");
+    TriggerAddEventChatMessage(gt_cmd_unlock, c_playerAny, "-unlock", true);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger Initialization
 //--------------------------------------------------------------------------------------------------
 void InitTriggers () {
     gt_spawnUnits_Init();
+    gt_applyExclusionButtons_Init();
     gt_cmd_test_Init();
     gt_cmd_help_Init();
     gt_cmd_dva_Init();
@@ -639,6 +748,8 @@ void InitTriggers () {
     gt_cmd_skinlist_Init();
     gt_cmd_rewardlist_Init();
     gt_autoTest_Init();
+    gt_excludeAbilityUsed_Init();
+    gt_cmd_unlock_Init();
 }
 
 //--------------------------------------------------------------------------------------------------

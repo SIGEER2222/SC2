@@ -47,6 +47,16 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     // 需要先设置 Abathur 升级，否则触发器条件不满足
     TriggerEnable(lib48DF4533_gt_AbathurAbilities, true);
 
+    // 解锁基地工蜂升级能力按钮（mod 的 gt_Abathur 触发器负责解锁，但测试地图未走 mod 标准
+    // SwarmSetup 初始化流程，且 gt_Abathur 依赖 gv_coop_group 玩家组，需 bank 加载才会填充，
+    // 测试地图无 bank，故直接 TechTreeAbilityAllow 解锁 Restricted 按钮状态）
+    TechTreeAbilityAllow(1, AbilityCommand("MineralEfficiency", 0), true);
+    TechTreeAbilityAllow(1, AbilityCommand("VespeneEfficiency", 0), true);
+    TechTreeAbilityAllow(1, AbilityCommand("CombatDrone", 0), true);
+    TechTreeAbilityAllow(1, AbilityCommand("FastMorphing", 0), true);
+    TechTreeAbilityAllow(1, AbilityCommand("NaturalCamouflage", 0), true);
+    TechTreeAbilityAllow(1, AbilityCommand("Cliffjumper", 0), true);
+
     // 解锁 Abathur 进化分支变种（mod 默认锁定，需要 TechTreeUnitAllow 显式解锁）
     TechTreeUnitAllow(1, "RoachCorpser", true);
     TechTreeUnitAllow(1, "RoachVile", true);

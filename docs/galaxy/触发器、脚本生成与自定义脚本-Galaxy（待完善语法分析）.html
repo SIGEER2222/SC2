@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<!-- saved from url=(0071)file:///D:/Program%20Files/Temp/crossnote2024123-2356-s2qtdg.kxy4h.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title>XML解析</title>
+      
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="./触发器、脚本生成与自定义脚本-Galaxy_files/katex.min.css">
+      
+      
+      
+      
+      
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}.token.blockquote,.token.comment{color:#969896}.token.cdata{color:#183691}.token.doctype,.token.macro.property,.token.punctuation,.token.variable{color:#333}.token.builtin,.token.important,.token.keyword,.token.operator,.token.rule{color:#a71d5d}.token.attr-value,.token.regex,.token.string,.token.url{color:#183691}.token.atrule,.token.boolean,.token.code,.token.command,.token.constant,.token.entity,.token.number,.token.property,.token.symbol{color:#0086b3}.token.prolog,.token.selector,.token.tag{color:#63a35c}.token.attr-name,.token.class,.token.class-name,.token.function,.token.id,.token.namespace,.token.pseudo-class,.token.pseudo-element,.token.url-reference .token.variable{color:#795da3}.token.entity{cursor:help}.token.title,.token.title .token.punctuation{font-weight:700;color:#1d3e81}.token.list{color:#ed6a43}.token.inserted{background-color:#eaffea;color:#55a532}.token.deleted{background-color:#ffecec;color:#bd2c00}.token.bold{font-weight:700}.token.italic{font-style:italic}.language-json .token.property{color:#183691}.language-markup .token.tag .token.punctuation{color:#333}.language-css .token.function,code.language-css{color:#0086b3}.language-yaml .token.atrule{color:#63a35c}code.language-yaml{color:#183691}.language-ruby .token.function{color:#333}.language-markdown .token.url{color:#795da3}.language-makefile .token.symbol{color:#795da3}.language-makefile .token.variable{color:#183691}.language-makefile .token.builtin{color:#0086b3}.language-bash .token.keyword{color:#0086b3}pre[data-line]{position:relative;padding:1em 0 1em 3em}pre[data-line] .line-highlight-wrapper{position:absolute;top:0;left:0;background-color:transparent;display:block;width:100%}pre[data-line] .line-highlight{position:absolute;left:0;right:0;padding:inherit 0;margin-top:1em;background:hsla(24,20%,50%,.08);background:linear-gradient(to right,hsla(24,20%,50%,.1) 70%,hsla(24,20%,50%,0));pointer-events:none;line-height:inherit;white-space:pre}pre[data-line] .line-highlight:before,pre[data-line] .line-highlight[data-end]:after{content:attr(data-start);position:absolute;top:.4em;left:.6em;min-width:1em;padding:0 .5em;background-color:hsla(24,20%,50%,.4);color:#f4f1ef;font:bold 65%/1.5 sans-serif;text-align:center;vertical-align:.3em;border-radius:999px;text-shadow:none;box-shadow:0 1px #fff}pre[data-line] .line-highlight[data-end]:after{content:attr(data-end);top:auto;bottom:.4em}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body ol.no-list,html body ul.no-list{padding:0;list-style-type:none}html body ol ol,html body ol ul,html body ul ol,html body ul ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::after,html body code::before{letter-spacing:-.2em;content:'\00a0'}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:after,html body pre code:before,html body pre tt:after,html body pre tt:before{content:normal}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body code,html body pre{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ul ul ul{list-style:square}.markdown-preview ol{list-style:decimal}.markdown-preview ol ol,.markdown-preview ul ol{list-style-type:lower-roman}.markdown-preview ol ol ol,.markdown-preview ol ul ol,.markdown-preview ul ol ol,.markdown-preview ul ul ol{list-style-type:lower-alpha}.markdown-preview .newpage,.markdown-preview .pagebreak{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center!important}.markdown-preview:not([data-for=preview]) .code-chunk .code-chunk-btn-group{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .status{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .output-div{margin-bottom:16px}.markdown-preview .md-toc{padding:0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link div,.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}.markdown-preview .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}@media print{html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc{padding:0 16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link div,html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% - 300px);padding:2em calc(50% - 457px - 300px / 2);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+      <!-- The content below will be included at the end of the <head> element. --><script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    // your code here
+  });
+</script></head><body for="html-export">
+    
+    
+      <div class="crossnote markdown-preview  ">
+      
+<h1 id="token">Token </h1>
+<p><strong>Delim</strong> 分隔符，空格、制表符、换行、回行<br>
+<strong>Letter</strong> 大小写单词<br>
+<strong>Digit</strong> 十进制数码</p>
+<p><strong>Comment</strong> 单行注释。<code>.galaxy</code>不支持多行注释，即使语法高亮可以正常将其识别为注释</p>
+<h2 id="所有的名称都可以根据utf-8的编码规则尝试进行还原">所有的名称都可以根据UTF-8的编码规则尝试进行还原 </h2>
+<p>再不济，可以参考函数声明上方的注释提示的触发器原名，非ASCII码范围内的字符都替换为了问号。脚本混淆的情况除外。</p>
+<p><strong>Identifier</strong> 标识符，变量名、函数名、结构体名、结构体类型<br>
+变量定义格式为<code>(const)? {类型名} {变量名}(= {表达式})?;</code>，其中表达式优先级高于赋值表达式。一条语句中只能声明一个变量。<br>
+全局变量名格式：<code>(lib{库ID}_)?gv_{变量名}</code><br>
+局部变量名格式：<code>lv_{变量名}</code><br>
+数组的声明格式：<code>{类型名}([{Integer}]){1,n} {变量名};</code>，维度可以不止GUI的四维<br>
+结构体类型命名格式：<code>(lib{库ID}_)?gs_{结构体名}{{变量声明列表与默认值设置}};</code><br>
+定义结构体类型的对象无需添加<code>struct</code>为前缀。<br>
+结构体修改默认值会在触发器功能函数进行中。<br>
+毕竟有自定义脚本，怎样都有可能，主要还是得以层级结构来分作用域。</p>
+<h2 id="类型">类型 </h2>
+<p>非自定义脚本的预设可作为const变量，也可作为字面量直接填为参数<br>
+自定义脚本的预设不会保存，只能作为字面量填入参数<br>
+const似乎只能限定基础类型，包括string</p>
+<p><strong>Decimal</strong> 十进制整数字面量，一般的整数预设<br>
+<strong>Oct</strong> 八进制整数字面量<br>
+<strong>Hex</strong> 十六进制整数字面量，用于标旗位，也可进行位运算</p>
+<p>标识符转换函数，标识符为<code>(lib{库ID}_)?{预设名}_Ident(int val)</code>，根据预设值返回对应的无前缀纯脚本识别符的字符串字面量<br>
+预设值标识符为<code>(lib{库ID}_)?{预设名}_{预设值脚本识别符}</code></p>
+<p><strong>Integer</strong> 整数字面量，帮助项（对话框）、传输信息、电影动画、对话、对话回复、对话框、对话框项/对话框控件、过场动画、计分板、计时器窗口、交易类别、交易项、交易组、路径显示、难度等级、任务档案、任务目标、数据表实例、头像、玩家颜色、微缩地图提示、文本标签、行星、研究层级、研究类别、研究项、佣兵、游戏用户ID、状态事件、AI性格攻击波次、波次计时器窗口<br>
+<strong>Fixed</strong> 实数，可由整数转换而来，不支持指数后缀，可能内建就是十进制定点数<br>
+<strong>Bool</strong> 布尔，无法以其他类型赋值。注意条件判断仍可以使用优先级高于赋值的表达式<br>
+<strong>True</strong> 布尔真<br>
+<strong>False</strong> 布尔假<br>
+<strong>BitMask</strong> 位掩码<br>
+<strong>Byte</strong> 字节<br>
+<strong>String</strong> 字符串字面量，支持<code>+</code>运算符。游戏链接、文件、充能链接、单位类型、动画名称、对话标签、对话角色、对话台词、对话状态索引、冷却链接、模型镜头、时间段、属性值、属性ID、数据模板条目、数据模板引用、数据模板域、数据模板字段路径、数据模板字段名称、水体、演算体消息、用户数据实例、用户数据字段、游戏选项、游戏选项值、字体样式、AI性格、UI布局线框<br>
+<strong>Text</strong> 文本</p>
+<p><strong>Unit</strong> 单位<br>
+<strong>AbilCmd</strong> 技能命令<br>
+<strong>Order</strong> 顺序（指令，可能是没有上下文，翻得有点逆天）<br>
+<strong>UnitFilter</strong> 单位筛选器、目标筛选<br>
+<strong>UnitGroup</strong> 单位组<br>
+<strong>Marker</strong> 标记<br>
+<strong>EffectHistory</strong> 效果历史，无高亮显示</p>
+<p><strong>PlayerGroup</strong> 玩家组</p>
+<p><strong>Point</strong> 点<br>
+<strong>timer</strong> 计时器<br>
+<strong>Revealer</strong> 开图器<br>
+<strong>Region</strong> 区域<br>
+<strong>Bank</strong> 数据集文件<br>
+<strong>Doodad</strong> 装饰物<br>
+<strong>DateTime</strong> 日期时间，无高亮显示</p>
+<p><strong>AIFilter</strong> AI筛选器<br>
+<strong>Wave</strong> AI进攻波次<br>
+<strong>WaveTarget</strong> AI进攻波次目标<br>
+<strong>WaveInfo</strong> 波次信息</p>
+<p><strong>Color</strong> 颜色<br>
+<strong>Actor</strong> 演算体<br>
+<strong>ActorScope</strong> 演算体域</p>
+<p><strong>Sound</strong> 音效<br>
+<strong>SoundLink</strong> 音效链接<br>
+<strong>TransmissionSource</strong> 传输信息源<br>
+<strong>CameraInfo</strong> 镜头对象</p>
+<p><strong>GenericHandle</strong> 通用句柄，不知道是不是int的套皮。动画长度查询</p>
+<p><strong>Trigger</strong> 触发器</p>
+<h2 id="初始化">初始化 </h2>
+<p>地图本身初始化：</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code><span class="token keyword keyword-void">void</span> <span class="token function">InitMap</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">InitLibs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">InitCustomScript</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">InitTriggers</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><p>初始化所有库：</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code>include <span class="token string">"TriggerLibs/NativeLib"</span>
+include <span class="token string">"LibCOMI"</span>
+…
+…
+…
+<span class="token keyword keyword-void">void</span> <span class="token function">InitLibs</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">libNtve_InitLib</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">libCOMI_InitLib</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">lib1_InitLib</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><p>具体初始化库：</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code>bool lib1_InitLib_completed <span class="token operator">=</span> false<span class="token punctuation">;</span>
+
+<span class="token keyword keyword-void">void</span> <span class="token function">lib1_InitLib</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span>lib1_InitLib_completed<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword keyword-return">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    lib1_InitLib_completed <span class="token operator">=</span> true<span class="token punctuation">;</span>
+
+    <span class="token function">lib1_InitLibraries</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">lib1_InitVariables</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">lib1_InitCustomScript</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">lib1_InitTriggers</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><p>初始化外部库：</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code><span class="token keyword keyword-void">void</span> <span class="token function">lib1_InitLibraries</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">libNtve_InitVariables</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">libCOMI_InitVariables</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><p>初始化变量，作用于无法直接用字面量表示的非基础类型：</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code>bool lib1_InitVariables_completed <span class="token operator">=</span> false<span class="token punctuation">;</span>
+
+<span class="token keyword keyword-void">void</span> <span class="token function">lib1_InitVariables</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span>lib1_InitVariables_completed<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword keyword-return">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    lib1_InitVariables_completed <span class="token operator">=</span> true<span class="token punctuation">;</span>
+
+    lib1_gv_test <span class="token operator">=</span> <span class="token function">StringExternal</span><span class="token punctuation">(</span><span class="token string">"Param/Value/lib_1_3F8DF122"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><p>初始化自定义脚本，自填初始化函数：</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code><span class="token keyword keyword-void">void</span> <span class="token function">lib1_InitCustomScript</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">Initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><p>初始化触发器：</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code><span class="token keyword keyword-void">void</span> <span class="token function">lib1_InitTriggers</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">lib1_gt_MyTrigger_Init</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><h2 id="触发器">触发器 </h2>
+<p>脚本生成组成：<br>
+触发器本体变量：<code>trigger (lib{库ID}_)?gt_{标识符};</code><br>
+触发器运行函数：<code>bool (lib{库ID}_)?gt_{标识符}_Func\(bool testConds, bool runActions\)</code>。<code>testConds</code>代表是否核对条件，这是明确的，<code>runActions</code>是何时、如何传入的就不知道了，毕竟按照一般的逻辑，<code>runActions == false</code>，那么会直接跳出函数的执行，也不符合触发器执行动作不要等待可能会暂停并阻塞该动作函数的猜想。<br>
+函数体首先是变量声明，接着是自定义脚本自动生成的自动变量声明<code>#AUTOVAR</code>，然后是结构体默认值修改，使结构体成员的默认值变为结构体声明中被修改的默认值，而非数据类型本身的默认值，若一致则跳过。<br>
+当有条件时，添上反向的返回条件，一条条罗列，或使用<code>非</code>、<code>与</code>或<code>或</code>进行包装（括号地狱）</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code><span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span>testConds<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 比较</span>
+    <span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token function">UnitGetOwner</span><span class="token punctuation">(</span><span class="token function">EventUnit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword keyword-return">return</span> false<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 非</span>
+    <span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token function">UnitGetOwner</span><span class="token punctuation">(</span><span class="token function">EventUnit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword keyword-return">return</span> false<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 与，或不再列出</span>
+    <span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token function">UnitGetOwner</span><span class="token punctuation">(</span><span class="token function">EventUnit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span><span class="token function">UnitGetOwner</span><span class="token punctuation">(</span><span class="token function">EventUnit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword keyword-return">return</span> false<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 在界限内</span>
+    <span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span>lib1_gv_test <span class="token operator">&gt;=</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span>lib1_gv_test <span class="token operator">&lt;=</span> <span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword keyword-return">return</span> false<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 条件函数</span>
+    <span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span><span class="token function">lib1_gf_condition</span><span class="token punctuation">(</span><span class="token punctuation">{</span>实参列表<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword keyword-return">return</span> false<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>当无动作时，直接<code>return true;</code>，否则在返回前加上</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code><span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>runActions<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword keyword-return">return</span> true<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><p>触发器注册函数，在地图初始化创建触发器实例时调用，根据预设的触发器响应事件生成相应的事件添加函数：</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code><span class="token keyword keyword-void">void</span> <span class="token punctuation">(</span>lib<span class="token punctuation">{</span>库ID<span class="token punctuation">}</span>_<span class="token punctuation">)</span><span class="token operator">?</span>gt_<span class="token punctuation">{</span>标识符<span class="token punctuation">}</span><span class="token function">_Init</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token punctuation">{</span>触发器本体变量<span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">TriggerCreate</span><span class="token punctuation">(</span><span class="token string">"{触发器运行函数}"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// 添加触发器事件…例如：</span>
+    <span class="token function">TriggerAddEventUnitDied</span><span class="token punctuation">(</span>gt_MyTrigger<span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">TriggerAddEventMapInit</span><span class="token punctuation">(</span>gt_MyTrigger<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><h2 id="函数">函数 </h2>
+<p>若函数定义为事件类型，那么从函数声明中和使用该事件的触发器初始化函数中就可以看到，使用该事件的触发器会在初始化时，将其自身传入事件函数，作为第一个参数：</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code><span class="token keyword keyword-void">void</span> <span class="token function">lib1_gf_MyFunc3</span> <span class="token punctuation">(</span>trigger t<span class="token punctuation">,</span> <span class="token keyword keyword-int">int</span> i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ……</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword keyword-void">void</span> <span class="token function">lib1_gt_MyTrigger_Init</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    lib1_gt_MyTrigger <span class="token operator">=</span> <span class="token function">TriggerCreate</span><span class="token punctuation">(</span><span class="token string">"lib1_gt_MyTrigger_Func"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// 为触发器注册事件，将触发器作为第一个参数传入事件函数</span>
+    <span class="token function">lib1_gf_MyFunc3</span><span class="token punctuation">(</span>lib1_gt_MyTrigger<span class="token punctuation">,</span> lib1_ge_Preset_Custom_Value1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><h3 id="选项">选项 </h3>
+<p><strong>被限制</strong> 仅标识函数属性，是否能够运行由函数本身的性质决定，一般是固有函数<br>
+<strong>创建线程</strong> 创建一个额外的触发器对象，运用触发器线程的自动创建和不等待参数来实现另开线程，需要用到一个额外触发器<code>auto_(lib{库ID}_)?gf_{标识符}_Trigger</code>和触发器的内容函数定义<code>auto_(lib{库ID}_)?gf_{标识符}_TriggerFunc</code>，正如一般的触发器：</p>
+<pre data-role="codeBlock" data-info="c" class="language-c c"><code><span class="token comment">// 创建线程用到的触发器</span>
+trigger auto_lib1_gf_function_Trigger <span class="token operator">=</span> null<span class="token punctuation">;</span>
+
+<span class="token comment">// 拥有创建线程选项的动作的实际函数定义</span>
+bool <span class="token function">lib1_gf_function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 第一次运行时创建触发器对象，因为本身不会像GUI的触发器</span>
+    <span class="token comment">// 那样有一个固定的初始化函数在全局初始化时运行</span>
+    <span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span>auto_lib1_gf_function_Trigger <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        auto_lib1_gf_function_Trigger <span class="token operator">=</span> <span class="token function">TriggerCreate</span><span class="token punctuation">(</span><span class="token string">"auto_lib1_gf_function_TriggerFunc"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">//不核对条件，不等待地运行函数的功能触发器，实际上实现创建线程的方法</span>
+    <span class="token function">TriggerExecute</span><span class="token punctuation">(</span>auto_lib1_gf_function_Trigger<span class="token punctuation">,</span> false<span class="token punctuation">,</span> false<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// 触发器运行的函数，即动作中所写的函数定义</span>
+bool <span class="token function">auto_lib1_gf_function_TriggerFunc</span> <span class="token punctuation">(</span>bool testConds<span class="token punctuation">,</span> bool runActions<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Automatic Variable Declarations</span>
+    <span class="token comment">// Implementation</span>
+    <span class="token keyword keyword-return">return</span> true<span class="token punctuation">;</span>
+    <span class="token keyword keyword-return">return</span> true<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><p><strong>固有函数</strong> 绑定为固有函数之后，就单纯变为了一个函数标识符生成指示器了，就像自定义脚本的预设。可能参数的脚本标识符也不需要一致，只要数量、类型和顺序对了就成，反正生成的脚本里也用不到形参的这一信息<br>
+<strong>无脚本前缀</strong> 脚本识别符是什么，生成的脚本标识符就是什么，即不包括所属库、作用域（g-global全局、l-local局部）、元素类型（v变量、f函数、e预设什么的）这些前缀<br>
+<strong>行中</strong> 即inline内联，直接在调用位置填函数体并替换掉参数，而非调用函数。会自动对返回语句进行修改适配<br>
+<strong>循环</strong> 使得break可以break，continue可以continue<br>
+<strong>隐藏的</strong> 内部的内部，用来隐藏一些子函数类型的实现，其余作用目前只想到用来隐藏废弃函数<br>
+<strong>运算符</strong> 开启自定义脚本的功能，本质上是通过组合参数的标识符，生成运算对应的脚本语句填入调用处，例如修改变量<code>'a':'+' '1'</code>，会根据自定义脚本的参数引用与组合，被翻译为<code>'a' '+'= '1'</code>，或在无自定义脚本的情况下，按序生成参数的脚本识别符，以空格分开。<br>
+<strong>自定义脚本</strong> 纯纯的自定义脚本。若函数定义的自定义脚本非空，会导致创建动作后的文本框内容无效<br>
+<strong>自定义AI</strong> 不知道有什么具体用处<br>
+<strong>子函数</strong> 又是自定义脚本，允许动作嵌套在其下，由子函数本身提供环境，一般是循环遍历某样容器，然后对当前指向的容器内部对象进行些操作。一般用以实现控制流语句</p>
+<h2 id="语句不止">语句（不止） </h2>
+<p>以语句结束符分号<code>;</code>为界。<br>
+语句可加static限定，但无法在GUI中实现。<br>
+目前确定的可用语句类型：<br>
+<strong>空语句</strong> 唯有<code>;</code><br>
+<strong>变量声明+定义语句</strong> 只允许声明与定义一个变量。函数的局部变量声明必须放在函数头部。<br>
+<strong>赋值语句</strong> 右值无法为赋值表达式。优先级高于赋值表达式的表达式可用。支持组合赋值运算符，如<code>a += b</code>。支持的运算除了基本的加减乘除外也包括取模<br>
+<strong>函数调用</strong> 纯函数调用。不接收返回值可能，只是可能会出现错误<br>
+<strong>语句块</strong> 由<code>{}</code>包括在内的语句块。注意控制流语句必须使用语句块跟在后，而不能使用单条语句。<br>
+<strong>typedef语句</strong><br>
+<strong>const整数变量数组大小</strong></p>
+<p>不可用语句类型：<br>
+<strong>表达式语句</strong> 优先级高于赋值表达式的所有纯表达式语句<br>
+<strong>逗号分割的表达式语句</strong><br>
+<strong>参数</strong> 参数只能为优先级高于赋值表达式的表达式<br>
+<strong>自增自减</strong> 完全不支持自增自减</p>
+
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+  </body></html>
