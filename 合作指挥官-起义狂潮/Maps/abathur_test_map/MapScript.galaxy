@@ -36,6 +36,12 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
     PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
 
+    // 解锁 Abathur 进化分支变种（mod 默认锁定，需要 TechTreeUnitAllow 显式解锁）
+    TechTreeUnitAllow(1, "RoachCorpser", true);
+    TechTreeUnitAllow(1, "RoachVile", true);
+    TechTreeUnitAllow(1, "SwarmHostSplitA", true);
+    TechTreeUnitAllow(1, "SwarmHostSplitB", true);
+
     lv_perRow = 20;
     lv_spacing = 2.5;
     lv_total = 0;
@@ -75,8 +81,31 @@ void gt_spawn_Init () {
     TriggerAddEventMapInit(gt_spawn);
 }
 
+// 延时触发器：在游戏初始化 3 秒后重置资源/人口上限
+// （避开 mod 库初始化覆盖，mod 用 c_playerPropOperAdd/Subtract 修改人口，可能覆盖我们的 SetTo）
+trigger gt_resetResources;
+
+bool gt_resetResources_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+
+    // 重置资源/人口上限（覆盖 mod 初始化的修改）
+    PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
+    PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
+    PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
+
+    return true;
+}
+
+void gt_resetResources_Init () {
+    gt_resetResources = TriggerCreate("gt_resetResources_Func");
+    TriggerAddEventTimeElapsed(gt_resetResources, 3.0, c_timeReal);
+}
+
 void InitTriggers () {
     gt_spawn_Init();
+    gt_resetResources_Init();
 }
 
 void InitMap () {
