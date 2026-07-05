@@ -2,7 +2,7 @@ import re
 import sys
 
 catalog_path = r"E:\Code\MyMod\SC2\合作指挥官-起义狂潮\Mods\emptytest.SC2Map\Base.SC2Data\LibEmptyTestCatalog.galaxy"
-alerts_path = r"C:\Users\22448\Documents\StarCraft II\GameLogs\2026-07-04 19.45.24 Alerts.txt"
+alerts_path = r"C:\Users\22448\Documents\StarCraft II\GameLogs\2026-07-04 20.17.06 Alerts.txt"
 output_path = catalog_path
 
 fallback_units = set()
@@ -11,8 +11,14 @@ with open(alerts_path, "r", encoding="utf-8", errors="ignore") as f:
         m = re.search(r'Scope\[([^\]]+), Unit\] Unable to create unit actor.*fallback sphere', line)
         if m:
             fallback_units.add(m.group(1))
+        m2 = re.search(r'CActorUnit\[([^\]]+)\].*Unable to create this model', line)
+        if m2:
+            fallback_units.add(m2.group(1))
+        m3 = re.search(r'CActorUnit\[([^\]]+)\] Got NULL model', line)
+        if m3:
+            fallback_units.add(m3.group(1))
 
-print(f"Fallback units found: {len(fallback_units)}")
+print(f"Problem units found (fallback + model fail + NULL model): {len(fallback_units)}")
 
 with open(catalog_path, "r", encoding="utf-8") as f:
     content = f.read()

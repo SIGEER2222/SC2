@@ -1,22 +1,9 @@
-补充 Abathur 中文化映射：按钮/技能中文名全覆盖
+改造 emptytest 测试图加载重生虫心 mod 单位
 
-针对 Abathur 摘要表中残留英文 ID 的问题，新增/扩展映射：
-
-1. $NativeZhNames 添加：
-   - Omegalisk = "欧米伽雷兽"
-   - PrimalSunkenColony = "原始穿刺者巢群"
-
-2. 新增 $NativeButtonZh 映射表（SC2 原生按钮/技能 face → 中文）：
-   - 通用：Stop/Move/Attack/Cancel/CancelBuilding/Detector 等
-   - 虫族通用：BurrowDown/MorphToOverseer/OverlordTransport/RapidRegeneration 等
-   - 建筑升级：zerglingmovementspeed/hydraliskspeed/GreaterSpire/Evolve* 等
-   - 单位技能：Baneling/CorruptionAbility/NeuralParasite/ViperConsume 等
-   - Drone 建造按钮：InfestationPit/MercCompound/NydusNetwork 等 → "建造 XX"
-   - Abathur mod 特殊技能：HotSMetabolicBoost/HotSRoachShield/BlightbringerCreate* 等
-   - 雷兽/欧米伽技能：UltraliskElectricShock/OmegaliskThickArmor 等
-
-3. Get-UnitSummary 技能列处理改为三级回退：
-   face_name(中文) > $NativeButtonZh[face] > face(英文 ID)
-
-效果：Abathur 54 个单位/建筑的技能列已全部中文化，仅 HotSHunter 等少数单位
-因 UnitData 无静态 AbilArray（能力由触发器动态赋予）而技能列为空。
+- 将 reborn mod 的 28 个 GameData XML 文件和 zhCN 本地化文件直接复制到地图，避免依赖缺失的资源 mod（crys_swarm_assets、sibirens_* 等）
+- 修改 DocumentInfo 只保留 bnet:Void Multi (Mod) 依赖
+- 从 Alerts.txt 提取 fallback sphere 单位列表，过滤掉 165 个无模型的单位
+- 生成 214 个有正常模型的 reborn 单位列表
+- 调整 MapScript.galaxy 单位生成位置到地图中心偏上（x:50, y:75），每行 20 个、间距 2.5
+- 新增 _gen_emptytest_reborn_filtered.py 脚本用于自动过滤无模型单位
+- 清理旧的 Kerrigan 相关文件（ActorData_Kerrigan.xml、UnitData_Kerrigan.xml）
