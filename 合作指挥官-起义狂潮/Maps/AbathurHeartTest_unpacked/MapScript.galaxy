@@ -467,6 +467,74 @@ void gt_cmd_taldarimrestore_Init () {
     TriggerAddEventChatMessage(gt_cmd_taldarimrestore, c_playerAny, "-taldarimrestore", true);
 }
 
+//--- 指令: -setcolor <index> (设置玩家1颜色) ---------------------------
+//   用法: -setcolor 1   (1=红 2=蓝 3=青 4=紫 5=黄 6=橙 7=绿 8=粉 0=白)
+//   注意: exact=false 匹配前缀，需在脚本里解析参数
+//   颜色索引参考 SC2 TeamColors: 0=白 1=红 2=蓝 3=青 4=紫 5=黄 6=橙 7=绿 8=粉
+trigger gt_cmd_setcolor;
+bool gt_cmd_setcolor_Func (bool testConds, bool runActions) {
+    string lv_msg;
+    string lv_argStr;
+    string lv_ch;
+    int lv_color;
+    int lv_prefixLen;
+    int lv_msgLen;
+    int lv_i;
+    if (!runActions) { return true; }
+    // 获取完整聊天消息（包含指令和参数）
+    lv_msg = EventChatMessage(false);
+    // 去掉 "-setcolor" 前缀，剩余部分作为颜色参数
+    // 预期格式: "-setcolor 1" 或 "-setcolor  5"  （前缀后可能有空格）
+    lv_prefixLen = StringLength("-setcolor");
+    lv_msgLen = StringLength(lv_msg);
+    lv_argStr = "";
+    if (lv_msgLen > lv_prefixLen) {
+        // 跳过前缀后的空格
+        lv_i = lv_prefixLen + 1;
+        while (lv_i <= lv_msgLen) {
+            lv_ch = StringSub(lv_msg, lv_i, lv_i);
+            if (lv_ch != " ") {
+                break;
+            }
+            lv_i += 1;
+        }
+        // 从第一个非空格字符开始取剩余字符串
+        if (lv_i <= lv_msgLen) {
+            lv_argStr = StringSub(lv_msg, lv_i, lv_msgLen);
+        }
+    }
+    lv_color = StringToInt(lv_argStr);
+    if (lv_color < 0 || lv_color > 15) {
+        gf_DebugPrint("用法: -setcolor <0-15>  (1=红 2=蓝 3=青 4=紫 5=黄 6=橙 7=绿 8=粉 0=白)");
+        return true;
+    }
+    // 用预设颜色枚举值（避免 mod 环境下类型推断问题）
+    // 第三个参数 true: 同步改变已存在单位的颜色
+    if (lv_color == 0) { PlayerSetColorIndex(1, 0, true); }
+    else if (lv_color == 1) { PlayerSetColorIndex(1, 1, true); }
+    else if (lv_color == 2) { PlayerSetColorIndex(1, 2, true); }
+    else if (lv_color == 3) { PlayerSetColorIndex(1, 3, true); }
+    else if (lv_color == 4) { PlayerSetColorIndex(1, 4, true); }
+    else if (lv_color == 5) { PlayerSetColorIndex(1, 5, true); }
+    else if (lv_color == 6) { PlayerSetColorIndex(1, 6, true); }
+    else if (lv_color == 7) { PlayerSetColorIndex(1, 7, true); }
+    else if (lv_color == 8) { PlayerSetColorIndex(1, 8, true); }
+    else if (lv_color == 9) { PlayerSetColorIndex(1, 9, true); }
+    else if (lv_color == 10) { PlayerSetColorIndex(1, 10, true); }
+    else if (lv_color == 11) { PlayerSetColorIndex(1, 11, true); }
+    else if (lv_color == 12) { PlayerSetColorIndex(1, 12, true); }
+    else if (lv_color == 13) { PlayerSetColorIndex(1, 13, true); }
+    else if (lv_color == 14) { PlayerSetColorIndex(1, 14, true); }
+    else if (lv_color == 15) { PlayerSetColorIndex(1, 15, true); }
+    gf_DebugPrint("已设置玩家1 颜色 index=" + IntToString(lv_color));
+    return true;
+}
+void gt_cmd_setcolor_Init () {
+    gt_cmd_setcolor = TriggerCreate("gt_cmd_setcolor_Func");
+    // exact=false: 匹配以 "-setcolor" 开头的任何消息
+    TriggerAddEventChatMessage(gt_cmd_setcolor, c_playerAny, "-setcolor", false);
+}
+
 //--- 指令: -skinlist ----------------------------------------------------
 trigger gt_cmd_skinlist;
 bool gt_cmd_skinlist_Func (bool testConds, bool runActions) {
@@ -567,6 +635,7 @@ void InitTriggers () {
     gt_cmd_mengskrestore_Init();
     gt_cmd_taldarim2vanilla_Init();
     gt_cmd_taldarimrestore_Init();
+    gt_cmd_setcolor_Init();
     gt_cmd_skinlist_Init();
     gt_cmd_rewardlist_Init();
     gt_autoTest_Init();
