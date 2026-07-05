@@ -1,28 +1,15 @@
-//==================================================================================================
-// 
-// Generated Map Script - Abathur 单位测试
-// 
-//==================================================================================================
 include "TriggerLibs/NativeLib"
-include "LibAbathurCatalog"
+include "LibEmptyTestCatalog"
 
-//--------------------------------------------------------------------------------------------------
-// Library Initialization
-//--------------------------------------------------------------------------------------------------
 void InitLibs () {
     libNtve_InitLib();
-    libAbathurCatalog_InitLib();
+    libEmptyTestCatalog_InitLib();
 }
 
-//--------------------------------------------------------------------------------------------------
-// Trigger Variables
-//--------------------------------------------------------------------------------------------------
-trigger gt_spawnAbathurUnits;
+trigger gt_spawn;
 
-//--------------------------------------------------------------------------------------------------
-// Trigger: 生成阿巴瑟单位
-//--------------------------------------------------------------------------------------------------
-bool gt_spawnAbathurUnits_Func (bool testConds, bool runActions) {
+bool gt_spawn_Func (bool testConds, bool runActions) {
+    int lv_c;
     int lv_u;
     int lv_total;
     int lv_row;
@@ -33,6 +20,7 @@ bool gt_spawnAbathurUnits_Func (bool testConds, bool runActions) {
     fixed lv_y;
     point lv_pos;
     string lv_unitType;
+    int lv_unitCount;
     int lv_skipped;
     int lv_created;
 
@@ -40,27 +28,33 @@ bool gt_spawnAbathurUnits_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    lv_perRow = 10;
-    lv_spacing = 3.0;
+    lv_perRow = 20;
+    lv_spacing = 2.5;
     lv_total = 0;
     lv_skipped = 0;
     lv_created = 0;
 
-    for (lv_u = 0; lv_u < gv_c_AbathurUnitCount; lv_u += 1) {
-        lv_unitType = gv_AbathurUnits[lv_u];
-        if (lv_unitType != "") {
-            if (CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType) == false) {
-                lv_skipped += 1;
-            }
-            else {
-                lv_col = lv_total - (lv_total / lv_perRow) * lv_perRow;
-                lv_row = lv_total / lv_perRow;
-                lv_x = 50.0 + (lv_col * lv_spacing);
-                lv_y = 75.0 - (lv_row * lv_spacing);
-                lv_pos = Point(lv_x, lv_y);
-                libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
-                lv_total += 1;
-                lv_created += 1;
+    for (lv_c = 0; lv_c < gv_c_EmptyTestCommanderCount; lv_c += 1) {
+        if (gv_EmptyTestCommanders[lv_c] == "Reborn") {
+            lv_unitCount = gv_EmptyTestUnitCounts[lv_c];
+
+            for (lv_u = 0; lv_u < lv_unitCount; lv_u += 1) {
+                lv_unitType = gv_EmptyTestUnits[gv_EmptyTestUnitOffsets[lv_c] + lv_u];
+                if (lv_unitType != "") {
+                    if (CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType) == false) {
+                        lv_skipped += 1;
+                    }
+                    else {
+                        lv_col = lv_total - (lv_total / lv_perRow) * lv_perRow;
+                        lv_row = lv_total / lv_perRow;
+                        lv_x = 50.0 + (lv_col * lv_spacing);
+                        lv_y = 75.0 - (lv_row * lv_spacing);
+                        lv_pos = Point(lv_x, lv_y);
+                        libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
+                        lv_total += 1;
+                        lv_created += 1;
+                    }
+                }
             }
         }
     }
@@ -68,22 +62,15 @@ bool gt_spawnAbathurUnits_Func (bool testConds, bool runActions) {
     return true;
 }
 
-//--------------------------------------------------------------------------------------------------
-void gt_spawnAbathurUnits_Init () {
-    gt_spawnAbathurUnits = TriggerCreate("gt_spawnAbathurUnits_Func");
-    TriggerAddEventMapInit(gt_spawnAbathurUnits);
+void gt_spawn_Init () {
+    gt_spawn = TriggerCreate("gt_spawn_Func");
+    TriggerAddEventMapInit(gt_spawn);
 }
 
-//--------------------------------------------------------------------------------------------------
-// Trigger Initialization
-//--------------------------------------------------------------------------------------------------
 void InitTriggers () {
-    gt_spawnAbathurUnits_Init();
+    gt_spawn_Init();
 }
 
-//--------------------------------------------------------------------------------------------------
-// Map Initialization
-//--------------------------------------------------------------------------------------------------
 void InitMap () {
     InitLibs();
     InitTriggers();
