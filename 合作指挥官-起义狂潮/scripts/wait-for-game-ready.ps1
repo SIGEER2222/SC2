@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Smart wait for SC2 game loading and detect errors.
 #>
@@ -14,7 +14,14 @@ param(
         "is not defined",
         "syntax error",
         "Cannot find",
-        "Unknown function"
+        "Unknown function",
+        "参数类型同函数定义不匹配",
+        "脚本读取失败",
+        "函数已声明但尚未定义"
+    ),
+    [string[]]$WarnKeywords = @(
+        "出现触发器错误",
+        "无权调用"
     )
 )
 
@@ -51,6 +58,18 @@ function Test-HasScriptError {
         if ($content -match [regex]::Escape($keyword)) { return $true }
     }
     return $false
+}
+
+function Get-ScriptWarnings {
+    $content = Get-ScriptErrorContent
+    if ([string]::IsNullOrWhiteSpace($content)) { return @() }
+    $warnings = @()
+    foreach ($keyword in $WarnKeywords) {
+        if ($content -match [regex]::Escape($keyword)) {
+            $warnings += $keyword
+        }
+    }
+    return $warnings
 }
 
 function Test-Sc2ProcessRunning {
@@ -154,7 +173,12 @@ while ($true) {
             Write-Host "Total time: $([math]::Round($elapsed.TotalSeconds, 1)) s"
             Write-Host "Game process: Running"
             if ($currentScriptError) {
-                Write-Host "ScriptError: Exists but no critical error"
+                $warnings = Get-ScriptWarnings
+                if ($warnings.Count -gt 0) {
+                    Write-Host "ScriptError: Exists with runtime warnings (non-fatal): $($warnings -join ', ')"
+                } else {
+                    Write-Host "ScriptError: Exists but no critical error"
+                }
             } else {
                 Write-Host "ScriptError: Not detected"
             }

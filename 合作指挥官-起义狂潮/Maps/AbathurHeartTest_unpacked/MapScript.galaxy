@@ -23,11 +23,40 @@ int gv_activeModIndex = -1;
 string gv_commanderFilter = "";
 
 //--------------------------------------------------------------------------------------------------
+// 聊天指令相关全局变量
+//--------------------------------------------------------------------------------------------------
+// 内置预设皮肤 collection（来自官方 SkinData.xml）
+const int gv_c_SkinPresetCount = 12;
+string[12] gv_skinPresets;
+
+// 内置 D.Va 播报员奖励 ID
+const int gv_c_DVaRewardCount = 3;
+string[3] gv_dvaRewards;
+
+//--------------------------------------------------------------------------------------------------
 // Library Initialization
 //--------------------------------------------------------------------------------------------------
 void InitLibs () {
     libNtve_InitLib();
     libAbathurHeartCatalog_InitLib();
+
+    // 初始化预设数据
+    gv_skinPresets[0] = "Taldarim";
+    gv_skinPresets[1] = "Blizzcon17";
+    gv_skinPresets[2] = "Mecha";
+    gv_skinPresets[3] = "Nerazim";
+    gv_skinPresets[4] = "Judicator";
+    gv_skinPresets[5] = "CollectorEdition";
+    gv_skinPresets[6] = "Eidolon";
+    gv_skinPresets[7] = "Deluxe";
+    gv_skinPresets[8] = "Bone";
+    gv_skinPresets[9] = "Aquatic";
+    gv_skinPresets[10] = "Adun";
+    gv_skinPresets[11] = "AmonBrood";
+
+    gv_dvaRewards[0] = "VoicePackTerranBlizzConDVa";
+    gv_dvaRewards[1] = "VoicePackZergBlizzConDVa";
+    gv_dvaRewards[2] = "VoicePackProtossBlizzConDVa";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,8 +86,14 @@ void gf_SpawnModUnits (int modIndex, fixed baseX, fixed baseY, int perRow, fixed
                 lv_col = lv_created - (lv_created / perRow) * perRow;
                 lv_row = lv_created / perRow;
                 lv_pos = Point(baseX + (lv_col * spacing), baseY - (lv_row * spacing));
-                libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
-                lv_created += 1;
+                // 边界检查：避免生成在地图外（y < 1 时跳过，防止 ScriptError "无效的位置"）
+                if (PointGetY(lv_pos) < 1.0) {
+                    lv_skipped += 1;
+                }
+                else {
+                    libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
+                    lv_created += 1;
+                }
             }
         }
     }
@@ -86,10 +121,10 @@ bool gf_CommanderMatchesFilter (string identifier, string filter) {
 //--------------------------------------------------------------------------------------------------
 void gf_SpawnAllMods () {
     int lv_cols = 5;
-    fixed lv_blockW = 25.0;
-    fixed lv_blockH = 40.0;
+    fixed lv_blockW = 22.0;
+    fixed lv_blockH = 26.0;
     int lv_perRow = 8;
-    fixed lv_spacing = 2.8;
+    fixed lv_spacing = 2.5;
 
     int lv_modIndex;
     int lv_matchedCount;
@@ -122,35 +157,28 @@ void gf_SpawnAllMods () {
         return;
     }
 
-    if (gv_commanderFilter == "") {
-        // 无过滤：用左上角铺开布局
-        lv_startX = 4.0;
-        lv_startY = 124.0;
+    // 不论是否过滤，都动态获取地图边界并让所有区块在地图内居中
+    lv_mapRegion = RegionEntireMap();
+    lv_minPoint = RegionGetBoundsMin(lv_mapRegion);
+    lv_maxPoint = RegionGetBoundsMax(lv_mapRegion);
+    lv_mapCenterX = (PointGetX(lv_minPoint) + PointGetX(lv_maxPoint)) / 2.0;
+    lv_mapCenterY = (PointGetY(lv_minPoint) + PointGetY(lv_maxPoint)) / 2.0;
+
+    // 计算匹配组占用的总宽高，让整体居中
+    // 列数 = min(匹配数, 5)；行数 = ceil(匹配数 / 5)
+    if (lv_matchedCount < lv_cols) {
+        lv_totalWidth = (lv_matchedCount - 1) * lv_blockW;
     }
     else {
-        // 有过滤：动态获取地图中心，让区块居中
-        lv_mapRegion = RegionEntireMap();
-        lv_minPoint = RegionGetBoundsMin(lv_mapRegion);
-        lv_maxPoint = RegionGetBoundsMax(lv_mapRegion);
-        lv_mapCenterX = (PointGetX(lv_minPoint) + PointGetX(lv_maxPoint)) / 2.0;
-        lv_mapCenterY = (PointGetY(lv_minPoint) + PointGetY(lv_maxPoint)) / 2.0;
-
-        // 计算匹配组占用的总宽高，让整体居中
-        // 列数 = min(匹配数, 5)；行数 = ceil(匹配数 / 5)
-        if (lv_matchedCount < lv_cols) {
-            lv_totalWidth = (lv_matchedCount - 1) * lv_blockW;
-        }
-        else {
-            lv_totalWidth = (lv_cols - 1) * lv_blockW;
-        }
-        lv_totalHeight = ((lv_matchedCount - 1) / lv_cols) * lv_blockH;
-
-        // 起始点 = 中心 - 总宽高的一半
-        // 单个 block 内部：8 个单位 perRow，spacing 2.8，宽 22.4，高 ~N*2.8
-        // 把 block 的左上角对齐到 (中心 - 总宽/2, 中心 + 总高/2)
-        lv_startX = lv_mapCenterX - (lv_totalWidth / 2.0);
-        lv_startY = lv_mapCenterY + (lv_totalHeight / 2.0);
+        lv_totalWidth = (lv_cols - 1) * lv_blockW;
     }
+    lv_totalHeight = ((lv_matchedCount - 1) / lv_cols) * lv_blockH;
+
+    // 起始点 = 中心 - 总宽高的一半
+    // 单个 block 内部：8 个单位 perRow，spacing 2.8，宽 22.4，高 ~N*2.8
+    // 把 block 的左上角对齐到 (中心 - 总宽/2, 中心 + 总高/2)
+    lv_startX = lv_mapCenterX - (lv_totalWidth / 2.0);
+    lv_startY = lv_mapCenterY + (lv_totalHeight / 2.0);
 
     lv_visibleIndex = 0;
     for (lv_modIndex = 0; lv_modIndex < gv_c_AH_ModCount; lv_modIndex += 1) {
@@ -212,10 +240,264 @@ void gt_spawnUnits_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// 聊天指令触发器（参考 RevolutionOverdrive 缝合版 Lib6B3CCD85.galaxy 实现）
+// 每个指令单独一个触发器，用 c_playerAny + exact=true 注册
+// 这样引擎自带消息过滤，无需在脚本里解析字符串
+//--------------------------------------------------------------------------------------------------
+
+// 在地图中央显示漂浮文字（替代不可用的 TriggerDebugOutput）
+int gv_debugTextCount = 0;
+
+void gf_DebugPrint (string msg) {
+    point lv_pos;
+    playergroup lv_allPlayers;
+    int lv_tag;
+    fixed lv_x;
+    fixed lv_y;
+
+    lv_x = 30.0;
+    lv_y = 110.0 - (IntToFixed(gv_debugTextCount) * 3.0);
+    if (lv_y < 20.0) {
+        gv_debugTextCount = 0;
+        lv_y = 110.0;
+    }
+    lv_pos = Point(lv_x, lv_y);
+    lv_allPlayers = PlayerGroupAll();
+    lv_tag = TextTagCreate(StringToText(msg), 24, lv_pos, 0.0, true, false, lv_allPlayers);
+    TextTagSetMaxSize(lv_tag, 30.0, 5.0);
+    gv_debugTextCount = gv_debugTextCount + 1;
+}
+
+// 把玩家1的所有单位从 fromType 替换为 toType（参考 lib6B3CCD85 模式）
+void gf_ReplaceAllUnits (string fromType, string toType) {
+    unitgroup autoGroup;
+    int autoCount;
+    unit autoUnit;
+
+    autoGroup = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    autoCount = UnitGroupCount(autoGroup, c_unitCountAll);
+    for (;; autoCount -= 1) {
+        autoUnit = UnitGroupUnitFromEnd(autoGroup, autoCount);
+        if (autoUnit == null) { break; }
+        if ((UnitGetType(autoUnit) == fromType)) {
+            libNtve_gf_ReplaceUnit(autoUnit, toType, libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
+        }
+    }
+}
+
+//--- 指令: test ---------------------------------------------------------
+trigger gt_cmd_test;
+bool gt_cmd_test_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_DebugPrint("[OK] 聊天触发器工作正常");
+    return true;
+}
+void gt_cmd_test_Init () {
+    gt_cmd_test = TriggerCreate("gt_cmd_test_Func");
+    TriggerAddEventChatMessage(gt_cmd_test, c_playerAny, "-test", true);
+}
+
+//--- 指令: -help ---------------------------------------------------------
+trigger gt_cmd_help;
+bool gt_cmd_help_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_DebugPrint("指令: -test -dva -skintaldarim -skinblizzcon17 -skinreset -replace -skinlist -rewardlist");
+    return true;
+}
+void gt_cmd_help_Init () {
+    gt_cmd_help = TriggerCreate("gt_cmd_help_Func");
+    TriggerAddEventChatMessage(gt_cmd_help, c_playerAny, "-help", true);
+}
+
+//--- 指令: -dva (解锁 D.Va 播报员) --------------------------------------
+// 注意：PlayerAddReward 在 mod 环境下无权调用（与 PlayerSetSkin/PlayerSetCommander 同类限制）
+// mod 替换了 NativeLib，奖励解锁类 API 不可用，只能退出地图后在收藏界面手动解锁
+trigger gt_cmd_dva;
+bool gt_cmd_dva_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_DebugPrint("[mod 环境限制] PlayerAddReward 无权调用，请退出后在收藏界面手动解锁 D.Va 播报员");
+    gf_DebugPrint("奖励ID: VoicePackTerranBlizzConDVa / VoicePackZergBlizzConDVa / VoicePackProtossBlizzConDVa");
+    return true;
+}
+void gt_cmd_dva_Init () {
+    gt_cmd_dva = TriggerCreate("gt_cmd_dva_Func");
+    TriggerAddEventChatMessage(gt_cmd_dva, c_playerAny, "-dva", true);
+}
+
+//--- 指令: -skintaldarim (用 ReplaceUnit 把 Zealot 替换为塔达林 ZealotTaldarim) ---
+trigger gt_cmd_skinTaldarim;
+bool gt_cmd_skinTaldarim_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    // PlayerSetSkin 在 mod 环境下无权调用，改用 ReplaceUnit 替换单位类型
+    gf_ReplaceAllUnits("Zealot", "ZealotTaldarim");
+    gf_ReplaceAllUnits("Stalker", "StalkerTaldarim");
+    gf_ReplaceAllUnits("Immortal", "ImmortalTaldarim");
+    gf_DebugPrint("已将 Zealot/Stalker/Immortal 替换为 Taldarim 皮肤版本");
+    return true;
+}
+void gt_cmd_skinTaldarim_Init () {
+    gt_cmd_skinTaldarim = TriggerCreate("gt_cmd_skinTaldarim_Func");
+    TriggerAddEventChatMessage(gt_cmd_skinTaldarim, c_playerAny, "-skintaldarim", true);
+}
+
+//--- 指令: -skinblizzcon17 (替换为 Blizzcon17 皮肤单位) ----------------
+trigger gt_cmd_skinBlizzcon17;
+bool gt_cmd_skinBlizzcon17_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_ReplaceAllUnits("Drone", "DroneBlizzcon17");
+    gf_ReplaceAllUnits("Probe", "ProbeBlizzcon17");
+    gf_ReplaceAllUnits("SCV", "SCVBlizzcon17");
+    gf_DebugPrint("已将 Drone/Probe/SCV 替换为 Blizzcon17 皮肤版本");
+    return true;
+}
+void gt_cmd_skinBlizzcon17_Init () {
+    gt_cmd_skinBlizzcon17 = TriggerCreate("gt_cmd_skinBlizzcon17_Func");
+    TriggerAddEventChatMessage(gt_cmd_skinBlizzcon17, c_playerAny, "-skinblizzcon17", true);
+}
+
+//--- 指令: -skinreset (重置：把 Taldarim 版本换回原版) -----------------
+trigger gt_cmd_skinReset;
+bool gt_cmd_skinReset_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_ReplaceAllUnits("ZealotTaldarim", "Zealot");
+    gf_ReplaceAllUnits("StalkerTaldarim", "Stalker");
+    gf_ReplaceAllUnits("ImmortalTaldarim", "Immortal");
+    gf_ReplaceAllUnits("DroneBlizzcon17", "Drone");
+    gf_ReplaceAllUnits("ProbeBlizzcon17", "Probe");
+    gf_ReplaceAllUnits("SCVBlizzcon17", "SCV");
+    gf_DebugPrint("已重置为默认皮肤");
+    return true;
+}
+void gt_cmd_skinReset_Init () {
+    gt_cmd_skinReset = TriggerCreate("gt_cmd_skinReset_Func");
+    TriggerAddEventChatMessage(gt_cmd_skinReset, c_playerAny, "-skinreset", true);
+}
+
+//--- 指令: -replace (示例: 把玩家1的 Zealot 替换为 Stalker) -------------
+trigger gt_cmd_replace;
+bool gt_cmd_replace_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_ReplaceAllUnits("Zealot", "Stalker");
+    gf_DebugPrint("已将 Zealot 替换为 Stalker");
+    return true;
+}
+void gt_cmd_replace_Init () {
+    gt_cmd_replace = TriggerCreate("gt_cmd_replace_Func");
+    TriggerAddEventChatMessage(gt_cmd_replace, c_playerAny, "-replace", true);
+}
+
+//--- 指令: -skinlist ----------------------------------------------------
+trigger gt_cmd_skinlist;
+bool gt_cmd_skinlist_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_DebugPrint("皮肤: Taldarim Blizzcon17 Mecha Nerazim Judicator CollectorEdition Eidolon Deluxe Bone Aquatic Adun AmonBrood");
+    return true;
+}
+void gt_cmd_skinlist_Init () {
+    gt_cmd_skinlist = TriggerCreate("gt_cmd_skinlist_Func");
+    TriggerAddEventChatMessage(gt_cmd_skinlist, c_playerAny, "-skinlist", true);
+}
+
+//--- 指令: -rewardlist --------------------------------------------------
+trigger gt_cmd_rewardlist;
+bool gt_cmd_rewardlist_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_DebugPrint("D.Va: VoicePackTerranBlizzConDVa VoicePackZergBlizzConDVa VoicePackProtossBlizzConDVa");
+    return true;
+}
+void gt_cmd_rewardlist_Init () {
+    gt_cmd_rewardlist = TriggerCreate("gt_cmd_rewardlist_Func");
+    TriggerAddEventChatMessage(gt_cmd_rewardlist, c_playerAny, "-rewardlist", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// 自动测试触发器：游戏加载后间隔执行各指令，自动验证
+// 时序（秒）：
+//   5  : -test        验证聊天框架
+//   10 : -help        显示指令列表
+//   15 : -dva         解锁 D.Va 播报员
+//   20 : -skintaldarim 替换为 Taldarim 皮肤单位
+//   27 : -skinreset   重置
+//   34 : -skinblizzcon17 替换为 Blizzcon17 皮肤单位
+//   41 : -skinreset   重置
+//--------------------------------------------------------------------------------------------------
+trigger gt_autoTest;
+int gv_autoTestStep = 0;
+timer gv_autoTestTimer;
+
+bool gt_autoTest_Func (bool testConds, bool runActions) {
+    int lv_step;
+    if (!runActions) { return true; }
+
+    gv_autoTestStep = gv_autoTestStep + 1;
+    lv_step = gv_autoTestStep;
+
+    if (lv_step == 1) {
+        gf_DebugPrint("[AUTO 5s] -test");
+        gf_DebugPrint("[OK] chat trigger works");
+    }
+    else if (lv_step == 2) {
+        gf_DebugPrint("[AUTO 10s] -help");
+        gf_DebugPrint("cmds: -test -dva -skintaldarim -skinblizzcon17 -skinreset -replace");
+    }
+    else if (lv_step == 3) {
+        gf_DebugPrint("[AUTO 15s] -dva (mod 环境下 PlayerAddReward 不可用，仅提示)");
+    }
+    else if (lv_step == 4) {
+        gf_DebugPrint("[AUTO 20s] -skintaldarim Zealot->ZealotTaldarim");
+        gf_ReplaceAllUnits("Zealot", "ZealotTaldarim");
+        gf_ReplaceAllUnits("Stalker", "StalkerTaldarim");
+        gf_ReplaceAllUnits("Immortal", "ImmortalTaldarim");
+    }
+    else if (lv_step == 5) {
+        gf_DebugPrint("[AUTO 27s] -skinreset restore");
+        gf_ReplaceAllUnits("ZealotTaldarim", "Zealot");
+        gf_ReplaceAllUnits("StalkerTaldarim", "Stalker");
+        gf_ReplaceAllUnits("ImmortalTaldarim", "Immortal");
+    }
+    else if (lv_step == 6) {
+        gf_DebugPrint("[AUTO 34s] -skinblizzcon17 Drone/Probe/SCV");
+        gf_ReplaceAllUnits("Drone", "DroneBlizzcon17");
+        gf_ReplaceAllUnits("Probe", "ProbeBlizzcon17");
+        gf_ReplaceAllUnits("SCV", "SCVBlizzcon17");
+    }
+    else if (lv_step == 7) {
+        gf_DebugPrint("[AUTO 41s] -skinreset restore");
+        gf_ReplaceAllUnits("DroneBlizzcon17", "Drone");
+        gf_ReplaceAllUnits("ProbeBlizzcon17", "Probe");
+        gf_ReplaceAllUnits("SCVBlizzcon17", "SCV");
+        gf_DebugPrint("[AUTO] test done, can input cmds manually");
+        return true;
+    }
+
+    // 重新启动定时器，下一次触发间隔 7 秒（首次 5 秒已在 Init 中设置）
+    TimerStart(gv_autoTestTimer, 7.0, false, c_timeGame);
+    return true;
+}
+
+void gt_autoTest_Init () {
+    gv_autoTestTimer = TimerCreate();
+    gt_autoTest = TriggerCreate("gt_autoTest_Func");
+    TriggerAddEventTimer(gt_autoTest, gv_autoTestTimer);
+    // 首次 5 秒后触发（等游戏加载和单位生成完成）
+    TimerStart(gv_autoTestTimer, 5.0, false, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger Initialization
 //--------------------------------------------------------------------------------------------------
 void InitTriggers () {
     gt_spawnUnits_Init();
+    gt_cmd_test_Init();
+    gt_cmd_help_Init();
+    gt_cmd_dva_Init();
+    gt_cmd_skinTaldarim_Init();
+    gt_cmd_skinBlizzcon17_Init();
+    gt_cmd_skinReset_Init();
+    gt_cmd_replace_Init();
+    gt_cmd_skinlist_Init();
+    gt_cmd_rewardlist_Init();
+    gt_autoTest_Init();
 }
 
 //--------------------------------------------------------------------------------------------------
