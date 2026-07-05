@@ -1,24 +1,28 @@
 //================================================================================
-// LibEmptyTestCatalog.galaxy - Abathur 专属单位 (63个)
+// LibEmptyTestCatalog.galaxy - Abathur 专属单位 (70个)
 // 含升级/变异链：Hatchery→Lair→Hive, Spire→GreaterSpire, Overlord→Overseer
-// 含 Abathur 进化分支变种：RoachCorpser/RoachVile/SwarmHostSplitA/SwarmHostSplitB
-//   （正常情况通过 mod 触发器 TechTreeUnitAllow + ReplaceUnit 替换原版单位，
-//    测试图直接生成变种单位本身）
+// 含 Abathur 进化分支变种（11个，正常通过 mod 触发器 ReplaceUnit 替换原版单位获得，
+//   测试图直接生成变种单位本身）：
+//   RoachCorpser/RoachVile/SwarmHostSplitA/SwarmHostSplitB（Roach/SwarmHost 进化）
+//   HotSRaptor/HotSSwarmling（Zergling 进化）
+//   HydraliskImpaler/HydraliskLurker（Hydralisk 进化）
+//   HotSNoxious/HotSTorrasque（Ultralisk 进化）
+//   Devourer（Mutalisk 进化，Corruptor 变异目标之一）
 // 来源：递归收集 Larva trains + Drone builds + morphs_to 链，仅 Zerg 种族
 //================================================================================
 
 const int gv_c_EmptyTestCommanderCount = 1;
-const int gv_c_EmptyTestTotalUnits = 63;
+const int gv_c_EmptyTestTotalUnits = 70;
 
 string[1] gv_EmptyTestCommanders;
 int[1] gv_EmptyTestUnitOffsets;
 int[1] gv_EmptyTestUnitCounts;
-string[63] gv_EmptyTestUnits;
+string[70] gv_EmptyTestUnits;
 
 void libEmptyTestCatalog_InitLib () {
     gv_EmptyTestCommanders[0] = "Reborn";
     gv_EmptyTestUnitOffsets[0] = 0;
-    gv_EmptyTestUnitCounts[0] = 63;
+    gv_EmptyTestUnitCounts[0] = 70;
 
     gv_EmptyTestUnits[0] = "Larva";
     gv_EmptyTestUnits[1] = "Drone";
@@ -31,7 +35,7 @@ void libEmptyTestCatalog_InitLib () {
     gv_EmptyTestUnits[8] = "Roach";
     gv_EmptyTestUnits[9] = "Infestor";
     gv_EmptyTestUnits[10] = "Viper";
-    gv_EmptyTestUnits[11] = "SwarmHostMP";
+    gv_EmptyTestUnits[11] = "SwarmHost";
     gv_EmptyTestUnits[12] = "Baneling";
     gv_EmptyTestUnits[13] = "HotSHunter";
     gv_EmptyTestUnits[14] = "HotSSplitterlingBig";
@@ -79,9 +83,22 @@ void libEmptyTestCatalog_InitLib () {
     gv_EmptyTestUnits[56] = "Lair";
     gv_EmptyTestUnits[57] = "Hive";
     gv_EmptyTestUnits[58] = "GreaterSpire";
-    // Abathur 进化分支变种（正常通过 mod 触发器替换原版单位获得，测试图直接生成）
+    // Abathur 进化分支变种（正常通过 mod 触发器 ReplaceUnit 替换原版单位获得，测试图直接生成）
+    // Roach 进化
     gv_EmptyTestUnits[59] = "RoachCorpser";
     gv_EmptyTestUnits[60] = "RoachVile";
+    // SwarmHost 进化
     gv_EmptyTestUnits[61] = "SwarmHostSplitA";
     gv_EmptyTestUnits[62] = "SwarmHostSplitB";
+    // Zergling 进化
+    gv_EmptyTestUnits[63] = "HotSRaptor";
+    gv_EmptyTestUnits[64] = "HotSSwarmling";
+    // Hydralisk 进化
+    gv_EmptyTestUnits[65] = "HydraliskImpaler";
+    gv_EmptyTestUnits[66] = "HydraliskLurker";
+    // Ultralisk 进化
+    gv_EmptyTestUnits[67] = "HotSNoxious";
+    gv_EmptyTestUnits[68] = "HotSTorrasque";
+    // Mutalisk 进化（Corruptor 变异目标之一，mod 中也通过 ReplaceUnit 获得）
+    gv_EmptyTestUnits[69] = "Devourer";
 }

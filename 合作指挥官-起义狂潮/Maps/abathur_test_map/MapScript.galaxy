@@ -36,14 +36,57 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
     PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
 
+    // 给玩家 1 授予 Abathur 升级
+    // mod 的 lib48DF4533_gt_AbathurAbilities 触发器需要此升级才会给刺蛇/跳虫/爆虫/蟑螂等
+    // 单位注入 Purchase 能力（HydraliskCripple, BanelingCreep, AdrenalineOverdose 等）
+    // mod 的 CommanderStart 初始化也会检查此升级，启用 Purchase 能力的 TechTree
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "Abathur", 1);
+
+    // 启用 mod 的 Abathur Abilities 触发器（默认禁用）
+    // 该触发器在单位进入地图时给刺蛇/跳虫/爆虫/蟑螂/王虫注入 Purchase 能力
+    // 需要先设置 Abathur 升级，否则触发器条件不满足
+    TriggerEnable(lib48DF4533_gt_AbathurAbilities, true);
+
     // 解锁 Abathur 进化分支变种（mod 默认锁定，需要 TechTreeUnitAllow 显式解锁）
     TechTreeUnitAllow(1, "RoachCorpser", true);
     TechTreeUnitAllow(1, "RoachVile", true);
     TechTreeUnitAllow(1, "SwarmHostSplitA", true);
     TechTreeUnitAllow(1, "SwarmHostSplitB", true);
+    TechTreeUnitAllow(1, "HotSRaptor", true);
+    TechTreeUnitAllow(1, "HotSSwarmling", true);
+    TechTreeUnitAllow(1, "HydraliskImpaler", true);
+    TechTreeUnitAllow(1, "HydraliskLurker", true);
+    TechTreeUnitAllow(1, "HotSNoxious", true);
+    TechTreeUnitAllow(1, "HotSTorrasque", true);
+    TechTreeUnitAllow(1, "Devourer", true);
 
-    lv_perRow = 20;
-    lv_spacing = 2.5;
+    // 解锁 Purchase 能力（mod 的 AbathurAbilities 触发器只对刺蛇/跳虫/爆虫/蟑螂/王虫家族解锁，
+    // 雷兽/飞龙/宿主/穿刺者/潜伏者等需要手动解锁）
+    // 注意：TechTreeAbilityAllow 报错"能力无效"，暂时注释掉
+    // Ultralisk 家族
+    // TechTreeAbilityAllow(1, AbilityCommand("UltraliskElectricShockPurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("UltraliskHighVoltagePurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("UltraliskLightningRaidPurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("UltraliskThunderstormPurchase", 0), true);
+    // Mutalisk 家族
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurMutaliskExplosiveGlaivePurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurMutaliskViciousGlaivePurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurMutaliskRapidRegenerationPurchase", 0), true);
+    // SwarmHost 家族
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurHostRapidIncubationPurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurHostLocustSpeedPurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurHostPressurizedGlandsPurchase", 0), true);
+    // HydraliskImpaler 变种
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurImpalerArmorPiercingSpinesPurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurImpalerEarthveinGlidePurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurImpalerAftershockImpalePurchase", 0), true);
+    // HydraliskLurker 变种
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurLurkerRiftSpinesPurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurLurkerStalkerGlidePurchase", 0), true);
+    // TechTreeAbilityAllow(1, AbilityCommand("AbathurLurkerVenomAmbushPurchase", 0), true);
+
+    lv_perRow = 14;
+    lv_spacing = 3.0;
     lv_total = 0;
     lv_skipped = 0;
     lv_created = 0;
@@ -56,13 +99,15 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
                 lv_unitType = gv_EmptyTestUnits[gv_EmptyTestUnitOffsets[lv_c] + lv_u];
                 if (lv_unitType != "") {
                     if (CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType) == false) {
+                        // 调试输出：被跳过的无效单位
+                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("SKIP: ") + StringToText(lv_unitType));
                         lv_skipped += 1;
                     }
                     else {
                         lv_col = lv_total - (lv_total / lv_perRow) * lv_perRow;
                         lv_row = lv_total / lv_perRow;
-                        lv_x = 50.0 + (lv_col * lv_spacing);
-                        lv_y = 75.0 - (lv_row * lv_spacing);
+                        lv_x = 40.0 + (lv_col * lv_spacing);
+                        lv_y = 85.0 - (lv_row * lv_spacing);
                         lv_pos = Point(lv_x, lv_y);
                         libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
                         lv_total += 1;
@@ -73,6 +118,11 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
         }
     }
 
+    // 调试输出：创建和跳过的总数
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug,
+        StringToText("Total created=") + IntToText(lv_created)
+        + StringToText(" skipped=") + IntToText(lv_skipped));
+
     return true;
 }
 
@@ -81,8 +131,9 @@ void gt_spawn_Init () {
     TriggerAddEventMapInit(gt_spawn);
 }
 
-// 延时触发器：在游戏初始化 3 秒后重置资源/人口上限
-// （避开 mod 库初始化覆盖，mod 用 c_playerPropOperAdd/Subtract 修改人口，可能覆盖我们的 SetTo）
+// 周期性重置资源/人口上限的触发器
+// mod 初始化会用 c_playerPropOperAdd/Subtract 修改人口上限覆盖我们的 SetTo，
+// 用 while+Wait 循环每秒重置一次，确保覆盖 mod 的任何修改
 trigger gt_resetResources;
 
 bool gt_resetResources_Func (bool testConds, bool runActions) {
@@ -90,17 +141,20 @@ bool gt_resetResources_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    // 重置资源/人口上限（覆盖 mod 初始化的修改）
-    PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
-    PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
-    PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
+    while (true) {
+        // 重置资源/人口上限（覆盖 mod 初始化的修改）
+        PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
+        PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
+        PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
+        Wait(1.0, c_timeReal);
+    }
 
     return true;
 }
 
 void gt_resetResources_Init () {
     gt_resetResources = TriggerCreate("gt_resetResources_Func");
-    TriggerAddEventTimeElapsed(gt_resetResources, 3.0, c_timeReal);
+    TriggerAddEventTimeElapsed(gt_resetResources, 1.0, c_timeReal);
 }
 
 void InitTriggers () {
