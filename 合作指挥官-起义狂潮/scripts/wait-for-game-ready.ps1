@@ -60,6 +60,24 @@ function Test-HasScriptError {
     return $false
 }
 
+# 提取 ScriptError 内容中包含致命错误关键字的行
+# 用于精确比较两次 ScriptError 之间是否新增了致命错误（避免 LastWriteTime 变化但内容相同的误报）
+function Get-FatalErrorLines {
+    param([string]$Content)
+    if ([string]::IsNullOrWhiteSpace($Content)) { return @() }
+    $lines = $Content -split "`r?`n"
+    $fatalLines = @()
+    foreach ($line in $lines) {
+        foreach ($keyword in $ErrorKeywords) {
+            if ($line -match [regex]::Escape($keyword)) {
+                $fatalLines += $line.Trim()
+                break
+            }
+        }
+    }
+    return $fatalLines
+}
+
 function Get-ScriptWarnings {
     $content = Get-ScriptErrorContent
     if ([string]::IsNullOrWhiteSpace($content)) { return @() }
@@ -143,24 +161,30 @@ while ($true) {
 
     if ($null -ne $alertsDetectedTime) {
         $graceElapsed = ((Get-Date) - $alertsDetectedTime).TotalSeconds
-        
-        $hasNewScriptError = $false
-        if ($currentScriptError) {
-            if ($null -eq $scriptErrorBaselineTime) {
-                $hasNewScriptError = $true
-                Write-Host ">>> New ScriptError appeared"
-            } elseif ($currentScriptErrorTime -gt $scriptErrorBaselineTime) {
-                $hasNewScriptError = $true
-                Write-Host ">>> ScriptError updated"
+
+        # 只在致命错误内容真正增加时才报错（避免 LastWriteTime 变化但内容相同的误报）
+        # 比较 baseline 之后新增的致命错误行
+        $hasNewFatalError = $false
+        if ($currentScriptError -and (Test-HasScriptError)) {
+            if ($null -eq $scriptErrorBaselineContent) {
+                # baseline 时无 ScriptError，现在有致命错误
+                $hasNewFatalError = $true
             } elseif ($currentScriptErrorContent -ne $scriptErrorBaselineContent) {
-                $hasNewScriptError = $true
-                Write-Host ">>> ScriptError content changed"
+                # 内容有变化，检查是否新增了致命错误行
+                $currentFatalLines = Get-FatalErrorLines $currentScriptErrorContent
+                $baselineFatalLines = Get-FatalErrorLines $scriptErrorBaselineContent
+                foreach ($line in $currentFatalLines) {
+                    if ($baselineFatalLines -notcontains $line) {
+                        $hasNewFatalError = $true
+                        break
+                    }
+                }
             }
         }
 
-        if ($hasNewScriptError -and (Test-HasScriptError)) {
+        if ($hasNewFatalError) {
             Write-Host ""
-            Write-Error "New script error detected!"
+            Write-Error "New fatal script error detected!"
             Write-ScriptErrorReport
             exit 1
         }
