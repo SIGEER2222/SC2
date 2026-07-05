@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   虫心mod测试地图 专用启动脚本。
 
@@ -72,7 +72,7 @@ function Copy-DirectoryClean {
         [System.IO.Directory]::CreateDirectory($parent) | Out-Null
     }
     # 用 robocopy 复制（Copy-Item 在安全包装下可能被拦截）
-    Write-Host "    robocopy `"$Source`" -> `"$Destination`""
+    Write-Host "    robocopy: $Source -> $Destination"
     robocopy $Source $Destination /MIR /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
     if ($LASTEXITCODE -ge 8) {
         throw "robocopy failed with exit code $LASTEXITCODE"
@@ -155,6 +155,5 @@ try {
 
 } catch {
     Write-Host "ERROR at line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Command: $($_.InvocationInfo.Line.Trim())" -ForegroundColor Red
     throw
 }

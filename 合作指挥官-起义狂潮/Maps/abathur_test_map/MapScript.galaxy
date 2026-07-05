@@ -5,8 +5,8 @@ include "LibEmptyTestCatalog"
 string gv_spawnCommanderFilter = "Reborn";
 
 // F2 排除选中功能相关全局变量
-unitgroup gv_excludedUnits;      // 被排除选中的单位组（不再被 F2 选中）
-bool gv_excludeMode = false;     // 排除模式开关（开启后选中单位将其从 F2 排除）
+// 注：此方案直接给 P1 战斗单位自动加 ExcludeF2Test behavior（SuppressArmySelect）
+// 不使用技能切换，进图即生效。用 -unlock 指令移除所有 behavior。
 
 void InitLibs () {
     libNtve_InitLib();
@@ -137,6 +137,21 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
         StringToText("Total created=") + IntToText(lv_created)
         + StringToText(" skipped=") + IntToText(lv_skipped));
 
+    // 额外生成几个不同类型的初始单位用于测试 F2 排除
+    // 覆盖：建筑 / 工人 / 地面近战 / 地面远程 / 飞行 / 攻城 / 大型
+    // 在地图下方区域 (y=20~32) 按类型分组放置，便于点击按钮后逐个测试
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Hatchery",    c_unitCreateIgnorePlacement, 1, Point(50.0, 30.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Drone",       c_unitCreateIgnorePlacement, 1, Point(48.0, 28.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(4, "Zergling",    c_unitCreateIgnorePlacement, 1, Point(52.0, 28.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Hydralisk",   c_unitCreateIgnorePlacement, 1, Point(48.0, 32.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Overlord",    c_unitCreateIgnorePlacement, 1, Point(52.0, 32.0));
+    // 第二批：更多战斗单位，验证选中效果覆盖不同体型/类型
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Baneling",    c_unitCreateIgnorePlacement, 1, Point(56.0, 28.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Roach",       c_unitCreateIgnorePlacement, 1, Point(56.0, 32.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Mutalisk",    c_unitCreateIgnorePlacement, 1, Point(60.0, 28.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "SwarmHost",   c_unitCreateIgnorePlacement, 1, Point(60.0, 32.0));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Ultralisk",   c_unitCreateIgnorePlacement, 1, Point(64.0, 30.0));
+
     return true;
 }
 
@@ -172,107 +187,71 @@ void gt_resetResources_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// F2 排除选中功能
-// 为玩家1所有建筑添加"排除选中"能力（AHExcludeFromSelectAll，即时技能）
-// 点击基地按钮 → 切换"排除模式" → 选中任何单位将其从 F2 选中中排除
-// 再次点击按钮 → 关闭排除模式
-// 聊天指令 -unlock → 恢复所有被排除的单位
+// F2 排除选中功能（自动方案）
+// 在所有 P1 战斗单位创建后自动添加 ExcludeF2Test behavior（SuppressArmySelect）
+// 这样它们不会被 F2"选中全部战斗单位"选中
+// 聊天指令 -unlock → 移除地图上所有单位的 ExcludeF2Test behavior，恢复 F2 选中
 //--------------------------------------------------------------------------------------------------
 
-// 给玩家1所有建筑添加"排除选中"能力
-void gf_AddExcludeAbilityToAllBuildings () {
+// 给玩家1所有战斗单位自动添加 ExcludeF2Test behavior
+void gf_ApplyExcludeF2ToAllCombatUnits () {
     unitgroup autoGroup;
     int autoCount;
     unit autoUnit;
+    int lv_applied;
 
-    autoGroup = UnitGroup(null, 1, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    // 筛选所有 P1 单位，排除建筑/工人/导弹/死单位
+    autoGroup = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterWorker) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
     autoCount = UnitGroupCount(autoGroup, c_unitCountAll);
+    lv_applied = 0;
     for (;; autoCount -= 1) {
         autoUnit = UnitGroupUnitFromEnd(autoGroup, autoCount);
         if (autoUnit == null) { break; }
-        UnitAbilityAdd(autoUnit, "AHExcludeFromSelectAll");
+        if (!UnitHasBehavior2(autoUnit, "ExcludeF2Test")) {
+            UnitBehaviorAdd(autoUnit, "ExcludeF2Test", autoUnit, 1);
+            lv_applied += 1;
+        }
     }
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug,
+        StringToText("[F2] 已为 ") + IntToText(lv_applied) + StringToText(" 个战斗单位添加 ExcludeF2Test behavior"));
 }
 
-// 触发器: 单位生成完成后给所有 P1 建筑添加排除选中能力
-trigger gt_applyExclusionButtons;
-bool gt_applyExclusionButtons_Func (bool testConds, bool runActions) {
+// 触发器: 单位生成完成后自动给所有 P1 战斗单位添加 ExcludeF2Test behavior
+// 用延时触发确保 spawn 触发器先执行完
+trigger gt_applyExcludeF2;
+bool gt_applyExcludeF2_Func (bool testConds, bool runActions) {
     if (!runActions) { return true; }
-    gf_AddExcludeAbilityToAllBuildings();
+    gf_ApplyExcludeF2ToAllCombatUnits();
     return true;
 }
-void gt_applyExclusionButtons_Init () {
-    gt_applyExclusionButtons = TriggerCreate("gt_applyExclusionButtons_Func");
-    TriggerAddEventMapInit(gt_applyExclusionButtons);
+void gt_applyExcludeF2_Init () {
+    gt_applyExcludeF2 = TriggerCreate("gt_applyExcludeF2_Func");
+    TriggerAddEventTimeElapsed(gt_applyExcludeF2, 2.0, c_timeReal);
 }
 
-// 触发器: 排除选中能力被使用（基地按钮点击）→ 切换"排除模式"
-trigger gt_excludeAbilityUsed;
-bool gt_excludeAbilityUsed_Func (bool testConds, bool runActions) {
-    abilcmd lv_abil;
-
-    if (!runActions) { return true; }
-
-    lv_abil = EventUnitAbility();
-
-    if (!((lv_abil == AbilityCommand("AHExcludeFromSelectAll", 0)))) {
-        return false;
-    }
-
-    gv_excludeMode = !gv_excludeMode;
-    if (gv_excludeMode) {
-        UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("[EXCLUDE ON] 排除模式已开启，选中单位将其从 F2 排除"));
-    } else {
-        UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("[EXCLUDE OFF] 排除模式已关闭"));
-    }
-    return true;
-}
-void gt_excludeAbilityUsed_Init () {
-    gt_excludeAbilityUsed = TriggerCreate("gt_excludeAbilityUsed_Func");
-    TriggerAddEventUnitAbility(gt_excludeAbilityUsed, null, null, c_unitAbilStageExecute, false);
-}
-
-// 触发器: 单位被选中（排除模式下生效）
-// 在排除模式下，玩家选中的单位会变为不可选中，不再被 F2 选中
-trigger gt_unitSelected;
-bool gt_unitSelected_Func (bool testConds, bool runActions) {
-    unit lv_selected;
-
-    if (!runActions) { return true; }
-
-    if (!gv_excludeMode) { return false; }
-
-    lv_selected = EventUnit();
-    if ((lv_selected == null)) { return false; }
-
-    UnitSetState(lv_selected, c_unitStateSelectable, false);
-    UnitGroupAdd(gv_excludedUnits, lv_selected);
-    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("[LOCK] 单位已从 F2 排除，输入 -unlock 恢复"));
-    return true;
-}
-void gt_unitSelected_Init () {
-    gt_unitSelected = TriggerCreate("gt_unitSelected_Func");
-    TriggerAddEventUnitSelected(gt_unitSelected, null, c_playerAny, true);
-}
-
-// 指令: -unlock (恢复所有被排除的单位)
+// 指令: -unlock (移除地图上所有 P1 单位的 ExcludeF2Test behavior)
 trigger gt_cmd_unlock;
 bool gt_cmd_unlock_Func (bool testConds, bool runActions) {
     unitgroup autoGroup;
     int autoCount;
     unit autoUnit;
+    int lv_removed;
 
     if (!runActions) { return true; }
 
-    autoGroup = gv_excludedUnits;
+    autoGroup = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
     autoCount = UnitGroupCount(autoGroup, c_unitCountAll);
+    lv_removed = 0;
     for (;; autoCount -= 1) {
         autoUnit = UnitGroupUnitFromEnd(autoGroup, autoCount);
         if (autoUnit == null) { break; }
-        UnitSetState(autoUnit, c_unitStateSelectable, true);
+        if (UnitHasBehavior2(autoUnit, "ExcludeF2Test")) {
+            UnitBehaviorRemove(autoUnit, "ExcludeF2Test", 1);
+            lv_removed += 1;
+        }
     }
-    UnitGroupClear(gv_excludedUnits);
-    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("[UNLOCK] 所有单位已恢复可选中"));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug,
+        StringToText("[F2 UNLOCK] 已移除 ") + IntToText(lv_removed) + StringToText(" 个单位的 ExcludeF2Test"));
     return true;
 }
 void gt_cmd_unlock_Init () {
@@ -283,9 +262,7 @@ void gt_cmd_unlock_Init () {
 void InitTriggers () {
     gt_spawn_Init();
     gt_resetResources_Init();
-    gt_applyExclusionButtons_Init();
-    gt_excludeAbilityUsed_Init();
-    gt_unitSelected_Init();
+    gt_applyExcludeF2_Init();
     gt_cmd_unlock_Init();
 }
 
