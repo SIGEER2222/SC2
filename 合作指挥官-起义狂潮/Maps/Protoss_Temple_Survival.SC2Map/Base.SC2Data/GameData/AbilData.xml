@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CAbilResearch id="CyberneticsCoreResearch">
+        <InfoArray index="Research8" Time="150" Upgrade="ChronoBoostOverdrive">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="ResearchChronoBoostOverdrive" Requirements="LearnChronoOverdrive"/>
+        </InfoArray>
+        <InfoArray index="Research9" Time="100" Upgrade="ChronoSurge">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="ResearchChronoSurge" Requirements="LearnChronoSurge"/>
+        </InfoArray>
+    </CAbilResearch>
+    <CAbilResearch id="FleetBeaconResearch">
+        <InfoArray index="Research1">
+            <Button Requirements="LearnGraviticThrusters"/>
+        </InfoArray>
+        <InfoArray index="Research4" Time="80" Upgrade="VoidRaySpeedUpgrade">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
+            <Button DefaultButtonFace="ResearchVoidRaySpeedUpgrade" Requirements="LearnFluxVanes"/>
+        </InfoArray>
+        <InfoArray index="Research5" Time="120" Upgrade="DualProduction">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="200"/>
+            <Button DefaultButtonFace="ResearchDualProduction" Requirements="LearnDualProduction"/>
+        </InfoArray>
+    </CAbilResearch>
+    <CAbilTrain id="NexusTrainMothership">
+        <InfoArray index="Train2" Time="260">
+            <Button DefaultButtonFace="WarpinPurifier" Requirements="PurifierRequirements"/>
+            <Unit value="Purifier"/>
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilEffectInstant id="ChronoSurge">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="ChronoSurgeApplyBuff"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Charge Link="Abil/PhotonSurge"/>
+            <Cooldown Link="Abil/PhotonSurge" TimeUse="25"/>
+        </Cost>
+        <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastFilters value="Self,Visible;Ally,Neutral,Enemy"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ChronoSurge" Requirements="UseChronoSurge"/>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="PsiShieldGamma">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="PsiShieldGammaSearchArea"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+            <Cooldown TimeUse="50"/>
+        </Cost>
+        <Range value="7"/>
+        <CastOutroTime value="0.5"/>
+        <AINotifyEffect value="PsiShieldGammaSearchArea"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PsiShieldGamma"/>
+        <CursorEffect value="PsiShieldGammaSearchArea"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="PsiShieldSigma">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="PsiShieldSigmaSet"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+            <Cooldown TimeUse="25"/>
+        </Cost>
+        <AINotifyEffect value=""/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PsiShieldSigma" State="Restricted"/>
+    </CAbilEffectInstant>
+    <CAbilQueue id="Queue5Hangar2">
+        <EditorCategories value="Race:Neutral,AbilityorEffectType:Structures"/>
+        <QueueCount value="2"/>
+        <QueueSize value="8"/>
+        <Flags index="Passive" value="1"/>
+    </CAbilQueue>
+    <CAbilEffectTarget id="JudicatorBlink">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Flags index="BestUnit" value="0"/>
+        <Cost>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+        <Range value="500"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ZeratulBlink"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="HallucinationHighTemplar">
+        <Cost index="0">
+            <Vital index="Energy" value="50"/>
+        </Cost>
+    </CAbilEffectInstant>
+    <CAbilEffectInstant id="HallucinationStalker">
+        <Cost index="0">
+            <Vital index="Energy" value="50"/>
+        </Cost>
+    </CAbilEffectInstant>
+    <CAbilEffectInstant id="HallucinationZealot">
+        <Cost index="0">
+            <Vital index="Energy" value="50"/>
+        </Cost>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="PsiBlastOmega">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="PsiBlastOmegaLaunchMissile"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+            <Cooldown TimeUse="25"/>
+        </Cost>
+        <TargetFilters value="Visible;Self,Player,Ally,Neutral,Missile,Stasis"/>
+        <Range value="10"/>
+        <RangeSlop value="10"/>
+        <PrepTime value="3"/>
+        <ShowProgressArray index="Prep" value="1"/>
+        <UninterruptibleArray index="Prep" value="1"/>
+        <UninterruptibleArray index="Cast" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <UninterruptibleArray index="Finish" value="1"/>
+        <AINotifyEffect value="PsiBlastOmegaLaunchMissile"/>
+        <ProgressButtonArray index="Prep" value="PsiBlastOmega"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PsiBlastOmega"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="HybridCPlasmaBlast">
+        <Cost index="0">
+            <Vital index="Energy" value="0"/>
+            <Cooldown TimeUse="30"/>
+        </Cost>
+        <TargetFilters value="Visible;Self,Player,Ally,Neutral,Missile,Dead,Invulnerable"/>
+        <ShowProgressArray index="Prep" value="1"/>
+        <ProgressButtonArray index="Prep" value="PlasmaCannon"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PlasmaCannon"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="KarassPsiStorm">
+        <Cost index="0">
+            <Vital index="Energy" value="25"/>
+        </Cost>
+    </CAbilEffectTarget>
+    <CAbilBuild id="ProtossBuild">
+        <InfoArray index="Build9" Unit="Obelisk">
+            <Button DefaultButtonFace="WarpInObelisk" Requirements="HaveCyberneticsCore"/>
+        </InfoArray>
+    </CAbilBuild>
+    <CAbilResearch id="RoboticsBayResearch">
+        <InfoArray index="Research1" Time="80">
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="300"/>
+            <Button State="Restricted">
+                <Flags index="ShowInGlossary" value="1"/>
+            </Button>
+        </InfoArray>
+        <InfoArray index="Research4" Time="80" Upgrade="ZeratulBattleArmor">
+            <Resource index="Minerals" value="400"/>
+            <Resource index="Vespene" value="300"/>
+            <Button DefaultButtonFace="ResearchBattleEquipment" Requirements="LearnBattleEquipment"/>
+        </InfoArray>
+    </CAbilResearch>
+    <CAbilEffectTarget id="SS_CarrierBossAttackLaunch">
+        <Range index="0" value="10"/>
+        <RangeSlop value="10"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="SS_CarrierBossAttackTarget">
+        <Flags index="AllowMovement" value="0"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="RequireTargetVision" value="1"/>
+        <Flags index="Transient" value="0"/>
+        <Cost>
+            <Charge Link="Abil/SS_CarrierBossAttackTarget"/>
+            <Cooldown Link="Abil/SS_CarrierBossAttackTarget" TimeUse="10"/>
+        </Cost>
+        <Range index="0" value="10"/>
+        <RangeSlop value="10"/>
+        <Arc value="90"/>
+        <PrepTime value="3"/>
+        <UninterruptibleArray index="Prep" value="1"/>
+        <UninterruptibleArray index="Cast" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <UninterruptibleArray index="Finish" value="1"/>
+    </CAbilEffectTarget>
+    <CAbilArmMagazine id="SelendisHangar">
+        <Leash value="15"/>
+    </CAbilArmMagazine>
+    <CAbilEffectTarget id="SoulChannel">
+        <Cost>
+            <Vital index="Energy" value="1"/>
+            <Charge Link="Abil/SoulChannel"/>
+            <Cooldown Link="Abil/SoulChannel" TimeUse="20"/>
+        </Cost>
+        <TargetFilters value="Visible;Self,Ally,Neutral,Enemy,Structure,Missile,UnderConstruction,Dead"/>
+        <RangeSlop value="20"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="VoidSeekerPhaseMineBlast">
+        <TargetFilters index="0" value="Ground,Visible;Player,Ally,Neutral,Missile,Stasis"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="VoodooShield">
+        <Cost index="0">
+            <Vital index="Energy" value="50"/>
+        </Cost>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="Yamato">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ZeratulStun">
+        <TargetFilters index="0" value="Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden"/>
+    </CAbilEffectTarget>
+</Catalog>

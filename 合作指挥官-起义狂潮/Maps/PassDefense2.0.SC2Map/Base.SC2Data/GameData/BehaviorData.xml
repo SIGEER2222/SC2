@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CBehaviorBuff id="500HP">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Modification>
+            <VitalMaxFractionArray index="Life" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="BanelingExplode2">
+        <Alignment value="Positive"/>
+        <Cost>
+            <Charge Link="Behavior/BanelingExplode"/>
+            <Cooldown Link="Behavior/BanelingExplode"/>
+        </Cost>
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Modification>
+            <DeathResponse Chance="1" Effect="Baneling2">
+                <Cost>
+                    <Charge Link="Behavior/BanelingExplode"/>
+                    <Cooldown Link="Behavior/BanelingExplode"/>
+                </Cost>
+            </DeathResponse>
+        </Modification>
+        <AINotifyEffect value="BanelingU"/>
+        <DamageResponse>
+            <Cost>
+                <Charge Link="Behavior/BanelingExplode"/>
+                <Cooldown Link="Behavior/BanelingExplode"/>
+            </Cost>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="Changeling2" parent="TimedLife">
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="150"/>
+        <ExpireEffect value="TimedLifeFate2"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="EMPDecloak">
+        <Alignment value="Positive"/>
+        <Modification>
+            <VitalRegenArray index="Life" value="0.25"/>
+            <VitalRegenArray index="Shields" value="2"/>
+            <VitalRegenArray index="Energy" value="3"/>
+            <AbilLinkDisableArray value="move"/>
+            <AbilLinkDisableArray value="attack"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="GuardianShield"/>
+    <CBehaviorVeterancy id="HeroLevels">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <VeterancyLevelArray MinVeterancyXP="80">
+            <Modification>
+                <VitalMaxArray index="Energy" value="2"/>
+                <AbilLinkDisableArray value="HunterSeekerMissile"/>
+                <AbilLinkDisableArray value="PlacePointDefenseDrone"/>
+                <AbilLinkDisableArray value="PsiStorm"/>
+                <AbilLinkDisableArray value="PersonalCloaking"/>
+                <AbilLinkDisableArray value="nuke"/>
+                <AbilLinkDisableArray value="AutoTurret"/>
+                <AbilLinkDisableArray value="Snipe"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="140">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <AbilLinkEnableArray value="Snipe"/>
+                <AbilLinkDisableArray value="PlacePointDefenseDrone"/>
+                <AbilLinkDisableArray value="HunterSeekerMissile"/>
+                <AbilLinkDisableArray value="nuke"/>
+                <AbilLinkDisableArray value="PsiStorm"/>
+                <AbilLinkDisableArray value="PersonalCloaking"/>
+                <AbilLinkDisableArray value="AutoTurret"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link=""/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="250">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <VitalMaxArray index="Energy" value="25"/>
+                <AbilLinkDisableArray value="PersonalCloaking"/>
+                <AbilLinkDisableArray value="PlacePointDefenseDrone"/>
+                <AbilLinkDisableArray value="HunterSeekerMissile"/>
+                <AbilLinkDisableArray value="AutoTurret"/>
+                <AbilLinkDisableArray value="nuke"/>
+                <AbilLinkDisableArray value="PsiStorm"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="800">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <AbilLinkEnableArray value="AutoTurret"/>
+                <AbilLinkDisableArray value="AutoTurret"/>
+                <AbilLinkDisableArray value="PlacePointDefenseDrone"/>
+                <AbilLinkDisableArray value="HunterSeekerMissile"/>
+                <AbilLinkDisableArray value="PsiStorm"/>
+                <AbilLinkDisableArray value="PsiStorm"/>
+                <AbilLinkDisableArray value="PersonalCloaking"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="1300">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <VitalMaxArray index="Energy" value="50"/>
+                <AbilLinkDisableArray value="PlacePointDefenseDrone"/>
+                <AbilLinkDisableArray value="HunterSeekerMissile"/>
+                <AbilLinkDisableArray value="PersonalCloaking"/>
+                <AbilLinkDisableArray value="nuke"/>
+                <AbilLinkDisableArray value="PsiStorm"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="1800">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <VitalMaxArray index="Energy" value="100"/>
+                <AbilLinkEnableArray value="PlacePointDefenseDrone"/>
+                <AbilLinkDisableArray value="nuke"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="2500">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <AbilLinkEnableArray value="PsiStorm"/>
+                <AbilLinkDisableArray value="nuke"/>
+                <AbilLinkDisableArray value="PersonalCloaking"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="3000">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <VitalRegenArray index="Energy" value="0.25"/>
+                <AbilLinkEnableArray value="PlacePointDefenseDrone"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="3500">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <VitalMaxFractionArray index="Energy" value="0.25"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="4000">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="5000">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <AbilLinkEnableArray value="PersonalCloaking"/>
+                <AbilLinkEnableArray value="nuke"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="6000">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+        <VeterancyLevelArray MinVeterancyXP="7000">
+            <Modification>
+                <VitalMaxArray index="Life" value="25"/>
+                <VitalMaxArray index="Shields" value="5"/>
+                <VitalMaxArray index="Energy" value="100"/>
+                <DeathResponse>
+                    <Cost>
+                        <Charge Link="" Location="Abil"/>
+                        <Cooldown Link="" Location="Abil"/>
+                    </Cost>
+                    <Type index="Remove" value="1"/>
+                </DeathResponse>
+            </Modification>
+        </VeterancyLevelArray>
+    </CBehaviorVeterancy>
+    <CBehaviorBuff id="MULETimedLife">
+        <Duration value="120"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="MarineShield2">
+        <Alignment value="Positive"/>
+        <Cost>
+            <Charge Link="Behavior/MarineShield"/>
+            <Cooldown Link="Behavior/MarineShield"/>
+        </Cost>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\BTN-upgrade-terran-combatshield.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Requirements value="UseShieldWall"/>
+        <Modification>
+            <DeathResponse>
+                <Cost>
+                    <Charge Link="Behavior/MarineShield"/>
+                    <Cooldown Link="Behavior/MarineShield"/>
+                </Cost>
+            </DeathResponse>
+        </Modification>
+        <DamageResponse>
+            <Cost>
+                <Charge Link="Behavior/MarineShield"/>
+                <Cooldown Link="Behavior/MarineShield"/>
+            </Cost>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="MarineShield22">
+        <Alignment value="Positive"/>
+        <Cost>
+            <Charge Link="Behavior/MarineShield"/>
+            <Cooldown Link="Behavior/MarineShield"/>
+        </Cost>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\BTN-upgrade-terran-combatshield.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Requirements value="UseShieldWall"/>
+        <Modification>
+            <DeathResponse>
+                <Cost>
+                    <Charge Link="Behavior/MarineShield"/>
+                    <Cooldown Link="Behavior/MarineShield"/>
+                </Cost>
+            </DeathResponse>
+        </Modification>
+        <DamageResponse>
+            <Cost>
+                <Charge Link="Behavior/MarineShield"/>
+                <Cooldown Link="Behavior/MarineShield"/>
+            </Cost>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="PersonalCloaking">
+        <Modification>
+            <VitalRegenArray index="Energy" value="-3"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="PersonalCloaking2">
+        <Alignment value="Positive"/>
+        <Cost>
+            <Charge Link="Behavior/PersonalCloaking"/>
+            <Cooldown Link="Behavior/PersonalCloaking"/>
+        </Cost>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-cloak.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <RemoveValidatorArray value="CanSpendEnergy"/>
+        <RemoveValidatorArray value="hasEnergy"/>
+        <Modification>
+            <StateFlags index="Cloak" value="1"/>
+            <VitalRegenArray index="Energy" value="-3"/>
+            <DeathResponse>
+                <Cost>
+                    <Charge Link="Behavior/PersonalCloaking"/>
+                    <Cooldown Link="Behavior/PersonalCloaking"/>
+                </Cost>
+            </DeathResponse>
+        </Modification>
+        <DamageResponse>
+            <Cost>
+                <Charge Link="Behavior/PersonalCloaking"/>
+                <Cooldown Link="Behavior/PersonalCloaking"/>
+            </Cost>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="SensorTowerRadar">
+        <Modification Radar="80"/>
+    </CBehaviorBuff>
+    <CBehaviorSpawn id="SpawnLarva2">
+        <Cost>
+            <Charge Link="Behavior/SpawnLarva"/>
+            <Cooldown Link="Behavior/SpawnLarva"/>
+        </Cost>
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Structures"/>
+        <InfoArray>
+            <Unit value="Zergling"/>
+            <Count value="3"/>
+            <Requirements value="HatcherySpawnLarva"/>
+            <Delay value="7.5"/>
+        </InfoArray>
+        <InfoArray>
+            <Unit value="Larva"/>
+            <Count value="100"/>
+            <Requirements value="HatcherySpawnMutantLarva"/>
+            <Delay value="0.25"/>
+            <Effect value="LarvaRelease"/>
+        </InfoArray>
+        <Center value="0,-3"/>
+        <Offset value="0,-3"/>
+        <Offset value="1,-3"/>
+        <Offset value="2,-3"/>
+        <Offset value="3,-3"/>
+        <Offset value="3,-2"/>
+        <Offset value="3,-1"/>
+        <Offset value="3,0"/>
+        <Offset value="3,1"/>
+        <Offset value="3,2"/>
+        <Offset value="3,3"/>
+        <Offset value="2,3"/>
+        <Offset value="1,3"/>
+        <Offset value="0,3"/>
+        <Offset value="-1,3"/>
+        <Offset value="-2,3"/>
+        <Offset value="-3,3"/>
+        <Offset value="-3,2"/>
+        <Offset value="-3,1"/>
+        <Offset value="-3,0"/>
+        <Offset value="-3,-1"/>
+        <Offset value="-3,-2"/>
+        <Offset value="-3,-3"/>
+        <Offset value="-2,-3"/>
+        <Offset value="-1,-3"/>
+        <Slop value="1"/>
+        <Range value="1"/>
+        <Limit value="100"/>
+    </CBehaviorSpawn>
+    <CBehaviorSpawn id="SpawnLarva22">
+        <Cost>
+            <Charge Link="Behavior/SpawnLarva"/>
+            <Cooldown Link="Behavior/SpawnLarva"/>
+        </Cost>
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Structures"/>
+        <InfoArray Unit="Zergling" Requirements="HatcherySpawnLarva" Delay="15"/>
+        <InfoArray>
+            <Unit value="Larva"/>
+            <Requirements value="HatcherySpawnMutantLarva"/>
+            <Delay value="0.25"/>
+            <Effect value="LarvaRelease"/>
+        </InfoArray>
+        <Center value="0,-3"/>
+        <Offset value="0,-3"/>
+        <Offset value="1,-3"/>
+        <Offset value="2,-3"/>
+        <Offset value="3,-3"/>
+        <Offset value="3,-2"/>
+        <Offset value="3,-1"/>
+        <Offset value="3,0"/>
+        <Offset value="3,1"/>
+        <Offset value="3,2"/>
+        <Offset value="3,3"/>
+        <Offset value="2,3"/>
+        <Offset value="1,3"/>
+        <Offset value="0,3"/>
+        <Offset value="-1,3"/>
+        <Offset value="-2,3"/>
+        <Offset value="-3,3"/>
+        <Offset value="-3,2"/>
+        <Offset value="-3,1"/>
+        <Offset value="-3,0"/>
+        <Offset value="-3,-1"/>
+        <Offset value="-3,-2"/>
+        <Offset value="-3,-3"/>
+        <Offset value="-2,-3"/>
+        <Offset value="-1,-3"/>
+        <Slop value="1"/>
+        <Range value="1"/>
+        <Limit value="19"/>
+    </CBehaviorSpawn>
+    <CBehaviorBuff id="StimPack2">
+        <Alignment value="Positive"/>
+        <Cost>
+            <Charge Link="Behavior/StimPack"/>
+            <Cooldown Link="Behavior/StimPack"/>
+        </Cost>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-stimpack.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="15"/>
+        <Modification MoveSpeedMultiplier="1.5" AttackSpeedMultiplier="1.5">
+            <DeathResponse>
+                <Cost>
+                    <Charge Link="Behavior/StimPack"/>
+                    <Cooldown Link="Behavior/StimPack"/>
+                </Cost>
+            </DeathResponse>
+        </Modification>
+        <DamageResponse>
+            <Cost>
+                <Charge Link="Behavior/StimPack"/>
+                <Cooldown Link="Behavior/StimPack"/>
+            </Cost>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="StimPack22">
+        <Alignment value="Positive"/>
+        <Cost>
+            <Charge Link="Behavior/StimPack"/>
+            <Cooldown Link="Behavior/StimPack"/>
+        </Cost>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-stimpack.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="15"/>
+        <Modification MoveSpeedMultiplier="1.5" AttackSpeedMultiplier="1.5">
+            <DeathResponse>
+                <Cost>
+                    <Charge Link="Behavior/StimPack"/>
+                    <Cooldown Link="Behavior/StimPack"/>
+                </Cost>
+            </DeathResponse>
+        </Modification>
+        <DamageResponse>
+            <Cost>
+                <Charge Link="Behavior/StimPack"/>
+                <Cooldown Link="Behavior/StimPack"/>
+            </Cost>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="SupplyDrop">
+        <Modification>
+            <DeathResponse>
+                <Cost>
+                    <Cooldown TimeStart="30" TimeUse="60"/>
+                </Cost>
+            </DeathResponse>
+        </Modification>
+        <Duration value="6000"/>
+        <DurationVitalArray index="Life" value="6000"/>
+        <DurationVitalMaxArray index="Life" value="6000"/>
+        <DurationBonusMin value="6000"/>
+        <DurationBonusMax value="6000"/>
+    </CBehaviorBuff>
+</Catalog>

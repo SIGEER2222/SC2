@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CEffectDamage id="EyeBeamsAirDamage">
+        <Amount value="25"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="EyeBeamsAirPersistent">
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="EyeBeamsAirDamage"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="EyeBeamsGroundLineDamage">
+        <Amount value="25"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="EyeBeamsGroundLineSearch">
+        <AreaArray index="0" Radius="0.75" Effect="EyeBeamsGroundLineDamageDelay"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="EyeBeamsGroundLineSearchReverse">
+        <AreaArray index="0" Radius="0.75" Effect="EyeBeamsGroundLineDamageDelay"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="HybridCDamage">
+        <AttributeBonus index="Structure" value="100"/>
+        <Amount value="200"/>
+    </CEffectDamage>
+    <CEffectDamage id="HybridCPlasmaBlastDamage">
+        <AreaArray index="0" Radius="2" Fraction="0.75"/>
+        <AreaArray index="1" Radius="4" Fraction="0.25"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectTeleport id="JudicatorBlink">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichUnit Value="Caster"/>
+        <ClearQueuedOrders value="0"/>
+        <PlacementRange value="12"/>
+        <Range value="12"/>
+        <TargetLocation Value="TargetPoint"/>
+    </CEffectTeleport>
+    <CEffectApplyBehavior id="ChronoSurgeApplyBuff">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="ChronoSurge"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="PsiBlastBetaDamage">
+        <EditorCategories value="Race:Protoss"/>
+        <Amount value="50"/>
+        <Kind value="Ranged"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="PsiBlastBetaLaunchMissile">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactEffect value="PsiBlastBetaDamage"/>
+        <AmmoUnit value="KarassWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="PsiBlastOmegaDamage">
+        <EditorCategories value="Race:Protoss"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Amount value="200"/>
+        <AreaArray Radius="2" Fraction="1"/>
+        <AreaArray Radius="4" Fraction="0.5"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <SearchFilters value="Visible;Player,Ally,Neutral,Structure,Destructible,Stasis,Dead,Hidden"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="PsiBlastOmegaLaunchMissile">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactEffect value="PsiBlastOmegaDamage"/>
+        <AmmoUnit value="HybridCPlasmaWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectModifyUnit id="PsiShieldGamma">
+        <EditorCategories value="Race:Protoss"/>
+        <VitalArray index="Shields" Change="1"/>
+    </CEffectModifyUnit>
+    <CEffectEnumArea id="PsiShieldGammaSearchArea">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Visible;Neutral,Enemy,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2.5" Effect="PsiShieldGammaApplyBuff"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="PsiShieldGammaApplyBuff">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="PsiShieldGamma"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="PsiShieldSigmaSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="PsiShieldSigmaApplyDummy"/>
+        <EffectArray value="PsiShieldSigmaModifyUnit"/>
+        <EffectArray value="PsiShieldSigmaApplyBuff"/>
+        <EffectArray value="PsiShieldSigmaRemoveDummy"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="PsiShieldSigmaModifyUnit">
+        <EditorCategories value="Race:Protoss"/>
+        <VitalArray index="Shields" ChangeFraction="1"/>
+    </CEffectModifyUnit>
+    <CEffectApplyBehavior id="PsiShieldSigmaApplyBuff">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="PsiShieldSigma"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="PsiShieldSigmaApplyDummy">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="PsiShieldSigmaDummy"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="PsiShieldSigmaRemoveDummy">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Terran"/>
+        <BehaviorLink value="PsiShieldSigmaDummy"/>
+    </CEffectRemoveBehavior>
+    <CEffectLaunchMissile id="SS_CarrierBossAttackLaunchMissile">
+        <Movers Link="PunisherGrenadesWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="SS_CarrierBossAttackPersistent">
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <PeriodicPeriodArray index="0" value="0.1"/>
+        <PeriodicOffsetArray index="0" value="-2.5,1,0"/>
+        <PeriodicOffsetArray index="1" value="0,-2.65,0"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="2.5,1,0"/>
+        <InitialDelay value="0"/>
+        <PeriodCount value="35"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="SS_MissileDamage">
+        <Amount value="18"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="SS_MissileTargetCheckCircle">
+        <AreaArray index="0" Radius="2.5" Effect="SS_MissileTargetSet"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="ShockDDamage">
+        <AttributeBonus index="Structure" value="125"/>
+        <Amount value="75"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="SoulChannelCreatePersistent">
+        <Flags index="PersistUntilDestroyed" value="0"/>
+        <PeriodCount value="20"/>
+    </CEffectCreatePersistent>
+    <CEffectModifyUnit id="SoulChannelModifyUnit">
+        <VitalArray index="Life" Change="25"/>
+        <VitalArray index="Shields" Change="25"/>
+        <VitalArray index="Energy" Change="25"/>
+    </CEffectModifyUnit>
+    <CEffectDamage id="Val03PsiBlastDamage">
+        <AttributeBonus index="Psionic" value="75"/>
+        <AttributeBonus index="Structure" value="0"/>
+        <Amount value="125"/>
+    </CEffectDamage>
+</Catalog>

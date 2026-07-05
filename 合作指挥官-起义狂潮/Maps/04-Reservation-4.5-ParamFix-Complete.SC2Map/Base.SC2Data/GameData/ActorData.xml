@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <!--                                                                                         -->
+    <!-- Banshee ............................................................................... -->
+    <!--                                                                                         -->
+    <CActorUnit id="Banshee">
+        <Scale value="1.400000"/>
+    </CActorUnit>
+    <CActorDoodad id="ChainGun">
+        <Model value="AutoTurret"/>
+        <TexSets value="Korhal"/>
+        <Footprint value="FootprintDoodad2x2"/>
+        <RandomScaleRange value="1.000000,1.000000"/>
+    </CActorDoodad>
+    <CActorDoodad id="ChainLinkFenceDiagonal">
+        <Footprint value=""/>
+    </CActorDoodad>
+    <CActorDoodad id="ChainLinkFenceStraight">
+        <Footprint value=""/>
+    </CActorDoodad>
+    <!--                                                                                         -->
+    <!-- Dehaka                                                                              -->
+    <!--                                                                                         -->
+    <CActorMissile id="Dehaka">
+        <Scale value="0.500000"/>
+    </CActorMissile>
+    <CActorModel id="FloatingTextHeathFull">
+        <On index="0" removed="1"/>
+        <On index="1" removed="1"/>
+        <On index="2" removed="1"/>
+        <On index="3" removed="1"/>
+    </CActorModel>
+    <CActorUnit id="HammerSecurity">
+        <Scale value="1.200000,1.200000,1.300000"/>
+    </CActorUnit>
+    <!--K5Kerrigan -->
+    <CActorMissile id="K5Kerrigan">
+        <Model value="KerriganInfestedTerran"/>
+        <PlacementModel value="KerriganInfestedTerran"/>
+        <PortraitModel value="KerriganInfestedTerranPortrait"/>
+    </CActorMissile>
+    <CActorPortrait id="KerriganGhostPortrait2" parent="CompositePortrait">
+        <On index="3" Terms="ActorDestruction" Target="KerriganGhostPortraitAddition" Send="Destroy"/>
+        <FaceFXTarget value="KerriganGhostPortraitAddition"/>
+        <AnimTargets value="KerriganGhostPortraitAddition"/>
+    </CActorPortrait>
+    <CActorDoodad id="KorhalWraithSquadronStatue2">
+        <Model value="LogisticsHeadquarters"/>
+        <TexSets value="Korhal"/>
+        <Footprint value="FootprintDoodad2x2"/>
+        <RandomScaleRange value="1.000000,1.000000"/>
+    </CActorDoodad>
+    <CActorUnit id="MedivacLow" parent="GenericUnitStandard" unitName="MedivacLow">
+        <Macros value="MedivacTransportAnim"/>
+        <On Terms="Abil.MedivacHeal.SourceChannelStart" Send="$Spell PlayForever"/>
+        <On Terms="Abil.MedivacHeal.SourceChannelStop" Send="AnimClear Spell"/>
+        <On Terms="AbilTransport.MedivacTransport.TransportLoad; AbilTransport Thor" Send="Create ThorTransit"/>
+        <On Terms="Signal.*.ThorTransit" Send="RefSetFromMsg ::actor.Thor ::Sender"/>
+        <On Terms="UnitDeath" Target="::actor.Thor" Send="Signal Dead"/>
+        <HostSiteOps Ops="SOpBankerMedivac"/>
+        <Model value="Medivac"/>
+        <Baselines index="Walk" BlendIn="1.500000" BlendOut="2.000000"/>
+        <BuildModel value="Medivac"/>
+        <DeathArray index="Normal" ModelLink="MedivacDeath" SoundLink="Medivac_Explode"/>
+        <PlacementModel value="Medivac"/>
+        <PortraitModel value="MedivacPortrait"/>
+        <AbilSoundArray AbilCmd="MedivacHeal,Execute" Sound="Medivac_HealVO"/>
+        <AbilSoundArray AbilCmd="MedivacTransport,Load" Sound="Medivac_LoadVO"/>
+        <AbilSoundArray AbilCmd="MedivacTransport,UnloadAt" Sound="Medivac_UnloadVO"/>
+        <BarOffset value="50"/>
+        <BarWidth value="80"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-medivac.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds"/>
+        <NameOffset value="50"/>
+        <SoundArray index="Ready" value="Medivac_Ready"/>
+        <SoundArray index="Help" value="Medivac_Help"/>
+        <SoundArray index="What" value="Medivac_What"/>
+        <SoundArray index="Yes" value="Medivac_Yes"/>
+        <SoundArray index="Attack" value="Medivac_Attack"/>
+        <SoundArray index="Pissed" value="Medivac_Pissed"/>
+        <SoundArray index="Movement" value="Medivac_Movement"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-medivac.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds"/>
+        </Wireframe>
+        <Scale value="1.600000"/>
+    </CActorUnit>
+    <!-- Murloc Marine                                                                           -->
+    <CActorUnit id="MurlocMarine">
+        <Scale value="2.000000"/>
+        <PortraitModel value="MaleCivilian9Portrait"/>
+    </CActorUnit>
+    <!--                                                                                         -->
+    <!-- Nova .................................................................................. -->
+    <!--                                                                                         -->
+    <CActorUnit id="Nova">
+        <CustomUnitStatusFrame value="HotS_UnitStatus/KerriganHeroUnitStatusFrameTemplate"/>
+        <HeroIconVariations Image="Assets\Textures\smx1_nova_static.dds"/>
+        <StatusBarOn index="Life" value="1"/>
+        <StatusBarOn index="Energy" value="1"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+    </CActorUnit>
+    <CActorUnit id="PreserverA">
+        <Model value="PrimalUltralisk"/>
+        <Scale value="0.500000"/>
+        <PortraitModel value="PrimalZerg03Portrait"/>
+    </CActorUnit>
+    <!--                                                                                         -->
+    <!-- Primal Zerg Tough Guy ............................................................................. -->
+    <!--                                                                                         -->
+    <CActorUnit id="PrimalUltralisk">
+        <Scale value="0.800000,0.800000,0.900000"/>
+        <BarOffset value="50"/>
+        <HeroIcon value="Assets\Textures\primalzerg03portrait_static.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level2.dds"/>
+        <UnitBorderNormalColor value="251,251,251"/>
+        <UnitBorderSubgroupColor value="253,253,253"/>
+        <SoundArray index="Ready" value="Dehaka_Pissed"/>
+        <SoundArray index="Help" value="Dehaka_Help"/>
+        <SoundArray index="What" value="Dehaka_Yes"/>
+        <SoundArray index="Yes" value="Dehaka_Yes"/>
+        <SoundArray index="Attack" value="Dehaka_Barf"/>
+        <BarWidth value="130"/>
+        <UnitKillRank Text="UnitKillRank/Kaiser"/>
+    </CActorUnit>
+    <!--                                                                                         -->
+    <!-- Prison Zealot ................................................................................ -->
+    <!--                                                                                         -->
+    <CActorUnit id="PrisonZealot">
+        <Model value="DarkZealot"/>
+        <PortraitModel value="Preserver3Portrait"/>
+    </CActorUnit>
+    <!--                                                                                         -->
+    <!-- SMCivilian ............................................................................ -->
+    <!--                                                                                         -->
+    <CActorUnit id="SMCivilian">
+        <Scale value="1.700000"/>
+        <PortraitModel value="HansonPortrait"/>
+    </CActorUnit>
+    <!--                                                                                         -->
+    <!-- Critters                                                                                -->
+    <!--                                                                                         -->
+    <!-- Space Diablo                                                                            -->
+    <CActorUnit id="SpaceDiablo">
+        <Scale value="1.100000"/>
+    </CActorUnit>
+    <!--                                                                                         -->
+    <!-- TaurenSpaceMarine ..................................................................... -->
+    <!--                                                                                         -->
+    <CActorUnit id="TaurenSpaceMarine">
+        <Scale value="0.900000,0.900000,1.000000"/>
+        <BarOffset value="50"/>
+        <HeroIcon value="Assets\Textures\taurenmarineportrait_static.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel2.dds"/>
+        <UnitBorderNormalColor value="253,253,253"/>
+        <UnitBorderSubgroupColor value="253,253,253"/>
+        <UnitKillRank Text="UnitKillRank/TeaBone"/>
+    </CActorUnit>
+    <CActorDoodad id="TreeBelShirBluish">
+        <Aliases value="_Burnable"/>
+        <EditorCategories value="Climate:Jungle,DoodadType:Environment"/>
+        <On Terms="Signal.*.TreeFire" Send="ModelSwap BelShirTreeDeath"/>
+        <On Terms="Signal.*.TreeFire" Send="AnimBracketStart Death Death,Fire Dead,Fire IGNORE"/>
+        <On Terms="Signal.*.TreeCreep" Send="ModelSwap BelShirTreeDeath"/>
+        <On Terms="Signal.*.TreeCreep" Send="AnimBracketStart Death Death,Creep Dead,Creep IGNORE"/>
+        <Model value="BelShirTreeBluish"/>
+        <TexSets value="BelShir"/>
+        <Footprint value="FootprintDoodad1x1BlockLOS"/>
+    </CActorDoodad>
+    <CActorDoodad id="TreeBelShirHide">
+        <Aliases value="_Burnable"/>
+        <EditorCategories value="Climate:Jungle,DoodadType:Environment"/>
+        <Model value="BelShirTreeHide"/>
+        <TexSets value="BelShir"/>
+        <Footprint value="FootprintDoodad1x1BlockLOS"/>
+    </CActorDoodad>
+    <CActorDoodad id="TreeBelShirRed">
+        <Aliases value="_Burnable"/>
+        <EditorCategories value="Climate:Jungle,DoodadType:Environment"/>
+        <On Terms="Signal.*.TreeFire" Send="ModelSwap BelShirTreeDeath"/>
+        <On Terms="Signal.*.TreeFire" Send="AnimBracketStart Death Death,Fire Dead,Fire IGNORE"/>
+        <On Terms="Signal.*.TreeCreep" Send="ModelSwap BelShirTreeDeath"/>
+        <On Terms="Signal.*.TreeCreep" Send="AnimBracketStart Death Death,Creep Dead,Creep IGNORE"/>
+        <Model value="BelShirTreeRed"/>
+        <TexSets value="BelShir"/>
+        <Footprint value="FootprintDoodad1x1BlockLOS"/>
+    </CActorDoodad>
+    <CActorUnit id="WraithLow" parent="GenericUnitBase" unitName="WraithLow">
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.WraithA.AttackStart" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.WraithG.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <HostSiteOps Ops="SOpBankerWraith"/>
+        <Model value="Wraith"/>
+        <AnimBlendTime value="0.300000"/>
+        <BuildModel value="Wraith"/>
+        <DeathArray index="Normal" ModelLink="WraithDeath" SoundLink="Wraith_Explode"/>
+        <PlacementModel value="Wraith"/>
+        <PortraitModel value="WraithPortrait"/>
+        <BarOffset value="55"/>
+        <BarWidth value="66"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-wraith.dds"/>
+        </GroupIcon>
+        <GroupSoundArray index="Birth" value="Wraith_Birth"/>
+        <GroupSoundArray index="Ready" value="Wraith_Ready"/>
+        <GroupSoundArray index="Help" value="Wraith_Help"/>
+        <GroupSoundArray index="What" value="Wraith_What"/>
+        <GroupSoundArray index="Yes" value="Wraith_Yes"/>
+        <GroupSoundArray index="Attack" value="Wraith_Attack"/>
+        <GroupSoundArray index="Pissed" value="Wraith_Pissed"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-wraith.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds"/>
+        <SoundArray index="Ready" value="Wraith_Ready"/>
+        <SoundArray index="Help" value="Wraith_Help"/>
+        <SoundArray index="What" value="Wraith_What"/>
+        <SoundArray index="Yes" value="Wraith_Yes"/>
+        <SoundArray index="Attack" value="Wraith_Attack"/>
+        <SoundArray index="Pissed" value="Wraith_Pissed"/>
+        <SoundArray index="Movement" value="Wraith_Movement"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-wraith.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-wraith.dds"/>
+        </Wireframe>
+        <Scale value="1.700000"/>
+    </CActorUnit>
+</Catalog>

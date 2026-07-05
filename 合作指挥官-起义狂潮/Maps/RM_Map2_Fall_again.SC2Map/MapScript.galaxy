@@ -1,0 +1,1671 @@
+//==================================================================================================
+// 
+// Generated Map Script
+// 
+// Name:   RM_Map2 - Fall again
+// Author: Reefer
+// 
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Global Variables
+//--------------------------------------------------------------------------------------------------
+int gv_diffdialog;
+int[4] gv_diffdialogbutton;
+int gv_difficulty;
+timer gv_spawntimer;
+fixed gv_zergEnergie;
+int gv_maxAnzahlFlammer;
+int gv_anzahlFlammer;
+abilcmd gv_fC3A4higkeitJimySpawnMarines;
+unit gv_einheitJimy1;
+int gv_maxAnzahlWarpigs;
+int gv_anzahlWarpigs;
+int gv_maxAnzahlPredators;
+int gv_anzahlPredators;
+int[4] gv_hauptmissionen;
+int[4] gv_nebenmissionen;
+timer gv_timerStart1;
+timer gv_timerStart2;
+timer gv_timerStart3;
+revealer gv_aufdeckerStart;
+timer gv_timerPredators1;
+timer gv_timerPredators2;
+timer gv_timerPredators3;
+unit[5] gv_predEnemy;
+timer gv_timerGolem;
+timer gv_hilfenaht;
+timer gv_klotimer1;
+timer[11] gv_klotimer;
+
+void InitGlobals () {
+    int init_i;
+
+    gv_diffdialog = c_invalidDialogId;
+    init_i = 0;
+    while (init_i <= 3) {
+        gv_diffdialogbutton[init_i] = c_invalidDialogControlId;
+        init_i = init_i + 1;
+    }
+    gv_difficulty = 0;
+    gv_spawntimer = TimerCreate();
+    gv_zergEnergie = 0.0;
+    gv_maxAnzahlFlammer = 0;
+    gv_anzahlFlammer = 0;
+    gv_fC3A4higkeitJimySpawnMarines = null;
+    gv_einheitJimy1 = null;
+    gv_maxAnzahlWarpigs = 0;
+    gv_anzahlWarpigs = 0;
+    gv_maxAnzahlPredators = 0;
+    gv_anzahlPredators = 0;
+    init_i = 0;
+    while (init_i <= 3) {
+        gv_hauptmissionen[init_i] = c_invalidObjectiveId;
+        init_i = init_i + 1;
+    }
+    init_i = 0;
+    while (init_i <= 3) {
+        gv_nebenmissionen[init_i] = c_invalidObjectiveId;
+        init_i = init_i + 1;
+    }
+    gv_timerStart1 = TimerCreate();
+    gv_timerStart2 = TimerCreate();
+    gv_timerStart3 = TimerCreate();
+    gv_aufdeckerStart = null;
+    gv_timerPredators1 = TimerCreate();
+    gv_timerPredators2 = TimerCreate();
+    gv_timerPredators3 = TimerCreate();
+    init_i = 0;
+    while (init_i <= 4) {
+        gv_predEnemy[init_i] = null;
+        init_i = init_i + 1;
+    }
+    gv_timerGolem = TimerCreate();
+    gv_hilfenaht = TimerCreate();
+    gv_klotimer1 = TimerCreate();
+    init_i = 0;
+    while (init_i <= 10) {
+        gv_klotimer[init_i] = TimerCreate();
+        init_i = init_i + 1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_Variableninitalisierung;
+trigger gt_SpielStarteinstellungen;
+trigger gt_GUI;
+trigger gt_SchwierigkeitgewC3A4hlt;
+trigger gt_Ziel;
+trigger gt_Jemandwichtigesstirbt;
+trigger gt_Jemandwichtigesstirbt2;
+trigger gt_SpawnGruppe1;
+trigger gt_Welleabspawn;
+trigger gt_Welleabspawn2;
+trigger gt_Spawnerstirbt;
+trigger gt_TychusSpawnedFlammerisborn;
+trigger gt_TychusSpawnedFlammerDies;
+trigger gt_Waffebeistart;
+trigger gt_Granaten;
+trigger gt_RaynorSpawnedMarineisborn;
+trigger gt_RaynorSpawnedMarineDies;
+trigger gt_Looseit;
+trigger gt_Gotit;
+trigger gt_Getarnt;
+trigger gt_Enttarnt;
+trigger gt_ToshSpawnedPredatorisborn;
+trigger gt_ToshSpawnedPredatorDies;
+trigger gt_Tip1;
+trigger gt_Tip2;
+trigger gt_RaynortrifftHybrid;
+trigger gt_Start1;
+trigger gt_Start12;
+trigger gt_Start13;
+trigger gt_Start14;
+trigger gt_Start15;
+trigger gt_Start16;
+trigger gt_Start17;
+trigger gt_Start2Mission0;
+trigger gt_Start22;
+trigger gt_Predsverstecken;
+trigger gt_Predators1;
+trigger gt_Predators2;
+trigger gt_Predators22;
+trigger gt_Predators3Verwundbarkeit;
+trigger gt_Unsterblich;
+trigger gt_GolemEntdeckt;
+trigger gt_GolemEntdeckt2;
+trigger gt_Hy;
+trigger gt_WiedersehenmachtfreudeMission2KI3;
+trigger gt_VersteckeTaurenbeiKlo;
+trigger gt_Klo1;
+trigger gt_Klo2Mission1;
+trigger gt_HomeSweetHome;
+trigger gt_EineHandwC3A4schtdieAndereKiStartZerg;
+trigger gt_Hilfekommt;
+trigger gt_Hybridforschung;
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Variableninitalisierung
+//--------------------------------------------------------------------------------------------------
+bool gt_Variableninitalisierung_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_maxAnzahlFlammer = 2;
+    gv_maxAnzahlWarpigs = 4;
+    gv_maxAnzahlPredators = 3;
+    gv_einheitJimy1 = UnitFromId(723);
+    gv_zergEnergie = 1.0;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Variableninitalisierung_Init () {
+    gt_Variableninitalisierung = TriggerCreate("gt_Variableninitalisierung_Func");
+    TriggerAddEventMapInit(gt_Variableninitalisierung);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spiel Starteinstellungen
+//--------------------------------------------------------------------------------------------------
+bool gt_SpielStarteinstellungen_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetAlliance(1, 5, 7);
+    libNtve_gf_SetAlliance(5, 1, 7);
+    libNtve_gf_SetAlliance(2, 3, 1);
+    libNtve_gf_SetAlliance(2, 4, 1);
+    libNtve_gf_SetAlliance(2, 15, 1);
+    libNtve_gf_SetAlliance(3, 2, 1);
+    libNtve_gf_SetAlliance(3, 4, 1);
+    libNtve_gf_SetAlliance(3, 15, 1);
+    libNtve_gf_SetAlliance(4, 2, 1);
+    libNtve_gf_SetAlliance(4, 3, 1);
+    libNtve_gf_SetAlliance(4, 15, 1);
+    libNtve_gf_SetAlliance(15, 2, 1);
+    libNtve_gf_SetAlliance(15, 3, 1);
+    libNtve_gf_SetAlliance(15, 4, 1);
+    UnitAbilityEnable(UnitFromId(738), "SpawnPredators2", false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SpielStarteinstellungen_Init () {
+    gt_SpielStarteinstellungen = TriggerCreate("gt_SpielStarteinstellungen_Func");
+    TriggerAddEventMapInit(gt_SpielStarteinstellungen);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GUI
+//--------------------------------------------------------------------------------------------------
+bool gt_GUI_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogCreate(600, 400, c_anchorCenter, 0, 0, true);
+    gv_diffdialog = DialogLastCreated();
+    libNtve_gf_CreateDialogItemButton(gv_diffdialog, 300, 70, c_anchorCenter, 0, -75, StringExternal("Param/Value/A48EF7D5"), StringExternal("Param/Value/FACF1ECC"), "");
+    gv_diffdialogbutton[0] = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemButton(gv_diffdialog, 300, 70, c_anchorCenter, 0, 0, StringExternal("Param/Value/8408003C"), StringExternal("Param/Value/14BE599E"), "");
+    gv_diffdialogbutton[1] = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemButton(gv_diffdialog, 300, 70, c_anchorCenter, 0, 75, StringExternal("Param/Value/A95223CA"), StringExternal("Param/Value/892AA824"), "");
+    gv_diffdialogbutton[2] = DialogControlLastCreated();
+    DialogSetVisible(gv_diffdialog, PlayerGroupAll(), true);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_GUI_Init () {
+    gt_GUI = TriggerCreate("gt_GUI_Func");
+    TriggerAddEventMapInit(gt_GUI);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Schwierigkeit gew??hlt
+//--------------------------------------------------------------------------------------------------
+bool gt_SchwierigkeitgewC3A4hlt_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((EventDialogControl() == gv_diffdialogbutton[0])) {
+        PlayerSetDifficulty(1, 2);
+        DialogSetVisible(gv_diffdialog, PlayerGroupAll(), false);
+        UnitSetPropertyFixed(UnitFromId(723), c_unitPropLifeMax, 750.0);
+        UnitSetPropertyFixed(UnitFromId(722), c_unitPropLifeMax, 1000.0);
+        UnitSetPropertyFixed(UnitFromId(738), c_unitPropLifeMax, 500.0);
+        gv_difficulty = 0;
+        gv_maxAnzahlFlammer=gv_maxAnzahlFlammer + 2;
+        gv_maxAnzahlPredators=gv_maxAnzahlPredators + 2;
+        gv_maxAnzahlWarpigs=gv_maxAnzahlWarpigs + 4;
+    }
+    else {
+    }
+    if ((EventDialogControl() == gv_diffdialogbutton[1])) {
+        PlayerSetDifficulty(1, 3);
+        DialogSetVisible(gv_diffdialog, PlayerGroupAll(), false);
+        UnitSetPropertyFixed(UnitFromId(723), c_unitPropLifeMax, 600.0);
+        UnitSetPropertyFixed(UnitFromId(722), c_unitPropLifeMax, 750.0);
+        UnitSetPropertyFixed(UnitFromId(738), c_unitPropLifeMax, 350.0);
+        gv_difficulty = 1;
+        gv_maxAnzahlFlammer=gv_maxAnzahlFlammer + 1;
+        gv_maxAnzahlPredators=gv_maxAnzahlPredators + 1;
+        gv_maxAnzahlWarpigs=gv_maxAnzahlWarpigs + 2;
+        gv_zergEnergie = 3.0;
+    }
+    else {
+    }
+    if ((EventDialogControl() == gv_diffdialogbutton[2])) {
+        PlayerSetDifficulty(1, 4);
+        gv_difficulty = 2;
+        DialogSetVisible(gv_diffdialog, PlayerGroupAll(), false);
+        gv_zergEnergie = 5.0;
+    }
+    else {
+    }
+    TriggerExecute(gt_Start1, true, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SchwierigkeitgewC3A4hlt_Init () {
+    gt_SchwierigkeitgewC3A4hlt = TriggerCreate("gt_SchwierigkeitgewC3A4hlt_Func");
+    TriggerAddEventDialogControl(gt_SchwierigkeitgewC3A4hlt, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Ziel
+//--------------------------------------------------------------------------------------------------
+bool gt_Ziel_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_MakeUnitInvulnerable(UnitFromId(723), true);
+    libNtve_gf_MakeUnitInvulnerable(UnitFromId(738), true);
+    libNtve_gf_MakeUnitInvulnerable(UnitFromId(722), true);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(1606), 0.0, -1, 10, true);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(1605), 5.0, -1, 10, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/3D9C3C85"));
+    Wait(3.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/EB2AF183"));
+    Wait(5.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/F42D7866"));
+    Wait(8.0, c_timeGame);
+    CameraApplyInfo(1, CameraInfoFromId(1607), 4.0, -1, 10, true);
+    Wait(4.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/2CB0AFAE"));
+    Wait(10.0, c_timeGame);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    GameOver(1, c_gameOverVictory, true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Ziel_Init () {
+    gt_Ziel = TriggerCreate("gt_Ziel_Func");
+    TriggerAddEventUnitRegion(gt_Ziel, UnitRefFromUnit(UnitFromId(723)), RegionFromId(13), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Jemand wichtiges stirbt
+//--------------------------------------------------------------------------------------------------
+bool gt_Jemandwichtigesstirbt_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!(((EventUnit() == UnitFromId(723)) || (EventUnit() == UnitFromId(738))))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GameOver(1, c_gameOverDefeat, true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Jemandwichtigesstirbt_Init () {
+    gt_Jemandwichtigesstirbt = TriggerCreate("gt_Jemandwichtigesstirbt_Func");
+    TriggerAddEventUnitDied(gt_Jemandwichtigesstirbt, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Jemand wichtiges stirbt 2
+//--------------------------------------------------------------------------------------------------
+bool gt_Jemandwichtigesstirbt2_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!(((EventUnit() == UnitFromId(410))))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GameOver(1, c_gameOverDefeat, true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Jemandwichtigesstirbt2_Init () {
+    gt_Jemandwichtigesstirbt2 = TriggerCreate("gt_Jemandwichtigesstirbt2_Func");
+    TriggerAddEventUnitDied(gt_Jemandwichtigesstirbt2, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spawn Gruppe 1
+//--------------------------------------------------------------------------------------------------
+bool gt_SpawnGruppe1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Hydralisk", 0, 15, PointFromId(1614));
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1662)), c_orderQueueReplace);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Hydralisk", 0, 15, PointFromId(1613));
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1662)), c_orderQueueReplace);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Roach", 0, 15, PointFromId(1611));
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1662)), c_orderQueueReplace);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Roach", 0, 15, PointFromId(1612));
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1662)), c_orderQueueReplace);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SpawnGruppe1_Init () {
+    gt_SpawnGruppe1 = TriggerCreate("gt_SpawnGruppe1_Func");
+    TriggerAddEventUnitRegion(gt_SpawnGruppe1, UnitRefFromUnit(UnitFromId(723)), RegionFromId(14), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Welle a+b   (spawn)
+//--------------------------------------------------------------------------------------------------
+bool gt_Welleabspawn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 15, PointFromId(1526));
+    UnitSetPropertyFixed(UnitLastCreated(), c_unitPropLife, gv_zergEnergie);
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(1530)), c_orderQueueReplace);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 15, PointFromId(1531));
+    UnitSetPropertyFixed(UnitLastCreated(), c_unitPropLife, gv_zergEnergie);
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(1535)), c_orderQueueReplace);
+    TimerStart(gv_spawntimer, 0.4, false, c_timeGame);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Welleabspawn_Init () {
+    gt_Welleabspawn = TriggerCreate("gt_Welleabspawn_Func");
+    TriggerAddEventTimer(gt_Welleabspawn, gv_spawntimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Welle a+b   (spawn) 2
+//--------------------------------------------------------------------------------------------------
+bool gt_Welleabspawn2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 15, PointFromId(1527));
+    UnitSetPropertyFixed(UnitLastCreated(), c_unitPropLife, gv_zergEnergie);
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(1530)), c_orderQueueReplace);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 15, PointFromId(1532));
+    UnitSetPropertyFixed(UnitLastCreated(), c_unitPropLife, gv_zergEnergie);
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(1535)), c_orderQueueReplace);
+    TimerStart(gv_spawntimer, 0.4, false, c_timeGame);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Welleabspawn2_Init () {
+    gt_Welleabspawn2 = TriggerCreate("gt_Welleabspawn2_Func");
+    TriggerAddEventTimer(gt_Welleabspawn2, gv_spawntimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spawner stirbt
+//--------------------------------------------------------------------------------------------------
+bool gt_Spawnerstirbt_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!(((EventUnit() == UnitFromId(1460)) || (EventUnit() == UnitFromId(1515))))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(gt_Welleabspawn, false);
+    TriggerEnable(gt_Welleabspawn2, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Spawnerstirbt_Init () {
+    gt_Spawnerstirbt = TriggerCreate("gt_Spawnerstirbt_Func");
+    TriggerAddEventUnitDied(gt_Spawnerstirbt, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Tychus Spawned Flammer is born
+//--------------------------------------------------------------------------------------------------
+bool gt_TychusSpawnedFlammerisborn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlFlammer=gv_anzahlFlammer + 1;
+    if ((gv_anzahlFlammer == gv_maxAnzahlFlammer)) {
+        UnitAbilityEnable(UnitFromId(722), "SpawnFlammer", false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TychusSpawnedFlammerisborn_Init () {
+    gt_TychusSpawnedFlammerisborn = TriggerCreate("gt_TychusSpawnedFlammerisborn_Func");
+    TriggerAddEventUnitCreated(gt_TychusSpawnedFlammerisborn, UnitRefFromUnit(UnitFromId(722)), "SpawnFlammer", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Tychus Spawned Flammer Dies
+//--------------------------------------------------------------------------------------------------
+bool gt_TychusSpawnedFlammerDies_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "Flammer"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlFlammer=gv_anzahlFlammer - 1;
+    if ((gv_anzahlFlammer < gv_maxAnzahlFlammer)) {
+        UnitAbilityEnable(UnitFromId(722), "SpawnFlammer", true);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TychusSpawnedFlammerDies_Init () {
+    gt_TychusSpawnedFlammerDies = TriggerCreate("gt_TychusSpawnedFlammerDies_Func");
+    TriggerAddEventUnitDied(gt_TychusSpawnedFlammerDies, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Waffe bei start
+//--------------------------------------------------------------------------------------------------
+bool gt_Waffebeistart_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitWeaponAdd(UnitFromId(723), "RaynorsTaurenGaussgewehr", null);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Waffebeistart_Init () {
+    gt_Waffebeistart = TriggerCreate("gt_Waffebeistart_Func");
+    TriggerAddEventMapInit(gt_Waffebeistart);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Granaten
+//--------------------------------------------------------------------------------------------------
+bool gt_Granaten_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(723)), UnitGetPosition(UnitFromId(1734))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(723), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1734));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(723)), UnitGetPosition(UnitFromId(1635))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(723), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1635));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(723)), UnitGetPosition(UnitFromId(1636))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(723), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1636));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(723)), UnitGetPosition(UnitFromId(1629))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(723), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1629));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(723)), UnitGetPosition(UnitFromId(1628))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(723), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1628));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(723)), UnitGetPosition(UnitFromId(1630))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(723), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1630));
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Granaten_Init () {
+    gt_Granaten = TriggerCreate("gt_Granaten_Func");
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(723)), UnitFromId(1629), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(723)), UnitFromId(1630), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(723)), UnitFromId(1628), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(723)), UnitFromId(1635), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(723)), UnitFromId(1636), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(723)), UnitFromId(1734), 1.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Raynor Spawned Marine is born
+//--------------------------------------------------------------------------------------------------
+bool gt_RaynorSpawnedMarineisborn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlWarpigs=gv_anzahlWarpigs + 1;
+    if ((gv_anzahlWarpigs == gv_maxAnzahlWarpigs)) {
+        UnitAbilityEnable(gv_einheitJimy1, "SpawnMarines", false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RaynorSpawnedMarineisborn_Init () {
+    gt_RaynorSpawnedMarineisborn = TriggerCreate("gt_RaynorSpawnedMarineisborn_Func");
+    TriggerAddEventUnitCreated(gt_RaynorSpawnedMarineisborn, UnitRefFromVariable("gv_einheitJimy1"), "SpawnMarines", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Raynor Spawned Marine Dies
+//--------------------------------------------------------------------------------------------------
+bool gt_RaynorSpawnedMarineDies_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "WarPigRM"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlWarpigs=gv_anzahlWarpigs - 1;
+    if ((gv_anzahlWarpigs < gv_maxAnzahlWarpigs)) {
+        UnitAbilityEnable(gv_einheitJimy1, "SpawnMarines", true);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RaynorSpawnedMarineDies_Init () {
+    gt_RaynorSpawnedMarineDies = TriggerCreate("gt_RaynorSpawnedMarineDies_Func");
+    TriggerAddEventUnitDied(gt_RaynorSpawnedMarineDies, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Loose it
+//--------------------------------------------------------------------------------------------------
+bool gt_Looseit_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityEnable(UnitFromId(738), "SeekerMissile", false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Looseit_Init () {
+    gt_Looseit = TriggerCreate("gt_Looseit_Func");
+    TriggerAddEventMapInit(gt_Looseit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Got it
+//--------------------------------------------------------------------------------------------------
+bool gt_Gotit_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitRemove(UnitFromId(1634));
+    UnitAbilityEnable(UnitFromId(738), "SeekerMissile", true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/199EE7E3"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Gotit_Init () {
+    gt_Gotit = TriggerCreate("gt_Gotit_Func");
+    TriggerAddEventUnitRegion(gt_Gotit, UnitRefFromUnit(UnitFromId(738)), RegionFromId(15), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Getarnt
+//--------------------------------------------------------------------------------------------------
+bool gt_Getarnt_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityEnable(UnitFromId(738), "attack", false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Getarnt_Init () {
+    gt_Getarnt = TriggerCreate("gt_Getarnt_Func");
+    TriggerAddEventUnitOrder(gt_Getarnt, UnitRefFromUnit(UnitFromId(738)), AbilityCommand("TarnfeldToshRM", 0));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Enttarnt
+//--------------------------------------------------------------------------------------------------
+bool gt_Enttarnt_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityEnable(UnitFromId(738), "attack", true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Enttarnt_Init () {
+    gt_Enttarnt = TriggerCreate("gt_Enttarnt_Func");
+    TriggerAddEventUnitOrder(gt_Enttarnt, UnitRefFromUnit(UnitFromId(738)), AbilityCommand("TarnfeldToshRM", 1));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Tosh Spawned Predator is born
+//--------------------------------------------------------------------------------------------------
+bool gt_ToshSpawnedPredatorisborn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlPredators=gv_anzahlPredators + 1;
+    if ((gv_anzahlPredators == gv_maxAnzahlPredators)) {
+        UnitAbilityEnable(UnitFromId(738), "SpawnPredators2", false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ToshSpawnedPredatorisborn_Init () {
+    gt_ToshSpawnedPredatorisborn = TriggerCreate("gt_ToshSpawnedPredatorisborn_Func");
+    TriggerAddEventUnitCreated(gt_ToshSpawnedPredatorisborn, UnitRefFromUnit(UnitFromId(738)), "SpawnPredators2", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Tosh Spawned Predator Dies
+//--------------------------------------------------------------------------------------------------
+bool gt_ToshSpawnedPredatorDies_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "PredatorRM"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlPredators=gv_anzahlPredators - 1;
+    if ((gv_anzahlPredators < gv_maxAnzahlPredators)) {
+        UnitAbilityEnable(UnitFromId(738), "SpawnPredators2", true);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ToshSpawnedPredatorDies_Init () {
+    gt_ToshSpawnedPredatorDies = TriggerCreate("gt_ToshSpawnedPredatorDies_Func");
+    TriggerAddEventUnitDied(gt_ToshSpawnedPredatorDies, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Tip 1
+//--------------------------------------------------------------------------------------------------
+bool gt_Tip1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/F1BEA6A2"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Tip1_Init () {
+    gt_Tip1 = TriggerCreate("gt_Tip1_Func");
+    TriggerAddEventUnitRegion(gt_Tip1, UnitRefFromUnit(UnitFromId(738)), RegionFromId(7), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Tip 2
+//--------------------------------------------------------------------------------------------------
+bool gt_Tip2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/A48CCD3C"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Tip2_Init () {
+    gt_Tip2 = TriggerCreate("gt_Tip2_Func");
+    TriggerAddEventUnitRegion(gt_Tip2, UnitRefFromUnit(UnitFromId(738)), RegionFromId(8), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Raynor trifft Hybrid
+//--------------------------------------------------------------------------------------------------
+bool gt_RaynortrifftHybrid_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/8C9C40AF"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RaynortrifftHybrid_Init () {
+    gt_RaynortrifftHybrid = TriggerCreate("gt_RaynortrifftHybrid_Func");
+    TriggerAddEventUnitRange(gt_RaynortrifftHybrid, UnitRefFromUnit(UnitFromId(723)), UnitFromId(1644), 8.0, true);
+    TriggerAddEventUnitRange(gt_RaynortrifftHybrid, UnitRefFromUnit(UnitFromId(723)), UnitFromId(1648), 8.0, true);
+    TriggerAddEventUnitRange(gt_RaynortrifftHybrid, UnitRefFromUnit(UnitFromId(723)), UnitFromId(1645), 8.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start1
+//--------------------------------------------------------------------------------------------------
+bool gt_Start1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    VisRevealerCreate(1, RegionFromId(3));
+    gv_aufdeckerStart = VisRevealerLastCreated();
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CinematicDataRun(1, PlayerGroupAll(), false);
+    CinematicFade(false, 0.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CinematicFade(true, 1.5, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaCinematic, StringExternal("Param/Value/5BEBE5FD"));
+    UnitIssueOrder(UnitFromId(724), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(726)), c_orderQueueReplace);
+    libNtve_gf_ShowHideUnit(UnitFromId(792), false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Start1_Init () {
+    gt_Start1 = TriggerCreate("gt_Start1_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start1 2
+//--------------------------------------------------------------------------------------------------
+bool gt_Start12_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/D18A4037"));
+    UnitIssueOrder(UnitFromId(724), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(727)), c_orderQueueReplace);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Start12_Init () {
+    gt_Start12 = TriggerCreate("gt_Start12_Func");
+    TriggerAddEventUnitRangePoint(gt_Start12, UnitRefFromUnit(UnitFromId(724)), PointFromId(726), 2.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start1 3
+//--------------------------------------------------------------------------------------------------
+bool gt_Start13_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitIssueOrder(UnitFromId(724), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(729)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(760), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(732)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(759), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(732)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(768), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(732)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(761), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(732)), c_orderQueueReplace);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Start13_Init () {
+    gt_Start13 = TriggerCreate("gt_Start13_Func");
+    TriggerAddEventUnitRangePoint(gt_Start13, UnitRefFromUnit(UnitFromId(724)), PointFromId(727), 2.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start1 4
+//--------------------------------------------------------------------------------------------------
+bool gt_Start14_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitIssueOrder(UnitFromId(724), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(731)), c_orderQueueReplace);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Start14_Init () {
+    gt_Start14 = TriggerCreate("gt_Start14_Func");
+    TriggerAddEventUnitRangePoint(gt_Start14, UnitRefFromUnit(UnitFromId(724)), PointFromId(729), 2.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start1 5
+//--------------------------------------------------------------------------------------------------
+bool gt_Start15_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitIssueOrder(UnitFromId(724), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(732)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(760), OrderTargetingRelativePoint(AbilityCommand("attack", 0), UnitGetPosition(UnitFromId(724))), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(761), OrderTargetingRelativePoint(AbilityCommand("attack", 0), UnitGetPosition(UnitFromId(724))), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(768), OrderTargetingRelativePoint(AbilityCommand("attack", 0), UnitGetPosition(UnitFromId(724))), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(759), OrderTargetingRelativePoint(AbilityCommand("attack", 0), UnitGetPosition(UnitFromId(724))), c_orderQueueReplace);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/953EE3D8"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Start15_Init () {
+    gt_Start15 = TriggerCreate("gt_Start15_Func");
+    TriggerAddEventUnitRangePoint(gt_Start15, UnitRefFromUnit(UnitFromId(724)), PointFromId(731), 2.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start1 6
+//--------------------------------------------------------------------------------------------------
+bool gt_Start16_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitIssueOrder(UnitFromId(724), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(733)), c_orderQueueReplace);
+    UnitSetHeight(UnitFromId(724), -1.0, 7.0);
+    TimerStart(gv_timerStart1, 5.0, false, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Start16_Init () {
+    gt_Start16 = TriggerCreate("gt_Start16_Func");
+    TriggerAddEventUnitRangePoint(gt_Start16, UnitRefFromUnit(UnitFromId(724)), PointFromId(732), 1.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start1 7
+//--------------------------------------------------------------------------------------------------
+bool gt_Start17_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    SoundPlay(SoundLink("Barracks_Explode", 9), PlayerGroupAll(), 70.0, 0.0);
+    UnitKill(UnitFromId(724));
+    UnitIssueOrder(UnitFromId(760), OrderTargetingRelativePoint(AbilityCommand("move", 0), PointFromId(718)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(759), OrderTargetingRelativePoint(AbilityCommand("move", 0), PointFromId(718)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(768), OrderTargetingRelativePoint(AbilityCommand("move", 0), PointFromId(718)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(761), OrderTargetingRelativePoint(AbilityCommand("move", 0), PointFromId(718)), c_orderQueueReplace);
+    TimerStart(gv_timerStart2, 5.0, false, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Start17_Init () {
+    gt_Start17 = TriggerCreate("gt_Start17_Func");
+    TriggerAddEventTimer(gt_Start17, gv_timerStart1);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start 2 + Mission 0
+//--------------------------------------------------------------------------------------------------
+bool gt_Start2Mission0_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/5379EB31"));
+    TimerStart(gv_timerStart3, 7.0, false, c_timeGame);
+    ObjectiveCreate(StringExternal("Param/Value/C360F783"), StringExternal("Param/Value/1A988615"), c_objectiveStateActive, true);
+    gv_hauptmissionen[0] = ObjectiveLastCreated();
+    libNtve_gf_ShowHideUnit(UnitFromId(792), true);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Start2Mission0_Init () {
+    gt_Start2Mission0 = TriggerCreate("gt_Start2Mission0_Func");
+    TriggerAddEventTimer(gt_Start2Mission0, gv_timerStart2);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start 2 2
+//--------------------------------------------------------------------------------------------------
+bool gt_Start22_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    VisRevealerEnable(gv_aufdeckerStart, false);
+    VisRevealerDestroy(gv_aufdeckerStart);
+    VisEnable(c_visTypeFog, true);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Start22_Init () {
+    gt_Start22 = TriggerCreate("gt_Start22_Func");
+    TriggerAddEventTimer(gt_Start22, gv_timerStart3);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Preds verstecken
+//--------------------------------------------------------------------------------------------------
+bool gt_Predsverstecken_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Predsverstecken_Init () {
+    gt_Predsverstecken = TriggerCreate("gt_Predsverstecken_Func");
+    TriggerAddEventMapInit(gt_Predsverstecken);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Predators 1
+//--------------------------------------------------------------------------------------------------
+bool gt_Predators1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    UnitIssueOrder(UnitFromId(738), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(736)), c_orderQueueReplace);
+    VisRevealerCreate(1, RegionFromId(2));
+    gv_aufdeckerStart = VisRevealerLastCreated();
+    libNtve_gf_UnitCreateFacingPoint(1, "Hydralisk", 0, 0, PointFromId(740), PointFromId(736));
+    gv_predEnemy[0] = UnitLastCreated();
+    libNtve_gf_UnitCreateFacingPoint(1, "Hydralisk", 0, 0, PointFromId(748), PointFromId(736));
+    gv_predEnemy[1] = UnitLastCreated();
+    libNtve_gf_UnitCreateFacingPoint(1, "Hydralisk", 0, 0, PointFromId(748), PointFromId(736));
+    gv_predEnemy[3] = UnitLastCreated();
+    libNtve_gf_UnitCreateFacingPoint(1, "Hydralisk", 0, 0, PointFromId(749), PointFromId(736));
+    gv_predEnemy[2] = UnitLastCreated();
+    CameraApplyInfo(1, CameraInfoFromId(779), 3.0, -1, 10, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/EE2BDD3A"));
+    TimerStart(gv_timerPredators1, 4.0, false, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Predators1_Init () {
+    gt_Predators1 = TriggerCreate("gt_Predators1_Func");
+    TriggerAddEventUnitRegion(gt_Predators1, UnitRefFromUnit(UnitFromId(738)), RegionFromId(1), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Predators 2
+//--------------------------------------------------------------------------------------------------
+bool gt_Predators2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CinematicDataRun(2, PlayerGroupAll(), false);
+    TimerStart(gv_timerPredators2, 7.3, false, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Predators2_Init () {
+    gt_Predators2 = TriggerCreate("gt_Predators2_Func");
+    TriggerAddEventTimer(gt_Predators2, gv_timerPredators1);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Predators 2 2
+//--------------------------------------------------------------------------------------------------
+bool gt_Predators22_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/4F0CCCC3"));
+    UnitCreate(1, "Predator", 0, 1, PointFromId(785), 270.0);
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(740)), c_orderQueueReplace);
+    UnitCreate(1, "Predator", 0, 1, PointFromId(786), 270.0);
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(748)), c_orderQueueReplace);
+    UnitCreate(1, "Predator", 0, 1, PointFromId(787), 270.0);
+    UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(749)), c_orderQueueReplace);
+    TimerStart(gv_timerPredators3, 4.0, false, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Predators22_Init () {
+    gt_Predators22 = TriggerCreate("gt_Predators22_Func");
+    TriggerAddEventTimer(gt_Predators22, gv_timerPredators2);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Predators 3 + Verwundbarkeit
+//--------------------------------------------------------------------------------------------------
+bool gt_Predators3Verwundbarkeit_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CameraApplyInfo(1, CameraInfoFromId(784), 3.0, -1, 10, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/8D136970"));
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    UnitSetOwner(gv_predEnemy[0], 15, true);
+    UnitSetOwner(gv_predEnemy[1], 15, true);
+    UnitSetOwner(gv_predEnemy[2], 15, true);
+    UnitSetOwner(gv_predEnemy[3], 15, true);
+    UnitAbilityEnable(UnitFromId(738), "SpawnPredators2", true);
+    libNtve_gf_MakeUnitInvulnerable(UnitFromId(792), false);
+    TriggerEnable(gt_GolemEntdeckt, false);
+    TriggerEnable(gt_GolemEntdeckt2, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Predators3Verwundbarkeit_Init () {
+    gt_Predators3Verwundbarkeit = TriggerCreate("gt_Predators3Verwundbarkeit_Func");
+    TriggerAddEventTimer(gt_Predators3Verwundbarkeit, gv_timerPredators3);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Unsterblich
+//--------------------------------------------------------------------------------------------------
+bool gt_Unsterblich_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_MakeUnitInvulnerable(UnitFromId(792), true);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Unsterblich_Init () {
+    gt_Unsterblich = TriggerCreate("gt_Unsterblich_Func");
+    TriggerAddEventMapInit(gt_Unsterblich);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Golem Entdeckt
+//--------------------------------------------------------------------------------------------------
+bool gt_GolemEntdeckt_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitIssueOrder(UnitFromId(738), Order(AbilityCommand("move", 2)), c_orderQueueReplace);
+    libNtve_gf_MakeUnitInvulnerable(UnitFromId(738), true);
+    VisRevealArea(1, RegionFromId(6), 15.0, false);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(793), 0.0, -1, 10, true);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/421E1452"));
+    TimerStart(gv_timerGolem, 7.0, false, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_GolemEntdeckt_Init () {
+    gt_GolemEntdeckt = TriggerCreate("gt_GolemEntdeckt_Func");
+    TriggerAddEventUnitRegion(gt_GolemEntdeckt, UnitRefFromUnit(UnitFromId(738)), RegionFromId(5), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Golem Entdeckt 2
+//--------------------------------------------------------------------------------------------------
+bool gt_GolemEntdeckt2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CameraApplyInfo(1, CameraInfoFromId(794), 2.0, -1, 10, true);
+    libNtve_gf_MakeUnitInvulnerable(UnitFromId(738), false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_GolemEntdeckt2_Init () {
+    gt_GolemEntdeckt2 = TriggerCreate("gt_GolemEntdeckt2_Func");
+    TriggerAddEventTimer(gt_GolemEntdeckt2, gv_timerGolem);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hy
+//--------------------------------------------------------------------------------------------------
+bool gt_Hy_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(1074), 0.0, -1, 10, true);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    ObjectiveSetState(gv_hauptmissionen[0], c_objectiveStateCompleted);
+    TriggerExecute(gt_WiedersehenmachtfreudeMission2KI3, true, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Hy_Init () {
+    gt_Hy = TriggerCreate("gt_Hy_Func");
+    TriggerAddEventUnitRegion(gt_Hy, UnitRefFromUnit(UnitFromId(738)), RegionFromId(4), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Wiedersehen macht freude + Mission 2 + KI 3 
+//--------------------------------------------------------------------------------------------------
+bool gt_WiedersehenmachtfreudeMission2KI3_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CameraApplyInfo(1, CameraInfoFromId(1080), 3.0, -1, 0, true);
+    UnitIssueOrder(UnitFromId(738), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(1424)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(410), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(1424)), c_orderQueueReplace);
+    Wait(3.0, c_timeGame);
+    CameraApplyInfo(1, CameraInfoFromId(1085), 4.0, -1, 10, true);
+    UnitIssueOrder(UnitFromId(723), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(1573)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(722), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(1574)), c_orderQueueReplace);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/7FF68F54"));
+    Wait(4.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/D30FC59D"));
+    Wait(7.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/74B99ABD"));
+    Wait(9.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/9132138B"));
+    Wait(7.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/0D18AAF4"));
+    Wait(6.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/7C942411"));
+    Wait(12.0, c_timeGame);
+    ObjectiveCreate(StringExternal("Param/Value/4B1E27DA"), StringExternal("Param/Value/0A671347"), c_objectiveStateActive, true);
+    gv_hauptmissionen[2] = ObjectiveLastCreated();
+    CameraApplyInfo(1, CameraInfoFromId(1115), 5.0, -1, 10, true);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    UnitSetOwner(UnitFromId(722), 1, true);
+    UnitSetOwner(UnitFromId(723), 1, true);
+    AIMeleeStart(3);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_WiedersehenmachtfreudeMission2KI3_Init () {
+    gt_WiedersehenmachtfreudeMission2KI3 = TriggerCreate("gt_WiedersehenmachtfreudeMission2KI3_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Verstecke Tauren bei Klo
+//--------------------------------------------------------------------------------------------------
+bool gt_VersteckeTaurenbeiKlo_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_ShowHideUnit(UnitFromId(410), false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_VersteckeTaurenbeiKlo_Init () {
+    gt_VersteckeTaurenbeiKlo = TriggerCreate("gt_VersteckeTaurenbeiKlo_Func");
+    TriggerAddEventMapInit(gt_VersteckeTaurenbeiKlo);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Klo 1
+//--------------------------------------------------------------------------------------------------
+bool gt_Klo1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CameraApplyInfo(1, CameraInfoFromId(691), 3.0, -1, 10, true);
+    UnitIssueOrder(EventUnit(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(688)), c_orderQueueReplace);
+    TimerStart(gv_klotimer1, 4.0, false, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Klo1_Init () {
+    gt_Klo1 = TriggerCreate("gt_Klo1_Func");
+    TriggerAddEventUnitRegion(gt_Klo1, UnitRefFromUnit(UnitFromId(738)), RegionFromId(10), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Klo 2 + Mission 1
+//--------------------------------------------------------------------------------------------------
+bool gt_Klo2Mission1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CinematicDataRun(3, PlayerGroupAll(), false);
+    Wait(1.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/E7BC64D7"));
+    Wait(5.0, c_timeGame);
+    UnitIssueOrder(UnitFromId(414), Order(AbilityCommand("TaurenOuthouseLiftoff", 0)), c_orderQueueReplace);
+    Wait(2.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/D539B9D2"));
+    Wait(3.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/091E63C3"));
+    Wait(7.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/845BF5E5"));
+    Wait(4.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/55B8AEC1"));
+    Wait(8.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/C6E04BAA"));
+    Wait(8.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/D15F8110"));
+    Wait(8.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/55DD7857"));
+    Wait(7.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/42909F7B"));
+    Wait(3.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/256254D0"));
+    Wait(4.0, c_timeGame);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    UnitSetOwner(UnitFromId(410), 1, true);
+    MinimapPing(PlayerGroupAll(), PointFromId(1536), 60.0, Color(100.00, 0.00, 0.00));
+    ObjectiveCreate(StringExternal("Param/Value/7D5AB2FC"), StringExternal("Param/Value/AA979BE5"), c_objectiveStateActive, true);
+    gv_hauptmissionen[1] = ObjectiveLastCreated();
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Klo2Mission1_Init () {
+    gt_Klo2Mission1 = TriggerCreate("gt_Klo2Mission1_Func");
+    TriggerAddEventTimer(gt_Klo2Mission1, gv_klotimer1);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Home Sweet Home
+//--------------------------------------------------------------------------------------------------
+bool gt_HomeSweetHome_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    ObjectiveSetState(gv_hauptmissionen[1], c_objectiveStateCompleted);
+    libNtve_gf_SetAlliance(1, 5, 1);
+    TriggerEnable(gt_Jemandwichtigesstirbt2, false);
+    TriggerExecute(gt_EineHandwC3A4schtdieAndereKiStartZerg, true, true);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_HomeSweetHome_Init () {
+    gt_HomeSweetHome = TriggerCreate("gt_HomeSweetHome_Func");
+    TriggerAddEventUnitRegion(gt_HomeSweetHome, UnitRefFromUnit(UnitFromId(410)), RegionFromId(9), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Eine Hand w??scht die Andere + Ki Start Zerg
+//--------------------------------------------------------------------------------------------------
+bool gt_EineHandwC3A4schtdieAndereKiStartZerg_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UnitSetPosition(UnitFromId(723), PointFromId(744), false);
+    libNtve_gf_MakeUnitFacePoint(UnitFromId(723), PointFromId(823), 0.0);
+    UnitSetPosition(UnitFromId(738), PointFromId(821), false);
+    libNtve_gf_MakeUnitFacePoint(UnitFromId(738), PointFromId(823), 0.0);
+    UnitSetPosition(UnitFromId(722), PointFromId(822), false);
+    libNtve_gf_MakeUnitFacePoint(UnitFromId(722), PointFromId(823), 0.0);
+    UnitSetPosition(UnitFromId(410), PointFromId(823), false);
+    libNtve_gf_MakeUnitFacePoint(UnitFromId(410), PointFromId(821), 0.0);
+    CameraApplyInfo(1, CameraInfoFromId(1543), 0.0, -1, 10, true);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/A3C8A680"));
+    Wait(4.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/6BE4C3DD"));
+    Wait(4.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/FE7D223F"));
+    Wait(8.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/DA816E92"));
+    Wait(8.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/3849FF32"));
+    Wait(6.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/756F4A49"));
+    UnitSetOwner(UnitFromId(410), 5, true);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(1563), 0.0, -1, 10, true);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    TimerStart(gv_spawntimer, 1.0, false, c_timeGame);
+    AIMeleeStart(4);
+    TimerStart(gv_hilfenaht, 600.0, false, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_EineHandwC3A4schtdieAndereKiStartZerg_Init () {
+    gt_EineHandwC3A4schtdieAndereKiStartZerg = TriggerCreate("gt_EineHandwC3A4schtdieAndereKiStartZerg_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hilfe kommt
+//--------------------------------------------------------------------------------------------------
+bool gt_Hilfekommt_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "TaurenSpaceMarine", 0, 1, PointFromId(744));
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "TaurenSpaceMarine", 0, 1, PointFromId(821));
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "TaurenSpaceMarine", 0, 1, PointFromId(822));
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "TaurenSpaceMarine", 0, 1, PointFromId(823));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Hilfekommt_Init () {
+    gt_Hilfekommt = TriggerCreate("gt_Hilfekommt_Func");
+    TriggerAddEventTimer(gt_Hilfekommt, gv_hilfenaht);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hybridforschung
+//--------------------------------------------------------------------------------------------------
+bool gt_Hybridforschung_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetAlliance(1, 3, 7);
+    UnitIssueOrder(EventUnit(), Order(AbilityCommand("move", 2)), c_orderQueueReplace);
+    VisRevealArea(1, RegionFromId(11), 25.0, false);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(679), 0.0, -1, 10, true);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/48410BCF"));
+    Wait(5.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/BF0824E5"));
+    Wait(8.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/A23D3C92"));
+    Wait(7.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UnitRemove(UnitFromId(161));
+    Wait(1.0, c_timeGame);
+    CameraApplyInfo(1, CameraInfoFromId(730), 2.5, -1, 10, true);
+    Wait(2.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/4DF8F059"));
+    Wait(4.0, c_timeGame);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(742), 0.0, -1, 10, true);
+    CinematicFade(true, 0.5, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CinematicFade(false, 0.5, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(741), 0.0, -1, 10, true);
+    CinematicFade(true, 3.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    Wait(2.0, c_timeGame);
+    libNtve_gf_SetAlliance(1, 3, 5);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Hybridforschung_Init () {
+    gt_Hybridforschung = TriggerCreate("gt_Hybridforschung_Func");
+    TriggerAddEventUnitRegion(gt_Hybridforschung, UnitRefFromUnit(UnitFromId(723)), RegionFromId(12), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_Variableninitalisierung_Init();
+    gt_SpielStarteinstellungen_Init();
+    gt_GUI_Init();
+    gt_SchwierigkeitgewC3A4hlt_Init();
+    gt_Ziel_Init();
+    gt_Jemandwichtigesstirbt_Init();
+    gt_Jemandwichtigesstirbt2_Init();
+    gt_SpawnGruppe1_Init();
+    gt_Welleabspawn_Init();
+    gt_Welleabspawn2_Init();
+    gt_Spawnerstirbt_Init();
+    gt_TychusSpawnedFlammerisborn_Init();
+    gt_TychusSpawnedFlammerDies_Init();
+    gt_Waffebeistart_Init();
+    gt_Granaten_Init();
+    gt_RaynorSpawnedMarineisborn_Init();
+    gt_RaynorSpawnedMarineDies_Init();
+    gt_Looseit_Init();
+    gt_Gotit_Init();
+    gt_Getarnt_Init();
+    gt_Enttarnt_Init();
+    gt_ToshSpawnedPredatorisborn_Init();
+    gt_ToshSpawnedPredatorDies_Init();
+    gt_Tip1_Init();
+    gt_Tip2_Init();
+    gt_RaynortrifftHybrid_Init();
+    gt_Start1_Init();
+    gt_Start12_Init();
+    gt_Start13_Init();
+    gt_Start14_Init();
+    gt_Start15_Init();
+    gt_Start16_Init();
+    gt_Start17_Init();
+    gt_Start2Mission0_Init();
+    gt_Start22_Init();
+    gt_Predsverstecken_Init();
+    gt_Predators1_Init();
+    gt_Predators2_Init();
+    gt_Predators22_Init();
+    gt_Predators3Verwundbarkeit_Init();
+    gt_Unsterblich_Init();
+    gt_GolemEntdeckt_Init();
+    gt_GolemEntdeckt2_Init();
+    gt_Hy_Init();
+    gt_WiedersehenmachtfreudeMission2KI3_Init();
+    gt_VersteckeTaurenbeiKlo_Init();
+    gt_Klo1_Init();
+    gt_Klo2Mission1_Init();
+    gt_HomeSweetHome_Init();
+    gt_EineHandwC3A4schtdieAndereKiStartZerg_Init();
+    gt_Hilfekommt_Init();
+    gt_Hybridforschung_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitGlobals();
+    InitTriggers();
+}

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CActorModel id="ChronoSurge" parent="ModelAnimationStyleContinuous">
+        <On Terms="Behavior.ChronoSurge.On" Send="Create"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD"/>
+        <On Terms="Behavior.ChronoSurge.Off" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorAction id="PsiBlastBeta" parent="GenericAttack" effectImpact="PsiBlastBetaDamage" effectLaunch="PsiBlastBetaLaunchMissile">
+        <LaunchAssets Sound="Karass_AttackLaunch"/>
+        <ImpactMap index="None" Model="AdeptSoulMissileImpact" Sound="Karass_AttackImpact"/>
+    </CActorAction>
+    <CActorAction id="PsiBlastOmegaAttack" parent="GenericAttack" effectImpact="PsiBlastOmegaDamage" effectLaunch="PsiBlastOmegaLaunchMissile">
+        <LaunchAssets Sound="Hybrid_PlasmaBlastLaunch"/>
+        <ImpactSiteOps HoldPosition="1"/>
+        <ImpactMap index="None" Sound="Hybrid_PlasmaBlastImpact"/>
+        <ImpactModel value="PsiBlastOmegaImpactModel"/>
+    </CActorAction>
+    <CActorMissile id="PsiBlastOmegaAttackMissile" parent="GenericAttackMissile" unitName="HybridCPlasmaWeapon"/>
+    <CActorModel id="PsiBlastOmegaChargeModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Abil.PsiBlastOmega.SourcePrepStart" Send="Create"/>
+        <On Terms="Abil.PsiBlastOmega.SourcePrepStop" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachWeapon"/>
+    </CActorModel>
+    <CActorModel id="PsiBlastOmegaImpactModel" parent="GenericAttackModel"/>
+    <CActorSound id="PsiBlastOmegaImpactSound" parent="SoundOneShot">
+        <On Terms="Effect.PsiBlastOmegaDamage.Start; At Target" Send="Create"/>
+        <Sound value="Hybrid_PlasmaBlastImpact"/>
+    </CActorSound>
+    <CActorSound id="PsiBlastOmegaLaunchSound" parent="SoundOneShot">
+        <On Terms="Abil.PsiBlastOmega.SourceCastStart" Send="Create"/>
+        <Sound value="Hybrid_PlasmaBlastLaunch"/>
+    </CActorSound>
+    <CActorMissile id="PsiBlastBetaMissile" parent="GenericAttackMissile" unitName="KarassWeapon"/>
+    <CActorSound id="BlinkSound" parent="SoundOneShot">
+        <On Terms="Abil.JudicatorBlink.TargetCastStart" Send="Create"/>
+        <Sound value="Stalker_Blink"/>
+    </CActorSound>
+    <CActorRange id="PsiBlastOmegaRange" parent="RangeAbil" abil="PsiBlastOmega"/>
+    <CActorModel id="PsiShieldGammaAbsorbModel" parent="ModelAnimationStyleOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.PsiShieldGamma.DamageHandled" Send="Create"/>
+        <On Terms="AnimDone" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <Model value="ShieldAbsorbImmortalViz"/>
+    </CActorModel>
+    <CActorSound id="PsiBlastOmegaChargeSound" parent="SoundContinuous">
+        <On Terms="Abil.PsiBlastOmega.SourcePrepStart" Send="Create"/>
+        <On Terms="Abil.PsiBlastOmega.SourcePrepStop" Send="ActionDamagePhysics"/>
+        <Sound value="Hybrid_PlasmaBlastCharge"/>
+    </CActorSound>
+    <CActorModel id="BlinkIn" parent="ModelAnimationStyleOneShotNoOrphan">
+        <On Terms="Effect.JudicatorBlink.Stop; At Source" Send="Create"/>
+        <On Terms="ActorCreation" Send="RefSet ::scope.Impact ::Self"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin SOpForwardScopeLaunch"/>
+        <Model value="Blinkin"/>
+    </CActorModel>
+    <CActorModel id="BlinkOut" parent="ModelAnimationStyleOneShotNoOrphan">
+        <On Terms="Effect.JudicatorBlink.Start" Send="Create"/>
+        <On Terms="ActorCreation" Send="RefSet ::scope.Launch ::Self"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary SOpFowardJudicator"/>
+    </CActorModel>
+    <CActorSound id="PsiShieldGammaImpactSound" parent="SoundOneShot">
+        <On Terms="Effect.PsiShieldGammaApplyBuff.Start; At Caster" Send="Create"/>
+        <Sound value="Karass_PlasmaSurgeLaunch"/>
+    </CActorSound>
+    <CActorModel id="PsiShieldGammaLaunch" parent="ModelAnimationStyleOneShot">
+        <On Terms="Abil.PsiShieldGamma.SourceCastStart" Send="Create"/>
+        <Model value="KarassPlasmaSurgeLaunch"/>
+    </CActorModel>
+    <CActorRange id="PsiShieldGammaRange" parent="RangeAbil" abil="PsiShieldGamma"/>
+    <CActorSplat id="PsiShieldGammaSplat" parent="ProtossCursorSplat">
+        <On index="0" Terms="Abil.PsiShieldGamma.Cursor" Send="Create"/>
+    </CActorSplat>
+    <CActorSound id="PsiShieldSigmaEndSound" parent="SoundOneShot">
+        <On Terms="Behavior.PsiShieldSigma.Off" Send="Create"/>
+        <Sound value="Tosh_PsiShieldDeath"/>
+    </CActorSound>
+    <CActorModel id="PsiShieldSigmaModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Behavior.PsiShieldSigma.On" Send="Create"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.500000"/>
+        <On Terms="Behavior.PsiShieldSigma.Off" Send="AnimBracketStop BSD"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorSound id="PsiShieldSigmaStartSound" parent="SoundOneShot">
+        <On Terms="Behavior.PsiShieldSigma.On" Send="Create"/>
+        <On Terms="Behavior.PsiShieldSigma.Off" Send="Destroy"/>
+        <Sound value="Tosh_PsiShieldBirth"/>
+    </CActorSound>
+    <CActorSiteOpForward id="SOpFowardJudicator">
+        <HostForward Subject="Tassadar"/>
+    </CActorSiteOpForward>
+    <!--                                                                                         -->
+    <!-- SS_CarrierBoss ........................................................................ -->
+    <!--                                                                                         -->
+    <CActorUnit id="SS_CarrierBoss">
+        <PortraitModel value="TassadarPortrait"/>
+        <BarWidth value="156"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-protoss-selendis-carrier.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <UnitKillRank Text="UnitKillRank/Selendis"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-selendis-carrier.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-protoss-selendis-carrier-shield01.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-selendis-carrier-shield02.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-selendis-carrier-shield03.dds"/>
+        </WireframeShield>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-carrier-selendis.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-carrier-selendis.dds"/>
+        <On index="61" Terms="Abil.SS_CarrierBossAttackTarget.SourcePrepStart" Send="AnimBracketStart Attack Stand,Work,Start Stand,Work Stand,Work,End"/>
+    </CActorUnit>
+    <CActorSound id="SS_CarrierBossAttackChargeUp">
+        <On index="1" Terms="Abil.SS_CarrierBossAttackTarget.SourcePrepStart" Send="Create"/>
+    </CActorSound>
+    <!--                                                                                         -->
+    <!-- Tassadar............................................................................... -->
+    <!--                                                                                         -->
+    <CActorUnit id="Tassadar">
+        <PortraitModel value="Preserver1Portrait"/>
+    </CActorUnit>
+    <CActorModel id="PsiShieldGammaImpactModel" parent="ModelAnimationStyleOneShot">
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="Effect.PsiShieldGammaApplyBuff.Start; At Target" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <Model value="KarassPlasmaSurgeImpact"/>
+    </CActorModel>
+</Catalog>

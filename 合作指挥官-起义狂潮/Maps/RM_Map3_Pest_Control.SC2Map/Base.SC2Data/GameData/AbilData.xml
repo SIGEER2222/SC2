@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CAbilTrain id="BarracksTrain">
+        <InfoArray index="Train5" Time="35">
+            <Button DefaultButtonFace="TrainTaurenMarine"/>
+            <Unit value="TaurenSpaceMarineRM"/>
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilArmMagazine id="Hangar2">
+        <AbilSetId value="CarrierHanger"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Flags index="Retarget" value="1"/>
+        <Leash value="13"/>
+        <InfoArray index="Ammo1" Time="8" Manage="Recall" Unit="Fighter">
+            <Charge Link="CarrierInterceptor" Location="Unit"/>
+            <Button DefaultButtonFace="Fighter" Requirements="ArmInterceptor">
+                <Flags index="ToSelection" value="1"/>
+            </Button>
+            <Flags index="AutoBuild" value="1"/>
+        </InfoArray>
+        <Alert value="TrainComplete"/>
+        <EffectArray index="Death" value="InterceptorFate"/>
+    </CAbilArmMagazine>
+    <CAbilEffectTarget id="ExperimentalPlasmaGun">
+        <Cost index="0">
+            <Charge CountMax="0" CountStart="0" CountUse="0"/>
+            <Cooldown TimeUse="30"/>
+        </Cost>
+        <Range index="0" value="8"/>
+        <CastIntroTime index="0" value="0.15"/>
+    </CAbilEffectTarget>
+    <CAbilTrain id="FactoryTrain">
+        <InfoArray index="Train7" Time="45">
+            <Button DefaultButtonFace="WarBot"/>
+            <Unit value="WarBot"/>
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilEffectInstant id="GuardianShield2">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="GuardianShieldPersistent2"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+            <Charge Link="Abil/GuardianShield"/>
+            <Cooldown Link="GuardianShield" TimeUse="15.2"/>
+        </Cost>
+        <AINotifyEffect value=""/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="GuardianShield2"/>
+    </CAbilEffectInstant>
+    <CAbilQueue id="HangarQueue52">
+        <EditorCategories value="Race:Neutral,AbilityorEffectType:Structures"/>
+        <QueueSize value="5"/>
+        <Flags index="Passive" value="1"/>
+    </CAbilQueue>
+    <CAbilHarvest id="MULEGather">
+        <ResourceAcquire index="Vespene" value="1"/>
+    </CAbilHarvest>
+    <CAbilEffectTarget id="NovaSnipe">
+        <Cost index="0">
+            <Cooldown TimeUse="20"/>
+        </Cost>
+        <Range index="0" value="12"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ScharfschtzeRMTosh"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="RaynorC4">
+        <TargetFilters index="0" removed="1"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="SeekerMissile">
+        <Cost index="0">
+            <Vital index="Energy" value="75"/>
+            <Cooldown TimeUse="10"/>
+        </Cost>
+        <Range index="0" value="25"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="Shotgun">
+        <Effect index="0" value="UltrasonicPulseLaunchMissile"/>
+        <Cost>
+            <Charge Link="Abil/PsiStorm"/>
+            <Cooldown Link="Abil/PsiStorm" TimeStart="15" TimeUse="15"/>
+        </Cost>
+        <Range value="4"/>
+        <PrepTime value="0.01"/>
+        <FinishTime value="2.5"/>
+        <Marker Link="Abil/UltrasonicPulse"/>
+        <CursorEffect value="UltrasonicPulseSearchArea"/>
+        <AINotifyEffect value="UltrasonicPulseLaunchMissile"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PumpGun"/>
+    </CAbilEffectTarget>
+    <CAbilTrain id="SpawnFlammer">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <InfoArray index="Train1" Time="10">
+            <Cooldown TimeStart="10" TimeUse="10"/>
+            <Button DefaultButtonFace="SpawnFlammer"/>
+            <Unit value="Flammer"/>
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilTrain id="SpawnMarines">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <InfoArray index="Train1" Time="5">
+            <Cooldown TimeStart="5" TimeUse="5"/>
+            <Button DefaultButtonFace="SpawnWarPigs"/>
+            <Unit value="WarPigRM"/>
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilTrain id="SpawnPredators2">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <InfoArray index="Train1" Time="5">
+            <Cooldown TimeStart="5" TimeUse="5"/>
+            <Button DefaultButtonFace="SpawnPredators"/>
+            <Unit value="PredatorRM"/>
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilBuild id="TerranBuild2">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <FlagArray index="Interruptible" value="1"/>
+        <FlagArray index="PeonDisableCollision" value="1"/>
+        <InfoArray index="Build1" Unit="Bunker" Time="30">
+            <Button DefaultButtonFace="Bunker" Requirements="HaveBarracks"/>
+        </InfoArray>
+        <InfoArray index="Build2" Unit="MissileTurret" Time="25">
+            <Button DefaultButtonFace="MissileTurret" Requirements="HaveEngineeringBay"/>
+        </InfoArray>
+        <InfoArray index="Build3" Unit="PerditionTurret" Time="30">
+            <Button DefaultButtonFace="PerditionTurret"/>
+            <ValidatorArray value="HasVespene"/>
+        </InfoArray>
+        <InfoArray index="Build4" Time="30"/>
+        <InfoArray index="Build5" Time="30"/>
+        <InfoArray index="Build6" Time="60">
+            <Button State="Suppressed" Requirements="HaveCommandCenter"/>
+        </InfoArray>
+        <InfoArray index="Build7" Time="35">
+            <Button State="Suppressed" Requirements="HaveCommandCenter"/>
+        </InfoArray>
+        <InfoArray index="Build8" Time="15"/>
+        <InfoArray index="Build9" Time="25">
+            <Button State="Restricted" Requirements="HaveEngineeringBay"/>
+        </InfoArray>
+        <InfoArray index="Build10" Time="40">
+            <Button State="Suppressed" Requirements="HaveBarracks"/>
+        </InfoArray>
+        <InfoArray index="Build11" Time="60">
+            <Button State="Suppressed" Requirements="HaveBarracks"/>
+        </InfoArray>
+        <InfoArray index="Build12" Time="50">
+            <Button State="Suppressed" Requirements="HaveFactory"/>
+        </InfoArray>
+        <InfoArray index="Build13" Time="50">
+            <Button State="Suppressed" Requirements="HaveBarracks"/>
+        </InfoArray>
+        <InfoArray index="Build14" Time="65">
+            <Button State="Suppressed" Requirements="HaveFactory"/>
+        </InfoArray>
+        <InfoArray index="Build16" Time="80">
+            <Button State="Suppressed" Requirements="HaveStarport"/>
+        </InfoArray>
+        <FidgetDelayMin value="5"/>
+        <FidgetDelayMax value="10"/>
+        <ConstructionMover value="Construction"/>
+    </CAbilBuild>
+    <CAbilEffectTarget id="TossGrenade2">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Effect index="0" value="TossGrenadeLaunchMissile"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Charge CountMax="10" CountUse="1" Link="RaynorTossGrenade"/>
+            <Cooldown Link="Abil/TossGrenade"/>
+        </Cost>
+        <Range value="7"/>
+        <PrepTime value="0.361"/>
+        <Marker Link="Abil/TossGrenade"/>
+        <CursorEffect value="TossGrenadeDamage"/>
+        <AINotifyEffect value="TossGrenade"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="TossGrenade" State="Restricted"/>
+    </CAbilEffectTarget>
+    <CAbilBehavior id="TarnfeldToshRM">
+        <AbilSetId value="Clok"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="On" DefaultButtonFace="TarnenTosh">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="Off" DefaultButtonFace="EnttarnenTosh">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <Flags index="Toggle" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="25"/>
+            <Charge Link="Abil/WraithCloak"/>
+            <Cooldown Link="Abil/WraithCloak"/>
+        </Cost>
+        <BehaviorArray value="WraithCloak2"/>
+    </CAbilBehavior>
+    <CAbilEffectTarget id="VultureSpiderMines2">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Effect index="0" value="SpawnSpiderMineSet2"/>
+        <Cost>
+            <Charge Link="Abil/VultureSpiderMines" Location="Unit"/>
+            <Cooldown Link="Abil/VultureSpiderMines" TimeUse="30"/>
+        </Cost>
+        <Placeholder value="SpiderMine"/>
+        <Range value="3"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ItemMines"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ZeratulBlink2">
+        <AbilSetId value="Blnk"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Flags index="BestUnit" value="0"/>
+        <Cost>
+            <Charge Link="Abil/ZeratulBlink"/>
+            <Cooldown Link="Abil/ZeratulBlink" TimeUse="10"/>
+        </Cost>
+        <Range value="75"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="Teleporter">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+</Catalog>

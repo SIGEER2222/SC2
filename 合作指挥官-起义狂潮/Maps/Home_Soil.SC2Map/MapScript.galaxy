@@ -1,0 +1,750 @@
+//==================================================================================================
+// 
+// Generated Map Script
+// 
+// Name:   Home Soil
+// Author: Victiln
+// 
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+include "TriggerLibs/NativeLib"
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+    libNtve_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Global Variables
+//--------------------------------------------------------------------------------------------------
+unitgroup gv_powergroup;
+
+void InitGlobals () {
+    gv_powergroup = UnitGroupEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_Start;
+trigger gt_powerclear;
+trigger gt_securitygate;
+trigger gt_roadblock;
+trigger gt_colonistgone;
+trigger gt_suprise1;
+trigger gt_opsremover;
+trigger gt_ultralisk1;
+trigger gt_ultralisk2;
+trigger gt_Diamondbacks;
+trigger gt_Diamondbacks2;
+trigger gt_Diamond1;
+trigger gt_Diamond2;
+trigger gt_creepcload;
+trigger gt_mainbase;
+trigger gt_forcefield;
+trigger gt_powerplant;
+trigger gt_win;
+trigger gt_intro;
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start
+//--------------------------------------------------------------------------------------------------
+bool gt_Start_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCargoCreate(UnitFromId(1), "Marine", 5);
+    UnitCargoCreate(UnitFromId(1), "Medic", 2);
+    libNtve_gf_MakeUnitUncommandable(UnitFromId(1), true);
+    UnitIssueOrder(UnitFromId(1), OrderTargetingPoint(AbilityCommand("SpecOpsDropshipTransport", 2), PointFromId(2)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(1), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(3)), c_orderQueueAddToEnd);
+    TriggerEnable(gt_ultralisk2, false);
+    TriggerEnable(gt_Diamondbacks2, false);
+    libNtve_gf_AddUnitGroupToUnitGroup(UnitGroup(null, 2, RegionFromId(18), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), gv_powergroup);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Start_Init () {
+    gt_Start = TriggerCreate("gt_Start_Func");
+    TriggerAddEventMapInit(gt_Start);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: powerclear
+//--------------------------------------------------------------------------------------------------
+bool gt_powerclear_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(gv_powergroup, c_unitCountAlive) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), 1.0);
+    Wait(1.0, c_timeReal);
+    libNtve_gf_GlobalCinematicSetting(true);
+    UnitGroupLoopBegin(UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    while (!UnitGroupLoopDone()) {
+        UnitSetPosition(UnitGroupLoopCurrent(), PointFromId(1998), false);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    UnitSetPosition(UnitFromId(1892), PointFromId(1999), false);
+    UnitGroupLoopBegin(UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    CameraApplyInfo(1, CameraInfoFromId(1994), 0.0, -1, 10, true);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UnitIssueOrder(UnitFromId(1892), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(2000)), c_orderQueueReplace);
+    Wait(4.0, c_timeReal);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(2), "Talk", null, StringExternal("Param/Value/FAB08941"), StringExternal("Param/Value/19C2025D"), 4.0, c_transmissionDurationAdd, false);
+    Wait(4.0, c_timeReal);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(2), "Talk", null, StringExternal("Param/Value/1DB8BDCD"), StringExternal("Param/Value/62211AD1"), 4.0, c_transmissionDurationAdd, false);
+    UnitIssueOrder(UnitFromId(1892), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(1998)), c_orderQueueReplace);
+    CameraApplyInfo(1, CameraInfoFromId(1995), 12.0, -1, 10, true);
+    Wait(4.0, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.2, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.2, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.2, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.2, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.2, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.2, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.1, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.2, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.2, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(0, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.2, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.3, c_timeReal);
+    libNtve_gf_CreateExplosionAtPoint(1, 0, RegionRandomPoint(RegionFromId(17)));
+    Wait(0.5, c_timeReal);
+    CameraApplyInfo(1, CameraInfoFromId(1996), 0.0, -1, 10, true);
+    CameraApplyInfo(1, CameraInfoFromId(1997), 7.0, -1, 10, true);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(2), "Talk", null, StringExternal("Param/Value/6D756600"), StringExternal("Param/Value/E8FAA91F"), 6.0, c_transmissionDurationAdd, false);
+    Wait(1.0, c_timeReal);
+    UnitKill(UnitFromId(880));
+    Wait(6.0, c_timeReal);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    Wait(1.0, c_timeReal);
+    libNtve_gf_GlobalCinematicSetting(false);
+    CameraApplyInfo(1, CameraInfoFromId(2001), 0.0, -1, 10, true);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), 1.0);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    Wait(1.0, c_timeReal);
+    ObjectiveSetState(DataTableGetObjective(true, "obj4"), c_objectiveStateCompleted);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_powerclear_Init () {
+    gt_powerclear = TriggerCreate("gt_powerclear_Func");
+    TriggerAddEventUnitDied(gt_powerclear, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: securitygate
+//--------------------------------------------------------------------------------------------------
+bool gt_securitygate_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), 1.0);
+    Wait(1.0, c_timeReal);
+    libNtve_gf_GlobalCinematicSetting(true);
+    UnitGroupLoopBegin(UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    while (!UnitGroupLoopDone()) {
+        UnitSetPosition(UnitGroupLoopCurrent(), PointFromId(1894), false);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    UnitSetPosition(UnitFromId(1892), PointFromId(1895), false);
+    CameraApplyInfo(1, CameraInfoFromId(1897), 0.0, -1, 10, true);
+    CameraApplyInfo(1, CameraInfoFromId(1898), 5.0, -1, 10, true);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UnitIssueOrder(UnitFromId(1892), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(1896)), c_orderQueueReplace);
+    Wait(1.0, c_timeReal);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(2), "Talk", null, StringExternal("Param/Value/D9E02D17"), StringExternal("Param/Value/6D838EB8"), 4.0, c_transmissionDurationAdd, false);
+    Wait(4.0, c_timeReal);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(2), "Talk", null, StringExternal("Param/Value/C5558D4B"), StringExternal("Param/Value/00F28322"), 4.0, c_transmissionDurationAdd, false);
+    Wait(2.0, c_timeReal);
+    UnitIssueOrder(UnitFromId(517), Order(AbilityCommand("SecurityGateDiagonalULBRLowered", 0)), c_orderQueueReplace);
+    Wait(3.0, c_timeReal);
+    CameraApplyInfo(1, CameraInfoFromId(1899), 0.0, -1, 10, true);
+    CameraApplyInfo(1, CameraInfoFromId(1900), 12.0, -1, 10, true);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(2), "Talk", null, StringExternal("Param/Value/EEB14ED2"), StringExternal("Param/Value/8CEEFA71"), 5.0, c_transmissionDurationAdd, false);
+    Wait(5.0, c_timeReal);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(2), "Talk", null, StringExternal("Param/Value/CC069A08"), StringExternal("Param/Value/A0EE455E"), 6.0, c_transmissionDurationAdd, false);
+    Wait(6.0, c_timeReal);
+    UnitGroupLoopBegin(UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(1896)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    Wait(1.0, c_timeReal);
+    libNtve_gf_GlobalCinematicSetting(false);
+    CameraApplyInfo(1, CameraInfoFromId(1905), 0.0, -1, 10, true);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), 1.0);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    ObjectiveSetState(DataTableGetObjective(true, "obj1"), c_objectiveStateCompleted);
+    Wait(1.0, c_timeReal);
+    ObjectiveCreate(StringExternal("Param/Value/59E25050"), StringExternal("Param/Value/681199F4"), c_objectiveStateActive, true);
+    DataTableSetObjective(true, "obj3", ObjectiveLastCreated());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_securitygate_Init () {
+    gt_securitygate = TriggerCreate("gt_securitygate_Func");
+    TriggerAddEventUnitRegion(gt_securitygate, null, RegionFromId(5), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: roadblock
+//--------------------------------------------------------------------------------------------------
+bool gt_roadblock_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    VisRevealArea(1, RegionFromId(3), 5.0, false);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/43C0B0D7"), StringExternal("Param/Value/0D8A05F6"), 5.0, c_transmissionDurationAdd, false);
+    CameraApplyInfo(1, CameraInfoFromId(1893), 1.0, -1, 10, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_roadblock_Init () {
+    gt_roadblock = TriggerCreate("gt_roadblock_Func");
+    TriggerAddEventUnitRegion(gt_roadblock, null, RegionFromId(2), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: colonistgone
+//--------------------------------------------------------------------------------------------------
+bool gt_colonistgone_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/2F4B0724"), StringExternal("Param/Value/851123C9"), 3.0, c_transmissionDurationAdd, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_colonistgone_Init () {
+    gt_colonistgone = TriggerCreate("gt_colonistgone_Func");
+    TriggerAddEventUnitRegion(gt_colonistgone, null, RegionFromId(4), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: suprise1
+//--------------------------------------------------------------------------------------------------
+bool gt_suprise1_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    UnitIssueOrder(UnitFromId(1944), Order(AbilityCommand("BurrowBanelingUp", 0)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(1943), Order(AbilityCommand("BurrowBanelingUp", 0)), c_orderQueueReplace);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_suprise1_Init () {
+    gt_suprise1 = TriggerCreate("gt_suprise1_Func");
+    TriggerAddEventUnitRegion(gt_suprise1, null, RegionFromId(14), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: opsremover
+//--------------------------------------------------------------------------------------------------
+bool gt_opsremover_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitRemove(EventUnit());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_opsremover_Init () {
+    gt_opsremover = TriggerCreate("gt_opsremover_Func");
+    TriggerAddEventUnitRegion(gt_opsremover, null, RegionFromId(1), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ultralisk1
+//--------------------------------------------------------------------------------------------------
+bool gt_ultralisk1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    UnitGroupLoopBegin(UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    VisRevealArea(1, RegionFromId(6), 20.0, false);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/8FE3B1CF"), StringExternal("Param/Value/FD0F9A61"), 10.0, c_transmissionDurationAdd, false);
+    CameraApplyInfo(1, CameraInfoFromId(1906), 1.0, -1, 10, true);
+    TriggerEnable(gt_Diamondbacks2, true);
+    TriggerEnable(gt_Diamondbacks, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ultralisk1_Init () {
+    gt_ultralisk1 = TriggerCreate("gt_ultralisk1_Func");
+    TriggerAddEventUnitRegion(gt_ultralisk1, null, RegionFromId(7), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ultralisk2
+//--------------------------------------------------------------------------------------------------
+bool gt_ultralisk2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    UnitGroupLoopBegin(UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    VisRevealArea(1, RegionFromId(6), 20.0, false);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/BCAA540A"), StringExternal("Param/Value/6DD5D311"), 10.0, c_transmissionDurationAdd, false);
+    CameraApplyInfo(1, CameraInfoFromId(1906), 1.0, -1, 10, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ultralisk2_Init () {
+    gt_ultralisk2 = TriggerCreate("gt_ultralisk2_Func");
+    TriggerAddEventUnitRegion(gt_ultralisk2, null, RegionFromId(7), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Diamondbacks
+//--------------------------------------------------------------------------------------------------
+bool gt_Diamondbacks_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/7FE165DB"), StringExternal("Param/Value/84C80A4E"), 10.0, c_transmissionDurationAdd, false);
+    TriggerEnable(gt_ultralisk1, false);
+    TriggerEnable(gt_ultralisk2, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Diamondbacks_Init () {
+    gt_Diamondbacks = TriggerCreate("gt_Diamondbacks_Func");
+    TriggerAddEventUnitRegion(gt_Diamondbacks, null, RegionFromId(10), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Diamondbacks2
+//--------------------------------------------------------------------------------------------------
+bool gt_Diamondbacks2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/111B523E"), StringExternal("Param/Value/978B943C"), 10.0, c_transmissionDurationAdd, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Diamondbacks2_Init () {
+    gt_Diamondbacks2 = TriggerCreate("gt_Diamondbacks2_Func");
+    TriggerAddEventUnitRegion(gt_Diamondbacks2, null, RegionFromId(10), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Diamond1
+//--------------------------------------------------------------------------------------------------
+bool gt_Diamond1_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "Marine"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    UnitRemove(EventUnit());
+    libNtve_gf_RescueUnit(UnitFromId(1901), 1, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Diamond1_Init () {
+    gt_Diamond1 = TriggerCreate("gt_Diamond1_Func");
+    TriggerAddEventUnitRegion(gt_Diamond1, null, RegionFromId(8), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Diamond2
+//--------------------------------------------------------------------------------------------------
+bool gt_Diamond2_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "Marine"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    UnitRemove(EventUnit());
+    libNtve_gf_RescueUnit(UnitFromId(1902), 1, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Diamond2_Init () {
+    gt_Diamond2 = TriggerCreate("gt_Diamond2_Func");
+    TriggerAddEventUnitRegion(gt_Diamond2, null, RegionFromId(9), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: creepcload
+//--------------------------------------------------------------------------------------------------
+bool gt_creepcload_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/3D382974"), StringExternal("Param/Value/AFA66558"), 6.0, c_transmissionDurationAdd, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_creepcload_Init () {
+    gt_creepcload = TriggerCreate("gt_creepcload_Func");
+    TriggerAddEventUnitRegion(gt_creepcload, null, RegionFromId(11), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: mainbase
+//--------------------------------------------------------------------------------------------------
+bool gt_mainbase_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/3F417A78"), StringExternal("Param/Value/383EC6A3"), 12.0, c_transmissionDurationAdd, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_mainbase_Init () {
+    gt_mainbase = TriggerCreate("gt_mainbase_Func");
+    TriggerAddEventUnitRegion(gt_mainbase, null, RegionFromId(12), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: forcefield
+//--------------------------------------------------------------------------------------------------
+bool gt_forcefield_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/501B14C7"), StringExternal("Param/Value/892B2A0D"), 14.0, c_transmissionDurationAdd, false);
+    ObjectiveCreate(StringExternal("Param/Value/5EF62A41"), StringExternal("Param/Value/63A4EA74"), c_objectiveStateActive, true);
+    DataTableSetObjective(true, "obj4", ObjectiveLastCreated());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_forcefield_Init () {
+    gt_forcefield = TriggerCreate("gt_forcefield_Func");
+    TriggerAddEventUnitRegion(gt_forcefield, null, RegionFromId(13), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: powerplant
+//--------------------------------------------------------------------------------------------------
+bool gt_powerplant_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    UnitGroupLoopBegin(UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    VisRevealArea(1, RegionFromId(16), 20.0, false);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/30FD0D4A"), StringExternal("Param/Value/BAE059D0"), 10.0, c_transmissionDurationAdd, false);
+    CameraApplyInfo(1, CameraInfoFromId(1985), 1.0, -1, 10, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_powerplant_Init () {
+    gt_powerplant = TriggerCreate("gt_powerplant_Func");
+    TriggerAddEventUnitRegion(gt_powerplant, null, RegionFromId(15), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: win
+//--------------------------------------------------------------------------------------------------
+bool gt_win_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    ObjectiveSetState(DataTableGetObjective(true, "obj3"), c_objectiveStateCompleted);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/E3F1ADE1"), StringExternal("Param/Value/2ABFAFAB"), 4.0, c_transmissionDurationAdd, false);
+    Wait(3.0, c_timeReal);
+    GameOver(1, c_gameOverVictory, true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_win_Init () {
+    gt_win = TriggerCreate("gt_win_Func");
+    TriggerAddEventUnitRegion(gt_win, null, RegionFromId(19), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: intro
+//--------------------------------------------------------------------------------------------------
+bool gt_intro_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CinematicFade(false, 0.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), 0.0);
+    libNtve_gf_GlobalCinematicSetting(true);
+    CameraApplyInfo(1, CameraInfoFromId(2008), 0.0, -1, 10, true);
+    CameraApplyInfo(1, CameraInfoFromId(2009), 16.0, -1, 10, true);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    Wait(1.0, c_timeReal);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(UnitFromId(1892), true, false, "Talk"), libNtve_gf_CinematicPortrait(2), "Talk", null, StringExternal("Param/Value/4EDD114F"), StringExternal("Param/Value/7648D73C"), 8.0, c_transmissionDurationAdd, false);
+    Wait(8.0, c_timeReal);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    Wait(1.0, c_timeReal);
+    UnitSetPosition(UnitFromId(1892), PointFromId(2), false);
+    libNtve_gf_GlobalCinematicSetting(false);
+    CameraApplyInfo(1, CameraInfoFromId(2010), 0.0, -1, 10, true);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), 1.0);
+    CinematicFade(true, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    Wait(1.0, c_timeReal);
+    ObjectiveCreate(StringExternal("Param/Value/96AFA351"), StringExternal("Param/Value/1431B0EE"), c_objectiveStateActive, true);
+    DataTableSetObjective(true, "obj1", ObjectiveLastCreated());
+    Wait(1.0, c_timeReal);
+    ObjectiveCreate(StringExternal("Param/Value/A68DB222"), StringExternal("Param/Value/FF46D65D"), c_objectiveStateActive, true);
+    DataTableSetObjective(true, "obj2", ObjectiveLastCreated());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_intro_Init () {
+    gt_intro = TriggerCreate("gt_intro_Func");
+    TriggerAddEventMapInit(gt_intro);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_Start_Init();
+    gt_powerclear_Init();
+    gt_securitygate_Init();
+    gt_roadblock_Init();
+    gt_colonistgone_Init();
+    gt_suprise1_Init();
+    gt_opsremover_Init();
+    gt_ultralisk1_Init();
+    gt_ultralisk2_Init();
+    gt_Diamondbacks_Init();
+    gt_Diamondbacks2_Init();
+    gt_Diamond1_Init();
+    gt_Diamond2_Init();
+    gt_creepcload_Init();
+    gt_mainbase_Init();
+    gt_forcefield_Init();
+    gt_powerplant_Init();
+    gt_win_Init();
+    gt_intro_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitGlobals();
+    InitTriggers();
+}

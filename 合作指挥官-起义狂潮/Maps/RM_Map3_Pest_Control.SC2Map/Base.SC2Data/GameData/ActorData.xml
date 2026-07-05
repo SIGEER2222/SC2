@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CActorUnit id="BonesRM" parent="GenericUnitStandard" unitName="EgonStetmannRM">
+        <On Terms="Abil.BonesHeal.SourceChannelStart" Send="$Spell PlayForever"/>
+        <On Terms="Abil.BonesHeal.SourceChannelStop" Send="AnimClear Spell"/>
+        <On Terms="Behavior.OutOfCombatEnergyRegen.On" Send="AnimBracketStart Regen Cover,Start Cover Cover,End"/>
+        <On Terms="Behavior.OutOfCombatEnergyRegen.Off" Send="AnimBracketStop Regen"/>
+        <On Terms="UnitMovementUpdate.EgonStetmannRM.Walk" Send="AnimBracketStop Regen"/>
+        <Model value="MedicStetmann"/>
+        <Scale value="1.200000"/>
+        <DeathArray index="Normal" SoundLink="Stetmann_Death"/>
+        <DeathArray index="Blast" ModelLink="MedicDeath"/>
+        <DeathArray index="Fire" ModelLink="MedicStetmannDeathFire"/>
+        <PortraitModel value="StetmannMedicPortrait"/>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <BarOffset value="60"/>
+        <BarWidth value="50"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-stetmann.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\ui-heroicon-stetmann.dds"/>
+        <HighlightTooltip value="Unit/Name/Stetmann"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Ready" value="Stetmann_Ready"/>
+        <SoundArray index="Help" value="Stetmann_Help"/>
+        <SoundArray index="What" value="Stetmann_What"/>
+        <SoundArray index="Yes" value="Stetmann_Yes"/>
+        <SoundArray index="Attack" value="Stetmann_Attack"/>
+        <SoundArray index="Pissed" value="Stetmann_Pissed"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <UnitIcon value="Assets\Textures\BTN-Unit-Terran-MedicStetmann.dds"/>
+        <UnitKillRank Text="UnitKillRank/Stetmann"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-stetmann.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSound id="CarrierInterceptorLaunch2" parent="SoundOneShot">
+        <On Terms="Abil.Hangar2.Launch" Send="Create"/>
+        <Sound value="Carrier_InterceptorLaunch"/>
+    </CActorSound>
+    <!-- Experimental Plasma Gun                                                                 -->
+    <CActorMissile id="ExperimentalPlasmaGunMissile">
+        <BarHeight value="1"/>
+        <BarWidth value="1"/>
+    </CActorMissile>
+    <CActorUnit id="Firebat2" parent="GenericUnitStandard" unitName="Flammer">
+        <Macros value="UnloadDropAnim"/>
+        <Model value="Firebat"/>
+        <BuildModel value="Firebat"/>
+        <DeathArray index="Normal" ModelLink="FirebatDeath" SoundLink="Firebat_Explode"/>
+        <PlacementModel value="Firebat"/>
+        <PortraitModel value="FirebatPortrait"/>
+        <WalkAnimMoveSpeed value="1.875"/>
+        <BarOffset value="77"/>
+        <BarWidth value="45"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-firebat.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-firebat.dds"/>
+        <HighlightTooltip value="Unit/Name/Firebat2"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Ready" value="Firebat_Ready"/>
+        <SoundArray index="Help" value="Firebat_Help"/>
+        <SoundArray index="What" value="Firebat_What"/>
+        <SoundArray index="Yes" value="Firebat_Yes"/>
+        <SoundArray index="Attack" value="Firebat_Attack"/>
+        <SoundArray index="Pissed" value="Firebat_Pissed"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-firebat.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-firebat.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorModel id="GuardianShield2" parent="ModelAnimationStyleContinuous">
+        <Inherits index="CloakEffect" value="1"/>
+        <On Terms="Effect.GuardianShieldPersistent2.Start; At Caster" Send="Create"/>
+        <On Terms="Effect.GuardianShieldPersistent2.Stop; At Caster" Send="AnimBracketStop BSD"/>
+        <On Terms="ModelEvent; ModelEventName SoundStart" Send="Create GuardianShieldSoundBirth"/>
+        <On Terms="ModelEvent; ModelEventName SoundLoopStart" Send="Create GuardianShieldSoundLoop"/>
+        <On Terms="ModelEvent; ModelEventName SoundLoopEnd" Target="GuardianShieldSoundLoop" Send="Destroy"/>
+        <On Terms="ModelEvent; ModelEventName SoundLoopEnd" Send="Create GuardianShieldSoundDeath"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="1.000000"/>
+    </CActorModel>
+    <CActorModel id="GuardianShieldImpact2" parent="ModelAnimationStyleOneShot">
+        <Terms value="Cap 1"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <On Terms="Behavior.GuardianShield2.On" Send="Create"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="1.000000"/>
+    </CActorModel>
+    <CActorAction id="HunterSeekerAttack2" parent="GenericAttack" effectImpact="SeekerMissileDamage" effectLaunch="SeekerMissileLaunchMissile2">
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeStandard SOp2DRotation" HoldPosition="1"/>
+        <ImpactAttachQuery Methods="Origin"/>
+        <ImpactMap index="None" Model="HunterSeekerAttackImpact" Sound="Raven_HunterSeekerAttackImpact"/>
+        <ShieldFlashType value="Full"/>
+    </CActorAction>
+    <CActorMissile id="HunterSeekerAttackMissile">
+        <Model value="VultureWeapon"/>
+        <BarHeight value="1"/>
+        <BarWidth value="1"/>
+    </CActorMissile>
+    <CActorSound id="HunterSeekerLaunchSoundToshRM" parent="SoundOneShot">
+        <On Terms="Abil.PlasmamissleLuncher.SourcePrepStart" Send="Create"/>
+        <Sound value="Raven_HunterSeekerLaunch"/>
+    </CActorSound>
+    <CActorRange id="HunterSeekerRangeToshRM" parent="RangeAbil" abil="PlasmamissleLuncher"/>
+    <CActorUnit id="Interceptor2" parent="GenericUnitStandard" unitName="Fighter">
+        <On Terms="Upgrade.DarkProtoss.Add" Send="ModelSwap DarkInterceptor"/>
+        <On Terms="UnitBirth; ValidateUnit NoDarkProtoss" Send="ModelSwap DarkInterceptor"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit NoDarkProtoss" Send="DeathCustomize DarkProtoss"/>
+        <Model value="Raven"/>
+        <Scale value="0.400000"/>
+        <BuildModel value="Raven"/>
+        <DeathArray index="Normal" ModelLink="InterceptorDeath" SoundLink="Interceptor_Explode"/>
+        <DeathCustoms ModelLink="DarkInterceptorDeath" Name="DarkProtoss"/>
+        <PlacementModel value="Raven"/>
+        <PortraitModel value="Raven"/>
+        <BarOffset value="25"/>
+        <BarWidth value="36"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-interceptor.dds"/>
+        <HighlightTooltip value="Unit/Name/Interceptor2"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <SoundArray index="Birth" value=""/>
+        <SoundArray index="Movement" value="InterceptorWeaponBirth"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-interceptor.dds"/>
+    </CActorUnit>
+    <CActorUnit id="KelmorianMiner2" parent="GenericUnitStandard" unitName="WarPigRM">
+        <Macros value="UnloadDropAnim"/>
+        <On Terms="Behavior.MercGroundDrop.Create" Send="Create WarPigDropModel"/>
+        <On Terms="ActorCreation; ValidateUnit NoMarineShield" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
+        <On Terms="Upgrade.ShieldWall.Add" Send="AnimClear Cover"/>
+        <On Terms="Upgrade.ShieldWall.Remove" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
+        <On Terms="Upgrade.CombatShield.Add" Send="AnimClear Cover"/>
+        <On Terms="Upgrade.CombatShield.Remove" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
+        <On Terms="UnitDeath.WarPigRM; AnimPlaying Cover" Target="_DeathModel" Send="AnimPlay Cover Cover PlayForever"/>
+        <Model value="WarPig"/>
+        <BuildModel value="WarPig"/>
+        <DeathArray index="Normal" ModelLink="KelmorianMinerDeath" SoundLink="Marine_DeathFXBloodSpray"/>
+        <DeathArray index="Blast" ModelLink="MarineDeathBlast" SoundLink="Marine_DeathFXBlast"/>
+        <DeathArray index="Disintegrate" ModelLink="MarineDeathAcid" SoundLink="Marine_DeathFXFire"/>
+        <DeathArray index="Eat" AnimProps="Stand" ModelLink="MarineDeathEat" SoundLink="Marine_DeathFXEat"/>
+        <DeathArray index="Eviscerate" ModelLink="MarineDeathEviscerate" SoundLink="Marine_DeathFXEviscerate"/>
+        <DeathArray index="Fire" ModelLink="MarineDeathFire" SoundLink="Marine_DeathFXFire"/>
+        <DeathArray index="Silentkill" SoundLink="Marine_DeathFXSilentKill"/>
+        <DeathArray index="Squish" SoundLink="Marine_DeathFXBloodSpray"/>
+        <PlacementModel value="WarPig"/>
+        <PortraitModel value="MarineMercenaryPortrait"/>
+        <StandAnimTurnTime value="5"/>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <BarOffset value="20"/>
+        <BarWidth value="36"/>
+        <GlossaryAnim value="Spell"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-terran-marine-mercenary.dds"/>
+        </GroupIcon>
+        <GroupSoundArray index="What" value="MarineGroupWhat"/>
+        <GroupSoundArray index="Yes" value="MarineGroupYes"/>
+        <GroupSoundArray index="Attack" value="MarineGroupAttack"/>
+        <GroupSoundArray index="Board" value="MarineGroupBoard"/>
+        <HeroIcon value="Assets\Textures\BTN-Unit-Terran-MarineMercenary.dds"/>
+        <HighlightTooltip value="Unit/Name/WarPig"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Birth" value="MarineBirth"/>
+        <SoundArray index="Ready" value="Marine_Ready"/>
+        <SoundArray index="Help" value="Marine_Help"/>
+        <SoundArray index="What" value="Marine_What"/>
+        <SoundArray index="Yes" value="Marine_Yes"/>
+        <SoundArray index="Attack" value="Marine_Attack"/>
+        <SoundArray index="Pissed" value="Marine_Pissed"/>
+        <SoundArray index="Movement" value="MarineMovement"/>
+        <SoundArray index="Turning" value="MarineTurning"/>
+        <SoundArray index="Board" value="MarineBoard"/>
+        <SoundArray index="Click" value="MarineClick"/>
+        <SoundArray index="ClickError" value="MarineClickError"/>
+        <SoundArray index="Highlight" value="MarineHighlight"/>
+        <UnitIcon value="Assets\Textures\BTN-Unit-Terran-MarineMercenary.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-terran-marine-mercenary.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorUnit id="PredatorRM" parent="GenericUnitStandard" unitName="PredatorRM">
+        <Macros value="UnloadDropAnim"/>
+        <Model value="Predator"/>
+        <Baselines index="Walk" AnimProps="Walk,Fast"/>
+        <BuildModel value="Predator"/>
+        <DeathArray index="Normal" ModelLink="PredatorDeath" SoundLink="Predator_Explode"/>
+        <PlacementModel value="Predator"/>
+        <PortraitModel value="CyberCatPortrait"/>
+        <BarOffset value="50"/>
+        <BarWidth value="102"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-predator.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\BTN-Unit-Terran-Predator.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
+        <SoundArray index="Ready" value="Predator_Ready"/>
+        <SoundArray index="What" value="Predator_What"/>
+        <SoundArray index="Yes" value="Predator_Yes"/>
+        <SoundArray index="Attack" value="Predator_Attack"/>
+        <UnitIcon value="Assets\Textures\BTN-Unit-Terran-Predator.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-predator.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorUnit id="SpiderMineVulture2" parent="GenericUnitStandard" unitName="TimeBomb">
+        <On Terms="UnitBirth.SpiderMineBurrowed" Send="Create"/>
+        <On Terms="UnitBirth.SpiderMineBurrowed" Send="AnimPlay Burrow Burrow PlayForever,NonLooping"/>
+        <On Terms="AbilMorph.*.Start; MorphTo SpiderMineBurrowed" Send="AnimPlay Burrow Burrow PlayForever,NonLooping"/>
+        <On Terms="AbilMorph.*.Start; MorphTo SpiderMineBurrowed" Send="AnimClear Unburrow"/>
+        <On Terms="AbilMorph.*.Start; MorphTo SpiderMine" Send="AnimClear Burrow"/>
+        <On Terms="AbilMorph.*.Start; MorphTo SpiderMine" Send="AnimPlay Unburrow Unburrow"/>
+        <On Terms="AbilMorph.VultureSpiderMineBurrow.Start" Send="Create VultureSpiderMineBurrowSound"/>
+        <On Terms="Abil.attack.ReadyStart" Send="Create VultureSpiderMineSeekSound"/>
+        <On Terms="ActorCreation; ValidateUnit HasCerberusMines" Send="ModelSwap CerberusMine"/>
+        <Model value="D8Charge"/>
+        <BuildModel value="D8Charge"/>
+        <DeathArray index="Normal" ModelLink="SpiderMineExplosion" SoundLink="Terran_ExplosionSmall"/>
+        <DeathArray index="Fire" ModelLink="250mmStrikeCannonsImpact"/>
+        <PlacementModel value="D8Charge"/>
+        <BarOffset value="10"/>
+        <BarWidth value="36"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-SpiderMine.dds"/>
+        </GroupIcon>
+        <GroupSoundArray index="Birth" value="SpiderMineBirth"/>
+        <GroupSoundArray index="Ready" value="SpiderMineReady"/>
+        <GroupSoundArray index="Help" value="SpiderMineHelp"/>
+        <GroupSoundArray index="What" value="SpiderMineWhat"/>
+        <GroupSoundArray index="Yes" value="SpiderMineYes"/>
+        <GroupSoundArray index="Attack" value="SpiderMineYes"/>
+        <GroupSoundArray index="Pissed" value="SpiderMinePissed"/>
+        <HeroIcon value="Assets\Textures\BTN-Unit-Terran-SpiderMine.dds"/>
+        <HighlightTooltip value="Unit/Name/SpiderMine"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
+        <NameOffset value="10"/>
+        <SoundArray index="Birth" value="SpiderMineBirth"/>
+        <SoundArray index="Ready" value="SpiderMineReady"/>
+        <SoundArray index="Help" value="SpiderMineHelp"/>
+        <SoundArray index="What" value="SpiderMineWhat"/>
+        <SoundArray index="Yes" value="SpiderMineYes"/>
+        <SoundArray index="Attack" value="SpiderMineYes"/>
+        <SoundArray index="Pissed" value="SpiderMinePissed"/>
+        <SoundArray index="Movement" value="SpiderMineMovement"/>
+        <SoundArray index="Turning" value="SpiderMineTurning"/>
+        <SoundArray index="Board" value="SpiderMineBoard"/>
+        <UnitIcon value="Assets\Textures\BTN-Unit-Terran-SpiderMine.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-SpiderMine.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSound id="TarnungAnTosh" parent="SoundOneShot">
+        <Terms value="ValidateUnit NotCloaked"/>
+        <On Terms="Behavior.WraithCloak2.On" Send="Create"/>
+        <On Terms="Behavior.RangedCloak.On" Send="Create"/>
+        <On Terms="Behavior.PermanentlyCloaked2.On" Send="Create"/>
+        <On Terms="Behavior.MineDroneCloaking.On" Send="Create"/>
+        <On Terms="Behavior.CloakBeam.On" Send="Create"/>
+        <Sound value="Wraith_CloakOn"/>
+    </CActorSound>
+    <CActorUnit id="Raynor012" parent="GenericUnitStandard" unitName="JimRaynor">
+        <Macros value="UnloadDropAnim"/>
+        <On Terms="ActorCreation" Send="TextureSelectById Decal_Terran_0002_01"/>
+        <Model value="Raynor"/>
+        <Scale value="1.300000"/>
+        <ModelFlags index="SuppressPlayerDecals" value="1"/>
+        <DeathArray index="Normal" ModelLink="MarineRaynorDeath" SoundLink="Raynor_Explode"/>
+        <DeathArray index="Fire" ModelLink="RaynorDeathFire" SoundLink="Uni_DeathFXFire"/>
+        <DeathActorModelLow value="UnitDeathModel"/>
+        <PortraitModel value="RaynorMarinePortrait"/>
+        <StandAnimTurnTime value="5"/>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <BarOffset value="60"/>
+        <BarWidth value="50"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Marine-Raynor.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\ui-heroicon-raynor.dds"/>
+        <HighlightTooltip value="Unit/Name/Raynor012"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Birth" value="Raynor_Birth"/>
+        <SoundArray index="Ready" value="Raynor_Ready"/>
+        <SoundArray index="Help" value="Raynor_Help"/>
+        <SoundArray index="What" value="Raynor_What"/>
+        <SoundArray index="Yes" value="Raynor_Yes"/>
+        <SoundArray index="Attack" value="Raynor_Attack"/>
+        <SoundArray index="Pissed" value="Raynor_Pissed"/>
+        <SoundArray index="Movement" value="Raynor_Movement"/>
+        <SoundArray index="Turning" value="Raynor_Turning"/>
+        <SoundArray index="Board" value="Raynor_Board"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <UnitIcon value="Assets\Textures\BTN-Unit-Terran-MarineRaynor.dds"/>
+        <UnitKillRank Text="UnitKillRank/Raynor"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Marine-Raynor.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSound id="TarnungAusTosh" parent="SoundOneShot">
+        <Terms value="ValidateUnit NotCloakedAndNotDead"/>
+        <On Terms="Behavior.WraithCloak2.Off" Send="Create"/>
+        <On Terms="Behavior.RangedCloak.Off" Send="Create"/>
+        <On Terms="Behavior.PermanentlyCloaked2.Off" Send="Create"/>
+        <On Terms="Behavior.MineDroneCloaking.Off" Send="Create"/>
+        <On Terms="Behavior.CloakBeam.Off" Send="Create"/>
+        <Sound value="Wraith_CloakOff"/>
+    </CActorSound>
+    <!--                                                                                         -->
+    <!-- TaurenOuthouse......................................................................... -->
+    <!--                                                                                         -->
+    <CActorUnit id="TaurenOuthouse">
+        <Scale value="1.750000"/>
+    </CActorUnit>
+    <CActorUnit id="TaurenSpaceMarine2" parent="GenericUnitStandard" unitName="TaurenSpaceMarineRM">
+        <Model value="TaurenSpaceMarine"/>
+        <BuildModel value="TaurenSpaceMarine"/>
+        <DeathArray index="Normal" ModelLink="TaurenSpaceMarine" SoundLink="TaurenSpaceMarine_Explode"/>
+        <PlacementModel value="TaurenSpaceMarine"/>
+        <PortraitModel value="TaurenMarinePortrait"/>
+        <StandAnimTurnTime value="3"/>
+        <WalkAnimMoveSpeed value="4.0976"/>
+        <BarOffset value="40"/>
+        <BarWidth value="72"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-taurenspacemarine.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\BTN-Unit-Terran-TaurenSpaceMarine.dds"/>
+        <HighlightTooltip value="Unit/Name/TaurenSpaceMarine2"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Ready" value="TaurenSpaceMarine_Ready"/>
+        <SoundArray index="Help" value="TaurenSpaceMarine_Help"/>
+        <SoundArray index="What" value="TaurenSpaceMarine_What"/>
+        <SoundArray index="Yes" value="TaurenSpaceMarine_Yes"/>
+        <SoundArray index="Attack" value="TaurenSpaceMarine_Attack"/>
+        <SoundArray index="Pissed" value="TaurenSpaceMarine_Pissed"/>
+        <UnitIcon value="Assets\Textures\BTN-Unit-Terran-TaurenSpaceMarine.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-taurenspacemarine.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorAction id="TaurenSpaceMarineAttack2" parent="GenericAttack" effectAttack="TaurenSpaceMarineGaussRifleDamage2">
+        <LaunchAssets Model="TaurenSpaceMarineAttackLaunch" Sound="TaurenSpaceMarine_AttackLaunch"/>
+        <ImpactMap index="None" Model="TaurenSpaceMarineAttackImpact" Sound="TaurenSpaceMarine_AttackImpact"/>
+    </CActorAction>
+    <CActorAction id="TaurenSpaceMarineAttack3" parent="GenericAttack" effectAttack="TaurenSpaceMarineGaussRifleDamage3">
+        <LaunchAssets Model="TaurenSpaceMarineAttackLaunch" Sound="TaurenSpaceMarine_AttackLaunch"/>
+        <Beam value="TaurenSpaceMarineAttackBeam"/>
+        <Missile value="TaurenSpaceMarineAttackMissile"/>
+        <ImpactMap index="None" Model="TaurenSpaceMarineAttackImpact" Sound="TaurenSpaceMarine_AttackImpact" ModelReaction="TaurenSpaceMarineAttackImpactReaction"/>
+        <ImpactMap index="Dirt" Sound="TaurenSpaceMarineAttackImpactDirt" ModelReaction="TaurenSpaceMarineAttackImpactReactionDirt"/>
+        <ImpactMap index="Rock" Sound="TaurenSpaceMarineAttackImpactRock" ModelReaction="TaurenSpaceMarineAttackImpactReactionRock"/>
+        <ImpactMap index="Snow" Sound="TaurenSpaceMarineAttackImpactSnow" ModelReaction="TaurenSpaceMarineAttackImpactReactionSnow"/>
+        <ImpactMap index="Sand" Sound="TaurenSpaceMarineAttackImpactSand" ModelReaction="TaurenSpaceMarineAttackImpactReactionSand"/>
+        <ImpactMap index="Water" Sound="TaurenSpaceMarineAttackImpactWater" ModelReaction="TaurenSpaceMarineAttackImpactReactionWater"/>
+        <ImpactMap index="Flesh" Sound="TaurenSpaceMarineAttackImpactFlesh" ModelReaction="TaurenSpaceMarineAttackImpactReactionFlesh"/>
+        <ImpactMap index="LightArmor" Sound="TaurenSpaceMarineAttackImpactLightArmor" ModelReaction="TaurenSpaceMarineAttackImpactReactionLightArmor"/>
+        <ImpactMap index="Metal" Sound="TaurenSpaceMarineAttackImpactMetal" ModelReaction="TaurenSpaceMarineAttackImpactReactionMetal"/>
+        <ImpactMap index="Shield" Sound="TaurenSpaceMarineAttackImpactShield" ModelReaction="TaurenSpaceMarineAttackImpactReactionShield"/>
+        <DamageMap index="None" Model="TaurenSpaceMarineAttackDamage" Sound="TaurenSpaceMarineAttackDamage" ModelReaction="TaurenSpaceMarineAttackDamageReaction"/>
+        <DamageMap index="Dirt" Sound="TaurenSpaceMarineAttackDamageDirt" ModelReaction="TaurenSpaceMarineAttackDamageReactionDirt"/>
+        <DamageMap index="Rock" Sound="TaurenSpaceMarineAttackDamageRock" ModelReaction="TaurenSpaceMarineAttackDamageReactionRock"/>
+        <DamageMap index="Snow" Sound="TaurenSpaceMarineAttackDamageSnow" ModelReaction="TaurenSpaceMarineAttackDamageReactionSnow"/>
+        <DamageMap index="Sand" Sound="TaurenSpaceMarineAttackDamageSand" ModelReaction="TaurenSpaceMarineAttackDamageReactionSand"/>
+        <DamageMap index="Water" Sound="TaurenSpaceMarineAttackDamageWater" ModelReaction="TaurenSpaceMarineAttackDamageReactionWater"/>
+        <DamageMap index="Flesh" Sound="TaurenSpaceMarineAttackDamageFlesh" ModelReaction="TaurenSpaceMarineAttackDamageReactionFlesh"/>
+        <DamageMap index="LightArmor" Sound="TaurenSpaceMarineAttackDamageLightArmor" ModelReaction="TaurenSpaceMarineAttackDamageReactionLightArmor"/>
+        <DamageMap index="Metal" Sound="TaurenSpaceMarineAttackDamageMetal" ModelReaction="TaurenSpaceMarineAttackDamageReactionMetal"/>
+        <DamageMap index="Shield" Sound="TaurenSpaceMarineAttackDamageShield" ModelReaction="TaurenSpaceMarineAttackDamageReactionShield"/>
+    </CActorAction>
+    <CActorUnit id="Tosh2" parent="GenericUnitBase" unitName="GabrielToshRM">
+        <On Terms="Abil.HeroNuclearStrike.SourceCastStart" Send="AnimBracketStart Spell Work,Start Work Work,End"/>
+        <On Terms="Abil.HeroNuclearStrike.SourceFinishStart" Send="AnimBracketStop Spell"/>
+        <On Terms="Abil.HeroNuclearStrike.SourceCancel" Send="AnimBracketStop Spell"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Work"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Work"/>
+        <On Terms="Abil.nuke.SourceCastStart" Send="AnimBracketStart Nuke Work,Start Work Work,End"/>
+        <On Terms="Abil.nuke.SourceChannelStop" Send="AnimBracketStop Nuke"/>
+        <On Terms="Abil.RogueRogueBombTosh.SourceCastStart" Send="AnimPlay SpellA Spell,A"/>
+        <On Terms="Abil.KillerPhantasmHydralisk.SourceCastStart" Send="$Spell"/>
+        <On Terms="Abil.KillerPhantasmUltralisk.SourceCastStart" Send="$Spell"/>
+        <On Terms="Abil.KillerPhantasmZergling.SourceCastStart" Send="$Spell"/>
+        <On Terms="Abil.MindBlast.SourceCastStart" Send="$Spell,B NonLooping"/>
+        <On Terms="Abil.Consumption.SourceCastStart" Send="$Spell"/>
+        <On Terms="Abil.Consumption.SourceCastStart" Send="Create ConsumptionSound"/>
+        <On Terms="Abil.ToshShadowClones.SourceCastStart" Send="$Spell"/>
+        <Model value="Tosh"/>
+        <BuildModel value="ToshTeleportIn"/>
+        <DeathArray index="Normal" ModelLink="ToshDeath" SoundLink="Tosh_Death"/>
+        <PlacementModel value="Tosh"/>
+        <PortraitModel value="ToshPortrait"/>
+        <WalkAnimMoveSpeed value="3"/>
+        <BarOffset value="40"/>
+        <BarWidth value="40"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Tosh.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\ui-heroicon-tosh.dds"/>
+        <HighlightTooltip value="Unit/Name/Tosh2"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <ShieldArmorIcon value="Assets\Textures\btn-ability-terran-defensivematrix.dds"/>
+        <SoundArray index="Ready" value="Tosh_Ready"/>
+        <SoundArray index="Help" value="Tosh_Help"/>
+        <SoundArray index="What" value="Tosh_What"/>
+        <SoundArray index="Yes" value="Tosh_Yes"/>
+        <SoundArray index="Attack" value="Tosh_Attack"/>
+        <SoundArray index="Pissed" value="Tosh_Pissed"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <UnitIcon value="Assets\Textures\BTN-Unit-Terran-Tosh.dds"/>
+        <UnitKillRank Text="UnitKillRank/Tosh2"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Tosh.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorAction id="ToshAttack2" parent="GenericAttack" effectAttack="ZAssassinengewehrRM2">
+        <LaunchAssets Model="ToshAttackLaunch" Sound="Tosh_AttackLaunch"/>
+        <ContainerAssets Sound="Tosh_AttackLaunch"/>
+        <ImpactMap index="None" Model="ToshAttackImpact" Sound="Tosh_AttackImpact"/>
+    </CActorAction>
+    <CActorUnit id="TychusCommando2" parent="GenericUnitStandard" unitName="TychusFindlayRM">
+        <On Terms="Abil.BonesTossGrenade.SourceCastStart" Send="$Spell 0 -1.000000 -1.000000 2.000000 AsTimeScale"/>
+        <On Terms="ActorCreation" Send="TextureSelectById Decal_Campaign_Tychus_01"/>
+        <Model value="TychusCommando"/>
+        <Scale value="1.200000"/>
+        <ModelFlags index="SuppressPlayerDecals" value="1"/>
+        <BuildModel value="TychusCommando"/>
+        <DeathArray index="Normal" ModelLink="TychusCommando" SoundLink="Tychus_Explode"/>
+        <DeathArray index="Fire" ModelLink="TychusCommandoDeathFire" SoundLink="Uni_DeathFXFire"/>
+        <PlacementModel value="TychusCommando"/>
+        <PortraitModel value="TychusPortrait"/>
+        <StandAnimTurnTime value="5"/>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <AbilSoundArray AbilCmd="BonesTossGrenade,Execute" Sound="Tychus_TossGrenadeVO"/>
+        <BarOffset value="50"/>
+        <BarWidth value="50"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-marine-tychus.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\ui-heroicon-tychus.dds"/>
+        <HighlightTooltip value="Unit/Name/TychusCommando2"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Birth" value="Tychus_Birth"/>
+        <SoundArray index="Ready" value="Tychus_Ready"/>
+        <SoundArray index="Help" value="Tychus_Help"/>
+        <SoundArray index="What" value="Tychus_What"/>
+        <SoundArray index="Yes" value="Tychus_Yes"/>
+        <SoundArray index="Attack" value="Tychus_Attack"/>
+        <SoundArray index="Pissed" value="Tychus_Pissed"/>
+        <SoundArray index="Movement" value="Tychus_Movement"/>
+        <SoundArray index="Turning" value="Tychus_Turning"/>
+        <SoundArray index="Board" value="Tychus_Board"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <UnitIcon value="Assets\Textures\BTN-Unit-Terran-MarineTychus.dds"/>
+        <UnitKillRank Text="UnitKillRank/Tychus"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-marine-tychus.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorAction id="TychusCommandoAttack2" parent="GenericAttack" effectAttack="AngriffSchadenadvanced">
+        <LaunchAssets Model="TychusCommandoAttackLaunch" Sound="Raven_AutoTurretAttackLaunch"/>
+        <Missile value="TaurenSpaceMarineAttack2Missile"/>
+        <ImpactMap index="None" Model="TychusCommandoAttackImpact"/>
+    </CActorAction>
+    <CActorAction id="VultureSpiderMineAttack2" parent="GenericAttack" effectAttack="VultureSpiderMinesDamage">
+        <ImpactMap index="None" Model="VultureSpiderMineAttackImpact" Sound="VultureSpiderMineAttackImpact"/>
+        <ShieldFlashType value="Header"/>
+    </CActorAction>
+    <CActorRange id="VultureSpiderMinesRange2" parent="RangeAbil" abil="VultureSpiderMines2"/>
+    <CActorUnit id="Warbot2" parent="GenericUnitBase" unitName="WarBot">
+        <On Terms="UnitDeathCustomize; ValidateUnit IsWarbotB" Send="DeathCustomize Variation2"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsWarbotC" Send="DeathCustomize Variation3"/>
+        <On Terms="Effect.WarbotARight.Start; At Caster" Send="AnimPlay Attack Attack,Right"/>
+        <On Terms="Effect.WarbotALeft.Start; At Caster" Send="AnimPlay Attack Attack,Left"/>
+        <On Terms="Effect.WarbotBPersistent.Start" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.WarbotB.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="WeaponStart.WarbotC.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.WarbotC.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="WeaponStart.WarbotC.AttackStart" Send="TimerSet 1.000000 KillBeam"/>
+        <On Terms="ActorCreation" Send="AnimGroupApply Work"/>
+        <On Terms="AnimBracketState.*.BeforeOpening; AnimName Morph" Send="AnimGroupRemove Work"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="TimerSet 0.250000 KillBeam"/>
+        <On Terms="TimerExpired; TimerName KillBeam" Target="WarbotCAttackBeam" Send="Destroy"/>
+        <On Terms="Behavior.WarbotA.On" Send="AnimGroupApply A"/>
+        <On Terms="Behavior.WarbotA.On" Send="AnimBracketStart Morph Stand,Work,End IGNORE Stand,Work,Start"/>
+        <On Terms="Behavior.WarbotA.Off" Send="AnimBracketStop Morph"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName Morph" Send="AnimGroupRemove A"/>
+        <On Terms="Behavior.WarbotB.On" Send="AnimGroupApply B"/>
+        <On Terms="Behavior.WarbotB.On" Send="AnimBracketStart Morph Stand,Work,End IGNORE Stand,Work,Start"/>
+        <On Terms="Behavior.WarbotB.Off" Send="AnimBracketStop Morph"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName Morph" Send="AnimGroupRemove B"/>
+        <On Terms="Behavior.WarbotC.On" Send="AnimGroupApply C"/>
+        <On Terms="Behavior.WarbotC.On" Send="AnimBracketStart Morph Stand,Work,End IGNORE Stand,Work,Start"/>
+        <On Terms="Behavior.WarbotC.Off" Send="AnimBracketStop Morph"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName Morph" Send="AnimGroupRemove C"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName Morph" Send="AnimGroupApply Work"/>
+        <Model value="Warbot"/>
+        <Scale value="0.700000"/>
+        <BuildModel value="Warbot"/>
+        <DeathArray index="Normal" ModelLink="WarbotDeath" SoundLink="Terran_ExplosionLarge"/>
+        <DeathCustoms ModelLink="WarbotDeathB" Name="Variation2"/>
+        <DeathCustoms ModelLink="WarbotDeathC" Name="Variation3"/>
+        <DeathActorModelLow value="UnitDeathModel"/>
+        <PlacementModel value="Warbot"/>
+        <PortraitModel value="ARESPortrait"/>
+        <BarOffset value="180"/>
+        <BarWidth value="220"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-warbot.dds"/>
+        </GroupIcon>
+        <HighlightTooltip value="Unit/Name/Warbot2"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
+        <NameOffset value="40"/>
+        <SoundArray index="Ready" value="Warbot_Ready"/>
+        <SoundArray index="What" value="Warbot_What"/>
+        <SoundArray index="Yes" value="Warbot_Yes"/>
+        <SoundArray index="Attack" value="Warbot_Attack"/>
+        <SoundArray index="Pissed" value="Warbot_Pissed"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <UnitFlags index="SuppressStandIntro" value="1"/>
+        <UnitFlags index="SuppressWalkIntro" value="1"/>
+        <UnitFlags index="SuppressWalkOutro" value="1"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-ares.dds"/>
+        <UnitKillRank Text="UnitKillRank/Warbot2"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-warbot.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorModel id="ZeratulBlinkIn2" parent="ModelAnimationStyleOneShotNoOrphan">
+        <On Terms="Effect.ZeratulBlink2.Stop; At Source" Send="Create"/>
+        <On Terms="ActorCreation" Send="RefSet ::scope.Impact ::Self"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin SOpForwardScopeLaunch"/>
+    </CActorModel>
+    <CActorModel id="ZeratulBlinkOut2" parent="ModelAnimationStyleOneShotNoOrphan">
+        <On Terms="Effect.ZeratulBlink2.Start; At Source" Send="Create"/>
+        <On Terms="ActorCreation" Send="RefSet ::scope.Launch ::Self"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary SOpForwardZeratul"/>
+    </CActorModel>
+    <CActorSound id="ZeratulBlinkSound2" parent="SoundOneShot">
+        <On Terms="Abil.ZeratulBlink2.TargetCastStart" Send="Create"/>
+        <Sound value="Zeratul_Blink"/>
+    </CActorSound>
+</Catalog>

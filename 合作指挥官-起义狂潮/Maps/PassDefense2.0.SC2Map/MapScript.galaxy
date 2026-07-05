@@ -1,0 +1,1626 @@
+//==================================================================================================
+// 
+// Generated Map Script
+// 
+// Name:   Pass Defense V 2.21
+// Author: Wonton & Swordmas Productions
+// 
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Global Variables
+//--------------------------------------------------------------------------------------------------
+bool gv_nydusBool;
+unit gv_cSS;
+int gv_counter;
+int[2] gv_object;
+timer gv_time;
+int gv_lBoard;
+int[4] gv_kills;
+
+void InitGlobals () {
+    int init_i;
+
+    gv_nydusBool = true;
+    gv_cSS = null;
+    gv_counter = 0;
+    gv_time = TimerCreate();
+    gv_lBoard = c_boardNone;
+    init_i = 0;
+    while (init_i <= 3) {
+        gv_kills[init_i] = 0;
+        init_i = init_i + 1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_Barrack1;
+trigger gt_Barrack2;
+trigger gt_Starport;
+trigger gt_TerranRein;
+trigger gt_Loss;
+trigger gt_Loss2;
+trigger gt_Worm5;
+trigger gt_Worm4;
+trigger gt_Worm3;
+trigger gt_Worm2;
+trigger gt_Worm1;
+trigger gt_RearDefault;
+trigger gt__300Spawn;
+trigger gt_Muts;
+trigger gt_CaveSpawn;
+trigger gt_Megawave;
+trigger gt_SS1;
+trigger gt_SS2;
+trigger gt_Hive;
+trigger gt_DefaultLings;
+trigger gt_MassLings;
+trigger gt_Hydras;
+trigger gt_Ultras;
+trigger gt_RoachSpawn;
+trigger gt_DeathNydus;
+trigger gt_DeathCaster;
+trigger gt_DeathUltra;
+trigger gt_DeathSpire;
+trigger gt_DeathSS1;
+trigger gt_DeathSS2;
+trigger gt_DeathHive;
+trigger gt_RoachDeath;
+trigger gt_Whipcrack;
+trigger gt_CornerMuts;
+trigger gt_Endwave;
+trigger gt_EndCave;
+trigger gt_SuppDep;
+trigger gt_SuppDep2;
+trigger gt_SuppDep3;
+trigger gt_SuppDep4;
+trigger gt_SuppDep5;
+trigger gt_CiniTestTriggerDeletebeforefull;
+trigger gt_Level;
+trigger gt_Initial;
+trigger gt_Initials2Wontons;
+trigger gt_Leaver;
+trigger gt_Time;
+trigger gt_KillAdd;
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Barrack1
+//--------------------------------------------------------------------------------------------------
+bool gt_Barrack1_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsAlive(UnitFromId(47)) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(1, "Marine2", 0, UnitGetOwner(UnitFromId(316)), PointFromId(165), 90.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Barrack1_Init () {
+    gt_Barrack1 = TriggerCreate("gt_Barrack1_Func");
+    TriggerEnable(gt_Barrack1, false);
+    TriggerAddEventTimePeriodic(gt_Barrack1, 45.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Barrack2
+//--------------------------------------------------------------------------------------------------
+bool gt_Barrack2_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsAlive(UnitFromId(48)) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(1, "Marine2", 0, UnitGetOwner(UnitFromId(316)), PointFromId(166), 90.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Barrack2_Init () {
+    gt_Barrack2 = TriggerCreate("gt_Barrack2_Func");
+    TriggerEnable(gt_Barrack2, false);
+    TriggerAddEventTimePeriodic(gt_Barrack2, 45.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Starport
+//--------------------------------------------------------------------------------------------------
+bool gt_Starport_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(1, "Medivac", 0, UnitGetOwner(UnitFromId(316)), PointFromId(167), 90.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Starport_Init () {
+    gt_Starport = TriggerCreate("gt_Starport_Func");
+    TriggerEnable(gt_Starport, false);
+    TriggerAddEventTimePeriodic(gt_Starport, 180.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Terran Rein
+//--------------------------------------------------------------------------------------------------
+bool gt_TerranRein_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAlliance(c_playerGroupAlly, 1), c_messageAreaSubtitle, StringExternal("Param/Value/5C12172B"));
+    UnitCreate(2, "Reaper", 0, UnitGetOwner(UnitFromId(316)), PointFromId(220), 90.0);
+    UnitCreate(1, "SiegeTank", 0, UnitGetOwner(UnitFromId(316)), PointFromId(220), 90.0);
+    MinimapPing(PlayerGroupAll(), PointFromId(220), 5.0, Color(100.00, 0.00, 0.00));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TerranRein_Init () {
+    gt_TerranRein = TriggerCreate("gt_TerranRein_Func");
+    TriggerEnable(gt_TerranRein, false);
+    TriggerAddEventTimePeriodic(gt_TerranRein, 55.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Loss
+//--------------------------------------------------------------------------------------------------
+bool gt_Loss_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(gt_Loss, false);
+    TriggerEnable(gt_KillAdd, false);
+    if ((EventUnit() == UnitFromId(53))) {
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaDirective, StringExternal("Param/Value/AB07F5C5"));
+    }
+    else {
+        if ((EventUnit() == UnitFromId(316))) {
+            UIDisplayMessage(PlayerGroupAll(), c_messageAreaDirective, StringExternal("Param/Value/4F6F2EC1"));
+        }
+        else {
+            if ((EventUnit() == UnitFromId(168))) {
+                UIDisplayMessage(PlayerGroupAll(), c_messageAreaDirective, StringExternal("Param/Value/9778FBB6"));
+            }
+            else {
+            }
+        }
+    }
+    Wait(5.0, c_timeGame);
+    TriggerStop(gt_Initial);
+    TriggerEnable(gt_Loss2, true);
+    UnitSetPropertyFixed(UnitFromId(316), c_unitPropLifeMax, 10000.0);
+    UnitSetPropertyFixed(UnitFromId(316), c_unitPropShieldsMax, 10000.0);
+    PortraitDestroyAll();
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    libNtve_gf_HideGameUI(false, PlayerGroupAll());
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CameraApplyInfo(1, CameraInfoFromId(278), 0.0, -1, 0, true);
+    CameraApplyInfo(3, CameraInfoFromId(278), 0.0, -1, 0, true);
+    CameraApplyInfo(1, CameraInfoFromId(279), 10.6667, -1, 0, true);
+    CameraApplyInfo(3, CameraInfoFromId(279), 10.6667, -1, 0, true);
+    Wait(10.666, c_timeGame);
+    CameraApplyInfo(1, CameraInfoFromId(277), 10.6667, -1, 0, true);
+    CameraApplyInfo(3, CameraInfoFromId(277), 10.6667, -1, 0, true);
+    Wait(10.666, c_timeGame);
+    CameraApplyInfo(1, CameraInfoFromId(278), 10.6667, -1, 0, true);
+    CameraApplyInfo(3, CameraInfoFromId(278), 10.6667, -1, 0, true);
+    Wait(10.666, c_timeGame);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeAlertPanel, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/A249BB3F"));
+    Wait(2.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/349F6CEC"));
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeErrorDisplayPanel, false);
+    CameraLookAt(1, PointFromId(280), 5.0, -1, 10);
+    CameraLookAt(3, PointFromId(280), 5.0, -1, 10);
+    Wait(2.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/653B6730"));
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(283));
+    Wait(0.2, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(282));
+    Wait(0.2, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(281));
+    Wait(0.4, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(284));
+    Wait(0.2, c_timeGame);
+    TriggerEnable(gt_Loss2, false);
+    CameraApplyInfo(1, CameraInfoFromId(298), 5.0, -1, 0, true);
+    CameraApplyInfo(3, CameraInfoFromId(298), 5.0, -1, 0, true);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(285));
+    Wait(0.4, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(286));
+    Wait(0.2, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(288));
+    Wait(0.2, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(289));
+    Wait(0.4, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(287));
+    Wait(0.2, c_timeGame);
+    CameraShakeStart(1, c_cameraPositionTarget, c_cameraDirectionZ, 1.0, 2.0, 100.0, 8.0);
+    CameraShakeStart(3, c_cameraPositionTarget, c_cameraDirectionZ, 1.0, 2.0, 100.0, 8.0);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(292));
+    Wait(0.4, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(291));
+    Wait(0.2, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(290));
+    Wait(0.2, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(290));
+    Wait(0.4, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(293));
+    Wait(0.2, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(294));
+    Wait(0.2, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(295));
+    Wait(0.8, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(297));
+    Wait(0.2, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(300));
+    Wait(0.2, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(301));
+    Wait(0.1, c_timeGame);
+    UnitSetPropertyFixed(UnitFromId(316), c_unitPropShields, 1.0);
+    Wait(1.4, c_timeGame);
+    PlayerCreateEffectPoint(1, "nukeDetonate", PointFromId(297));
+    Wait(0.5, c_timeGame);
+    UnitKill(UnitFromId(316));
+    Wait(1.3, c_timeGame);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(100.00, 100.00, 100.00), 0.0, true);
+    Wait(3.5, c_timeGame);
+    GameOver(1, c_gameOverDefeat, true, true);
+    GameOver(2, c_gameOverDefeat, true, true);
+    GameOver(3, c_gameOverDefeat, true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Loss_Init () {
+    gt_Loss = TriggerCreate("gt_Loss_Func");
+    TriggerAddEventUnitDied(gt_Loss, UnitRefFromUnit(UnitFromId(316)));
+    TriggerAddEventUnitDied(gt_Loss, UnitRefFromUnit(UnitFromId(168)));
+    TriggerAddEventUnitDied(gt_Loss, UnitRefFromUnit(UnitFromId(53)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Loss2
+//--------------------------------------------------------------------------------------------------
+bool gt_Loss2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_UnitCreateFacingPoint(3, "Mutalisk", 0, 2, PointFromId(220), PointFromId(322));
+    libNtve_gf_UnitCreateFacingPoint(4, "Zergling", 0, 2, PointFromId(220), PointFromId(322));
+    libNtve_gf_UnitCreateFacingPoint(2, "Hydralisk", 0, 2, PointFromId(220), PointFromId(322));
+    libNtve_gf_UnitCreateFacingPoint(2, "Ultralisk", 0, 2, PointFromId(220), PointFromId(322));
+    libNtve_gf_UnitCreateFacingPoint(2, "Roach", 0, 2, PointFromId(220), PointFromId(322));
+    libNtve_gf_UnitCreateFacingPoint(1, "BroodLord", 0, 2, PointFromId(220), PointFromId(322));
+    libNtve_gf_UnitCreateFacingPoint(1, "Overseer", 0, 2, PointFromId(220), PointFromId(322));
+    libNtve_gf_UnitCreateFacingPoint(1, "Queen", 0, 2, PointFromId(220), PointFromId(322));
+    libNtve_gf_UnitCreateFacingPoint(1, "Infestor", 0, 2, PointFromId(220), PointFromId(322));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Loss2_Init () {
+    gt_Loss2 = TriggerCreate("gt_Loss2_Func");
+    TriggerEnable(gt_Loss2, false);
+    TriggerAddEventTimePeriodic(gt_Loss2, 1.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Worm5
+//--------------------------------------------------------------------------------------------------
+bool gt_Worm5_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(2, "Broodling", 0, 2, PointFromId(222), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Worm5_Init () {
+    gt_Worm5 = TriggerCreate("gt_Worm5_Func");
+    TriggerEnable(gt_Worm5, false);
+    TriggerAddEventTimePeriodic(gt_Worm5, 0.6, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Worm4
+//--------------------------------------------------------------------------------------------------
+bool gt_Worm4_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(2, "Hydralisk", 0, 2, PointFromId(225), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Worm4_Init () {
+    gt_Worm4 = TriggerCreate("gt_Worm4_Func");
+    TriggerEnable(gt_Worm4, false);
+    TriggerAddEventTimePeriodic(gt_Worm4, 1.2, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Worm3
+//--------------------------------------------------------------------------------------------------
+bool gt_Worm3_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(3, "Zergling", 0, 2, PointFromId(218), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Worm3_Init () {
+    gt_Worm3 = TriggerCreate("gt_Worm3_Func");
+    TriggerEnable(gt_Worm3, false);
+    TriggerAddEventTimePeriodic(gt_Worm3, 0.6, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Worm2
+//--------------------------------------------------------------------------------------------------
+bool gt_Worm2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(3, "Zergling", 0, 2, PointFromId(223), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Worm2_Init () {
+    gt_Worm2 = TriggerCreate("gt_Worm2_Func");
+    TriggerEnable(gt_Worm2, false);
+    TriggerAddEventTimePeriodic(gt_Worm2, 0.6, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Worm1
+//--------------------------------------------------------------------------------------------------
+bool gt_Worm1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(3, "Roach", 0, 2, PointFromId(222), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Worm1_Init () {
+    gt_Worm1 = TriggerCreate("gt_Worm1_Func");
+    TriggerEnable(gt_Worm1, false);
+    TriggerAddEventTimePeriodic(gt_Worm1, 1.2, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rear Default
+//--------------------------------------------------------------------------------------------------
+bool gt_RearDefault_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(1, "Overseer", 0, 2, PointFromId(220), 270.0);
+    UnitCreate(2, "Roach", 0, 2, PointFromId(220), 270.0);
+    UnitCreate(2, "Hydralisk", 0, 2, PointFromId(220), 270.0);
+    UnitCreate(8, "Zergling", 0, 2, PointFromId(220), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RearDefault_Init () {
+    gt_RearDefault = TriggerCreate("gt_RearDefault_Func");
+    TriggerEnable(gt_RearDefault, false);
+    TriggerAddEventTimePeriodic(gt_RearDefault, 7.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: 300Spawn
+//--------------------------------------------------------------------------------------------------
+bool gt__300Spawn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(2, "Queen", 0, 2, PointFromId(141), 270.0);
+    UnitCreate(3, "Baneling", 0, 2, PointFromId(141), 270.0);
+    UnitCreate(1, "Mutalisk", 0, 2, PointFromId(141), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt__300Spawn_Init () {
+    gt__300Spawn = TriggerCreate("gt__300Spawn_Func");
+    TriggerEnable(gt__300Spawn, false);
+    TriggerAddEventTimePeriodic(gt__300Spawn, 7.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Muts
+//--------------------------------------------------------------------------------------------------
+bool gt_Muts_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(3, "Mutalisk", 0, 2, PointFromId(258), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Muts_Init () {
+    gt_Muts = TriggerCreate("gt_Muts_Func");
+    TriggerEnable(gt_Muts, false);
+    TriggerAddEventTimePeriodic(gt_Muts, 10.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Cave Spawn
+//--------------------------------------------------------------------------------------------------
+bool gt_CaveSpawn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(2, "InfestorTerran", 0, 2, PointFromId(247), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_CaveSpawn_Init () {
+    gt_CaveSpawn = TriggerCreate("gt_CaveSpawn_Func");
+    TriggerEnable(gt_CaveSpawn, false);
+    TriggerAddEventTimePeriodic(gt_CaveSpawn, 1.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Megawave
+//--------------------------------------------------------------------------------------------------
+bool gt_Megawave_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(1, "Overseer", 0, 2, PointFromId(324), 270.0);
+    UnitCreate(15, "Zergling", 0, 2, PointFromId(324), 270.0);
+    UnitCreate(5, "Baneling", 0, 2, PointFromId(324), 270.0);
+    UnitCreate(5, "Queen", 0, 2, PointFromId(324), 270.0);
+    UnitCreate(3, "Hydralisk", 0, 2, PointFromId(324), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Megawave_Init () {
+    gt_Megawave = TriggerCreate("gt_Megawave_Func");
+    TriggerEnable(gt_Megawave, false);
+    TriggerAddEventTimePeriodic(gt_Megawave, 80.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: SS1
+//--------------------------------------------------------------------------------------------------
+bool gt_SS1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(1, "Hydralisk", 0, 2, PointFromId(127), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SS1_Init () {
+    gt_SS1 = TriggerCreate("gt_SS1_Func");
+    TriggerEnable(gt_SS1, false);
+    TriggerAddEventTimePeriodic(gt_SS1, 12.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: SS2
+//--------------------------------------------------------------------------------------------------
+bool gt_SS2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(1, "Hydralisk", 0, 2, PointFromId(130), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SS2_Init () {
+    gt_SS2 = TriggerCreate("gt_SS2_Func");
+    TriggerEnable(gt_SS2, false);
+    TriggerAddEventTimePeriodic(gt_SS2, 12.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hive
+//--------------------------------------------------------------------------------------------------
+bool gt_Hive_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(1, "Queen", 0, 2, PointFromId(141), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Hive_Init () {
+    gt_Hive = TriggerCreate("gt_Hive_Func");
+    TriggerEnable(gt_Hive, false);
+    TriggerAddEventTimePeriodic(gt_Hive, 15.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Default Lings
+//--------------------------------------------------------------------------------------------------
+bool gt_DefaultLings_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(1, "Overseer", 0, 2, PointFromId(324), 270.0);
+    UnitCreate(8, "Zergling", 0, 2, PointFromId(324), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DefaultLings_Init () {
+    gt_DefaultLings = TriggerCreate("gt_DefaultLings_Func");
+    TriggerEnable(gt_DefaultLings, false);
+    TriggerAddEventTimePeriodic(gt_DefaultLings, 8.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Mass Lings
+//--------------------------------------------------------------------------------------------------
+bool gt_MassLings_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(5, "Zergling", 0, 2, PointFromId(324), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_MassLings_Init () {
+    gt_MassLings = TriggerCreate("gt_MassLings_Func");
+    TriggerEnable(gt_MassLings, false);
+    TriggerAddEventTimePeriodic(gt_MassLings, 7.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hydras
+//--------------------------------------------------------------------------------------------------
+bool gt_Hydras_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(5, "Hydralisk", 0, 2, PointFromId(138), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Hydras_Init () {
+    gt_Hydras = TriggerCreate("gt_Hydras_Func");
+    TriggerEnable(gt_Hydras, false);
+    TriggerAddEventTimePeriodic(gt_Hydras, 12.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Ultras
+//--------------------------------------------------------------------------------------------------
+bool gt_Ultras_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(1, "Ultralisk", 0, 2, PointFromId(139), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Ultras_Init () {
+    gt_Ultras = TriggerCreate("gt_Ultras_Func");
+    TriggerEnable(gt_Ultras, false);
+    TriggerAddEventTimePeriodic(gt_Ultras, 15.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Roach Spawn
+//--------------------------------------------------------------------------------------------------
+bool gt_RoachSpawn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(3, "Roach", 0, 2, PointFromId(216), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RoachSpawn_Init () {
+    gt_RoachSpawn = TriggerCreate("gt_RoachSpawn_Func");
+    TriggerEnable(gt_RoachSpawn, false);
+    TriggerAddEventTimePeriodic(gt_RoachSpawn, 12.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Death Nydus
+//--------------------------------------------------------------------------------------------------
+bool gt_DeathNydus_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(gt_Megawave, false);
+    gv_nydusBool = false;
+    TriggerEnable(gt_MassLings, false);
+    TriggerEnable(gt_DefaultLings, false);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/7AC94D0E"));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DeathNydus_Init () {
+    gt_DeathNydus = TriggerCreate("gt_DeathNydus_Func");
+    TriggerAddEventUnitDied(gt_DeathNydus, UnitRefFromUnit(UnitFromId(135)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Death Caster
+//--------------------------------------------------------------------------------------------------
+bool gt_DeathCaster_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/31514342"));
+    TriggerEnable(gt_Hydras, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DeathCaster_Init () {
+    gt_DeathCaster = TriggerCreate("gt_DeathCaster_Func");
+    TriggerAddEventUnitDied(gt_DeathCaster, UnitRefFromUnit(UnitFromId(134)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Death Ultra
+//--------------------------------------------------------------------------------------------------
+bool gt_DeathUltra_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/CE1E6709"));
+    TriggerEnable(gt_Ultras, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DeathUltra_Init () {
+    gt_DeathUltra = TriggerCreate("gt_DeathUltra_Func");
+    TriggerAddEventUnitDied(gt_DeathUltra, UnitRefFromUnit(UnitFromId(131)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Death Spire
+//--------------------------------------------------------------------------------------------------
+bool gt_DeathSpire_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/31C66910"));
+    TriggerEnable(gt_Muts, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DeathSpire_Init () {
+    gt_DeathSpire = TriggerCreate("gt_DeathSpire_Func");
+    TriggerAddEventUnitDied(gt_DeathSpire, UnitRefFromUnit(UnitFromId(260)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Death SS1
+//--------------------------------------------------------------------------------------------------
+bool gt_DeathSS1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaObjective, StringExternal("Param/Value/06949D78"));
+    TriggerEnable(gt_SS1, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DeathSS1_Init () {
+    gt_DeathSS1 = TriggerCreate("gt_DeathSS1_Func");
+    TriggerAddEventUnitDied(gt_DeathSS1, UnitRefFromUnit(UnitFromId(136)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Death SS2
+//--------------------------------------------------------------------------------------------------
+bool gt_DeathSS2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/AAA2B0AD"));
+    TriggerEnable(gt_SS2, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DeathSS2_Init () {
+    gt_DeathSS2 = TriggerCreate("gt_DeathSS2_Func");
+    TriggerAddEventUnitDied(gt_DeathSS2, UnitRefFromUnit(UnitFromId(137)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Death Hive
+//--------------------------------------------------------------------------------------------------
+bool gt_DeathHive_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(gt_Hive, false);
+    TriggerEnable(gt__300Spawn, false);
+    ObjectiveSetState(gv_object[1], c_objectiveStateCompleted);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/2D349147"));
+    Wait(8.0, c_timeGame);
+    TriggerEnable(gt_SuppDep, true);
+    ObjectiveCreate(StringExternal("Param/Value/7DC84DCB"), StringExternal("Param/Value/7FE0F19F"), c_objectiveStateActive, true);
+    gv_object[1] = ObjectiveLastCreated();
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/ADD07450"));
+    MinimapPing(PlayerGroupAll(), PointFromId(274), 30.0, Color(100.00, 0.00, 0.00));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DeathHive_Init () {
+    gt_DeathHive = TriggerCreate("gt_DeathHive_Func");
+    TriggerAddEventUnitDied(gt_DeathHive, UnitRefFromUnit(UnitFromId(85)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: RoachDeath
+//--------------------------------------------------------------------------------------------------
+bool gt_RoachDeath_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(gt_RoachSpawn, false);
+    UnitCreate(1, "NydusCanal2", 0, 2, PointFromId(276), 270.0);
+    UnitCreate(1, "NydusCanal2", 0, 2, PointFromId(96), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RoachDeath_Init () {
+    gt_RoachDeath = TriggerCreate("gt_RoachDeath_Func");
+    TriggerAddEventUnitDied(gt_RoachDeath, UnitRefFromUnit(UnitFromId(207)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Whipcrack
+//--------------------------------------------------------------------------------------------------
+bool gt_Whipcrack_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupLoopBegin(UnitGroup(null, 2, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingPoint(AbilityCommand("move", 1), PointFromId(322)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Whipcrack_Init () {
+    gt_Whipcrack = TriggerCreate("gt_Whipcrack_Func");
+    TriggerAddEventTimePeriodic(gt_Whipcrack, 0.5, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CornerMuts
+//--------------------------------------------------------------------------------------------------
+bool gt_CornerMuts_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreate(5, "Mutalisk", 0, 2, PointFromId(275), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_CornerMuts_Init () {
+    gt_CornerMuts = TriggerCreate("gt_CornerMuts_Func");
+    TriggerEnable(gt_CornerMuts, false);
+    TriggerAddEventTimePeriodic(gt_CornerMuts, 5.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Endwave
+//--------------------------------------------------------------------------------------------------
+bool gt_Endwave_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_UnitCreateFacingPoint(30, "Zergling", 0, 2, PointFromId(220), UnitGetPosition(EventUnit()));
+    libNtve_gf_UnitCreateFacingPoint(12, "Hydralisk", 0, 2, PointFromId(220), UnitGetPosition(EventUnit()));
+    libNtve_gf_UnitCreateFacingPoint(15, "Roach", 0, 2, PointFromId(220), UnitGetPosition(EventUnit()));
+    UnitCreate(5, "BroodLord", 0, 2, PointFromId(220), 270.0);
+    UnitCreate(3, "Corruptor", 0, 2, PointFromId(220), 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Endwave_Init () {
+    gt_Endwave = TriggerCreate("gt_Endwave_Func");
+    TriggerEnable(gt_Endwave, false);
+    TriggerAddEventTimePeriodic(gt_Endwave, 10.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EndCave
+//--------------------------------------------------------------------------------------------------
+bool gt_EndCave_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_UnitCreateFacingPoint(3, "InfestorTerran", 0, 2, PointFromId(247), UnitGetPosition(EventUnit()));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_EndCave_Init () {
+    gt_EndCave = TriggerCreate("gt_EndCave_Func");
+    TriggerEnable(gt_EndCave, false);
+    TriggerAddEventTimePeriodic(gt_EndCave, 3.3, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: SuppDep
+//--------------------------------------------------------------------------------------------------
+bool gt_SuppDep_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(gt_CornerMuts, true);
+    TriggerEnable(gt_Endwave, true);
+    TriggerEnable(gt_EndCave, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/32018D36"));
+    TriggerEnable(gt_SuppDep2, true);
+    PingDestroyAll();
+    MinimapPing(PlayerGroupAll(), PointFromId(128), 30.0, Color(100.00, 0.00, 0.00));
+    ObjectiveSetState(gv_object[1], c_objectiveStateCompleted);
+    ObjectiveCreate(StringExternal("Param/Value/EB00F8DC"), StringExternal("Param/Value/534AD72F"), c_objectiveStateActive, true);
+    gv_object[1] = ObjectiveLastCreated();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SuppDep_Init () {
+    gt_SuppDep = TriggerCreate("gt_SuppDep_Func");
+    TriggerEnable(gt_SuppDep, false);
+    TriggerAddEventUnitRangePoint(gt_SuppDep, UnitRefFromUnit(UnitFromId(53)), PointFromId(274), 2.5, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: SuppDep2
+//--------------------------------------------------------------------------------------------------
+bool gt_SuppDep2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/E1BA75D1"));
+    UnitRemove(UnitFromId(53));
+    libNtve_gf_UnitCreateFacingPoint(1, "Battlecruiser2", 0, UnitGetOwner(UnitFromId(316)), PointFromId(128), UnitGetPosition(EventUnit()));
+    gv_cSS = UnitLastCreated();
+    TriggerEnable(gt_SuppDep3, true);
+    libNtve_gf_RemoveDoodadsinRegion(RegionFromId(3), "WreckedBattlecruiser");
+    PingDestroyAll();
+    MinimapPing(PlayerGroupAll(), PointFromId(167), 30.0, Color(100.00, 0.00, 0.00));
+    ObjectiveSetState(gv_object[1], c_objectiveStateCompleted);
+    ObjectiveCreate(StringExternal("Param/Value/C61FD8C1"), StringExternal("Param/Value/9D6722ED"), c_objectiveStateActive, true);
+    gv_object[1] = ObjectiveLastCreated();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SuppDep2_Init () {
+    gt_SuppDep2 = TriggerCreate("gt_SuppDep2_Func");
+    TriggerEnable(gt_SuppDep2, false);
+    TriggerAddEventUnitRangePoint(gt_SuppDep2, UnitRefFromUnit(UnitFromId(53)), PointFromId(128), 5.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: SuppDep3
+//--------------------------------------------------------------------------------------------------
+bool gt_SuppDep3_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unitgroup lv_rine;
+    unitgroup lv_ling;
+
+    // Variable Initialization
+    lv_rine = UnitGroupEmpty();
+    lv_ling = UnitGroupEmpty();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(gt_Barrack1, false);
+    TriggerEnable(gt_Barrack2, false);
+    TriggerEnable(gt_Starport, false);
+    TriggerEnable(gt_TerranRein, false);
+    TriggerEnable(gt_Loss, false);
+    TriggerEnable(gt_Worm5, false);
+    TriggerEnable(gt_Worm4, false);
+    TriggerEnable(gt_Worm3, false);
+    TriggerEnable(gt_Worm2, false);
+    TriggerEnable(gt_Worm1, false);
+    TriggerEnable(gt_RearDefault, false);
+    TriggerEnable(gt__300Spawn, false);
+    TriggerEnable(gt_Muts, false);
+    TriggerEnable(gt_CaveSpawn, false);
+    TriggerEnable(gt_Megawave, false);
+    TriggerEnable(gt_SS1, false);
+    TriggerEnable(gt_SS2, false);
+    TriggerEnable(gt_Hive, false);
+    TriggerEnable(gt_DefaultLings, false);
+    TriggerEnable(gt_MassLings, false);
+    TriggerEnable(gt_Hydras, false);
+    TriggerEnable(gt_Ultras, false);
+    TriggerEnable(gt_RoachSpawn, false);
+    TriggerEnable(gt_Whipcrack, false);
+    TriggerEnable(gt_CornerMuts, false);
+    TriggerEnable(gt_Endwave, false);
+    TriggerEnable(gt_EndCave, false);
+    TriggerEnable(gt_SuppDep3, false);
+    TriggerEnable(gt_SuppDep4, true);
+    TriggerStop(gt_Initial);
+    TriggerEnable(gt_KillAdd, false);
+    PortraitDestroyAll();
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    libNtve_gf_HideGameUI(false, PlayerGroupAll());
+    UnitGroupLoopBegin(UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    while (!UnitGroupLoopDone()) {
+        UnitRemove(UnitGroupLoopCurrent());
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    UnitCreate(1, "Battlecruiser22", 0, UnitGetOwner(UnitFromId(316)), UnitGetPosition(UnitFromId(168)), 225.0);
+    gv_cSS = UnitLastCreated();
+    UnitCreate(4, "Marine2", 0, UnitGetOwner(UnitFromId(316)), PointFromId(309), 315.0);
+    lv_rine = UnitLastCreatedGroup();
+    UnitSetOwner(UnitFromId(316), 0, false);
+    UnitSetHeight(gv_cSS, 2.5, 0.0);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CameraApplyInfo(1, CameraInfoFromId(326), 0.0, -1, 0, true);
+    CameraApplyInfo(3, CameraInfoFromId(326), 0.0, -1, 0, true);
+    TriggerExecute(gt_SuppDep5, false, false);
+    PortraitCreate(25, 150, c_anchorBottomRight, 237, 360, "GhostPortrait", "", "Default", true, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaCinematic, StringExternal("Param/Value/71475B0E"));
+    UnitGroupLoopBegin(lv_rine);
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingUnit(AbilityCommand("move3", 0), UnitFromId(168)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    Wait(6.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    PortraitDestroyAll();
+    UnitCreate(12, "Zergling", 0, 2, PointFromId(300), 315.0);
+    lv_ling = UnitLastCreatedGroup();
+    UnitGroupLoopBegin(lv_ling);
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingUnit(AbilityCommand("attack", 0), UnitFromId(168)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SuppDep3_Init () {
+    gt_SuppDep3 = TriggerCreate("gt_SuppDep3_Func");
+    TriggerEnable(gt_SuppDep3, false);
+    TriggerAddEventUnitRangePoint(gt_SuppDep3, UnitRefFromVariable("gv_cSS"), PointFromId(167), 1.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: SuppDep4
+//--------------------------------------------------------------------------------------------------
+bool gt_SuppDep4_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "Marine2"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitRemove(EventUnit());
+    gv_counter = (gv_counter + 1);
+    if ((gv_counter == 4)) {
+        PortraitCreate(25, 150, c_anchorBottomRight, 237, 360, "MarinePortrait", "", "Default", true, true);
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaCinematic, StringExternal("Param/Value/8368DBDC"));
+        UnitSetHeight(gv_cSS, 3.0, 3.0);
+        libNtve_gf_MakeUnitFacePoint(gv_cSS, PointFromId(325), 3.0);
+        UnitSetHeight(gv_cSS, 4.5, 3.0);
+        UnitIssueOrder(gv_cSS, OrderTargetingPoint(AbilityCommand("move42", 0), PointFromId(325)), c_orderQueueReplace);
+        UnitIssueOrder(gv_cSS, OrderTargetingPoint(AbilityCommand("move42", 0), PointFromId(286)), c_orderQueueAddToEnd);
+        Wait(6.0, c_timeGame);
+        UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+        PortraitDestroyAll();
+        PlayerCreateEffectPoint(1, "nukeDetonate", UnitGetPosition(UnitFromId(168)));
+        PlayerCreateEffectPoint(1, "nukeDetonate", UnitGetPosition(UnitFromId(168)));
+        PlayerCreateEffectPoint(1, "nukeDetonate", UnitGetPosition(UnitFromId(168)));
+        PlayerCreateEffectPoint(1, "nukeDetonate", UnitGetPosition(UnitFromId(168)));
+        Wait(2.2, c_timeGame);
+        CinematicFade(false, 1.0, c_fadeStyleNormal, Color(100.00, 100.00, 100.00), 0.0, true);
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaDirective, StringExternal("Param/Value/ACE81D3A"));
+        Wait(4.0, c_timeGame);
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaCinematic, StringExternal("Param/Value/D7CBADC6"));
+        Wait(6.0, c_timeGame);
+        GameOver(1, c_gameOverVictory, true, true);
+        GameOver(3, c_gameOverVictory, true, true);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SuppDep4_Init () {
+    gt_SuppDep4 = TriggerCreate("gt_SuppDep4_Func");
+    TriggerEnable(gt_SuppDep4, false);
+    TriggerAddEventUnitRange(gt_SuppDep4, null, UnitFromId(168), 3.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: SuppDep5
+//--------------------------------------------------------------------------------------------------
+bool gt_SuppDep5_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CameraApplyInfo(1, CameraInfoFromId(327), 20.0, -1, 0, true);
+    CameraApplyInfo(3, CameraInfoFromId(327), 20.0, -1, 0, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SuppDep5_Init () {
+    gt_SuppDep5 = TriggerCreate("gt_SuppDep5_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CiniTestTrigger (Delete before full)
+//--------------------------------------------------------------------------------------------------
+bool gt_CiniTestTriggerDeletebeforefull_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(gt_SuppDep3, false, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_CiniTestTriggerDeletebeforefull_Init () {
+    gt_CiniTestTriggerDeletebeforefull = TriggerCreate("gt_CiniTestTriggerDeletebeforefull_Func");
+    TriggerAddEventChatMessage(gt_CiniTestTriggerDeletebeforefull, c_playerAny, "Test", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Level
+//--------------------------------------------------------------------------------------------------
+bool gt_Level_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityEnable(UnitFromId(53), "HunterSeekerMissile", true);
+    UnitAbilityEnable(UnitFromId(53), "PsiStorm", true);
+    UnitAbilityEnable(UnitFromId(53), "Snipe", true);
+    UnitAbilityEnable(UnitFromId(53), "AutoTurret", true);
+    UnitAbilityEnable(UnitFromId(53), "nuke", true);
+    UnitAbilityEnable(UnitFromId(53), "PersonalCloaking", true);
+    UnitAbilityEnable(UnitFromId(53), "PlacePointDefenseDrone", true);
+    if ((UnitLevel(UnitFromId(53)) >= 5)) {
+        UnitSetPropertyFixed(UnitFromId(53), c_unitPropLifeMax, (UnitGetPropertyFixed(UnitFromId(53), c_unitPropLifeMax, c_unitPropCurrent) + 25.0));
+        UnitSetPropertyFixed(UnitFromId(53), c_unitPropShieldsMax, (UnitGetPropertyFixed(UnitFromId(53), c_unitPropShieldsMax, c_unitPropCurrent) + 5.0));
+        UnitSetPropertyFixed(UnitFromId(53), c_unitPropEnergyMax, (UnitGetPropertyFixed(UnitFromId(53), c_unitPropEnergyMax, c_unitPropCurrent) + 100.0));
+        if ((UnitLevel(UnitFromId(53)) >= 8)) {
+        }
+        else {
+        }
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Level_Init () {
+    gt_Level = TriggerCreate("gt_Level_Func");
+    TriggerAddEventUnitGainLevel(gt_Level, UnitRefFromUnit(UnitFromId(53)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initial
+//--------------------------------------------------------------------------------------------------
+bool gt_Initial_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_a;
+
+    // Variable Initialization
+    lv_a = 1;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityEnable(UnitFromId(53), "HunterSeekerMissile", false);
+    UnitAbilityEnable(UnitFromId(53), "PsiStorm", false);
+    UnitAbilityEnable(UnitFromId(53), "Snipe", false);
+    UnitAbilityEnable(UnitFromId(53), "AutoTurret", false);
+    UnitAbilityEnable(UnitFromId(53), "nuke", false);
+    UnitAbilityEnable(UnitFromId(53), "PersonalCloaking", false);
+    UnitAbilityEnable(UnitFromId(53), "PlacePointDefenseDrone", false);
+    libNtve_gf_MakeUnitInvulnerable(UnitFromId(238), true);
+    gv_object[1] = ObjectiveLastCreated();
+    AIGoodGame(1);
+    PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperAdd, 50);
+    TechTreeUpgradeAddLevel(1, "ReaperSpeed", 1);
+    TechTreeUpgradeAddLevel(1, "NeosteelFrame", 1);
+    CameraPan(1, PointFromId(220), 0.0, -1, 0, false);
+    CameraPan(3, PointFromId(220), 0.0, -1, 0, false);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationImmediate);
+    libNtve_gf_SetAlliance(1, 2, 5);
+    if ((PlayerStatus(3) == c_playerStatusActive)) {
+        libNtve_gf_SetAlliance(3, 2, 5);
+        libNtve_gf_SetAlliance(1, 3, 1);
+        TechTreeUpgradeAddLevel(3, "PsiStormTech", 1);
+        TechTreeUpgradeAddLevel(3, "PersonalCloaking", 1);
+        TechTreeUpgradeAddLevel(3, "HunterSeeker", 1);
+        UnitCreate(1, "Medivac", 0, 3, UnitGetPosition(UnitFromId(142)), 270.0);
+        UnitSetOwner(UnitFromId(53), 3, true);
+        UnitSetOwner(UnitFromId(142), 3, true);
+        Wait(0.2, c_timeGame);
+        BoardCreate(3, 4, StringExternal("Param/Value/83BEB8D4"), Color(100.00, 100.00, 100.00));
+        gv_lBoard = BoardLastCreated();
+        BoardItemSetText(gv_lBoard, 1, 1, StringExternal("Param/Value/93D8DCD0"));
+        BoardItemSetText(gv_lBoard, 2, 1, StringExternal("Param/Value/874B6DA6"));
+        PlayerGroupLoopBegin(PlayerGroupAll());
+        while (!PlayerGroupLoopDone()) {
+            BoardPlayerAdd(BoardLastCreated(), PlayerGroupLoopCurrent());
+            PlayerGroupLoopStep();
+        }
+        PlayerGroupLoopEnd();
+        BoardItemSetText(gv_lBoard, 1, 2, PlayerName(1));
+        BoardItemSetText(gv_lBoard, 1, 2, IntToText(1));
+        BoardItemSetText(gv_lBoard, 2, 2, IntToText(gv_kills[1]));
+        BoardItemSetText(gv_lBoard, 1, 3, PlayerName(3));
+        BoardItemSetText(gv_lBoard, 1, 3, IntToText(3));
+        BoardItemSetText(gv_lBoard, 2, 3, IntToText(gv_kills[3]));
+        BoardItemSetText(gv_lBoard, 1, 4, PlayerName(2));
+        BoardItemSetText(gv_lBoard, 1, 4, IntToText(2));
+        BoardItemSetText(gv_lBoard, 2, 4, IntToText(gv_kills[2]));
+    }
+    else {
+        TechTreeUpgradeAddLevel(1, "PsiStormTech", 1);
+        TechTreeUpgradeAddLevel(1, "PersonalCloaking", 1);
+        TechTreeUpgradeAddLevel(1, "HunterSeeker", 1);
+        Wait(0.2, c_timeGame);
+        BoardCreate(3, 3, StringExternal("Param/Value/D92F888B"), Color(100.00, 100.00, 100.00));
+        gv_lBoard = BoardLastCreated();
+        BoardItemSetText(gv_lBoard, 1, 1, StringExternal("Param/Value/4E772921"));
+        BoardItemSetText(gv_lBoard, 2, 1, StringExternal("Param/Value/C3F16CA6"));
+        PlayerGroupLoopBegin(PlayerGroupAll());
+        while (!PlayerGroupLoopDone()) {
+            BoardPlayerAdd(BoardLastCreated(), PlayerGroupLoopCurrent());
+            PlayerGroupLoopStep();
+        }
+        PlayerGroupLoopEnd();
+        BoardItemSetText(gv_lBoard, 1, 2, PlayerName(1));
+        BoardItemSetText(gv_lBoard, 1, 2, IntToText(1));
+        BoardItemSetText(gv_lBoard, 2, 2, IntToText(gv_kills[1]));
+        BoardItemSetText(gv_lBoard, 1, 3, PlayerName(2));
+        BoardItemSetText(gv_lBoard, 1, 3, IntToText(2));
+        BoardItemSetText(gv_lBoard, 2, 3, IntToText(gv_kills[2]));
+    }
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDirective, StringExternal("Param/Value/AC989513"));
+    Wait(3.7, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDirective, StringExternal("Param/Value/BB2C3B70"));
+    Wait(3.7, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDirective, StringExternal("Param/Value/679798F9"));
+    Wait(3.7, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    Wait(0.7, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDirective, StringExternal("Param/Value/9A8B3521"));
+    Wait(3.7, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    Wait(0.7, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDirective, StringExternal("Param/Value/04A6F7B6"));
+    Wait(3.8, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationImmediate);
+    Wait(3.8, c_timeGame);
+    TriggerEnable(gt_Barrack1, true);
+    TriggerEnable(gt_Barrack2, true);
+    TriggerEnable(gt_Starport, true);
+    TriggerEnable(gt_TerranRein, true);
+    TriggerEnable(gt_DefaultLings, true);
+    TriggerEnable(gt_Hive, true);
+    TriggerEnable(gt_Hydras, true);
+    TriggerEnable(gt_MassLings, true);
+    TriggerEnable(gt_Megawave, true);
+    TriggerEnable(gt_RoachSpawn, true);
+    TriggerEnable(gt_SS1, true);
+    TriggerEnable(gt_SS2, true);
+    TriggerEnable(gt_Ultras, true);
+    PortraitCreate(2, 0, c_anchorLeft, 237, 360, "GhostPortrait", "", "Default", true, true);
+    ObjectiveCreate(StringExternal("Param/Value/56738A02"), StringExternal("Param/Value/9A5FE618"), c_objectiveStateActive, true);
+    ObjectiveCreate(StringExternal("Param/Value/D58A31B2"), StringExternal("Param/Value/860CAE35"), c_objectiveStateActive, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/6F733625"));
+    Wait(8.0, c_timeGame);
+    PortraitDestroyAll();
+    Wait(112.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/1529E3C1"));
+    TriggerEnable(gt_CaveSpawn, true);
+    PortraitCreate(2, 0, c_anchorLeft, 237, 360, "MULEPortrait", "", "Default", true, true);
+    Wait(8.0, c_timeGame);
+    PortraitDestroyAll();
+    Wait(32.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/E51C070F"));
+    TriggerEnable(gt_CaveSpawn, false);
+    PortraitCreate(2, 0, c_anchorLeft, 237, 360, "MULEPortrait", "", "Default", true, true);
+    Wait(8.0, c_timeGame);
+    PortraitDestroyAll();
+    Wait(11.0, c_timeGame);
+    UnitCreate(6, "Mutalisk", 0, 2, PointFromId(141), 270.0);
+    Wait(1.0, c_timeGame);
+    UnitCreate(6, "Mutalisk", 0, 2, PointFromId(141), 270.0);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/CE454CD9"));
+    TriggerEnable(gt_Muts, true);
+    PortraitCreate(2, 0, c_anchorLeft, 237, 360, "GhostPortrait", "", "Default", true, true);
+    Wait(8.0, c_timeGame);
+    PortraitDestroyAll();
+    Wait(102.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaObjective, StringExternal("Param/Value/EEBD5AA7"));
+    UnitCreate(7, "Roach", 0, 2, PointFromId(141), 270.0);
+    UnitCreate(3, "Overseer", 0, 2, PointFromId(141), 270.0);
+    UnitCreate(10, "Baneling", 0, 2, PointFromId(141), 270.0);
+    UnitCreate(8, "Queen", 0, 2, PointFromId(141), 270.0);
+    UnitCreate(12, "Hydralisk", 0, 2, PointFromId(141), 270.0);
+    UnitCreate(50, "Zergling", 0, 2, PointFromId(141), 270.0);
+    Wait(10.0, c_timeGame);
+    if ((gv_nydusBool == true)) {
+        UnitCreate(3, "Overseer", 0, 2, PointFromId(324), 270.0);
+        UnitCreate(10, "Hydralisk", 0, 2, PointFromId(324), 270.0);
+        UnitCreate(3, "Ultralisk", 0, 2, PointFromId(324), 270.0);
+        UnitCreate(25, "Zergling", 0, 2, PointFromId(324), 270.0);
+    }
+    TriggerEnable(gt__300Spawn, true);
+    TechTreeUpgradeAddLevel(1, "BattlecruiserEnableSpecializations", 1);
+    TechTreeUpgradeAddLevel(1, "StimPack", 1);
+    TechTreeUpgradeAddLevel(1, "BansheeCloak", 1);
+    TechTreeUpgradeAddLevel(1, "ShieldWall", 1);
+    TechTreeUpgradeAddLevel(2, "zerglingmovementspeed", 1);
+    TechTreeUpgradeAddLevel(2, "zerglingattackspeed", 1);
+    TechTreeUpgradeAddLevel(2, "OrganicCarapace", 1);
+    TechTreeUpgradeAddLevel(2, "hydraliskspeed", 1);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/289D25B0"));
+    PortraitCreate(2, 0, c_anchorLeft, 237, 360, "GhostPortrait", "", "Default", true, true);
+    Wait(8.0, c_timeGame);
+    PortraitDestroyAll();
+    Wait(2.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/7A2B2F26"));
+    Wait(290.0, c_timeGame);
+    TriggerEnable(gt_TerranRein, false);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/3C343F53"));
+    libNtve_gf_UnitCreateFacingPoint(10, "InfestorTerran", 0, 2, PointFromId(247), UnitGetPosition(EventUnit()));
+    PortraitCreate(2, 0, c_anchorLeft, 237, 360, "GhostPortrait", "", "Default", true, true);
+    Wait(8.0, c_timeGame);
+    PortraitDestroyAll();
+    Wait(7.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/BDE7A726"));
+    UnitCreate(8, "Hydralisk", 0, 2, PointFromId(220), 270.0);
+    Wait(15.0, c_timeGame);
+    TriggerEnable(gt_RearDefault, true);
+    UnitCreate(1, "NydusCanal2", 0, 2, PointFromId(219), 270.0);
+    UnitCreate(1, "NydusCanal2", 0, 2, PointFromId(217), 270.0);
+    UnitCreate(1, "NydusCanal2", 0, 2, PointFromId(218), 270.0);
+    UnitCreate(1, "NydusCanal2", 0, 2, PointFromId(150), 270.0);
+    UnitCreate(1, "NydusCanal2", 0, 2, PointFromId(149), 270.0);
+    Wait(5.0, c_timeGame);
+    TriggerEnable(gt_Worm3, true);
+    TriggerEnable(gt_Worm4, true);
+    TriggerEnable(gt_Worm2, true);
+    TriggerEnable(gt_Worm5, true);
+    TriggerEnable(gt_Worm1, true);
+    Wait(5.0, c_timeGame);
+    TriggerEnable(gt_Worm3, false);
+    TriggerEnable(gt_Worm4, false);
+    TriggerEnable(gt_Worm2, false);
+    TriggerEnable(gt_Worm5, false);
+    TriggerEnable(gt_Worm1, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Initial_Init () {
+    gt_Initial = TriggerCreate("gt_Initial_Func");
+    TriggerAddEventMapInit(gt_Initial);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initials2 (Wonton's)
+//--------------------------------------------------------------------------------------------------
+bool gt_Initials2Wontons_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TechTreeUpgradeAddLevel(1, "GhostMoebiusReactor", 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Initials2Wontons_Init () {
+    gt_Initials2Wontons = TriggerCreate("gt_Initials2Wontons_Func");
+    TriggerAddEventMapInit(gt_Initials2Wontons);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Leaver
+//--------------------------------------------------------------------------------------------------
+bool gt_Leaver_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((PlayerStatus(1) == c_playerStatusActive)) {
+        UnitGroupLoopBegin(UnitGroup(null, 3, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+        while (!UnitGroupLoopDone()) {
+            UnitSetOwner(UnitGroupLoopCurrent(), 1, true);
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+    }
+    else {
+        UnitGroupLoopBegin(UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+        while (!UnitGroupLoopDone()) {
+            UnitSetOwner(UnitGroupLoopCurrent(), 3, true);
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Leaver_Init () {
+    gt_Leaver = TriggerCreate("gt_Leaver_Func");
+    TriggerAddEventPlayerLeft(gt_Leaver, c_playerAny, c_gameResultUndecided);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Time
+//--------------------------------------------------------------------------------------------------
+bool gt_Time_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TimerStart(gv_time, 524288.0, false, c_timeGame);
+    TimerWindowCreate(gv_time, StringExternal("Param/Value/C375D4C6"), true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Time_Init () {
+    gt_Time = TriggerCreate("gt_Time_Func");
+    TriggerAddEventMapInit(gt_Time);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kill Add
+//--------------------------------------------------------------------------------------------------
+bool gt_KillAdd_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!(((PlayerGroupHasPlayer(PlayerGroupAlliance(c_playerGroupAlly, UnitGetOwner(EventUnit())), UnitGetOwner(EventUnitDamageSourceUnit())) == false) && (UnitGetOwner(EventUnitDamageSourceUnit()) != UnitGetOwner(EventUnit()))))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_kills[UnitGetOwner(EventUnitDamageSourceUnit())]=gv_kills[UnitGetOwner(EventUnitDamageSourceUnit())] + 1;
+    BoardItemSetText(gv_lBoard, 2, (UnitGetOwner(EventUnitDamageSourceUnit()) + 1), IntToText(gv_kills[UnitGetOwner(EventUnitDamageSourceUnit())]));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_KillAdd_Init () {
+    gt_KillAdd = TriggerCreate("gt_KillAdd_Func");
+    TriggerAddEventUnitDied(gt_KillAdd, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_Barrack1_Init();
+    gt_Barrack2_Init();
+    gt_Starport_Init();
+    gt_TerranRein_Init();
+    gt_Loss_Init();
+    gt_Loss2_Init();
+    gt_Worm5_Init();
+    gt_Worm4_Init();
+    gt_Worm3_Init();
+    gt_Worm2_Init();
+    gt_Worm1_Init();
+    gt_RearDefault_Init();
+    gt__300Spawn_Init();
+    gt_Muts_Init();
+    gt_CaveSpawn_Init();
+    gt_Megawave_Init();
+    gt_SS1_Init();
+    gt_SS2_Init();
+    gt_Hive_Init();
+    gt_DefaultLings_Init();
+    gt_MassLings_Init();
+    gt_Hydras_Init();
+    gt_Ultras_Init();
+    gt_RoachSpawn_Init();
+    gt_DeathNydus_Init();
+    gt_DeathCaster_Init();
+    gt_DeathUltra_Init();
+    gt_DeathSpire_Init();
+    gt_DeathSS1_Init();
+    gt_DeathSS2_Init();
+    gt_DeathHive_Init();
+    gt_RoachDeath_Init();
+    gt_Whipcrack_Init();
+    gt_CornerMuts_Init();
+    gt_Endwave_Init();
+    gt_EndCave_Init();
+    gt_SuppDep_Init();
+    gt_SuppDep2_Init();
+    gt_SuppDep3_Init();
+    gt_SuppDep4_Init();
+    gt_SuppDep5_Init();
+    gt_CiniTestTriggerDeletebeforefull_Init();
+    gt_Level_Init();
+    gt_Initial_Init();
+    gt_Initials2Wontons_Init();
+    gt_Leaver_Init();
+    gt_Time_Init();
+    gt_KillAdd_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitGlobals();
+    InitTriggers();
+}

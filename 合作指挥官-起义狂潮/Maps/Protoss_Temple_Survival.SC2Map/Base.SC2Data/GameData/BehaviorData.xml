@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CBehaviorBuff id="DualProduction">
+        <Alignment value="Positive"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\btn-unit-protoss-interceptor.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Requirements value="UesDualProduction"/>
+        <Modification QueueCount="1" QueueSize="3"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ChronoSurge">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-protoss-arguslink.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Duration value="15"/>
+        <Modification TimeScale="1.5"/>
+    </CBehaviorBuff>
+    <CBehaviorResource id="MineralFieldMinerals">
+        <Capacity value="2500"/>
+        <Contents value="2500"/>
+    </CBehaviorResource>
+    <CBehaviorBuff id="PsiShieldGamma">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-protoss-hardenedshields-color.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <RemoveValidatorArray value="TargetShieldsGE10"/>
+        <Duration value="40"/>
+        <Modification>
+            <VitalMaxArray index="Shields" value="200"/>
+            <VitalRegenArray index="Shields" value="5"/>
+        </Modification>
+        <DamageResponse Chance="1" ModifyFraction="0.5" ModifyMinimumDamage="1">
+            <Kind index="Spell" value="0"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="PsiShieldSigma">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-defensivematrix.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <RemoveValidatorArray value="hasShields"/>
+        <Duration value="40"/>
+        <Modification ShieldArmorMultiplier="3">
+            <VitalMaxArray index="Shields" value="300"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="PsiShieldSigmaDummy">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Modification>
+            <VitalMaxArray index="Shields" value="200"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorResource id="RawVespeneGeyserGas">
+        <Contents value="5000"/>
+    </CBehaviorResource>
+    <CBehaviorBuff id="VoodooShield">
+        <Duration value="40"/>
+        <Modification ShieldArmorMultiplier="0"/>
+    </CBehaviorBuff>
+</Catalog>

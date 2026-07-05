@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CEffectDamage id="AutoTurret">
+        <Amount value="3"/>
+    </CEffectDamage>
+    <CEffectSet id="AutoTurretSet">
+        <EffectArray index="0" value="AutoTurretReleaseLaunch"/>
+        <EffectArray index="1" removed="1"/>
+    </CEffectSet>
+    <CEffectSet id="Baneling2">
+        <ValidatorArray value="CasterIsNotHidden"/>
+        <EditorCategories value="Race:Zerg"/>
+        <Marker Link="Effect/Baneling"/>
+        <EffectArray value="BanelingDontExplode2"/>
+        <EffectArray value="SuicideTargetFriendlySwitch2"/>
+        <EffectArray value="BanelingU23"/>
+        <EffectArray value="BanelingU4"/>
+        <EffectArray value="suicide2"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="BanelingDontExplode2">
+        <ValidatorArray index="0" value="BanelingDontExplodeTargetFilters"/>
+        <EditorCategories value="Race:Zerg"/>
+        <Marker Link="Effect/BanelingDontExplode"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="BanelingExplode"/>
+    </CEffectRemoveBehavior>
+    <CEffectDamage id="BanelingU">
+        <Amount value="60"/>
+        <AreaArray Radius="1"/>
+        <AreaArray Radius="3" Fraction="0.25"/>
+    </CEffectDamage>
+    <CEffectDamage id="BanelingFriendlyUnitDamage2" parent="BanelingU">
+        <ImpactLocation Value="TargetUnit"/>
+        <Amount value="20"/>
+        <AreaArray index="0" removed="1"/>
+        <AreaArray index="1" removed="1"/>
+        <SearchFlags index="SameCliff" value="0"/>
+    </CEffectDamage>
+    <CEffectDamage id="BanelingU2">
+        <Amount value="125"/>
+        <AreaArray Radius="1.2"/>
+        <AreaArray Radius="3" Fraction="0.25"/>
+    </CEffectDamage>
+    <CEffectDamage id="BanelingFriendlyBuildingDamage2" parent="BanelingU2">
+        <ImpactLocation Value="TargetUnit"/>
+        <Amount value="80"/>
+        <AreaArray index="0" removed="1"/>
+        <AreaArray index="1" removed="1"/>
+        <SearchFlags index="SameCliff" value="0"/>
+    </CEffectDamage>
+    <CEffectDamage id="BanelingU22" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Marker Link="Effect/BanelingU2"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <ArmorReduction value="0"/>
+        <Kind value="Splash"/>
+        <Amount value="125"/>
+        <Death value="Disintegrate"/>
+        <AreaArray Radius="2.2" Fraction="1"/>
+        <AreaArray Radius="5" Fraction="0.25"/>
+        <ExcludeArray Value="Outer"/>
+        <SearchFilters value="Ground,Structure;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectDamage id="BanelingU23" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Marker Link="Effect/BanelingU2"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <ArmorReduction value="0"/>
+        <Kind value="Splash"/>
+        <Amount value="500"/>
+        <Death value="Disintegrate"/>
+        <AreaArray Radius="2.2" Fraction="1"/>
+        <AreaArray Radius="5" Fraction="0.25"/>
+        <ExcludeArray Value="Outer"/>
+        <SearchFilters value="Ground,Structure;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectDamage id="BanelingU3" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Marker Link="Effect/BanelingU"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <AttributeBonus index="Light" value="15"/>
+        <Kind value="Splash"/>
+        <Amount value="60"/>
+        <Death value="Disintegrate"/>
+        <AreaArray Radius="1" Fraction="1"/>
+        <AreaArray Radius="3" Fraction="0.25"/>
+        <ExcludeArray Value="Outer"/>
+        <SearchFilters value="Ground;Player,Ally,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectDamage id="BanelingU4" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Marker Link="Effect/BanelingU"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <AttributeBonus index="Light" value="15"/>
+        <Kind value="Splash"/>
+        <Amount value="500"/>
+        <Death value="Disintegrate"/>
+        <AreaArray Radius="1.5" Fraction="1"/>
+        <AreaArray Radius="5" Fraction="0.25"/>
+        <ExcludeArray Value="Outer"/>
+        <SearchFilters value="Ground;Player,Ally,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectDamage id="BansheeU">
+        <Amount value="35"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="BattlecruiserALM2">
+        <ValidatorArray index="0" value="BattlecruiserALMTargetFilters"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/BattlecruiserALM"/>
+        <ImpactEffect value="BattlecruiserAU2"/>
+        <AmmoUnit value="BattlecruiserALMWeapon2"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="BattlecruiserAU">
+        <Amount value="12"/>
+    </CEffectDamage>
+    <CEffectDamage id="BattlecruiserAU2" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/BattlecruiserAU"/>
+        <Visibility value="Visible"/>
+        <Amount value="12"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="BattlecruiserGLM2">
+        <ValidatorArray index="0" value="BattlecruiserGLMTargetFilters"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/BattlecruiserGLM"/>
+        <ImpactEffect value="BattlecruiserGU2"/>
+        <AmmoUnit value="BattlecruiserGLMWeapon2"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="BattlecruiserGU">
+        <Amount value="15"/>
+    </CEffectDamage>
+    <CEffectDamage id="BattlecruiserGU2" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/BattlecruiserGU"/>
+        <Visibility value="Visible"/>
+        <Amount value="15"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="ChangelingTimedLife2">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="Changeling2"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="Ghost">
+        <Amount value="60"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="GuardianShieldSearch">
+        <AreaArray index="0" Radius="15"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="HunterSeekerDamage">
+        <Amount value="150"/>
+    </CEffectDamage>
+    <CEffectDamage id="Marine2" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/Marine"/>
+        <Kind value="Ranged"/>
+        <Amount value="13"/>
+    </CEffectDamage>
+    <CEffectDamage id="Marine22" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/Marine"/>
+        <Kind value="Ranged"/>
+        <Amount value="1000"/>
+    </CEffectDamage>
+    <CEffectCreateHealer id="MedivacHeal">
+        <DrainVitalCostFactor value="0.333"/>
+    </CEffectCreateHealer>
+    <CEffectCreateHealer id="MedivacHeal2">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="NotHidden"/>
+        <ValidatorArray value="NotSpineCrawlerUprooted"/>
+        <ValidatorArray value="NotSporeCrawlerUprooted"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/MedivacHeal"/>
+        <DrainVital value="Energy"/>
+        <DrainVitalCostFactor value="0.33"/>
+        <RechargeVitalRate value="3"/>
+    </CEffectCreateHealer>
+    <CEffectCreateHealer id="MedivacHeal3">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="NotHidden"/>
+        <ValidatorArray value="NotSpineCrawlerUprooted"/>
+        <ValidatorArray value="NotSporeCrawlerUprooted"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/MedivacHeal"/>
+        <DrainVital value="Energy"/>
+        <DrainVitalCostFactor value="0.5"/>
+        <RechargeVital value="Energy"/>
+        <RechargeVitalRate value="5"/>
+    </CEffectCreateHealer>
+    <CEffectCreateHealer id="MedivacHeal32">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="NotHidden"/>
+        <ValidatorArray value="NotSpineCrawlerUprooted"/>
+        <ValidatorArray value="NotSporeCrawlerUprooted"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/MedivacHeal"/>
+        <DrainVital value="Energy"/>
+        <DrainVitalCostFactor value="1"/>
+        <RechargeVital value="Shields"/>
+        <RechargeVitalRate value="10"/>
+    </CEffectCreateHealer>
+    <CEffectDamage id="PlanetaryFortress">
+        <Amount value="150"/>
+        <AreaArray Radius="0.75"/>
+        <AreaArray Radius="1.2"/>
+        <AreaArray Radius="3"/>
+    </CEffectDamage>
+    <CEffectDamage id="PsiStormDamage">
+        <Amount value="25"/>
+    </CEffectDamage>
+    <CEffectDamage id="PsiStormDamageInitial">
+        <Amount value="50"/>
+    </CEffectDamage>
+    <CEffectDamage id="Reaper">
+        <Amount value="15"/>
+    </CEffectDamage>
+    <CEffectDamage id="ReaperD8Damage">
+        <Amount value="45"/>
+    </CEffectDamage>
+    <CEffectDamage id="SiegeTank">
+        <Amount value="8"/>
+    </CEffectDamage>
+    <CEffectDamage id="SiegeTankSieged">
+        <Amount value="80"/>
+        <AreaArray Radius="0.15"/>
+        <AreaArray Radius="0.23"/>
+        <AreaArray Radius="0.5"/>
+        <AreaArray Radius="0.6" Fraction="0.11"/>
+        <AreaArray Radius="2" Fraction="0.05"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="SpawnChangeling2">
+        <EditorCategories value="Race:Zerg"/>
+        <SpawnEffect value="ChangelingTimedLife2"/>
+        <SpawnUnit value="InfestorTerran"/>
+        <SpawnRange value="2"/>
+    </CEffectCreateUnit>
+    <CEffectDamage id="SpineCrawlerU">
+        <Amount value="35"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="StimPack2">
+        <ValidatorArray index="0" value="StimPackTargetFilters"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/StimPack"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StimPack22">
+        <ValidatorArray index="0" value="StimPackTargetFilters"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/StimPack"/>
+    </CEffectApplyBehavior>
+    <CEffectSwitch id="SuicideTargetFriendlySwitch2">
+        <ValidatorArray value="FriendlyTarget"/>
+        <EditorCategories value="Race:Zerg"/>
+        <Marker Link="Effect/SuicideTargetFriendlySwitch"/>
+        <CaseArray Validator="IsStructure" Effect="BanelingFriendlyBuildingDamage2"/>
+        <CaseDefault value="BanelingFriendlyUnitDamage2"/>
+    </CEffectSwitch>
+    <CEffectApplyBehavior id="SupplyDropApplyBehavior2">
+        <ValidatorArray index="0" value="SupplyDropApplyBehaviorTargetFilters"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/SupplyDropApplyBehavior"/>
+        <Behavior value="SupplyDrop"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="TimedLifeFate2">
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <Death value="Timeout"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="UnknownEffect">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="BattlecruiserGLM"/>
+        <PeriodicEffectArray value="BattlecruiserGLM"/>
+        <PeriodicPeriodArray value="2"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="UnknownEffect2">
+        <EditorCategories value=""/>
+        <Marker Link="Effect/UnknownEffect"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="BattlecruiserGLM2"/>
+        <PeriodicEffectArray value="BattlecruiserGLM2"/>
+        <PeriodicPeriodArray value="2"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="VikingAssault">
+        <Amount value="17"/>
+    </CEffectDamage>
+    <CEffectDamage id="VikingFighterU">
+        <Amount value="25"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="Yamato2">
+        <ValidatorArray index="0" value="YamatoTargetFilters"/>
+        <ValidatorArray value="IsNotWarpBubble"/>
+        <ValidatorArray value="YamatoTargetFilters"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/Yamato"/>
+        <ImpactEffect value="YamatoU2"/>
+        <AmmoUnit value="YamatoWeapon2"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="Yamato22">
+        <ValidatorArray index="0" value="YamatoTargetFilters"/>
+        <ValidatorArray value="IsNotWarpBubble"/>
+        <ValidatorArray value="YamatoTargetFilters"/>
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/Yamato"/>
+        <ImpactEffect value="YamatoU22"/>
+        <AmmoUnit value="YamatoWeapon22"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="YamatoU">
+        <Amount value="500"/>
+    </CEffectDamage>
+    <CEffectDamage id="YamatoU2">
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/YamatoU"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Visibility value="Visible"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="500"/>
+        <Death value="Blast"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectDamage id="YamatoU22">
+        <EditorCategories value="Race:Terran"/>
+        <Marker Link="Effect/YamatoU"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Visibility value="Visible"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="500"/>
+        <Death value="Blast"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectDamage id="snipeDamage">
+        <Amount value="250"/>
+    </CEffectDamage>
+    <CEffectDamage id="suicide2">
+        <Marker Link="Effect/suicide"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <Flags index="Kill" value="1"/>
+    </CEffectDamage>
+</Catalog>

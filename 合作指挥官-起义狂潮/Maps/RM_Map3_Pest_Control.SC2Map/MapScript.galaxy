@@ -1,0 +1,2124 @@
+//==================================================================================================
+// 
+// Generated Map Script
+// 
+// Name:   RM Map3 - Pest Control
+// Author: Reefer
+// 
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Global Variables
+//--------------------------------------------------------------------------------------------------
+unitgroup gv_teamSpieler3;
+unitgroup gv_teamSpieler4;
+unitgroup gv_teamSpieler5;
+int gv_gebieteC3BCbernommen;
+int gv_diffdialog;
+int[4] gv_diffdialogbutton;
+int gv_difficulty;
+unitgroup gv_gruppeKaserne;
+unitgroup gv_gruppeHeld;
+unitgroup gv_gruppeVersorgung;
+unitgroup gv_gruppeForschung;
+unitgroup gv_gruppeWaffenfabrik2;
+unitgroup gv_gruppeLuftWaffenfabrik;
+int gv_lokiDrohnenAnzahl;
+int gv_maxAnzahlFlammer;
+int gv_anzahlFlammer;
+abilcmd gv_fC3A4higkeitJimySpawnMarines;
+int gv_maxAnzahlWarpigs;
+int gv_anzahlWarpigs;
+int gv_maxAnzahlPredators;
+int gv_anzahlPredators;
+int[7] gv_hauptmissionen;
+int[4] gv_nebenmissionen;
+
+void InitGlobals () {
+    int init_i;
+
+    gv_teamSpieler3 = UnitGroupEmpty();
+    gv_teamSpieler4 = UnitGroupEmpty();
+    gv_teamSpieler5 = UnitGroupEmpty();
+    gv_gebieteC3BCbernommen = 0;
+    gv_diffdialog = c_invalidDialogId;
+    init_i = 0;
+    while (init_i <= 3) {
+        gv_diffdialogbutton[init_i] = c_invalidDialogControlId;
+        init_i = init_i + 1;
+    }
+    gv_difficulty = 0;
+    gv_gruppeKaserne = UnitGroupEmpty();
+    gv_gruppeHeld = UnitGroupEmpty();
+    gv_gruppeVersorgung = UnitGroupEmpty();
+    gv_gruppeForschung = UnitGroupEmpty();
+    gv_gruppeWaffenfabrik2 = UnitGroupEmpty();
+    gv_gruppeLuftWaffenfabrik = UnitGroupEmpty();
+    gv_lokiDrohnenAnzahl = 0;
+    gv_maxAnzahlFlammer = 0;
+    gv_anzahlFlammer = 0;
+    gv_fC3A4higkeitJimySpawnMarines = null;
+    gv_maxAnzahlWarpigs = 0;
+    gv_anzahlWarpigs = 0;
+    gv_maxAnzahlPredators = 0;
+    gv_anzahlPredators = 0;
+    init_i = 0;
+    while (init_i <= 6) {
+        gv_hauptmissionen[init_i] = c_invalidObjectiveId;
+        init_i = init_i + 1;
+    }
+    init_i = 0;
+    while (init_i <= 3) {
+        gv_nebenmissionen[init_i] = c_invalidObjectiveId;
+        init_i = init_i + 1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_Spieler3Teamzusammenstellung;
+trigger gt_Spieler4Teamzusammenstellung;
+trigger gt_Spieler5Teamzusammenstellung;
+trigger gt_Spieler3angriff;
+trigger gt_Spieler4angriff;
+trigger gt_Spieler5angriff;
+trigger gt_nC3A4chstesZiel1;
+trigger gt_nC3A4chstesZiel2;
+trigger gt_Variableninitalisierung;
+trigger gt_CPUBaubeschrC3A4nkungen;
+trigger gt_InitialisierungSpieler;
+trigger gt_GUI;
+trigger gt_SchwierigkeitgewC3A4hlt;
+trigger gt_KartenbezogeneEinstellungen;
+trigger gt_AlleBereicheC3BCbernommen;
+trigger gt_Video;
+trigger gt_Fin;
+trigger gt_Jemandwichtigesstirbt;
+trigger gt_Kasernengruppe;
+trigger gt_Kasernen;
+trigger gt_Heldengruppe;
+trigger gt_Held;
+trigger gt_Versorgungsgruppe;
+trigger gt_Versorgung;
+trigger gt_Forschungsgruppe;
+trigger gt_Forschung;
+trigger gt_GruppeaC3BCbernehmen;
+trigger gt_Gruppebtreffen;
+trigger gt_GruppebC3BCbernehmen;
+trigger gt_Waffenfabrikgruppe2;
+trigger gt_Waffenfabrik2;
+trigger gt_LuftWaffenfabrikgruppe;
+trigger gt_LuftWaffenfabrik;
+trigger gt_HangarbeschrC3A4nkung;
+trigger gt_Drohnestirbt;
+trigger gt_TychusSpawnedFlammerisborn;
+trigger gt_TychusSpawnedFlammerDies;
+trigger gt_NewWeapon;
+trigger gt_FC3A4higkeitenabschalten;
+trigger gt_Plasmagungefunden;
+trigger gt_Granaten;
+trigger gt_RaynorSpawnedMarineisborn;
+trigger gt_RaynorSpawnedMarineDies;
+trigger gt_TimeBombexplosion;
+trigger gt_TimeBombabschalten;
+trigger gt_Snpierabschalten;
+trigger gt_Snipergewehrgefunden;
+trigger gt_Getarnt;
+trigger gt_Enttarnt;
+trigger gt_ToshSpawnedPredatorisborn;
+trigger gt_ToshSpawnedPredatorDies;
+trigger gt_VideoalleMissionen;
+trigger gt_KasernenC3BCbernommen;
+trigger gt_GeldC3BCbernommen;
+trigger gt_HirnC3BCbernommen;
+trigger gt_FahrzeugeC3BCbernommen;
+trigger gt_FlugzeugeC3BCbernommen;
+trigger gt_NeuerHeld;
+trigger gt_TruppA;
+trigger gt_TruppB;
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spieler 3 Teamzusammenstellung
+//--------------------------------------------------------------------------------------------------
+bool gt_Spieler3Teamzusammenstellung_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((((UnitGetType(EventUnit()) != "Lair") && (UnitGetType(EventUnit()) != "Hatchery") && (UnitGetType(EventUnit()) != "Hive")) && (UnitGetOwner(EventUnit()) == 3)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(gv_teamSpieler3, EventUnitCreatedUnit());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Spieler3Teamzusammenstellung_Init () {
+    gt_Spieler3Teamzusammenstellung = TriggerCreate("gt_Spieler3Teamzusammenstellung_Func");
+    TriggerAddEventUnitCreated(gt_Spieler3Teamzusammenstellung, null, null, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spieler 4 Teamzusammenstellung
+//--------------------------------------------------------------------------------------------------
+bool gt_Spieler4Teamzusammenstellung_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((((UnitGetType(EventUnit()) != "Lair") && (UnitGetType(EventUnit()) != "Hatchery") && (UnitGetType(EventUnit()) != "Hive")) && (UnitGetOwner(EventUnit()) == 4)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(gv_teamSpieler4, EventUnitCreatedUnit());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Spieler4Teamzusammenstellung_Init () {
+    gt_Spieler4Teamzusammenstellung = TriggerCreate("gt_Spieler4Teamzusammenstellung_Func");
+    TriggerAddEventUnitCreated(gt_Spieler4Teamzusammenstellung, null, null, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spieler 5 Teamzusammenstellung
+//--------------------------------------------------------------------------------------------------
+bool gt_Spieler5Teamzusammenstellung_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((((UnitGetType(EventUnit()) != "Lair") && (UnitGetType(EventUnit()) != "Hatchery") && (UnitGetType(EventUnit()) != "Hive")) && (UnitGetOwner(EventUnit()) == 5)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(gv_teamSpieler5, EventUnitCreatedUnit());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Spieler5Teamzusammenstellung_Init () {
+    gt_Spieler5Teamzusammenstellung = TriggerCreate("gt_Spieler5Teamzusammenstellung_Func");
+    TriggerAddEventUnitCreated(gt_Spieler5Teamzusammenstellung, null, null, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spieler 3 angriff
+//--------------------------------------------------------------------------------------------------
+bool gt_Spieler3angriff_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(gv_teamSpieler3, c_unitCountAlive) >= 4))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupLoopBegin(gv_teamSpieler3);
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(2787)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Spieler3angriff_Init () {
+    gt_Spieler3angriff = TriggerCreate("gt_Spieler3angriff_Func");
+    TriggerAddEventTimePeriodic(gt_Spieler3angriff, 60.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spieler 4 angriff
+//--------------------------------------------------------------------------------------------------
+bool gt_Spieler4angriff_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(gv_teamSpieler4, c_unitCountAlive) >= 5))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupLoopBegin(gv_teamSpieler4);
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(2786)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Spieler4angriff_Init () {
+    gt_Spieler4angriff = TriggerCreate("gt_Spieler4angriff_Func");
+    TriggerAddEventTimePeriodic(gt_Spieler4angriff, 60.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spieler 5 angriff
+//--------------------------------------------------------------------------------------------------
+bool gt_Spieler5angriff_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(gv_teamSpieler5, c_unitCountAlive) >= 6))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupLoopBegin(gv_teamSpieler5);
+    while (!UnitGroupLoopDone()) {
+        UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(2786)), c_orderQueueReplace);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Spieler5angriff_Init () {
+    gt_Spieler5angriff = TriggerCreate("gt_Spieler5angriff_Func");
+    TriggerAddEventTimePeriodic(gt_Spieler5angriff, 45.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: n??chstes Ziel 1
+//--------------------------------------------------------------------------------------------------
+bool gt_nC3A4chstesZiel1_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGroupHasUnit(gv_teamSpieler3, EventUnit()) == true)) {
+        UnitGroupLoopBegin(gv_teamSpieler3);
+        while (!UnitGroupLoopDone()) {
+            UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(2787)), c_orderQueueReplace);
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+    }
+    else {
+    }
+    if ((UnitGroupHasUnit(gv_teamSpieler4, EventUnit()) == true)) {
+        UnitGroupLoopBegin(gv_teamSpieler4);
+        while (!UnitGroupLoopDone()) {
+            UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(2787)), c_orderQueueReplace);
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+    }
+    else {
+    }
+    if ((UnitGroupHasUnit(gv_teamSpieler5, EventUnit()) == true)) {
+        UnitGroupLoopBegin(gv_teamSpieler5);
+        while (!UnitGroupLoopDone()) {
+            UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(2787)), c_orderQueueReplace);
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_nC3A4chstesZiel1_Init () {
+    gt_nC3A4chstesZiel1 = TriggerCreate("gt_nC3A4chstesZiel1_Func");
+    TriggerAddEventUnitRangePoint(gt_nC3A4chstesZiel1, null, PointFromId(2786), 5.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: n??chstes Ziel 2
+//--------------------------------------------------------------------------------------------------
+bool gt_nC3A4chstesZiel2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGroupHasUnit(gv_teamSpieler3, EventUnit()) == true)) {
+        UnitGroupLoopBegin(gv_teamSpieler3);
+        while (!UnitGroupLoopDone()) {
+            UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(2788)), c_orderQueueReplace);
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+    }
+    else {
+    }
+    if ((UnitGroupHasUnit(gv_teamSpieler4, EventUnit()) == true)) {
+        UnitGroupLoopBegin(gv_teamSpieler4);
+        while (!UnitGroupLoopDone()) {
+            UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(2788)), c_orderQueueReplace);
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+    }
+    else {
+    }
+    if ((UnitGroupHasUnit(gv_teamSpieler5, EventUnit()) == true)) {
+        UnitGroupLoopBegin(gv_teamSpieler5);
+        while (!UnitGroupLoopDone()) {
+            UnitIssueOrder(UnitGroupLoopCurrent(), OrderTargetingRelativePoint(AbilityCommand("attack", 0), PointFromId(2788)), c_orderQueueReplace);
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_nC3A4chstesZiel2_Init () {
+    gt_nC3A4chstesZiel2 = TriggerCreate("gt_nC3A4chstesZiel2_Func");
+    TriggerAddEventUnitRangePoint(gt_nC3A4chstesZiel2, null, PointFromId(2787), 5.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Variableninitalisierung
+//--------------------------------------------------------------------------------------------------
+bool gt_Variableninitalisierung_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_maxAnzahlFlammer = 2;
+    gv_maxAnzahlWarpigs = 4;
+    gv_maxAnzahlPredators = 3;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Variableninitalisierung_Init () {
+    gt_Variableninitalisierung = TriggerCreate("gt_Variableninitalisierung_Func");
+    TriggerAddEventMapInit(gt_Variableninitalisierung);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CPU Baubeschr??nkungen
+//--------------------------------------------------------------------------------------------------
+bool gt_CPUBaubeschrC3A4nkungen_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TechTreeUnitAllow(1, "SCV", false);
+    TechTreeUnitAllow(2, "Drone", false);
+    TechTreeUnitAllow(3, "Ultralisk", false);
+    TechTreeUnitAllow(3, "Queen", false);
+    TechTreeUnitAllow(3, "BroodLord", false);
+    TechTreeUnitAllow(4, "Ultralisk", false);
+    TechTreeUnitAllow(4, "Queen", false);
+    TechTreeUnitAllow(4, "BroodLord", false);
+    TechTreeUnitAllow(5, "Ultralisk", false);
+    TechTreeUnitAllow(5, "Queen", false);
+    TechTreeUnitAllow(5, "BroodLord", false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_CPUBaubeschrC3A4nkungen_Init () {
+    gt_CPUBaubeschrC3A4nkungen = TriggerCreate("gt_CPUBaubeschrC3A4nkungen_Func");
+    TriggerAddEventMapInit(gt_CPUBaubeschrC3A4nkungen);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialisierung Spieler
+//--------------------------------------------------------------------------------------------------
+bool gt_InitialisierungSpieler_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    AIMeleeStart(2);
+    libNtve_gf_SetAlliance(2, 3, 0);
+    libNtve_gf_SetAlliance(2, 4, 0);
+    libNtve_gf_SetAlliance(2, 5, 0);
+    libNtve_gf_SetAlliance(2, 6, 0);
+    libNtve_gf_SetAlliance(3, 4, 0);
+    libNtve_gf_SetAlliance(3, 5, 0);
+    libNtve_gf_SetAlliance(3, 6, 0);
+    libNtve_gf_SetAlliance(4, 5, 0);
+    libNtve_gf_SetAlliance(4, 6, 0);
+    libNtve_gf_SetAlliance(5, 6, 0);
+    libNtve_gf_SetAlliance(15, 2, 0);
+    libNtve_gf_SetAlliance(15, 3, 0);
+    libNtve_gf_SetAlliance(15, 4, 0);
+    libNtve_gf_SetAlliance(15, 5, 0);
+    libNtve_gf_SetAlliance(15, 6, 0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_InitialisierungSpieler_Init () {
+    gt_InitialisierungSpieler = TriggerCreate("gt_InitialisierungSpieler_Func");
+    TriggerAddEventMapInit(gt_InitialisierungSpieler);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GUI
+//--------------------------------------------------------------------------------------------------
+bool gt_GUI_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogCreate(600, 400, c_anchorCenter, 0, 0, true);
+    gv_diffdialog = DialogLastCreated();
+    libNtve_gf_CreateDialogItemButton(gv_diffdialog, 300, 70, c_anchorCenter, 0, -75, StringExternal("Param/Value/A48EF7D5"), StringExternal("Param/Value/FACF1ECC"), "");
+    gv_diffdialogbutton[0] = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemButton(gv_diffdialog, 300, 70, c_anchorCenter, 0, 0, StringExternal("Param/Value/8408003C"), StringExternal("Param/Value/14BE599E"), "");
+    gv_diffdialogbutton[1] = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemButton(gv_diffdialog, 300, 70, c_anchorCenter, 0, 75, StringExternal("Param/Value/A95223CA"), StringExternal("Param/Value/892AA824"), "");
+    gv_diffdialogbutton[2] = DialogControlLastCreated();
+    DialogSetVisible(gv_diffdialog, PlayerGroupAll(), true);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_GUI_Init () {
+    gt_GUI = TriggerCreate("gt_GUI_Func");
+    TriggerAddEventMapInit(gt_GUI);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Schwierigkeit gew??hlt
+//--------------------------------------------------------------------------------------------------
+bool gt_SchwierigkeitgewC3A4hlt_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((EventDialogControl() == gv_diffdialogbutton[0])) {
+        PlayerSetDifficulty(1, 2);
+        DialogSetVisible(gv_diffdialog, PlayerGroupAll(), false);
+        UnitSetPropertyFixed(UnitFromId(1683), c_unitPropLifeMax, 750.0);
+        UnitSetPropertyFixed(UnitFromId(1684), c_unitPropLifeMax, 1000.0);
+        UnitSetPropertyFixed(UnitFromId(1685), c_unitPropLifeMax, 500.0);
+        gv_difficulty = 0;
+        gv_maxAnzahlFlammer=gv_maxAnzahlFlammer + 2;
+        gv_maxAnzahlPredators=gv_maxAnzahlPredators + 2;
+        gv_maxAnzahlWarpigs=gv_maxAnzahlWarpigs + 4;
+        TriggerExecute(gt_VideoalleMissionen, true, false);
+    }
+    else {
+    }
+    if ((EventDialogControl() == gv_diffdialogbutton[1])) {
+        PlayerSetDifficulty(1, 3);
+        DialogSetVisible(gv_diffdialog, PlayerGroupAll(), false);
+        UnitSetPropertyFixed(UnitFromId(1683), c_unitPropLifeMax, 600.0);
+        UnitSetPropertyFixed(UnitFromId(1684), c_unitPropLifeMax, 750.0);
+        UnitSetPropertyFixed(UnitFromId(1685), c_unitPropLifeMax, 350.0);
+        gv_difficulty = 1;
+        gv_maxAnzahlFlammer=gv_maxAnzahlFlammer + 1;
+        gv_maxAnzahlPredators=gv_maxAnzahlPredators + 1;
+        gv_maxAnzahlWarpigs=gv_maxAnzahlWarpigs + 2;
+        TriggerExecute(gt_VideoalleMissionen, true, false);
+    }
+    else {
+    }
+    if ((EventDialogControl() == gv_diffdialogbutton[2])) {
+        PlayerSetDifficulty(1, 4);
+        gv_difficulty = 2;
+        DialogSetVisible(gv_diffdialog, PlayerGroupAll(), false);
+        TriggerExecute(gt_VideoalleMissionen, true, false);
+    }
+    else {
+    }
+    TriggerExecute(gt_KartenbezogeneEinstellungen, true, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_SchwierigkeitgewC3A4hlt_Init () {
+    gt_SchwierigkeitgewC3A4hlt = TriggerCreate("gt_SchwierigkeitgewC3A4hlt_Func");
+    TriggerAddEventDialogControl(gt_SchwierigkeitgewC3A4hlt, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kartenbezogene Einstellungen
+//--------------------------------------------------------------------------------------------------
+bool gt_KartenbezogeneEinstellungen_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((gv_difficulty == 0)) {
+        PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperAdd, 1500);
+        PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperAdd, 250);
+    }
+    else {
+    }
+    if ((gv_difficulty == 1)) {
+        PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperAdd, 750);
+        PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperAdd, 125);
+        UnitRemove(UnitFromId(1851));
+    }
+    else {
+    }
+    if ((gv_difficulty == 2)) {
+        UnitRemove(UnitFromId(1851));
+        UnitRemove(UnitFromId(1850));
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_KartenbezogeneEinstellungen_Init () {
+    gt_KartenbezogeneEinstellungen = TriggerCreate("gt_KartenbezogeneEinstellungen_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Alle Bereiche ??bernommen
+//--------------------------------------------------------------------------------------------------
+bool gt_AlleBereicheC3BCbernommen_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((gv_gebieteC3BCbernommen == 8))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    ObjectiveSetState(gv_hauptmissionen[0], c_objectiveStateCompleted);
+    TriggerExecute(gt_Video, true, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AlleBereicheC3BCbernommen_Init () {
+    gt_AlleBereicheC3BCbernommen = TriggerCreate("gt_AlleBereicheC3BCbernommen_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Video
+//--------------------------------------------------------------------------------------------------
+bool gt_Video_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    UnitSetPosition(UnitFromId(1685), PointFromId(2485), false);
+    UnitSetPosition(UnitFromId(1683), PointFromId(2483), false);
+    UnitSetPosition(UnitFromId(1684), PointFromId(2488), false);
+    UnitSetPosition(UnitFromId(1581), PointFromId(2485), false);
+    UnitSetFacing(UnitFromId(1684), 55.0, 1.0);
+    UnitSetFacing(UnitFromId(1685), 55.0, 1.0);
+    UnitSetFacing(UnitFromId(1683), 55.0, 1.0);
+    UnitSetFacing(UnitFromId(1581), 55.0, 1.0);
+    CameraApplyInfo(1, CameraInfoFromId(2678), 10.0, -1, 0, true);
+    VisRevealerCreate(1, RegionEntireMap());
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/CD27E6C0"));
+    Wait(5.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/40CC18AF"));
+    Wait(9.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaCinematic, StringExternal("Param/Value/4B1CE4BE"));
+    Wait(7.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/50EB5AE2"));
+    Wait(5.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/976F62D0"));
+    Wait(7.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/011DC81F"));
+    Wait(9.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/96DB1D27"));
+    Wait(8.0, c_timeGame);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    TriggerExecute(gt_Fin, true, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Video_Init () {
+    gt_Video = TriggerCreate("gt_Video_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Fin
+//--------------------------------------------------------------------------------------------------
+bool gt_Fin_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GameOver(1, c_gameOverVictory, true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Fin_Init () {
+    gt_Fin = TriggerCreate("gt_Fin_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Jemand wichtiges stirbt
+//--------------------------------------------------------------------------------------------------
+bool gt_Jemandwichtigesstirbt_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!(((EventUnit() == UnitFromId(1683))))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GameOver(1, c_gameOverDefeat, true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Jemandwichtigesstirbt_Init () {
+    gt_Jemandwichtigesstirbt = TriggerCreate("gt_Jemandwichtigesstirbt_Func");
+    TriggerAddEventUnitDied(gt_Jemandwichtigesstirbt, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kasernengruppe
+//--------------------------------------------------------------------------------------------------
+bool gt_Kasernengruppe_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1737));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1721));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1720));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1717));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1718));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1719));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1722));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1739));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1736));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1738));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1724));
+    UnitGroupAdd(gv_gruppeKaserne, UnitFromId(1741));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Kasernengruppe_Init () {
+    gt_Kasernengruppe = TriggerCreate("gt_Kasernengruppe_Func");
+    TriggerAddEventMapInit(gt_Kasernengruppe);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kasernen
+//--------------------------------------------------------------------------------------------------
+bool gt_Kasernen_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(gv_gruppeKaserne, c_unitCountAlive) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetOwner(UnitFromId(1621), 1, true);
+    UnitSetOwner(UnitFromId(1622), 1, true);
+    UnitSetOwner(UnitFromId(1551), 1, true);
+    UnitSetOwner(UnitFromId(1624), 1, true);
+    UnitSetOwner(UnitFromId(1625), 1, true);
+    UnitSetOwner(UnitFromId(1623), 1, true);
+    ObjectiveSetState(gv_hauptmissionen[1], c_objectiveStateCompleted);
+    gv_gebieteC3BCbernommen=gv_gebieteC3BCbernommen + 1;
+    TriggerExecute(gt_AlleBereicheC3BCbernommen, true, false);
+    TriggerExecute(gt_KasernenC3BCbernommen, true, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Kasernen_Init () {
+    gt_Kasernen = TriggerCreate("gt_Kasernen_Func");
+    TriggerAddEventUnitDied(gt_Kasernen, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Heldengruppe
+//--------------------------------------------------------------------------------------------------
+bool gt_Heldengruppe_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(gv_gruppeHeld, UnitFromId(1855));
+    UnitGroupAdd(gv_gruppeHeld, UnitFromId(1856));
+    UnitGroupAdd(gv_gruppeHeld, UnitFromId(1857));
+    UnitGroupAdd(gv_gruppeHeld, UnitFromId(1858));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Heldengruppe_Init () {
+    gt_Heldengruppe = TriggerCreate("gt_Heldengruppe_Func");
+    TriggerAddEventMapInit(gt_Heldengruppe);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Held
+//--------------------------------------------------------------------------------------------------
+bool gt_Held_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(gv_gruppeHeld, c_unitCountAlive) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(gt_NeuerHeld, true, false);
+    UnitSetOwner(UnitFromId(1581), 1, true);
+    UnitSetOwner(UnitFromId(1574), 1, true);
+    UnitSetOwner(UnitFromId(1906), 1, true);
+    UnitSetOwner(UnitFromId(2360), 1, true);
+    UnitSetOwner(UnitFromId(1907), 1, true);
+    UnitSetOwner(UnitFromId(1620), 1, true);
+    UnitSetOwner(UnitFromId(1682), 1, true);
+    UnitAbilityEnable(UnitFromId(1685), "VultureSpiderMines2", true);
+    ObjectiveSetState(gv_nebenmissionen[0], c_objectiveStateCompleted);
+    gv_gebieteC3BCbernommen=gv_gebieteC3BCbernommen + 1;
+    TriggerExecute(gt_AlleBereicheC3BCbernommen, true, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Held_Init () {
+    gt_Held = TriggerCreate("gt_Held_Func");
+    TriggerAddEventUnitDied(gt_Held, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Versorgungsgruppe
+//--------------------------------------------------------------------------------------------------
+bool gt_Versorgungsgruppe_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(gv_gruppeVersorgung, UnitFromId(1705));
+    UnitGroupAdd(gv_gruppeVersorgung, UnitFromId(1704));
+    UnitGroupAdd(gv_gruppeVersorgung, UnitFromId(1700));
+    UnitGroupAdd(gv_gruppeVersorgung, UnitFromId(1706));
+    UnitGroupAdd(gv_gruppeVersorgung, UnitFromId(2691));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Versorgungsgruppe_Init () {
+    gt_Versorgungsgruppe = TriggerCreate("gt_Versorgungsgruppe_Func");
+    TriggerAddEventMapInit(gt_Versorgungsgruppe);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Versorgung
+//--------------------------------------------------------------------------------------------------
+bool gt_Versorgung_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(gv_gruppeVersorgung, c_unitCountAlive) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetOwner(UnitFromId(1626), 1, true);
+    UnitSetOwner(UnitFromId(1680), 1, true);
+    UnitSetOwner(UnitFromId(1675), 1, true);
+    UnitSetOwner(UnitFromId(1679), 1, true);
+    UnitSetOwner(UnitFromId(1674), 1, true);
+    UnitSetOwner(UnitFromId(1627), 1, true);
+    UnitSetOwner(UnitFromId(1676), 1, true);
+    UnitSetOwner(UnitFromId(1681), 1, true);
+    UnitSetOwner(UnitFromId(1678), 1, true);
+    UnitSetOwner(UnitFromId(1677), 1, true);
+    UnitSetOwner(UnitFromId(1854), 1, true);
+    UnitSetOwner(UnitFromId(1851), 1, true);
+    UnitSetOwner(UnitFromId(1853), 1, true);
+    UnitSetOwner(UnitFromId(1852), 1, true);
+    UnitSetOwner(UnitFromId(1850), 1, true);
+    UnitSetOwner(UnitFromId(1418), 1, true);
+    UnitSetOwner(UnitFromId(1422), 1, true);
+    UnitSetOwner(UnitFromId(1424), 1, true);
+    UnitSetOwner(UnitFromId(1423), 1, true);
+    UnitSetOwner(UnitFromId(1577), 1, true);
+    gv_gebieteC3BCbernommen=gv_gebieteC3BCbernommen + 1;
+    TriggerExecute(gt_GeldC3BCbernommen, true, false);
+    TriggerExecute(gt_AlleBereicheC3BCbernommen, true, false);
+    ObjectiveSetState(gv_hauptmissionen[2], c_objectiveStateCompleted);
+    AIMeleeStart(3);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Versorgung_Init () {
+    gt_Versorgung = TriggerCreate("gt_Versorgung_Func");
+    TriggerAddEventUnitDied(gt_Versorgung, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Forschungsgruppe
+//--------------------------------------------------------------------------------------------------
+bool gt_Forschungsgruppe_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(gv_gruppeForschung, UnitFromId(1876));
+    UnitGroupAdd(gv_gruppeForschung, UnitFromId(1874));
+    UnitGroupAdd(gv_gruppeForschung, UnitFromId(1875));
+    UnitGroupAdd(gv_gruppeForschung, UnitFromId(1877));
+    UnitGroupAdd(gv_gruppeForschung, UnitFromId(1878));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Forschungsgruppe_Init () {
+    gt_Forschungsgruppe = TriggerCreate("gt_Forschungsgruppe_Func");
+    TriggerAddEventMapInit(gt_Forschungsgruppe);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Forschung
+//--------------------------------------------------------------------------------------------------
+bool gt_Forschung_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(gv_gruppeForschung, c_unitCountAlive) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetOwner(UnitFromId(2746), 1, true);
+    UnitSetOwner(UnitFromId(2747), 1, true);
+    UnitSetOwner(UnitFromId(1582), 1, true);
+    UnitSetOwner(UnitFromId(1580), 1, true);
+    UnitSetOwner(UnitFromId(1583), 1, true);
+    UnitSetOwner(UnitFromId(1669), 1, true);
+    UnitSetOwner(UnitFromId(1578), 1, true);
+    UnitCreate(7, "RichMineralField", 0, 0, PointFromId(2742), 270.0);
+    UnitCreate(1, "RichVespeneGeyser", 0, 0, PointFromId(2743), 270.0);
+    TriggerExecute(gt_HirnC3BCbernommen, true, false);
+    gv_gebieteC3BCbernommen=gv_gebieteC3BCbernommen + 1;
+    TriggerExecute(gt_AlleBereicheC3BCbernommen, true, false);
+    AIMeleeStart(4);
+    AIMeleeStart(5);
+    ObjectiveSetState(gv_hauptmissionen[3], c_objectiveStateCompleted);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Forschung_Init () {
+    gt_Forschung = TriggerCreate("gt_Forschung_Func");
+    TriggerAddEventUnitDied(gt_Forschung, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Gruppe a ??bernehmen
+//--------------------------------------------------------------------------------------------------
+bool gt_GruppeaC3BCbernehmen_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(gt_TruppA, true, false);
+    UnitSetOwner(UnitFromId(2801), 1, true);
+    UnitSetOwner(UnitFromId(2800), 1, true);
+    UnitSetOwner(UnitFromId(2798), 1, true);
+    UnitSetOwner(UnitFromId(2799), 1, true);
+    UnitSetOwner(UnitFromId(2797), 1, true);
+    UnitSetOwner(UnitFromId(2796), 1, true);
+    gv_gebieteC3BCbernommen=gv_gebieteC3BCbernommen + 1;
+    ObjectiveSetState(gv_nebenmissionen[1], c_objectiveStateCompleted);
+    TriggerExecute(gt_AlleBereicheC3BCbernommen, true, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_GruppeaC3BCbernehmen_Init () {
+    gt_GruppeaC3BCbernehmen = TriggerCreate("gt_GruppeaC3BCbernehmen_Func");
+    TriggerAddEventUnitRegion(gt_GruppeaC3BCbernehmen, null, RegionFromId(1), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Gruppe b treffen
+//--------------------------------------------------------------------------------------------------
+bool gt_Gruppebtreffen_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(gt_TruppB, true, false);
+    TriggerEnable(gt_GruppebC3BCbernehmen, true);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Gruppebtreffen_Init () {
+    gt_Gruppebtreffen = TriggerCreate("gt_Gruppebtreffen_Func");
+    TriggerAddEventUnitRegion(gt_Gruppebtreffen, null, RegionFromId(2), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Gruppe b ??bernehmen
+//--------------------------------------------------------------------------------------------------
+bool gt_GruppebC3BCbernehmen_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!(((UnitIsAlive(UnitFromId(2814)) != true) && (UnitIsAlive(UnitFromId(2605)) != true) && (UnitIsAlive(UnitFromId(2802)) != true) && (UnitIsAlive(UnitFromId(2813)) != true) && (UnitIsAlive(UnitFromId(2608)) != true) && (UnitIsAlive(UnitFromId(2803)) != true) && (UnitIsAlive(UnitFromId(2662)) != true) && (UnitIsAlive(UnitFromId(2609)) != true)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_gebieteC3BCbernommen=gv_gebieteC3BCbernommen + 1;
+    TriggerExecute(gt_AlleBereicheC3BCbernommen, true, false);
+    UnitSetOwner(UnitFromId(2593), 1, true);
+    ObjectiveSetState(gv_nebenmissionen[2], c_objectiveStateCompleted);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/97996AEC"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_GruppebC3BCbernehmen_Init () {
+    gt_GruppebC3BCbernehmen = TriggerCreate("gt_GruppebC3BCbernehmen_Func");
+    TriggerEnable(gt_GruppebC3BCbernehmen, false);
+    TriggerAddEventUnitDied(gt_GruppebC3BCbernehmen, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Waffenfabrikgruppe 2
+//--------------------------------------------------------------------------------------------------
+bool gt_Waffenfabrikgruppe2_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(gv_gruppeWaffenfabrik2, UnitFromId(2573));
+    UnitGroupAdd(gv_gruppeWaffenfabrik2, UnitFromId(2572));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Waffenfabrikgruppe2_Init () {
+    gt_Waffenfabrikgruppe2 = TriggerCreate("gt_Waffenfabrikgruppe2_Func");
+    TriggerAddEventMapInit(gt_Waffenfabrikgruppe2);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Waffenfabrik 2
+//--------------------------------------------------------------------------------------------------
+bool gt_Waffenfabrik2_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(gv_gruppeWaffenfabrik2, c_unitCountAlive) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetOwner(UnitFromId(1404), 1, true);
+    UnitSetOwner(UnitFromId(1405), 1, true);
+    UnitSetOwner(UnitFromId(1395), 1, true);
+    UnitSetOwner(UnitFromId(1663), 1, true);
+    UnitSetOwner(UnitFromId(1664), 1, true);
+    UnitSetOwner(UnitFromId(1410), 1, true);
+    TriggerEnable(gt_Spieler3angriff, false);
+    TriggerEnable(gt_Spieler3Teamzusammenstellung, false);
+    TriggerEnable(gt_Spieler4angriff, false);
+    TriggerEnable(gt_Spieler4Teamzusammenstellung, false);
+    TriggerEnable(gt_Spieler5angriff, false);
+    TriggerEnable(gt_Spieler5Teamzusammenstellung, false);
+    TriggerExecute(gt_FahrzeugeC3BCbernommen, true, false);
+    gv_gebieteC3BCbernommen=gv_gebieteC3BCbernommen + 1;
+    ObjectiveSetState(gv_hauptmissionen[4], c_objectiveStateCompleted);
+    TriggerExecute(gt_AlleBereicheC3BCbernommen, true, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Waffenfabrik2_Init () {
+    gt_Waffenfabrik2 = TriggerCreate("gt_Waffenfabrik2_Func");
+    TriggerAddEventUnitDied(gt_Waffenfabrik2, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: LuftWaffenfabrikgruppe
+//--------------------------------------------------------------------------------------------------
+bool gt_LuftWaffenfabrikgruppe_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(gv_gruppeLuftWaffenfabrik, UnitFromId(2362));
+    UnitGroupAdd(gv_gruppeLuftWaffenfabrik, UnitFromId(2361));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_LuftWaffenfabrikgruppe_Init () {
+    gt_LuftWaffenfabrikgruppe = TriggerCreate("gt_LuftWaffenfabrikgruppe_Func");
+    TriggerAddEventMapInit(gt_LuftWaffenfabrikgruppe);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: LuftWaffenfabrik
+//--------------------------------------------------------------------------------------------------
+bool gt_LuftWaffenfabrik_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(gv_gruppeLuftWaffenfabrik, c_unitCountAlive) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetOwner(UnitFromId(1485), 1, true);
+    UnitSetOwner(UnitFromId(1483), 1, true);
+    UnitSetOwner(UnitFromId(1488), 1, true);
+    UnitSetOwner(UnitFromId(1486), 1, true);
+    UnitSetOwner(UnitFromId(1487), 1, true);
+    UnitSetOwner(UnitFromId(1484), 1, true);
+    TriggerEnable(gt_Spieler3angriff, false);
+    TriggerEnable(gt_Spieler3Teamzusammenstellung, false);
+    TriggerEnable(gt_Spieler4angriff, false);
+    TriggerEnable(gt_Spieler4Teamzusammenstellung, false);
+    TriggerEnable(gt_Spieler5angriff, false);
+    TriggerEnable(gt_Spieler5Teamzusammenstellung, false);
+    TriggerExecute(gt_FlugzeugeC3BCbernommen, true, false);
+    ObjectiveSetState(gv_hauptmissionen[5], c_objectiveStateCompleted);
+    gv_gebieteC3BCbernommen=gv_gebieteC3BCbernommen + 1;
+    TriggerExecute(gt_AlleBereicheC3BCbernommen, true, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_LuftWaffenfabrik_Init () {
+    gt_LuftWaffenfabrik = TriggerCreate("gt_LuftWaffenfabrik_Func");
+    TriggerAddEventUnitDied(gt_LuftWaffenfabrik, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hangarbeschr??nkung
+//--------------------------------------------------------------------------------------------------
+bool gt_HangarbeschrC3A4nkung_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_lokiDrohnenAnzahl=gv_lokiDrohnenAnzahl + 1;
+    if ((gv_lokiDrohnenAnzahl > 15)) {
+        UnitRemove(EventUnitCreatedUnit());
+        gv_lokiDrohnenAnzahl=gv_lokiDrohnenAnzahl - 1;
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_HangarbeschrC3A4nkung_Init () {
+    gt_HangarbeschrC3A4nkung = TriggerCreate("gt_HangarbeschrC3A4nkung_Func");
+    TriggerAddEventUnitCreated(gt_HangarbeschrC3A4nkung, UnitRefFromUnit(UnitFromId(2593)), null, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Drohne stirbt
+//--------------------------------------------------------------------------------------------------
+bool gt_Drohnestirbt_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "Fighter"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_lokiDrohnenAnzahl=gv_lokiDrohnenAnzahl - 1;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Drohnestirbt_Init () {
+    gt_Drohnestirbt = TriggerCreate("gt_Drohnestirbt_Func");
+    TriggerAddEventUnitDied(gt_Drohnestirbt, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Tychus Spawned Flammer is born
+//--------------------------------------------------------------------------------------------------
+bool gt_TychusSpawnedFlammerisborn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlFlammer=gv_anzahlFlammer + 1;
+    if ((gv_anzahlFlammer == gv_maxAnzahlFlammer)) {
+        UnitAbilityEnable(UnitFromId(1684), "SpawnFlammer", false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TychusSpawnedFlammerisborn_Init () {
+    gt_TychusSpawnedFlammerisborn = TriggerCreate("gt_TychusSpawnedFlammerisborn_Func");
+    TriggerAddEventUnitCreated(gt_TychusSpawnedFlammerisborn, UnitRefFromUnit(UnitFromId(1684)), "SpawnFlammer", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Tychus Spawned Flammer Dies
+//--------------------------------------------------------------------------------------------------
+bool gt_TychusSpawnedFlammerDies_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "Flammer"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlFlammer=gv_anzahlFlammer - 1;
+    if ((gv_anzahlFlammer < gv_maxAnzahlFlammer)) {
+        UnitAbilityEnable(UnitFromId(1684), "SpawnFlammer", true);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TychusSpawnedFlammerDies_Init () {
+    gt_TychusSpawnedFlammerDies = TriggerCreate("gt_TychusSpawnedFlammerDies_Func");
+    TriggerAddEventUnitDied(gt_TychusSpawnedFlammerDies, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: New Weapon
+//--------------------------------------------------------------------------------------------------
+bool gt_NewWeapon_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1684)), UnitGetPosition(UnitFromId(1687))) < 1.1)) {
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/CE43449A"));
+        UnitWeaponRemove(UnitFromId(1684), "TychusCommandoChaingun");
+        UnitWeaponAdd(UnitFromId(1684), "Chaingunadvanced", null);
+        UnitRemove(UnitFromId(1687));
+        TriggerEnable(TriggerGetCurrent(), false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_NewWeapon_Init () {
+    gt_NewWeapon = TriggerCreate("gt_NewWeapon_Func");
+    TriggerAddEventUnitRange(gt_NewWeapon, UnitRefFromUnit(UnitFromId(1684)), UnitFromId(1687), 1.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: F??higkeiten abschalten
+//--------------------------------------------------------------------------------------------------
+bool gt_FC3A4higkeitenabschalten_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityEnable(UnitFromId(1683), "ExperimentalPlasmaGun", false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_FC3A4higkeitenabschalten_Init () {
+    gt_FC3A4higkeitenabschalten = TriggerCreate("gt_FC3A4higkeitenabschalten_Func");
+    TriggerAddEventMapInit(gt_FC3A4higkeitenabschalten);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Plasmagun gefunden
+//--------------------------------------------------------------------------------------------------
+bool gt_Plasmagungefunden_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(1697))) < 1.1)) {
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/BCA2CA73"));
+        UnitAbilityEnable(UnitFromId(1683), "ExperimentalPlasmaGun", true);
+        UnitRemove(UnitFromId(1697));
+        TriggerEnable(TriggerGetCurrent(), false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Plasmagungefunden_Init () {
+    gt_Plasmagungefunden = TriggerCreate("gt_Plasmagungefunden_Func");
+    TriggerAddEventUnitRange(gt_Plasmagungefunden, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(1697), 1.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Granaten
+//--------------------------------------------------------------------------------------------------
+bool gt_Granaten_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(2785))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(2785));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(2784))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(2784));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(2783))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(2783));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(2782))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(2782));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(1694))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1694));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(1693))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1693));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(1692))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1692));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(1691))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1691));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(1690))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1690));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(1689))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1689));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(1696))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1696));
+    }
+    else {
+    }
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1683)), UnitGetPosition(UnitFromId(1695))) < 1.1)) {
+        UnitAbilityAddChargeUsed(UnitFromId(1683), "TossGrenade2", "RaynorTossGrenade", -3.0);
+        UnitRemove(UnitFromId(1695));
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Granaten_Init () {
+    gt_Granaten = TriggerCreate("gt_Granaten_Func");
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(1694), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(1693), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(1692), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(1691), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(1690), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(1689), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(1696), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(1695), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(2782), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(2783), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(2784), 1.0, true);
+    TriggerAddEventUnitRange(gt_Granaten, UnitRefFromUnit(UnitFromId(1683)), UnitFromId(2785), 1.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Raynor Spawned Marine is born
+//--------------------------------------------------------------------------------------------------
+bool gt_RaynorSpawnedMarineisborn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlWarpigs=gv_anzahlWarpigs + 1;
+    if ((gv_anzahlWarpigs == gv_maxAnzahlWarpigs)) {
+        UnitAbilityEnable(UnitFromId(1683), "SpawnMarines", false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RaynorSpawnedMarineisborn_Init () {
+    gt_RaynorSpawnedMarineisborn = TriggerCreate("gt_RaynorSpawnedMarineisborn_Func");
+    TriggerAddEventUnitCreated(gt_RaynorSpawnedMarineisborn, UnitRefFromUnit(UnitFromId(1683)), "SpawnMarines", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Raynor Spawned Marine Dies
+//--------------------------------------------------------------------------------------------------
+bool gt_RaynorSpawnedMarineDies_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "WarPigRM"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlWarpigs=gv_anzahlWarpigs - 1;
+    if ((gv_anzahlWarpigs < gv_maxAnzahlWarpigs)) {
+        UnitAbilityEnable(UnitFromId(1683), "SpawnMarines", true);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RaynorSpawnedMarineDies_Init () {
+    gt_RaynorSpawnedMarineDies = TriggerCreate("gt_RaynorSpawnedMarineDies_Func");
+    TriggerAddEventUnitDied(gt_RaynorSpawnedMarineDies, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Time-Bomb explosion
+//--------------------------------------------------------------------------------------------------
+bool gt_TimeBombexplosion_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "TimeBomb"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateExplosionAtPoint(0, 0, UnitGetPosition(EventUnit()));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TimeBombexplosion_Init () {
+    gt_TimeBombexplosion = TriggerCreate("gt_TimeBombexplosion_Func");
+    TriggerAddEventUnitDied(gt_TimeBombexplosion, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Time-Bomb abschalten
+//--------------------------------------------------------------------------------------------------
+bool gt_TimeBombabschalten_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityEnable(UnitFromId(1685), "VultureSpiderMines2", false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TimeBombabschalten_Init () {
+    gt_TimeBombabschalten = TriggerCreate("gt_TimeBombabschalten_Func");
+    TriggerAddEventMapInit(gt_TimeBombabschalten);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Snpier abschalten
+//--------------------------------------------------------------------------------------------------
+bool gt_Snpierabschalten_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityEnable(UnitFromId(1685), "NovaSnipe", false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Snpierabschalten_Init () {
+    gt_Snpierabschalten = TriggerCreate("gt_Snpierabschalten_Func");
+    TriggerAddEventMapInit(gt_Snpierabschalten);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Snipergewehr gefunden
+//--------------------------------------------------------------------------------------------------
+bool gt_Snipergewehrgefunden_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((DistanceBetweenPoints(UnitGetPosition(UnitFromId(1685)), UnitGetPosition(UnitFromId(1688))) < 1.1)) {
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/E8AEB545"));
+        UnitAbilityEnable(UnitFromId(1685), "NovaSnipe", true);
+        UnitRemove(UnitFromId(1688));
+        TriggerEnable(TriggerGetCurrent(), false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Snipergewehrgefunden_Init () {
+    gt_Snipergewehrgefunden = TriggerCreate("gt_Snipergewehrgefunden_Func");
+    TriggerAddEventUnitRange(gt_Snipergewehrgefunden, UnitRefFromUnit(UnitFromId(1685)), UnitFromId(1688), 1.0, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Getarnt
+//--------------------------------------------------------------------------------------------------
+bool gt_Getarnt_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityEnable(UnitFromId(1685), "attack", false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Getarnt_Init () {
+    gt_Getarnt = TriggerCreate("gt_Getarnt_Func");
+    TriggerAddEventUnitOrder(gt_Getarnt, UnitRefFromUnit(UnitFromId(1685)), AbilityCommand("TarnfeldToshRM", 0));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Enttarnt
+//--------------------------------------------------------------------------------------------------
+bool gt_Enttarnt_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityEnable(UnitFromId(1685), "attack", true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Enttarnt_Init () {
+    gt_Enttarnt = TriggerCreate("gt_Enttarnt_Func");
+    TriggerAddEventUnitOrder(gt_Enttarnt, UnitRefFromUnit(UnitFromId(1685)), AbilityCommand("TarnfeldToshRM", 1));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Tosh Spawned Predator is born
+//--------------------------------------------------------------------------------------------------
+bool gt_ToshSpawnedPredatorisborn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlPredators=gv_anzahlPredators + 1;
+    if ((gv_anzahlPredators == gv_maxAnzahlPredators)) {
+        UnitAbilityEnable(UnitFromId(1685), "SpawnPredators2", false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ToshSpawnedPredatorisborn_Init () {
+    gt_ToshSpawnedPredatorisborn = TriggerCreate("gt_ToshSpawnedPredatorisborn_Func");
+    TriggerAddEventUnitCreated(gt_ToshSpawnedPredatorisborn, UnitRefFromUnit(UnitFromId(1685)), "SpawnPredators2", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Tosh Spawned Predator Dies
+//--------------------------------------------------------------------------------------------------
+bool gt_ToshSpawnedPredatorDies_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "PredatorRM"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_anzahlPredators=gv_anzahlPredators - 1;
+    if ((gv_anzahlPredators < gv_maxAnzahlPredators)) {
+        UnitAbilityEnable(UnitFromId(1685), "SpawnPredators2", true);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ToshSpawnedPredatorDies_Init () {
+    gt_ToshSpawnedPredatorDies = TriggerCreate("gt_ToshSpawnedPredatorDies_Func");
+    TriggerAddEventUnitDied(gt_ToshSpawnedPredatorDies, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Video + alle Missionen
+//--------------------------------------------------------------------------------------------------
+bool gt_VideoalleMissionen_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CinematicFade(false, 0.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(1628), 0.0, -1, 10, true);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CinematicFade(true, 2.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/618E2FD2"));
+    Wait(7.5, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/76D3617B"));
+    Wait(7.5, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/BC6F3ACF"));
+    Wait(7.5, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/3B283D6B"));
+    Wait(8.5, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/69E097F7"));
+    Wait(4.5, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/B29F37AC"));
+    Wait(3.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/0E1DB9FF"));
+    Wait(7.5, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/93D8B1D8"));
+    Wait(5.5, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/183E8C45"));
+    Wait(4.5, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/A9946B95"));
+    Wait(5.5, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    CameraApplyInfo(1, CameraInfoFromId(2453), 4.0, -1, 10, true);
+    Wait(2.5, c_timeGame);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    ObjectiveCreate(StringExternal("Param/Value/3A371A25"), StringExternal("Param/Value/D8217EAC"), c_objectiveStateActive, true);
+    gv_hauptmissionen[0] = ObjectiveLastCreated();
+    ObjectiveCreate(StringExternal("Param/Value/D1F3A163"), StringExternal("Param/Value/9BC84A11"), c_objectiveStateActive, true);
+    gv_hauptmissionen[1] = ObjectiveLastCreated();
+    ObjectiveCreate(StringExternal("Param/Value/B9BB35B4"), StringExternal("Param/Value/173DA513"), c_objectiveStateActive, true);
+    gv_hauptmissionen[2] = ObjectiveLastCreated();
+    ObjectiveCreate(StringExternal("Param/Value/BAED6EEB"), StringExternal("Param/Value/B2B4D6A2"), c_objectiveStateActive, true);
+    gv_hauptmissionen[3] = ObjectiveLastCreated();
+    ObjectiveCreate(StringExternal("Param/Value/8CCF3C39"), StringExternal("Param/Value/7E89BF11"), c_objectiveStateActive, true);
+    gv_hauptmissionen[4] = ObjectiveLastCreated();
+    ObjectiveCreate(StringExternal("Param/Value/159D6053"), StringExternal("Param/Value/0D841E64"), c_objectiveStateActive, true);
+    gv_hauptmissionen[5] = ObjectiveLastCreated();
+    ObjectiveCreate(StringExternal("Param/Value/B67387BC"), StringExternal("Param/Value/DD1858AE"), c_objectiveStateActive, false);
+    gv_nebenmissionen[0] = ObjectiveLastCreated();
+    ObjectiveCreate(StringExternal("Param/Value/06E31439"), StringExternal("Param/Value/5C85EC77"), c_objectiveStateActive, false);
+    gv_nebenmissionen[1] = ObjectiveLastCreated();
+    ObjectiveCreate(StringExternal("Param/Value/ED2ACFA8"), StringExternal("Param/Value/CED5CD79"), c_objectiveStateActive, false);
+    gv_nebenmissionen[2] = ObjectiveLastCreated();
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_VideoalleMissionen_Init () {
+    gt_VideoalleMissionen = TriggerCreate("gt_VideoalleMissionen_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Kasernen ??bernommen
+//--------------------------------------------------------------------------------------------------
+bool gt_KasernenC3BCbernommen_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/8AD30085"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_KasernenC3BCbernommen_Init () {
+    gt_KasernenC3BCbernommen = TriggerCreate("gt_KasernenC3BCbernommen_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Geld ??bernommen
+//--------------------------------------------------------------------------------------------------
+bool gt_GeldC3BCbernommen_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/697B57B7"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_GeldC3BCbernommen_Init () {
+    gt_GeldC3BCbernommen = TriggerCreate("gt_GeldC3BCbernommen_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hirn ??bernommen
+//--------------------------------------------------------------------------------------------------
+bool gt_HirnC3BCbernommen_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/4B4590A9"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_HirnC3BCbernommen_Init () {
+    gt_HirnC3BCbernommen = TriggerCreate("gt_HirnC3BCbernommen_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Fahrzeuge ??bernommen
+//--------------------------------------------------------------------------------------------------
+bool gt_FahrzeugeC3BCbernommen_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/B50767EF"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_FahrzeugeC3BCbernommen_Init () {
+    gt_FahrzeugeC3BCbernommen = TriggerCreate("gt_FahrzeugeC3BCbernommen_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Flugzeuge ??bernommen
+//--------------------------------------------------------------------------------------------------
+bool gt_FlugzeugeC3BCbernommen_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/ABC164D4"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_FlugzeugeC3BCbernommen_Init () {
+    gt_FlugzeugeC3BCbernommen = TriggerCreate("gt_FlugzeugeC3BCbernommen_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Neuer Held
+//--------------------------------------------------------------------------------------------------
+bool gt_NeuerHeld_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetAlliance(1, 2, 7);
+    libNtve_gf_SetAlliance(1, 3, 7);
+    libNtve_gf_SetAlliance(1, 4, 7);
+    libNtve_gf_SetAlliance(1, 5, 7);
+    libNtve_gf_SetAlliance(1, 6, 7);
+    libNtve_gf_SetAlliance(1, 15, 7);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UnitSetPosition(UnitFromId(1685), PointFromId(2485), false);
+    UnitSetPosition(UnitFromId(1683), PointFromId(2483), false);
+    UnitSetPosition(UnitFromId(1684), PointFromId(2488), false);
+    CameraApplyInfo(1, CameraInfoFromId(2673), 0.0, -1, 10, true);
+    CinematicFade(true, 0.5, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UnitIssueOrder(UnitFromId(1683), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(2566)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(1684), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(2490)), c_orderQueueReplace);
+    UnitIssueOrder(UnitFromId(1685), OrderTargetingPoint(AbilityCommand("move", 0), PointFromId(2565)), c_orderQueueReplace);
+    CameraApplyInfo(1, CameraInfoFromId(2674), 1.5, -1, 0, true);
+    Wait(1.49, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/2BF2DBAC"));
+    CameraApplyInfo(1, CameraInfoFromId(2675), 3.0, -1, 5, true);
+    Wait(3.0, c_timeGame);
+    UnitSetFacing(UnitFromId(1684), 71.0, 1.0);
+    UnitSetFacing(UnitFromId(1685), 90.0, 1.0);
+    UnitSetFacing(UnitFromId(1683), 106.0, 1.0);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/60DFC60E"));
+    Wait(8.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/B37DEE3B"));
+    Wait(3.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/3ACCDE0C"));
+    Wait(6.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/C7692F74"));
+    Wait(3.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/1BAF9AD8"));
+    Wait(5.0, c_timeGame);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/3E03A5A9"));
+    Wait(1.0, c_timeGame);
+    CameraApplyInfo(1, CameraInfoFromId(2676), 3.0, -1, 10, true);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    Wait(1.0, c_timeGame);
+    libNtve_gf_SetAlliance(1, 2, 5);
+    libNtve_gf_SetAlliance(1, 3, 5);
+    libNtve_gf_SetAlliance(1, 4, 5);
+    libNtve_gf_SetAlliance(1, 5, 5);
+    libNtve_gf_SetAlliance(1, 6, 5);
+    libNtve_gf_SetAlliance(1, 15, 5);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_NeuerHeld_Init () {
+    gt_NeuerHeld = TriggerCreate("gt_NeuerHeld_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Trupp A
+//--------------------------------------------------------------------------------------------------
+bool gt_TruppA_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/CCFD3B13"));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TruppA_Init () {
+    gt_TruppA = TriggerCreate("gt_TruppA_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Trupp B
+//--------------------------------------------------------------------------------------------------
+bool gt_TruppB_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetAlliance(1, 2, 7);
+    libNtve_gf_SetAlliance(1, 3, 7);
+    libNtve_gf_SetAlliance(1, 4, 7);
+    libNtve_gf_SetAlliance(1, 5, 7);
+    libNtve_gf_SetAlliance(1, 6, 7);
+    libNtve_gf_SetAlliance(1, 15, 7);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), c_transitionDurationDefault);
+    CinematicFade(false, 1.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    CameraApplyInfo(1, CameraInfoFromId(2567), 0.0, -1, 10, true);
+    CinematicFade(true, 0.5, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/DDB54375"));
+    Wait(2.0, c_timeGame);
+    CameraApplyInfo(1, CameraInfoFromId(2672), 5.0, -1, 10, true);
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/1E2AB2BB"));
+    Wait(8.0, c_timeGame);
+    CameraApplyInfo(1, CameraInfoFromId(2671), 3.0, -1, 10, true);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), c_transitionDurationDefault);
+    libNtve_gf_SetAlliance(1, 2, 5);
+    libNtve_gf_SetAlliance(1, 3, 5);
+    libNtve_gf_SetAlliance(1, 4, 5);
+    libNtve_gf_SetAlliance(1, 5, 5);
+    libNtve_gf_SetAlliance(1, 6, 5);
+    libNtve_gf_SetAlliance(1, 15, 5);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TruppB_Init () {
+    gt_TruppB = TriggerCreate("gt_TruppB_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_Spieler3Teamzusammenstellung_Init();
+    gt_Spieler4Teamzusammenstellung_Init();
+    gt_Spieler5Teamzusammenstellung_Init();
+    gt_Spieler3angriff_Init();
+    gt_Spieler4angriff_Init();
+    gt_Spieler5angriff_Init();
+    gt_nC3A4chstesZiel1_Init();
+    gt_nC3A4chstesZiel2_Init();
+    gt_Variableninitalisierung_Init();
+    gt_CPUBaubeschrC3A4nkungen_Init();
+    gt_InitialisierungSpieler_Init();
+    gt_GUI_Init();
+    gt_SchwierigkeitgewC3A4hlt_Init();
+    gt_KartenbezogeneEinstellungen_Init();
+    gt_AlleBereicheC3BCbernommen_Init();
+    gt_Video_Init();
+    gt_Fin_Init();
+    gt_Jemandwichtigesstirbt_Init();
+    gt_Kasernengruppe_Init();
+    gt_Kasernen_Init();
+    gt_Heldengruppe_Init();
+    gt_Held_Init();
+    gt_Versorgungsgruppe_Init();
+    gt_Versorgung_Init();
+    gt_Forschungsgruppe_Init();
+    gt_Forschung_Init();
+    gt_GruppeaC3BCbernehmen_Init();
+    gt_Gruppebtreffen_Init();
+    gt_GruppebC3BCbernehmen_Init();
+    gt_Waffenfabrikgruppe2_Init();
+    gt_Waffenfabrik2_Init();
+    gt_LuftWaffenfabrikgruppe_Init();
+    gt_LuftWaffenfabrik_Init();
+    gt_HangarbeschrC3A4nkung_Init();
+    gt_Drohnestirbt_Init();
+    gt_TychusSpawnedFlammerisborn_Init();
+    gt_TychusSpawnedFlammerDies_Init();
+    gt_NewWeapon_Init();
+    gt_FC3A4higkeitenabschalten_Init();
+    gt_Plasmagungefunden_Init();
+    gt_Granaten_Init();
+    gt_RaynorSpawnedMarineisborn_Init();
+    gt_RaynorSpawnedMarineDies_Init();
+    gt_TimeBombexplosion_Init();
+    gt_TimeBombabschalten_Init();
+    gt_Snpierabschalten_Init();
+    gt_Snipergewehrgefunden_Init();
+    gt_Getarnt_Init();
+    gt_Enttarnt_Init();
+    gt_ToshSpawnedPredatorisborn_Init();
+    gt_ToshSpawnedPredatorDies_Init();
+    gt_VideoalleMissionen_Init();
+    gt_KasernenC3BCbernommen_Init();
+    gt_GeldC3BCbernommen_Init();
+    gt_HirnC3BCbernommen_Init();
+    gt_FahrzeugeC3BCbernommen_Init();
+    gt_FlugzeugeC3BCbernommen_Init();
+    gt_NeuerHeld_Init();
+    gt_TruppA_Init();
+    gt_TruppB_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitGlobals();
+    InitTriggers();
+}

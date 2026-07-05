@@ -1,0 +1,1888 @@
+//==================================================================================================
+// 
+// Generated Map Script
+// 
+// Name:   Zerg Assault (B)
+// Author: Rispetto
+// 
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Global Variables
+//--------------------------------------------------------------------------------------------------
+unitgroup gv_alphaSpawn;
+unitgroup gv_bravoSpawn;
+unitgroup gv_charlieSpawn;
+unitgroup gv_deltaSpawn;
+int gv_alphaDifficulty;
+int gv_bravoDifficulty;
+int gv_charlieDifficulty;
+int gv_deltaDifficulty;
+int gv_alphaSelected;
+int gv_bravoSelected;
+int gv_charlieSelected;
+int gv_deltaSelected;
+int gv_p1Selection;
+int gv_p2Selection;
+int gv_p3Selection;
+int gv_p4Selection;
+int gv_lingsToAttackNorth;
+unitgroup gv_lingsToAttackNorthGroup;
+playergroup gv_alpha;
+playergroup gv_bravo;
+playergroup gv_charlie;
+playergroup gv_delta;
+playergroup gv_allPlayers;
+
+void InitGlobals () {
+    gv_alphaSpawn = UnitGroupEmpty();
+    gv_bravoSpawn = UnitGroupEmpty();
+    gv_charlieSpawn = UnitGroupEmpty();
+    gv_deltaSpawn = UnitGroupEmpty();
+    gv_alphaDifficulty = 0;
+    gv_bravoDifficulty = 0;
+    gv_charlieDifficulty = 0;
+    gv_deltaDifficulty = 0;
+    gv_alphaSelected = 0;
+    gv_bravoSelected = 0;
+    gv_charlieSelected = 0;
+    gv_deltaSelected = 0;
+    gv_p1Selection = 1;
+    gv_p2Selection = 1;
+    gv_p3Selection = 1;
+    gv_p4Selection = 1;
+    gv_lingsToAttackNorth = 0;
+    gv_lingsToAttackNorthGroup = UnitGroupEmpty();
+    gv_alpha = PlayerGroupEmpty();
+    gv_bravo = PlayerGroupEmpty();
+    gv_charlie = PlayerGroupEmpty();
+    gv_delta = PlayerGroupEmpty();
+    gv_allPlayers = PlayerGroupEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_AlphaMedium;
+trigger gt_BravoMedium;
+trigger gt_CharlieMedium;
+trigger gt_DeltaMedium;
+trigger gt_AlphaHard;
+trigger gt_BravoHard;
+trigger gt_CharlieHard;
+trigger gt_DeltaHard;
+trigger gt_UnitDead;
+trigger gt_ElapsedTwo;
+trigger gt_Dialogs;
+trigger gt_EndGame;
+trigger gt_DestroyMainBase;
+trigger gt_RescuableTank;
+trigger gt_RescuingTank;
+trigger gt_RescueableHellion;
+trigger gt_RescuingHellion;
+trigger gt_RescueableViking;
+trigger gt_RescuingViking;
+trigger gt_RescueableThor;
+trigger gt_RescuingThor;
+trigger gt_RescueableBC;
+trigger gt_RescuingBC;
+trigger gt_Spawn;
+trigger gt_Attack;
+trigger gt_NorthAttack;
+trigger gt_NorthRandomize;
+trigger gt_UnitDies;
+trigger gt_Disallow;
+trigger gt_View;
+trigger gt_Select;
+trigger gt_MapInitialization;
+trigger gt_Alliances;
+trigger gt_TeamLocations;
+trigger gt_ClearMessage;
+trigger gt_CamerasStart;
+trigger gt_RedCamFix;
+trigger gt_BlueCamFix;
+trigger gt_TealCamFix;
+trigger gt_PurpleCamFix;
+trigger gt_References;
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Alpha Medium
+//--------------------------------------------------------------------------------------------------
+bool gt_AlphaMedium_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(UnitFromId(1))), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(1)), false))) + StringExternal("Param/Value/EF6E9233")));
+    gv_alphaDifficulty = 2;
+    Wait(0.1, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AlphaMedium_Init () {
+    gt_AlphaMedium = TriggerCreate("gt_AlphaMedium_Func");
+    TriggerAddEventChatMessage(gt_AlphaMedium, UnitGetOwner(RegionGetAttachUnit(RegionFromId(5))), "-medium", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Bravo Medium
+//--------------------------------------------------------------------------------------------------
+bool gt_BravoMedium_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(UnitFromId(2))), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(2)), false))) + StringExternal("Param/Value/C0AB6F9C")));
+    gv_bravoDifficulty = 2;
+    Wait(0.1, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BravoMedium_Init () {
+    gt_BravoMedium = TriggerCreate("gt_BravoMedium_Func");
+    TriggerAddEventChatMessage(gt_BravoMedium, UnitGetOwner(RegionGetAttachUnit(RegionFromId(6))), "-medium", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Charlie Medium
+//--------------------------------------------------------------------------------------------------
+bool gt_CharlieMedium_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(UnitFromId(5))), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(5)), false))) + StringExternal("Param/Value/D1949CFE")));
+    gv_charlieDifficulty = 2;
+    Wait(0.1, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_CharlieMedium_Init () {
+    gt_CharlieMedium = TriggerCreate("gt_CharlieMedium_Func");
+    TriggerAddEventChatMessage(gt_CharlieMedium, UnitGetOwner(RegionGetAttachUnit(RegionFromId(7))), "-medium", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Delta Medium
+//--------------------------------------------------------------------------------------------------
+bool gt_DeltaMedium_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(UnitFromId(6))), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(6)), false))) + StringExternal("Param/Value/709A6664")));
+    gv_deltaDifficulty = 2;
+    Wait(0.1, c_timeGame);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DeltaMedium_Init () {
+    gt_DeltaMedium = TriggerCreate("gt_DeltaMedium_Func");
+    TriggerAddEventChatMessage(gt_DeltaMedium, UnitGetOwner(RegionGetAttachUnit(RegionFromId(8))), "-medium", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Alpha Hard
+//--------------------------------------------------------------------------------------------------
+bool gt_AlphaHard_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(UnitFromId(1))), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(1)), false))) + StringExternal("Param/Value/E13CBADA")));
+    gv_alphaDifficulty = 3;
+    Wait(0.1, c_timeGame);
+    TriggerEnable(gt_AlphaMedium, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AlphaHard_Init () {
+    gt_AlphaHard = TriggerCreate("gt_AlphaHard_Func");
+    TriggerAddEventChatMessage(gt_AlphaHard, UnitGetOwner(RegionGetAttachUnit(RegionFromId(5))), "-hard", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Bravo Hard
+//--------------------------------------------------------------------------------------------------
+bool gt_BravoHard_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(UnitFromId(2))), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(2)), false))) + StringExternal("Param/Value/22482A33")));
+    gv_bravoDifficulty = 3;
+    Wait(0.1, c_timeGame);
+    TriggerEnable(gt_BravoMedium, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BravoHard_Init () {
+    gt_BravoHard = TriggerCreate("gt_BravoHard_Func");
+    TriggerAddEventChatMessage(gt_BravoHard, UnitGetOwner(RegionGetAttachUnit(RegionFromId(6))), "-hard", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Charlie Hard
+//--------------------------------------------------------------------------------------------------
+bool gt_CharlieHard_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(UnitFromId(5))), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(5)), false))) + StringExternal("Param/Value/78D615B0")));
+    gv_charlieDifficulty = 3;
+    Wait(0.1, c_timeGame);
+    TriggerEnable(gt_CharlieMedium, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_CharlieHard_Init () {
+    gt_CharlieHard = TriggerCreate("gt_CharlieHard_Func");
+    TriggerAddEventChatMessage(gt_CharlieHard, UnitGetOwner(RegionGetAttachUnit(RegionFromId(7))), "-hard", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Delta Hard
+//--------------------------------------------------------------------------------------------------
+bool gt_DeltaHard_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(UnitFromId(6))), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(6)), false))) + StringExternal("Param/Value/5942CB49")));
+    gv_deltaDifficulty = 3;
+    Wait(0.1, c_timeGame);
+    TriggerEnable(gt_DeltaMedium, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DeltaHard_Init () {
+    gt_DeltaHard = TriggerCreate("gt_DeltaHard_Func");
+    TriggerAddEventChatMessage(gt_DeltaHard, UnitGetOwner(RegionGetAttachUnit(RegionFromId(8))), "-hard", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Unit Dead
+//--------------------------------------------------------------------------------------------------
+bool gt_UnitDead_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(EventUnit())), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(EventUnit()), false))) + StringExternal("Param/Value/3C21DF47")));
+    libNtve_gf_SetAlliance(EventPlayer(), 1, 1);
+    libNtve_gf_SetAlliance(EventPlayer(), 2, 1);
+    libNtve_gf_SetAlliance(EventPlayer(), 3, 1);
+    libNtve_gf_SetAlliance(EventPlayer(), 4, 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_UnitDead_Init () {
+    gt_UnitDead = TriggerCreate("gt_UnitDead_Func");
+    TriggerAddEventUnitDied(gt_UnitDead, UnitRefFromUnit(UnitFromId(1)));
+    TriggerAddEventUnitDied(gt_UnitDead, UnitRefFromUnit(UnitFromId(2)));
+    TriggerAddEventUnitDied(gt_UnitDead, UnitRefFromUnit(UnitFromId(5)));
+    TriggerAddEventUnitDied(gt_UnitDead, UnitRefFromUnit(UnitFromId(6)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Elapsed Two
+//--------------------------------------------------------------------------------------------------
+bool gt_ElapsedTwo_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/8E61CAD2"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(1, false))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/EF06B221"));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ElapsedTwo_Init () {
+    gt_ElapsedTwo = TriggerCreate("gt_ElapsedTwo_Func");
+    TriggerAddEventTimeElapsed(gt_ElapsedTwo, 2.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Dialogs
+//--------------------------------------------------------------------------------------------------
+bool gt_Dialogs_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/ECA11E74"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, false))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/A2F660D8"));
+    Wait(13.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(1), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(1, false))) + StringExternal("Param/Value/A1B92C64")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/362B3B3E"));
+    Wait(8.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(4), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(4, false))) + StringExternal("Param/Value/1F4A7C80")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/65CBE275"));
+    Wait(9.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(2), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(2, false))) + StringExternal("Param/Value/A138ED27")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/167293DA"));
+    Wait(12.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(1), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(1, false))) + StringExternal("Param/Value/04F67841")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/0A8C4B51"));
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/15A23E95"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(1, true))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/8C253C18"));
+    MinimapPing(PlayerGroupAll(), RegionGetCenter(RegionFromId(2)), 5.0, Color(100.00, 0.00, 0.00));
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/2048CE94"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/69E3322A"));
+    UnitKill(UnitFromId(17));
+    UnitKill(UnitFromId(20));
+    UnitKill(UnitFromId(14));
+    UnitKill(UnitFromId(3));
+    TriggerEnable(gt_NorthRandomize, false);
+    TriggerEnable(gt_NorthAttack, false);
+    libNtve_gf_SetAlliance(1, 5, 3);
+    libNtve_gf_SetAlliance(2, 5, 3);
+    libNtve_gf_SetAlliance(3, 5, 3);
+    libNtve_gf_SetAlliance(4, 5, 3);
+    Wait(0.5, c_timeReal);
+    gv_lingsToAttackNorth = 0;
+    UnitGroupLoopBegin(gv_lingsToAttackNorthGroup);
+    while (!UnitGroupLoopDone()) {
+        UnitKill(UnitGroupLoopCurrent());
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/BBA382EB"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/D7013195"));
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/32716376"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/D4B816CA"));
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/F6C92080"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/2396E963"));
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/6AD2BC1C"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/11473D00"));
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/24264A28"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/EDF57C1D"));
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/83D9E7D9"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/61E80494"));
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/F7CB22F9"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/47BEA576"));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Dialogs_Init () {
+    gt_Dialogs = TriggerCreate("gt_Dialogs_Func");
+    TriggerAddEventTimeElapsed(gt_Dialogs, 15.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: End Game
+//--------------------------------------------------------------------------------------------------
+bool gt_EndGame_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(1), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(1, false))) + StringExternal("Param/Value/900DE1D7")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/53FCF2CE"));
+    Wait(9.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(2), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(2, false))) + StringExternal("Param/Value/53D9FDB8")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/373AAB66"));
+    Wait(9.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(StringExternal("Param/Value/222C715E"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))) + StringExternal("Param/Value/628619C6")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/153948BF"));
+    Wait(582.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(1), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(1, false))) + StringExternal("Param/Value/2159F50B")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/7B2FDBF2"));
+    Wait(9.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(StringExternal("Param/Value/8F173B4B"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))) + StringExternal("Param/Value/E176CAF5")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/6DF8370D"));
+    Wait(9.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(3), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(3, false))) + StringExternal("Param/Value/63E79E9F")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/3CEAEC43"));
+    Wait(582.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(StringExternal("Param/Value/D67112F9"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))) + StringExternal("Param/Value/5526BF5C")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/8B30FCFF"));
+    Wait(9.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(StringExternal("Param/Value/57C53067"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))) + StringExternal("Param/Value/28AA23AA")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/2562FD5C"));
+    Wait(9.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(StringExternal("Param/Value/34FD4A45"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(5, true))) + StringExternal("Param/Value/FF56985E")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/8404BD52"));
+    Wait(9.0, c_timeGame);
+    GameOver(1, c_gameOverVictory, true, true);
+    GameOver(2, c_gameOverVictory, true, true);
+    GameOver(3, c_gameOverVictory, true, true);
+    GameOver(4, c_gameOverVictory, true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_EndGame_Init () {
+    gt_EndGame = TriggerCreate("gt_EndGame_Func");
+    TriggerAddEventTimeElapsed(gt_EndGame, 600.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Destroy Main Base
+//--------------------------------------------------------------------------------------------------
+bool gt_DestroyMainBase_Func (bool testConds, bool runActions) {
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DestroyMainBase_Init () {
+    gt_DestroyMainBase = TriggerCreate("gt_DestroyMainBase_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rescuable Tank
+//--------------------------------------------------------------------------------------------------
+bool gt_RescuableTank_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(EventUnit())), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(EventUnit()), false))) + StringExternal("Param/Value/5E161B08")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/CB022703"));
+    MinimapPing(PlayerGroupAll(), RegionGetCenter(RegionFromId(26)), 5.0, Color(100.00, 0.00, 0.00));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RescuableTank_Init () {
+    gt_RescuableTank = TriggerCreate("gt_RescuableTank_Func");
+    TriggerAddEventUnitRegion(gt_RescuableTank, UnitRefFromUnit(UnitFromId(1)), RegionFromId(26), true);
+    TriggerAddEventUnitRegion(gt_RescuableTank, UnitRefFromUnit(UnitFromId(2)), RegionFromId(26), true);
+    TriggerAddEventUnitRegion(gt_RescuableTank, UnitRefFromUnit(UnitFromId(6)), RegionFromId(26), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rescuing Tank
+//--------------------------------------------------------------------------------------------------
+bool gt_RescuingTank_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetOwner(UnitFromId(31), UnitGetOwner(UnitFromId(5)), true);
+    TriggerEnable(gt_RescuableTank, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RescuingTank_Init () {
+    gt_RescuingTank = TriggerCreate("gt_RescuingTank_Func");
+    TriggerAddEventUnitRegion(gt_RescuingTank, UnitRefFromUnit(UnitFromId(5)), RegionFromId(26), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rescueable Hellion
+//--------------------------------------------------------------------------------------------------
+bool gt_RescueableHellion_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(EventUnit())), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(EventUnit()), false))) + StringExternal("Param/Value/6AD2D398")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/BC7A40CD"));
+    MinimapPing(PlayerGroupAll(), RegionGetCenter(RegionFromId(31)), 5.0, Color(100.00, 0.00, 0.00));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RescueableHellion_Init () {
+    gt_RescueableHellion = TriggerCreate("gt_RescueableHellion_Func");
+    TriggerAddEventUnitRegion(gt_RescueableHellion, UnitRefFromUnit(UnitFromId(2)), RegionFromId(31), true);
+    TriggerAddEventUnitRegion(gt_RescueableHellion, UnitRefFromUnit(UnitFromId(5)), RegionFromId(31), true);
+    TriggerAddEventUnitRegion(gt_RescueableHellion, UnitRefFromUnit(UnitFromId(6)), RegionFromId(31), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rescuing Hellion
+//--------------------------------------------------------------------------------------------------
+bool gt_RescuingHellion_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetOwner(UnitFromId(35), UnitGetOwner(UnitFromId(1)), true);
+    TriggerEnable(gt_RescueableHellion, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RescuingHellion_Init () {
+    gt_RescuingHellion = TriggerCreate("gt_RescuingHellion_Func");
+    TriggerAddEventUnitRegion(gt_RescuingHellion, UnitRefFromUnit(UnitFromId(1)), RegionFromId(31), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rescueable Viking
+//--------------------------------------------------------------------------------------------------
+bool gt_RescueableViking_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(EventUnit())), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(EventUnit()), false))) + StringExternal("Param/Value/29C7DA15")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/FEC0784A"));
+    MinimapPing(PlayerGroupAll(), RegionGetCenter(RegionFromId(32)), 5.0, Color(100.00, 0.00, 0.00));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RescueableViking_Init () {
+    gt_RescueableViking = TriggerCreate("gt_RescueableViking_Func");
+    TriggerAddEventUnitRegion(gt_RescueableViking, UnitRefFromUnit(UnitFromId(1)), RegionFromId(32), true);
+    TriggerAddEventUnitRegion(gt_RescueableViking, UnitRefFromUnit(UnitFromId(5)), RegionFromId(32), true);
+    TriggerAddEventUnitRegion(gt_RescueableViking, UnitRefFromUnit(UnitFromId(6)), RegionFromId(32), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rescuing Viking
+//--------------------------------------------------------------------------------------------------
+bool gt_RescuingViking_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetOwner(UnitFromId(38), UnitGetOwner(UnitFromId(2)), true);
+    TriggerEnable(gt_RescueableViking, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RescuingViking_Init () {
+    gt_RescuingViking = TriggerCreate("gt_RescuingViking_Func");
+    TriggerAddEventUnitRegion(gt_RescuingViking, UnitRefFromUnit(UnitFromId(2)), RegionFromId(32), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rescueable Thor
+//--------------------------------------------------------------------------------------------------
+bool gt_RescueableThor_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(EventUnit())), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(EventUnit()), false))) + StringExternal("Param/Value/92DAB207")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/3FCBF4A4"));
+    MinimapPing(PlayerGroupAll(), RegionGetCenter(RegionFromId(33)), 5.0, Color(100.00, 0.00, 0.00));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RescueableThor_Init () {
+    gt_RescueableThor = TriggerCreate("gt_RescueableThor_Func");
+    TriggerAddEventUnitRegion(gt_RescueableThor, UnitRefFromUnit(UnitFromId(1)), RegionFromId(33), true);
+    TriggerAddEventUnitRegion(gt_RescueableThor, UnitRefFromUnit(UnitFromId(2)), RegionFromId(33), true);
+    TriggerAddEventUnitRegion(gt_RescueableThor, UnitRefFromUnit(UnitFromId(5)), RegionFromId(33), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rescuing Thor
+//--------------------------------------------------------------------------------------------------
+bool gt_RescuingThor_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetOwner(UnitFromId(39), UnitGetOwner(UnitFromId(6)), true);
+    TriggerEnable(gt_RescueableThor, false);
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RescuingThor_Init () {
+    gt_RescuingThor = TriggerCreate("gt_RescuingThor_Func");
+    TriggerAddEventUnitRegion(gt_RescuingThor, UnitRefFromUnit(UnitFromId(6)), RegionFromId(33), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rescueable BC
+//--------------------------------------------------------------------------------------------------
+bool gt_RescueableBC_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(UnitGetOwner(EventUnit())), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(EventUnit()), false))) + StringExternal("Param/Value/3F49DF6B")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/99DA2656"));
+    MinimapPing(PlayerGroupAll(), RegionGetCenter(RegionFromId(34)), 5.0, Color(100.00, 0.00, 0.00));
+    TriggerEnable(TriggerGetCurrent(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RescueableBC_Init () {
+    gt_RescueableBC = TriggerCreate("gt_RescueableBC_Func");
+    TriggerAddEventUnitRegion(gt_RescueableBC, UnitRefFromUnit(UnitFromId(2)), RegionFromId(34), true);
+    TriggerAddEventUnitRegion(gt_RescueableBC, UnitRefFromUnit(UnitFromId(5)), RegionFromId(34), true);
+    TriggerAddEventUnitRegion(gt_RescueableBC, UnitRefFromUnit(UnitFromId(6)), RegionFromId(34), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Rescuing BC
+//--------------------------------------------------------------------------------------------------
+bool gt_RescuingBC_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetOwner(UnitFromId(45), UnitGetOwner(UnitFromId(1)), true);
+    TriggerEnable(gt_RescueableBC, false);
+    Wait(3.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(StringExternal("Param/Value/F15BFCC4"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(1)), false))) + StringExternal("Param/Value/48156A92")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/330E112B"));
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(StringExternal("Param/Value/FF75F615"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(1)), false))) + StringExternal("Param/Value/DA5A873D")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/09E47D98"));
+    Wait(60.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(StringExternal("Param/Value/E653C7C0"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(UnitFromId(1)), false))) + StringExternal("Param/Value/C87588A1")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringExternal("Param/Value/1388CC16"));
+    Wait(3.0, c_timeGame);
+    UnitKill(UnitFromId(45));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RescuingBC_Init () {
+    gt_RescuingBC = TriggerCreate("gt_RescuingBC_Func");
+    TriggerAddEventUnitRegion(gt_RescuingBC, UnitRefFromUnit(UnitFromId(1)), RegionFromId(34), true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spawn
+//--------------------------------------------------------------------------------------------------
+bool gt_Spawn_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((AbsI(gv_alphaDifficulty) == 1)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_alphaDifficulty) == 2)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_alphaDifficulty) == 3)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_alphaSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_bravoDifficulty) == 1)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_bravoDifficulty) == 2)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_bravoDifficulty) == 3)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_bravoSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_charlieDifficulty) == 1)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_charlieDifficulty) == 2)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_charlieDifficulty) == 3)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_charlieSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_deltaDifficulty) == 1)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_deltaDifficulty) == 2)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    if ((AbsI(gv_deltaDifficulty) == 3)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(4)));
+        UnitGroupAdd(gv_deltaSpawn, UnitLastCreated());
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Spawn_Init () {
+    gt_Spawn = TriggerCreate("gt_Spawn_Func");
+    TriggerAddEventTimePeriodic(gt_Spawn, 5.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Attack
+//--------------------------------------------------------------------------------------------------
+bool gt_Attack_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupIssueOrder(gv_alphaSpawn, OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(5))), c_orderQueueReplace);
+    UnitGroupIssueOrder(gv_bravoSpawn, OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(6))), c_orderQueueReplace);
+    UnitGroupIssueOrder(gv_charlieSpawn, OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(7))), c_orderQueueReplace);
+    UnitGroupIssueOrder(gv_deltaSpawn, OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(8))), c_orderQueueReplace);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Attack_Init () {
+    gt_Attack = TriggerCreate("gt_Attack_Func");
+    TriggerAddEventTimePeriodic(gt_Attack, 1.0, c_timeReal);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: North Attack
+//--------------------------------------------------------------------------------------------------
+bool gt_NorthAttack_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((AbsI(gv_lingsToAttackNorth) == 2)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+    }
+    else {
+    }
+    if ((AbsI(gv_lingsToAttackNorth) == 3)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+    }
+    else {
+    }
+    if ((AbsI(gv_lingsToAttackNorth) == 4)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+    }
+    else {
+    }
+    if ((AbsI(gv_lingsToAttackNorth) == 5)) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Zergling", 0, 6, RegionGetCenter(RegionFromId(9)));
+        UnitGroupAdd(gv_lingsToAttackNorthGroup, UnitLastCreated());
+        UnitIssueOrder(UnitLastCreated(), OrderTargetingPoint(AbilityCommand("attack", 0), RegionGetCenter(RegionFromId(2))), c_orderQueueReplace);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_NorthAttack_Init () {
+    gt_NorthAttack = TriggerCreate("gt_NorthAttack_Func");
+    TriggerAddEventTimePeriodic(gt_NorthAttack, 1.9, c_timeReal);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: North Randomize
+//--------------------------------------------------------------------------------------------------
+bool gt_NorthRandomize_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_lingsToAttackNorth = RandomInt(2, 5);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_NorthRandomize_Init () {
+    gt_NorthRandomize = TriggerCreate("gt_NorthRandomize_Func");
+    TriggerAddEventTimePeriodic(gt_NorthRandomize, 1.0, c_timeReal);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Unit Dies
+//--------------------------------------------------------------------------------------------------
+bool gt_UnitDies_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((EventUnit() == UnitFromId(1))) {
+        gv_alphaDifficulty = 0;
+        UnitGroupLoopBegin(gv_alphaSpawn);
+        while (!UnitGroupLoopDone()) {
+            UnitKill(UnitGroupLoopCurrent());
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+        TriggerEnable(gt_AlphaMedium, false);
+        TriggerEnable(gt_AlphaHard, false);
+    }
+    else {
+    }
+    if ((EventUnit() == UnitFromId(2))) {
+        gv_bravoDifficulty = 0;
+        UnitGroupLoopBegin(gv_bravoSpawn);
+        while (!UnitGroupLoopDone()) {
+            UnitKill(UnitGroupLoopCurrent());
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+        TriggerEnable(gt_BravoMedium, false);
+        TriggerEnable(gt_BravoHard, false);
+    }
+    else {
+    }
+    if ((EventUnit() == UnitFromId(5))) {
+        gv_charlieDifficulty = 0;
+        UnitGroupLoopBegin(gv_charlieSpawn);
+        while (!UnitGroupLoopDone()) {
+            UnitKill(UnitGroupLoopCurrent());
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+        TriggerEnable(gt_CharlieMedium, false);
+        TriggerEnable(gt_CharlieHard, false);
+    }
+    else {
+    }
+    if ((EventUnit() == UnitFromId(6))) {
+        gv_deltaDifficulty = 0;
+        UnitGroupLoopBegin(gv_deltaSpawn);
+        while (!UnitGroupLoopDone()) {
+            UnitKill(UnitGroupLoopCurrent());
+            UnitGroupLoopStep();
+        }
+        UnitGroupLoopEnd();
+        TriggerEnable(gt_DeltaMedium, false);
+        TriggerEnable(gt_DeltaHard, false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_UnitDies_Init () {
+    gt_UnitDies = TriggerCreate("gt_UnitDies_Func");
+    TriggerAddEventUnitDied(gt_UnitDies, UnitRefFromUnit(UnitFromId(1)));
+    TriggerAddEventUnitDied(gt_UnitDies, UnitRefFromUnit(UnitFromId(2)));
+    TriggerAddEventUnitDied(gt_UnitDies, UnitRefFromUnit(UnitFromId(5)));
+    TriggerAddEventUnitDied(gt_UnitDies, UnitRefFromUnit(UnitFromId(6)));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Disallow
+//--------------------------------------------------------------------------------------------------
+bool gt_Disallow_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TechTreeAbilityAllow(1, AbilityCommand("AlphaTaken", 0), false);
+    TechTreeAbilityAllow(2, AbilityCommand("AlphaTaken", 0), false);
+    TechTreeAbilityAllow(3, AbilityCommand("AlphaTaken", 0), false);
+    TechTreeAbilityAllow(4, AbilityCommand("AlphaTaken", 0), false);
+    TechTreeAbilityAllow(1, AbilityCommand("BravoTaken", 0), false);
+    TechTreeAbilityAllow(2, AbilityCommand("BravoTaken", 0), false);
+    TechTreeAbilityAllow(3, AbilityCommand("BravoTaken", 0), false);
+    TechTreeAbilityAllow(4, AbilityCommand("BravoTaken", 0), false);
+    TechTreeAbilityAllow(1, AbilityCommand("CharlieTaken", 0), false);
+    TechTreeAbilityAllow(2, AbilityCommand("CharlieTaken", 0), false);
+    TechTreeAbilityAllow(3, AbilityCommand("CharlieTaken", 0), false);
+    TechTreeAbilityAllow(4, AbilityCommand("CharlieTaken", 0), false);
+    TechTreeAbilityAllow(1, AbilityCommand("DeltaTaken", 0), false);
+    TechTreeAbilityAllow(2, AbilityCommand("DeltaTaken", 0), false);
+    TechTreeAbilityAllow(3, AbilityCommand("DeltaTaken", 0), false);
+    TechTreeAbilityAllow(4, AbilityCommand("DeltaTaken", 0), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Disallow_Init () {
+    gt_Disallow = TriggerCreate("gt_Disallow_Func");
+    TriggerAddEventMapInit(gt_Disallow);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: View
+//--------------------------------------------------------------------------------------------------
+bool gt_View_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((EventUnitAbility() == AbilityCommand("ViewAlpha", 0)) && (UnitGetOwner(EventUnit()) == 1)) {
+        gv_p1Selection = 1;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(5)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewAlpha", 0)) && (UnitGetOwner(EventUnit()) == 2)) {
+        gv_p2Selection = 1;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(5)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewAlpha", 0)) && (UnitGetOwner(EventUnit()) == 3)) {
+        gv_p3Selection = 1;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(5)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewAlpha", 0)) && (UnitGetOwner(EventUnit()) == 4)) {
+        gv_p4Selection = 1;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(5)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewBravo", 0)) && (UnitGetOwner(EventUnit()) == 1)) {
+        gv_p1Selection = 2;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(6)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewBravo", 0)) && (UnitGetOwner(EventUnit()) == 2)) {
+        gv_p2Selection = 2;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(6)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewBravo", 0)) && (UnitGetOwner(EventUnit()) == 3)) {
+        gv_p3Selection = 2;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(6)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewBravo", 0)) && (UnitGetOwner(EventUnit()) == 4)) {
+        gv_p4Selection = 2;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(6)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewCharlie", 0)) && (UnitGetOwner(EventUnit()) == 1)) {
+        gv_p1Selection = 3;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(7)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewCharlie", 0)) && (UnitGetOwner(EventUnit()) == 2)) {
+        gv_p2Selection = 3;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(7)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewCharlie", 0)) && (UnitGetOwner(EventUnit()) == 3)) {
+        gv_p3Selection = 3;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(7)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewCharlie", 0)) && (UnitGetOwner(EventUnit()) == 4)) {
+        gv_p4Selection = 3;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(7)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewDelta", 0)) && (UnitGetOwner(EventUnit()) == 1)) {
+        gv_p1Selection = 4;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(8)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewDelta", 0)) && (UnitGetOwner(EventUnit()) == 2)) {
+        gv_p2Selection = 4;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(8)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewDelta", 0)) && (UnitGetOwner(EventUnit()) == 3)) {
+        gv_p3Selection = 4;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(8)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    if ((EventUnitAbility() == AbilityCommand("ViewDelta", 0)) && (UnitGetOwner(EventUnit()) == 4)) {
+        gv_p4Selection = 4;
+        CameraPan(UnitGetOwner(EventUnit()), RegionGetCenter(RegionFromId(8)), 0.0, -1, 10, false);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_View_Init () {
+    gt_View = TriggerCreate("gt_View_Func");
+    TriggerAddEventUnitAbility(gt_View, null, AbilityCommand("ViewAlpha", 0), c_unitAbilStageComplete, false);
+    TriggerAddEventUnitAbility(gt_View, null, AbilityCommand("ViewBravo", 0), c_unitAbilStageComplete, false);
+    TriggerAddEventUnitAbility(gt_View, null, AbilityCommand("ViewCharlie", 0), c_unitAbilStageComplete, false);
+    TriggerAddEventUnitAbility(gt_View, null, AbilityCommand("ViewDelta", 0), c_unitAbilStageComplete, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Select
+//--------------------------------------------------------------------------------------------------
+bool gt_Select_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetOwner(EventUnit()) == 1) && (AbsI(gv_p1Selection) == 1) && (AbsI(gv_alphaSelected) == 0)) {
+        UnitSetOwner(UnitFromId(1), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(1), RegionGetCenter(RegionFromId(2)), false);
+        gv_alphaSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_alphaDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewAlpha", 0), false);
+        UnitSelect(UnitFromId(1), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 2) && (AbsI(gv_p2Selection) == 1) && (AbsI(gv_alphaSelected) == 0)) {
+        UnitSetOwner(UnitFromId(1), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(1), RegionGetCenter(RegionFromId(2)), false);
+        gv_alphaSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_alphaDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewAlpha", 0), false);
+        UnitSelect(UnitFromId(1), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 3) && (AbsI(gv_p3Selection) == 1) && (AbsI(gv_alphaSelected) == 0)) {
+        UnitSetOwner(UnitFromId(1), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(1), RegionGetCenter(RegionFromId(2)), false);
+        gv_alphaSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_alphaDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewAlpha", 0), false);
+        UnitSelect(UnitFromId(1), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 4) && (AbsI(gv_p4Selection) == 1) && (AbsI(gv_alphaSelected) == 0)) {
+        UnitSetOwner(UnitFromId(1), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(1), RegionGetCenter(RegionFromId(2)), false);
+        gv_alphaSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_alphaDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("AlphaTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewAlpha", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewAlpha", 0), false);
+        UnitSelect(UnitFromId(1), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 1) && (AbsI(gv_p1Selection) == 2) && (AbsI(gv_bravoSelected) == 0)) {
+        UnitSetOwner(UnitFromId(2), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(2), RegionGetCenter(RegionFromId(2)), false);
+        gv_bravoSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_bravoDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewBravo", 0), false);
+        UnitSelect(UnitFromId(2), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 2) && (AbsI(gv_p2Selection) == 2) && (AbsI(gv_bravoSelected) == 0)) {
+        UnitSetOwner(UnitFromId(2), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(2), RegionGetCenter(RegionFromId(2)), false);
+        gv_bravoSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_bravoDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewBravo", 0), false);
+        UnitSelect(UnitFromId(2), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 3) && (AbsI(gv_p3Selection) == 2) && (AbsI(gv_bravoSelected) == 0)) {
+        UnitSetOwner(UnitFromId(2), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(2), RegionGetCenter(RegionFromId(2)), false);
+        gv_bravoSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_bravoDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewBravo", 0), false);
+        UnitSelect(UnitFromId(2), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 4) && (AbsI(gv_p4Selection) == 2) && (AbsI(gv_bravoSelected) == 0)) {
+        UnitSetOwner(UnitFromId(2), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(2), RegionGetCenter(RegionFromId(2)), false);
+        gv_bravoSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_bravoDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("BravoTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewBravo", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewBravo", 0), false);
+        UnitSelect(UnitFromId(2), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 1) && (AbsI(gv_p1Selection) == 3) && (AbsI(gv_charlieSelected) == 0)) {
+        UnitSetOwner(UnitFromId(5), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(5), RegionGetCenter(RegionFromId(2)), false);
+        gv_charlieSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_charlieDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewCharlie", 0), false);
+        UnitSelect(UnitFromId(5), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 2) && (AbsI(gv_p2Selection) == 3) && (AbsI(gv_charlieSelected) == 0)) {
+        UnitSetOwner(UnitFromId(5), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(5), RegionGetCenter(RegionFromId(2)), false);
+        gv_charlieSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_charlieDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewCharlie", 0), false);
+        UnitSelect(UnitFromId(5), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 3) && (AbsI(gv_p3Selection) == 3) && (AbsI(gv_charlieSelected) == 0)) {
+        UnitSetOwner(UnitFromId(5), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(5), RegionGetCenter(RegionFromId(2)), false);
+        gv_charlieSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_charlieDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewCharlie", 0), false);
+        UnitSelect(UnitFromId(5), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 4) && (AbsI(gv_p4Selection) == 3) && (AbsI(gv_charlieSelected) == 0)) {
+        UnitSetOwner(UnitFromId(5), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(5), RegionGetCenter(RegionFromId(2)), false);
+        gv_charlieSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_charlieDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("CharlieTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewCharlie", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewCharlie", 0), false);
+        UnitSelect(UnitFromId(5), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 1) && (AbsI(gv_p1Selection) == 4) && (AbsI(gv_deltaSelected) == 0)) {
+        UnitSetOwner(UnitFromId(6), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(6), RegionGetCenter(RegionFromId(2)), false);
+        gv_deltaSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_deltaDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewDelta", 0), false);
+        UnitSelect(UnitFromId(6), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 2) && (AbsI(gv_p2Selection) == 4) && (AbsI(gv_deltaSelected) == 0)) {
+        UnitSetOwner(UnitFromId(6), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(6), RegionGetCenter(RegionFromId(2)), false);
+        gv_deltaSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_deltaDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewDelta", 0), false);
+        UnitSelect(UnitFromId(6), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 3) && (AbsI(gv_p3Selection) == 4) && (AbsI(gv_deltaSelected) == 0)) {
+        UnitSetOwner(UnitFromId(6), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(6), RegionGetCenter(RegionFromId(2)), false);
+        gv_deltaSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_deltaDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewDelta", 0), false);
+        UnitSelect(UnitFromId(6), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    if ((UnitGetOwner(EventUnit()) == 4) && (AbsI(gv_p4Selection) == 4) && (AbsI(gv_deltaSelected) == 0)) {
+        UnitSetOwner(UnitFromId(6), UnitGetOwner(EventUnit()), true);
+        UnitSetPosition(UnitFromId(6), RegionGetCenter(RegionFromId(2)), false);
+        gv_deltaSelected = 1;
+        CameraLockInput(UnitGetOwner(EventUnit()), false);
+        libNtve_gf_SwooshCamera(UnitGetOwner(EventUnit()), ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), RegionGetCenter(RegionFromId(2)), 0.0);
+        UnitPauseAll(false);
+        UnitKill(EventUnit());
+        gv_deltaDifficulty = 1;
+        TechTreeAbilityAllow(1, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(2, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(3, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(4, AbilityCommand("DeltaTaken", 0), true);
+        TechTreeAbilityAllow(1, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(2, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(3, AbilityCommand("ViewDelta", 0), false);
+        TechTreeAbilityAllow(4, AbilityCommand("ViewDelta", 0), false);
+        UnitSelect(UnitFromId(6), UnitGetOwner(EventUnit()), true);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Select_Init () {
+    gt_Select = TriggerCreate("gt_Select_Func");
+    TriggerAddEventUnitAbility(gt_Select, null, AbilityCommand("Select", 0), c_unitAbilStageComplete, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Map Initialization
+//--------------------------------------------------------------------------------------------------
+bool gt_MapInitialization_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    RegionAttachToUnit(RegionFromId(5), UnitFromId(1), Point(0.0, 0.0));
+    RegionAttachToUnit(RegionFromId(6), UnitFromId(2), Point(0.0, 0.0));
+    RegionAttachToUnit(RegionFromId(7), UnitFromId(5), Point(0.0, 0.0));
+    RegionAttachToUnit(RegionFromId(8), UnitFromId(6), Point(0.0, 0.0));
+    PlayerGroupAdd(gv_allPlayers, 1);
+    PlayerGroupAdd(gv_allPlayers, 2);
+    PlayerGroupAdd(gv_allPlayers, 3);
+    PlayerGroupAdd(gv_allPlayers, 4);
+    UnitSelect(UnitFromId(7), 1, true);
+    UnitSelect(UnitFromId(8), 2, true);
+    UnitSelect(UnitFromId(9), 3, true);
+    UnitSelect(UnitFromId(11), 4, true);
+    UnitControlGroupAddUnit(1, 1, UnitFromId(7));
+    UnitControlGroupAddUnit(2, 1, UnitFromId(8));
+    UnitControlGroupAddUnit(3, 1, UnitFromId(9));
+    UnitControlGroupAddUnit(4, 1, UnitFromId(11));
+    libNtve_gf_PauseUnit(UnitFromId(1), true);
+    libNtve_gf_PauseUnit(UnitFromId(2), true);
+    libNtve_gf_PauseUnit(UnitFromId(5), true);
+    libNtve_gf_PauseUnit(UnitFromId(6), true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_MapInitialization_Init () {
+    gt_MapInitialization = TriggerCreate("gt_MapInitialization_Func");
+    TriggerAddEventMapInit(gt_MapInitialization);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Alliances
+//--------------------------------------------------------------------------------------------------
+bool gt_Alliances_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetAlliance(1, 6, 5);
+    libNtve_gf_SetAlliance(2, 6, 5);
+    libNtve_gf_SetAlliance(3, 6, 5);
+    libNtve_gf_SetAlliance(4, 6, 5);
+    libNtve_gf_SetAlliance(5, 6, 5);
+    libNtve_gf_SetAlliance(1, 2, 0);
+    libNtve_gf_SetAlliance(1, 3, 0);
+    libNtve_gf_SetAlliance(1, 4, 0);
+    libNtve_gf_SetAlliance(2, 3, 0);
+    libNtve_gf_SetAlliance(2, 4, 0);
+    libNtve_gf_SetAlliance(3, 4, 0);
+    libNtve_gf_SetAlliance(1, 5, 1);
+    libNtve_gf_SetAlliance(2, 5, 1);
+    libNtve_gf_SetAlliance(3, 5, 1);
+    libNtve_gf_SetAlliance(4, 5, 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Alliances_Init () {
+    gt_Alliances = TriggerCreate("gt_Alliances_Func");
+    TriggerAddEventMapInit(gt_Alliances);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Team Locations
+//--------------------------------------------------------------------------------------------------
+bool gt_TeamLocations_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/6D16694E")));
+    MinimapPing(PlayerGroupAll(), UnitGetPosition(UnitFromId(1)), 5.0, Color(100.00, 0.00, 0.00));
+    MinimapPing(PlayerGroupAll(), UnitGetPosition(UnitFromId(2)), 5.0, Color(0.00, 0.00, 100.00));
+    MinimapPing(PlayerGroupAll(), UnitGetPosition(UnitFromId(5)), 5.0, Color(0.00, 100.00, 100.00));
+    MinimapPing(PlayerGroupAll(), UnitGetPosition(UnitFromId(6)), 5.0, Color(50.20, 0.00, 50.20));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TeamLocations_Init () {
+    gt_TeamLocations = TriggerCreate("gt_TeamLocations_Func");
+    TriggerAddEventChatMessage(gt_TeamLocations, UnitGetOwner(UnitFromId(1)), "-tl", false);
+    TriggerAddEventChatMessage(gt_TeamLocations, UnitGetOwner(UnitFromId(2)), "-tl", false);
+    TriggerAddEventChatMessage(gt_TeamLocations, UnitGetOwner(UnitFromId(5)), "-tl", false);
+    TriggerAddEventChatMessage(gt_TeamLocations, UnitGetOwner(UnitFromId(6)), "-tl", false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Clear Message
+//--------------------------------------------------------------------------------------------------
+bool gt_ClearMessage_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIClearMessages(PlayerGroupAll(), c_messageAreaAll);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ClearMessage_Init () {
+    gt_ClearMessage = TriggerCreate("gt_ClearMessage_Func");
+    TriggerAddEventChatMessage(gt_ClearMessage, 1, "-clear", true);
+    TriggerAddEventChatMessage(gt_ClearMessage, 2, "-clear", true);
+    TriggerAddEventChatMessage(gt_ClearMessage, 3, "-clear", true);
+    TriggerAddEventChatMessage(gt_ClearMessage, 4, "-clear", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Cameras Start
+//--------------------------------------------------------------------------------------------------
+bool gt_CamerasStart_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SwooshCamera(1, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), 6.0, RegionGetCenter(RegionFromId(5)), 0.0);
+    libNtve_gf_SwooshCamera(2, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), 6.0, RegionGetCenter(RegionFromId(5)), 0.0);
+    libNtve_gf_SwooshCamera(3, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), 6.0, RegionGetCenter(RegionFromId(5)), 0.0);
+    libNtve_gf_SwooshCamera(4, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), 6.0, RegionGetCenter(RegionFromId(5)), 0.0);
+    CameraLockInput(1, true);
+    CameraLockInput(2, true);
+    CameraLockInput(3, true);
+    CameraLockInput(4, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_CamerasStart_Init () {
+    gt_CamerasStart = TriggerCreate("gt_CamerasStart_Func");
+    TriggerAddEventTimeElapsed(gt_CamerasStart, 0.1, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Red Cam Fix
+//--------------------------------------------------------------------------------------------------
+bool gt_RedCamFix_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SwooshCamera(1, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), 40.0, RegionGetCenter(RegionFromId(2)), 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RedCamFix_Init () {
+    gt_RedCamFix = TriggerCreate("gt_RedCamFix_Func");
+    TriggerAddEventChatMessage(gt_RedCamFix, 1, "-cam", true);
+    TriggerAddEventChatMessage(gt_RedCamFix, 1, "-camera", true);
+    TriggerAddEventChatMessage(gt_RedCamFix, 1, "-zoom", true);
+    TriggerAddEventChatMessage(gt_RedCamFix, 1, "-max", true);
+    TriggerAddEventChatMessage(gt_RedCamFix, 1, "-far", true);
+    TriggerAddEventChatMessage(gt_RedCamFix, 1, "-reset", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Blue Cam Fix
+//--------------------------------------------------------------------------------------------------
+bool gt_BlueCamFix_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SwooshCamera(2, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), 40.0, RegionGetCenter(RegionFromId(2)), 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BlueCamFix_Init () {
+    gt_BlueCamFix = TriggerCreate("gt_BlueCamFix_Func");
+    TriggerAddEventChatMessage(gt_BlueCamFix, 2, "-cam", true);
+    TriggerAddEventChatMessage(gt_BlueCamFix, 2, "-camera", true);
+    TriggerAddEventChatMessage(gt_BlueCamFix, 2, "-zoom", true);
+    TriggerAddEventChatMessage(gt_BlueCamFix, 2, "-max", true);
+    TriggerAddEventChatMessage(gt_BlueCamFix, 2, "-far", true);
+    TriggerAddEventChatMessage(gt_BlueCamFix, 2, "-reset", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Teal Cam Fix
+//--------------------------------------------------------------------------------------------------
+bool gt_TealCamFix_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SwooshCamera(3, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), 40.0, RegionGetCenter(RegionFromId(2)), 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_TealCamFix_Init () {
+    gt_TealCamFix = TriggerCreate("gt_TealCamFix_Func");
+    TriggerAddEventChatMessage(gt_TealCamFix, 3, "-cam", true);
+    TriggerAddEventChatMessage(gt_TealCamFix, 3, "-camera", true);
+    TriggerAddEventChatMessage(gt_TealCamFix, 3, "-zoom", true);
+    TriggerAddEventChatMessage(gt_TealCamFix, 3, "-max", true);
+    TriggerAddEventChatMessage(gt_TealCamFix, 3, "-far", true);
+    TriggerAddEventChatMessage(gt_TealCamFix, 3, "-reset", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Purple Cam Fix
+//--------------------------------------------------------------------------------------------------
+bool gt_PurpleCamFix_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SwooshCamera(4, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), 40.0, RegionGetCenter(RegionFromId(2)), 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_PurpleCamFix_Init () {
+    gt_PurpleCamFix = TriggerCreate("gt_PurpleCamFix_Func");
+    TriggerAddEventChatMessage(gt_PurpleCamFix, 4, "-cam", true);
+    TriggerAddEventChatMessage(gt_PurpleCamFix, 4, "-camera", true);
+    TriggerAddEventChatMessage(gt_PurpleCamFix, 4, "-zoom", true);
+    TriggerAddEventChatMessage(gt_PurpleCamFix, 4, "-max", true);
+    TriggerAddEventChatMessage(gt_PurpleCamFix, 4, "-far", true);
+    TriggerAddEventChatMessage(gt_PurpleCamFix, 4, "-reset", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: References
+//--------------------------------------------------------------------------------------------------
+bool gt_References_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, (TextWithColor(PlayerName(1), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(1, false))) + StringExternal("Param/Value/2424D41E")));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, TextWithColor(StringExternal("Param/Value/F2B0DBD0"), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(1, false))));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_References_Init () {
+    gt_References = TriggerCreate("gt_References_Func");
+    TriggerEnable(gt_References, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_AlphaMedium_Init();
+    gt_BravoMedium_Init();
+    gt_CharlieMedium_Init();
+    gt_DeltaMedium_Init();
+    gt_AlphaHard_Init();
+    gt_BravoHard_Init();
+    gt_CharlieHard_Init();
+    gt_DeltaHard_Init();
+    gt_UnitDead_Init();
+    gt_ElapsedTwo_Init();
+    gt_Dialogs_Init();
+    gt_EndGame_Init();
+    gt_DestroyMainBase_Init();
+    gt_RescuableTank_Init();
+    gt_RescuingTank_Init();
+    gt_RescueableHellion_Init();
+    gt_RescuingHellion_Init();
+    gt_RescueableViking_Init();
+    gt_RescuingViking_Init();
+    gt_RescueableThor_Init();
+    gt_RescuingThor_Init();
+    gt_RescueableBC_Init();
+    gt_RescuingBC_Init();
+    gt_Spawn_Init();
+    gt_Attack_Init();
+    gt_NorthAttack_Init();
+    gt_NorthRandomize_Init();
+    gt_UnitDies_Init();
+    gt_Disallow_Init();
+    gt_View_Init();
+    gt_Select_Init();
+    gt_MapInitialization_Init();
+    gt_Alliances_Init();
+    gt_TeamLocations_Init();
+    gt_ClearMessage_Init();
+    gt_CamerasStart_Init();
+    gt_RedCamFix_Init();
+    gt_BlueCamFix_Init();
+    gt_TealCamFix_Init();
+    gt_PurpleCamFix_Init();
+    gt_References_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitGlobals();
+    InitTriggers();
+}

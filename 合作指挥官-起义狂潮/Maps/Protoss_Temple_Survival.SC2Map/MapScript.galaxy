@@ -1,0 +1,712 @@
+//==================================================================================================
+// 
+// Generated Map Script
+// 
+// Name:   Extremus Resisto
+// 
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+include "TriggerLibs/LibertyLib"
+include "TriggerLibs/CampaignLib"
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+    libLbty_InitLib();
+    libCamp_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Global Variables
+//--------------------------------------------------------------------------------------------------
+timer gv_zergGlobalTimer;
+timer gv_bossTimer;
+int gv_player1;
+int gv_player2;
+unit gv_boss;
+unit gv_zeratul;
+unitgroup gv_nexusGroup;
+unitgroup gv_stoneZealot;
+
+void InitGlobals () {
+    gv_zergGlobalTimer = TimerCreate();
+    gv_bossTimer = TimerCreate();
+    gv_player1 = 1;
+    gv_player2 = 2;
+    gv_zeratul = UnitFromId(138);
+    gv_nexusGroup = UnitGroupEmpty();
+    gv_stoneZealot = UnitGroupEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_MapStart;
+trigger gt_LightCycle;
+trigger gt_BreakFree;
+trigger gt_StoneZealotOff;
+trigger gt_NexusSwitch;
+trigger gt_Defeat;
+trigger gt_Victory;
+trigger gt_StartWaveSet;
+trigger gt_IdleUnits;
+trigger gt_RepeatingAttackWave;
+trigger gt_ZergWave1G;
+trigger gt_ZergWave2G;
+trigger gt_ZergWave3G;
+trigger gt_ZergWave4G;
+trigger gt_ZergWave5G;
+trigger gt_Bosswave;
+trigger gt_ZergAir1G;
+trigger gt_ZergAir2G;
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Map Start
+//--------------------------------------------------------------------------------------------------
+bool gt_MapStart_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GameSetSpeedValue(c_gameSpeedNormal);
+    MeleeInitUnitsForPlayer(1, "Prot", PointFromId(136));
+    MeleeInitUnitsForPlayer(1, "Prot", PointFromId(1090));
+    UnitGroupAdd(gv_nexusGroup, UnitGroupClosestToPoint(UnitGroup(null, 1, RegionFromId(2), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), PointFromId(136)));
+    UnitGroupAdd(gv_nexusGroup, UnitGroupClosestToPoint(UnitGroup(null, 1, RegionFromId(3), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), PointFromId(1090)));
+    CameraSetBounds(PlayerGroupAll(), RegionFromId(5), true);
+    libNtve_gf_PlayAnimationOnDoodadsInRegion(RegionEntireMap(), "MonlythLightBridge", c_animNameDefault, "Stand Work", c_animFlagPlayForever, c_animTimeDefault);
+    libNtve_gf_SwooshCamera(1, ((CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance)) + 8.0), CameraInfoGetValue(CameraInfoDefault(), c_cameraValueDistance), PlayerStartLocation(1), 1.5);
+    AIMeleeStart(2);
+    AICampaignStart(2);
+    AIAttackWaveSetTargetPlayer(2, PlayerGroupSingle(1));
+    PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 50);
+    TimerStart(gv_zergGlobalTimer, 60.0, true, c_timeGame);
+    TimerStart(gv_bossTimer, 1500.0, false, c_timeGame);
+    TimerWindowCreate(TimerLastStarted(), StringExternal("Param/Value/8712BDB8"), true, false);
+    TriggerEnable(gt_ZergWave2G, false);
+    TriggerEnable(gt_ZergWave3G, false);
+    TriggerEnable(gt_ZergWave4G, false);
+    TriggerEnable(gt_ZergWave5G, false);
+    TriggerEnable(gt_ZergAir1G, false);
+    TriggerEnable(gt_ZergAir2G, false);
+    TriggerEnable(gt_Victory, false);
+    TriggerExecute(gt_LightCycle, true, false);
+    TriggerExecute(gt_StoneZealotOff, true, false);
+    TriggerExecute(gt_RepeatingAttackWave, true, false);
+    TriggerExecute(gt_StartWaveSet, true, false);
+    Wait(3.0, c_timeGame);
+    UnitFlashSelection(gv_zeratul, 10.0);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(1);
+    libCamp_gf_SendTransmissionCampaign(gv_zeratul, SoundLink("TZeratul02Zeratul00012", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(2);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_MapStart_Init () {
+    gt_MapStart = TriggerCreate("gt_MapStart_Func");
+    TriggerAddEventMapInit(gt_MapStart);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Light Cycle
+//--------------------------------------------------------------------------------------------------
+bool gt_LightCycle_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GameSetLighting("AiurFlashbackStart", 0.0);
+    while (true) {
+        GameSetLighting("Aiur", 45.0);
+        Wait(46.0, c_timeGame);
+        GameSetLighting("Shakuras", 45.0);
+        Wait(46.0, c_timeGame);
+        GameSetLighting("BelShirSunset", 45.0);
+        Wait(46.0, c_timeGame);
+        GameSetLighting("AiurEndLightRed", 100.0);
+        Wait(101.0, c_timeGame);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_LightCycle_Init () {
+    gt_LightCycle = TriggerCreate("gt_LightCycle_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Break Free
+//--------------------------------------------------------------------------------------------------
+bool gt_BreakFree_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetPropertyFixed(UnitFromId(52), c_unitPropEnergy, c_unitPropCurrent) == 0.0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitKill(UnitFromId(52));
+    Wait(1.0, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Tassadar", 0, 1, PointFromId(908));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BreakFree_Init () {
+    gt_BreakFree = TriggerCreate("gt_BreakFree_Func");
+    TriggerAddEventUnitProperty(gt_BreakFree, UnitRefFromUnit(UnitFromId(52)), c_unitPropEnergy);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Stone Zealot Off
+//--------------------------------------------------------------------------------------------------
+bool gt_StoneZealotOff_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupLoopBegin(UnitGroup("StoneZealot", 0, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    for ( ; !UnitGroupLoopDone() ; UnitGroupLoopStep() ) {
+        libNtve_gf_PauseUnit(UnitGroupLoopCurrent(), true);
+        UnitSetState(UnitGroupLoopCurrent(), c_unitStateTargetable, false);
+        UnitSetState(UnitGroupLoopCurrent(), c_unitStateSelectable, false);
+        UnitSetState(UnitGroupLoopCurrent(), c_unitStateInvulnerable, true);
+        UnitSetState(UnitGroupLoopCurrent(), c_unitStateStatusBar, false);
+        UnitSetState(UnitGroupLoopCurrent(), c_unitStateFidget, false);
+        libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(UnitGroupLoopCurrent()), c_animNameDefault, "Stand Work", c_animFlagPlayForever, c_animTimeDefault);
+    }
+    UnitGroupLoopEnd();
+    UnitGroupLoopBegin(UnitGroup("StoneZealot", 0, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    for ( ; !UnitGroupLoopDone() ; UnitGroupLoopStep() ) {
+        UnitGroupAdd(gv_stoneZealot, UnitGroupLoopCurrent());
+    }
+    UnitGroupLoopEnd();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_StoneZealotOff_Init () {
+    gt_StoneZealotOff = TriggerCreate("gt_StoneZealotOff_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Nexus Switch
+//--------------------------------------------------------------------------------------------------
+bool gt_NexusSwitch_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnitProgressUnit()) == "Nexus"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(gv_nexusGroup, EventUnitProgressUnit());
+    if ((libNtve_gf_UnitInRegion(UnitGroupClosestToPoint(gv_nexusGroup, PointFromId(767)), RegionFromId(2)) == true) && (libNtve_gf_UnitInRegion(UnitGroupClosestToPoint(gv_nexusGroup, PointFromId(777)), RegionFromId(1)) == true) && (libNtve_gf_UnitInRegion(UnitGroupClosestToPoint(gv_nexusGroup, PointFromId(778)), RegionFromId(3)) == true) && (libNtve_gf_UnitInRegion(UnitGroupClosestToPoint(gv_nexusGroup, PointFromId(905)), RegionFromId(4)) == true) && (libNtve_gf_UnitInRegion(UnitGroupClosestToPoint(gv_nexusGroup, PointFromId(689)), RegionFromId(6)) == true) && (libNtve_gf_UnitInRegion(UnitGroupClosestToPoint(gv_nexusGroup, PointFromId(756)), RegionFromId(7)) == true)) {
+        UnitGroupLoopBegin(UnitGroup("StoneZealot", 0, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+        for ( ; !UnitGroupLoopDone() ; UnitGroupLoopStep() ) {
+            UnitSetTeamColorIndex(UnitGroupLoopCurrent(), PlayerGetColorIndex(gv_player1, false));
+            libNtve_gf_ClearAnimation(libNtve_gf_MainActorofUnit(UnitGroupLoopCurrent()), c_animNameDefault);
+            libNtve_gf_TurnAllAnimationPropertiesOff(libNtve_gf_MainActorofUnit(UnitGroupLoopCurrent()));
+            libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(UnitGroupLoopCurrent()), c_animNameDefault, "Stand Work End", c_animFlagNonLooping, c_animTimeDefault);
+            SoundPlayAtPoint(SoundLink("Thor_Movement", -1), PlayerGroupAll(), UnitGetPosition(UnitGroupLoopCurrent()), 0.0, 100.0, 0.0);
+            libNtve_gf_ShareVisionofUnit(UnitGroupLoopCurrent(), true, 1);
+        }
+        UnitGroupLoopEnd();
+        Wait(3.534, c_timeGame);
+        UnitGroupLoopBegin(UnitGroup("StoneZealot", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+        for ( ; !UnitGroupLoopDone() ; UnitGroupLoopStep() ) {
+            UnitSetOwner(UnitGroupLoopCurrent(), 1, true);
+            libNtve_gf_PauseUnit(UnitGroupLoopCurrent(), false);
+            UnitSetState(UnitGroupLoopCurrent(), c_unitStateInvulnerable, false);
+            UnitSetState(UnitGroupLoopCurrent(), c_unitStateTargetable, true);
+            UnitSetState(UnitGroupLoopCurrent(), c_unitStateSelectable, true);
+            UnitSetState(UnitGroupLoopCurrent(), c_unitStateStatusBar, true);
+        }
+        UnitGroupLoopEnd();
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_NexusSwitch_Init () {
+    gt_NexusSwitch = TriggerCreate("gt_NexusSwitch_Func");
+    TriggerAddEventUnitConstructProgress(gt_NexusSwitch, null, c_unitProgressStageComplete);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Defeat
+//--------------------------------------------------------------------------------------------------
+bool gt_Defeat_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((EventUnit() == gv_zeratul))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(2.0, c_timeGame);
+    GameOver(1, c_gameOverDefeat, true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Defeat_Init () {
+    gt_Defeat = TriggerCreate("gt_Defeat_Func");
+    TriggerAddEventUnitDied(gt_Defeat, UnitRefFromVariable("gv_zeratul"));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory
+//--------------------------------------------------------------------------------------------------
+bool gt_Victory_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_ShowHideBossBar(false, 1);
+    UnitGroupLoopBegin(UnitGroup(null, 2, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    for ( ; !UnitGroupLoopDone() ; UnitGroupLoopStep() ) {
+        UnitKill(UnitGroupLoopCurrent());
+    }
+    UnitGroupLoopEnd();
+    TriggerEnable(gt_RepeatingAttackWave, false);
+    TriggerEnable(gt_ZergWave1G, false);
+    TriggerEnable(gt_ZergWave2G, false);
+    TriggerEnable(gt_ZergWave3G, false);
+    TriggerEnable(gt_ZergWave4G, false);
+    TriggerEnable(gt_ZergWave5G, false);
+    TriggerEnable(gt_ZergAir1G, false);
+    TriggerEnable(gt_ZergAir2G, false);
+    libLbty_gf_AutoRevealRegion(RegionEntireMap(), RegionEntireMap(), 1);
+    CinematicFade(false, 3.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    libNtve_gf_CinematicMode(true, PlayerGroupAll(), 0.0);
+    CameraApplyInfo(1, CameraInfoFromId(713), 0.0, -1, 10, true);
+    CinematicFade(true, 3.0, c_fadeStyleNormal, Color(0.00, 0.00, 0.00), 0.0, true);
+    TransmissionSend(PlayerGroupAll(), TransmissionSourceFromUnit(gv_zeratul, true, false, "Talk"), libNtve_gf_CinematicPortrait(4), "Talk", null, StringExternal("Param/Value/EAFCD432"), StringExternal("Param/Value/EFAC0EDE"), 8.0, c_transmissionDurationSet, false);
+    CameraApplyInfo(1, CameraInfoFromId(899), 10.0, -1, 10, true);
+    Wait(15.0, c_timeGame);
+    libNtve_gf_CinematicMode(false, PlayerGroupAll(), 0.0);
+    GameOver(1, c_gameOverVictory, true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Victory_Init () {
+    gt_Victory = TriggerCreate("gt_Victory_Func");
+    TriggerAddEventUnitDied(gt_Victory, UnitRefFromVariable("gv_boss"));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Start Wave Set
+//--------------------------------------------------------------------------------------------------
+bool gt_StartWaveSet_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(295.0, c_timeGame);
+    TriggerEnable(gt_ZergWave2G, true);
+    Wait(300.0, c_timeGame);
+    TriggerEnable(gt_ZergWave3G, true);
+    Wait(300.0, c_timeGame);
+    TriggerEnable(gt_ZergWave4G, true);
+    TriggerEnable(gt_ZergAir1G, true);
+    Wait(300.0, c_timeGame);
+    TriggerEnable(gt_ZergWave5G, true);
+    TriggerEnable(gt_ZergAir2G, true);
+    Wait(300.0, c_timeGame);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_StartWaveSet_Init () {
+    gt_StartWaveSet = TriggerCreate("gt_StartWaveSet_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Idle Units
+//--------------------------------------------------------------------------------------------------
+bool gt_IdleUnits_Func (bool testConds, bool runActions) {
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 2))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (((UnitGetType(EventUnit()) == "BroodLord") || (UnitGetType(EventUnit()) == "Broodling") || (UnitGetType(EventUnit()) == "BroodlingEscort") || (UnitGetType(EventUnit()) == "Zergling") || (UnitGetType(EventUnit()) == "Roach") || (UnitGetType(EventUnit()) == "Ultralisk"))) {
+        UnitIssueOrder(EventUnit(), OrderTargetingUnit(AbilityCommand("attack", 0), UnitGroupClosestToPoint(UnitGroup(null, 1, RegionEntireMap(), UnitFilter((1 << c_targetFilterGround), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), UnitGetPosition(EventUnit()))), c_orderQueueReplace);
+    }
+    else {
+        UnitIssueOrder(EventUnit(), OrderTargetingUnit(AbilityCommand("attack", 0), UnitGroupClosestToPoint(UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), UnitGetPosition(EventUnit()))), c_orderQueueReplace);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_IdleUnits_Init () {
+    gt_IdleUnits = TriggerCreate("gt_IdleUnits_Func");
+    TriggerAddEventUnitBecomesIdle(gt_IdleUnits, null, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Repeating Attack Wave
+//--------------------------------------------------------------------------------------------------
+bool gt_RepeatingAttackWave_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    while (true) {
+        Wait(20.0, c_timeGame);
+        libNtve_gf_CreateUnitsWithDefaultFacing(3, "Zergling", 0, 2, PointFromId(137));
+        AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Roach", 0, 2, PointFromId(137));
+        AIAttackWaveUseUnit(2, UnitLastCreated());
+        AIAttackWaveSetGatherEarlyNoReplace(2);
+        AIAttackWaveSend(2, 1, false);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RepeatingAttackWave_Init () {
+    gt_RepeatingAttackWave = TriggerCreate("gt_RepeatingAttackWave_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Zerg Wave 1G
+//--------------------------------------------------------------------------------------------------
+bool gt_ZergWave1G_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Zergling", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Roach", 0, 2, PointFromId(137));
+    AIAttackWaveUseUnit(2, UnitLastCreated());
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Hydralisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseUnit(2, UnitLastCreated());
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Overseer", 0, 2, PointFromId(137));
+    AIAttackWaveUseUnit(2, UnitLastCreated());
+    AIAttackWaveSetGatherEarlyNoReplace(2);
+    AIAttackWaveSend(2, 1, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ZergWave1G_Init () {
+    gt_ZergWave1G = TriggerCreate("gt_ZergWave1G_Func");
+    TriggerAddEventTimer(gt_ZergWave1G, gv_zergGlobalTimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Zerg Wave 2G
+//--------------------------------------------------------------------------------------------------
+bool gt_ZergWave2G_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Zergling", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Roach", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Hydralisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseUnit(2, UnitLastCreated());
+    AIAttackWaveSetGatherEarlyNoReplace(2);
+    AIAttackWaveSend(2, 1, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ZergWave2G_Init () {
+    gt_ZergWave2G = TriggerCreate("gt_ZergWave2G_Func");
+    TriggerAddEventTimer(gt_ZergWave2G, gv_zergGlobalTimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Zerg Wave 3G
+//--------------------------------------------------------------------------------------------------
+bool gt_ZergWave3G_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Zergling", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Roach", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Hydralisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Mutalisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseUnit(2, UnitLastCreated());
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Ultralisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseUnit(2, UnitLastCreated());
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Overseer", 0, 2, PointFromId(137));
+    AIAttackWaveUseUnit(2, UnitLastCreated());
+    AIAttackWaveSetGatherEarlyNoReplace(2);
+    AIAttackWaveSend(2, 1, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ZergWave3G_Init () {
+    gt_ZergWave3G = TriggerCreate("gt_ZergWave3G_Func");
+    TriggerAddEventTimer(gt_ZergWave3G, gv_zergGlobalTimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Zerg Wave 4G
+//--------------------------------------------------------------------------------------------------
+bool gt_ZergWave4G_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Zergling", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Roach", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Hydralisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Mutalisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Ultralisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLord", 0, 2, PointFromId(137));
+    AIAttackWaveUseUnit(2, UnitLastCreated());
+    AIAttackWaveSetGatherEarlyNoReplace(2);
+    AIAttackWaveSend(2, 1, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ZergWave4G_Init () {
+    gt_ZergWave4G = TriggerCreate("gt_ZergWave4G_Func");
+    TriggerAddEventTimer(gt_ZergWave4G, gv_zergGlobalTimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Zerg Wave 5G
+//--------------------------------------------------------------------------------------------------
+bool gt_ZergWave5G_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Zergling", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Roach", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Hydralisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Mutalisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Ultralisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "BroodLord", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "HybridReaver", 0, 2, PointFromId(137));
+    AIAttackWaveUseUnit(2, UnitLastCreated());
+    AIAttackWaveSetGatherEarlyNoReplace(2);
+    AIAttackWaveSend(2, 1, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ZergWave5G_Init () {
+    gt_ZergWave5G = TriggerCreate("gt_ZergWave5G_Func");
+    TriggerAddEventTimer(gt_ZergWave5G, gv_zergGlobalTimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Boss wave
+//--------------------------------------------------------------------------------------------------
+bool gt_Bosswave_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Zergling", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Roach", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Hydralisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Mutalisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Ultralisk", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "BroodLord", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "HybridReaver", 0, 2, PointFromId(137));
+    AIAttackWaveUseGroup(2, UnitLastCreatedGroup());
+    libNtve_gf_DisplayBossBar(1, "Assets\\Textures\\ui_chatbaricons_protoss_individual.dds", StringExternal("Param/Value/41CB6BC4"), 100, PlayerGroupAll());
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Maar", 0, 2, PointFromId(137));
+    AIAttackWaveUseUnit(2, UnitLastCreated());
+    gv_boss = UnitLastCreated();
+    libNtve_gf_SetBossBarBoss(1, UnitLastCreated(), true);
+    AIAttackWaveSetGatherEarlyNoReplace(2);
+    AIAttackWaveSend(2, 1, false);
+    TriggerEnable(gt_Victory, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(1);
+    libCamp_gf_SendTransmissionCampaign(gv_boss, SoundLink("TZeratul02HybridProtoss00017", -1), c_transmissionDurationAdd, 0.0, true);
+    libCamp_gf_SetAllSoundChannelVolumesCampaign(2);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_Bosswave_Init () {
+    gt_Bosswave = TriggerCreate("gt_Bosswave_Func");
+    TriggerAddEventTimer(gt_Bosswave, gv_bossTimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Zerg Air 1G
+//--------------------------------------------------------------------------------------------------
+bool gt_ZergAir1G_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(0.5, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Mutalisk", 0, 2, PointFromId(125));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(104)), c_orderQueueReplace);
+    Wait(0.2, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Mutalisk", 0, 2, PointFromId(1160));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1157)), c_orderQueueReplace);
+    Wait(0.2, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Mutalisk", 0, 2, PointFromId(189));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(182)), c_orderQueueReplace);
+    Wait(0.2, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Mutalisk", 0, 2, PointFromId(1162));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1158)), c_orderQueueReplace);
+    Wait(0.2, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Mutalisk", 0, 2, PointFromId(1156));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(374)), c_orderQueueReplace);
+    Wait(0.2, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Mutalisk", 0, 2, PointFromId(1161));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1159)), c_orderQueueReplace);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ZergAir1G_Init () {
+    gt_ZergAir1G = TriggerCreate("gt_ZergAir1G_Func");
+    TriggerAddEventTimer(gt_ZergAir1G, gv_zergGlobalTimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Zerg Air 2G
+//--------------------------------------------------------------------------------------------------
+bool gt_ZergAir2G_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(0.5, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(4, "Mutalisk", 0, 2, PointFromId(125));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLord", 0, 2, PointFromId(125));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(104)), c_orderQueueReplace);
+    Wait(0.2, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(4, "Mutalisk", 0, 2, PointFromId(1160));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLord", 0, 2, PointFromId(1160));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1157)), c_orderQueueReplace);
+    Wait(0.2, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Mutalisk", 0, 2, PointFromId(189));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLord", 0, 2, PointFromId(189));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(182)), c_orderQueueReplace);
+    Wait(0.2, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Mutalisk", 0, 2, PointFromId(1162));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLord", 0, 2, PointFromId(1162));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1158)), c_orderQueueReplace);
+    Wait(0.2, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Mutalisk", 0, 2, PointFromId(1156));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLord", 0, 2, PointFromId(1156));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(374)), c_orderQueueReplace);
+    Wait(0.2, c_timeGame);
+    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Mutalisk", 0, 2, PointFromId(1161));
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "BroodLord", 0, 2, PointFromId(1161));
+    UnitGroupIssueOrder(UnitGroupIdle(2, false), OrderTargetingPoint(AbilityCommand("attack", 0), PointFromId(1159)), c_orderQueueReplace);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ZergAir2G_Init () {
+    gt_ZergAir2G = TriggerCreate("gt_ZergAir2G_Func");
+    TriggerAddEventTimer(gt_ZergAir2G, gv_zergGlobalTimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_MapStart_Init();
+    gt_LightCycle_Init();
+    gt_BreakFree_Init();
+    gt_StoneZealotOff_Init();
+    gt_NexusSwitch_Init();
+    gt_Defeat_Init();
+    gt_Victory_Init();
+    gt_StartWaveSet_Init();
+    gt_IdleUnits_Init();
+    gt_RepeatingAttackWave_Init();
+    gt_ZergWave1G_Init();
+    gt_ZergWave2G_Init();
+    gt_ZergWave3G_Init();
+    gt_ZergWave4G_Init();
+    gt_ZergWave5G_Init();
+    gt_Bosswave_Init();
+    gt_ZergAir1G_Init();
+    gt_ZergAir2G_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitGlobals();
+    InitTriggers();
+}
