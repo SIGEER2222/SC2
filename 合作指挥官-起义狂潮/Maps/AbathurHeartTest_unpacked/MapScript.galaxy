@@ -20,8 +20,8 @@ int gv_activeModIndex = -1;
 //   ""  = 不过滤（按 gv_activeModIndex 决定生成范围）
 //   非空 = 在全部 mod 中筛选 identifier 包含该字符串的组（不区分大小写）
 //   例: "Cmdr_Abathur" / "Violets_Kerrigan" / "Violets_"（前缀匹配所有 Violets 子组）
-// 当前: "Violets_Mengsk" 只生成蒙斯克便于定位 Mengsk mod (lib04C91010) 的 ScriptError
-string gv_commanderFilter = "Violets_Mengsk";
+// 当前: "Cmdr_Taldarim" 只生成塔达林便于查看 Taldarim 单位
+string gv_commanderFilter = "Cmdr_Taldarim";
 
 //--------------------------------------------------------------------------------------------------
 // 聊天指令相关全局变量
@@ -302,7 +302,7 @@ void gt_cmd_test_Init () {
 trigger gt_cmd_help;
 bool gt_cmd_help_Func (bool testConds, bool runActions) {
     if (!runActions) { return true; }
-    gf_DebugPrint("指令: -test -dva -skintaldarim -skinblizzcon17 -skinreset -replace -skinlist -rewardlist");
+    gf_DebugPrint("指令: -test -dva -skintaldarim -skinblizzcon17 -skinreset -replace -taldarim2vanilla -taldarimrestore -skinlist -rewardlist");
     return true;
 }
 void gt_cmd_help_Init () {
@@ -441,6 +441,32 @@ void gt_cmd_mengskrestore_Init () {
     TriggerAddEventChatMessage(gt_cmd_mengskrestore, c_playerAny, "-mengskrestore", true);
 }
 
+//--- 指令: -taldarim2vanilla (把 Taldarim 4Zealot2 替换为原版 Zealot) ---
+trigger gt_cmd_taldarim2vanilla;
+bool gt_cmd_taldarim2vanilla_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_ReplaceAllUnits("4Zealot2", "Zealot");
+    gf_DebugPrint("已将 Taldarim 4Zealot2 替换为原版 Zealot");
+    return true;
+}
+void gt_cmd_taldarim2vanilla_Init () {
+    gt_cmd_taldarim2vanilla = TriggerCreate("gt_cmd_taldarim2vanilla_Func");
+    TriggerAddEventChatMessage(gt_cmd_taldarim2vanilla, c_playerAny, "-taldarim2vanilla", true);
+}
+
+//--- 指令: -taldarimrestore (把原版 Zealot 换回 Taldarim 4Zealot2) ------
+trigger gt_cmd_taldarimrestore;
+bool gt_cmd_taldarimrestore_Func (bool testConds, bool runActions) {
+    if (!runActions) { return true; }
+    gf_ReplaceAllUnits("Zealot", "4Zealot2");
+    gf_DebugPrint("已将原版 Zealot 换回 Taldarim 4Zealot2");
+    return true;
+}
+void gt_cmd_taldarimrestore_Init () {
+    gt_cmd_taldarimrestore = TriggerCreate("gt_cmd_taldarimrestore_Func");
+    TriggerAddEventChatMessage(gt_cmd_taldarimrestore, c_playerAny, "-taldarimrestore", true);
+}
+
 //--- 指令: -skinlist ----------------------------------------------------
 trigger gt_cmd_skinlist;
 bool gt_cmd_skinlist_Func (bool testConds, bool runActions) {
@@ -470,8 +496,8 @@ void gt_cmd_rewardlist_Init () {
 // 时序（秒）：
 //   5  : -test        验证聊天框架
 //   10 : -help        显示指令列表
-//   15 : -mengsk2vanilla  把 Mengsk 兵种替换为原版单位（验证皮肤替换机制）
-//   22 : -skinreset   把原版单位换回 Mengsk
+//   15 : -taldarim2vanilla  把 Taldarim 4Zealot2 替换为原版 Zealot（验证皮肤替换机制）
+//   22 : -taldarimrestore   把原版 Zealot 换回 4Zealot2
 //   29 : -dva         D.Va 提示（mod 环境下 PlayerAddReward 不可用）
 //   36 : 测试完成
 //--------------------------------------------------------------------------------------------------
@@ -492,45 +518,17 @@ bool gt_autoTest_Func (bool testConds, bool runActions) {
     }
     else if (lv_step == 2) {
         gf_DebugPrint("[AUTO 10s] -help");
-        gf_DebugPrint("cmds: -test -help -mengsk2vanilla -skinreset -dva");
+        gf_DebugPrint("cmds: -test -help -taldarim2vanilla -taldarimrestore -dva");
     }
     else if (lv_step == 3) {
-        gf_DebugPrint("[AUTO 15s] -mengsk2vanilla Mengsk->原版");
-        // 把 Mengsk 兵种替换为原版单位（参考 RevolutionOverdrive 的 ReplaceUnit 模式）
-        gf_ReplaceAllUnits("MengskMarine", "Marine");
-        gf_ReplaceAllUnits("MengskMarauder", "Marauder");
-        gf_ReplaceAllUnits("MengskReaper", "Reaper");
-        gf_ReplaceAllUnits("MengskFirebat", "Firebat");
-        gf_ReplaceAllUnits("MengskHellion", "Hellion");
-        gf_ReplaceAllUnits("MengskGoliath", "Goliath");
-        gf_ReplaceAllUnits("MengskSiegeTank", "SiegeTank");
-        gf_ReplaceAllUnits("MengskMedic", "Medic");
-        gf_ReplaceAllUnits("MengskDiamondback", "Diamondback");
-        gf_ReplaceAllUnits("MengskBanshee", "Banshee");
-        gf_ReplaceAllUnits("MengskWraith", "Wraith");
-        gf_ReplaceAllUnits("MengskVikingAssault", "VikingAssault");
-        gf_ReplaceAllUnits("MengskVikingFighter", "VikingFighter");
-        gf_ReplaceAllUnits("MengskBC", "Battlecruiser");
-        gf_ReplaceAllUnits("MengskThor", "Thor");
+        gf_DebugPrint("[AUTO 15s] -taldarim2vanilla 4Zealot2->Zealot");
+        // 把 Taldarim 4Zealot2 替换为原版 Zealot（验证 ReplaceUnit 对 Taldarim 单位有效）
+        gf_ReplaceAllUnits("4Zealot2", "Zealot");
     }
     else if (lv_step == 4) {
-        gf_DebugPrint("[AUTO 22s] -skinreset 原版->Mengsk");
-        // 把原版单位换回 Mengsk
-        gf_ReplaceAllUnits("Marine", "MengskMarine");
-        gf_ReplaceAllUnits("Marauder", "MengskMarauder");
-        gf_ReplaceAllUnits("Reaper", "MengskReaper");
-        gf_ReplaceAllUnits("Firebat", "MengskFirebat");
-        gf_ReplaceAllUnits("Hellion", "MengskHellion");
-        gf_ReplaceAllUnits("Goliath", "MengskGoliath");
-        gf_ReplaceAllUnits("SiegeTank", "MengskSiegeTank");
-        gf_ReplaceAllUnits("Medic", "MengskMedic");
-        gf_ReplaceAllUnits("Diamondback", "MengskDiamondback");
-        gf_ReplaceAllUnits("Banshee", "MengskBanshee");
-        gf_ReplaceAllUnits("Wraith", "MengskWraith");
-        gf_ReplaceAllUnits("VikingAssault", "MengskVikingAssault");
-        gf_ReplaceAllUnits("VikingFighter", "MengskVikingFighter");
-        gf_ReplaceAllUnits("Battlecruiser", "MengskBC");
-        gf_ReplaceAllUnits("Thor", "MengskThor");
+        gf_DebugPrint("[AUTO 22s] -taldarimrestore Zealot->4Zealot2");
+        // 把原版 Zealot 换回 Taldarim 4Zealot2
+        gf_ReplaceAllUnits("Zealot", "4Zealot2");
     }
     else if (lv_step == 5) {
         gf_DebugPrint("[AUTO 29s] -dva (mod 环境下 PlayerAddReward 不可用，仅提示)");
@@ -567,6 +565,8 @@ void InitTriggers () {
     gt_cmd_replace_Init();
     gt_cmd_mengsk2vanilla_Init();
     gt_cmd_mengskrestore_Init();
+    gt_cmd_taldarim2vanilla_Init();
+    gt_cmd_taldarimrestore_Init();
     gt_cmd_skinlist_Init();
     gt_cmd_rewardlist_Init();
     gt_autoTest_Init();
