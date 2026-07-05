@@ -1,6 +1,9 @@
 include "TriggerLibs/NativeLib"
 include "LibEmptyTestCatalog"
 
+// 生成的指挥官过滤，空字符串 = 生成所有指挥官
+string gv_spawnCommanderFilter = "Reborn";
+
 void InitLibs () {
     libNtve_InitLib();
     libEmptyTestCatalog_InitLib();
@@ -28,6 +31,11 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
         return true;
     }
 
+    // 初始资源：99999 矿物 + 99999 气体 + 500 人口上限
+    PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
+    PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
+    PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
+
     lv_perRow = 20;
     lv_spacing = 2.5;
     lv_total = 0;
@@ -35,7 +43,7 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     lv_created = 0;
 
     for (lv_c = 0; lv_c < gv_c_EmptyTestCommanderCount; lv_c += 1) {
-        if (gv_EmptyTestCommanders[lv_c] == "Reborn") {
+        if (gv_spawnCommanderFilter == "" || gv_EmptyTestCommanders[lv_c] == gv_spawnCommanderFilter) {
             lv_unitCount = gv_EmptyTestUnitCounts[lv_c];
 
             for (lv_u = 0; lv_u < lv_unitCount; lv_u += 1) {
