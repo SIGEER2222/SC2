@@ -1055,6 +1055,8 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     string lv_gasSampleBehavior;
     int lv_mineralSampleAmount;
     int lv_gasSampleAmount;
+    int lv_mineralSampleBefore;
+    int lv_gasSampleBefore;
 
     lv_resourceNodes = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterRawResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
     UnitGroupAddUnitGroup(lv_resourceNodes, UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
@@ -1064,12 +1066,10 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     lv_gasSampleBehavior = "";
     lv_mineralSampleAmount = 0;
     lv_gasSampleAmount = 0;
+    lv_mineralSampleBefore = 0;
+    lv_gasSampleBefore = 0;
     lv_mineralMultiplier = libE0EAE146_gf_GenericBonusResourceMultiplier(lp_doubleMineralsLevel);
     lv_gasMultiplier = libE0EAE146_gf_GenericBonusResourceMultiplier(lp_doubleVespeneLevel);
-    // [GenericBonus 调试] 打印倍率和 Bank level
-    TriggerDebugOutput(1, StringToText("[GenericBonus] === ApplyResources START ==="), true);
-    TriggerDebugOutput(1, (StringToText("[GenericBonus] DoubleMinerals level=") + IntToText(lp_doubleMineralsLevel) + StringToText(" multiplier=") + FixedToText(lv_mineralMultiplier, c_fixedPrecisionAny)), true);
-    TriggerDebugOutput(1, (StringToText("[GenericBonus] DoubleVespene level=") + IntToText(lp_doubleVespeneLevel) + StringToText(" multiplier=") + FixedToText(lv_gasMultiplier, c_fixedPrecisionAny)), true);
     lv_resourceUnit = UnitGroupUnit(lv_resourceNodes, 1);
     while (lv_resourceUnit != null) {
         lv_groupResourceUnit = lv_resourceUnit;
@@ -1118,10 +1118,6 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
             }
 
             if (lv_behavior != "") {
-                // [GenericBonus 调试] 打印矿物节点修改前
-                if (lv_mineralNodeCount < 3) {
-                    TriggerDebugOutput(1, (StringToText("[GenericBonus] Mineral#") + IntToText(lv_mineralNodeCount) + StringToText(" BEFORE: type=") + StringToText(lv_resourceUnitType) + StringToText(" amount=") + IntToText(FixedToInt(lv_resourceAmount))), true);
-                }
                 if (lp_richResources) {
                     if (lv_resourceUnitType != "RichMineralField") {
                         lv_targetUnitType = "RichMineralField";
@@ -1176,17 +1172,16 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
                 }
 
                 UnitBehaviorAdd(lv_resourceUnit, lv_behavior, lv_resourceUnit, 1);
+                if (lv_mineralSampleBehavior == "") {
+                    lv_mineralSampleBehavior = lv_behavior;
+                    lv_mineralSampleBefore = FixedToInt(lv_resourceAmount);
+                }
                 if (lp_doubleMineralsLevel > 0) {
                     lv_resourceAmount = (lv_resourceAmount * lv_mineralMultiplier);
                 }
                 UnitSetPropertyFixed(lv_resourceUnit, c_unitPropResources, lv_resourceAmount);
-                // [GenericBonus 调试] 打印矿物节点修改后
-                if (lv_mineralNodeCount < 3) {
-                    TriggerDebugOutput(1, (StringToText("[GenericBonus] Mineral#") + IntToText(lv_mineralNodeCount) + StringToText(" AFTER: amount=") + IntToText(FixedToInt(lv_resourceAmount)) + StringToText(" behavior=") + StringToText(lv_behavior)), true);
-                }
                 lv_mineralNodeCount += 1;
-                if (lv_mineralSampleBehavior == "") {
-                    lv_mineralSampleBehavior = lv_behavior;
+                if (lv_mineralSampleBehavior != "" && lv_mineralSampleAmount == 0) {
                     lv_mineralSampleAmount = FixedToInt(lv_resourceAmount);
                 }
             }
@@ -1212,10 +1207,6 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
             }
 
             if (lv_behavior != "") {
-                // [GenericBonus 调试] 打印瓦斯节点修改前
-                if (lv_gasNodeCount < 3) {
-                    TriggerDebugOutput(1, (StringToText("[GenericBonus] Gas#") + IntToText(lv_gasNodeCount) + StringToText(" BEFORE: type=") + StringToText(lv_resourceUnitType) + StringToText(" amount=") + IntToText(FixedToInt(lv_resourceAmount))), true);
-                }
                 if (lp_richResources) {
                     if (lv_resourceUnitType != "RichVespeneGeyser") {
                         lv_targetUnitType = "RichVespeneGeyser";
@@ -1233,17 +1224,16 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
                     lv_behavior = "RawVespeneGeyserGas";
                 }
                 UnitBehaviorAdd(lv_resourceUnit, lv_behavior, lv_resourceUnit, 1);
+                if (lv_gasSampleBehavior == "") {
+                    lv_gasSampleBehavior = lv_behavior;
+                    lv_gasSampleBefore = FixedToInt(lv_resourceAmount);
+                }
                 if (lp_doubleVespeneLevel > 0) {
                     lv_resourceAmount = (lv_resourceAmount * lv_gasMultiplier);
                 }
                 UnitSetPropertyFixed(lv_resourceUnit, c_unitPropResources, lv_resourceAmount);
-                // [GenericBonus 调试] 打印瓦斯节点修改后
-                if (lv_gasNodeCount < 3) {
-                    TriggerDebugOutput(1, (StringToText("[GenericBonus] Gas#") + IntToText(lv_gasNodeCount) + StringToText(" AFTER: amount=") + IntToText(FixedToInt(lv_resourceAmount)) + StringToText(" behavior=") + StringToText(lv_behavior)), true);
-                }
                 lv_gasNodeCount += 1;
-                if (lv_gasSampleBehavior == "") {
-                    lv_gasSampleBehavior = lv_behavior;
+                if (lv_gasSampleBehavior != "" && lv_gasSampleAmount == 0) {
                     lv_gasSampleAmount = FixedToInt(lv_resourceAmount);
                 }
             }
@@ -1256,14 +1246,14 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     BankLoad("CampaignXCore", 1);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralNodesProcessed", lv_mineralNodeCount);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasNodesProcessed", lv_gasNodeCount);
-    // [GenericBonus 调试] 打印总结
-    TriggerDebugOutput(1, (StringToText("[GenericBonus] === END: mineralNodes=") + IntToText(lv_mineralNodeCount) + StringToText(" gasNodes=") + IntToText(lv_gasNodeCount) + StringToText(" ===")), true);
     if (lv_mineralSampleBehavior != "") {
         BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralSampleBehavior", lv_mineralSampleBehavior);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralSampleBefore", lv_mineralSampleBefore);
         BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralSampleAmount", lv_mineralSampleAmount);
     }
     if (lv_gasSampleBehavior != "") {
         BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasSampleBehavior", lv_gasSampleBehavior);
+        BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasSampleBefore", lv_gasSampleBefore);
         BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasSampleAmount", lv_gasSampleAmount);
     }
     BankSave(BankLastCreated());
