@@ -107,9 +107,15 @@ function Resolve-ExtensionSource {
     return Join-Path $SourceRoot "s2ma_packages\pkg03\extract"
 }
 
-function Resolve-CommanderCatalogSource {
-    $workspaceRoot = Get-WorkspaceRoot
-    return (Join-Path $workspaceRoot "Mods\7vs1\CommanderCatalog.SC2Mod")
+function Get-SplitCatalogModDependencies {
+    return @(
+        "file:Mods/7vs1/BaseCatalogPatch.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Stetmann.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_TychusXM.SC2Mod",
+        "file:Mods/7vs1/SharedUnits.SC2Mod",
+        "file:Mods/7vs1/ExternalRefs.SC2Mod"
+    )
 }
 
 function Resolve-WorkspacePath {
@@ -227,7 +233,7 @@ function Set-FileTextWithRetry {
 function Merge-LiveCommanderCatalogUnitData {
     param(
         [Parameter(Mandatory = $true)]
-        [string]$LiveGameDataRoot
+        [string[]]$LiveGameDataRoots
     )
 
     function Remove-StetmannPrestigeLockButtons {
@@ -248,9 +254,10 @@ function Merge-LiveCommanderCatalogUnitData {
         }
     }
 
-    $basePath = Join-Path $LiveGameDataRoot 'UnitData.xml'
+    # The first directory is the base (BaseCatalogPatch) where UnitData.xml lives
+    $basePath = Join-Path $LiveGameDataRoots[0] 'UnitData.xml'
     if (-not (Test-Path -LiteralPath $basePath)) {
-        throw "Live CommanderCatalog UnitData.xml not found: $basePath"
+        throw "Live BaseCatalogPatch UnitData.xml not found: $basePath"
     }
 
     [xml]$baseXml = Get-Content -LiteralPath $basePath -Encoding UTF8 -Raw
@@ -258,11 +265,19 @@ function Merge-LiveCommanderCatalogUnitData {
         throw "Expected Catalog root in $basePath"
     }
 
-    $paths = Get-ChildItem -LiteralPath $LiveGameDataRoot -File -Filter 'UnitData*.xml' |
-        Where-Object { $_.Name -ne 'UnitData.xml' } |
-        Sort-Object Name
+    # Scan all provided directories for UnitData*.xml files (except UnitData.xml)
+    $splitPaths = @()
+    foreach ($root in $LiveGameDataRoots) {
+        if (-not (Test-Path -LiteralPath $root)) {
+            continue
+        }
+        $found = Get-ChildItem -LiteralPath $root -File -Filter 'UnitData*.xml' |
+            Where-Object { $_.Name -ne 'UnitData.xml' }
+        $splitPaths += $found
+    }
+    $splitPaths = $splitPaths | Sort-Object Name
 
-    foreach ($path in $paths) {
+    foreach ($path in $splitPaths) {
         [xml]$splitXml = Get-Content -LiteralPath $path.FullName -Encoding UTF8 -Raw
         if ($null -eq $splitXml.Catalog) {
             throw "Expected Catalog root in $($path.FullName)"
@@ -1004,8 +1019,10 @@ function Validate-LiveBaseTestlineInstall {
     if (-not $mapInfo.Contains('file:Mods/7vs1/CoopZeroPop.SC2Mod')) {
         throw 'Live base testline dependency missing: file:Mods/7vs1/CoopZeroPop.SC2Mod'
     }
-    if (-not $mapInfo.Contains('file:Mods/7vs1/CommanderCatalog.SC2Mod')) {
-        throw 'Live base testline dependency missing: file:Mods/7vs1/CommanderCatalog.SC2Mod'
+    foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
+        if (-not $mapInfo.Contains($catalogDep)) {
+            throw "Live base testline dependency missing: $catalogDep"
+        }
     }
 
     Assert-NoUnsupportedWorkspaceDependency -Dependencies $mapDependencies -DependencyOwner "live map DocumentInfo"
@@ -1142,15 +1159,18 @@ else {
     $mapSource = Resolve-WorkspacePath -Path $MapSource
 }
 $extensionSource = Resolve-ExtensionSource -SourceRoot $SourceRoot
-$commanderCatalogSource = Resolve-CommanderCatalogSource
 $mapLive = Join-Path (Join-Path $Sc2Root "Maps\7vs1") $LiveMapName
 $extensionLive = Join-Path $Sc2Root "Mods\7vs1\CoopZeroPop.SC2Mod"
 
 if (-not (Test-Path -LiteralPath $SwitcherPath)) {
     throw "SwitcherPath not found: $SwitcherPath"
 }
-if (-not (Test-Path -LiteralPath $commanderCatalogSource)) {
-    throw "CommanderCatalog source not found: $commanderCatalogSource"
+$workspaceRoot = Get-WorkspaceRoot
+foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
+    $catalogLocalPath = Join-Path $workspaceRoot ($catalogDep -replace '^file:', '')
+    if (-not (Test-Path -LiteralPath $catalogLocalPath)) {
+        throw "Split catalog mod not found in workspace: $catalogLocalPath"
+    }
 }
 
 $defaultCommanderSlots = Resolve-CommanderPreset -Name $Preset
@@ -1224,9 +1244,13 @@ $mapDependencies = Normalize-MapRuntimeDependencies -Dependencies $mapDependenci
 if ($LiveMapName -ne "emptytest.SC2Map") {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CoopZeroPop.SC2Mod"
 }
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CommanderCatalog.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3Adapter.SC2Mod"
+foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
+    $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency $catalogDep
+}
+# Remove the legacy CommanderCatalog.SC2Mod dependency now that it is split into the six mods above.
+$mapDependencies = @($mapDependencies | Where-Object { $_ -ne 'file:Mods/7vs1/CommanderCatalog.SC2Mod' })
 
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $extensionDependencies -DependencyOwner "extension dependencies"
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $mapDependencies -DependencyOwner "map dependencies"
@@ -1264,8 +1288,11 @@ if ($LiveMapName -ne "emptytest.SC2Map") {
 $effectiveRuntimeBaseData = Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryPath -MapLive $mapLive -ExtensionLive $extensionLive -LibraryName "LibKPVP.galaxy")
 
 $liveGameData = Join-Path $extensionLive "Base.SC2Data\GameData"
-$liveCommanderCatalogGameData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/7vs1/CommanderCatalog.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data\GameData"
-Merge-LiveCommanderCatalogUnitData -LiveGameDataRoot $liveCommanderCatalogGameData
+$liveCommanderCatalogGameDataRoots = @()
+foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
+    $liveCommanderCatalogGameDataRoots += (Join-Path (Resolve-LiveDependencyDestination -Dependency $catalogDep -Sc2Root $Sc2Root) "Base.SC2Data\GameData")
+}
+Merge-LiveCommanderCatalogUnitData -LiveGameDataRoots $liveCommanderCatalogGameDataRoots
 if ($LiveMapName -ne "emptytest.SC2Map") {
     Validate-LiveBaseTestlineInstall -MapLive $mapLive -ExtensionLive $extensionLive -SelectedCommanders $effectiveCommanders
 }
