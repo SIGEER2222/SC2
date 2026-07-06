@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -6,6 +6,28 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = join(__dirname, '..', '..');
 const METADATA_PATH = join(WORKSPACE_ROOT, 'Shared', 'CommanderPower', 'commander-power-metadata.json');
 const START_TALENTS_PATH = join(WORKSPACE_ROOT, 'Shared', 'CommanderPower', 'start-talents.json');
+const ASSETS_CACHE_COMMANDERS = join(__dirname, '..', 'assets-cache', 'commanders');
+
+// 解析真实头像 URL：若 assets-cache/commanders/{Runtime}.png 存在则返回带版本号的 URL
+function resolveCommanderImage(runtime) {
+  const fileName = `${runtime}.png`;
+  const filePath = join(ASSETS_CACHE_COMMANDERS, fileName);
+  if (!existsSync(filePath)) {
+    return { image: '', imageReady: false, imageSource: 'missing', imageSourceLabel: '未命中' };
+  }
+  let version = '';
+  try {
+    version = `?v=${statSync(filePath).mtimeMs}`;
+  } catch {
+    version = '';
+  }
+  return {
+    image: `/assets-cache/commanders/${fileName}${version}`,
+    imageReady: true,
+    imageSource: 'portrait-exact',
+    imageSourceLabel: '真实头像',
+  };
+}
 
 // 与 PowerShell 版本保持一致的 18 个可玩指挥官 runtime 列表（用于过滤 TestZerg、Izsha 等）
 const PLAYABLE_COMMANDERS = new Set([
@@ -77,15 +99,18 @@ export function loadCommanders() {
         }
       : { defaultMask: 0, talents: [] };
 
+    // 解析真实头像 URL
+    const portrait = resolveCommanderImage(runtime);
+
     commanders.push({
       runtime,
       displayName: cmdr.display_name || runtime,
       bankCommander: cmdr.bank_commander || '',
       generatedCommander: cmdr.generated_commander || '',
-      image: '',
-      imageReady: false,
-      imageSource: 'missing',
-      imageSourceLabel: '未命中',
+      image: portrait.image,
+      imageReady: portrait.imageReady,
+      imageSource: portrait.imageSource,
+      imageSourceLabel: portrait.imageSourceLabel,
       integrationStatus: status.note,
       integrationStatusCode: status.code,
       integrationTone: status.tone,

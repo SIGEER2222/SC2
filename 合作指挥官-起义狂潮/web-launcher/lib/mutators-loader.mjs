@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -8,6 +8,28 @@ const MUTATORS_MOD_ROOT = join(WORKSPACE_ROOT, 'Mods', 'kit_mutations.SC2Mod');
 const GAME_DATA_XML = join(MUTATORS_MOD_ROOT, 'Base.SC2Data', 'GameData.xml');
 const GAME_DATA_DIR = join(MUTATORS_MOD_ROOT, 'Base.SC2Data', 'GameData');
 const MUTATOR_STRINGS = join(MUTATORS_MOD_ROOT, 'zhCN.SC2Data', 'LocalizedData', 'GameStrings.txt');
+const ASSETS_CACHE_MUTATORS = join(__dirname, '..', 'assets-cache', 'mutators');
+
+// 解析真实图标 URL：若 assets-cache/mutators/{Id}.png 存在则返回带版本号的 URL
+function resolveMutatorImage(id) {
+  const fileName = `${id}.png`;
+  const filePath = join(ASSETS_CACHE_MUTATORS, fileName);
+  if (!existsSync(filePath)) {
+    return { image: '', iconReady: false, imageSource: 'missing', imageSourceLabel: '未命中' };
+  }
+  let version = '';
+  try {
+    version = `?v=${statSync(filePath).mtimeMs}`;
+  } catch {
+    version = '';
+  }
+  return {
+    image: `/assets-cache/mutators/${fileName}${version}`,
+    iconReady: true,
+    imageSource: 'icon-exact',
+    imageSourceLabel: '真实图标',
+  };
+}
 
 // category 硬编码分类（移植自 PowerShell Get-MutatorClass）
 const CATEGORY_MAP = {
@@ -179,10 +201,7 @@ export function loadMutators() {
       name,
       description,
       icon: inst.icon || '',
-      image: '',
-      iconReady: false,
-      imageSource: 'missing',
-      imageSourceLabel: '未命中',
+      ...resolveMutatorImage(inst.id),
       category,
       tier,
     });
