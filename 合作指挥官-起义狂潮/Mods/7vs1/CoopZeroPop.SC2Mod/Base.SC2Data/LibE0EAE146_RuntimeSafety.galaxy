@@ -1415,5 +1415,30 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
         }
     }
 
+    // Alenger3 (3疯批帝国): 使用 mod 自带单位作为开局基础
+    if (lv_commander == "Alenger3") {
+        if (lp_field == "CommandCenter") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("3diguoqianshaojidi");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
+        }
+        if (lp_field == "Worker") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("3diguolaogong");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
+        }
+        if (lp_field == "SecondUnit") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("3diguojianzhengzhe");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
+        }
+    }
+
     return lv_unit;
 }
