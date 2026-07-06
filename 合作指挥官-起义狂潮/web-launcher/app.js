@@ -3141,3 +3141,18 @@ el.masteryGrid.addEventListener("input", (event) => {
 });
 
 loadBootstrap();
+
+// === Tab 切换 ===
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('[data-tab-content]').forEach(c => {
+      c.hidden = c.dataset.tabContent !== tab;
+    });
+    if (tab === 'B') {
+      import('./components/scenario-panels.js').then(m => m.renderScenarioCards());
+    }
+  });
+});
