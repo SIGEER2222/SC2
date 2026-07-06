@@ -63,10 +63,10 @@ SHARED_FILE_OWNERS = {
     "Shared_Terran_I_V": TERRAN_COMMANDERS,
     "Shared_Zerg": ZERG_COMMANDERS,
     "Shared_InfestedTerran": {"Stukov"},
-    # 中立单位：所有指挥官都可用
-    "Shared_Neutral_H": ALL_COMMANDERS,
-    "Shared_Neutral_I_M": ALL_COMMANDERS,
-    "Shared_Neutral_N_Z": ALL_COMMANDERS,
+    # 中立单位不分配给任何指挥官, 避免污染指挥官专属单位列表
+    # "Shared_Neutral_H": ALL_COMMANDERS,
+    # "Shared_Neutral_I_M": ALL_COMMANDERS,
+    # "Shared_Neutral_N_Z": ALL_COMMANDERS,
 }
 
 
@@ -257,6 +257,7 @@ def main():
     workspace_root = Path(r"E:\Code\MyMod\SC2\合作指挥官-起义狂潮")
     commander_catalog_root = workspace_root / "Mods/7vs1/CommanderCatalog.SC2Mod"
     output_path = workspace_root / "Mods/emptytest.SC2Map/Base.SC2Data/LibEmptyTestCatalog.galaxy"
+    output_path2 = workspace_root / "Maps/abathur_test_map/Base.SC2Data/LibEmptyTestCatalog.galaxy"
 
     print(f"扫描目录: {commander_catalog_root}")
     commander_units = collect_commander_units(commander_catalog_root)
@@ -266,14 +267,22 @@ def main():
     for commander, units in sorted(commander_units.items()):
         print(f"  {commander:18s} {len(units):3d} 单位")
 
+    galaxy_text = emit_galaxy(commander_units)
+
     # 输出到 emptytest 的 Base.SC2Data
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    galaxy_text = emit_galaxy(commander_units)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(galaxy_text)
     print()
     print(f"已生成: {output_path}")
     print(f"  文件大小: {output_path.stat().st_size} bytes")
+
+    # 同步输出到 abathur_test_map 的 Base.SC2Data
+    output_path2.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path2, "w", encoding="utf-8") as f:
+        f.write(galaxy_text)
+    print(f"已生成: {output_path2}")
+    print(f"  文件大小: {output_path2.stat().st_size} bytes")
 
 
 if __name__ == "__main__":
