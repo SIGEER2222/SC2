@@ -64,6 +64,12 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     int lv_diag;
     unit lv_diagUnit;
     string lv_diagKey;
+    // 生成后的全图单位扫描
+    unitgroup lv_afterGroup;
+    int lv_afterCount;
+    unit lv_afterUnit;
+    string lv_afterType;
+    string lv_afterList;
 
     if (!runActions) {
         return true;
@@ -112,30 +118,70 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     // 使用 LibEmptyTestCatalog API 获取当前指挥官的单位列表
     lv_unitCount = libEmptyTestCatalog_gf_UnitCountOf(gv_currentCommander);
 
+    // 先把每个单位的 CatalogEntryIsValid 结果记录到 Bank, 用于诊断为何某些单位无法创建
+    BankLoad("EmptyTestDiag", 1);
+    BankValueSetFromInt(BankLastCreated(), "Catalog", "UnitCount", lv_unitCount);
     for (lv_u = 0; lv_u < lv_unitCount; lv_u += 1) {
         lv_unitType = libEmptyTestCatalog_gf_UnitAt(gv_currentCommander, lv_u);
         if (lv_unitType != "") {
-            if (CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType) == false) {
-                UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("SKIP: ") + StringToText(lv_unitType));
+            lv_diagKey = "C" + IntToString(lv_u);
+            if (CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType)) {
+                BankValueSetFromString(BankLastCreated(), "Catalog", lv_diagKey, lv_unitType + "=1");
+            } else {
+                BankValueSetFromString(BankLastCreated(), "Catalog", lv_diagKey, lv_unitType + "=0");
+            }
+        }
+    }
+    BankSave(BankLastCreated());
+
+    for (lv_u = 0; lv_u < lv_unitCount; lv_u += 1) {
+        lv_unitType = libEmptyTestCatalog_gf_UnitAt(gv_currentCommander, lv_u);
+        if (lv_unitType != "") {
+            // 模拟正常游戏环境: 只创建 CatalogEntryIsValid=1 的单位
+            // 无效的 Kerrigan 专属单位在正常游戏中由 RuntimeSafety 回退到基础单位, 测试图直接跳过
+            if (!CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType)) {
                 lv_skipped += 1;
+                continue;
             }
-            else {
-                lv_col = lv_total - (lv_total / lv_perRow) * lv_perRow;
-                lv_row = lv_total / lv_perRow;
-                // 以地图中心为起点，每行从左到右、从上到下排列
-                lv_x = lv_cx - ((lv_perRow - 1) * lv_spacing / 2.0) + (lv_col * lv_spacing);
-                lv_y = lv_cy + ((lv_spacing / 2.0)) - (lv_row * lv_spacing);
-                lv_pos = Point(lv_x, lv_y);
-                libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
-                lv_total += 1;
-                lv_created += 1;
-            }
+            lv_col = lv_total - (lv_total / lv_perRow) * lv_perRow;
+            lv_row = lv_total / lv_perRow;
+            // 以地图中心为起点，每行从左到右、从上到下排列
+            lv_x = lv_cx - ((lv_perRow - 1) * lv_spacing / 2.0) + (lv_col * lv_spacing);
+            lv_y = lv_cy + ((lv_spacing / 2.0)) - (lv_row * lv_spacing);
+            lv_pos = Point(lv_x, lv_y);
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
+            lv_total += 1;
+            lv_created += 1;
         }
     }
 
     UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug,
         StringToText("[") + StringToText(gv_currentCommander) + StringToText("] created=") + IntToText(lv_created)
         + StringToText(" skipped=") + IntToText(lv_skipped));
+
+    // 生成完毕后扫描全图所有 P1 单位, 打印到 debug 消息 + Bank
+    // 用于核对画面上实际存在的单位是否与 LibEmptyTestCatalog 列表一致
+    lv_afterGroup = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    lv_afterCount = UnitGroupCount(lv_afterGroup, c_unitCountAll);
+    BankLoad("EmptyTestDiag", 1);
+    BankValueSetFromInt(BankLastCreated(), "After", "Count", lv_afterCount);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug,
+        StringToText("=== After spawn: ") + IntToText(lv_afterCount) + StringToText(" units on map ==="));
+    lv_afterList = "";
+    for (lv_diag = 1; lv_diag <= lv_afterCount; lv_diag += 1) {
+        lv_afterUnit = UnitGroupUnit(lv_afterGroup, lv_diag);
+        if (lv_afterUnit != null) {
+            lv_afterType = UnitGetType(lv_afterUnit);
+            lv_diagKey = "A" + IntToString(lv_diag);
+            BankValueSetFromString(BankLastCreated(), "After", lv_diagKey, lv_afterType);
+            // debug 消息逐个打印, 避免单条消息超长截断
+            UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug,
+                IntToText(lv_diag) + StringToText(". ") + StringToText(lv_afterType));
+            lv_afterList = lv_afterList + lv_afterType + ",";
+        }
+    }
+    BankValueSetFromString(BankLastCreated(), "After", "List", lv_afterList);
+    BankSave(BankLastCreated());
 
     return true;
 }
@@ -153,24 +199,9 @@ void gt_spawn_Init () {
 trigger gt_resetResources;
 
 bool gt_resetResources_Func (bool testConds, bool runActions) {
-    fixed lv_cx;
-    fixed lv_cy;
-    point lv_min;
-    point lv_max;
-    region lv_bounds;
-    point lv_center;
-
     if (!runActions) {
         return true;
     }
-
-    // 计算地图中心点
-    lv_bounds = RegionEntireMap();
-    lv_min = RegionGetBoundsMin(lv_bounds);
-    lv_max = RegionGetBoundsMax(lv_bounds);
-    lv_cx = (PointGetX(lv_min) + PointGetX(lv_max)) / 2.0;
-    lv_cy = (PointGetY(lv_min) + PointGetY(lv_max)) / 2.0;
-    lv_center = Point(lv_cx, lv_cy);
 
     while (true) {
         PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
@@ -179,8 +210,6 @@ bool gt_resetResources_Func (bool testConds, bool runActions) {
         // 持续禁用 KMIS 的 HatcheryPrimarySearch 触发器
         // 测试地图无预设玩家起始位置, 该触发器的 DistanceBetweenPoints 会报错
         TriggerEnable(libKMIS_gt_CM_HatcheryPrimarySearch, false);
-        // 持续把相机拉回地图中心, 覆盖 KPVP init 的相机设置
-        CameraPan(1, lv_center, 0.0, -1, 0.0, false);
         Wait(0.5, c_timeReal);
     }
 

@@ -1057,6 +1057,10 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     int lv_gasSampleAmount;
     int lv_mineralSampleBefore;
     int lv_gasSampleBefore;
+    int lv_mineralTotalBefore;
+    int lv_mineralTotalAfter;
+    int lv_gasTotalBefore;
+    int lv_gasTotalAfter;
 
     lv_resourceNodes = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterRawResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
     UnitGroupAddUnitGroup(lv_resourceNodes, UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
@@ -1068,6 +1072,10 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     lv_gasSampleAmount = 0;
     lv_mineralSampleBefore = 0;
     lv_gasSampleBefore = 0;
+    lv_mineralTotalBefore = 0;
+    lv_mineralTotalAfter = 0;
+    lv_gasTotalBefore = 0;
+    lv_gasTotalAfter = 0;
     lv_mineralMultiplier = libE0EAE146_gf_GenericBonusResourceMultiplier(lp_doubleMineralsLevel);
     lv_gasMultiplier = libE0EAE146_gf_GenericBonusResourceMultiplier(lp_doubleVespeneLevel);
     lv_resourceUnit = UnitGroupUnit(lv_resourceNodes, 1);
@@ -1172,6 +1180,7 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
                 }
 
                 UnitBehaviorAdd(lv_resourceUnit, lv_behavior, lv_resourceUnit, 1);
+                lv_mineralTotalBefore += FixedToInt(lv_resourceAmount);
                 if (lv_mineralSampleBehavior == "") {
                     lv_mineralSampleBehavior = lv_behavior;
                     lv_mineralSampleBefore = FixedToInt(lv_resourceAmount);
@@ -1181,6 +1190,7 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
                 }
                 UnitSetPropertyFixed(lv_resourceUnit, c_unitPropResources, lv_resourceAmount);
                 lv_mineralNodeCount += 1;
+                lv_mineralTotalAfter += FixedToInt(lv_resourceAmount);
                 if (lv_mineralSampleBehavior != "" && lv_mineralSampleAmount == 0) {
                     lv_mineralSampleAmount = FixedToInt(lv_resourceAmount);
                 }
@@ -1224,6 +1234,7 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
                     lv_behavior = "RawVespeneGeyserGas";
                 }
                 UnitBehaviorAdd(lv_resourceUnit, lv_behavior, lv_resourceUnit, 1);
+                lv_gasTotalBefore += FixedToInt(lv_resourceAmount);
                 if (lv_gasSampleBehavior == "") {
                     lv_gasSampleBehavior = lv_behavior;
                     lv_gasSampleBefore = FixedToInt(lv_resourceAmount);
@@ -1233,6 +1244,7 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
                 }
                 UnitSetPropertyFixed(lv_resourceUnit, c_unitPropResources, lv_resourceAmount);
                 lv_gasNodeCount += 1;
+                lv_gasTotalAfter += FixedToInt(lv_resourceAmount);
                 if (lv_gasSampleBehavior != "" && lv_gasSampleAmount == 0) {
                     lv_gasSampleAmount = FixedToInt(lv_resourceAmount);
                 }
@@ -1246,6 +1258,10 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
     BankLoad("CampaignXCore", 1);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralNodesProcessed", lv_mineralNodeCount);
     BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasNodesProcessed", lv_gasNodeCount);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralTotalBefore", lv_mineralTotalBefore);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralTotalAfter", lv_mineralTotalAfter);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasTotalBefore", lv_gasTotalBefore);
+    BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusGasTotalAfter", lv_gasTotalAfter);
     if (lv_mineralSampleBehavior != "") {
         BankValueSetFromString(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralSampleBehavior", lv_mineralSampleBehavior);
         BankValueSetFromInt(BankLastCreated(), "XMRuntimeDebug", "GenericBonusMineralSampleBefore", lv_mineralSampleBefore);
