@@ -54,8 +54,16 @@ router.post('/scenario/:id/test', async (req, res) => {
     // 3. 启动
     const launchStart = Date.now();
     let launchResult;
-    const args = buildLaunchArgs({ scenario, userSelection });
-    if (args) {
+    const mergedRequest = { ...scenario.defaultArgs, ...userSelection, map: scenario.defaultArgs?.map || scenario.mapPath };
+    let args = null;
+    try {
+      const built = buildLaunchArgs(mergedRequest);
+      args = built.args;
+    } catch (e) {
+      // 校验失败：场景测试仍可走 switcher 模式
+      args = null;
+    }
+    if (args && scenario.launchMode !== 'sc2-switcher') {
       // 7vs1-launcher 模式：spawn pwsh + launch-7vs1-coop-test.ps1
       const child = spawn('pwsh', args, { windowsHide: false });
       const pid = child.pid;
