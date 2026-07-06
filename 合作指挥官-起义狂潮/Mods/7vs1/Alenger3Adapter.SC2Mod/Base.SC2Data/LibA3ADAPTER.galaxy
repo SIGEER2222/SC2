@@ -1,0 +1,133 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA3ADAPTER_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alenger3Adapter
+// 专门对接地图的 adapter 层，独立于 7v1 框架（不依赖 CoopZeroPop）。
+// 在 MapInit 时为玩家1执行：
+//   1. 调用 LibDE538C36 的两个 TechTreeUpgradeAddLevel 函数（超标/常规强制强度）
+//   2. 解锁 3jianzao1/3jianzao2 的所有 Restricted Build 选项
+// 这样避免 ApplyOriginal7v1OpenerTech 没有 Alenger3 分支导致的建造选项不完整问题。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MapInit - 为玩家1执行 Alenger3 解锁逻辑
+//--------------------------------------------------------------------------------------------------
+bool libA3ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
+    int lp_player = 1;
+
+    // Conditions
+    if (testConds) {
+        return true;
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    // -------- 1. 为玩家升级全部科技（超标强制强度，42个升级）--------
+    TechTreeUpgradeAddLevel(lp_player, "3kangchongjizujian", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3zhonghuolizujian", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3dandaochongdingxiangsuanfa", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3jiechugongchengbingtuan", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3weixiuxunlian", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3zhishijunbei", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3fangyutaxieyi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3yantilichang", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3guangxuemiaozhunjing", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3danbingyingjihudun", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3qianghuazhiliaoyi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3shikongsuiliezhuangzhi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3shaoshiranliao", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3wanhuozifen", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3zhendangdan", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3yalifanyingdui", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3chuanjiadan", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3xiandanfasheqi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3dengtachuanganqi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3chaohejinwaike", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3fuxujin", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3gangyihudun", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3kuanghuanjie", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3xushuyinqing", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3fangkonghudun", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3yinglisunshang", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3paohuowendingqi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3piaoliudan", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3jiajidongyuanling", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3xingqudongyuanling", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3shanbijidong", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3yasuofanyingdui", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3gaojingsuanfa", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3jisudianrong", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3hudunchongnengqi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3jingshenkongzhi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3hedandahepaoqishe", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3jisuzheyuequdongqi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3huolibuzukongjuzheng", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3yanhuazhenlie", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3jishizhengyi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3shenkongganyingleida", 1);
+
+    // -------- 2. 为玩家升级全部科技（常规强制强度，12个升级）--------
+    TechTreeUpgradeAddLevel(lp_player, "3sishouxitong", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3jinggongwuqi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3jilizhengce", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3xinshoudalibao", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3siwangfanzi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3ziwoxiubuzhuangjia", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3jinggongzhuangjia", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3aiminruzi", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3xiaofangxitong", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3weixiuxunlian", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3zhishijunbei", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3jiajidongyuanling", 1);
+
+    // -------- 3. 解锁 3jianzao1 的所有 Build 选项 --------
+    // Build1→cmd0(前哨基地), Build4→cmd3(兵营), Build11→cmd10(工厂), Build12→cmd11(星港), Build15→cmd14(占位)
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao1", 0), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao1", 3), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao1", 10), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao1", 11), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao1", 14), true);
+
+    // -------- 4. 解锁 3jianzao2 的所有 Build 选项 --------
+    // Build2→cmd1(补给堡), Build5→cmd4(工程站), Build6→cmd5(皇家防空塔), Build7→cmd6(深空阵列平台)
+    // Build10→cmd9(研究院), Build13→cmd12(雇佣兵), Build14→cmd13(铸造厂), Build15→cmd14(占位)
+    // Build16→cmd15(科学院), Build19→cmd18(自动化精炼厂)
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao2", 1), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao2", 4), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao2", 5), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao2", 6), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao2", 9), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao2", 12), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao2", 13), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao2", 14), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao2", 15), true);
+    TechTreeAbilityAllow(lp_player, AbilityCommand("3jianzao2", 18), true);
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libA3ADAPTER_InitTriggers () {
+    libA3ADAPTER_gt_MapInit = TriggerCreate("libA3ADAPTER_gt_MapInit_Func");
+    TriggerAddEventMapInit(libA3ADAPTER_gt_MapInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libA3ADAPTER_InitLib_completed = false;
+
+void libA3ADAPTER_InitLib () {
+    if (libA3ADAPTER_InitLib_completed) {
+        return;
+    }
+
+    libA3ADAPTER_InitLib_completed = true;
+
+    libA3ADAPTER_InitTriggers();
+}
