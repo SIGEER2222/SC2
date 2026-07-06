@@ -11,7 +11,7 @@ include "Lib975E2FE9"
 include "LibE0EAE146"
 include "LibEmptyTestCatalog"
 
-// 当前测试的指挥官名（通过聊天指令 -c <Commander> 切换）
+// 当前测试的指挥官名 (通过聊天指令 -c <Commander> 切换)
 // 可用指挥官：Kerrigan, Raynor, Tychus, Nova, Swann, Horner, Mengsk, Stukov,
 //             Stetmann, Artanis, Vorazun, Zeratul, Karax, Alarak, Fenix,
 //             Abathur, AbathurReborn, Zagara, Dehaka
@@ -46,9 +46,14 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     int lv_col;
     int lv_perRow;
     fixed lv_spacing;
+    fixed lv_cx;
+    fixed lv_cy;
     fixed lv_x;
     fixed lv_y;
     point lv_pos;
+    region lv_bounds;
+    point lv_min;
+    point lv_max;
     string lv_unitType;
     int lv_unitCount;
     int lv_skipped;
@@ -62,6 +67,16 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
     PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
     PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
+
+    // 计算地图中心点 (运行时从 RegionEntireMap 边界获取, 避免硬编码)
+    lv_bounds = RegionEntireMap();
+    lv_min = RegionGetBoundsMin(lv_bounds);
+    lv_max = RegionGetBoundsMax(lv_bounds);
+    lv_cx = (PointGetX(lv_min) + PointGetX(lv_max)) / 2.0;
+    lv_cy = (PointGetY(lv_min) + PointGetY(lv_max)) / 2.0;
+
+    // 移动相机到地图中心
+    CameraPan(1, Point(lv_cx, lv_cy), 0.0, -1, 10.0, false);
 
     lv_perRow = 14;
     lv_spacing = 3.0;
@@ -82,8 +97,9 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
             else {
                 lv_col = lv_total - (lv_total / lv_perRow) * lv_perRow;
                 lv_row = lv_total / lv_perRow;
-                lv_x = 40.0 + (lv_col * lv_spacing);
-                lv_y = 85.0 - (lv_row * lv_spacing);
+                // 以地图中心为起点，每行从左到右、从上到下排列
+                lv_x = lv_cx - ((lv_perRow - 1) * lv_spacing / 2.0) + (lv_col * lv_spacing);
+                lv_y = lv_cy + ((lv_spacing / 2.0)) - (lv_row * lv_spacing);
                 lv_pos = Point(lv_x, lv_y);
                 libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
                 lv_total += 1;
@@ -119,6 +135,9 @@ bool gt_resetResources_Func (bool testConds, bool runActions) {
         PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
         PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
         PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
+        // 持续禁用 KMIS 的 HatcheryPrimarySearch 触发器
+        // 测试地图无预设玩家起始位置, 该触发器的 DistanceBetweenPoints 会报错
+        TriggerEnable(libKMIS_gt_CM_HatcheryPrimarySearch, false);
         Wait(1.0, c_timeReal);
     }
 
@@ -159,7 +178,7 @@ bool gt_cmd_switch_Func (bool testConds, bool runActions) {
 
     gv_currentCommander = lv_cmd;
 
-    // 移除所有 P1 单位（排除导弹和死单位）
+    // 移除所有 P1 单位 (排除导弹和死单位)
     lv_group = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
     lv_count = UnitGroupCount(lv_group, c_unitCountAll);
     while (lv_count > 0) {
@@ -188,5 +207,9 @@ void InitTriggers () {
 
 void InitMap () {
     InitLibs();
+    // 禁用 KMIS 的 HatcheryPrimarySearch 触发器
+    // 测试地图无预设玩家起始位置, PlayerStartLocation(1) 返回无效 point
+    // 导致 DistanceBetweenPoints 参数错误
+    TriggerEnable(libKMIS_gt_CM_HatcheryPrimarySearch, false);
     InitTriggers();
 }

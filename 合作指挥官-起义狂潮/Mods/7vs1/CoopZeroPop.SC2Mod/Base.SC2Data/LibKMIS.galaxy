@@ -8669,6 +8669,10 @@ bool libKMIS_gt_CM_HatcheryPrimarySearch_Func (bool testConds, bool runActions) 
 
         lv_closestHatchery = null;
         lv_distance = 500.0;
+        // Skip search if player has no start location (test maps without preset start positions)
+        if ((PlayerStartLocation(lv_indexPlayer) == null)) {
+            continue;
+        }
         if (((TechTreeBehaviorCount(lv_indexPlayer, "ZerglingRespawnPrimary", c_techCountCompleteOnly) == 0) || (libKMIS_gf_CM_PrimaryTownHall(lv_indexPlayer) == null))) {
             lv_hatcheryGroup = libKCOR_gf_CC_TownHallsForPlayer(lv_indexPlayer);
             auto1A7E7594_g = lv_hatcheryGroup;
