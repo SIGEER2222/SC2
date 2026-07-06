@@ -72,6 +72,9 @@ export async function launchAndWait(opts) {
     };
   }
 
+  // 给 SC2Switcher 启动 SC2_x64 留出时间，避免 wait 脚本一开始就因检测不到进程而误判退出
+  await new Promise((r) => setTimeout(r, 3000));
+
   // spawn wait-for-game-ready.ps1
   const waitChild = spawn('pwsh', [
     '-NoProfile',
