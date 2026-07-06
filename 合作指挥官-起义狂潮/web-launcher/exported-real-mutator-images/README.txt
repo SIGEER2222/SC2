@@ -5,5 +5,5 @@
 2. 未命中的条目说明当前本地没有找到该图标的实体文件，不会回退到错误图片。
 3. 详情见 manifest.json；可直接打开 index.html 浏览。
 
-Resolved: 55
-Missing: 14
+Resolved: 69
+Missing: 0

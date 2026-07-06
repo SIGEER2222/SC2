@@ -29,12 +29,12 @@ function resolveCommanderImage(runtime) {
   };
 }
 
-// 与 PowerShell 版本保持一致的 18 个可玩指挥官 runtime 列表（用于过滤 TestZerg、Izsha 等）
+// 与 PowerShell 版本保持一致的 19 个可玩指挥官 runtime 列表（用于过滤 TestZerg、Izsha 等）
 const PLAYABLE_COMMANDERS = new Set([
   'TerranRaynor', 'ZergKerrigan', 'ProtossArtanis', 'TerranNova', 'ZergAbathur',
   'ProtossFenix', 'ProtossVorazun', 'TerranSwann', 'ZergZagara', 'ProtossKarax',
   'TerranHorner', 'ZergDehaka', 'ProtossAlarak', 'ZergStukov', 'ProtossZeratul',
-  'ZergStetmann', 'TerranMengsk', 'TerranTychus',
+  'ZergStetmann', 'TerranMengsk', 'TerranTychus', 'TerranAlenger3',
 ]);
 
 // integrationStatus 硬编码映射（移植自 PowerShell 脚本第 57-66 行）
@@ -57,6 +57,7 @@ const COMMANDER_INLINE_STATUS_MAP = {
   ZergStetmann: { code: 'external', tone: 'info', note: '外部加载' },
   TerranMengsk: { code: 'external', tone: 'info', note: '外部加载' },
   TerranTychus: { code: 'external', tone: 'info', note: '外部加载' },
+  TerranAlenger3: { code: 'external', tone: 'info', note: '外部加载' },
 };
 
 /**

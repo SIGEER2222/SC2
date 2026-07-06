@@ -1225,6 +1225,7 @@ if ($LiveMapName -ne "emptytest.SC2Map") {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CoopZeroPop.SC2Mod"
 }
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CommanderCatalog.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3.SC2Mod"
 
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $extensionDependencies -DependencyOwner "extension dependencies"
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $mapDependencies -DependencyOwner "map dependencies"
