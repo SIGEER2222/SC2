@@ -12,7 +12,7 @@ include "LibE0EAE146"
 include "LibEmptyTestCatalog"
 
 // 当前测试的指挥官名 (通过聊天指令 -c <Commander> 切换)
-// 可用指挥官：Kerrigan, Raynor, Tychus, Nova, Swann, Horner, Mengsk, Stukov,
+// 可用指挥官: Kerrigan, Raynor, Tychus, Nova, Swann, Horner, Mengsk, Stukov,
 //             Stetmann, Artanis, Vorazun, Zeratul, Karax, Alarak, Fenix,
 //             Abathur, AbathurReborn, Zagara, Dehaka
 string gv_currentCommander = "Kerrigan";
@@ -58,15 +58,43 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     int lv_unitCount;
     int lv_skipped;
     int lv_created;
+    unitgroup lv_oldGroup;
+    unit lv_oldUnit;
+    int lv_oldCount;
+    int lv_diag;
+    unit lv_diagUnit;
+    string lv_diagKey;
 
     if (!runActions) {
         return true;
     }
 
-    // 初始资源：99999 矿物 + 99999 气体 + 500 人口上限
+    // 初始资源: 99999 矿物 + 99999 气体 + 500 人口上限
     PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
     PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
     PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
+
+    // 清除所有 P1 单位 (包括 KPVP init 自动创建的英雄/建筑/工人)
+    // 确保画面上只有 LibEmptyTestCatalog 列出的单位
+    lv_oldGroup = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    lv_oldCount = UnitGroupCount(lv_oldGroup, c_unitCountAll);
+    // 用 Bank 保存诊断信息
+    BankLoad("EmptyTestDiag", 1);
+    BankValueSetFromInt(BankLastCreated(), "Diag", "OldUnitCount", lv_oldCount);
+    for (lv_diag = 1; lv_diag <= lv_oldCount && lv_diag <= 20; lv_diag += 1) {
+        lv_diagUnit = UnitGroupUnit(lv_oldGroup, lv_diag);
+        if (lv_diagUnit != null) {
+            lv_diagKey = "U" + IntToString(lv_diag);
+            BankValueSetFromString(BankLastCreated(), "Diag", lv_diagKey, UnitGetType(lv_diagUnit));
+        }
+    }
+    BankSave(BankLastCreated());
+    while (lv_oldCount > 0) {
+        lv_oldUnit = UnitGroupUnit(lv_oldGroup, 1);
+        if (lv_oldUnit == null) { break; }
+        UnitRemove(lv_oldUnit);
+        lv_oldCount -= 1;
+    }
 
     // 计算地图中心点 (运行时从 RegionEntireMap 边界获取, 避免硬编码)
     lv_bounds = RegionEntireMap();
@@ -74,9 +102,6 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     lv_max = RegionGetBoundsMax(lv_bounds);
     lv_cx = (PointGetX(lv_min) + PointGetX(lv_max)) / 2.0;
     lv_cy = (PointGetY(lv_min) + PointGetY(lv_max)) / 2.0;
-
-    // 移动相机到地图中心
-    CameraPan(1, Point(lv_cx, lv_cy), 0.0, -1, 10.0, false);
 
     lv_perRow = 14;
     lv_spacing = 3.0;
@@ -117,7 +142,8 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
 
 void gt_spawn_Init () {
     gt_spawn = TriggerCreate("gt_spawn_Func");
-    TriggerAddEventMapInit(gt_spawn);
+    // 延迟 3 秒触发, 确保在 KPVP init 之后执行 (KPVP 会在 MapInit 创建英雄/建筑)
+    TriggerAddEventTimeElapsed(gt_spawn, 3.0, c_timeReal);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,9 +153,24 @@ void gt_spawn_Init () {
 trigger gt_resetResources;
 
 bool gt_resetResources_Func (bool testConds, bool runActions) {
+    fixed lv_cx;
+    fixed lv_cy;
+    point lv_min;
+    point lv_max;
+    region lv_bounds;
+    point lv_center;
+
     if (!runActions) {
         return true;
     }
+
+    // 计算地图中心点
+    lv_bounds = RegionEntireMap();
+    lv_min = RegionGetBoundsMin(lv_bounds);
+    lv_max = RegionGetBoundsMax(lv_bounds);
+    lv_cx = (PointGetX(lv_min) + PointGetX(lv_max)) / 2.0;
+    lv_cy = (PointGetY(lv_min) + PointGetY(lv_max)) / 2.0;
+    lv_center = Point(lv_cx, lv_cy);
 
     while (true) {
         PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
@@ -138,7 +179,9 @@ bool gt_resetResources_Func (bool testConds, bool runActions) {
         // 持续禁用 KMIS 的 HatcheryPrimarySearch 触发器
         // 测试地图无预设玩家起始位置, 该触发器的 DistanceBetweenPoints 会报错
         TriggerEnable(libKMIS_gt_CM_HatcheryPrimarySearch, false);
-        Wait(1.0, c_timeReal);
+        // 持续把相机拉回地图中心, 覆盖 KPVP init 的相机设置
+        CameraPan(1, lv_center, 0.0, -1, 0.0, false);
+        Wait(0.5, c_timeReal);
     }
 
     return true;
