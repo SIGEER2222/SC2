@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   1. 停止正在运行的 SC2 进程
-  2. 复制 crys_the_swarm_reborn.SC2Mod 到 SC2 Mods 目录
+  2. 复制 7vs1 mods（CoopZeroPop + CommanderCatalog）到 SC2 Mods/7vs1 目录
   3. 复制 abathur_test_map 到 SC2 Maps 目录（目录形式，.SC2Map 后缀）
   4. 清理 GameLogs
   5. 用 SC2Switcher_x64.exe 启动游戏
@@ -17,7 +17,6 @@
 [CmdletBinding()]
 param(
     [string]$Sc2Root = "E:\SC2\SC2new\StarCraft II",
-    [string]$SourceModRoot = "C:\Users\22448\Downloads\重生虫心0.71汉化版（新）\reborn\crys_the_swarm_reborn.SC2Mod",
     [string]$MapName = "abathur_test_map.SC2Map",
     [switch]$SkipLaunch,
     [switch]$SkipModSync,
@@ -33,8 +32,13 @@ $workspaceRoot = Split-Path -Parent $PSScriptRoot
 $mapSource = Join-Path $workspaceRoot "Maps\abathur_test_map"
 $mapLive = Join-Path (Join-Path $Sc2Root "Maps") $MapName
 $modsLiveRoot = Join-Path $Sc2Root "Mods"
-$modName = "crys_the_swarm_reborn.SC2Mod"
-$modLive = Join-Path $modsLiveRoot $modName
+$mods7vs1LiveRoot = Join-Path $modsLiveRoot "7vs1"
+# 7vs1 mods 依赖闭包：CoopZeroPop 依赖 VoidMulti + StarCoop（已在 SC2new 中存在）
+# 这里只需要复制工作区的两个 7vs1 mods
+$mods7vs1 = @(
+    @{ Name = "CoopZeroPop.SC2Mod";       Source = (Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod") },
+    @{ Name = "CommanderCatalog.SC2Mod";  Source = (Join-Path $workspaceRoot "Mods\7vs1\CommanderCatalog.SC2Mod") }
+)
 $switcherPath = Join-Path $Sc2Root "Support64\SC2Switcher_x64.exe"
 $logsRoot = "C:\Users\22448\Documents\StarCraft II\GameLogs"
 
@@ -86,9 +90,12 @@ function Copy-DirectoryClean {
 try {
     Write-Host "=== Abathur Test Map 启动脚本 ===" -ForegroundColor Cyan
     Write-Host "Sc2Root:     $Sc2Root"
-    Write-Host "SourceMod:   $SourceModRoot"
     Write-Host "MapSource:   $mapSource"
     Write-Host "MapLive:     $mapLive"
+    Write-Host "Mods7vs1:    $($mods7vs1.Count) 个"
+    foreach ($m in $mods7vs1) {
+        Write-Host ("  - {0} (from {1})" -f $m.Name, $m.Source)
+    }
     Write-Host ""
 
     if (-not (Test-Path -LiteralPath $mapSource)) {
@@ -107,22 +114,31 @@ try {
         Write-Host "[0] SkipStopSc2 已设置，跳过停止" -ForegroundColor Yellow
     }
 
-    # ---- 1. 复制 mod ----
+    # ---- 1. 复制 7vs1 mods ----
     if (-not $SkipModSync) {
         Write-Host ""
-        Write-Host "[1] 复制 mod $modName ..." -ForegroundColor Cyan
-        if (-not (Test-Path -LiteralPath $SourceModRoot)) {
-            throw "源 mod 目录不存在: $SourceModRoot"
+        Write-Host "[1] 复制 7vs1 mods ..." -ForegroundColor Cyan
+        if (-not (Test-Path -LiteralPath $mods7vs1LiveRoot)) {
+            New-Item -ItemType Directory -Path $mods7vs1LiveRoot -Force | Out-Null
         }
-        Copy-DirectoryClean -Source $SourceModRoot -Destination $modLive
-        Write-Host "    已复制到 $modLive" -ForegroundColor Green
+        foreach ($m in $mods7vs1) {
+            if (-not (Test-Path -LiteralPath $m.Source)) {
+                throw "源 mod 目录不存在: $($m.Source)"
+            }
+            $dest = Join-Path $mods7vs1LiveRoot $m.Name
+            Copy-DirectoryClean -Source $m.Source -Destination $dest
+            Write-Host "    已复制 $($m.Name) -> $dest" -ForegroundColor Green
+        }
     } else {
         Write-Host ""
         Write-Host "[1] SkipModSync 已设置，跳过 mod 复制" -ForegroundColor Yellow
-        if (-not (Test-Path -LiteralPath $modLive)) {
-            throw "目标 mod 不存在且未启用复制: $modLive"
+        foreach ($m in $mods7vs1) {
+            $dest = Join-Path $mods7vs1LiveRoot $m.Name
+            if (-not (Test-Path -LiteralPath $dest)) {
+                throw "目标 mod 不存在且未启用复制: $dest"
+            }
+            Write-Host "    mod 已存在: $dest" -ForegroundColor Green
         }
-        Write-Host "    mod 已存在: $modLive" -ForegroundColor Green
     }
 
     # ---- 2. 复制地图 ----
@@ -150,8 +166,11 @@ try {
 
     Write-Host ""
     Write-Host "=== Done ===" -ForegroundColor Green
-    Write-Host "Map:  $mapLive"
-    Write-Host "Mod:  $modLive"
+    Write-Host "Map:   $mapLive"
+    Write-Host "Mods:  $mods7vs1LiveRoot"
+    foreach ($m in $mods7vs1) {
+        Write-Host "  - $($m.Name)"
+    }
 
 } catch {
     Write-Host "ERROR at line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)" -ForegroundColor Red

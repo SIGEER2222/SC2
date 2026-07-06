@@ -1,22 +1,45 @@
 include "TriggerLibs/NativeLib"
+include "TriggerLibs/LibertyLib"
+include "TriggerLibs/CampaignLib"
+include "LibA070801C"
+include "Lib67C0F0E7"
+include "LibC0F50AA6"
+include "Lib81FF3B49"
+include "LibDF8E6945"
+include "Lib0940FFB7"
+include "Lib975E2FE9"
+include "LibE0EAE146"
 include "LibEmptyTestCatalog"
 
-// 生成的指挥官过滤，空字符串 = 生成所有指挥官
-string gv_spawnCommanderFilter = "Reborn";
-
-// F2 排除选中功能相关全局变量
-// 注：此方案直接给 P1 战斗单位自动加 ExcludeF2Test behavior（SuppressArmySelect）
-// 不使用技能切换，进图即生效。用 -unlock 指令移除所有 behavior。
+// 当前测试的指挥官名（通过聊天指令 -c <Commander> 切换）
+// 可用指挥官：Kerrigan, Raynor, Tychus, Nova, Swann, Horner, Mengsk, Stukov,
+//             Stetmann, Artanis, Vorazun, Zeratul, Karax, Alarak, Fenix,
+//             Abathur, AbathurReborn, Zagara, Dehaka
+string gv_currentCommander = "Kerrigan";
 
 void InitLibs () {
     libNtve_InitLib();
+    libLbty_InitLib();
+    libCamp_InitLib();
+    libA070801C_InitLib();
+    lib67C0F0E7_InitLib();
+    libC0F50AA6_InitLib();
+    lib81FF3B49_InitLib();
+    libDF8E6945_InitLib();
+    lib0940FFB7_InitLib();
+    lib975E2FE9_InitLib();
+    libE0EAE146_InitLib();
     libEmptyTestCatalog_InitLib();
 }
 
+//--------------------------------------------------------------------------------------------------
+// 单位生成触发器
+// 在地图初始化时生成当前指挥官的所有单位
+// 也可通过 gt_cmd_switch 切换指挥官后重新调用
+//--------------------------------------------------------------------------------------------------
 trigger gt_spawn;
 
 bool gt_spawn_Func (bool testConds, bool runActions) {
-    int lv_c;
     int lv_u;
     int lv_total;
     int lv_row;
@@ -40,117 +63,38 @@ bool gt_spawn_Func (bool testConds, bool runActions) {
     PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
     PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
 
-    // 给玩家 1 授予 Abathur 升级
-    // mod 的 lib48DF4533_gt_AbathurAbilities 触发器需要此升级才会给刺蛇/跳虫/爆虫/蟑螂等
-    // 单位注入 Purchase 能力（HydraliskCripple, BanelingCreep, AdrenalineOverdose 等）
-    // mod 的 CommanderStart 初始化也会检查此升级，启用 Purchase 能力的 TechTree
-    libNtve_gf_SetUpgradeLevelForPlayer(1, "Abathur", 1);
-
-    // 启用 mod 的 Abathur Abilities 触发器（默认禁用）
-    // 该触发器在单位进入地图时给刺蛇/跳虫/爆虫/蟑螂/王虫注入 Purchase 能力
-    // 需要先设置 Abathur 升级，否则触发器条件不满足
-    TriggerEnable(lib48DF4533_gt_AbathurAbilities, true);
-
-    // 解锁基地工蜂升级能力按钮（mod 的 gt_Abathur 触发器负责解锁，但测试地图未走 mod 标准
-    // SwarmSetup 初始化流程，且 gt_Abathur 依赖 gv_coop_group 玩家组，需 bank 加载才会填充，
-    // 测试地图无 bank，故直接 TechTreeAbilityAllow 解锁 Restricted 按钮状态）
-    TechTreeAbilityAllow(1, AbilityCommand("MineralEfficiency", 0), true);
-    TechTreeAbilityAllow(1, AbilityCommand("VespeneEfficiency", 0), true);
-    TechTreeAbilityAllow(1, AbilityCommand("CombatDrone", 0), true);
-    TechTreeAbilityAllow(1, AbilityCommand("FastMorphing", 0), true);
-    TechTreeAbilityAllow(1, AbilityCommand("NaturalCamouflage", 0), true);
-    TechTreeAbilityAllow(1, AbilityCommand("Cliffjumper", 0), true);
-
-    // 解锁 Abathur 进化分支变种（mod 默认锁定，需要 TechTreeUnitAllow 显式解锁）
-    TechTreeUnitAllow(1, "RoachCorpser", true);
-    TechTreeUnitAllow(1, "RoachVile", true);
-    TechTreeUnitAllow(1, "SwarmHostSplitA", true);
-    TechTreeUnitAllow(1, "SwarmHostSplitB", true);
-    TechTreeUnitAllow(1, "HotSRaptor", true);
-    TechTreeUnitAllow(1, "HotSSwarmling", true);
-    TechTreeUnitAllow(1, "HydraliskImpaler", true);
-    TechTreeUnitAllow(1, "HydraliskLurker", true);
-    TechTreeUnitAllow(1, "HotSNoxious", true);
-    TechTreeUnitAllow(1, "HotSTorrasque", true);
-    TechTreeUnitAllow(1, "Devourer", true);
-
-    // 解锁 Purchase 能力（mod 的 AbathurAbilities 触发器只对刺蛇/跳虫/爆虫/蟑螂/王虫家族解锁，
-    // 雷兽/飞龙/宿主/穿刺者/潜伏者等需要手动解锁）
-    // 注意：TechTreeAbilityAllow 报错"能力无效"，暂时注释掉
-    // Ultralisk 家族
-    // TechTreeAbilityAllow(1, AbilityCommand("UltraliskElectricShockPurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("UltraliskHighVoltagePurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("UltraliskLightningRaidPurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("UltraliskThunderstormPurchase", 0), true);
-    // Mutalisk 家族
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurMutaliskExplosiveGlaivePurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurMutaliskViciousGlaivePurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurMutaliskRapidRegenerationPurchase", 0), true);
-    // SwarmHost 家族
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurHostRapidIncubationPurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurHostLocustSpeedPurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurHostPressurizedGlandsPurchase", 0), true);
-    // HydraliskImpaler 变种
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurImpalerArmorPiercingSpinesPurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurImpalerEarthveinGlidePurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurImpalerAftershockImpalePurchase", 0), true);
-    // HydraliskLurker 变种
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurLurkerRiftSpinesPurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurLurkerStalkerGlidePurchase", 0), true);
-    // TechTreeAbilityAllow(1, AbilityCommand("AbathurLurkerVenomAmbushPurchase", 0), true);
-
     lv_perRow = 14;
     lv_spacing = 3.0;
     lv_total = 0;
     lv_skipped = 0;
     lv_created = 0;
 
-    for (lv_c = 0; lv_c < gv_c_EmptyTestCommanderCount; lv_c += 1) {
-        if (gv_spawnCommanderFilter == "" || gv_EmptyTestCommanders[lv_c] == gv_spawnCommanderFilter) {
-            lv_unitCount = gv_EmptyTestUnitCounts[lv_c];
+    // 使用 LibEmptyTestCatalog API 获取当前指挥官的单位列表
+    lv_unitCount = libEmptyTestCatalog_gf_UnitCountOf(gv_currentCommander);
 
-            for (lv_u = 0; lv_u < lv_unitCount; lv_u += 1) {
-                lv_unitType = gv_EmptyTestUnits[gv_EmptyTestUnitOffsets[lv_c] + lv_u];
-                if (lv_unitType != "") {
-                    if (CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType) == false) {
-                        // 调试输出：被跳过的无效单位
-                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("SKIP: ") + StringToText(lv_unitType));
-                        lv_skipped += 1;
-                    }
-                    else {
-                        lv_col = lv_total - (lv_total / lv_perRow) * lv_perRow;
-                        lv_row = lv_total / lv_perRow;
-                        lv_x = 40.0 + (lv_col * lv_spacing);
-                        lv_y = 85.0 - (lv_row * lv_spacing);
-                        lv_pos = Point(lv_x, lv_y);
-                        libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
-                        lv_total += 1;
-                        lv_created += 1;
-                    }
-                }
+    for (lv_u = 0; lv_u < lv_unitCount; lv_u += 1) {
+        lv_unitType = libEmptyTestCatalog_gf_UnitAt(gv_currentCommander, lv_u);
+        if (lv_unitType != "") {
+            if (CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType) == false) {
+                UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug, StringToText("SKIP: ") + StringToText(lv_unitType));
+                lv_skipped += 1;
+            }
+            else {
+                lv_col = lv_total - (lv_total / lv_perRow) * lv_perRow;
+                lv_row = lv_total / lv_perRow;
+                lv_x = 40.0 + (lv_col * lv_spacing);
+                lv_y = 85.0 - (lv_row * lv_spacing);
+                lv_pos = Point(lv_x, lv_y);
+                libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_unitType, c_unitCreateIgnorePlacement, 1, lv_pos);
+                lv_total += 1;
+                lv_created += 1;
             }
         }
     }
 
-    // 调试输出：创建和跳过的总数
     UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug,
-        StringToText("Total created=") + IntToText(lv_created)
+        StringToText("[") + StringToText(gv_currentCommander) + StringToText("] created=") + IntToText(lv_created)
         + StringToText(" skipped=") + IntToText(lv_skipped));
-
-    // 额外生成几个不同类型的初始单位用于测试 F2 排除
-    // 覆盖：建筑 / 工人 / 地面近战 / 地面远程 / 飞行 / 攻城 / 大型
-    // 在地图下方区域 (y=20~32) 按类型分组放置，便于点击按钮后逐个测试
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Hatchery",    c_unitCreateIgnorePlacement, 1, Point(50.0, 30.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(3, "Drone",       c_unitCreateIgnorePlacement, 1, Point(48.0, 28.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(4, "Zergling",    c_unitCreateIgnorePlacement, 1, Point(52.0, 28.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Hydralisk",   c_unitCreateIgnorePlacement, 1, Point(48.0, 32.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Overlord",    c_unitCreateIgnorePlacement, 1, Point(52.0, 32.0));
-    // 第二批：更多战斗单位，验证选中效果覆盖不同体型/类型
-    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Baneling",    c_unitCreateIgnorePlacement, 1, Point(56.0, 28.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Roach",       c_unitCreateIgnorePlacement, 1, Point(56.0, 32.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(2, "Mutalisk",    c_unitCreateIgnorePlacement, 1, Point(60.0, 28.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, "SwarmHost",   c_unitCreateIgnorePlacement, 1, Point(60.0, 32.0));
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Ultralisk",   c_unitCreateIgnorePlacement, 1, Point(64.0, 30.0));
 
     return true;
 }
@@ -160,9 +104,10 @@ void gt_spawn_Init () {
     TriggerAddEventMapInit(gt_spawn);
 }
 
-// 周期性重置资源/人口上限的触发器
-// mod 初始化会用 c_playerPropOperAdd/Subtract 修改人口上限覆盖我们的 SetTo，
-// 用 while+Wait 循环每秒重置一次，确保覆盖 mod 的任何修改
+//--------------------------------------------------------------------------------------------------
+// 周期性重置资源/人口上限
+// mod 初始化可能修改人口上限，用循环每秒重置覆盖
+//--------------------------------------------------------------------------------------------------
 trigger gt_resetResources;
 
 bool gt_resetResources_Func (bool testConds, bool runActions) {
@@ -171,7 +116,6 @@ bool gt_resetResources_Func (bool testConds, bool runActions) {
     }
 
     while (true) {
-        // 重置资源/人口上限（覆盖 mod 初始化的修改）
         PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
         PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
         PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
@@ -187,83 +131,59 @@ void gt_resetResources_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// F2 排除选中功能（自动方案）
-// 在所有 P1 战斗单位创建后自动添加 ExcludeF2Test behavior（SuppressArmySelect）
-// 这样它们不会被 F2"选中全部战斗单位"选中
-// 聊天指令 -unlock → 移除地图上所有单位的 ExcludeF2Test behavior，恢复 F2 选中
+// 切换指挥官指令: -c <Commander>
+// 示例: -c Kerrigan, -c Raynor, -c Abathur, -c Nova
+// 切换后清除所有 P1 单位并重新生成
 //--------------------------------------------------------------------------------------------------
+trigger gt_cmd_switch;
 
-// 给玩家1所有战斗单位自动添加 ExcludeF2Test behavior
-void gf_ApplyExcludeF2ToAllCombatUnits () {
-    unitgroup autoGroup;
-    int autoCount;
-    unit autoUnit;
-    int lv_applied;
+bool gt_cmd_switch_Func (bool testConds, bool runActions) {
+    string lv_msg;
+    string lv_cmd;
+    unitgroup lv_group;
+    int lv_count;
+    unit lv_unit;
 
-    // 筛选所有 P1 单位，排除建筑/工人/导弹/死单位
-    autoGroup = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterWorker) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
-    autoCount = UnitGroupCount(autoGroup, c_unitCountAll);
-    lv_applied = 0;
-    for (;; autoCount -= 1) {
-        autoUnit = UnitGroupUnitFromEnd(autoGroup, autoCount);
-        if (autoUnit == null) { break; }
-        if (!UnitHasBehavior2(autoUnit, "ExcludeF2Test")) {
-            UnitBehaviorAdd(autoUnit, "ExcludeF2Test", autoUnit, 1);
-            lv_applied += 1;
-        }
+    if (!runActions) {
+        return true;
     }
-    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug,
-        StringToText("[F2] 已为 ") + IntToText(lv_applied) + StringToText(" 个战斗单位添加 ExcludeF2Test behavior"));
-}
 
-// 触发器: 单位生成完成后自动给所有 P1 战斗单位添加 ExcludeF2Test behavior
-// 用延时触发确保 spawn 触发器先执行完
-trigger gt_applyExcludeF2;
-bool gt_applyExcludeF2_Func (bool testConds, bool runActions) {
-    if (!runActions) { return true; }
-    gf_ApplyExcludeF2ToAllCombatUnits();
+    lv_msg = EventChatMessage(false);
+    lv_cmd = StringWord(lv_msg, 2);
+
+    if (libEmptyTestCatalog_gf_CommanderIndex(lv_cmd) < 0) {
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug,
+            StringToText("[ERROR] 未知指挥官: ") + StringToText(lv_cmd));
+        return true;
+    }
+
+    gv_currentCommander = lv_cmd;
+
+    // 移除所有 P1 单位（排除导弹和死单位）
+    lv_group = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    lv_count = UnitGroupCount(lv_group, c_unitCountAll);
+    while (lv_count > 0) {
+        lv_unit = UnitGroupUnit(lv_group, 1);
+        if (lv_unit == null) { break; }
+        UnitRemove(lv_unit);
+        lv_count -= 1;
+    }
+
+    // 重新生成当前指挥官的单位
+    gt_spawn_Func(true, true);
+
     return true;
 }
-void gt_applyExcludeF2_Init () {
-    gt_applyExcludeF2 = TriggerCreate("gt_applyExcludeF2_Func");
-    TriggerAddEventTimeElapsed(gt_applyExcludeF2, 2.0, c_timeReal);
-}
 
-// 指令: -unlock (移除地图上所有 P1 单位的 ExcludeF2Test behavior)
-trigger gt_cmd_unlock;
-bool gt_cmd_unlock_Func (bool testConds, bool runActions) {
-    unitgroup autoGroup;
-    int autoCount;
-    unit autoUnit;
-    int lv_removed;
-
-    if (!runActions) { return true; }
-
-    autoGroup = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
-    autoCount = UnitGroupCount(autoGroup, c_unitCountAll);
-    lv_removed = 0;
-    for (;; autoCount -= 1) {
-        autoUnit = UnitGroupUnitFromEnd(autoGroup, autoCount);
-        if (autoUnit == null) { break; }
-        if (UnitHasBehavior2(autoUnit, "ExcludeF2Test")) {
-            UnitBehaviorRemove(autoUnit, "ExcludeF2Test", 1);
-            lv_removed += 1;
-        }
-    }
-    UIDisplayMessage(PlayerGroupAll(), c_messageAreaDebug,
-        StringToText("[F2 UNLOCK] 已移除 ") + IntToText(lv_removed) + StringToText(" 个单位的 ExcludeF2Test"));
-    return true;
-}
-void gt_cmd_unlock_Init () {
-    gt_cmd_unlock = TriggerCreate("gt_cmd_unlock_Func");
-    TriggerAddEventChatMessage(gt_cmd_unlock, c_playerAny, "-unlock", true);
+void gt_cmd_switch_Init () {
+    gt_cmd_switch = TriggerCreate("gt_cmd_switch_Func");
+    TriggerAddEventChatMessage(gt_cmd_switch, c_playerAny, "-c ", false);
 }
 
 void InitTriggers () {
     gt_spawn_Init();
     gt_resetResources_Init();
-    gt_applyExcludeF2_Init();
-    gt_cmd_unlock_Init();
+    gt_cmd_switch_Init();
 }
 
 void InitMap () {
