@@ -1,0 +1,117 @@
+import { readFileSync, existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const WORKSPACE_ROOT = join(__dirname, '..', '..');
+const METADATA_PATH = join(WORKSPACE_ROOT, 'Shared', 'CommanderPower', 'commander-power-metadata.json');
+const START_TALENTS_PATH = join(WORKSPACE_ROOT, 'Shared', 'CommanderPower', 'start-talents.json');
+
+// 与 PowerShell 版本保持一致的 18 个可玩指挥官 runtime 列表（用于过滤 TestZerg、Izsha 等）
+const PLAYABLE_COMMANDERS = new Set([
+  'TerranRaynor', 'ZergKerrigan', 'ProtossArtanis', 'TerranNova', 'ZergAbathur',
+  'ProtossFenix', 'ProtossVorazun', 'TerranSwann', 'ZergZagara', 'ProtossKarax',
+  'TerranHorner', 'ZergDehaka', 'ProtossAlarak', 'ZergStukov', 'ProtossZeratul',
+  'ZergStetmann', 'TerranMengsk', 'TerranTychus',
+]);
+
+// integrationStatus 硬编码映射（移植自 PowerShell 脚本第 57-66 行）
+const COMMANDER_INLINE_STATUS_MAP = {
+  TerranRaynor: { code: 'partial-inline', tone: 'warning', note: '部分内联' },
+  ZergKerrigan: { code: 'partial-inline', tone: 'warning', note: '部分内联' },
+  ProtossArtanis: { code: 'partial-inline', tone: 'warning', note: '部分内联' },
+  TerranNova: { code: 'external', tone: 'info', note: '外部加载' },
+  ZergAbathur: { code: 'partial-inline', tone: 'warning', note: '部分内联' },
+  ProtossFenix: { code: 'external', tone: 'info', note: '外部加载' },
+  ProtossVorazun: { code: 'external', tone: 'info', note: '外部加载' },
+  TerranSwann: { code: 'partial-inline', tone: 'warning', note: '部分内联' },
+  ZergZagara: { code: 'partial-inline', tone: 'warning', note: '部分内联' },
+  ProtossKarax: { code: 'external', tone: 'info', note: '外部加载' },
+  TerranHorner: { code: 'external', tone: 'info', note: '外部加载' },
+  ZergDehaka: { code: 'external', tone: 'info', note: '外部加载' },
+  ProtossAlarak: { code: 'external', tone: 'info', note: '外部加载' },
+  ZergStukov: { code: 'external', tone: 'info', note: '外部加载' },
+  ProtossZeratul: { code: 'external', tone: 'info', note: '外部加载' },
+  ZergStetmann: { code: 'external', tone: 'info', note: '外部加载' },
+  TerranMengsk: { code: 'external', tone: 'info', note: '外部加载' },
+  TerranTychus: { code: 'external', tone: 'info', note: '外部加载' },
+};
+
+/**
+ * 加载指挥官数据
+ * @returns {Array} 指挥官数组
+ */
+export function loadCommanders() {
+  if (!existsSync(METADATA_PATH)) return [];
+
+  const metadata = JSON.parse(readFileSync(METADATA_PATH, 'utf8'));
+  let startTalentsMap = {};
+  if (existsSync(START_TALENTS_PATH)) {
+    const startTalents = JSON.parse(readFileSync(START_TALENTS_PATH, 'utf8'));
+    startTalentsMap = startTalents.commanders || {};
+  }
+
+  const commanders = [];
+  for (const cmdr of metadata.commanders || []) {
+    const runtime = cmdr.runtime_commander;
+    if (!PLAYABLE_COMMANDERS.has(runtime)) continue;
+
+    const status = COMMANDER_INLINE_STATUS_MAP[runtime] || {
+      code: 'unknown', tone: 'muted', note: '',
+    };
+
+    // 从 start-talents.json 读取天赋数据
+    const startTalentsData = startTalentsMap[runtime];
+    const startTalents = startTalentsData
+      ? {
+          defaultMask: 0,
+          talents: (startTalentsData.talents || []).map((t) => ({
+            id: t.id,
+            name: t.name,
+            description: t.description,
+            bitMask: t.bit_mask,
+            defaultEnabled: !!t.default_enabled,
+            ...(t.rarity ? { rarity: t.rarity } : {}),
+            ...(t.category ? { category: t.category } : {}),
+          })),
+        }
+      : { defaultMask: 0, talents: [] };
+
+    commanders.push({
+      runtime,
+      displayName: cmdr.display_name || runtime,
+      bankCommander: cmdr.bank_commander || '',
+      generatedCommander: cmdr.generated_commander || '',
+      image: '',
+      imageReady: false,
+      imageSource: 'missing',
+      imageSourceLabel: '未命中',
+      integrationStatus: status.note,
+      integrationStatusCode: status.code,
+      integrationTone: status.tone,
+      integrationNote: status.note,
+      defaultPrestigeBonusMask: 7,
+      defaultPrestigePointIndex: -1,
+      prestiges: (cmdr.prestiges || []).map((p) => ({
+        slot: p.slot,
+        bitMask: p.bit_mask,
+        id: p.id,
+        name: p.name || '',
+        nameEn: p.name_en || '',
+        tooltip: p.tooltip || '',
+        tooltipEn: p.tooltip_en || '',
+        extraOptions: p.extra_options || [],
+      })),
+      masteries: (cmdr.masteries || []).map((m) => ({
+        slot: m.slot,
+        category: m.category,
+        id: m.id,
+        name: m.name || '',
+        valueFormat: m.value_format || '',
+      })),
+      startTalents,
+    });
+  }
+
+  return commanders;
+}

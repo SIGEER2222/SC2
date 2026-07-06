@@ -19,6 +19,10 @@ const PORT = 17761;
 const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
+
+// favicon.ico 不存在时返回 204，避免控制台 404 报错
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 app.use('/api', bootstrapRouter, syncRouter, scenarioRouter);
 
 // 错误处理（必须放在路由之后，4 个参数才被识别为错误处理器）
