@@ -82,23 +82,20 @@ router.get('/bootstrap', (req, res) => {
   };
 
   res.json({
-    ok: true,
-    data: {
-      generatedAt: new Date().toISOString(),
-      workspaceRoot: __dirname,
-      launchScript: '',
-      counts,
-      defaults,
-      commanders,
-      maps,
-      mutators,
-      voicePacks,
-      completion,
-      scoreSystem: getScoreSystem(),
-      resourcePlan: getResourcePlan(),
-      scenariosA,
-      scenariosB,
-    },
+    generatedAt: new Date().toISOString(),
+    workspaceRoot: __dirname,
+    launchScript: '',
+    counts,
+    defaults,
+    commanders,
+    maps,
+    mutators,
+    voicePacks,
+    completion,
+    scoreSystem: getScoreSystem(),
+    resourcePlan: getResourcePlan(),
+    scenariosA,
+    scenariosB,
   });
 });
 
