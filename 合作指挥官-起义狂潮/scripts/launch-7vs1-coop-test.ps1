@@ -110,7 +110,23 @@ function Resolve-ExtensionSource {
 function Get-SplitCatalogModDependencies {
     return @(
         "file:Mods/7vs1/BaseCatalogPatch.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Abathur.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Horner.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Kerrigan.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Nova.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Raynor.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_RaynorX.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Alarak.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Artanis.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Dehaka.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Fenix.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Karax.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Mengsk.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Stukov.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Swann.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Vorazun.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Zagara.SC2Mod",
+        "file:Mods/7vs1/CommanderUnits_Zeratul.SC2Mod",
         "file:Mods/7vs1/CommanderUnits_Stetmann.SC2Mod",
         "file:Mods/7vs1/CommanderUnits_TychusXM.SC2Mod",
         "file:Mods/7vs1/SharedUnits.SC2Mod",
@@ -1118,7 +1134,10 @@ function Clear-Sc2TextureReductionCache {
         return
     }
 
-    foreach ($cacheName in @("data.025", "shmem")) {
+    # 注意：data.025 是 1GB 的数据文件（不是缓存），删除会导致 SC2 报
+    # e_fileCorruptRepairable (NGDP:E_REPAIR) 错误并需要重新下载 3.5GB。
+    # 此处只清理 shmem 共享内存文件。
+    foreach ($cacheName in @("shmem")) {
         $cachePath = Join-Path $cacheRoot $cacheName
         if (-not (Test-Path -LiteralPath $cachePath)) {
             continue
@@ -1251,6 +1270,8 @@ foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
 }
 # Remove the legacy CommanderCatalog.SC2Mod dependency now that it is split into the six mods above.
 $mapDependencies = @($mapDependencies | Where-Object { $_ -ne 'file:Mods/7vs1/CommanderCatalog.SC2Mod' })
+# Remove the legacy CommanderUnits.SC2Mod dependency now that it is split into 17 per-commander mods.
+$mapDependencies = @($mapDependencies | Where-Object { $_ -ne 'file:Mods/7vs1/CommanderUnits.SC2Mod' })
 
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $extensionDependencies -DependencyOwner "extension dependencies"
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $mapDependencies -DependencyOwner "map dependencies"
