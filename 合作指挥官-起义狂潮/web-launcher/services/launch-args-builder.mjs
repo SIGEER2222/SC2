@@ -8,6 +8,7 @@ import { loadCompletion } from '../lib/completion-loader.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const LAUNCH_7VS1_PS1 = join(__dirname, '..', '..', 'scripts', 'launch-7vs1-coop-test.ps1');
+const LAUNCH_XM_PS1 = join(__dirname, '..', '..', 'scripts', 'launch-xm-scenario.ps1');
 
 // 与 PowerShell 版 allowedGenericBonuses 保持一致
 const ALLOWED_GENERIC_BONUSES = new Set([
@@ -217,17 +218,26 @@ export function buildLaunchArgs(request) {
   const noLaunch = request.noLaunch === true;
 
   // 构造参数列表（按 PowerShell 版顺序）
+  // - launchMode='xm-scenario'：使用 launch-xm-scenario.ps1（轻量，仅写 Bank + SC2Switcher），用 -MapPath
+  // - 其他：使用 launch-7vs1-coop-test.ps1（注入 70+ 库），用 -MapSource + -LiveMapName
+  const isXmScenario = mapItem.launchMode === 'xm-scenario';
+  const launchScript = isXmScenario ? LAUNCH_XM_PS1 : LAUNCH_7VS1_PS1;
   const args = [
-    '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', LAUNCH_7VS1_PS1,
-    '-MapSource', mapItem.path,
-    '-LiveMapName', mapItem.id,
+    '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', launchScript,
+  ];
+  if (isXmScenario) {
+    args.push('-MapPath', mapItem.path);
+  } else {
+    args.push('-MapSource', mapItem.path, '-LiveMapName', mapItem.id);
+  }
+  args.push(
     '-Commanders', commander,
     '-CommanderPowerMasteryLevel', String(masteryLevel),
     '-CommanderPowerEnableMasteries', String(enableMasteries),
     '-CommanderPowerEnablePrestiges', String(enablePrestiges),
     '-CommanderPowerPrestigeBonusMask', String(prestigeBonusMask),
     '-CommanderPowerPrestigePointIndex', String(prestigePointIndex),
-  ];
+  );
 
   for (let i = 0; i < 6; i++) {
     args.push(`-CommanderPowerMastery${i}`);

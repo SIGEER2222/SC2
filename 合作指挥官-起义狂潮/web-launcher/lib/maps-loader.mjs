@@ -30,7 +30,9 @@ function readMapTitle(mapDir) {
 }
 
 /**
- * 加载所有 7vs1 地图
+ * 加载所有 7vs1 与 XM 地图
+ * - `*_7vs1.SC2Map`：通过 launch-7vs1-coop-test.ps1 启动（注入 70+ 库）
+ * - `*_xm.SC2Map`：通过 launch-xm-scenario.ps1 启动（轻量，仅写 Bank + SC2Switcher）
  * @returns {Array} 地图数组
  */
 export function loadMaps() {
@@ -40,8 +42,17 @@ export function loadMaps() {
   const entries = readdirSync(MAPS_ROOT, { withFileTypes: true });
 
   for (const entry of entries) {
-    // 只匹配 *_7vs1.SC2Map 目录（与 PowerShell 版一致）
-    if (!entry.isDirectory() || !entry.name.endsWith('_7vs1.SC2Map')) continue;
+    if (!entry.isDirectory()) continue;
+
+    // 同时匹配 7vs1 与 XM 地图目录
+    let launchMode = null;
+    if (entry.name.endsWith('_7vs1.SC2Map')) {
+      launchMode = '7vs1';
+    } else if (entry.name.endsWith('_xm.SC2Map')) {
+      launchMode = 'xm-scenario';
+    } else {
+      continue;
+    }
 
     const mapDir = join(MAPS_ROOT, entry.name);
     const title = readMapTitle(mapDir);
@@ -52,6 +63,7 @@ export function loadMaps() {
       displayName,
       title,
       path: mapDir,
+      launchMode,
     });
   }
 
