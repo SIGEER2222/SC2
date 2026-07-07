@@ -246,110 +246,6 @@ function Set-FileTextWithRetry {
     }
 }
 
-function Merge-LiveCommanderCatalogUnitData {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string[]]$LiveGameDataRoots
-    )
-
-    function Remove-StetmannPrestigeLockButtons {
-        param([xml]$CatalogXml)
-
-        foreach ($removedFace in @(
-            'CommanderPrestigeStetmannMechaInfestorLocked',
-            'CommanderPrestigeStetmannChargingProtocolResearchLocked',
-            'CommanderPrestigeStetmannBonusRavagerResearchLocked',
-            'CommanderPrestigeStetmannRecycleMechaInfestorLocked',
-            'CommanderPrestigeStetmannMechaInfestorBuildLocked'
-        )) {
-            foreach ($removedNode in @($CatalogXml.SelectNodes("/Catalog/CUnit/CardLayouts/LayoutButtons[@Face='$removedFace']"))) {
-                if ($null -ne $removedNode.ParentNode) {
-                    [void]$removedNode.ParentNode.RemoveChild($removedNode)
-                }
-            }
-        }
-    }
-
-    # The first directory is the base (BaseCatalogPatch) where UnitData.xml lives
-    $basePath = Join-Path $LiveGameDataRoots[0] 'UnitData.xml'
-    if (-not (Test-Path -LiteralPath $basePath)) {
-        throw "Live BaseCatalogPatch UnitData.xml not found: $basePath"
-    }
-
-    [xml]$baseXml = Get-Content -LiteralPath $basePath -Encoding UTF8 -Raw
-    if ($null -eq $baseXml.Catalog) {
-        throw "Expected Catalog root in $basePath"
-    }
-
-    # Scan all provided directories for UnitData*.xml files (except UnitData.xml)
-    $splitPaths = @()
-    foreach ($root in $LiveGameDataRoots) {
-        if (-not (Test-Path -LiteralPath $root)) {
-            continue
-        }
-        $found = Get-ChildItem -LiteralPath $root -File -Filter 'UnitData*.xml' |
-            Where-Object { $_.Name -ne 'UnitData.xml' }
-        $splitPaths += $found
-    }
-    $splitPaths = $splitPaths | Sort-Object Name
-
-    foreach ($path in $splitPaths) {
-        [xml]$splitXml = Get-Content -LiteralPath $path.FullName -Encoding UTF8 -Raw
-        if ($null -eq $splitXml.Catalog) {
-            throw "Expected Catalog root in $($path.FullName)"
-        }
-
-        foreach ($unit in @($splitXml.Catalog.CUnit)) {
-            $id = [string]$unit.id
-            if ([string]::IsNullOrWhiteSpace($id)) {
-                continue
-            }
-
-            $escapedId = $id.Replace("'", "&apos;")
-            $existing = $baseXml.SelectSingleNode("/Catalog/CUnit[@id='$escapedId']")
-            $imported = $baseXml.ImportNode($unit, $true)
-            if ($null -ne $existing) {
-                [void]$baseXml.DocumentElement.ReplaceChild($imported, $existing)
-            }
-            else {
-                [void]$baseXml.DocumentElement.AppendChild($imported)
-            }
-        }
-    }
-
-    Remove-StetmannPrestigeLockButtons -CatalogXml $baseXml
-
-    $settings = New-Object System.Xml.XmlWriterSettings
-    $settings.Indent = $true
-    $settings.Encoding = New-Object System.Text.UTF8Encoding($false)
-    $writer = [System.Xml.XmlWriter]::Create($basePath, $settings)
-    try {
-        $baseXml.Save($writer)
-    }
-    finally {
-        $writer.Close()
-    }
-
-    [xml]$verifyXml = Get-Content -LiteralPath $basePath -Encoding UTF8 -Raw
-    foreach ($requiredId in @('HatcheryKerrigan', 'DroneKerrigan', 'OverlordKerrigan')) {
-        if ($null -eq $verifyXml.SelectSingleNode("/Catalog/CUnit[@id='$requiredId']")) {
-            throw "Live CommanderCatalog merge missing required Kerrigan unit: $requiredId"
-        }
-    }
-
-    foreach ($removedFace in @(
-        'CommanderPrestigeStetmannMechaInfestorLocked',
-        'CommanderPrestigeStetmannChargingProtocolResearchLocked',
-        'CommanderPrestigeStetmannBonusRavagerResearchLocked',
-        'CommanderPrestigeStetmannRecycleMechaInfestorLocked',
-        'CommanderPrestigeStetmannMechaInfestorBuildLocked'
-    )) {
-        if ($null -ne $verifyXml.SelectSingleNode("/Catalog/CUnit/CardLayouts/LayoutButtons[@Face='$removedFace']")) {
-            throw "Live CommanderCatalog merge kept removed Stetmann lock button: $removedFace"
-        }
-    }
-}
-
 function Wait-PathAvailable {
     param(
         [string]$Path,
@@ -1309,11 +1205,6 @@ if ($LiveMapName -ne "emptytest.SC2Map") {
 $effectiveRuntimeBaseData = Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryPath -MapLive $mapLive -ExtensionLive $extensionLive -LibraryName "LibKPVP.galaxy")
 
 $liveGameData = Join-Path $extensionLive "Base.SC2Data\GameData"
-$liveCommanderCatalogGameDataRoots = @()
-foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
-    $liveCommanderCatalogGameDataRoots += (Join-Path (Resolve-LiveDependencyDestination -Dependency $catalogDep -Sc2Root $Sc2Root) "Base.SC2Data\GameData")
-}
-Merge-LiveCommanderCatalogUnitData -LiveGameDataRoots $liveCommanderCatalogGameDataRoots
 if ($LiveMapName -ne "emptytest.SC2Map") {
     Validate-LiveBaseTestlineInstall -MapLive $mapLive -ExtensionLive $extensionLive -SelectedCommanders $effectiveCommanders
 }
