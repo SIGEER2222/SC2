@@ -1213,13 +1213,30 @@ $installedWorkspaceDependencyMods = Install-WorkspaceModDependencyClosure `
 
 $extensionBaseData = Join-Path $extensionLive "Base.SC2Data"
 $kitMutationsLiveBaseData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/kit_mutations.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data"
-$abathurUnitsLiveBaseData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/7vs1/CommanderUnits_Abathur.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data"
+
+# 收集所有已安装的 CommanderUnits_*.SC2Mod 的 Base.SC2Data 目录
+# 各指挥官专属的 Runtime galaxy 文件已迁移到对应的 CommanderUnits mod 中，
+# 这里扫描 SC2 安装目录下的 Mods/7vs1/CommanderUnits_*.SC2Mod，将含有
+# Base.SC2Data 的目录加入运行时库注入列表，保证主库 include 能正确解析。
+$commanderUnitsModsRoot = Join-Path $Sc2Root "Mods\7vs1"
+$commanderUnitsBaseDataRoots = @()
+if (Test-Path -LiteralPath $commanderUnitsModsRoot) {
+    Get-ChildItem -LiteralPath $commanderUnitsModsRoot -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -like 'CommanderUnits_*.SC2Mod' } |
+        ForEach-Object {
+            $baseData = Join-Path $_.FullName "Base.SC2Data"
+            if (Test-Path -LiteralPath $baseData) {
+                $commanderUnitsBaseDataRoots += $baseData
+            }
+        }
+}
+
 if ($LiveMapName -ne "emptytest.SC2Map") {
     Sync-LiveMapRuntimeLibraries `
         -MapLive $mapLive `
         -RuntimeBaseRoots @(
-            $extensionBaseData,
-            $abathurUnitsLiveBaseData,
+            $extensionBaseData
+            $commanderUnitsBaseDataRoots
             $kitMutationsLiveBaseData
         )
 }
