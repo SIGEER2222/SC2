@@ -44,6 +44,7 @@ include "LibE0EAE146_CommanderStartSquads"
 include "LibE0EAE146_HexTalents"
 include "LibE0EAE146_TalentCatalog"
 include "LibE0EAE146_TalentSystem"
+include "LibE0EAE146_CommanderRegistry"
 //--------------------------------------------------------------------------------------------------
 // Library: Final
 //--------------------------------------------------------------------------------------------------
@@ -178,8 +179,8 @@ void libE0EAE146_gf_FinishLevel () {
 }
 
 void libE0EAE146_gf_Initialize (bool lp_rpg) {
-    // Automatic Variable Declarations
-    string autoC0933116_val;
+    // Variable Declarations
+    string lv_consoleSkin;
 
     // Implementation
     libE0EAE146_gf_RuntimeCheckpoint("Initialize.enter");
@@ -188,84 +189,12 @@ void libE0EAE146_gf_Initialize (bool lp_rpg) {
     libE0EAE146_gv_commander = libE0EAE146_gf_RuntimePrimaryCommander();
     XMProgression_Init(1);
     libE0EAE146_gf_RuntimeCheckpoint("Initialize.commander");
-    autoC0933116_val = libE0EAE146_gv_commander;
-    // Keep every commander on an explicit console skin path instead of falling through silently.
-    if (autoC0933116_val == "Raynor") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleTerran_Default");
+    // Data-driven console skin + special init (replaces 18-branch if-else).
+    lv_consoleSkin = libE0EAE146_gf_CommanderConsoleSkin(libE0EAE146_gv_commander);
+    if ((lv_consoleSkin != "")) {
+        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, lv_consoleSkin);
     }
-    else if (autoC0933116_val == "RaynorX") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleTerran_Default");
-    }
-    else if (autoC0933116_val == "Kerrigan") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleZerg_Default");
-    }
-    else if (autoC0933116_val == "TestZerg") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleZerg_Default");
-    }
-    else if (((autoC0933116_val == "Abathur") || (autoC0933116_val == "AbathurCustom"))) {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleZerg_Abathur");
-    }
-    else if (autoC0933116_val == "AbathurReborn") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleZerg_Abathur");
-    }
-    else if (autoC0933116_val == "Zagara") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleZerg_Zagara");
-    }
-    else if (autoC0933116_val == "Alarak") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleProtoss_Forged");
-    }
-    else if (autoC0933116_val == "Artanis") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleProtoss_Default");
-    }
-    else if (autoC0933116_val == "Fenix") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleProtoss_Fenix");
-    }
-    else if (autoC0933116_val == "Karax") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleProtoss_Default");
-    }
-    else if (autoC0933116_val == "Vorazun") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleProtoss_Default");
-    }
-    else if (autoC0933116_val == "Zeratul") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleProtoss_Ihanrii");
-    }
-    else if (autoC0933116_val == "Stukov") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleZerg_Classic");
-    }
-    else if (autoC0933116_val == "Dehaka") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleZerg_Dehaka");
-        if ((lp_rpg == false)) {
-            PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperAdd, 60);
-        }
-
-    }
-    else if (autoC0933116_val == "Tychus") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleTerran_Classic");
-        if ((lp_rpg == false)) {
-            libNtve_gf_CreateUnitsWithDefaultFacing(1, "CoopCasterTychus", c_unitCreateIgnorePlacement, 1, RegionGetBoundsMin(RegionEntireMap()));
-            lib67C0F0E7_gf_CU_GPInit(1, "Tychus", UnitLastCreated(), null);
-            lib67C0F0E7_gf_TychusSquadInitTrigger(1, 4, "Abil/TychusTrain", "CoopTechTychusSquad", "Event_TychusHeroStructureCreate", "Event_TychusHeroMainBuilding");
-        }
-
-    }
-    else if (((autoC0933116_val == "Mira") || (autoC0933116_val == "Horner") || (autoC0933116_val == "HanHorner") || (autoC0933116_val == "HanAndHorner"))) {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleTerran_Horner");
-    }
-    else if (autoC0933116_val == "Nova") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleTerran_CovertOps");
-    }
-    else if (autoC0933116_val == "Mengsk") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleTerran_Imperial");
-        libC0F50AA6_gf_InitlizeMengskVeterancy();
-    }
-    else if (autoC0933116_val == "Swann") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleTerran_Swann");
-    }
-    else if (autoC0933116_val == "Stetmann") {
-        lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin(1, "ConsoleZerg_Mecha");
-    }
-    else {
-    }
+    libE0EAE146_gf_CommanderApplySpecialInit(1, libE0EAE146_gv_commander, lp_rpg);
     libE0EAE146_gf_ApplyConsoleSkinOverride(1);
     libE0EAE146_gf_RuntimeCheckpoint("Initialize.console");
     libE0EAE146_gf_RuntimeCheckpoint("Initialize.exit");
@@ -1613,7 +1542,6 @@ void libE0EAE146_gf_InitializeBase (point lp_secondUnit, int lp_worker, point lp
     // Automatic Variable Declarations
     unitgroup auto93C1ECD3_g;
     int auto93C1ECD3_u;
-    string auto09490B45_val;
 
     // Variable Initialization
     lv_uG = UnitGroupEmpty();
@@ -1694,79 +1622,8 @@ void libE0EAE146_gf_InitializeBase (point lp_secondUnit, int lp_worker, point lp
     }
     libE0EAE146_gf_RuntimeBaseProbe("WorkerCountAfterCreate", libE0EAE146_gf_RuntimeUnitTypeCount(libE0EAE146_gf_CommanderAchUnit("Worker")));
     libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("SecondUnit"), 0, 1, lp_secondUnit);
-    auto09490B45_val = libE0EAE146_gv_commander;
-    if (auto09490B45_val == "Stukov") {
-        libE0EAE146_gf_StukovRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Dehaka") {
-        libE0EAE146_gf_DehakaRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Tychus") {
-        libE0EAE146_gf_TychusRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (((auto09490B45_val == "Mira") || (auto09490B45_val == "Horner") || (auto09490B45_val == "HanHorner") || (auto09490B45_val == "HanAndHorner"))) {
-        libE0EAE146_gf_HornerRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Nova") {
-        libE0EAE146_gf_NovaRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Mengsk") {
-        libE0EAE146_gf_MengskRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Swann") {
-        libE0EAE146_gf_SwannRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Stetmann") {
-        libE0EAE146_gf_StetmannRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (((auto09490B45_val == "Abathur") || (auto09490B45_val == "AbathurCustom"))) {
-        libE0EAE146_gf_AbathurRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "AbathurReborn") {
-        libE0EAE146_gf_AbathurRebornRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Kerrigan") {
-        libE0EAE146_gf_KerriganRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "TestZerg") {
-        libE0EAE146_gf_TestZergRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Alarak") {
-        libE0EAE146_gf_AlarakRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Artanis") {
-        libE0EAE146_gf_ArtanisRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Fenix") {
-        libE0EAE146_gf_FenixRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Karax") {
-        libE0EAE146_gf_KaraxRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Vorazun") {
-        libE0EAE146_gf_VorazunRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Zagara") {
-        libE0EAE146_gf_ZagaraRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Izsha") {
-        libE0EAE146_gf_IzshaRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if (auto09490B45_val == "Zeratul") {
-        libE0EAE146_gf_ZeratulRuntimeInit(1, lp_secondUnit, lp_createHero);
-    }
-    else if ((auto09490B45_val == "Raynor") || (auto09490B45_val == "TerranRaynor")) {
-        libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.beforeRaynorRuntime");
-        libE0EAE146_gf_RaynorRuntimeInit(1, lp_secondUnit, lp_createHero);
-        libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterRaynorRuntime");
-    }
-    else if (auto09490B45_val == "RaynorX") {
-        libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.beforeRaynorXRuntime");
-        libE0EAE147_gf_RaynorXRuntimeInit(1, lp_secondUnit, lp_createHero);
-        libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterRaynorXRuntime");
-    }
-    else {
-    }
+    // Data-driven RuntimeInit dispatcher (replaces 22-branch if-else).
+    libE0EAE146_gf_CommanderRuntimeInit(1, libE0EAE146_gv_commander, lp_secondUnit, lp_createHero);
     libE0EAE146_gf_ApplyOriginal7v1OpenerTech(1, libE0EAE146_gv_commander);
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterRuntimeOpenerTech");
     libE0EAE146_gf_ApplyGenericBonuses(1);
