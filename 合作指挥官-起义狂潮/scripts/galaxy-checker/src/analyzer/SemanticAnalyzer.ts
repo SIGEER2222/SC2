@@ -105,12 +105,13 @@ function analyzeFunction(
   }
 
   if (fn.body) {
-    walkStatements(fn.body, scope, table, engine, filename, issues);
+    walkStatements(fn.body, fn, scope, table, engine, filename, issues);
   }
 }
 
 function walkStatements(
   stmt: ast.Statement,
+  fn: ast.FunctionDeclaration,
   scope: Scope,
   table: SymbolTable,
   engine: RuleEngine,
@@ -141,32 +142,43 @@ function walkStatements(
     case 'IfStatement':
       checkExpression(stmt.test, scope, table, engine, filename, issues);
       checkVoidInCondition(stmt.test, table, engine, filename, issues);
-      walkStatements(stmt.consequent, scope, table, engine, filename, issues);
-      if (stmt.alternate) walkStatements(stmt.alternate, scope, table, engine, filename, issues);
+      walkStatements(stmt.consequent, fn, scope, table, engine, filename, issues);
+      if (stmt.alternate) walkStatements(stmt.alternate, fn, scope, table, engine, filename, issues);
       break;
     case 'WhileStatement':
       checkExpression(stmt.test, scope, table, engine, filename, issues);
       checkVoidInCondition(stmt.test, table, engine, filename, issues);
-      walkStatements(stmt.body, scope, table, engine, filename, issues);
+      walkStatements(stmt.body, fn, scope, table, engine, filename, issues);
       break;
     case 'ForStatement': {
       const forScope = scope.createChild();
-      if (stmt.init) walkStatements(stmt.init, forScope, table, engine, filename, issues);
+      if (stmt.init) walkStatements(stmt.init, fn, forScope, table, engine, filename, issues);
       if (stmt.test) {
         checkExpression(stmt.test, forScope, table, engine, filename, issues);
         checkVoidInCondition(stmt.test, table, engine, filename, issues);
       }
       if (stmt.update) checkExpression(stmt.update, forScope, table, engine, filename, issues);
-      walkStatements(stmt.body, forScope, table, engine, filename, issues);
+      walkStatements(stmt.body, fn, forScope, table, engine, filename, issues);
       break;
     }
-    case 'ReturnStatement':
+    case 'ReturnStatement': {
+      if (stmt.argument && fn.returnType !== 'void') {
+        const t = inferType(stmt.argument, scope);
+        if (t && t !== fn.returnType && engine.isRuleEnabled('SEM_RETURN_TYPE_MISMATCH')) {
+          issues.push(
+            engine.makeIssue('SEM_RETURN_TYPE_MISMATCH', filename,
+              (stmt as any).start?.line ?? 0, (stmt as any).start?.column ?? 0,
+              `return 类型应为 ${fn.returnType}，实际 ${t}`)!
+          );
+        }
+      }
       if (stmt.argument) checkExpression(stmt.argument, scope, table, engine, filename, issues);
       break;
+    }
     case 'BlockStatement': {
       const blockScope = scope.createChild();
       for (const s of stmt.body) {
-        walkStatements(s, blockScope, table, engine, filename, issues);
+        walkStatements(s, fn, blockScope, table, engine, filename, issues);
       }
       break;
     }
@@ -208,6 +220,19 @@ function checkExpression(
     case 'AssignmentExpression':
       checkExpression(expr.left, scope, table, engine, filename, issues);
       checkExpression(expr.right, scope, table, engine, filename, issues);
+      if (expr.left.type === 'Identifier') {
+        const lv = scope.lookupVariable(expr.left.name);
+        if (lv) {
+          const rt = inferType(expr.right, scope);
+          if (rt && rt !== lv.varType && engine.isRuleEnabled('SEM_ASSIGNMENT_TYPE_MISMATCH')) {
+            issues.push(
+              engine.makeIssue('SEM_ASSIGNMENT_TYPE_MISMATCH', filename,
+                (expr as any).start?.line ?? 0, (expr as any).start?.column ?? 0,
+                `变量 ${lv.name} 类型 ${lv.varType}，赋值类型 ${rt}`)!
+            );
+          }
+        }
+      }
       break;
     case 'CallExpression':
       if (expr.callee.type === 'Identifier') {
@@ -282,5 +307,41 @@ function checkVoidInCondition(
         )!
       );
     }
+  }
+}
+
+// 粗粒度类型推断：返回 Galaxy 类型字符串或 null（无法推断时跳过检查）
+function inferType(expr: ast.Expression, scope: Scope): string | null {
+  switch (expr.type) {
+    case 'Literal':
+      return expr.literalType === 'integer' ? 'int'
+        : expr.literalType === 'fixed' ? 'fixed'
+        : expr.literalType === 'string' ? 'string'
+        : expr.literalType === 'char' ? 'string'
+        : expr.literalType === 'bool' ? 'bool'
+        : null;
+    case 'Identifier': {
+      const v = scope.lookupVariable(expr.name);
+      return v?.varType ?? null;
+    }
+    case 'CallExpression':
+      if (expr.callee.type === 'Identifier') {
+        const fn = scope.lookupFunction(expr.callee.name);
+        return fn?.returnType ?? null;
+      }
+      return null;
+    case 'BinaryExpression':
+      if (['==', '!=', '<', '>', '<=', '>=', '&&', '||'].includes(expr.operator)) return 'bool';
+      if (expr.operator === '+') {
+        const lt = inferType(expr.left, scope);
+        const rt = inferType(expr.right, scope);
+        if (lt === 'string' || rt === 'string') return 'string';
+      }
+      return inferType(expr.left, scope) ?? inferType(expr.right, scope);
+    case 'UnaryExpression':
+      if (expr.operator === '!') return 'bool';
+      return inferType(expr.argument, scope);
+    default:
+      return null;
   }
 }
