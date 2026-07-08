@@ -195,16 +195,21 @@ export class GalaxyParser extends EmbeddedActionsParser {
   // （typedef 类型变量声明 vs 标识符表达式），靠后续 token（`;`/`[`/`=` vs 运算符/`(`/`.`）
   // 区分，因此用 IGNORE_AMBIGUITIES 抑制检测器误报。
   private statement = this.RULE('statement', () => {
+    // expressionStatement 在 varDeclaration 之前：避免 `a[0] = 1;` 被误解析为
+    // varDeclaration（a 当类型名）。Chevrotain OR 会 backtracking，typedef 变量声明
+    // `MyType x = 1;` 在 expressionStatement 失败后（primaryExpression 不接受两个
+    // 连续 Identifier）会 fall through 到 varDeclaration 成功匹配。
     return this.OR({
       IGNORE_AMBIGUITIES: true,
       DEF: [
-        { ALT: () => this.SUBRULE(this.varDeclaration) as any },
         { ALT: () => this.SUBRULE(this.expressionStatement) as any },
+        { ALT: () => this.SUBRULE(this.varDeclaration) as any },
         { ALT: () => this.SUBRULE(this.ifStatement) as any },
         { ALT: () => this.SUBRULE(this.whileStatement) as any },
         { ALT: () => this.SUBRULE(this.forStatement) as any },
         { ALT: () => this.SUBRULE(this.returnStatement) as any },
         { ALT: () => this.SUBRULE(this.breakStatement) as any },
+        { ALT: () => this.SUBRULE(this.continueStatement) as any },
         { ALT: () => this.SUBRULE(this.blockStatement) as any },
       ],
     });
@@ -276,6 +281,12 @@ export class GalaxyParser extends EmbeddedActionsParser {
     this.CONSUME(tok.Break);
     this.CONSUME(tok.Semicolon);
     return { type: 'BreakStatement' } as ast.BreakStatement;
+  });
+
+  private continueStatement = this.RULE('continueStatement', () => {
+    this.CONSUME(tok.Continue);
+    this.CONSUME(tok.Semicolon);
+    return { type: 'ContinueStatement' } as ast.ContinueStatement;
   });
 
   // 表达式入口
