@@ -181,8 +181,25 @@ function checkExpression(
             )!
           );
         }
+        if (fn) {
+          const expected = fn.params.length;
+          const actual = expr.arguments.length;
+          if (expected !== actual && engine.isRuleEnabled('SEM_ARGUMENT_COUNT_MISMATCH')) {
+            issues.push(
+              engine.makeIssue(
+                'SEM_ARGUMENT_COUNT_MISMATCH',
+                filename,
+                (expr as any).start?.line ?? 0,
+                (expr as any).start?.column ?? 0,
+                `函数 '${fnName}()' 期望 ${expected} 个参数，实际 ${actual} 个`
+              )!
+            );
+          }
+        }
+      } else {
+        // callee 非 Identifier（如 MemberExpression obj.method()），递归检查
+        checkExpression(expr.callee, scope, table, engine, filename, issues);
       }
-      checkExpression(expr.callee, scope, table, engine, filename, issues);
       for (const a of expr.arguments) {
         checkExpression(a, scope, table, engine, filename, issues);
       }
