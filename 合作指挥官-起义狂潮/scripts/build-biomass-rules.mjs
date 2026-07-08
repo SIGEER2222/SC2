@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, '..');
 const inFile = join(projectRoot, 'Shared', 'Balance', 'biomass-rules.json');
-const outFile = join(projectRoot, 'Mods', '7vs1', 'CoopZeroPop.SC2Mod', 'Base.SC2Data', 'LibE0EAE146_BiomassRules.galaxy');
+const outFile = join(projectRoot, 'Mods', '7vs1', 'CommanderUnits_Abathur.SC2Mod', 'Base.SC2Data', 'LibE0EAE146_BiomassRules.galaxy');
 
 const data = JSON.parse(readFileSync(inFile, 'utf8'));
 

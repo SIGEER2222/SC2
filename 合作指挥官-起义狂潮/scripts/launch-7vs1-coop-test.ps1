@@ -1213,11 +1213,13 @@ $installedWorkspaceDependencyMods = Install-WorkspaceModDependencyClosure `
 
 $extensionBaseData = Join-Path $extensionLive "Base.SC2Data"
 $kitMutationsLiveBaseData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/kit_mutations.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data"
+$abathurUnitsLiveBaseData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/7vs1/CommanderUnits_Abathur.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data"
 if ($LiveMapName -ne "emptytest.SC2Map") {
     Sync-LiveMapRuntimeLibraries `
         -MapLive $mapLive `
         -RuntimeBaseRoots @(
             $extensionBaseData,
+            $abathurUnitsLiveBaseData,
             $kitMutationsLiveBaseData
         )
 }
