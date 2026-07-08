@@ -2,29 +2,32 @@
 import { parse } from '../parser/index.js';
 import { SymbolTable, Scope } from './SymbolTable.js';
 import { RuleEngine } from './RuleEngine.js';
+import { NativeFunctionTable } from './NativeFunctionTable.js';
 import type { Issue } from '../types.js';
 import type * as ast from '../parser/ast.js';
 
 export function analyze(
   source: string,
   filename: string,
-  globalTable?: SymbolTable
+  globalTable?: SymbolTable,
+  nativeTable?: NativeFunctionTable,
+  engine?: RuleEngine
 ): Issue[] {
   const { ast: program, errors } = parse(source, filename);
   const issues: Issue[] = [...errors];
 
-  const engine = new RuleEngine();
+  const eng = engine ?? new RuleEngine();
   const table = globalTable ?? new SymbolTable();
 
   // 第一遍：收集顶层声明
   for (const decl of program.body) {
-    collectTopLevel(decl, table, engine, filename, issues);
+    collectTopLevel(decl, table, eng, filename, issues);
   }
 
   // 第二遍：分析函数体
   for (const decl of program.body) {
     if (decl.type === 'FunctionDeclaration' && decl.body) {
-      analyzeFunction(decl, table, engine, filename, issues);
+      analyzeFunction(decl, table, nativeTable, eng, filename, issues);
     }
   }
 
@@ -83,6 +86,7 @@ function collectTopLevel(
 function analyzeFunction(
   fn: ast.FunctionDeclaration,
   table: SymbolTable,
+  nativeTable: NativeFunctionTable | undefined,
   engine: RuleEngine,
   filename: string,
   issues: Issue[]
@@ -105,7 +109,7 @@ function analyzeFunction(
   }
 
   if (fn.body) {
-    walkStatements(fn.body, fn, scope, table, engine, filename, issues);
+    walkStatements(fn.body, fn, scope, table, nativeTable, engine, filename, issues);
   }
 }
 
@@ -114,6 +118,7 @@ function walkStatements(
   fn: ast.FunctionDeclaration,
   scope: Scope,
   table: SymbolTable,
+  nativeTable: NativeFunctionTable | undefined,
   engine: RuleEngine,
   filename: string,
   issues: Issue[]
@@ -134,31 +139,31 @@ function walkStatements(
           );
         }
       });
-      if (stmt.init) checkExpression(stmt.init, scope, table, engine, filename, issues);
+      if (stmt.init) checkExpression(stmt.init, scope, table, nativeTable, engine, filename, issues);
       break;
     case 'ExpressionStatement':
-      checkExpression(stmt.expression, scope, table, engine, filename, issues);
+      checkExpression(stmt.expression, scope, table, nativeTable, engine, filename, issues);
       break;
     case 'IfStatement':
-      checkExpression(stmt.test, scope, table, engine, filename, issues);
+      checkExpression(stmt.test, scope, table, nativeTable, engine, filename, issues);
       checkVoidInCondition(stmt.test, table, engine, filename, issues);
-      walkStatements(stmt.consequent, fn, scope, table, engine, filename, issues);
-      if (stmt.alternate) walkStatements(stmt.alternate, fn, scope, table, engine, filename, issues);
+      walkStatements(stmt.consequent, fn, scope, table, nativeTable, engine, filename, issues);
+      if (stmt.alternate) walkStatements(stmt.alternate, fn, scope, table, nativeTable, engine, filename, issues);
       break;
     case 'WhileStatement':
-      checkExpression(stmt.test, scope, table, engine, filename, issues);
+      checkExpression(stmt.test, scope, table, nativeTable, engine, filename, issues);
       checkVoidInCondition(stmt.test, table, engine, filename, issues);
-      walkStatements(stmt.body, fn, scope, table, engine, filename, issues);
+      walkStatements(stmt.body, fn, scope, table, nativeTable, engine, filename, issues);
       break;
     case 'ForStatement': {
       const forScope = scope.createChild();
-      if (stmt.init) walkStatements(stmt.init, fn, forScope, table, engine, filename, issues);
+      if (stmt.init) walkStatements(stmt.init, fn, forScope, table, nativeTable, engine, filename, issues);
       if (stmt.test) {
-        checkExpression(stmt.test, forScope, table, engine, filename, issues);
+        checkExpression(stmt.test, forScope, table, nativeTable, engine, filename, issues);
         checkVoidInCondition(stmt.test, table, engine, filename, issues);
       }
-      if (stmt.update) checkExpression(stmt.update, forScope, table, engine, filename, issues);
-      walkStatements(stmt.body, fn, forScope, table, engine, filename, issues);
+      if (stmt.update) checkExpression(stmt.update, forScope, table, nativeTable, engine, filename, issues);
+      walkStatements(stmt.body, fn, forScope, table, nativeTable, engine, filename, issues);
       break;
     }
     case 'ReturnStatement': {
@@ -172,13 +177,13 @@ function walkStatements(
           );
         }
       }
-      if (stmt.argument) checkExpression(stmt.argument, scope, table, engine, filename, issues);
+      if (stmt.argument) checkExpression(stmt.argument, scope, table, nativeTable, engine, filename, issues);
       break;
     }
     case 'BlockStatement': {
       const blockScope = scope.createChild();
       for (const s of stmt.body) {
-        walkStatements(s, fn, blockScope, table, engine, filename, issues);
+        walkStatements(s, fn, blockScope, table, nativeTable, engine, filename, issues);
       }
       break;
     }
@@ -189,6 +194,7 @@ function checkExpression(
   expr: ast.Expression,
   scope: Scope,
   table: SymbolTable,
+  nativeTable: NativeFunctionTable | undefined,
   engine: RuleEngine,
   filename: string,
   issues: Issue[]
@@ -211,15 +217,15 @@ function checkExpression(
       }
       break;
     case 'BinaryExpression':
-      checkExpression(expr.left, scope, table, engine, filename, issues);
-      checkExpression(expr.right, scope, table, engine, filename, issues);
+      checkExpression(expr.left, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.right, scope, table, nativeTable, engine, filename, issues);
       break;
     case 'UnaryExpression':
-      checkExpression(expr.argument, scope, table, engine, filename, issues);
+      checkExpression(expr.argument, scope, table, nativeTable, engine, filename, issues);
       break;
     case 'AssignmentExpression':
-      checkExpression(expr.left, scope, table, engine, filename, issues);
-      checkExpression(expr.right, scope, table, engine, filename, issues);
+      checkExpression(expr.left, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.right, scope, table, nativeTable, engine, filename, issues);
       if (expr.left.type === 'Identifier') {
         const lv = scope.lookupVariable(expr.left.name);
         if (lv) {
@@ -238,18 +244,8 @@ function checkExpression(
       if (expr.callee.type === 'Identifier') {
         const fnName = expr.callee.name;
         const fn = scope.lookupFunction(fnName);
-        if (!fn && engine.isRuleEnabled('SEM_UNDECLARED_FUNCTION')) {
-          issues.push(
-            engine.makeIssue(
-              'SEM_UNDECLARED_FUNCTION',
-              filename,
-              (expr as any).start?.line ?? 0,
-              (expr as any).start?.column ?? 0,
-              `未声明的函数 '${fnName}()'`
-            )!
-          );
-        }
         if (fn) {
+          // 参数数量检查
           const expected = fn.params.length;
           const actual = expr.arguments.length;
           if (expected !== actual && engine.isRuleEnabled('SEM_ARGUMENT_COUNT_MISMATCH')) {
@@ -263,26 +259,60 @@ function checkExpression(
               )!
             );
           }
+        } else if (nativeTable?.isDisallowed(fnName) && engine.isRuleEnabled('XLIB_DISALLOWED_NATIVE')) {
+          // 黑名单 native 函数
+          const note = nativeTable.getNote(fnName);
+          issues.push(
+            engine.makeIssue(
+              'XLIB_DISALLOWED_NATIVE',
+              filename,
+              (expr as any).start?.line ?? 0,
+              (expr as any).start?.column ?? 0,
+              `调用了不允许的 native 函数 '${fnName}()'${note ? ' (' + note + ')' : ''}`
+            )!
+          );
+        } else if (fnName.startsWith('lib') && fnName.includes('_') && engine.isRuleEnabled('XLIB_UNDEFINED_CROSS_REF')) {
+          // 跨库引用未定义（libXXX_ 形式），替代 SEM_UNDECLARED_FUNCTION 更精确
+          issues.push(
+            engine.makeIssue(
+              'XLIB_UNDEFINED_CROSS_REF',
+              filename,
+              (expr as any).start?.line ?? 0,
+              (expr as any).start?.column ?? 0,
+              `跨库引用未定义 '${fnName}()'`
+            )!
+          );
+        } else if (engine.isRuleEnabled('SEM_UNDECLARED_FUNCTION')) {
+          // 普通未声明函数
+          issues.push(
+            engine.makeIssue(
+              'SEM_UNDECLARED_FUNCTION',
+              filename,
+              (expr as any).start?.line ?? 0,
+              (expr as any).start?.column ?? 0,
+              `未声明的函数 '${fnName}()'`
+            )!
+          );
         }
       } else {
         // callee 非 Identifier（如 MemberExpression obj.method()），递归检查
-        checkExpression(expr.callee, scope, table, engine, filename, issues);
+        checkExpression(expr.callee, scope, table, nativeTable, engine, filename, issues);
       }
       for (const a of expr.arguments) {
-        checkExpression(a, scope, table, engine, filename, issues);
+        checkExpression(a, scope, table, nativeTable, engine, filename, issues);
       }
       break;
     case 'MemberExpression':
-      checkExpression(expr.object, scope, table, engine, filename, issues);
+      checkExpression(expr.object, scope, table, nativeTable, engine, filename, issues);
       break;
     case 'IndexExpression':
-      checkExpression(expr.object, scope, table, engine, filename, issues);
-      checkExpression(expr.index, scope, table, engine, filename, issues);
+      checkExpression(expr.object, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.index, scope, table, nativeTable, engine, filename, issues);
       break;
     case 'ConditionalExpression':
-      checkExpression(expr.test, scope, table, engine, filename, issues);
-      checkExpression(expr.consequent, scope, table, engine, filename, issues);
-      checkExpression(expr.alternate, scope, table, engine, filename, issues);
+      checkExpression(expr.test, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.consequent, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.alternate, scope, table, nativeTable, engine, filename, issues);
       break;
   }
 }
