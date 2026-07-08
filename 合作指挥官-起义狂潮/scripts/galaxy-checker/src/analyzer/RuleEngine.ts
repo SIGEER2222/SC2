@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Issue, Severity } from '../types.js';
+import { parse } from '../parser/index.js';
+import type { Node, ContinueStatement, VariableDeclaration } from '../parser/ast.js';
 
 export interface RuleConfig {
   severity: Severity | 'off';
@@ -93,5 +95,62 @@ export class RuleEngine {
       severity: rule.severity as Severity,
       message: overrideMessage ?? rule.message,
     };
+  }
+}
+
+export function checkRules(source: string, filename: string): Issue[] {
+  const engine = new RuleEngine();
+  const { ast, errors } = parse(source, filename);
+  const issues: Issue[] = [...errors];
+
+  walk(ast, (node, parent) => {
+    if (node.type === 'ContinueStatement' && engine.isRuleEnabled('SYNTAX_NO_CONTINUE')) {
+      const n = node as ContinueStatement & { start?: { line: number; column: number } };
+      issues.push(
+        engine.makeIssue(
+          'SYNTAX_NO_CONTINUE',
+          filename,
+          n.start?.line ?? 0,
+          n.start?.column ?? 0
+        )!
+      );
+    }
+
+    if (
+      node.type === 'VariableDeclaration' &&
+      parent?.type !== 'Program' &&
+      (node as VariableDeclaration).init !== null &&
+      engine.isRuleEnabled('SYNTAX_NO_LOCAL_INIT_ASSIGN')
+    ) {
+      const n = node as VariableDeclaration & { start?: { line: number; column: number } };
+      issues.push(
+        engine.makeIssue(
+          'SYNTAX_NO_LOCAL_INIT_ASSIGN',
+          filename,
+          n.start?.line ?? 0,
+          n.start?.column ?? 0
+        )!
+      );
+    }
+  });
+
+  return issues;
+}
+
+function walk(node: Node, cb: (n: Node, parent: Node | null) => void, parent: Node | null = null) {
+  if (!node || typeof node !== 'object') return;
+  cb(node, parent);
+  for (const key of Object.keys(node)) {
+    if (key === 'type' || key === 'start' || key === 'end') continue;
+    const val = (node as any)[key];
+    if (Array.isArray(val)) {
+      for (const child of val) {
+        if (child && typeof child === 'object' && typeof child.type === 'string') {
+          walk(child, cb, node);
+        }
+      }
+    } else if (val && typeof val === 'object' && typeof val.type === 'string') {
+      walk(val, cb, node);
+    }
   }
 }
