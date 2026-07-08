@@ -41,14 +41,19 @@ const String = createToken({ name: 'String', pattern: /"(?:[^"\\]|\\.)*"/ });
 const Char = createToken({ name: 'Char', pattern: /'(?:[^'\\]|\\.)'/ });
 
 // 注释（先于运算符，避免 // 被识别为斜杠）
-// 注释保留在 tokens 中（不设 SKIPPED），便于后续 RuleEngine 利用注释位置信息
+// 使用 Lexer.SKIPPED：lexer 识别注释但不输出到 token 流，
+// parser 不会遇到注释 token，避免在函数体内触发错误恢复崩溃。
+// RuleEngine 只遍历 AST 节点（ContinueStatement/VariableDeclaration），
+// 不依赖注释位置，因此 SKIPPED 不影响规则检查。
 const LineComment = createToken({
   name: 'LineComment',
   pattern: /\/\/[^\n\r]*/,
+  group: Lexer.SKIPPED,
 });
 const BlockComment = createToken({
   name: 'BlockComment',
   pattern: /\/\*[\s\S]*?\*\//,
+  group: Lexer.SKIPPED,
 });
 
 // 运算符（多字符先于单字符）

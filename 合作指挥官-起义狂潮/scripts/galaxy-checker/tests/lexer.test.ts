@@ -36,14 +36,22 @@ describe('Lexer', () => {
     expect(tokens[0].tokenType.name).toBe('String');
   });
 
-  it('识别行注释', () => {
+  it('识别行注释（SKIPPED：不出现在 token 流）', () => {
     const tokens = tokenize('int x; // 这是注释\nint y;');
-    expect(tokens.find(t => t.tokenType.name === 'LineComment')).toBeDefined();
+    // 注释被 lexer 跳过（group: SKIPPED），不出现在 token 流中
+    expect(tokens.find(t => t.tokenType.name === 'LineComment')).toBeUndefined();
+    // 但 lexer 仍正确识别注释前后的 token
+    expect(tokens.map(t => t.tokenType.name)).toEqual([
+      'Int', 'Identifier', 'Semicolon', 'Int', 'Identifier', 'Semicolon',
+    ]);
   });
 
-  it('识别块注释', () => {
+  it('识别块注释（SKIPPED：不出现在 token 流）', () => {
     const tokens = tokenize('/* 块注释 */ int x;');
-    expect(tokens.find(t => t.tokenType.name === 'BlockComment')).toBeDefined();
+    expect(tokens.find(t => t.tokenType.name === 'BlockComment')).toBeUndefined();
+    expect(tokens.map(t => t.tokenType.name)).toEqual([
+      'Int', 'Identifier', 'Semicolon',
+    ]);
   });
 
   it('识别运算符', () => {

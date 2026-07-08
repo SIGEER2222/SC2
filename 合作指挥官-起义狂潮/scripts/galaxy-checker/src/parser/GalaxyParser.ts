@@ -32,11 +32,15 @@ export class GalaxyParser extends EmbeddedActionsParser {
     return { type: 'Program', body } as ast.Program;
   });
 
-  // include "path";
+  // include "path"
+  // Galaxy 真实代码 include 指令不带分号（如 `include "TriggerLibs/NativeLib"`），
+  // 但兼容带分号的写法（测试用），分号可选。
   private includeDirective = this.RULE('includeDirective', () => {
     this.CONSUME(tok.Include);
     const pathTok = this.CONSUME(tok.String);
-    this.CONSUME(tok.Semicolon);
+    this.OPTION(() => {
+      this.CONSUME(tok.Semicolon);
+    });
     return {
       type: 'Include',
       path: pathTok.image.slice(1, -1),
@@ -90,12 +94,21 @@ export class GalaxyParser extends EmbeddedActionsParser {
 
     this.CONSUME(tok.RParen);
 
+    // body 或分号二选一（必须在规则顶层调用 OR，不能放在 if/else 内，
+    // 否则 Chevrotain 自动 lookahead 计算会失败）：
+    //   - 有 body：函数定义（native 也可走此分支，linter 宽松处理）
+    //   - 仅分号：函数原型/forward declaration
+    //     · native 函数：`native void f(...);`
+    //     · 非 native 函数原型：`void f();`（Galaxy 头文件 *_h.galaxy 大量使用，
+    //       声明函数签名，body 留待 .galaxy 实现文件提供）
+    // 两个 ALT 首 token 不同（LBrace vs Semicolon），无歧义，无需 IGNORE_AMBIGUITIES。
     let body: ast.BlockStatement | null = null;
-    if (!isNative) {
-      body = this.SUBRULE(this.blockStatement) as any;
-    } else {
-      this.CONSUME(tok.Semicolon);
-    }
+    this.OR({
+      DEF: [
+        { ALT: () => { body = this.SUBRULE(this.blockStatement) as any; } },
+        { ALT: () => { this.CONSUME(tok.Semicolon); } },
+      ],
+    });
 
     return {
       type: 'FunctionDeclaration',
@@ -152,7 +165,13 @@ export class GalaxyParser extends EmbeddedActionsParser {
     this.OPTION3(() => {
       this.CONSUME(tok.LBracket);
       this.OPTION4(() => {
-        this.CONSUME(tok.Integer);
+        // 数组维度：Integer 字面量（如 int[10]）或 Identifier 常量引用（如 int[MAXPLAYERS]）。
+        // Identifier 用 CONSUME2：varDeclaration 内 nameTok 已用 CONSUME(Identifier)，
+        // Chevrotain 要求同 token 类型多次 CONSUME 用唯一数值后缀。
+        this.OR1([
+          { ALT: () => this.CONSUME(tok.Integer) },
+          { ALT: () => this.CONSUME2(tok.Identifier) },
+        ]);
       });
       this.CONSUME(tok.RBracket);
       isArray = true;
@@ -247,20 +266,37 @@ export class GalaxyParser extends EmbeddedActionsParser {
   private forStatement = this.RULE('forStatement', () => {
     this.CONSUME(tok.For);
     this.CONSUME(tok.LParen);
-    // 简化处理：init 可能是 varDecl 或表达式或空
+    // init：支持三种形式，三种 ALT 都消费到第一个分号之后，
+    // 保证 test 后的分号始终是第二个分号，分号计数统一：
+    //   1) 表达式（如 i = 1）+ ;   —— Galaxy 编译器生成 for 的最常见形式
+    //      （Galaxy 禁止局部变量 = 初始化，循环变量需先声明再赋值）
+    //   2) 变量声明（如 int i = 0）—— varDeclaration 规则自带末尾 ;
+    //   3) 空 init：仅消费 ;      —— 对应 for (; test; update)
+    // 这样 `for (;;)`、`for (i=1; i<=8; i+=1)`、`for (; i<10; i++)`、
+    // `for (int i=0; i<10; i++)` 均可解析。
     let init: ast.Statement | null = null;
-    this.OPTION(() => {
-      // 这里简化：尝试 varDeclaration，如果不行就 expression
-      init = this.SUBRULE(this.varDeclaration) as any;
-    });
+    init = this.OR({
+      IGNORE_AMBIGUITIES: true,
+      DEF: [
+        {
+          ALT: () => {
+            const e = this.SUBRULE(this.expression);
+            this.CONSUME(tok.Semicolon);
+            return { type: 'ExpressionStatement', expression: e } as ast.ExpressionStatement;
+          },
+        },
+        { ALT: () => this.SUBRULE(this.varDeclaration) as any },
+        { ALT: () => { this.CONSUME2(tok.Semicolon); return null; } },
+      ],
+    }) as ast.Statement | null;
     let test: ast.Expression | null = null;
-    this.OPTION2(() => {
-      test = this.SUBRULE(this.expression) as any;
+    this.OPTION(() => {
+      test = this.SUBRULE2(this.expression) as any;
     });
-    this.CONSUME(tok.Semicolon);
+    this.CONSUME3(tok.Semicolon);
     let update: ast.Expression | null = null;
-    this.OPTION3(() => {
-      update = this.SUBRULE2(this.expression) as any;
+    this.OPTION2(() => {
+      update = this.SUBRULE3(this.expression) as any;
     });
     this.CONSUME(tok.RParen);
     const body = this.SUBRULE(this.statement);
@@ -354,9 +390,58 @@ export class GalaxyParser extends EmbeddedActionsParser {
 
   // 逻辑与
   private logicalAndExpression = this.RULE('logicalAndExpression', () => {
-    let left = this.SUBRULE(this.equalityExpression);
+    let left = this.SUBRULE(this.bitwiseOrExpression);
     this.MANY(() => {
       const opTok = this.CONSUME(tok.AmpersandAmpersand);
+      const right = this.SUBRULE2(this.bitwiseOrExpression);
+      left = {
+        type: 'BinaryExpression',
+        operator: opTok.image,
+        left,
+        right,
+      } as ast.BinaryExpression;
+    });
+    return left;
+  });
+
+  // 位运算或 |（C 优先级：高于 &&，低于 ^）
+  // Galaxy 大量使用 a | b | c 形式（如 c_placementTestPowerMask | c_placementTestFogMask）
+  private bitwiseOrExpression = this.RULE('bitwiseOrExpression', () => {
+    let left = this.SUBRULE(this.bitwiseXorExpression);
+    this.MANY(() => {
+      const opTok = this.CONSUME(tok.Pipe);
+      const right = this.SUBRULE2(this.bitwiseXorExpression);
+      left = {
+        type: 'BinaryExpression',
+        operator: opTok.image,
+        left,
+        right,
+      } as ast.BinaryExpression;
+    });
+    return left;
+  });
+
+  // 位运算异或 ^
+  private bitwiseXorExpression = this.RULE('bitwiseXorExpression', () => {
+    let left = this.SUBRULE(this.bitwiseAndExpression);
+    this.MANY(() => {
+      const opTok = this.CONSUME(tok.Caret);
+      const right = this.SUBRULE2(this.bitwiseAndExpression);
+      left = {
+        type: 'BinaryExpression',
+        operator: opTok.image,
+        left,
+        right,
+      } as ast.BinaryExpression;
+    });
+    return left;
+  });
+
+  // 位运算与 &（C 优先级：高于 ^，低于 ==）
+  private bitwiseAndExpression = this.RULE('bitwiseAndExpression', () => {
+    let left = this.SUBRULE(this.equalityExpression);
+    this.MANY(() => {
+      const opTok = this.CONSUME(tok.Ampersand);
       const right = this.SUBRULE2(this.equalityExpression);
       left = {
         type: 'BinaryExpression',
