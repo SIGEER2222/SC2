@@ -187,17 +187,6 @@ void libKMIS_InitVariables () {
     for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
         libKMIS_gv_cM_Zeratul_RalliedGroup[init_i] = UnitGroupEmpty();
     }
-    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
-        libKMIS_gv_cM_SoACasterGroup[init_i] = UnitGroupEmpty();
-    }
-    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
-        libKMIS_gv_cM_SoATargetingAlreadyCanceled[init_i] = true;
-    }
-    for (init_i = 0; init_i <= libKCOR_gv_cCC_MAXPLAYERS; init_i += 1) {
-        libKMIS_gv_cM_SoATargetingDirectionGroup[init_i] = UnitGroupEmpty();
-    }
-    libKMIS_gv_cM_SoATimeFreezeTimer = TimerCreate();
-    libKMIS_gv_cM_SoASuperChronoTimer = TimerCreate();
     libKMIS_gv_cM_MaxSpawn = 9;
     libKMIS_gv_cM_CreepGroup = UnitGroupEmpty();
     libKMIS_gv_cM_CreepTimer = TimerCreate();
@@ -3587,261 +3576,6 @@ void libKMIS_gf_ResourcePickupAlly (int lp_player, int lp_minerals, int lp_vespe
     SoundPlayForPlayer(SoundLink("UI_ResourcePickup", -1), lp_player, PlayerGroupSingle(lp_player), 100.0, 0.0);
 }
 
-void libKMIS_gf_CM_SoACasterUnitSet (unit lp_unit, int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    libKMIS_gv_cM_SoACasterUnit[lp_player] = lp_unit;
-    libKMIS_gv_cM_SoACasterGroup[lp_player] = libNtve_gf_ConvertUnitToUnitGroup(lp_unit);
-}
-
-void libKMIS_gf_CM_SoATargetingModeEnter (int lp_player) {
-    // Variable Declarations
-    int lv_count;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lp_player] = false;
-    libKMIS_gv_cM_SoATargetingAlreadyCanceled[lp_player] = false;
-    while (!((libKMIS_gv_cM_SoATargetingTransitioning[lp_player] == false))) {
-        Wait(0.0625, c_timeGame);
-    }
-    TriggerEnable(libE0EAE146_gt_CM_SoATargetingCancel, true);
-    libKMIS_gv_cM_SoAExitInstantly = false;
-    libKMIS_gv_cM_SoATargetingUsageCount += 1;
-    libKMIS_gv_cM_SoATargetingChargesSpent[lp_player] = 0;
-    libKCUI_gf_CU_TargetingSetCharges(libKMIS_gv_cM_SoATargetingChargesTotal[lp_player], libKMIS_gv_cM_SoATargetingChargesTotal[lp_player], lp_player);
-    if ((libKMIS_gv_cM_SoATargetingOrder[lp_player] != null)) {
-        TriggerEnable(libE0EAE146_gt_CM_SoATargetingPointChosen, true);
-        TriggerEnable(libE0EAE146_gt_CM_SoATargetingDirectionChosen, true);
-        UISetTargetingOrder(PlayerGroupSingle(lp_player), libKMIS_gv_cM_SoACasterGroup[lp_player], libKMIS_gv_cM_SoATargetingOrder[lp_player], false);
-        libKMIS_gv_cM_SoATargetingPhase[lp_player] = libKMIS_ge_CM_SoATargetingPhaseType_Location;
-    }
-    else {
-        libKMIS_gv_cM_SoATargetingPhase[lp_player] = libKMIS_ge_CM_SoATargetingPhaseType_None;
-    }
-    libKMIS_gv_cM_SoATargetingTransitioning[lp_player] = true;
-    libKCUI_gf_PU_TargetingUI_EnterTargetingMode(true, false, lp_player);
-    libKCUI_gf_CU_TargetingSetInstructionText(libKMIS_gv_cM_SoATargetingInstructionsPrimary[lp_player], lp_player);
-    libKMIS_gf_CM_SetFogAlphaOverTime(100.0, 0.5, lp_player);
-    CameraSetValue(lp_player, c_cameraValueDistance, 50.0, 1.0, -1, 10.0);
-    CameraSetValue(lp_player, c_cameraValuePitch, 70.0, 1.0, -1, 10.0);
-    CameraSetData(PlayerGroupSingle(lp_player), "SOATargetingModeCamera");
-    libKMIS_gv_cM_SoATargetingTransitioning[lp_player] = false;
-    libKMIS_gv_cM_SoATargetingCycling[lp_player] = false;
-}
-
-void libKMIS_gf_CM_SoATargetingModeExit (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    libKMIS_gv_cM_SoATargetingPhase[lp_player] = libKMIS_ge_CM_SoATargetingPhaseType_None;
-    while (!((libKMIS_gv_cM_SoATargetingTransitioning[lp_player] == false))) {
-        Wait(0.0625, c_timeGame);
-    }
-    libKMIS_gv_cM_SoATargetingTransitioning[lp_player] = true;
-    if ((libKMIS_gv_cM_SoAExitInstantly == true)) {
-        CameraSetValue(lp_player, c_cameraValueDistance, 34.0, 0.0, -1, 10.0);
-        CameraSetValue(lp_player, c_cameraValuePitch, 56.0, 0.0, -1, 10.0);
-    }
-    else {
-        CameraSetValue(lp_player, c_cameraValueDistance, 34.0, 0.5, -1, 10.0);
-        CameraSetValue(lp_player, c_cameraValuePitch, 56.0, 0.5, -1, 10.0);
-    }
-    CameraSetData(PlayerGroupSingle(lp_player), "Dflt");
-    if ((libKMIS_gv_cM_SoAExitInstantly == true)) {
-        VisResetFoWAlpha(lp_player);
-        libKCUI_gf_PU_TargetingUI_EnterTargetingMode(false, true, lp_player);
-    }
-    else {
-        libKMIS_gf_CM_ResetFogAlphaOverTime(0.5, lp_player);
-        libKCUI_gf_PU_TargetingUI_EnterTargetingMode(false, false, lp_player);
-    }
-    libNtve_gf_RestoreUnitSelection(lp_player);
-    libKMIS_gv_cM_SoATargetingActivateAbility[lp_player] = null;
-    libKMIS_gv_cM_SoATargetingTransitioning[lp_player] = false;
-    libKMIS_gv_cM_SoATargetingUsageCount -= 1;
-    if ((libKMIS_gv_cM_SoATargetingUsageCount == 0)) {
-        TriggerEnable(libE0EAE146_gt_CM_SoATargetingCancel, false);
-        TriggerEnable(libE0EAE146_gt_CM_SoATargetingPointChosen, false);
-        TriggerEnable(libE0EAE146_gt_CM_SoATargetingDirectionChosen, false);
-    }
-
-}
-
-void libKMIS_gf_CM_SoATargetingCleanupActorsAndUnits (int lp_player) {
-    // Variable Declarations
-    int lv_index;
-
-    // Automatic Variable Declarations
-    const int autoA7000234_ae = libKMIS_gv_cMC_SOATARGETCOUNTMAX;
-    const int autoA7000234_ai = 1;
-
-    // Variable Initialization
-
-    // Implementation
-    lv_index = 1;
-    for ( ; ( (autoA7000234_ai >= 0 && lv_index <= autoA7000234_ae) || (autoA7000234_ai < 0 && lv_index >= autoA7000234_ae) ) ; lv_index += autoA7000234_ai ) {
-        if ((libKMIS_gv_cM_SoATargetingActors[lv_index][lp_player] != null)) {
-            ActorSend(libKMIS_gv_cM_SoATargetingActors[lv_index][lp_player], "Signal Destroy");
-            libKMIS_gv_cM_SoATargetingActors[lv_index][lp_player] = null;
-        }
-
-        if ((libKMIS_gv_cM_SoATargetingUnit[lv_index][lp_player] != null)) {
-            UnitRemove(libKMIS_gv_cM_SoATargetingUnit[lv_index][lp_player]);
-            libKMIS_gv_cM_SoATargetingUnit[lv_index][lp_player] = null;
-        }
-
-    }
-}
-
-trigger auto_libKMIS_gf_CM_SetFogAlphaOverTime_Trigger = null;
-fixed auto_libKMIS_gf_CM_SetFogAlphaOverTime_lp_targetAlpha;
-fixed auto_libKMIS_gf_CM_SetFogAlphaOverTime_lp_duration;
-int auto_libKMIS_gf_CM_SetFogAlphaOverTime_lp_player;
-
-void libKMIS_gf_CM_SetFogAlphaOverTime (fixed lp_targetAlpha, fixed lp_duration, int lp_player) {
-    auto_libKMIS_gf_CM_SetFogAlphaOverTime_lp_targetAlpha = lp_targetAlpha;
-    auto_libKMIS_gf_CM_SetFogAlphaOverTime_lp_duration = lp_duration;
-    auto_libKMIS_gf_CM_SetFogAlphaOverTime_lp_player = lp_player;
-
-    if (auto_libKMIS_gf_CM_SetFogAlphaOverTime_Trigger == null) {
-        auto_libKMIS_gf_CM_SetFogAlphaOverTime_Trigger = TriggerCreate("auto_libKMIS_gf_CM_SetFogAlphaOverTime_TriggerFunc");
-    }
-
-    TriggerExecute(auto_libKMIS_gf_CM_SetFogAlphaOverTime_Trigger, false, false);
-}
-
-bool auto_libKMIS_gf_CM_SetFogAlphaOverTime_TriggerFunc (bool testConds, bool runActions) {
-    fixed lp_targetAlpha = auto_libKMIS_gf_CM_SetFogAlphaOverTime_lp_targetAlpha;
-    fixed lp_duration = auto_libKMIS_gf_CM_SetFogAlphaOverTime_lp_duration;
-    int lp_player = auto_libKMIS_gf_CM_SetFogAlphaOverTime_lp_player;
-
-    // Variable Declarations
-    fixed lv_currentAlpha;
-    fixed lv_alphaIncrement;
-    fixed lv_incrementFrequency;
-    int lv_increments;
-
-    // Automatic Variable Declarations
-    int autoE1EEDFCD_n;
-    int autoE1EEDFCD_i;
-
-    // Variable Initialization
-
-    // Implementation
-    lv_incrementFrequency = 0.05;
-    lv_currentAlpha = VisGetFoWAlpha(lp_player);
-    lv_increments = AbsI(FixedToInt((lp_duration / lv_incrementFrequency)));
-    lv_alphaIncrement = ((lp_targetAlpha-lv_currentAlpha)/IntToFixed(lv_increments));
-    autoE1EEDFCD_n = lv_increments;
-    for (autoE1EEDFCD_i = 1; autoE1EEDFCD_i <= autoE1EEDFCD_n; autoE1EEDFCD_i += 1) {
-        Wait(lv_incrementFrequency, c_timeGame);
-        lv_currentAlpha += lv_alphaIncrement;
-        VisSetFoWAlpha(lp_player, lv_currentAlpha);
-    }
-    VisSetFoWAlpha(lp_player, lp_targetAlpha);
-    return true;
-}
-
-trigger auto_libKMIS_gf_CM_ResetFogAlphaOverTime_Trigger = null;
-fixed auto_libKMIS_gf_CM_ResetFogAlphaOverTime_lp_duration;
-int auto_libKMIS_gf_CM_ResetFogAlphaOverTime_lp_player;
-
-void libKMIS_gf_CM_ResetFogAlphaOverTime (fixed lp_duration, int lp_player) {
-    auto_libKMIS_gf_CM_ResetFogAlphaOverTime_lp_duration = lp_duration;
-    auto_libKMIS_gf_CM_ResetFogAlphaOverTime_lp_player = lp_player;
-
-    if (auto_libKMIS_gf_CM_ResetFogAlphaOverTime_Trigger == null) {
-        auto_libKMIS_gf_CM_ResetFogAlphaOverTime_Trigger = TriggerCreate("auto_libKMIS_gf_CM_ResetFogAlphaOverTime_TriggerFunc");
-    }
-
-    TriggerExecute(auto_libKMIS_gf_CM_ResetFogAlphaOverTime_Trigger, false, false);
-}
-
-bool auto_libKMIS_gf_CM_ResetFogAlphaOverTime_TriggerFunc (bool testConds, bool runActions) {
-    fixed lp_duration = auto_libKMIS_gf_CM_ResetFogAlphaOverTime_lp_duration;
-    int lp_player = auto_libKMIS_gf_CM_ResetFogAlphaOverTime_lp_player;
-
-    // Variable Declarations
-    fixed lv_currentAlpha;
-    fixed lv_alphaIncrement;
-    fixed lv_incrementFrequency;
-    int lv_increments;
-    fixed lv_targetAlpha;
-
-    // Automatic Variable Declarations
-    int auto26F5891F_n;
-    int auto26F5891F_i;
-
-    // Variable Initialization
-
-    // Implementation
-    lv_incrementFrequency = 0.05;
-    lv_currentAlpha = VisGetFoWAlpha(lp_player);
-    VisResetFoWAlpha(lp_player);
-    lv_targetAlpha = VisGetFoWAlpha(lp_player);
-    lv_increments = AbsI(FixedToInt((lp_duration / lv_incrementFrequency)));
-    lv_alphaIncrement = ((lv_targetAlpha-lv_currentAlpha)/IntToFixed(lv_increments));
-    VisSetFoWAlpha(lp_player, lv_currentAlpha);
-    auto26F5891F_n = lv_increments;
-    for (auto26F5891F_i = 1; auto26F5891F_i <= auto26F5891F_n; auto26F5891F_i += 1) {
-        Wait(lv_incrementFrequency, c_timeGame);
-        lv_currentAlpha += lv_alphaIncrement;
-        VisSetFoWAlpha(lp_player, lv_currentAlpha);
-    }
-    VisResetFoWAlpha(lp_player);
-    return true;
-}
-
-void libKMIS_gf_CM_SoATargetingCancel (int lp_player) {
-    // Variable Declarations
-    string lv_cost;
-    string lv_costField;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_cost = "";
-    lv_costField = "";
-
-    // Implementation
-    UnitIssueOrder(libKMIS_gv_cM_SoACasterUnit[lp_player], Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
-    libKMIS_gv_cM_SoATargetingAlreadyCanceled[lp_player] = true;
-    libKMIS_gf_CM_SoATargetingCleanupActorsAndUnits(lp_player);
-    if ((libKMIS_gv_cM_SoATargetingUnitType[lp_player] != null) && (libKMIS_gv_cM_SoATargetingPhase[lp_player] == libKMIS_ge_CM_SoATargetingPhaseType_Direction)) {
-        libKMIS_gv_cM_SoATargetingChargesSpent[lp_player] -= 1;
-    }
-
-    if ((libKMIS_gv_cM_SoATargetingChargesSpent[lp_player] == 0) && (libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lp_player] == false)) {
-        libNtve_gf_UnitAbilityRemoveCooldown(libKMIS_gv_cM_SoACasterUnit[lp_player], libKMIS_gv_cM_SoATargetingActivateAbility[lp_player], libKMIS_gv_cM_SoATargetingCooldown[lp_player]);
-        lv_costField = ("Cost[0].Vital[" + "Energy" + "]");
-        lv_cost = CatalogFieldValueGet(c_gameCatalogAbil, libKMIS_gv_cM_SoATargetingActivateAbility[lp_player], (lv_costField), lp_player);
-        UnitSetPropertyFixed(libKMIS_gv_cM_SoACasterUnit[lp_player], c_unitPropEnergy, (UnitGetPropertyFixed(libKMIS_gv_cM_SoACasterUnit[lp_player], c_unitPropEnergy, c_unitPropCurrent) + StringToFixed(lv_cost)));
-        if ((TechTreeUpgradeCount(lp_player, "NovaCommander", c_techCountCompleteOnly) == 1)) {
-            PlayerModifyPropertyInt(lp_player, c_playerPropMinerals, c_playerPropOperAdd, libKMIS_gv_cM_NovaGriffinBombingRunCost[lp_player]);
-        }
-
-    }
-
-    UnitBehaviorRemove(libKMIS_gv_cM_SoACasterUnit[lp_player], libKMIS_gv_cM_SoATargetingBehavior[lp_player], 1);
-    libKMIS_gv_cM_SoATargetingUnrefundableStageEntered[lp_player] = true;
-    UISetTargetingOrder(PlayerGroupSingle(lp_player), libKMIS_gv_cM_SoACasterGroup[lp_player], null, false);
-    UISetTargetingOrder(PlayerGroupSingle(lp_player), libKMIS_gv_cM_SoATargetingDirectionGroup[lp_player], null, false);
-    libKMIS_gv_cM_SoATargetingChargesSpent[lp_player] = 0;
-    if ((libKMIS_gv_cM_SoATargetingPhase[lp_player] != libKMIS_ge_CM_SoATargetingPhaseType_None)) {
-        libKMIS_gf_CM_SoATargetingModeExit(lp_player);
-    }
-}
-
-void libKMIS_gf_CM_SoATimeFreezeApply (int lp_castingPlayer) {
-    // Automatic Variable Declarations
-    // Implementation
-    PlayerCreateEffectPoint(lp_castingPlayer, "SOATimeFreezeVisual", Point(PointGetX(CameraGetTarget(lp_castingPlayer)), PointGetY(CameraGetTarget(lp_castingPlayer))));
-    libKCOR_gf_CC_TimeAITemporarySet(true);
-    TriggerEnable(libE0EAE146_gt_CM_SoATimeFreezeCleanup, true);
-    TimerStart(libKMIS_gv_cM_SoATimeFreezeTimer, CatalogFieldValueGetAsInt(c_gameCatalogBehavior, "SOATimeFreeze", "Duration", c_playerAny), false, c_timeGame);
-}
-
 fixed libKMIS_gf_Lerp (fixed lp_valueZero, fixed lp_valueOne, fixed lp_amount) {
     // Automatic Variable Declarations
     // Implementation
@@ -4642,7 +4376,7 @@ void libKMIS_gf_CM_GlobalCasterCreateUnit (int lp_player) {
     }
     UnitSetState(libKMIS_gv_cM_GlobalCasterUnit[lp_player], c_unitStateSelectable, false);
     libKCUI_gf_CU_GPSetUnit(libKMIS_gv_cM_GlobalCasterUnit[lp_player], lp_player);
-    libKMIS_gf_CM_SoACasterUnitSet(UnitLastCreated(), lp_player);
+    libE0EAE146_gf_CM_SoACasterUnitSet(UnitLastCreated(), lp_player);
 }
 
 unit libKMIS_gf_CM_GlobalCasterUnitForCommander (string lp_commanderType) {
@@ -8376,56 +8110,6 @@ void libKMIS_gt_ResourcePickupAllyNew_Init () {
 
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: PM_SoATargetingPurifierBeamOn
-//--------------------------------------------------------------------------------------------------
-bool libKMIS_gt_PM_SoATargetingPurifierBeamOn_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libNtve_gf_StoreUnitSelection(EventPlayer(), libNtve_ge_UnitSelectionStoreOption_ClearUnitSelection);
-    libKMIS_gv_cM_SoATargetingActivateAbility[EventPlayer()] = "SOAPurifierBeam";
-    libKMIS_gv_cM_SoATargetingOrder[EventPlayer()] = null;
-    libKMIS_gv_cM_SoATargetingExecuteCommand[EventPlayer()] = null;
-    libKMIS_gv_cM_SoATargetingCooldown[EventPlayer()] = "";
-    libKMIS_gv_cM_SoATargetingBehavior[EventPlayer()] = null;
-    libKMIS_gv_cM_SoATargetingModel[EventPlayer()] = null;
-    libKMIS_gv_cM_SoATargetingUnitType[EventPlayer()] = null;
-    libKMIS_gv_cM_SoATargetingChargesTotal[EventPlayer()] = 1;
-    libKMIS_gv_cM_SoATargetingInstructionsPrimary[EventPlayer()] = StringExternal("Param/Value/lib_KMIS_43A2DF64");
-    libKMIS_gf_CM_SoATargetingModeEnter(EventPlayer());
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libKMIS_gt_PM_SoATargetingPurifierBeamOn_Init () {
-    libKMIS_gt_PM_SoATargetingPurifierBeamOn = TriggerCreate("libKMIS_gt_PM_SoATargetingPurifierBeamOn_Func");
-    TriggerAddEventTargetModeUpdate(libKMIS_gt_PM_SoATargetingPurifierBeamOn, c_playerAny, AbilityCommand("SOAPurifierBeam", 0), c_targetModeStateOn);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: PM_SoATargetingPurifierBeamOff
-//--------------------------------------------------------------------------------------------------
-bool libKMIS_gt_PM_SoATargetingPurifierBeamOff_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libKMIS_gf_CM_SoATargetingModeExit(EventPlayer());
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libKMIS_gt_PM_SoATargetingPurifierBeamOff_Init () {
-    libKMIS_gt_PM_SoATargetingPurifierBeamOff = TriggerCreate("libKMIS_gt_PM_SoATargetingPurifierBeamOff_Func");
-    TriggerAddEventTargetModeUpdate(libKMIS_gt_PM_SoATargetingPurifierBeamOff, c_playerAny, AbilityCommand("SOAPurifierBeam", 0), c_targetModeStateOff);
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: PM_SoAStrafeActivated
 //--------------------------------------------------------------------------------------------------
 bool libKMIS_gt_PM_SoAStrafeActivated_Func (bool testConds, bool runActions) {
@@ -9523,8 +9207,6 @@ void libKMIS_InitTriggers () {
     libKMIS_gt_NovaUnitNames_KillCountUpdate_Init();
     libKMIS_gt_NovaUnitNames_KillCountUpdateLaserTurret_Init();
     libKMIS_gt_ResourcePickupAllyNew_Init();
-    libKMIS_gt_PM_SoATargetingPurifierBeamOn_Init();
-    libKMIS_gt_PM_SoATargetingPurifierBeamOff_Init();
     libKMIS_gt_PM_SoAStrafeActivated_Init();
     libKMIS_gt_PM_SoASuperShieldsActivated_Init();
     libKMIS_gt_CODConstrucInvulnerableOn_Init();
