@@ -17,12 +17,19 @@ bool lib67C0F0E7_InitVariables_completed = false;
 void lib67C0F0E7_InitVariables () {
     int init_i;
     int init_j;
+    int lv_i;
 
     if (lib67C0F0E7_InitVariables_completed) {
         return;
     }
 
     lib67C0F0E7_InitVariables_completed = true;
+
+    for (lv_i = 1; lv_i <= 15; lv_i += 1) {
+        lib67C0F0E7_gv_legacyGPPanel[lv_i] = c_invalidDialogControlId;
+        lib67C0F0E7_gv_legacyGPCmdPanel[lv_i] = c_invalidDialogControlId;
+        lib67C0F0E7_gv_legacyZeratulSelectionCmdPanel[lv_i] = c_invalidDialogControlId;
+    }
 
     for (init_i = 0; init_i <= lib67C0F0E7_gv_cCC_MAXPLAYERS; init_i += 1) {
         lib67C0F0E7_gv_cM_GlobalCasterUnitGroupSecondary[init_i] = UnitGroupEmpty();
@@ -1586,14 +1593,14 @@ void lib67C0F0E7_gf_PlayerSetCommanderConsoleSkin (int lp_player, string lp_cons
 }
 
 void lib67C0F0E7_gf_CU_HideLegacyGlobalCastingPanel (int lp_player) {
-    if ((libKCUI_gv_cU_GPPanel[lp_player] != c_invalidDialogControlId)) {
-        DialogControlSetVisible(libKCUI_gv_cU_GPPanel[lp_player], PlayerGroupSingle(lp_player), false);
+    if ((lib67C0F0E7_gv_legacyGPPanel[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(lib67C0F0E7_gv_legacyGPPanel[lp_player], PlayerGroupSingle(lp_player), false);
     }
-    if ((libKCUI_gv_cU_GPCmdPanel[lp_player] != c_invalidDialogControlId)) {
-        DialogControlSetVisible(libKCUI_gv_cU_GPCmdPanel[lp_player], PlayerGroupSingle(lp_player), false);
+    if ((lib67C0F0E7_gv_legacyGPCmdPanel[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(lib67C0F0E7_gv_legacyGPCmdPanel[lp_player], PlayerGroupSingle(lp_player), false);
     }
-    if ((libKCUI_gv_cU_ZeratulSelectionCmdPanel[lp_player] != c_invalidDialogControlId)) {
-        DialogControlSetVisible(libKCUI_gv_cU_ZeratulSelectionCmdPanel[lp_player], PlayerGroupSingle(lp_player), false);
+    if ((lib67C0F0E7_gv_legacyZeratulSelectionCmdPanel[lp_player] != c_invalidDialogControlId)) {
+        DialogControlSetVisible(lib67C0F0E7_gv_legacyZeratulSelectionCmdPanel[lp_player], PlayerGroupSingle(lp_player), false);
     }
 }
 

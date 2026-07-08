@@ -1,5 +1,5 @@
 include "TriggerLibs/natives"
-include "LibKPVP_h"
+include "LibE0EAE146_CoreInfra"
 
 //--------------------------------------------------------------------------------------------------
 // Library: Final
@@ -65,7 +65,7 @@ const fixed libE0EAE146_gv_c_TychusSpecialistTrainingAuraCooldownFactor = 20.0;
 // Tychus Variables
 int libE0EAE146_gv_cM_Tychus_MaxHeroCount;
 string[4] libE0EAE146_gv_c_CM_Tychus_UserTypeHeroRequirmentArray;
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_tychusHeroMaxCharges;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_tychusHeroMaxCharges;
 unit libE0EAE146_gv_cM_Tychus_FirebatOilCaster;
 
 // Fenix Constants
@@ -75,33 +75,33 @@ const fixed libE0EAE146_gv_cM_Fenix_OfflineVitalRegenMultiplier = 1.2;
 const int libE0EAE146_gv_cMC_Fenix_ChampionCount = 6;
 
 // Fenix Variables
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_fenixAchievementCarrierAmount;
-bool[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_fenixAchievementCarrierResearched;
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_HeroGroup;
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_DummyGroup;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_fenixAchievementCarrierAmount;
+bool[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_fenixAchievementCarrierResearched;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_HeroGroup;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_DummyGroup;
 string[4] libE0EAE146_gv_cM_Fenix_AbilCmdArray;
-unit[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ActiveHero;
-string[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ActiveHero_Abil;
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ActiveHero_Slot;
-unit[4][libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_Suits;
-fixed[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_OfflineHealthRegen;
-fixed[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_OfflineShieldRegen;
-fixed[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_OfflineEnergyRegen;
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_KillCount;
-bool[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_KilledSelf;
-fixed[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_SuicideLife;
-fixed[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_SuicideShield;
+unit[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ActiveHero;
+string[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ActiveHero_Abil;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ActiveHero_Slot;
+unit[4][libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_Suits;
+fixed[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_OfflineHealthRegen;
+fixed[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_OfflineShieldRegen;
+fixed[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_OfflineEnergyRegen;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_KillCount;
+bool[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_KilledSelf;
+fixed[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_SuicideLife;
+fixed[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_SuicideShield;
 unitgroup libE0EAE146_gv_cM_Fenix_RalliedGroup;
-fixed[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer;
-int[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionKills;
-unit[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionUnit;
+fixed[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionRespawnTimer;
+int[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionKills;
+unit[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionUnit;
 string[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1] libE0EAE146_gv_cM_Fenix_ChampionUnitType;
 string[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1] libE0EAE146_gv_cM_Fenix_ChampionUnitReplaceType;
-unit[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionStructure;
-bool[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionAvailable;
-unitgroup[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup;
+unit[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionStructure;
+bool[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionAvailable;
+unitgroup[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionVolunteerUnitGroup;
 abilcmd[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1] libE0EAE146_gv_cM_Fenix_ChampionMorphAbil;
-point[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionDeathPosition;
+point[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1][libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Fenix_ChampionDeathPosition;
 string[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1] libE0EAE146_gv_cM_Fenix_ChampionNetworkUpgrades;
 string[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1] libE0EAE146_gv_cM_Fenix_ChampionShellCountEffects;
 string[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1] libE0EAE146_gv_cM_Fenix_ChampionNetworkMaxCountDummy;
@@ -109,19 +109,19 @@ string[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1] libE0EAE146_gv_cM_Fenix_Champ
 string[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1] libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBehaviors;
 int[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1] libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStacks;
 int[libE0EAE146_gv_cMC_Fenix_ChampionCount + 1] libE0EAE146_gv_cM_Fenix_ChampionAvengingProtocolBuffStackMaxCount;
-bool[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_fenixWhirlwindAutocast;
-bool[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_fenixShieldCapacitorAutocast;
+bool[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_fenixWhirlwindAutocast;
+bool[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_fenixShieldCapacitorAutocast;
 
 // Mengsk Variables
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_XPHungryUnits;
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_VeteranUnits;
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_PropagandaUnits;
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_ReturningWorkers;
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_WeaponPickups;
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_WeaponPickerUppers;
-fixed[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_ArtilleryExperimentalStrikeRange;
-fixed[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_EnergyRegenRoyalGuard;
-fixed[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_EnergyRegenTrooper;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_XPHungryUnits;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_VeteranUnits;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_PropagandaUnits;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_ReturningWorkers;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_WeaponPickups;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_WeaponPickerUppers;
+fixed[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_ArtilleryExperimentalStrikeRange;
+fixed[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_EnergyRegenRoyalGuard;
+fixed[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Mengsk_EnergyRegenTrooper;
 
 // Function Declarations
 void libE0EAE146_gf_FinishLevel ();
@@ -414,16 +414,16 @@ trigger libE0EAE146_gt_CM_Dehaka_PrestigeClone;
 trigger libE0EAE146_gt_CM_Dehaka_PrestigeCloneRevive;
 
 // Dehaka Variables
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_DehakaReviveEatTextTag;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_DehakaReviveEatTextTag;
 fixed libE0EAE146_gv_c_DehakaConsumeLifeCooldownFactor;
 unitfilter libE0EAE146_gv_c_DehakaConsumeCooldownFilter;
 abilcmd libE0EAE146_gv_dataDehakaLearnAbilCmdLink;
 fixed libE0EAE146_gv_cM_DehakaEatReviveTimerAdjustment;
-bool[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_dehakaMurvarPukeAutocast;
-bool[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_dehakaMurvarSpawnCreepersAutocast;
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_DehakaLevelsMax;
-string[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_DehakaVeterencyBehavior;
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_Dehaka_CurrentLevel;
+bool[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_dehakaMurvarPukeAutocast;
+bool[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_dehakaMurvarSpawnCreepersAutocast;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_DehakaLevelsMax;
+string[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_DehakaVeterencyBehavior;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_Dehaka_CurrentLevel;
 string libE0EAE146_gv_cM_Dehaka_EssenceAttribute;
 bool libE0EAE146_gv_cM_DehakaLevelMaxMusicPlayed;
 bool libE0EAE146_gv_dehakaVariablesInitialized;
@@ -432,17 +432,17 @@ const int libE0EAE146_gv_cMC_NovaUnitName_CountMax = 143;
 int libE0EAE146_gv_cM_NovaUnitName_CountCurrentPosition;
 int[libE0EAE146_gv_cMC_NovaUnitName_CountMax + 1] libE0EAE146_gv_cM_NovaUnitName_Text;
 int libE0EAE146_gv_cM_NovaUnitName_CountStep;
-unit[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinTransportUnit;
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinTransportUnitGroup;
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinGroundUnitsTransportGroupAir;
-unitgroup[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinGroundUnitsTransportGroupGround;
-point[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinTranportLoadPoint;
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinBombingRunCost;
-fixed[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_NovaPsiStrikeFacing;
+unit[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinTransportUnit;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinTransportUnitGroup;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinGroundUnitsTransportGroupAir;
+unitgroup[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinGroundUnitsTransportGroupGround;
+point[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinTranportLoadPoint;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_cM_NovaGriffinBombingRunCost;
+fixed[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_NovaPsiStrikeFacing;
 fixed libE0EAE146_gv_NovaPsiStrikeEnergyCost;
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_novaBarrackBuilt;
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_novaFactoryBuilt;
-int[libKCOR_gv_cCC_MAXPLAYERS + 1] libE0EAE146_gv_novaStarportBuilt;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_novaBarrackBuilt;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_novaFactoryBuilt;
+int[libE0EAE146_gv_MAXPLAYERS + 1] libE0EAE146_gv_novaStarportBuilt;
 // Nova Functions
 void libE0EAE146_gf_NovaUnitNames_KillUpdateText (unit lp_updatingUnit, int lp_iD);
 void libE0EAE146_gf_CM_Nova_IterateExistingBuildings (int lp_novaPlayer);
