@@ -11,6 +11,16 @@ describe('Parser - 基础声明', () => {
     });
   });
 
+  it('解析 include 指令（不带分号，Galaxy 真实代码形式）', () => {
+    // Galaxy 真实代码 include 不带分号：`include "TriggerLibs/NativeLib"`
+    const result = parse('include "TriggerLibs/NativeLib"');
+    expect(result.errors).toHaveLength(0);
+    expect(result.ast.body[0]).toMatchObject({
+      type: 'Include',
+      path: 'TriggerLibs/NativeLib',
+    });
+  });
+
   it('解析无参函数', () => {
     const result = parse('void foo() {}');
     expect(result.errors).toHaveLength(0);
@@ -42,6 +52,30 @@ describe('Parser - 基础声明', () => {
     });
   });
 
+  it('解析函数原型/forward declaration（无 body，分号结尾）', () => {
+    // Galaxy 头文件（*_h.galaxy）大量使用函数原型声明函数签名
+    const result = parse('void lib0940FFB7_gf_NovaCaster();');
+    expect(result.errors).toHaveLength(0);
+    expect(result.ast.body[0]).toMatchObject({
+      type: 'FunctionDeclaration',
+      isNative: false,
+      body: null,
+      name: 'lib0940FFB7_gf_NovaCaster',
+    });
+  });
+
+  it('解析带参数的函数原型', () => {
+    const result = parse('int libFoo_gf_Bar(int a, string b);');
+    expect(result.errors).toHaveLength(0);
+    const fn = result.ast.body[0] as any;
+    expect(fn.body).toBeNull();
+    expect(fn.isNative).toBe(false);
+    expect(fn.params).toEqual([
+      { type: 'int', name: 'a' },
+      { type: 'string', name: 'b' },
+    ]);
+  });
+
   it('解析全局变量声明', () => {
     const result = parse('int gv_counter;');
     expect(result.errors).toHaveLength(0);
@@ -70,6 +104,17 @@ describe('Parser - 基础声明', () => {
       type: 'VariableDeclaration',
       isArray: true,
       name: 'gv_array',
+    });
+  });
+
+  it('解析数组变量（维度用 Identifier 常量引用）', () => {
+    // Galaxy 真实代码用常量引用作数组维度：`int[MAXPLAYERS] gv_players;`
+    const result = parse('int[libKCOR_gv_cCC_MAXPLAYERS] gv_players;');
+    expect(result.errors).toHaveLength(0);
+    expect(result.ast.body[0]).toMatchObject({
+      type: 'VariableDeclaration',
+      isArray: true,
+      name: 'gv_players',
     });
   });
 });
