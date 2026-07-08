@@ -38,22 +38,45 @@ function collectTopLevel(
   filename: string,
   issues: Issue[]
 ): void {
-  try {
-    switch (decl.type) {
-      case 'FunctionDeclaration':
-        table.declareFunction({
+  switch (decl.type) {
+    case 'FunctionDeclaration':
+      table.declareFunction(
+        {
           name: decl.name,
           returnType: decl.returnType,
           params: decl.params.map(p => ({ type: p.type, name: p.name })),
           isNative: decl.isNative,
-        });
-        break;
-      case 'VariableDeclaration':
-        table.declareGlobalVariable(decl.varType, decl.name, decl.isArray);
-        break;
-    }
-  } catch {
-    // 重复声明，Task 14 会细化处理，这里先忽略避免崩溃
+        },
+        () => {
+          if (engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
+            issues.push(
+              engine.makeIssue(
+                'SEM_DUPLICATE_DECLARATION',
+                filename,
+                (decl as any).start?.line ?? 0,
+                (decl as any).start?.column ?? 0,
+                `函数 '${decl.name}' 重复定义`
+              )!
+            );
+          }
+        }
+      );
+      break;
+    case 'VariableDeclaration':
+      table.declareGlobalVariable(decl.varType, decl.name, decl.isArray, () => {
+        if (engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
+          issues.push(
+            engine.makeIssue(
+              'SEM_DUPLICATE_DECLARATION',
+              filename,
+              (decl as any).start?.line ?? 0,
+              (decl as any).start?.column ?? 0,
+              `变量 '${decl.name}' 重复定义`
+            )!
+          );
+        }
+      });
+      break;
   }
 }
 
@@ -65,12 +88,20 @@ function analyzeFunction(
   issues: Issue[]
 ): void {
   const scope = table.createFunctionScope();
-  try {
-    for (const p of fn.params) {
-      scope.declareVariable(p.type, p.name, p.isArray);
-    }
-  } catch {
-    // 参数重复，忽略
+  for (const p of fn.params) {
+    scope.declareVariable(p.type, p.name, p.isArray, () => {
+      if (engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
+        issues.push(
+          engine.makeIssue(
+            'SEM_DUPLICATE_DECLARATION',
+            filename,
+            (p as any).start?.line ?? 0,
+            (p as any).start?.column ?? 0,
+            `参数 '${p.name}' 重复定义`
+          )!
+        );
+      }
+    });
   }
 
   if (fn.body) {
@@ -89,7 +120,19 @@ function walkStatements(
   if (!stmt) return;
   switch (stmt.type) {
     case 'VariableDeclaration':
-      try { scope.declareVariable(stmt.varType, stmt.name, stmt.isArray); } catch {}
+      scope.declareVariable(stmt.varType, stmt.name, stmt.isArray, () => {
+        if (engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
+          issues.push(
+            engine.makeIssue(
+              'SEM_DUPLICATE_DECLARATION',
+              filename,
+              (stmt as any).start?.line ?? 0,
+              (stmt as any).start?.column ?? 0,
+              `变量 '${stmt.name}' 重复定义`
+            )!
+          );
+        }
+      });
       if (stmt.init) checkExpression(stmt.init, scope, table, engine, filename, issues);
       break;
     case 'ExpressionStatement':

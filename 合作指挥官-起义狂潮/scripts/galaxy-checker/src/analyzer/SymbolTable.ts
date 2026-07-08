@@ -14,16 +14,18 @@ export class Scope {
 
   constructor(public parent: Scope | null) {}
 
-  declareVariable(varType: string, name: string, isArray = false): void {
+  declareVariable(varType: string, name: string, isArray = false, onDuplicate?: () => void): void {
     if (this.vars.has(name)) {
-      throw new Error(`变量 '${name}' 在此作用域已声明`);
+      onDuplicate?.();
+      return;
     }
     this.vars.set(name, { name, varType, isArray });
   }
 
-  declareFunction(sig: FunctionSignature): void {
+  declareFunction(sig: FunctionSignature, onDuplicate?: () => void): void {
     if (this.funcs.has(sig.name)) {
-      throw new Error(`函数 '${sig.name}' 在此作用域已声明`);
+      onDuplicate?.();
+      return;
     }
     this.funcs.set(sig.name, sig);
   }
@@ -48,12 +50,12 @@ export class Scope {
 export class SymbolTable {
   private global = new Scope(null);
 
-  declareFunction(sig: FunctionSignature): void {
-    this.global.declareFunction(sig);
+  declareFunction(sig: FunctionSignature, onDuplicate?: () => void): void {
+    this.global.declareFunction(sig, onDuplicate);
   }
 
-  declareGlobalVariable(varType: string, name: string, isArray = false): void {
-    this.global.declareVariable(varType, name, isArray);
+  declareGlobalVariable(varType: string, name: string, isArray = false, onDuplicate?: () => void): void {
+    this.global.declareVariable(varType, name, isArray, onDuplicate);
   }
 
   lookupFunction(name: string): FunctionSignature | null {

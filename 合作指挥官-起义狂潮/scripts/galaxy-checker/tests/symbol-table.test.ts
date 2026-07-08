@@ -16,17 +16,21 @@ describe('SymbolTable', () => {
     expect(child.lookupVariable('gv_x')?.name).toBe('gv_x');
   });
 
-  it('同一作用域重复声明报错', () => {
+  it('同一作用域重复声明触发 onDuplicate 回调', () => {
     const root = new Scope(null);
     root.declareVariable('int', 'x');
-    expect(() => root.declareVariable('int', 'x')).toThrow();
+    let called = false;
+    root.declareVariable('int', 'x', false, () => { called = true; });
+    expect(called).toBe(true);
   });
 
   it('子作用域可声明同名变量（遮蔽）', () => {
     const root = new Scope(null);
     root.declareVariable('int', 'x');
     const child = root.createChild();
-    expect(() => child.declareVariable('int', 'x')).not.toThrow();
+    let called = false;
+    child.declareVariable('int', 'x', false, () => { called = true; });
+    expect(called).toBe(false);
   });
 
   it('SymbolTable 顶层提供函数表', () => {
