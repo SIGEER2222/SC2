@@ -1,6 +1,7 @@
 import { readFileSync, existsSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { loadTalentsCatalog } from './talents-loader.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = join(__dirname, '..', '..');
@@ -74,6 +75,8 @@ export function loadCommanders() {
     startTalentsMap = startTalents.commanders || {};
   }
 
+  const talentsCatalog = loadTalentsCatalog();
+
   const commanders = [];
   for (const cmdr of metadata.commanders || []) {
     const runtime = cmdr.runtime_commander;
@@ -99,6 +102,9 @@ export function loadCommanders() {
           })),
         }
       : { defaultMask: 0, talents: [] };
+
+    // 从 talents catalog 关联新天赋系统配置
+    const talentsConfig = talentsCatalog.get(runtime);
 
     // 解析真实头像 URL
     const portrait = resolveCommanderImage(runtime);
@@ -135,6 +141,7 @@ export function loadCommanders() {
         name: m.name || '',
         valueFormat: m.value_format || '',
       })),
+      talents: talentsConfig?.talents || [],
       startTalents,
     });
   }

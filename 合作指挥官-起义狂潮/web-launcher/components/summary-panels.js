@@ -14,25 +14,18 @@ export function updateSummaryPanel({
   mutatorCount,
   genericBonusCount,
   commanderOverrideCount,
-  masteryLevel,
-  masteryValues,
-  prestigeMaskMode,
-  selectedPrestigeCount,
-  prestigeBonusMask,
-  enablePrestiges,
+  talentSummary,
   scoreSummaryText,
 }) {
   selectionSummaryElement.textContent = `${commanderLabel} / ${mapLabel} / ${mutatorCount} 因子 / ${genericBonusCount} 加成 / ${commanderOverrideCount} 升级`;
   summaryCommanderElement.textContent = commanderLabel;
   summaryMapElement.textContent = mapLabel;
-  summaryMasteryElement.textContent = `${masteryLevel} / ${masteryValues.join(",")}`;
+  summaryMasteryElement.textContent = `天赋 开关${talentSummary?.activeSwitchCount ?? 0}/等级${talentSummary?.totalLevel ?? 0}`;
   summaryMutatorsElement.textContent = `${mutatorCount} / ${genericBonusCount}`;
   summaryPointsElement.textContent = scoreSummaryText;
-  prestigeFusionStatusElement.textContent = enablePrestiges
-    ? `${prestigeMaskMode === "default" ? "默认整合" : "手动拆分"} / ${selectedPrestigeCount} 项 / 掩码 ${prestigeBonusMask}`
-    : "融合关闭";
-  prestigeFusionStatusElement.classList.toggle("status-ok", enablePrestiges && prestigeBonusMask > 0);
-  prestigeFusionStatusElement.classList.toggle("status-warn", !enablePrestiges || prestigeBonusMask === 0);
+  prestigeFusionStatusElement.textContent = `天赋 开关${talentSummary?.activeSwitchCount ?? 0}项 / 等级合计${talentSummary?.totalLevel ?? 0}`;
+  prestigeFusionStatusElement.classList.toggle("status-ok", (talentSummary?.activeSwitchCount ?? 0) > 0 || (talentSummary?.totalLevel ?? 0) > 0);
+  prestigeFusionStatusElement.classList.toggle("status-warn", (talentSummary?.activeSwitchCount ?? 0) === 0 && (talentSummary?.totalLevel ?? 0) === 0);
   copySummaryButton.disabled = false;
 }
 
@@ -46,25 +39,20 @@ export function updateSummaryDetailPanel({
   commanderId,
   mapLabel,
   mapId,
-  masteryLevel,
-  masteryValues,
-  enableMasteries,
+  talentSummary,
   mutatorCount,
   genericBonusCount,
   mutatorPreset,
   mutatorIdsText,
   genericBonusLabels,
   modeLabel,
-  prestigeProfileLabel,
-  prestigeBonusMask,
-  prestigeNames,
   overrideLabels,
 }) {
   setElementDetail(summaryCommanderElement, ["指挥官", commanderLabel, commanderId]);
   setElementDetail(summaryMapElement, ["地图", mapLabel, mapId]);
   setElementDetail(
     summaryMasteryElement,
-    ["精通", `等级 ${masteryLevel}`, `启用=${enableMasteries ? "是" : "否"}；加点=[${masteryValues.join(",")}]`],
+    ["天赋", `开关 ${talentSummary?.activeSwitchCount ?? 0} 项`, `等级合计=${talentSummary?.totalLevel ?? 0}；明细=[${(talentSummary?.levelValues || []).join(",")}]；已激活=${(talentSummary?.activeNames || []).join("、") || "无"}`],
   );
   setElementDetail(
     summaryMutatorsElement,
@@ -72,7 +60,7 @@ export function updateSummaryDetailPanel({
   );
   setElementDetail(
     summaryModeElement,
-    ["模式", modeLabel, `融合=${prestigeProfileLabel}；掩码=${prestigeBonusMask}；项=${prestigeNames.join("、") || "无"}；额外=${overrideLabels.join("、") || "无"}；通用=${genericBonusLabels.join("、") || "无"}；点数=-1`],
+    ["模式", modeLabel, `额外=${overrideLabels.join("、") || "无"}；通用=${genericBonusLabels.join("、") || "无"}；天赋开关=${talentSummary?.activeSwitchCount ?? 0}；天赋等级=${talentSummary?.totalLevel ?? 0}`],
   );
 }
 
@@ -99,12 +87,6 @@ export function updateBootstrapStripPanel({
   scoreStatusElement.textContent = scoreStatusText;
   scoreStatusElement.title = `积分来源：${completion.pointLedger?.objectiveStateSource || "CommanderBonus"}`;
   resourcePlanElement.textContent = resourcePlanText;
-}
-
-export function updateMasteryPairStatusPanel({ element, pairSums }) {
-  element.classList.remove("status-error");
-  element.classList.add("status-ok");
-  element.textContent = pairSums.map((item) => `类别${item.category}:${item.total}`).join(" / ");
 }
 
 export function updateScorePanel({

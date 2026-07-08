@@ -4,13 +4,11 @@ import {
   renderSelectedMutatorPanel as renderSelectedMutatorPanelComponent,
 } from "./components/mutator-panels.js";
 import {
-  renderExtraOptionPanel as renderExtraOptionPanelComponent,
   renderGenericBonusPanel as renderGenericBonusPanelComponent,
-  renderMasteryGridPanel as renderMasteryGridPanelComponent,
-  renderPrestigePanel as renderPrestigePanelComponent,
   renderStartTalentPanel as renderStartTalentPanelComponent,
   renderVoicePackPanel as renderVoicePackPanelComponent,
 } from "./components/commander-panels.js";
+import { renderTalentPanel as renderTalentPanelComponent } from "./components/talent-panel.js";
 import {
   renderLaunchHistoryPanel as renderLaunchHistoryPanelComponent,
   renderMutatorPresetOptionsPanel as renderMutatorPresetOptionsPanelComponent,
@@ -19,7 +17,6 @@ import {
 } from "./components/list-panels.js";
 import {
   updateBootstrapStripPanel as updateBootstrapStripPanelComponent,
-  updateMasteryPairStatusPanel as updateMasteryPairStatusPanelComponent,
   updateScorePanel as updateScorePanelComponent,
   updateSummaryDetailPanel as updateSummaryDetailPanelComponent,
   updateSummaryPanel as updateSummaryPanelComponent,
@@ -27,7 +24,7 @@ import {
 import { escapeHtml, getStatusToneClass, initials } from "./lib/ui-helpers.js";
 
 const DEFAULT_ACTIVE_SHEET = "mutators";
-const SHEET_IDS = new Set(["mutators", "prestige", "startTalents", "voicepacks", "bonuses", "output"]);
+const SHEET_IDS = new Set(["mutators", "talents", "startTalents", "voicepacks", "bonuses", "output"]);
 
 const state = {
   data: null,
@@ -40,7 +37,7 @@ const state = {
     DoubleVespene: 0,
   },
   selectedMutatorPanelExpanded: false,
-  prestigeMaskMode: "default",
+  talentSelections: {},
   startTalentMaskMode: "default",
   activeSheet: DEFAULT_ACTIVE_SHEET,
   autosaveTimer: null,
@@ -62,7 +59,6 @@ const UI_STATE_KEY = "sc2-7vs1-web-launcher-ui-state";
 const MAX_RECENT = 6;
 const MAX_LAUNCH_HISTORY = 8;
 const MAX_SCENARIO_PRESETS = 16;
-const DEFAULT_PRESTIGE_PROFILE = "Prestige4";
 const SERVICE_RETRY_MS = 1500;
 const GENERIC_BONUS_OPTIONS = [
   { id: "DoubleMinerals", name: "矿物储量倍率", description: "每加 1 点，所有矿点当前与上限储量额外增加 100%。1 级为 x2，9 级为 x10。", maxLevel: 9 },
@@ -130,22 +126,6 @@ function getGenericBonusDisplayName(id, genericBonusLevels = state.genericBonusL
   return label;
 }
 
-function normalizePrestigeProfile(value) {
-  const profile = String(value || "").trim();
-  if (profile === "" || profile === "AllPositiveFusion" || profile === "Prestige4") {
-    return DEFAULT_PRESTIGE_PROFILE;
-  }
-  return profile;
-}
-
-function formatPrestigeProfile(value) {
-  const profile = normalizePrestigeProfile(value);
-  if (profile === DEFAULT_PRESTIGE_PROFILE) {
-    return "威望4";
-  }
-  return profile;
-}
-
 function normalizeActiveSheet(value) {
   const sheet = String(value || "").trim();
   return SHEET_IDS.has(sheet) ? sheet : DEFAULT_ACTIVE_SHEET;
@@ -207,23 +187,15 @@ const el = {
   commanderQuickList: document.querySelector("#commanderQuickList"),
   commanderQuickCount: document.querySelector("#commanderQuickCount"),
   mapQuickList: document.querySelector("#mapQuickList"),
-  enablePrestiges: document.querySelector("#enablePrestiges"),
-  enableMasteries: document.querySelector("#enableMasteries"),
-  prestigeMask: document.querySelector("#prestigeMask"),
-  prestigeProfile: document.querySelector("#prestigeProfile"),
-  prestigeConfigNote: document.querySelector("#prestigeConfigNote"),
-  prestigeFusionStatus: document.querySelector("#prestigeFusionStatus"),
-  masteryLevel: document.querySelector("#masteryLevel"),
   commanderId: document.querySelector("#commanderId"),
-  masteryPairStatus: document.querySelector("#masteryPairStatus"),
   scenarioPresetName: document.querySelector("#scenarioPresetName"),
   scenarioPresets: document.querySelector("#scenarioPresets"),
   saveScenarioPreset: document.querySelector("#saveScenarioPreset"),
   clearScenarioPresets: document.querySelector("#clearScenarioPresets"),
   recentConfigs: document.querySelector("#recentConfigs"),
   clearRecentButton: document.querySelector("#clearRecentButton"),
-  prestigeList: document.querySelector("#prestigeList"),
-  extraOptionList: document.querySelector("#extraOptionList"),
+  talentPanel: document.querySelector("#talentPanel"),
+  prestigeFusionStatus: document.querySelector("#prestigeFusionStatus"),
   genericBonusList: document.querySelector("#genericBonusList"),
   scoreBudgetBadge: document.querySelector("#scoreBudgetBadge"),
   scoreAvailablePoints: document.querySelector("#scoreAvailablePoints"),
@@ -233,7 +205,6 @@ const el = {
   scoreCommanderProgress: document.querySelector("#scoreCommanderProgress"),
   scoreDetailText: document.querySelector("#scoreDetailText"),
   scoreRuleText: document.querySelector("#scoreRuleText"),
-  masteryGrid: document.querySelector("#masteryGrid"),
   startTalentList: document.querySelector("#startTalentList"),
   startTalentStatus: document.querySelector("#startTalentStatus"),
   startTalentMaskBadge: document.querySelector("#startTalentMaskBadge"),
@@ -337,53 +308,6 @@ function getVoicePackLabel(id = state.selectedVoicePackId) {
   return voicePack?.name || id || "Default";
 }
 
-function getPrestigeTooltipParts(tooltip) {
-  const text = normalizeText(tooltip);
-  if (!text) {
-    return { positive: "", negative: "" };
-  }
-
-  const positiveMarkerIndex = text.search(/优点|Advantage/i);
-  const negativeMarkerIndex = text.search(/缺点|Disadvantage/i);
-  let positive = "";
-  let negative = "";
-
-  if (positiveMarkerIndex >= 0 && negativeMarkerIndex >= 0) {
-    if (positiveMarkerIndex < negativeMarkerIndex) {
-      positive = text.slice(positiveMarkerIndex, negativeMarkerIndex);
-      negative = text.slice(negativeMarkerIndex);
-    } else {
-      negative = text.slice(negativeMarkerIndex, positiveMarkerIndex);
-      positive = text.slice(positiveMarkerIndex);
-    }
-  } else if (positiveMarkerIndex >= 0) {
-    positive = text.slice(positiveMarkerIndex);
-  } else if (negativeMarkerIndex >= 0) {
-    negative = text.slice(negativeMarkerIndex);
-  } else {
-    positive = text;
-  }
-
-  positive = positive
-    .replace(/^(优点|Advantage)\s*/i, "")
-    .replace(/\s+/g, " ")
-    .trim();
-  negative = negative
-    .replace(/^(缺点|Disadvantage)\s*/i, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  return { positive: positive || text, negative };
-}
-
-function getCommanderDefaultPrestigeMask(commander) {
-  return clampNumber(commander?.defaultPrestigeBonusMask, 0, 7, state.data?.defaults?.prestigeBonusMask ?? 7);
-}
-
-function getCommanderDefaultPrestigePointIndex(commander) {
-  return clampNumber(commander?.defaultPrestigePointIndex, -1, 3, state.data?.defaults?.prestigePointIndex ?? -1);
-}
-
 function getCommanderStartTalents(commander = getCommander()) {
   if (!commander) return { defaultMask: 0, talents: [] };
   return commander.startTalents ?? { defaultMask: 0, talents: [] };
@@ -403,27 +327,6 @@ function getStartTalentMaxMask(commander = getCommander()) {
   return maxMask;
 }
 
-function getCommanderExtraOptions(commander = getCommander()) {
-  if (!commander) return [];
-  const options = [];
-  for (const prestige of commander.prestiges ?? []) {
-    for (const option of prestige.extraOptions ?? []) {
-      options.push({
-        ...option,
-        prestigeSlot: prestige.slot,
-        prestigeBitMask: prestige.bitMask,
-        prestigeName: prestige.name || prestige.id,
-        prestigeId: prestige.id,
-      });
-    }
-  }
-  return options;
-}
-
-function getCommanderExtraOptionMap(commander = getCommander()) {
-  return new Map(getCommanderExtraOptions(commander).map((option) => [option.overrideValue, option]));
-}
-
 function getUnlockedBonusSet() {
   return new Set(state.data?.completion?.unlockedBonuses || []);
 }
@@ -440,99 +343,31 @@ function isCommanderPrestigeUnlocked(prestige, commander = getCommander()) {
   return true;
 }
 
-function isCommanderExtraOptionActive(option, commander = getCommander()) {
-  if (!option || !commander) return false;
-  if (el.enablePrestiges.checked !== true) return false;
-  const requiredMask = clampNumber(option.requiresPrestigeMask, 0, 7, option.prestigeBitMask || 0);
-  const activeMask = clampNumber(el.prestigeMask.value, 0, 7, getCommanderDefaultPrestigeMask(commander));
-  return requiredMask === 0 || (activeMask & requiredMask) === requiredMask;
-}
-
-function syncCommanderOverrideSelection(commander = getCommander()) {
-  const optionMap = getCommanderExtraOptionMap(commander);
-  const activeOverrideSet = new Set(
-    getCommanderExtraOptions(commander)
-      .filter((option) => isCommanderExtraOptionActive(option, commander))
-      .map((option) => option.overrideValue),
-  );
-
-  for (const overrideValue of [...state.selectedCommanderOverrides]) {
-    if (!optionMap.has(overrideValue) || !activeOverrideSet.has(overrideValue)) {
-      state.selectedCommanderOverrides.delete(overrideValue);
-    }
-  }
-}
-
 function getCommanderOverrideLabels(overrides = [], commanderRuntime = null) {
-  const commander = commanderRuntime
-    ? state.data?.commanders?.find((item) => item.runtime === commanderRuntime) || null
-    : getCommander();
-  const optionMap = getCommanderExtraOptionMap(commander);
-  return [...overrides].map((overrideValue) => optionMap.get(overrideValue)?.name || overrideValue);
+  return [...overrides].map((overrideValue) => String(overrideValue || ""));
 }
 
-function getCommanderPrestigeMaskFromSelection() {
-  let mask = 0;
-  document.querySelectorAll(".prestige-toggle-input").forEach((input) => {
-    if (!input.checked) return;
-    mask |= clampNumber(input.dataset.bitMask, 0, 7, 0);
-  });
-  return clampNumber(mask, 0, 7, 0);
-}
-
-function getCommanderPrestigeSelectionsFromUI(commander = getCommander()) {
-  const selections = [];
-  const byBitMask = new Map((commander?.prestiges ?? []).map((prestige) => [clampNumber(prestige.bitMask, 0, 7, 0), prestige]));
-  document.querySelectorAll(".prestige-toggle-input").forEach((input) => {
-    if (!input.checked) return;
-    const bitMask = clampNumber(input.dataset.bitMask, 0, 7, 0);
-    const prestige = byBitMask.get(bitMask);
-    selections.push({
-      slot: clampNumber(input.dataset.slot, 0, 7, 0),
-      bitMask,
-      id: prestige?.id || "",
-      name: prestige?.name || prestige?.id || "",
-    });
-  });
-  return selections.sort((a, b) => a.slot - b.slot);
-}
-
-function getPrestigeMaskFromSelections(selections = []) {
-  let mask = 0;
-  for (const selection of selections || []) {
-    mask |= clampNumber(selection?.bitMask, 0, 7, 0);
-  }
-  return clampNumber(mask, 0, 7, 0);
-}
-
-function setCommanderPrestigeSelectionState(selections = []) {
-  const selectedSlots = new Set();
-  const selectedBitMasks = new Set();
-  for (const selection of selections || []) {
-    const slot = clampNumber(selection?.slot, 0, 7, -1);
-    const bitMask = clampNumber(selection?.bitMask, 0, 7, 0);
-    if (slot >= 0) {
-      selectedSlots.add(slot);
-    } else if (bitMask > 0) {
-      selectedBitMasks.add(bitMask);
+function getTalentSummary(runtime) {
+  const selections = state.talentSelections?.[runtime] || {};
+  const commander = state.data?.commanders?.find((item) => item.runtime === runtime);
+  const talents = commander?.talents || [];
+  let activeSwitchCount = 0;
+  let totalLevel = 0;
+  const levelValues = [];
+  const activeNames = [];
+  for (const talent of talents) {
+    if (talent.type === "switch") {
+      if (Number(selections[talent.id] || 0) === 1) {
+        activeSwitchCount += 1;
+        activeNames.push(talent.name || talent.id);
+      }
+    } else if (talent.type === "level") {
+      const level = Math.max(0, Math.min(Number(talent.maxLevel) || 0, Number(selections[talent.id] || 0)));
+      totalLevel += level;
+      levelValues.push(level);
     }
   }
-
-  document.querySelectorAll(".prestige-toggle-input").forEach((input) => {
-    const slot = clampNumber(input.dataset.slot, 0, 7, 0);
-    const bitMask = clampNumber(input.dataset.bitMask, 0, 7, 0);
-    input.checked = selectedSlots.has(slot) || selectedBitMasks.has(bitMask);
-  });
-}
-
-function setPrestigeMaskValue(mask) {
-  el.prestigeMask.value = String(clampNumber(mask, 0, 7, 7));
-}
-
-function syncPrestigeMaskFromUI(mode = "custom") {
-  setPrestigeMaskValue(getCommanderPrestigeMaskFromSelection());
-  state.prestigeMaskMode = mode;
-  scheduleAutosave();
+  return { activeSwitchCount, totalLevel, levelValues, activeNames };
 }
 
 function writeOutput(value) {
@@ -575,7 +410,6 @@ function scheduleAutosave() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(buildLaunchPayload()));
       writeUiState({
         selectedMutatorPanelExpanded: state.selectedMutatorPanelExpanded,
-        prestigeMaskMode: state.prestigeMaskMode,
         startTalentMaskMode: state.startTalentMaskMode,
         activeSheet: state.activeSheet,
       });
@@ -1120,7 +954,6 @@ function pickRandom(items) {
 function selectCommander(runtime) {
   if (!runtime || !state.data?.commanders.some((item) => item.runtime === runtime)) return false;
   el.commanderSelect.value = runtime;
-  state.prestigeMaskMode = "default";
   renderCommanderDetails();
   renderQuickPickers();
   return true;
@@ -1161,69 +994,39 @@ function renderQuickPickers() {
   });
 }
 
-function renderPrestiges(commander) {
-  const defaultMask = getCommanderDefaultPrestigeMask(commander);
-  const activeMask = clampNumber(el.prestigeMask.value, 0, 7, defaultMask);
-  renderPrestigePanelComponent({
-    container: el.prestigeList,
+function renderTalents(commander) {
+  if (!commander) return;
+  const runtime = commander.runtime || "";
+  const selections = state.talentSelections[runtime] || {};
+  renderTalentPanelComponent({
+    container: el.talentPanel,
     commander,
-    activeMask,
-    defaultMask,
-    getPrestigeTooltipParts,
-    onSelectMode: (mode) => {
-      const inputs = [...document.querySelectorAll(".prestige-toggle-input")];
-      if (mode === "default") {
-        for (const input of inputs) {
-          const bitMask = clampNumber(input.dataset.bitMask, 0, 7, 0);
-          input.checked = (defaultMask & bitMask) === bitMask;
-        }
-        syncPrestigeMaskFromUI("default");
-      } else if (mode === "all") {
-        for (const input of inputs) input.checked = true;
-        syncPrestigeMaskFromUI("custom");
-      } else if (mode === "none") {
-        for (const input of inputs) input.checked = false;
-        syncPrestigeMaskFromUI("custom");
-      }
-      syncCommanderOverrideSelection(commander);
-      renderExtraOptions(commander);
-      updateSummary();
-    },
-    onTogglePrestige: () => {
-      syncPrestigeMaskFromUI("custom");
-      syncCommanderOverrideSelection(commander);
-      renderExtraOptions(commander);
-      updateSummary();
-    },
-  });
-}
-
-function renderExtraOptions(commander = getCommander()) {
-  const allOptions = getCommanderExtraOptions(commander);
-  const activeOptions = allOptions.filter((option) => isCommanderExtraOptionActive(option, commander));
-  renderExtraOptionPanelComponent({
-    container: el.extraOptionList,
-    allOptions,
-    activeOptions,
-    selectedOverrideValues: state.selectedCommanderOverrides,
-    prestigeEnabled: el.enablePrestiges.checked,
-    onToggleOverride: (overrideValue, checked) => {
-      if (!overrideValue) return;
-      if (checked) {
-        state.selectedCommanderOverrides.add(overrideValue);
-      } else {
-        state.selectedCommanderOverrides.delete(overrideValue);
-      }
+    selections,
+    onToggleTalent: (talentId, checked) => {
+      if (!runtime || !talentId) return;
+      if (!state.talentSelections[runtime]) state.talentSelections[runtime] = {};
+      state.talentSelections[runtime][talentId] = checked ? 1 : 0;
+      renderTalents(commander);
       updateSummary();
       scheduleAutosave();
     },
-  });
-}
-
-function renderMasteries(commander) {
-  renderMasteryGridPanelComponent({
-    container: el.masteryGrid,
-    commander,
+    onSetTalentLevel: (talentId, level) => {
+      if (!runtime || !talentId) return;
+      if (!state.talentSelections[runtime]) state.talentSelections[runtime] = {};
+      state.talentSelections[runtime][talentId] = level;
+      renderTalents(commander);
+      updateSummary();
+      scheduleAutosave();
+    },
+    onToggleExtraOption: (talentId, optionId, checked) => {
+      if (!runtime || !talentId || !optionId) return;
+      if (!state.talentSelections[runtime]) state.talentSelections[runtime] = {};
+      const key = `${talentId}.extra:${optionId}`;
+      state.talentSelections[runtime][key] = checked ? 1 : 0;
+      renderTalents(commander);
+      updateSummary();
+      scheduleAutosave();
+    },
   });
 }
 
@@ -1292,17 +1095,11 @@ function renderCommanderDetails() {
 
   el.commanderId.textContent = commander.runtime;
   el.commanderId.title = commander.integrationNote || "";
-  if (state.prestigeMaskMode === "default") {
-    setPrestigeMaskValue(getCommanderDefaultPrestigeMask(commander));
-  }
   if (state.startTalentMaskMode === "default") {
     el.startTalentMask.value = String(getCommanderDefaultStartTalentMask(commander));
   }
-  renderPrestiges(commander);
-  renderMasteries(commander);
+  renderTalents(commander);
   renderStartTalents(commander);
-  syncCommanderOverrideSelection(commander);
-  renderExtraOptions(commander);
   updateSummary();
 }
 
@@ -1462,18 +1259,16 @@ function getConfigSummaryText() {
 }
 
 function getPayloadSummaryText(payload) {
-  const masteries = Array.isArray(payload.masteries) ? payload.masteries : [];
   const mutators = Array.isArray(payload.mutators) ? payload.mutators : [];
   const genericBonuses = Array.isArray(payload.genericBonuses) ? payload.genericBonuses : [];
   const genericBonusLevels = normalizeGenericBonusLevels(payload.genericBonusLevels || {}, genericBonuses);
   const scoreState = getScoreState(payload);
   const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
+  const talentSummary = getTalentSummary(payload.commander);
   return [
     `指挥官=${getCommanderLabel(payload.commander)}(${payload.commander})`,
     `地图=${getMapLabel(payload.map)}(${payload.map})`,
-    `融合=${formatPrestigeProfile(payload.prestigeProfile)}`,
-    `精通等级=${payload.masteryLevel}`,
-    `精通=[${masteries.join(",") || "-"}]`,
+    `天赋=开关${talentSummary.activeSwitchCount}项/等级合计${talentSummary.totalLevel}`,
     `额外升级=${overrideLabels.length === 0 ? "无" : overrideLabels.join(",")}`,
     `语音=${getVoicePackLabel(payload.voicePack || "Default")}(${payload.voicePack || "Default"})`,
     `通用加成=${genericBonuses.length === 0 ? "无" : genericBonuses.map((id) => getGenericBonusDisplayName(id, genericBonusLevels)).join(",")}`,
@@ -1492,8 +1287,8 @@ function getPayloadMutatorBadge(payload = {}) {
 }
 
 function getPayloadMasteryBadge(payload = {}) {
-  const masteries = Array.isArray(payload.masteries) ? payload.masteries : [];
-  return `精通 ${payload.masteryLevel ?? "-"}${masteries.length ? ` / ${masteries.join(",")}` : ""}`;
+  const talentSummary = getTalentSummary(payload.commander);
+  return `天赋 开关${talentSummary.activeSwitchCount}/等级${talentSummary.totalLevel}`;
 }
 
 function getHistoryStatusClass(item) {
@@ -1508,19 +1303,15 @@ function getValidationSignature(payload = buildLaunchPayload()) {
   return JSON.stringify({
     commander: payload.commander,
     map: payload.map,
-    enablePrestiges: payload.enablePrestiges,
-    enableMasteries: payload.enableMasteries,
-    prestigeBonusMask: payload.prestigeBonusMask,
-    prestigePointIndex: -1,
-    prestigeProfile: normalizePrestigeProfile(payload.prestigeProfile),
-    masteryLevel: payload.masteryLevel,
-    masteries: payload.masteries,
+    talentSelections: payload.talentSelections || {},
     commanderOverrides: [...(payload.commanderOverrides || [])].sort(),
     voicePack: normalizeVoicePackId(payload.voicePack),
     genericBonuses: [...(payload.genericBonuses || [])].sort(),
     genericBonusLevels: normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []),
     mutators: [...(payload.mutators || [])].sort(),
     mutatorPreset: payload.mutatorPreset,
+    startTalentMask: payload.startTalentMask,
+    enableStartTalents: payload.enableStartTalents,
   });
 }
 
@@ -1528,19 +1319,16 @@ function normalizeLaunchPayload(payload = buildLaunchPayload()) {
   return {
     commander: payload.commander,
     map: payload.map,
-    enablePrestiges: payload.enablePrestiges,
-    enableMasteries: payload.enableMasteries,
-    prestigeBonusMask: payload.prestigeBonusMask,
-    prestigePointIndex: -1,
-    prestigeProfile: normalizePrestigeProfile(payload.prestigeProfile),
-    masteryLevel: payload.masteryLevel,
-    masteries: [...(payload.masteries || [])],
+    talentSelections: payload.talentSelections || {},
     commanderOverrides: [...(payload.commanderOverrides || [])].sort(),
     voicePack: normalizeVoicePackId(payload.voicePack),
     genericBonuses: [...(payload.genericBonuses || [])].sort(),
     genericBonusLevels: normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []),
     mutators: [...(payload.mutators || [])].sort(),
     mutatorPreset: payload.mutatorPreset,
+    startTalentMask: payload.startTalentMask,
+    enableStartTalents: payload.enableStartTalents,
+    noLaunch: payload.noLaunch === true,
   };
 }
 
@@ -1590,17 +1378,10 @@ function getValidationChangeSummary(currentPayload = normalizeLaunchPayload()) {
   if (previous.map !== currentPayload.map) {
     changes.push(`地图: ${getMapLabel(previous.map)} -> ${getMapLabel(currentPayload.map)}`);
   }
-  if (previous.enablePrestiges !== currentPayload.enablePrestiges) {
-    changes.push(`威望开关: ${previous.enablePrestiges ? "开" : "关"} -> ${currentPayload.enablePrestiges ? "开" : "关"}`);
-  }
-  if (previous.enableMasteries !== currentPayload.enableMasteries) {
-    changes.push(`精通开关: ${previous.enableMasteries ? "开" : "关"} -> ${currentPayload.enableMasteries ? "开" : "关"}`);
-  }
-  if (previous.prestigeBonusMask !== currentPayload.prestigeBonusMask || previous.prestigeProfile !== currentPayload.prestigeProfile) {
-    changes.push(`融合威望: ${formatPrestigeProfile(previous.prestigeProfile)}/mask ${previous.prestigeBonusMask} -> ${formatPrestigeProfile(currentPayload.prestigeProfile)}/mask ${currentPayload.prestigeBonusMask}`);
-  }
-  if (previous.masteryLevel !== currentPayload.masteryLevel || previous.masteries.join(",") !== currentPayload.masteries.join(",")) {
-    changes.push(`精通: ${previous.masteryLevel} [${previous.masteries.join(",")}] -> ${currentPayload.masteryLevel} [${currentPayload.masteries.join(",")}]`);
+  if (JSON.stringify(previous.talentSelections || {}) !== JSON.stringify(currentPayload.talentSelections || {})) {
+    const prevSummary = getTalentSummary(previous.commander);
+    const currSummary = getTalentSummary(currentPayload.commander);
+    changes.push(`天赋: 开关${prevSummary.activeSwitchCount}/等级${prevSummary.totalLevel} -> 开关${currSummary.activeSwitchCount}/等级${currSummary.totalLevel}`);
   }
   if ((previous.commanderOverrides || []).join(",") !== (currentPayload.commanderOverrides || []).join(",")) {
     changes.push(`额外升级: ${(previous.commanderOverrides || []).length} -> ${(currentPayload.commanderOverrides || []).length}`);
@@ -1738,14 +1519,11 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
   const mutatorIds = payload.mutators.length === 0 ? "无" : payload.mutators.join(", ");
   const genericBonusLevels = normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []);
   const genericBonusLabels = (payload.genericBonuses || []).map((id) => getGenericBonusDisplayName(id, genericBonusLevels));
-  const commander = getCommander();
-  const prestigeNames = (commander?.prestiges ?? [])
-    .filter((prestige) => (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask)
-    .map((prestige) => `P${prestige.slot + 1} ${prestige.name || prestige.id}`);
   const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
   const selectedRace = getSelectedCommanderRace();
   const voicePack = getVoicePackById(payload.voicePack || "Default");
   const voicePackReward = voicePack?.rewardIds?.[selectedRace] || "-";
+  const talentSummary = getTalentSummary(payload.commander);
   updateSummaryDetailPanelComponent({
     summaryCommanderElement: el.summaryCommander,
     summaryMapElement: el.summaryMap,
@@ -1756,18 +1534,13 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     commanderId: payload.commander,
     mapLabel: getMapLabel(payload.map),
     mapId: payload.map,
-    masteryLevel: payload.masteryLevel,
-    masteryValues: payload.masteries,
-    enableMasteries: payload.enableMasteries,
+    talentSummary,
     mutatorCount: payload.mutators.length,
     genericBonusCount: genericBonusLabels.length,
     mutatorPreset: payload.mutatorPreset,
     mutatorIdsText: mutatorIds,
     genericBonusLabels,
     modeLabel: payload.noLaunch ? "验证安装" : "正式启动",
-    prestigeProfileLabel: formatPrestigeProfile(payload.prestigeProfile),
-    prestigeBonusMask: payload.prestigeBonusMask,
-    prestigeNames,
     overrideLabels,
   });
   if (el.voicePackBadge) {
@@ -1824,7 +1597,6 @@ function updateSummary() {
   if (!state.data) {
     el.selectionSummary.textContent = "未就绪";
     el.copySummaryButton.disabled = true;
-    el.masteryPairStatus.textContent = "-";
     if (el.summaryPoints) el.summaryPoints.textContent = "0";
     setValidationSummary("未验证");
     el.configIssues.textContent = "配置未就绪";
@@ -1839,9 +1611,7 @@ function updateSummary() {
   const mutatorCount = state.selectedMutators.size;
   const commanderOverrideCount = state.selectedCommanderOverrides.size;
   const genericBonusCount = (payload.genericBonuses || []).length;
-  const selectedPrestigeCount = (commander?.prestiges ?? []).filter((prestige) =>
-    (payload.prestigeBonusMask & prestige.bitMask) === prestige.bitMask,
-  ).length;
+  const talentSummary = getTalentSummary(payload.commander);
   updateSummaryPanelComponent({
     selectionSummaryElement: el.selectionSummary,
     summaryCommanderElement: el.summaryCommander,
@@ -1856,19 +1626,13 @@ function updateSummary() {
     mutatorCount,
     genericBonusCount,
     commanderOverrideCount,
-    masteryLevel: payload.masteryLevel,
-    masteryValues: payload.masteries,
-    prestigeMaskMode: state.prestigeMaskMode,
-    selectedPrestigeCount,
-    prestigeBonusMask: payload.prestigeBonusMask,
-    enablePrestiges: payload.enablePrestiges,
+    talentSummary,
     scoreSummaryText: `${scoreState.earnedPoints}+${scoreState.mutatorPoints}-${scoreState.bonusCost}=${scoreState.balanceAfterSelection}`,
   });
   updateLaunchModeLabels(payload);
   updateSummaryDetails(payload);
   updateScorePanel(payload);
   renderVoicePacks();
-  updateMasteryPairStatus();
   updateValidationSummary();
   updateConfigIssues();
   scheduleAutosave();
@@ -1920,30 +1684,6 @@ function updateBootstrapStrip() {
   });
 }
 
-function getMasteryValues() {
-  const values = [30, 30, 30, 30, 30, 30];
-  document.querySelectorAll(".mastery-input").forEach((input) => {
-    const slot = clampNumber(input.dataset.slot, 0, 5, 0);
-    values[slot] = parseLooseInteger(input.value, 30);
-  });
-  return values;
-}
-
-function getMasteryPairSums(values = getMasteryValues()) {
-  return [
-    { category: 1, slots: [0, 1], total: values[0] + values[1] },
-    { category: 2, slots: [2, 3], total: values[2] + values[3] },
-    { category: 3, slots: [4, 5], total: values[4] + values[5] },
-  ];
-}
-
-function updateMasteryPairStatus() {
-  updateMasteryPairStatusPanelComponent({
-    element: el.masteryPairStatus,
-    pairSums: getMasteryPairSums(),
-  });
-}
-
 function applyPayload(payload, options = {}) {
   if (!state.data || !payload) return false;
   const report = {
@@ -1966,37 +1706,18 @@ function applyPayload(payload, options = {}) {
     report.unknownMap = payload.map;
   }
 
-  el.enablePrestiges.checked = payload.enablePrestiges !== false;
-  el.enableMasteries.checked = payload.enableMasteries !== false;
   el.enableStartTalents.checked = payload.enableStartTalents !== false;
   el.startTalentMask.value = String(Number(payload.startTalentMask) || 0);
-  const payloadPrestigeSelections = Array.isArray(payload.prestigeSelections) ? payload.prestigeSelections : null;
-  const restoredPrestigeMask = payloadPrestigeSelections
-    ? getPrestigeMaskFromSelections(payloadPrestigeSelections)
-    : clampNumber(payload.prestigeBonusMask, 0, 7, 7);
-  setPrestigeMaskValue(restoredPrestigeMask);
-  el.prestigeProfile.value = normalizePrestigeProfile(payload.prestigeProfile);
-  el.masteryLevel.value = String(parseLooseInteger(payload.masteryLevel, 30));
   el.mutatorPreset.value = String(clampNumber(payload.mutatorPreset, 0, 3, 0));
   el.dryRunToggle.checked = payload.noLaunch === true;
-  if (options.prestigeMaskAuto === true) {
-    state.prestigeMaskMode = "default";
-  } else if (options.prestigeMaskMode === "default" || options.prestigeMaskMode === "custom") {
-    state.prestigeMaskMode = options.prestigeMaskMode;
+
+  if (payload.talentSelections && typeof payload.talentSelections === "object") {
+    state.talentSelections = JSON.parse(JSON.stringify(payload.talentSelections));
+  } else {
+    state.talentSelections = {};
   }
 
   renderCommanderDetails();
-  if (payloadPrestigeSelections) {
-    setCommanderPrestigeSelectionState(payloadPrestigeSelections);
-    setPrestigeMaskValue(getCommanderPrestigeMaskFromSelection());
-  }
-
-  if (Array.isArray(payload.masteries)) {
-    document.querySelectorAll(".mastery-input").forEach((input) => {
-      const slot = clampNumber(input.dataset.slot, 0, 5, 0);
-      input.value = String(parseLooseInteger(payload.masteries[slot], 30));
-    });
-  }
 
   const allowedMutators = new Set(state.data.mutators.map((item) => item.id));
   const allowedGenericBonuses = new Set(GENERIC_BONUS_OPTIONS.map((item) => item.id));
@@ -2034,20 +1755,15 @@ function applyPayload(payload, options = {}) {
     }
   }
 
-  const allowedOverrideMap = getCommanderExtraOptionMap(getCommander());
   if (Array.isArray(payload.commanderOverrides)) {
     for (const overrideValue of payload.commanderOverrides) {
       const overrideText = String(overrideValue || "");
-      const option = allowedOverrideMap.get(overrideText);
-      if (option && isCommanderExtraOptionActive(option, getCommander())) {
+      if (overrideText) {
         state.selectedCommanderOverrides.add(overrideText);
-      } else if (overrideText) {
-        report.unknownCommanderOverrides.push(overrideText);
       }
     }
   }
 
-  renderExtraOptions(getCommander());
   renderGenericBonuses();
   renderMutators();
   renderQuickPickers();
@@ -2066,13 +1782,7 @@ function getDefaultPayload() {
   return {
     commander: state.data.defaults.commander,
     map: state.data.defaults.map,
-    enablePrestiges: state.data.defaults.enablePrestiges,
-    enableMasteries: state.data.defaults.enableMasteries,
-    prestigeBonusMask: state.data.defaults.prestigeBonusMask,
-    prestigePointIndex: state.data.defaults.prestigePointIndex,
-    prestigeProfile: normalizePrestigeProfile(state.data.defaults.prestigeProfile),
-    masteryLevel: state.data.defaults.masteryLevel,
-    masteries: state.data.defaults.masterySlots,
+    talentSelections: state.data.defaults.talentSelections || {},
     enableStartTalents: true,
     startTalentMask: 0,
     commanderOverrides: [...(state.data.defaults.commanderOverrides || [])],
@@ -2156,7 +1866,7 @@ function saveConfig() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   writeUiState({
     selectedMutatorPanelExpanded: state.selectedMutatorPanelExpanded,
-    prestigeMaskMode: state.prestigeMaskMode,
+    startTalentMaskMode: state.startTalentMaskMode,
     activeSheet: state.activeSheet,
   });
   addRecentConfig(payload);
@@ -2196,17 +1906,14 @@ function scenarioKey(payload) {
   return [
     payload.commander,
     payload.map,
-    payload.enablePrestiges,
-    payload.enableMasteries,
-    payload.prestigeBonusMask,
-    normalizePrestigeProfile(payload.prestigeProfile),
-    payload.masteryLevel,
-    (payload.masteries || []).join(","),
+    JSON.stringify(payload.talentSelections || {}),
     (payload.commanderOverrides || []).join(","),
     (payload.genericBonuses || []).join(","),
     JSON.stringify(genericBonusLevels),
     (payload.mutators || []).join(","),
     payload.mutatorPreset,
+    payload.enableStartTalents,
+    payload.startTalentMask,
     payload.noLaunch,
   ].join("|");
 }
@@ -2526,9 +2233,7 @@ function loadSavedConfig() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return false;
   try {
-    return applyPayload(JSON.parse(raw), {
-      prestigeMaskMode: state.prestigeMaskMode,
-    });
+    return applyPayload(JSON.parse(raw));
   } catch (error) {
     localStorage.removeItem(STORAGE_KEY);
     writeOutput(`保存的配置无效，已清除：${error.message}`);
@@ -2539,9 +2244,8 @@ function loadSavedConfig() {
 function resetConfig() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(UI_STATE_KEY);
-  applyPayload(getDefaultPayload(), { prestigeMaskAuto: true });
+  applyPayload(getDefaultPayload());
   state.selectedMutatorPanelExpanded = false;
-  state.prestigeMaskMode = "default";
   state.startTalentMaskMode = "default";
   state.activeSheet = DEFAULT_ACTIVE_SHEET;
   syncActiveSheetUI();
@@ -2654,18 +2358,10 @@ function applyMutatorImport(replace) {
 }
 
 function buildLaunchPayload() {
-  const commander = getCommander();
   return {
     commander: el.commanderSelect.value,
     map: el.mapSelect.value,
-    enablePrestiges: el.enablePrestiges.checked,
-    enableMasteries: el.enableMasteries.checked,
-    prestigeSelections: getCommanderPrestigeSelectionsFromUI(commander),
-    prestigeBonusMask: clampNumber(el.prestigeMask.value, 0, 7, 7),
-    prestigePointIndex: -1,
-    prestigeProfile: normalizePrestigeProfile(el.prestigeProfile.value),
-    masteryLevel: parseLooseInteger(el.masteryLevel.value, 30),
-    masteries: getMasteryValues(),
+    talentSelections: state.talentSelections,
     enableStartTalents: el.enableStartTalents.checked,
     startTalentMask: Number(el.startTalentMask.value) || 0,
     commanderOverrides: [...state.selectedCommanderOverrides].sort(),
@@ -2712,11 +2408,10 @@ async function loadBootstrap() {
     populateMutatorFilters();
     const uiState = readUiState();
     state.selectedMutatorPanelExpanded = uiState.selectedMutatorPanelExpanded === true;
-    state.prestigeMaskMode = uiState.prestigeMaskMode || "default";
     state.startTalentMaskMode = uiState.startTalentMaskMode || "default";
     state.activeSheet = normalizeActiveSheet(uiState.activeSheet);
     if (!loadSavedConfig()) {
-      applyPayload(getDefaultPayload(), { prestigeMaskAuto: true });
+      applyPayload(getDefaultPayload());
     }
     syncActiveSheetUI();
     updateBootstrapStrip();
@@ -3024,7 +2719,6 @@ async function copyPreviewCommand() {
 }
 
 el.commanderSelect.addEventListener("change", () => {
-  state.prestigeMaskMode = "default";
   renderCommanderDetails();
   renderQuickPickers();
   scheduleAutosave();
@@ -3034,22 +2728,8 @@ el.mapSelect.addEventListener("change", () => {
   renderQuickPickers();
   scheduleAutosave();
 });
-el.enablePrestiges.addEventListener("change", () => {
-  syncCommanderOverrideSelection(getCommander());
-  renderExtraOptions(getCommander());
-  updateSummary();
-  scheduleAutosave();
-});
-el.enableMasteries.addEventListener("change", () => {
-  updateSummary();
-  scheduleAutosave();
-});
 el.enableStartTalents.addEventListener("change", () => {
   renderStartTalents(getCommander());
-  updateSummary();
-  scheduleAutosave();
-});
-el.masteryLevel.addEventListener("change", () => {
   updateSummary();
   scheduleAutosave();
 });
@@ -3133,12 +2813,6 @@ el.randomMutators3.addEventListener("click", () => randomizeMutators(3));
 el.randomMutators5.addEventListener("click", () => randomizeMutators(5));
 el.randomMutators10.addEventListener("click", () => randomizeMutators(10));
 el.copyMutatorIds.addEventListener("click", copySelectedMutatorIds);
-el.masteryGrid.addEventListener("input", (event) => {
-  if (event.target?.classList?.contains("mastery-input")) {
-    updateSummary();
-    scheduleAutosave();
-  }
-});
 
 loadBootstrap();
 

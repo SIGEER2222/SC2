@@ -820,3 +820,65 @@ function Set-CampaignXCorePrimaryCommander {
         Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
     }
 }
+
+function Set-CampaignXCoreTalentSelections {
+    <#
+    .SYNOPSIS
+        Write talent selections to the CommanderTalents section of CampaignXCore.SC2Bank.
+
+    .DESCRIPTION
+        New talent system Bank format (replaces legacy PrestigeBonusMask + Mastery0-5):
+        Section: CommanderTalents
+        Key:     <CommanderRuntimeName>.<TalentId>[.extra:<OptionId>]
+        Value:   int (level for level-type, 1/0 for switch-type, 1/0 for extra options)
+
+        This function fully replaces the legacy Set-CampaignXCoreCommanderPowerPreset
+        behavior for talent data. The legacy CommanderPower section is no longer
+        touched by this function; callers should stop writing it.
+
+    .PARAMETER TalentSelections
+        A hashtable mapping commander runtime name (e.g. "ZergAbathur") to a nested
+        hashtable of talent selections. Each nested hashtable maps:
+          - "<TalentId>" -> int (for switch/level talents)
+          - "<TalentId>.extra:<OptionId>" -> int (for extra_options flags)
+
+        Example:
+            @{
+                "ZergAbathur" = @{
+                    "CommanderPrestigeAbathurBiomass" = 1
+                    "AbathurMastery1" = 5
+                    "CommanderPrestigeAbathurBiomass.extra:BioSuperStim" = 1
+                }
+            }
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [hashtable]$TalentSelections
+    )
+
+    $bankPaths = @(Get-CampaignXCoreBankPaths)
+    if ($bankPaths.Count -eq 0) {
+        Write-Warning "CampaignXCore.SC2Bank not found; skipping talent selections."
+        return
+    }
+
+    foreach ($bankPath in $bankPaths) {
+        [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
+
+        # Clear any existing talent selections to ensure a clean slate.
+        Remove-BankSectionIfPresent -Xml $xml -SectionName "CommanderTalents"
+
+        foreach ($commander in $TalentSelections.Keys) {
+            $selections = $TalentSelections[$commander]
+            if ($null -eq $selections) { continue }
+
+            foreach ($talentKey in $selections.Keys) {
+                $value = [int]$selections[$talentKey]
+                $bankKey = "$commander.$talentKey"
+                Set-BankIntKeyValue -Xml $xml -SectionName "CommanderTalents" -KeyName $bankKey -Value $value
+            }
+        }
+
+        Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
+    }
+}

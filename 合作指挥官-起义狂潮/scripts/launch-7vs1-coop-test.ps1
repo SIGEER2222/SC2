@@ -45,6 +45,7 @@ param(
     [Nullable[int]]$CommanderPowerMastery5 = $null,
     [string]$CommanderPowerPresetPath = "",
     [string[]]$CommanderPowerOverride = @(),
+    [string]$TalentSelectionsFile = "",
     [string[]]$Mutators = @(),
     [string[]]$GenericBonuses = @(),
     [string]$VoicePack = "Default",
@@ -1129,6 +1130,24 @@ if (-not $SkipCommanderPowerPreset) {
         -PresetPath $CommanderPowerPresetPath `
         -Overrides $CommanderPowerOverride
 }
+$talentSelections = $null
+if (-not [string]::IsNullOrWhiteSpace($TalentSelectionsFile)) {
+    if (-not (Test-Path -LiteralPath $TalentSelectionsFile)) {
+        throw "TalentSelectionsFile not found: $TalentSelectionsFile"
+    }
+    $talentJson = Get-Content -LiteralPath $TalentSelectionsFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    $talentSelections = @{}
+    foreach ($commander in $talentJson.PSObject.Properties.Name) {
+        $inner = @{}
+        foreach ($talentId in $talentJson.$commander.PSObject.Properties.Name) {
+            $inner[$talentId] = [int]$talentJson.$commander.$talentId
+        }
+        $talentSelections[$commander] = $inner
+    }
+}
+if ($talentSelections -and $talentSelections.Count -gt 0) {
+    Set-CampaignXCoreTalentSelections -TalentSelections $talentSelections
+}
 Set-CampaignXCoreMutatorPreset -SelectedMutators $Mutators -Preset $MutatorPreset
 Set-CampaignXCoreGenericBonuses -SelectedBonuses $GenericBonuses
 Set-CampaignXCoreVoicePackSelection -SelectedCommanders $effectiveCommanders -VoicePack $VoicePack
@@ -1229,6 +1248,9 @@ if (-not $SkipCommanderPowerPreset) {
         -PresetPath $CommanderPowerPresetPath `
         -Overrides $CommanderPowerOverride
 }
+if ($talentSelections -and $talentSelections.Count -gt 0) {
+    Set-CampaignXCoreTalentSelections -TalentSelections $talentSelections
+}
 Set-CampaignXCoreMutatorPreset -SelectedMutators $Mutators -Preset $MutatorPreset
 Set-CampaignXCoreGenericBonuses -SelectedBonuses $GenericBonuses
 Set-CampaignXCoreVoicePackSelection -SelectedCommanders $effectiveCommanders -VoicePack $VoicePack
@@ -1265,6 +1287,19 @@ if (-not $SkipCommanderPowerPreset) {
     }
     if ($CommanderPowerOverride.Count -gt 0) {
         Write-Host "Commander power overrides: $($CommanderPowerOverride -join '; ')"
+    }
+}
+if ($talentSelections -and $talentSelections.Count -gt 0) {
+    Write-Host "Talent selections:"
+    foreach ($cmd in $talentSelections.Keys) {
+        $selections = $talentSelections[$cmd]
+        if ($null -ne $selections) {
+            $pairs = @()
+            foreach ($talentId in $selections.Keys) {
+                $pairs += "$talentId=$($selections[$talentId])"
+            }
+            Write-Host "  $cmd : $($pairs -join ', ')"
+        }
     }
 }
 if (($Mutators.Count -gt 0) -or ($MutatorPreset -gt 0)) {

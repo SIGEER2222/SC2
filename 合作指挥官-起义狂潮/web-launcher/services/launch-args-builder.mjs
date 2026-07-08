@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { writeFileSync, mkdirSync } from 'fs';
 import { loadCommanders } from '../lib/commanders-loader.mjs';
 import { loadMaps } from '../lib/maps-loader.mjs';
 import { loadMutators } from '../lib/mutators-loader.mjs';
@@ -9,6 +10,7 @@ import { loadCompletion } from '../lib/completion-loader.mjs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const LAUNCH_7VS1_PS1 = join(__dirname, '..', '..', 'scripts', 'launch-7vs1-coop-test.ps1');
 const LAUNCH_XM_PS1 = join(__dirname, '..', '..', 'scripts', 'launch-xm-scenario.ps1');
+const TMP_DIR = join(__dirname, '..', '.tmp');
 
 // 与 PowerShell 版 allowedGenericBonuses 保持一致
 const ALLOWED_GENERIC_BONUSES = new Set([
@@ -128,7 +130,7 @@ export function buildLaunchArgs(request) {
   const allowedMutatorIds = new Set(mutators.map(m => m.id));
   const allowedVoicePackIds = new Set(voicePacks.map(v => v.id));
 
-  // 精通等级和精通槽位
+  // 精通等级和精通槽位（向后兼容：旧 payload 可能包含，新 payload 不再使用）
   const masteryLevel = clampInt(request.masteryLevel, 0, 30, 30);
   const masteries = [30, 30, 30, 30, 30, 30];
   if (Array.isArray(request.masteries)) {
@@ -209,11 +211,7 @@ export function buildLaunchArgs(request) {
     }
   }
 
-  // 威望/精通开关
-  const enableMasteries = request.enableMasteries === false ? 0 : 1;
-  const enablePrestiges = request.enablePrestiges === false ? 0 : 1;
-  const prestigeBonusMask = clampInt(request.prestigeBonusMask, 0, 7, 7);
-  const prestigePointIndex = clampInt(request.prestigePointIndex, -1, Number.MAX_SAFE_INTEGER, -1);
+  // 威望/精通开关（向后兼容变量，不再输出到 args）
   const mutatorPreset = clampInt(request.mutatorPreset, 0, 3, 0);
   const noLaunch = request.noLaunch === true;
 
@@ -232,16 +230,14 @@ export function buildLaunchArgs(request) {
   }
   args.push(
     '-Commanders', commander,
-    '-CommanderPowerMasteryLevel', String(masteryLevel),
-    '-CommanderPowerEnableMasteries', String(enableMasteries),
-    '-CommanderPowerEnablePrestiges', String(enablePrestiges),
-    '-CommanderPowerPrestigeBonusMask', String(prestigeBonusMask),
-    '-CommanderPowerPrestigePointIndex', String(prestigePointIndex),
   );
 
-  for (let i = 0; i < 6; i++) {
-    args.push(`-CommanderPowerMastery${i}`);
-    args.push(String(masteries[i]));
+  // 天赋选择写入临时 JSON 文件
+  if (request.talentSelections && typeof request.talentSelections === 'object') {
+    mkdirSync(TMP_DIR, { recursive: true });
+    const talentFilePath = join(TMP_DIR, `talent-selections-${Date.now()}.json`);
+    writeFileSync(talentFilePath, JSON.stringify(request.talentSelections), 'utf8');
+    args.push('-TalentSelectionsFile', talentFilePath);
   }
 
   for (const overrideText of selectedCommanderOverrides) {

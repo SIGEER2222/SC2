@@ -62,17 +62,12 @@ router.get('/bootstrap', (req, res) => {
   const defaults = {
     commander: commanders.length > 0 ? commanders[0].runtime : '',
     map: maps.length > 0 ? 'ttosh02_7vs1.SC2Map' : '',
-    masteryLevel: 15,
-    masterySlots: [15, 15, 15, 15, 15, 15],
-    prestigeBonusMask: 7,
-    prestigePointIndex: -1,
-    enableMasteries: true,
-    enablePrestiges: true,
     commanderOverrides: [],
     voicePack: 'Default',
     genericBonuses: [],
     genericBonusLevels: {},
     mutatorPreset: 0,
+    talentSelections: {},
   };
 
   const counts = {
