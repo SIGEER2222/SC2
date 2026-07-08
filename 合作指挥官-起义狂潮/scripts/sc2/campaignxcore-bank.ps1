@@ -582,21 +582,16 @@ function Set-CampaignXCoreMutatorPreset {
     }
 
     $allowedMutators = New-Object 'System.Collections.Generic.Dictionary[string,string]' ([System.StringComparer]::OrdinalIgnoreCase)
-    foreach ($mutator in @(
-        "Random", "WalkingInfested", "InfestedTerranSpawner", "BlackFog", "TimeWarp", "UnitSpeed",
-        "Magnificent", "Entomb", "Barrier", "Avenger", "SideStep", "FireFight", "LavaBurst",
-        "DeathAOE", "DropPods", "SpawnBroodlings", "LaserDrill", "LongRange", "ReducedVision",
-        "HybridNuke", "AllEnemiesCloaked", "LazyWorkers", "NoResources", "ConcussiveAttacks",
-        "StoneZealots", "JustDie", "TemporalField", "VoidRifts", "Tornadoes", "OrbitalStrike",
-        "PurifierBeam", "Blizzard", "Fear", "PhotonOverload", "SpiderMines", "CycleRandom",
-        "Reanimators", "Nukes", "LifeLeech", "OopsAllCasters", "OrderCosts", "MissileBarrage",
-        "Vertigo", "UndyingEvil", "Polarity", "Evolve", "UberDarkness", "TrickOrTreat",
-        "FoodHunt", "SharedSupply", "DamageBounce", "Plague", "StructureSteal", "GiftFight",
-        "KillKarma", "AfraidOfTheDark", "Insubordination", "HeroesFromTheStorm", "Inspiration",
-        "HardenedWill", "Fireworks", "RedEnvelopes", "Sluggish", "DamageReflect", "DeathPull",
-        "Propagate", "MomentOfSilence", "KillBots", "BoomBots"
-    )) {
-        $allowedMutators[$mutator] = $mutator
+    # Mutator whitelist is sourced from Shared/Mutators/mutator-ids.json (single source of
+    # truth shared with the galaxy runtime via build-mutator-catalog.mjs).
+    $workspaceRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+    $mutatorIdsPath = Join-Path $workspaceRoot "Shared\Mutators\mutator-ids.json"
+    if (-not (Test-Path -LiteralPath $mutatorIdsPath)) {
+        throw "Mutator id catalog not found at '$mutatorIdsPath'. Run scripts/build-mutator-catalog.mjs first."
+    }
+    $mutatorCatalog = Get-Content -LiteralPath $mutatorIdsPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    foreach ($entry in $mutatorCatalog.mutators) {
+        $allowedMutators[$entry.id] = $entry.id
     }
 
     $normalizedMutators = New-Object 'System.Collections.Generic.List[string]'

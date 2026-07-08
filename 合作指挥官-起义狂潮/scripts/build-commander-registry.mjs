@@ -129,3 +129,47 @@ function generateSpecialInit(s, cmd) {
 
 writeFileSync(outFile, sb, 'utf8');
 console.log(`Generated ${outFile} (${commanders.length} commanders)`);
+
+// Also generate _registry.json for web-launcher consumption.
+// This is the single source of truth for which commanders exist, their race,
+// console skin, aliases, and playable flag. The web-launcher reads this instead
+// of maintaining a hardcoded PLAYABLE_COMMANDERS set.
+//
+// In addition to the explicit aliases from the JSON files, we also synthesize
+// race-prefixed aliases (e.g. "ZergKerrigan" for Kerrigan) so the web-launcher
+// can match metadata.runtime_commander values directly. These synthesized
+// aliases are NOT written into the galaxy dispatcher (which only uses the
+// explicit aliases array from the JSON).
+const registryFile = join(inDir, '_registry.json');
+const registry = {};
+const RACE_PREFIX = { Terran: 'Terran', Zerg: 'Zerg', Protoss: 'Protoss' };
+for (const c of commanders) {
+  const playable = c.playable !== false; // default true if not specified
+  const entry = {
+    race: c.race,
+    console_skin: c.console_skin || '',
+    aliases: c.aliases || [],
+    playable,
+  };
+  if (c.runtime_init) {
+    entry.runtime_init = c.runtime_init;
+  }
+  // Canonical entry (non-prefixed name, e.g. "Raynor")
+  registry[c.runtime_name] = entry;
+  // Explicit alias entries (from JSON, e.g. "TerranRaynor", "Mira")
+  for (const alias of (c.aliases || [])) {
+    registry[alias] = { ...entry, aliases: [], _alias_of: c.runtime_name };
+  }
+  // Synthesized race-prefixed alias (e.g. "ZergKerrigan") for web-launcher
+  // metadata matching. Only add if not already the canonical name or an
+  // explicit alias.
+  const racePrefix = RACE_PREFIX[c.race];
+  if (racePrefix) {
+    const racePrefixed = racePrefix + c.runtime_name;
+    if (!registry[racePrefixed]) {
+      registry[racePrefixed] = { ...entry, aliases: [], _alias_of: c.runtime_name };
+    }
+  }
+}
+writeFileSync(registryFile, JSON.stringify(registry, null, 2) + '\n', 'utf8');
+console.log(`Generated ${registryFile} (${Object.keys(registry).length} entries)`);

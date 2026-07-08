@@ -12,6 +12,7 @@ include "Lib975E2FE9"
 
 include "LibE0EAE146_h"
 include "LibE0EAE146_ProgressionRewards"
+include "LibE0EAE146_MutatorCatalog"
 include "LibE0EAE146_MutatorRuntime"
 include "LibE0EAE146_HeroRevive"
 include "LibE0EAE146_HeroStructures"
@@ -45,6 +46,8 @@ include "LibE0EAE146_HexTalents"
 include "LibE0EAE146_TalentCatalog"
 include "LibE0EAE146_TalentSystem"
 include "LibE0EAE146_CommanderRegistry"
+include "LibE0EAE146_GenericBonusCatalog"
+include "LibE0EAE146_MapMetadata"
 //--------------------------------------------------------------------------------------------------
 // Library: Final
 //--------------------------------------------------------------------------------------------------
@@ -205,22 +208,21 @@ void libE0EAE146_gf_InitializeMapBaseScenario (string lp_mapId) {
     int lv_worker;
     point lv_secondBase;
     bool lv_createHero;
+    point lv_mapOverride;
 
     libE0EAE146_gv_currentMapId = lp_mapId;
     lv_secondUnit = PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0);
     lv_worker = 11;
     lv_secondBase = null;
     lv_createHero = true;
-    // �����뺺���Ǽʸ���Ҫ����ռ䣬����λ�ñ���������ص�
+    // Horner-series commanders need extra space; offset to the other side.
     if (((libE0EAE146_gv_commander == "Mira") || (libE0EAE146_gv_commander == "Horner") || (libE0EAE146_gv_commander == "HanHorner") || (libE0EAE146_gv_commander == "HanAndHorner"))) {
         lv_secondUnit = PointWithOffsetPolar(PlayerStartLocation(1), 8.0, -45.0);
     }
-    if (lp_mapId == "tvalerian03_7vs1") {
-        lv_secondUnit = PointFromId(789749215);
-        lv_worker = 11;
-    }
-    else if (lp_mapId == "tzeratul03_7vs1") {
-        lv_secondUnit = PointFromId(2109449659);
+    // Map-specific second-unit override (data-driven, see LibE0EAE146_MapMetadata.galaxy).
+    lv_mapOverride = libE0EAE146_gf_MapSecondUnitPoint(lp_mapId, PlayerStartLocation(1));
+    if (lv_mapOverride != null) {
+        lv_secondUnit = lv_mapOverride;
     }
     libE0EAE146_gf_InitializeBase(lv_secondUnit, lv_worker, lv_secondBase, lv_createHero);
 }
@@ -230,76 +232,8 @@ void libE0EAE146_gf_InitializeMapScenario (string lp_mapId, bool lp_rpg) {
     libE0EAE146_gf_InitializeMapBaseScenario(lp_mapId);
 }
 
-int libE0EAE146_gf_MapStartMinerals (string lp_mapId) {
-    if (lp_mapId == "thanson01_7vs1") { return 200; }
-    if (lp_mapId == "thanson02_7vs1") { return 400; }
-    if (lp_mapId == "thanson03a_7vs1") { return 300; }
-    if (lp_mapId == "thanson03b_7vs1") { return 300; }
-    if (lp_mapId == "thorner01_7vs1") { return 200; }
-    if (lp_mapId == "thorner02_7vs1") { return 400; }
-    if (lp_mapId == "thorner03_7vs1") { return 300; }
-    if (lp_mapId == "thorner04_7vs1") { return 500; }
-    if (lp_mapId == "thorner05s_7vs1") { return 300; }
-    if (lp_mapId == "traynor02_7vs1") { return libNtve_gf_DifficultyValueInt(200, 100, 100, 100); }
-    if (lp_mapId == "traynor03_7vs1") { return 400; }
-    if (lp_mapId == "ttosh01_7vs1") { return 300; }
-    if (lp_mapId == "ttosh02_7vs1") { return 300; }
-    if (lp_mapId == "ttosh03a_7vs1") { return 500; }
-    if (lp_mapId == "ttosh03b_7vs1") { return 2000; }
-    if (lp_mapId == "ttychus01_7vs1") { return 150; }
-    if (lp_mapId == "ttychus02_7vs1") { return 300; }
-    if (lp_mapId == "ttychus03_7vs1") { return 300; }
-    if (lp_mapId == "ttychus04_7vs1") { return 350; }
-    if (lp_mapId == "ttychus05_7vs1") { return 1000; }
-    if (lp_mapId == "tvalerian01_7vs1") { return 2000; }
-    if (lp_mapId == "tvalerian02a_7vs1") { return 500; }
-    if (lp_mapId == "tvalerian02b_7vs1") { return 350; }
-    if (lp_mapId == "tvalerian03_7vs1") { return 1000; }
-    if (lp_mapId == "tzeratul04_7vs1") { return 500; }
-    return -1;
-}
-
-int libE0EAE146_gf_MapStartVespene (string lp_mapId) {
-    if (lp_mapId == "thanson01_7vs1") { return 50; }
-    if (lp_mapId == "thanson02_7vs1") { return 100; }
-    if (lp_mapId == "thanson03a_7vs1") { return 150; }
-    if (lp_mapId == "thanson03b_7vs1") { return 150; }
-    if (lp_mapId == "thorner01_7vs1") { return 200; }
-    if (lp_mapId == "thorner02_7vs1") { return 200; }
-    if (lp_mapId == "thorner03_7vs1") { return 250; }
-    if (lp_mapId == "thorner04_7vs1") { return 300; }
-    if (lp_mapId == "thorner05s_7vs1") { return 150; }
-    if (lp_mapId == "traynor03_7vs1") { return 100; }
-    if (lp_mapId == "ttosh01_7vs1") { return 200; }
-    if (lp_mapId == "ttosh02_7vs1") { return 100; }
-    if (lp_mapId == "ttosh03a_7vs1") { return 300; }
-    if (lp_mapId == "ttosh03b_7vs1") { return 1000; }
-    if (lp_mapId == "ttychus01_7vs1") { return 50; }
-    if (lp_mapId == "ttychus02_7vs1") { return 100; }
-    if (lp_mapId == "ttychus03_7vs1") { return 100; }
-    if (lp_mapId == "ttychus04_7vs1") { return 200; }
-    if (lp_mapId == "ttychus05_7vs1") { return 400; }
-    if (lp_mapId == "tvalerian01_7vs1") { return 1000; }
-    if (lp_mapId == "tvalerian02a_7vs1") { return 300; }
-    if (lp_mapId == "tvalerian02b_7vs1") { return 250; }
-    if (lp_mapId == "tvalerian03_7vs1") { return 800; }
-    if (lp_mapId == "tzeratul04_7vs1") { return 250; }
-    return -1;
-}
-
-int libE0EAE146_gf_MapStartSuppliesMade (string lp_mapId) {
-    if (lp_mapId == "ttosh03b_7vs1") { return 200; }
-    if (lp_mapId == "tvalerian01_7vs1") { return 200; }
-    return -1;
-}
-
-bool libE0EAE146_gf_MapNeedsPreInitializeRpg (string lp_mapId) {
-    return ((lp_mapId == "traynor01_7vs1") || (lp_mapId == "ttosh03b_7vs1") || (lp_mapId == "tvalerian01_7vs1"));
-}
-
-bool libE0EAE146_gf_MapNeedsUnitEventNullVariableInvalid (string lp_mapId) {
-    return (lp_mapId == "tvalerian03_7vs1");
-}
+// Map resource tables and special flags are now data-driven.
+// See LibE0EAE146_MapMetadata.galaxy (generated from Shared/Maps/maps.json).
 
 void libE0EAE146_gf_ApplyMapStartResources (int lp_player, int lp_minerals, int lp_vespene, int lp_suppliesMade) {
     if ((lp_minerals >= 0)) {
@@ -376,15 +310,8 @@ void libE0EAE146_gf_InitializeDelayedMapBase (string lp_mapId, bool lp_rpg) {
     libE0EAE146_gf_InitializeMapBaseScenario(lp_mapId);
 }
 
-bool libE0EAE146_gf_MapUsesSharedPlayerCampaignAlly (string lp_mapId) {
-    if (lp_mapId == "thanson01_7vs1") {
-        return true;
-    }
-    if (lp_mapId == "thanson03a_7vs1") {
-        return true;
-    }
-    return false;
-}
+// MapUsesSharedPlayerCampaignAlly is now data-driven.
+// See LibE0EAE146_MapMetadata.galaxy (generated from Shared/Maps/maps.json).
 
 bool libE0EAE146_gf_ShouldApplyPlayerSkins () {
     string lv_mapId;
@@ -1203,79 +1130,17 @@ void libE0EAE146_gf_GenericBonusApplyResources (int lp_doubleMineralsLevel, int 
 }
 
 void libE0EAE146_gf_GenericBonusApplyPassives (int lp_player) {
-    int lv_doubleMineralsLevel;
-    int lv_doubleVespeneLevel;
-    bool lv_richResources;
-    bool lv_guardianShell;
-    bool lv_creepRegeneration;
-    bool lv_mechanicalRepair;
-    bool lv_chronoBoost;
-    bool lv_abathurBiomassDrop;
-    bool lv_hornerMagMines;
-    bool lv_hornerStarport;
-    bool lv_hornerBombingPlatforms;
+    // Data-driven bonus passive application (replaces 11 hardcoded if-else blocks).
+    // Upgrade IDs and extra calls are defined in Shared/GenericBonuses.json
+    // and dispatched by LibE0EAE146_GenericBonusCatalog.galaxy.
+    libE0EAE146_gf_ApplyAllGenericBonusPassives(lp_player);
 
-    lv_doubleMineralsLevel = libE0EAE146_gf_GenericBonusLevel("DoubleMinerals");
-    lv_doubleVespeneLevel = libE0EAE146_gf_GenericBonusLevel("DoubleVespene");
-    lv_richResources = libE0EAE146_gf_GenericBonusEnabled("RichResources");
-    lv_guardianShell = libE0EAE146_gf_GenericBonusEnabled("GuardianShell");
-    lv_creepRegeneration = libE0EAE146_gf_GenericBonusEnabled("CreepRegeneration");
-    lv_mechanicalRepair = libE0EAE146_gf_GenericBonusEnabled("MechanicalRepair");
-    lv_chronoBoost = libE0EAE146_gf_GenericBonusEnabled("ChronoBoost");
-    lv_abathurBiomassDrop = libE0EAE146_gf_GenericBonusEnabled("AbathurBiomassDrop");
-    lv_hornerMagMines = libE0EAE146_gf_GenericBonusEnabled("HornerMagMines");
-    lv_hornerStarport = libE0EAE146_gf_GenericBonusEnabled("HornerStarport");
-    lv_hornerBombingPlatforms = libE0EAE146_gf_GenericBonusEnabled("HornerBombingPlatforms");
-
-    if (lv_doubleMineralsLevel > 0) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusDoubleMinerals", 1);
-    }
-    if (lv_doubleVespeneLevel > 0) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusDoubleVespene", 1);
-    }
-    if (lv_richResources) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusRichResources", 1);
-    }
-    if (lv_guardianShell) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusGuardianShell", 1);
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "SOAHeroicShield", 1);
-    }
-    if (lv_creepRegeneration) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusCreepRegeneration", 1);
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "K5CreepBonuses", 1);
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "KerriganCreepBonusesCoop", 1);
-        libKPVP_gf_apply_kerrigan_creep_bonus(lp_player);
-    }
-    if (lv_mechanicalRepair) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusMechanicalRepair", 1);
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "SOARepairBeam", 1);
-    }
-    if (lv_chronoBoost) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusChronoBoost", 1);
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "SOAMapWideChrono", 1);
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "KaraxSOAChronoPassive", 1);
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "SOAMapWideChronoUpgrade", 1);
-        libE0EAE146_gf_AllowAbilityIfPresent(lp_player, "SOAMapWideChrono", 0);
-    }
-    if (lv_abathurBiomassDrop) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusAbathurBiomassDrop", 1);
-        libE0EAE146_gf_EnableAbathurBiomassForGenericBonus(lp_player, "BiomassPickupDummy");
-    }
-    if (lv_hornerMagMines) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusHornerMagMines", 1);
-    }
-    if (lv_hornerStarport) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusHornerStarport", 1);
-    }
-    if (lv_hornerBombingPlatforms) {
-        libE0EAE146_gf_CommanderPowerSetUpgradeAtLeast(lp_player, "GenericBonusHornerBombingPlatforms", 1);
-    }
-
+    // Special trigger logic for CreepRegeneration and MechanicalRepair (runtime-only, not data-driven).
     libE0EAE146_gf_GenericBonusEnsureTriggers();
     libE0EAE146_gv_genericBonusMechanicalRepairEnabled = false;
-    libE0EAE146_gv_genericBonusCreepRegenEnabled = lv_creepRegeneration;
+    libE0EAE146_gv_genericBonusCreepRegenEnabled = libE0EAE146_gf_GenericBonusEnabled("CreepRegeneration");
     TriggerEnable(libE0EAE146_gt_GenericBonusMechanicalRepair, false);
-    TriggerEnable(libE0EAE146_gt_GenericBonusCreepRegen, lv_creepRegeneration);
+    TriggerEnable(libE0EAE146_gt_GenericBonusCreepRegen, libE0EAE146_gv_genericBonusCreepRegenEnabled);
 }
 
 point libE0EAE146_gf_GenericBonusControllerPoint (int lp_player) {
