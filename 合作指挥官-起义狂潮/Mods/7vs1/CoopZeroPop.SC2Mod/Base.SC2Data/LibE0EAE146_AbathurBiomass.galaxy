@@ -61,7 +61,7 @@ bool libE0EAE146_gf_CreateAbathurBiomassPickup (point lp_point, int lp_stack) {
     if ((UnitLastCreated() == null)) {
         return false;
     }
-    UnitSetCustomValue(UnitLastCreated(), 63, IntToFixed(MaxI(1, lp_stack)));
+    UnitSetCustomValue(UnitLastCreated(), libE0EAE146_gv_biomassMergeCustomValueIndex, IntToFixed(MaxI(1, lp_stack)));
     libNtve_gf_SendActorMessageToUnit(UnitLastCreated(), ("SetScale " + FixedToString(libE0EAE146_gf_AbathurBiomassVisualScale(MaxI(1, lp_stack)), c_fixedPrecisionAny)));
     libE0EAE146_gf_AbathurBiomassShowCount(UnitLastCreated(), MaxI(1, lp_stack));
     libE0EAE146_gf_AbathurBiomassMerge(UnitLastCreated(), MaxI(1, lp_stack));
@@ -110,7 +110,7 @@ bool libE0EAE146_gf_AbathurCanDropBiomass (unit lp_unit) {
     if ((UnitTypeTestAttribute(UnitGetType(lp_unit), c_unitAttributeSummoned) == true)) {
         return false;
     }
-    if ((UnitHasBehavior2(lp_unit, "NoBiomassDrop") == true)) {
+    if ((UnitHasBehavior2(lp_unit, libE0EAE146_gv_biomassNoDrop) == true)) {
         return false;
     }
     if ((libE0EAE146_gf_AbathurBiomassAmount(lp_unit) <= 0.0)) {
@@ -121,13 +121,20 @@ bool libE0EAE146_gf_AbathurCanDropBiomass (unit lp_unit) {
 
 bool libE0EAE146_gf_AbathurCanCollectBiomass (unit lp_unit) {
     string lv_unitType;
+    int lv_i;
+    string lv_check;
 
     if ((lp_unit == null)) {
         return false;
     }
     lv_unitType = UnitGetType(lp_unit);
-    if ((lv_unitType == "BiomassPickup")) {
-        return false;
+    // Data-driven non-collectible unit check (see LibE0EAE146_BiomassRules.galaxy).
+    lv_i = 1;
+    for ( ; ( lv_i <= libE0EAE146_gv_biomassNonCollectibleCount ) ; lv_i += 1 ) {
+        lv_check = libE0EAE146_gf_BiomassNonCollectibleUnit(lv_i);
+        if ((lv_unitType == lv_check)) {
+            return false;
+        }
     }
     if ((UnitTypeTestAttribute(lv_unitType, c_unitAttributeStructure) == true)) {
         return false;
@@ -138,11 +145,13 @@ bool libE0EAE146_gf_AbathurCanCollectBiomass (unit lp_unit) {
     if ((UnitFilterMatch(lp_unit, UnitGetOwner(lp_unit), UnitFilter(0, (1 << (c_targetFilterSummoned - 32)), 0, 0)) == true)) {
         return false;
     }
-    if ((lv_unitType == "Interceptor") || (lv_unitType == "InterceptorStetmann") || (lv_unitType == "FenixClolarionInterceptor") || (lv_unitType == "Locust") || (lv_unitType == "Broodling") || (lv_unitType == "BroodlingStetmann") || (lv_unitType == "HyperionVoidCoop") || (lv_unitType == "DuskWing") || (lv_unitType == "NovaOdin") || (lv_unitType == "TychusOdin") || (lv_unitType == "StukovApocalisk") || (lv_unitType == "StukovAleksander") || (lv_unitType == "ZeratulSummonKarass") || (lv_unitType == "ZeratulSummonZealot") || (lv_unitType == "ZeratulSummonVoidRay") || (lv_unitType == "Mohandar") || (lv_unitType == "SOASummonFenix") || (lv_unitType == "SOASummonFenixDragoon") || (lv_unitType == "SOASummonFenixArbiter")) {
-        return false;
-    }
-    if ((UnitHasBehavior2(lp_unit, "TimedLife") == true) || (UnitHasBehavior2(lp_unit, "LocustTimedLife") == true) || (UnitHasBehavior2(lp_unit, "BroodlingStetmannFate") == true) || (UnitHasBehavior2(lp_unit, "DehakaTopBarSummonTimedLife") == true) || (UnitHasBehavior2(lp_unit, "ZeratulTopBarTimedLife") == true) || (UnitHasBehavior2(lp_unit, "SIBarracksTrainTimedLife") == true) || (UnitHasBehavior2(lp_unit, "StukovSummonAleksanderCrashedTimedLife") == true) || (UnitHasBehavior2(lp_unit, "CommanderPrestigeFenixSuitSwapTimedLife") == true)) {
-        return false;
+    // Data-driven timed-life behavior check.
+    lv_i = 1;
+    for ( ; ( lv_i <= libE0EAE146_gv_biomassTimedLifeCount ) ; lv_i += 1 ) {
+        lv_check = libE0EAE146_gf_BiomassTimedLifeBehavior(lv_i);
+        if ((UnitHasBehavior2(lp_unit, lv_check) == true)) {
+            return false;
+        }
     }
     return true;
 }
@@ -155,23 +164,23 @@ fixed libE0EAE146_gf_AbathurBiomassAmount (unit lp_unit) {
         return 0.0;
     }
     if ((UnitTypeTestAttribute(UnitGetType(lp_unit), c_unitAttributeHeroic) == true)) {
-        lv_amount = 12.0;
+        lv_amount = libE0EAE146_gv_biomassHeroicAmount;
     }
     else if ((UnitHasBehavior2(lp_unit, "HybridUnitDummy") == true)) {
-        lv_amount = 12.0;
+        lv_amount = libE0EAE146_gv_biomassHybridAmount;
     }
     else if ((UnitHasBehavior2(lp_unit, "CritterExplode") == true)) {
-        lv_amount = 1.0;
+        lv_amount = libE0EAE146_gv_biomassCritterAmount;
     }
     else {
         lv_food = StringToFixed(CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lp_unit), "Food", libE0EAE146_gv_abathurBiomassPlayer));
         if ((lv_food < 0.0)) {
-            lv_amount = (-2.0 * lv_food);
+            lv_amount = (libE0EAE146_gv_biomassFoodMultiplier * lv_food);
         }
         else {
             lv_amount = UnitGetPropertyInt(lp_unit, c_unitPropSuppliesUsed, c_unitPropNormal);
             if ((lv_amount > 0.0)) {
-                lv_amount *= 2.0;
+                lv_amount *= libE0EAE146_gv_biomassSuppliesMultiplier;
             }
         }
         if ((lv_amount <= 0.0)) {
@@ -181,11 +190,11 @@ fixed libE0EAE146_gf_AbathurBiomassAmount (unit lp_unit) {
             }
         }
         if ((lv_amount > 0.0)) {
-            if ((lv_amount < 1.0)) {
-                lv_amount = 1.0;
+            if ((lv_amount < libE0EAE146_gv_biomassMinAmount)) {
+                lv_amount = libE0EAE146_gv_biomassMinAmount;
             }
-            if ((lv_amount > 12.0)) {
-                lv_amount = 12.0;
+            if ((lv_amount > libE0EAE146_gv_biomassMaxAmount)) {
+                lv_amount = libE0EAE146_gv_biomassMaxAmount;
             }
         }
     }
@@ -194,9 +203,9 @@ fixed libE0EAE146_gf_AbathurBiomassAmount (unit lp_unit) {
 
 int libE0EAE146_gf_AbathurBiomassMaxStacks () {
     int lv_max;
-    lv_max = CatalogFieldValueGetAsInt(c_gameCatalogEffect, "AbathurBiomassMaxStacksDummy", "Amount", libE0EAE146_gv_abathurBiomassPlayer);
+    lv_max = CatalogFieldValueGetAsInt(c_gameCatalogEffect, libE0EAE146_gv_biomassMaxStacksCatalog, libE0EAE146_gv_biomassMaxStacksField, libE0EAE146_gv_abathurBiomassPlayer);
     if ((lv_max <= 0)) {
-        lv_max = 100;
+        lv_max = libE0EAE146_gv_biomassDefaultMaxStacks;
     }
     return lv_max;
 }
@@ -204,15 +213,15 @@ int libE0EAE146_gf_AbathurBiomassMaxStacks () {
 fixed libE0EAE146_gf_AbathurBiomassVisualScale (int lp_totalStacks) {
     int lv_clamped;
 
-    lv_clamped = MinI(MaxI(lp_totalStacks, 0), 100);
-    return (1.0 + (0.0025 * IntToFixed(lv_clamped)));
+    lv_clamped = MinI(MaxI(lp_totalStacks, 0), libE0EAE146_gv_biomassScaleClampMax);
+    return (libE0EAE146_gv_biomassScaleBase + (libE0EAE146_gv_biomassScalePerStack * IntToFixed(lv_clamped)));
 }
 
 void libE0EAE146_gf_AbathurBiomassSetStack (unit lp_biomass, int lp_stack) {
     if ((lp_biomass == null)) {
         return;
     }
-    UnitSetCustomValue(lp_biomass, 63, IntToFixed(lp_stack));
+    UnitSetCustomValue(lp_biomass, libE0EAE146_gv_biomassMergeCustomValueIndex, IntToFixed(lp_stack));
 }
 
 void libE0EAE146_gf_AbathurBiomassScale (unit lp_biomassUnit, bool lp_instantScale) {
@@ -221,10 +230,10 @@ void libE0EAE146_gf_AbathurBiomassScale (unit lp_biomassUnit, bool lp_instantSca
     if ((lp_biomassUnit == null)) {
         return;
     }
-    lv_customScale = (UnitGetCustomValue(lp_biomassUnit, 63) / 100.0);
-    lv_customScale += 0.8;
-    if ((lv_customScale > 1.8)) {
-        lv_customScale = 1.8;
+    lv_customScale = (UnitGetCustomValue(lp_biomassUnit, libE0EAE146_gv_biomassScalerCustomValueIndex) / libE0EAE146_gv_biomassScalerScaleDivisor);
+    lv_customScale += libE0EAE146_gv_biomassScalerScaleOffset;
+    if ((lv_customScale > libE0EAE146_gv_biomassScalerScaleMax)) {
+        lv_customScale = libE0EAE146_gv_biomassScalerScaleMax;
     }
     libNtve_gf_SendActorMessageToUnit(lp_biomassUnit, ("SetScale " + FixedToString(lv_customScale, c_fixedPrecisionAny)));
 }
@@ -244,7 +253,7 @@ void libE0EAE146_gf_AbathurBiomassMerge (unit lp_biomassUnit, int lp_biomassUnit
         return;
     }
 
-    lv_biomassCongealRadius = 4.0;
+    lv_biomassCongealRadius = libE0EAE146_gv_biomassMergeRadius;
     lv_group = UnitGroup("BiomassPickup", UnitGetOwner(lp_biomassUnit), RegionCircle(UnitGetPosition(lp_biomassUnit), lv_biomassCongealRadius), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     lv_count = UnitGroupCount(lv_group, c_unitCountAll);
     for (;; lv_count -= 1) {
@@ -252,18 +261,18 @@ void libE0EAE146_gf_AbathurBiomassMerge (unit lp_biomassUnit, int lp_biomassUnit
         if (lv_groupUnit == null) {
             break;
         }
-        if ((lv_groupUnit != lp_biomassUnit) && (UnitHasBehavior2(lv_groupUnit, "BiomassTravelling") == false) && (UnitGetCustomValue(lv_groupUnit, 63) > lv_nearbyBiomassMaxCount)) {
-            lv_nearbyBiomassMaxCount = FixedToInt(UnitGetCustomValue(lv_groupUnit, 63));
+        if ((lv_groupUnit != lp_biomassUnit) && (UnitHasBehavior2(lv_groupUnit, libE0EAE146_gv_biomassTravelling) == false) && (UnitGetCustomValue(lv_groupUnit, libE0EAE146_gv_biomassMergeCustomValueIndex) > lv_nearbyBiomassMaxCount)) {
+            lv_nearbyBiomassMaxCount = FixedToInt(UnitGetCustomValue(lv_groupUnit, libE0EAE146_gv_biomassMergeCustomValueIndex));
             lv_nearbyBiomassMaxCountUnit = lv_groupUnit;
         }
     }
 
     if ((lv_nearbyBiomassMaxCountUnit != null)) {
-        libE0EAE146_gf_AbathurBiomassSetStack(lv_nearbyBiomassMaxCountUnit, FixedToInt((UnitGetCustomValue(lv_nearbyBiomassMaxCountUnit, 63) + lp_biomassUnitCount)));
-        UnitBehaviorAdd(lp_biomassUnit, "BiomassTravelling", lp_biomassUnit, 1);
-        UnitCreateEffectUnit(lp_biomassUnit, "BiomassPickupFullLM", lv_nearbyBiomassMaxCountUnit);
+        libE0EAE146_gf_AbathurBiomassSetStack(lv_nearbyBiomassMaxCountUnit, FixedToInt((UnitGetCustomValue(lv_nearbyBiomassMaxCountUnit, libE0EAE146_gv_biomassMergeCustomValueIndex) + lp_biomassUnitCount)));
+        UnitBehaviorAdd(lp_biomassUnit, libE0EAE146_gv_biomassTravelling, lp_biomassUnit, 1);
+        UnitCreateEffectUnit(lp_biomassUnit, libE0EAE146_gv_biomassPickupFullLM, lv_nearbyBiomassMaxCountUnit);
         libE0EAE146_gf_AbathurBiomassScale(lv_nearbyBiomassMaxCountUnit, false);
-        libE0EAE146_gf_AbathurBiomassShowCount(lv_nearbyBiomassMaxCountUnit, FixedToInt(UnitGetCustomValue(lv_nearbyBiomassMaxCountUnit, 63)));
+        libE0EAE146_gf_AbathurBiomassShowCount(lv_nearbyBiomassMaxCountUnit, FixedToInt(UnitGetCustomValue(lv_nearbyBiomassMaxCountUnit, libE0EAE146_gv_biomassMergeCustomValueIndex)));
     }
 }
 
@@ -271,17 +280,27 @@ int libE0EAE146_gf_AbathurUnitBiomassStacks (unit lp_unit) {
     if ((lp_unit == null)) {
         return 0;
     }
-    return ((UnitBehaviorCount(lp_unit, "BiomassBuff100") * 100) + (UnitBehaviorCount(lp_unit, "BiomassBuff10") * 10) + UnitBehaviorCount(lp_unit, "BiomassBuff1"));
+    return ((UnitBehaviorCount(lp_unit, libE0EAE146_gv_biomassBuff100) * 100) + (UnitBehaviorCount(lp_unit, libE0EAE146_gv_biomassBuff10) * 10) + UnitBehaviorCount(lp_unit, libE0EAE146_gv_biomassBuff1));
 }
 
 bool libE0EAE146_gf_AbathurIsUltimateBiomassUnit (unit lp_unit) {
     string lv_unitType;
+    int lv_i;
+    string lv_check;
 
     if ((lp_unit == null)) {
         return false;
     }
     lv_unitType = UnitGetType(lp_unit);
-    return ((lv_unitType == "BrutaliskAbathur") || (lv_unitType == "BrutaliskAbathurBurrowed") || (lv_unitType == "LeviathanAbathur") || (lv_unitType == "Brutalisk") || (lv_unitType == "BrutaliskBurrowed") || (lv_unitType == "HotSLeviathan"));
+    // Data-driven ultimate biomass unit check.
+    lv_i = 1;
+    for ( ; ( lv_i <= libE0EAE146_gv_biomassUltimateUnitCount ) ; lv_i += 1 ) {
+        lv_check = libE0EAE146_gf_BiomassUltimateUnit(lv_i);
+        if ((lv_unitType == lv_check)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 int libE0EAE146_gf_AbathurBiomassMaxStacksForUnit (unit lp_unit) {
@@ -291,7 +310,7 @@ int libE0EAE146_gf_AbathurBiomassMaxStacksForUnit (unit lp_unit) {
     if (!((lp_unit != null) && (libE0EAE146_gf_AbathurIsUltimateBiomassUnit(lp_unit) == true))) {
         return lv_max;
     }
-    return 150;
+    return libE0EAE146_gv_biomassUltimateMaxStacks;
 }
 
 int libE0EAE146_gf_AbathurAddBiomassStacks (unit lp_unit, int lp_amount) {
@@ -331,13 +350,13 @@ int libE0EAE146_gf_AbathurAddBiomassStacks (unit lp_unit, int lp_amount) {
     lv_1 = lv_remaining;
 
     if ((lv_100 > 0)) {
-        UnitBehaviorAddPlayer(lp_unit, "BiomassBuff100", UnitGetOwner(lp_unit), lv_100);
+        UnitBehaviorAddPlayer(lp_unit, libE0EAE146_gv_biomassBuff100, UnitGetOwner(lp_unit), lv_100);
     }
     if ((lv_10 > 0)) {
-        UnitBehaviorAddPlayer(lp_unit, "BiomassBuff10", UnitGetOwner(lp_unit), lv_10);
+        UnitBehaviorAddPlayer(lp_unit, libE0EAE146_gv_biomassBuff10, UnitGetOwner(lp_unit), lv_10);
     }
     if ((lv_1 > 0)) {
-        UnitBehaviorAddPlayer(lp_unit, "BiomassBuff1", UnitGetOwner(lp_unit), lv_1);
+        UnitBehaviorAddPlayer(lp_unit, libE0EAE146_gv_biomassBuff1, UnitGetOwner(lp_unit), lv_1);
     }
     libNtve_gf_SendActorMessageToUnit(lp_unit, ("SetScale " + FixedToString(libE0EAE146_gf_AbathurBiomassVisualScale(lv_current + lv_applied), c_fixedPrecisionAny)));
     libE0EAE146_gf_AbathurBiomassShowCount(lp_unit, (lv_current + lv_applied));
@@ -352,9 +371,9 @@ void libE0EAE146_gf_AbathurBiomassSyncCounter (unit lp_unit) {
         return;
     }
     lv_total = libE0EAE146_gf_AbathurUnitBiomassStacks(lp_unit);
-    UnitBehaviorRemove(lp_unit, "BiomassCounter", c_unitBehaviorCountAll);
+    UnitBehaviorRemove(lp_unit, libE0EAE146_gv_biomassCounter, c_unitBehaviorCountAll);
     if ((lv_total > 0)) {
-        UnitBehaviorAddPlayer(lp_unit, "BiomassCounter", UnitGetOwner(lp_unit), lv_total);
+        UnitBehaviorAddPlayer(lp_unit, libE0EAE146_gv_biomassCounter, UnitGetOwner(lp_unit), lv_total);
     }
 }
 
@@ -373,7 +392,7 @@ void libE0EAE146_gf_AbathurSetUnitFullBiomass (unit lp_unit) {
     }
     lv_applied = libE0EAE146_gf_AbathurAddBiomassStacks(lp_unit, libE0EAE146_gf_AbathurBiomassMaxStacksForUnit(lp_unit));
     if ((lv_applied > 0)) {
-        lib67C0F0E7_gf_UnitAddCustomValue(lp_unit, 62, IntToFixed(lv_applied));
+        lib67C0F0E7_gf_UnitAddCustomValue(lp_unit, libE0EAE146_gv_biomassFullBiomassCustomValueIndex, IntToFixed(lv_applied));
     }
     lv_lifeMax = UnitGetPropertyFixed(lp_unit, c_unitPropLifeMax, c_unitPropCurrent);
     if ((lv_lifeMax > 0.0)) {
@@ -469,25 +488,25 @@ bool libE0EAE146_gt_AbathurBiomassPickup_Func (bool testConds, bool runActions) 
     if (!runActions) {
         return true;
     }
-    lv_stored = FixedToInt(UnitGetCustomValue(lv_pickup, 63));
+    lv_stored = FixedToInt(UnitGetCustomValue(lv_pickup, libE0EAE146_gv_biomassMergeCustomValueIndex));
     lv_applied = libE0EAE146_gf_AbathurAddBiomassStacks(lv_target, lv_stored);
     if ((lv_applied <= 0)) { return true; }
     if ((lv_applied >= lv_stored)) {
-        UnitBehaviorAdd(lv_pickup, "BiomassTravelling", lv_pickup, 1);
-        UnitCreateEffectUnit(lv_pickup, "BiomassPickupFullLM", lv_target);
+        UnitBehaviorAdd(lv_pickup, libE0EAE146_gv_biomassTravelling, lv_pickup, 1);
+        UnitCreateEffectUnit(lv_pickup, libE0EAE146_gv_biomassPickupFullLM, lv_target);
     }
     else {
-        UnitSetCustomValue(lv_pickup, 63, IntToFixed(lv_stored - lv_applied));
+        UnitSetCustomValue(lv_pickup, libE0EAE146_gv_biomassMergeCustomValueIndex, IntToFixed(lv_stored - lv_applied));
         libE0EAE146_gf_AbathurBiomassScale(lv_pickup, false);
         libE0EAE146_gf_AbathurBiomassShowCount(lv_pickup, (lv_stored - lv_applied));
-        UnitCreateEffectUnit(lv_pickup, "BiomassPickupLM", lv_target);
+        UnitCreateEffectUnit(lv_pickup, libE0EAE146_gv_biomassPickupLM, lv_target);
     }
     return true;
 }
 
 void libE0EAE146_gt_AbathurBiomassPickup_Init () {
     libE0EAE146_gt_AbathurBiomassPickup = TriggerCreate("libE0EAE146_gt_AbathurBiomassPickup_Func");
-    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_AbathurBiomassPickup, c_playerAny, "BiomassPickupDummy");
+    TriggerAddEventPlayerEffectUsed(libE0EAE146_gt_AbathurBiomassPickup, c_playerAny, libE0EAE146_gv_biomassPickupDummy);
     TriggerEnable(libE0EAE146_gt_AbathurBiomassPickup, false);
 }
 
@@ -497,7 +516,7 @@ bool libE0EAE146_gt_AbathurBiomassRefund_Func (bool testConds, bool runActions) 
     unit lv_dyingUnit;
 
     lv_dyingUnit = EventUnit();
-    lv_refundChance = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogEffect, "AbathurBiomassRefundDummy", "Amount", UnitGetOwner(lv_dyingUnit));
+    lv_refundChance = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogEffect, libE0EAE146_gv_biomassRefundDummy, libE0EAE146_gv_biomassRefundDummyField, UnitGetOwner(lv_dyingUnit));
     if (testConds) {
         if (!((PlayerCommander(UnitGetOwner(lv_dyingUnit)) == "Abathur"))) {
             return false;
@@ -511,7 +530,7 @@ bool libE0EAE146_gt_AbathurBiomassRefund_Func (bool testConds, bool runActions) 
         if (!((UnitFilterMatch(lv_dyingUnit, UnitGetOwner(lv_dyingUnit), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), 0)) == true))) {
             return false;
         }
-        if (!((UnitHasBehavior2(lv_dyingUnit, "BiomassBuff1") == true) || (UnitHasBehavior2(lv_dyingUnit, "BiomassBuff10") == true) || (UnitHasBehavior2(lv_dyingUnit, "BiomassBuff100") == true))) {
+        if (!((UnitHasBehavior2(lv_dyingUnit, libE0EAE146_gv_biomassBuff1) == true) || (UnitHasBehavior2(lv_dyingUnit, libE0EAE146_gv_biomassBuff10) == true) || (UnitHasBehavior2(lv_dyingUnit, libE0EAE146_gv_biomassBuff100) == true))) {
             return false;
         }
         if (!((lv_refundChance > 0.0))) {
@@ -545,16 +564,28 @@ bool libE0EAE146_gt_AbathurBiomassTrain_Func (bool testConds, bool runActions) {
     int lv_biomassBuff100Count;
     int lv_biomassBuff10Count;
     int lv_biomassBuff1Count;
+    int lv_i;
+    string lv_trainUnitType;
+    bool lv_match;
 
     lv_trainUnit = EventUnitProgressUnit();
     if (testConds) {
         if (!((PlayerCommander(UnitGetOwner(EventUnit())) == "Abathur"))) {
             return false;
         }
-        if (!((UnitHasBehavior2(EventUnit(), "BiomassBuff1") == true) || (UnitHasBehavior2(EventUnit(), "BiomassBuff10") == true) || (UnitHasBehavior2(EventUnit(), "BiomassBuff100") == true))) {
+        if (!((UnitHasBehavior2(EventUnit(), libE0EAE146_gv_biomassBuff1) == true) || (UnitHasBehavior2(EventUnit(), libE0EAE146_gv_biomassBuff10) == true) || (UnitHasBehavior2(EventUnit(), libE0EAE146_gv_biomassBuff100) == true))) {
             return false;
         }
-        if (!((libNtve_gf_TriggeringProgressUnitType() == "RavagerAbathur") || (libNtve_gf_TriggeringProgressUnitType() == "GuardianMP") || (libNtve_gf_TriggeringProgressUnitType() == "Devourer") || (libNtve_gf_TriggeringProgressUnitType() == "DevourerMP"))) {
+        // Data-driven train unit type check.
+        lv_trainUnitType = libNtve_gf_TriggeringProgressUnitType();
+        lv_match = false;
+        lv_i = 1;
+        for ( ; ( lv_i <= libE0EAE146_gv_biomassTrainUnitCount ) ; lv_i += 1 ) {
+            if ((lv_trainUnitType == libE0EAE146_gf_BiomassTrainUnit(lv_i))) {
+                lv_match = true;
+            }
+        }
+        if (!((lv_match == true))) {
             return false;
         }
     }
@@ -564,9 +595,9 @@ bool libE0EAE146_gt_AbathurBiomassTrain_Func (bool testConds, bool runActions) {
     if ((libE0EAE146_gf_AbathurCanCollectBiomass(lv_trainUnit) == false)) {
         return true;
     }
-    lv_biomassBuff100Count = UnitBehaviorCount(EventUnit(), "BiomassBuff100");
-    lv_biomassBuff10Count = UnitBehaviorCount(EventUnit(), "BiomassBuff10");
-    lv_biomassBuff1Count = UnitBehaviorCount(EventUnit(), "BiomassBuff1");
+    lv_biomassBuff100Count = UnitBehaviorCount(EventUnit(), libE0EAE146_gv_biomassBuff100);
+    lv_biomassBuff10Count = UnitBehaviorCount(EventUnit(), libE0EAE146_gv_biomassBuff10);
+    lv_biomassBuff1Count = UnitBehaviorCount(EventUnit(), libE0EAE146_gv_biomassBuff1);
     libE0EAE146_gf_AbathurAddBiomassStacks(lv_trainUnit, ((lv_biomassBuff100Count * 100) + (lv_biomassBuff10Count * 10) + lv_biomassBuff1Count));
     return true;
 }
@@ -584,7 +615,7 @@ bool libE0EAE146_gt_AbathurBiomassScaler_Func (bool testConds, bool runActions) 
 
     lv_biomassMaxStacks = libE0EAE146_gf_AbathurBiomassMaxStacks();
     if (testConds) {
-        if (!(((UnitIsAlive(EventUnit()) == true) && (PlayerCommander(UnitGetOwner(EventUnit())) == "Abathur") && ((UnitHasBehavior2(EventUnit(), "BiomassBuff1") == true) || (UnitHasBehavior2(EventUnit(), "BiomassBuff10") == true) || (UnitHasBehavior2(EventUnit(), "BiomassBuff100") == true))))) {
+        if (!(((UnitIsAlive(EventUnit()) == true) && (PlayerCommander(UnitGetOwner(EventUnit())) == "Abathur") && ((UnitHasBehavior2(EventUnit(), libE0EAE146_gv_biomassBuff1) == true) || (UnitHasBehavior2(EventUnit(), libE0EAE146_gv_biomassBuff10) == true) || (UnitHasBehavior2(EventUnit(), libE0EAE146_gv_biomassBuff100) == true))))) {
             return false;
         }
     }
@@ -597,26 +628,26 @@ bool libE0EAE146_gt_AbathurBiomassScaler_Func (bool testConds, bool runActions) 
     }
     libNtve_gf_SendActorMessageToUnit(EventUnit(), (("SetScale " + FixedToString(libE0EAE146_gf_AbathurBiomassVisualScale(lv_biomassCountTotal), c_fixedPrecisionAny))));
     if ((lv_biomassCountTotal >= 10)) {
-        ActorScopeSend(ActorScopeFromUnit(EventUnit()), "Create BiomassBuffGlaze");
+        ActorScopeSend(ActorScopeFromUnit(EventUnit()), ("Create " + libE0EAE146_gv_biomassGlazeCreate));
     }
     lv_biomassVisualIndicatorInterval = ((lv_biomassMaxStacks - 10) / 3);
     if ((lv_biomassCountTotal > (lv_biomassVisualIndicatorInterval * 2 + 10))) {
-        ActorScopeSend(ActorScopeFromUnit(EventUnit()), "Signal BiomassAnimGroupC");
+        ActorScopeSend(ActorScopeFromUnit(EventUnit()), ("Signal " + libE0EAE146_gv_biomassAnimGroupC));
     }
     else if ((lv_biomassCountTotal > (lv_biomassVisualIndicatorInterval + 10))) {
-        ActorScopeSend(ActorScopeFromUnit(EventUnit()), "Signal BiomassAnimGroupB");
+        ActorScopeSend(ActorScopeFromUnit(EventUnit()), ("Signal " + libE0EAE146_gv_biomassAnimGroupB));
     }
     else if ((lv_biomassCountTotal > 10)) {
-        ActorScopeSend(ActorScopeFromUnit(EventUnit()), "Signal BiomassAnimGroupA");
+        ActorScopeSend(ActorScopeFromUnit(EventUnit()), ("Signal " + libE0EAE146_gv_biomassAnimGroupA));
     }
     return true;
 }
 
 void libE0EAE146_gt_AbathurBiomassScaler_Init () {
     libE0EAE146_gt_AbathurBiomassScaler = TriggerCreate("libE0EAE146_gt_AbathurBiomassScaler_Func");
-    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_AbathurBiomassScaler, null, "BiomassBuff1", c_unitBehaviorChangeIncrease);
-    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_AbathurBiomassScaler, null, "BiomassBuff10", c_unitBehaviorChangeIncrease);
-    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_AbathurBiomassScaler, null, "BiomassBuff100", c_unitBehaviorChangeIncrease);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_AbathurBiomassScaler, null, libE0EAE146_gv_biomassBuff1, c_unitBehaviorChangeIncrease);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_AbathurBiomassScaler, null, libE0EAE146_gv_biomassBuff10, c_unitBehaviorChangeIncrease);
+    TriggerAddEventUnitBehaviorChange(libE0EAE146_gt_AbathurBiomassScaler, null, libE0EAE146_gv_biomassBuff100, c_unitBehaviorChangeIncrease);
     TriggerEnable(libE0EAE146_gt_AbathurBiomassScaler, false);
 }
 
