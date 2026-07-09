@@ -4,6 +4,19 @@ import * as tok from '../lexer/tokens.js';
 import { GALAXY_TYPES } from '../types.js';
 import type * as ast from './ast.js';
 
+// 从 IToken 构造 Position。
+// SemanticAnalyzer / RuleEngine 通过 node.start.line 报告 issue 行号，
+// 旧版未给节点附加 start，导致所有 semantic issue 输出 line=0。
+// 此处仅给会产生 issue 的节点（声明、return、continue、Identifier、CallExpression、
+// AssignmentExpression）附加 start，其他节点保持原样以减小改动面。
+function posOf(t: IToken): ast.Position {
+  return {
+    line: t.startLine ?? 0,
+    column: t.startColumn ?? 0,
+    offset: t.startOffset ?? 0,
+  };
+}
+
 export class GalaxyParser extends EmbeddedActionsParser {
   constructor() {
     super(tok.allTokens, { recoveryEnabled: true, nodeLocationTracking: 'full' });
@@ -69,6 +82,8 @@ export class GalaxyParser extends EmbeddedActionsParser {
   private functionDeclaration = this.RULE('functionDeclaration', () => {
     let isNative = false;
     let isStatic = false;
+    // LA(1) 指向 RULE 入口下一个待消费 token（native/static/类型关键字），用作声明起始位置。
+    const startTok = this.LA(1);
 
     this.OPTION(() => {
       this.CONSUME(tok.Native);
@@ -118,6 +133,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
       body,
       isNative,
       isStatic,
+      start: posOf(startTok),
     } as ast.FunctionDeclaration;
   });
 
@@ -146,10 +162,15 @@ export class GalaxyParser extends EmbeddedActionsParser {
   });
 
   // 变量声明（语句和顶层共用）
-  // Galaxy 数组语法：type[size] name，数组维度紧跟类型之后、变量名之前
+  // Galaxy 数组语法：type[size] name，数组维度紧跟类型之后、变量名之前。
+  // 真实项目存在常量表达式维度（如 `unit[gv_MAXPLAYERS + 1] gv_casters`）
+  // 和多维数组（如 `fixed[a][b] gv_timers`），旧版仅支持单维 Integer/Identifier，
+  // 导致大量声明解析失败。此处改为：维度为可选表达式，且支持连续多个 `[...]`。
   private varDeclaration = this.RULE('varDeclaration', () => {
     let isConst = false;
     let isStatic = false;
+    const startTok = this.LA(1);
+
     this.OPTION(() => {
       this.CONSUME(tok.Const);
       isConst = true;
@@ -164,23 +185,26 @@ export class GalaxyParser extends EmbeddedActionsParser {
     let isArray = false;
     this.OPTION3(() => {
       this.CONSUME(tok.LBracket);
+      // 维度可为空（`type[] name`）、字面量、标识符或算术表达式（`gv_MAX + 1`）
       this.OPTION4(() => {
-        // 数组维度：Integer 字面量（如 int[10]）或 Identifier 常量引用（如 int[MAXPLAYERS]）。
-        // Identifier 用 CONSUME2：varDeclaration 内 nameTok 已用 CONSUME(Identifier)，
-        // Chevrotain 要求同 token 类型多次 CONSUME 用唯一数值后缀。
-        this.OR1([
-          { ALT: () => this.CONSUME(tok.Integer) },
-          { ALT: () => this.CONSUME2(tok.Identifier) },
-        ]);
+        this.SUBRULE(this.expression);
       });
       this.CONSUME(tok.RBracket);
       isArray = true;
+      // 多维：`type[a][b] name`
+      this.MANY2(() => {
+        this.CONSUME2(tok.LBracket);
+        this.OPTION5(() => {
+          this.SUBRULE2(this.expression);
+        });
+        this.CONSUME2(tok.RBracket);
+      });
     });
 
     const nameTok = this.CONSUME(tok.Identifier);
 
     let init: ast.Expression | null = null;
-    this.OPTION5(() => {
+    this.OPTION6(() => {
       this.CONSUME(tok.Equals);
       init = this.SUBRULE(this.assignmentExpression) as any;
     });
@@ -195,6 +219,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
       init,
       isConst,
       isStatic,
+      start: posOf(startTok),
     } as ast.VariableDeclaration;
   });
 
@@ -225,6 +250,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         { ALT: () => this.SUBRULE(this.varDeclaration) as any },
         { ALT: () => this.SUBRULE(this.ifStatement) as any },
         { ALT: () => this.SUBRULE(this.whileStatement) as any },
+        { ALT: () => this.SUBRULE(this.doWhileStatement) as any },
         { ALT: () => this.SUBRULE(this.forStatement) as any },
         { ALT: () => this.SUBRULE(this.returnStatement) as any },
         { ALT: () => this.SUBRULE(this.breakStatement) as any },
@@ -261,6 +287,19 @@ export class GalaxyParser extends EmbeddedActionsParser {
     this.CONSUME(tok.RParen);
     const body = this.SUBRULE(this.statement);
     return { type: 'WhileStatement', test, body } as ast.WhileStatement;
+  });
+
+  // do-while 语句：Galaxy 编辑器导出的循环结构常见形式之一。
+  // 旧版 Parser 缺此 RULE，导致含 do-while 的整文件降级为空 Program。
+  private doWhileStatement = this.RULE('doWhileStatement', () => {
+    this.CONSUME(tok.Do);
+    const body = this.SUBRULE(this.statement);
+    this.CONSUME(tok.While);
+    this.CONSUME(tok.LParen);
+    const test = this.SUBRULE(this.expression);
+    this.CONSUME(tok.RParen);
+    this.CONSUME(tok.Semicolon);
+    return { type: 'DoWhileStatement', test, body } as ast.DoWhileStatement;
   });
 
   private forStatement = this.RULE('forStatement', () => {
@@ -304,13 +343,13 @@ export class GalaxyParser extends EmbeddedActionsParser {
   });
 
   private returnStatement = this.RULE('returnStatement', () => {
-    this.CONSUME(tok.Return);
+    const retTok = this.CONSUME(tok.Return);
     let argument: ast.Expression | null = null;
     this.OPTION(() => {
       argument = this.SUBRULE(this.expression) as any;
     });
     this.CONSUME(tok.Semicolon);
-    return { type: 'ReturnStatement', argument } as ast.ReturnStatement;
+    return { type: 'ReturnStatement', argument, start: posOf(retTok) } as ast.ReturnStatement;
   });
 
   private breakStatement = this.RULE('breakStatement', () => {
@@ -320,9 +359,9 @@ export class GalaxyParser extends EmbeddedActionsParser {
   });
 
   private continueStatement = this.RULE('continueStatement', () => {
-    this.CONSUME(tok.Continue);
+    const contTok = this.CONSUME(tok.Continue);
     this.CONSUME(tok.Semicolon);
-    return { type: 'ContinueStatement' } as ast.ContinueStatement;
+    return { type: 'ContinueStatement', start: posOf(contTok) } as ast.ContinueStatement;
   });
 
   // 表达式入口
@@ -331,6 +370,8 @@ export class GalaxyParser extends EmbeddedActionsParser {
   });
 
   // 赋值（右结合）
+  // 补充 |= &= 复合赋值（^= 因 Galaxy 实际较少使用暂不添加，token 已就位可后续扩展），
+  // 旧版只支持 = += -= *= /=，导致位掩码赋值（如 `x |= (1 << i)`）无法解析。
   private assignmentExpression = this.RULE('assignmentExpression', () => {
     const left = this.SUBRULE(this.conditionalExpression);
     let result: ast.Expression = left;
@@ -341,13 +382,18 @@ export class GalaxyParser extends EmbeddedActionsParser {
         { ALT: () => this.CONSUME(tok.MinusEquals) },
         { ALT: () => this.CONSUME(tok.StarEquals) },
         { ALT: () => this.CONSUME(tok.SlashEquals) },
+        { ALT: () => this.CONSUME(tok.PipeEquals) },
+        { ALT: () => this.CONSUME(tok.AmpersandEquals) },
       ]);
       const right = this.SUBRULE(this.assignmentExpression);
+      // 继承左侧表达式的 start：赋值表达式的定位通常指向被赋值的左值。
+      const start = (left as any).start;
       result = {
         type: 'AssignmentExpression',
         operator: opTok!.image,
         left: result,
         right,
+        start,
       } as ast.AssignmentExpression;
     });
     return result;
@@ -474,13 +520,33 @@ export class GalaxyParser extends EmbeddedActionsParser {
 
   // 关系
   private relationalExpression = this.RULE('relationalExpression', () => {
-    let left = this.SUBRULE(this.additiveExpression);
+    let left = this.SUBRULE(this.shiftExpression);
     this.MANY(() => {
       const opTok = this.OR1([
         { ALT: () => this.CONSUME(tok.Less) },
         { ALT: () => this.CONSUME(tok.Greater) },
         { ALT: () => this.CONSUME(tok.LessEquals) },
         { ALT: () => this.CONSUME(tok.GreaterEquals) },
+      ]);
+      const right = this.SUBRULE2(this.shiftExpression);
+      left = {
+        type: 'BinaryExpression',
+        operator: opTok!.image,
+        left,
+        right,
+      } as ast.BinaryExpression;
+    });
+    return left;
+  });
+
+  // 位移 << >>（C 优先级：高于关系运算、低于加法）
+  // 旧版 Parser 缺失此层，导致 (1 << a) 等位掩码表达式无法解析。
+  private shiftExpression = this.RULE('shiftExpression', () => {
+    let left = this.SUBRULE(this.additiveExpression);
+    this.MANY(() => {
+      const opTok = this.OR1([
+        { ALT: () => this.CONSUME(tok.ShiftLeft) },
+        { ALT: () => this.CONSUME(tok.ShiftRight) },
       ]);
       const right = this.SUBRULE2(this.additiveExpression);
       left = {
@@ -572,10 +638,13 @@ export class GalaxyParser extends EmbeddedActionsParser {
               });
             });
             this.CONSUME(tok.RParen);
+            // CallExpression 的定位继承 callee 的 start（通常是函数名 Identifier），
+            // 使 SEM_UNDECLARED_FUNCTION / SEM_ARGUMENT_COUNT_MISMATCH 等报错指向函数名行。
             expr = {
               type: 'CallExpression',
               callee: expr,
               arguments: args,
+              start: (expr as any).start,
             } as ast.CallExpression;
           },
         },
@@ -615,7 +684,8 @@ export class GalaxyParser extends EmbeddedActionsParser {
       {
         ALT: () => {
           const idTok = this.CONSUME(tok.Identifier);
-          return { type: 'Identifier', name: idTok.image } as ast.Identifier;
+          // Identifier 附加 start，使 SEM_UNDECLARED_VARIABLE 报错能定位到引用行。
+          return { type: 'Identifier', name: idTok.image, start: posOf(idTok) } as ast.Identifier;
         },
       },
       {
