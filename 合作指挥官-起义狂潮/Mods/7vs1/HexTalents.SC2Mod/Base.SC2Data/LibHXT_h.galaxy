@@ -1,0 +1,63 @@
+//==================================================================================================
+// 海克斯天赋独立 Mod（HexTalents.SC2Mod）— 声明头文件
+// 前缀: libHXT_
+// 数据源: 解包数据/海克斯合作PVP0.110.SC2Mod（LibKPVP 天赋逻辑移植）
+// Bank 协议: CampaignXCore
+//   - [XMRuntimeControl] CommanderP<n> / PrimaryCommander  → 每个玩家的指挥官短名
+//   - [CommanderTalents] _Common.<TalentId>=<v>            → 通用天赋（全体玩家生效）
+//   - [CommanderTalents] <CommanderRuntimeName>.<TalentId>=<v> → 指挥官专属天赋
+//==================================================================================================
+
+// ---- 常量 ----
+const int libHXT_c_maxPlayers = 15;
+
+// ---- 全局变量 ----
+bool libHXT_gv_initialized;
+bank libHXT_gv_bank;
+string[16] libHXT_gv_commander;
+bool[16] libHXT_gv_hasBuffTalents;
+int[16] libHXT_gv_spellRangeBonus;
+int[16] libHXT_gv_shrinkLevel;
+trigger libHXT_gt_UnitCreated;
+
+// ---- 对外入口 ----
+void libHXT_InitLib ();
+void libHXT_InitHexTalents ();
+
+// ---- Bank / 指挥官解析 ----
+string libHXT_gf_RuntimeCommanderName (string lp_shortName);
+string libHXT_gf_CommanderForPlayer (int lp_player);
+int libHXT_gf_TalentValue (string lp_commander, string lp_talentId);
+bool libHXT_gf_TalentEnabled (string lp_commander, string lp_talentId);
+int libHXT_gf_CommonTalentValue (int lp_player, string lp_talentId);
+
+// ---- 通用天赋 ----
+void libHXT_gf_ApplyCommonUpgrade (int lp_player, string lp_talentId, string lp_upgrade);
+void libHXT_gf_ApplyCommonTalents (int lp_player);
+bool libHXT_gf_IsCasterUnit (string lp_unitType);
+bool libHXT_gf_IsExcludedUnit (string lp_unitType);
+void libHXT_gf_ApplySpellRangeToUnit (unit lp_unit, int lp_player);
+void libHXT_gf_ApplyBuffsToUnit (unit lp_unit, int lp_player);
+void libHXT_gf_ApplyToExistingUnits (int lp_player);
+bool libHXT_gt_UnitCreated_Func (bool testConds, bool runActions);
+
+// ---- 指挥官专属天赋 ----
+void libHXT_gf_ApplyRaynorTalents (int lp_player);
+void libHXT_gf_ApplySwannTalents (int lp_player);
+void libHXT_gf_ApplyNovaTalents (int lp_player);
+void libHXT_gf_ApplyHornerTalents (int lp_player);
+void libHXT_gf_ApplyTychusTalents (int lp_player);
+void libHXT_gf_ApplyMengskTalents (int lp_player);
+void libHXT_gf_ApplyKerriganTalents (int lp_player);
+void libHXT_gf_ApplyZagaraTalents (int lp_player);
+void libHXT_gf_ApplyAbathurTalents (int lp_player);
+void libHXT_gf_ApplyStukovTalents (int lp_player);
+void libHXT_gf_ApplyDehakaTalents (int lp_player);
+void libHXT_gf_ApplyStetmannTalents (int lp_player);
+void libHXT_gf_ApplyArtanisTalents (int lp_player);
+void libHXT_gf_ApplyAlarakTalents (int lp_player);
+void libHXT_gf_ApplyKaraxTalents (int lp_player);
+void libHXT_gf_ApplyFenixTalents (int lp_player);
+void libHXT_gf_ApplyVorazunTalents (int lp_player);
+void libHXT_gf_ApplyZeratulTalents (int lp_player);
+void libHXT_gf_ApplyCommanderTalents (int lp_player, string lp_commander);

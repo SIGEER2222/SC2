@@ -1,6 +1,10 @@
 // src/cli.ts
-import { check } from './index.js';
-import { IssueReporter } from './reporter/IssueReporter.js';
+import Module from 'node:module';
+// V8 字节码缓存：首跑后 CLI 冷启动可减少 100ms+（Node >= 22.8，旧版忽略）
+try { (Module as any).enableCompileCache?.(); } catch { /* ignore */ }
+
+const { check } = await import('./index.js');
+const { IssueReporter } = await import('./reporter/IssueReporter.js');
 
 const args = process.argv.slice(2);
 if (args.length === 0 || args.includes('--help')) {
@@ -9,8 +13,7 @@ if (args.length === 0 || args.includes('--help')) {
   --format <json|text>    输出格式，默认 json
   --rules <path>          项目规则 JSON 路径
   --native-lib <path>     NativeLib.galaxy 路径
-  --no-global-symbols      跳过全局符号表构建
-  --quiet                 仅输出 issue，无汇总行
+  --no-global-symbols     跳过全局符号表构建
   --help                  显示帮助`);
   process.exit(2);
 }
@@ -20,8 +23,15 @@ const formatIdx = args.indexOf('--format');
 const rawFormat = formatIdx >= 0 ? args[formatIdx + 1] : 'json';
 const format: 'json' | 'text' = rawFormat === 'text' ? 'text' : 'json';
 
+const rulesIdx = args.indexOf('--rules');
+const nativeLibIdx = args.indexOf('--native-lib');
+
 try {
-  const result = check(target);
+  const result = check(target, {
+    rulesPath: rulesIdx >= 0 ? args[rulesIdx + 1] : undefined,
+    nativeLibPath: nativeLibIdx >= 0 ? args[nativeLibIdx + 1] : undefined,
+    noGlobalSymbols: args.includes('--no-global-symbols'),
+  });
   const reporter = new IssueReporter(format);
   const output = reporter.report(result.issues, result.filesChecked);
   console.log(output);

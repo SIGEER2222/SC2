@@ -502,7 +502,9 @@ function getStatusStdout(status) {
 
 function isDryRunComplete(status) {
   const stdout = getStatusStdout(status);
-  return stdout.includes("Mutator preset:") || stdout.includes("Mutators:");
+  // launch-7vs1-coop-test.ps1 输出 "Mutator preset:" / "Mutators:"；
+  // launch-xm-scenario.ps1（*_xm.SC2Map 地图）不输出因子行，结束标记是 "=== Done ==="
+  return stdout.includes("Mutator preset:") || stdout.includes("Mutators:") || stdout.includes("=== Done ===");
 }
 
 function setStatus(text, className = "") {
@@ -1033,7 +1035,8 @@ function renderTalents(commander) {
 function renderStartTalents(commander) {
   const defaultMask = getCommanderDefaultStartTalentMask(commander);
   const maxMask = getStartTalentMaxMask(commander);
-  const activeMask = Math.min(Number(el.startTalentMask.value) || 0, maxMask);
+  // 掩码是位集合，跨指挥官残留的掩码要按位裁剪而不是取数值较小者
+  const activeMask = (Number(el.startTalentMask.value) || 0) & maxMask;
   const enabled = el.enableStartTalents.checked;
   renderStartTalentPanelComponent({
     container: el.startTalentList,

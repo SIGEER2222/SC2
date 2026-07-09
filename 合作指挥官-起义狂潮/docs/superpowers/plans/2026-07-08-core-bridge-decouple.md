@@ -36,7 +36,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "E:\Code\MyMod\SC2\合作指
 - Create: `Mods/7vs1/CoreRuntime.SC2Mod/DocumentInfo`
 - Create: `Mods/7vs1/CoreRuntime.SC2Mod/Base.SC2Data/GameData/GameData.xml`
 
-- [ ] **Step 1: 创建 DocumentInfo**
+- [x] **Step 1: 创建 DocumentInfo**
 
 创建 `Mods/7vs1/CoreRuntime.SC2Mod/DocumentInfo`，依赖官方 mod：
 ```xml
@@ -62,7 +62,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "E:\Code\MyMod\SC2\合作指
 </DocInfo>
 ```
 
-- [ ] **Step 2: 创建 GameData.xml（精简版，只注册 Tychus）**
+- [x] **Step 2: 创建 GameData.xml（精简版，只注册 Tychus）**
 
 创建 `Mods/7vs1/CoreRuntime.SC2Mod/Base.SC2Data/GameData/GameData.xml`：
 ```xml
@@ -75,7 +75,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "E:\Code\MyMod\SC2\合作指
 </Catalog>
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File "c:\Users\22448\.trae-cn\skills\file-ops\scripts\trae-add.ps1" "合作指挥官-起义狂潮/Mods/7vs1/CoreRuntime.SC2Mod/DocumentInfo" "合作指挥官-起义狂潮/Mods/7vs1/CoreRuntime.SC2Mod/Base.SC2Data/GameData/GameData.xml"
@@ -91,34 +91,34 @@ git commit -m "创建 CoreRuntime mod 骨架"
 **Files:**
 - Copy: CoopZeroPop → CoreRuntime 的 17 个 galaxy 文件 + TriggerLibs 目录 + 13 个 XML 文件
 
-- [ ] **Step 1: 复制 XML 数据文件（13 个，排除 GameData.xml）**
+- [x] **Step 1: 复制 XML 数据文件（13 个，排除 GameData.xml）**
 
 用 trae-cp.ps1 将以下文件从 CoopZeroPop 复制到 CoreRuntime：
 AbilData.xml, ActorData.xml, BehaviorData.xml, ButtonData.xml, EffectData.xml, GameUIData.xml, RequirementData.xml, RequirementNodeData.xml, UnitData.xml, UpgradeData.xml, UserData.xml, ValidatorData.xml, WeaponData.xml
 
-- [ ] **Step 2: 复制 XCoreMod（Lib67C0F0E7 + _h）**
+- [x] **Step 2: 复制 XCoreMod（Lib67C0F0E7 + _h）**
 
-- [ ] **Step 3: 复制框架 galaxy 文件（11 个）**
+- [x] **Step 3: 复制框架 galaxy 文件（11 个）**
 
 LibE0EAE146.galaxy, LibE0EAE146_h.galaxy, LibE0EAE146_CommanderRegistry.galaxy, LibE0EAE146_ProgressionRewards.galaxy, LibE0EAE146_RuntimeSafety.galaxy, LibE0EAE146_ExcludeF2.galaxy, LibE0EAE146_MapMetadata.galaxy, LibE0EAE146_GenericBonusCatalog.galaxy, LibE0EAE146_IzshaRuntime.galaxy, LibE0EAE146_TestZergRuntime.galaxy, LibE0EAE146_CommanderStartSquads.galaxy
 
-- [ ] **Step 4: 复制天赋系统（3 个）**
+- [x] **Step 4: 复制天赋系统（3 个）**
 
 LibE0EAE146_HexTalents.galaxy, LibE0EAE146_TalentCatalog.galaxy, LibE0EAE146_TalentSystem.galaxy
 
-- [ ] **Step 5: 复制因子系统（2 个）**
+- [x] **Step 5: 复制因子系统（2 个）**
 
 LibE0EAE146_MutatorCatalog.galaxy, LibE0EAE146_MutatorRuntime.galaxy
 
-- [ ] **Step 6: 复制英雄复活/建筑（2 个，后续移到 Bridge）**
+- [x] **Step 6: 复制英雄复活/建筑（2 个，后续移到 Bridge）**
 
 LibE0EAE146_HeroRevive.galaxy, LibE0EAE146_HeroStructures.galaxy
 
-- [ ] **Step 7: 复制 Tychus 哈希库（Lib81FF3B49 + _h）**
+- [x] **Step 7: 复制 Tychus 哈希库（Lib81FF3B49 + _h）**
 
-- [ ] **Step 8: 复制 TriggerLibs 目录（AI 库）**
+- [x] **Step 8: 复制 TriggerLibs 目录（AI 库）**
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```powershell
 # 批量 trae-add（列出所有新文件）
@@ -136,19 +136,19 @@ git commit -m "迁移框架 galaxy 文件到 CoreRuntime（物理复制，未改
 - Create: `Mods/7vs1/CoreRuntime.SC2Mod/Base.SC2Data/LibE0EAE146_MapInitBonus.galaxy`
 - Create: `Mods/7vs1/CoreRuntime.SC2Mod/Base.SC2Data/LibE0EAE146_KerriganCreepBonus.galaxy`
 
-- [ ] **Step 1: 创建 LibE0EAE146_CoreInfra.galaxy**
+- [x] **Step 1: 创建 LibE0EAE146_CoreInfra.galaxy**
 
 提供 MAXPLAYERS 常量、CommanderPlayers() 玩家组、PrimaryCommander() Bank 读取、CommanderHeroStructureType() 查询。内容从 LibKCOR 和 LibKPVP 中提取相关函数体。
 
-- [ ] **Step 2: 创建 LibE0EAE146_MapInitBonus.galaxy**
+- [x] **Step 2: 创建 LibE0EAE146_MapInitBonus.galaxy**
 
 从 Lib45C3A6C3 (jimu) 迁移 3 个触发器：开局资源、兵营解锁、ZeroSupply 补给。
 
-- [ ] **Step 3: 创建 LibE0EAE146_KerriganCreepBonus.galaxy**
+- [x] **Step 3: 创建 LibE0EAE146_KerriganCreepBonus.galaxy**
 
 从 LibKPVP 迁移 `gf_apply_kerrigan_creep_bonus` 函数（约 50 行）。
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ---
 
@@ -167,47 +167,49 @@ git commit -m "迁移框架 galaxy 文件到 CoreRuntime（物理复制，未改
 - Modify: `CoreRuntime/Base.SC2Data/LibE0EAE146_ExcludeF2.galaxy` — 移除 Mira include
 - Modify: `CoreRuntime/Base.SC2Data/LibE0EAE146_CommanderStartSquads.galaxy` — 替换 libKMIS_ 调用
 
-- [ ] **Step 1: Lib67C0F0E7_h.galaxy 声明 KCUI 面板占位变量**
+- [x] **Step 1: Lib67C0F0E7_h.galaxy 声明 KCUI 面板占位变量**
 
 添加 3 个全局变量数组，初始化为 c_invalidDialogControlId。
 
-- [ ] **Step 2: Lib67C0F0E7.galaxy 替换 libKCUI_ 调用**
+- [x] **Step 2: Lib67C0F0E7.galaxy 替换 libKCUI_ 调用**
 
 6 处 `libKCUI_gv_cU_*` 替换为 `lib67C0F0E7_gv_legacy*`。
 
-- [ ] **Step 3: LibE0EAE146_h.galaxy 替换 MAXPLAYERS**
+- [x] **Step 3: LibE0EAE146_h.galaxy 替换 MAXPLAYERS**
 
 约 45 处 `libKCOR_gv_cCC_MAXPLAYERS` 替换为 `libE0EAE146_gv_MAXPLAYERS`。
 
-- [ ] **Step 4: LibE0EAE146.galaxy include 链改造**
+- [x] **Step 4: LibE0EAE146.galaxy include 链改造**
 
 移除 8 个哈希库 + Mira 的 include。新增 CoreInfra、MapInitBonus、KerriganCreepBonus 的 include。移除 SOA Targeting 相关代码段（行 1876-2210，移到 Bridge）。
 
-- [ ] **Step 5: RuntimeSafety 替换 libKPVP_ 调用**
+- [x] **Step 5: RuntimeSafety 替换 libKPVP_ 调用**
 
 `libKPVP_gf_CodexPrimaryCommanderName()` → `libE0EAE146_gf_PrimaryCommander()`。
 
-- [ ] **Step 6: GenericBonusCatalog 替换 libKPVP_ 调用**
+- [x] **Step 6: GenericBonusCatalog 替换 libKPVP_ 调用**
 
 `libKPVP_gf_apply_kerrigan_creep_bonus()` → `libE0EAE146_gf_apply_kerrigan_creep_bonus()`。
 
-- [ ] **Step 7: HeroStructures 替换 libKCOR_ 调用**
+- [x] **Step 7: HeroStructures 替换 libKCOR_ 调用**
 
 `libKCOR_gf_CC_CommanderHeroStructureType(libKCOR_gf_ActiveCommanderForPlayer(...))` → `libE0EAE146_gf_CommanderHeroStructureType(libE0EAE146_gf_ActiveCommanderForPlayer(...))`。
 
-- [ ] **Step 8: ExcludeF2 移除 Mira include**
+- [x] **Step 8: ExcludeF2 移除 Mira include**
 
 删除 `include "LibDA886FA0"` 行。
 
-- [ ] **Step 9: CommanderStartSquads 替换 libKMIS_ 调用**
+- [x] **Step 9: CommanderStartSquads 替换 libKMIS_ 调用**
 
 `TriggerEnable(libKMIS_gt_CM_HeroDied, false)` → 使用自有触发器或移除。
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ---
 
 ## Task 5: 创建 CommanderBridge mod
+
+> 已由远端提交 149976ce「创建 CommanderBridge mod 并迁移 SOA Targeting 代码」完成；本地在其基础上补齐了 Bridge 与 CoreRuntime 主库的 include/Init 接线及残留 PVP 前缀替换（见文末补充说明）。
 
 **Files:**
 - Create: `Mods/7vs1/CommanderBridge.SC2Mod/DocumentInfo`
@@ -215,23 +217,23 @@ git commit -m "迁移框架 galaxy 文件到 CoreRuntime（物理复制，未改
 - Create: `Mods/7vs1/CommanderBridge.SC2Mod/Base.SC2Data/LibE0EAE146_HeroRevive.galaxy`
 - Create: `Mods/7vs1/CommanderBridge.SC2Mod/Base.SC2Data/LibE0EAE146_HeroStructures.galaxy`
 
-- [ ] **Step 1: 创建 DocumentInfo**（依赖 CoreRuntime）
+- [x] **Step 1: 创建 DocumentInfo**（依赖 CoreRuntime）
 
-- [ ] **Step 2: 创建 SOATargeting.galaxy**
+- [x] **Step 2: 创建 SOATargeting.galaxy**
 
 从 LibE0EAE146.galaxy 行 1876-2210 迁移 8 个触发器函数。从 LibKMIS 迁移 SOA 全局变量集（约 30 个）和 4 个核心函数。从 LibKCUI 迁移 4 个瞄准 UI 函数。所有 `libKMIS_`/`libKCOR_`/`libKCUI_` 前缀替换为 `libE0EAE146_`。
 
-- [ ] **Step 3: 迁移 HeroRevive.galaxy**
+- [x] **Step 3: 迁移 HeroRevive.galaxy**
 
 从 CoreRuntime 复制（Task 2 已复制到 CoreRuntime，现移到 Bridge）。
 
-- [ ] **Step 4: 迁移 HeroStructures.galaxy**
+- [x] **Step 4: 迁移 HeroStructures.galaxy**
 
 从 CoreRuntime 移到 Bridge（改造后的版本）。
 
-- [ ] **Step 5: 从 CoreRuntime 删除 HeroRevive/HeroStructures**（已移到 Bridge）
+- [x] **Step 5: 从 CoreRuntime 删除 HeroRevive/HeroStructures**（已移到 Bridge）
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ---
 
@@ -250,13 +252,13 @@ git commit -m "迁移框架 galaxy 文件到 CoreRuntime（物理复制，未改
 
 注意：Tychus (Lib81FF3B49) 已在 Task 2 复制到 CoreRuntime（因 GameData.xml 注册需保留在 Core）。
 
-- [ ] **Step 1-7: 逐个迁移哈希库**
+- [x] **Step 1-7: 逐个迁移哈希库**
 
 用 trae-mv.ps1 移动每个库文件。
 
-- [ ] **Step 8: 改造 LibKPVP_Swann 移除 LibKPVP_h 依赖**
+- [x] **Step 8: 改造 LibKPVP_Swann 移除 LibKPVP_h 依赖**
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ---
 
@@ -268,13 +270,13 @@ git commit -m "迁移框架 galaxy 文件到 CoreRuntime（物理复制，未改
 - Modify: `CoreRuntime/Base.SC2Data/LibE0EAE146_CommanderStartSquads.galaxy` — 只保留框架
 - Modify: 各 `CommanderUnits_*/Base.SC2Data/LibE0EAE146_*Runtime.galaxy` — 添加对应 CreateMapStartSquad
 
-- [ ] **Step 1: 分析 CommanderStartSquads 的函数边界**
+- [x] **Step 1: 分析 CommanderStartSquads 的函数边界**
 
 Grep 搜索所有 `gf_.*CreateMapStartSquad` 函数定义，确认每个属于哪个指挥官。
 
-- [ ] **Step 2-N: 逐指挥官迁移 CreateMapStartSquad 函数**
+- [x] **Step 2-N: 逐指挥官迁移 CreateMapStartSquad 函数**
 
-- [ ] **Step N+1: Commit**
+- [x] **Step N+1: Commit**
 
 ---
 
@@ -283,23 +285,23 @@ Grep 搜索所有 `gf_.*CreateMapStartSquad` 函数定义，确认每个属于�
 **Files:**
 - Modify: `scripts/launch-7vs1-coop-test.ps1`
 
-- [ ] **Step 1: Resolve-ExtensionSource 改为 CoreRuntime**
+- [x] **Step 1: Resolve-ExtensionSource 改为 CoreRuntime**
 
 将 `CoopZeroPop.SC2Mod` 替换为 `CoreRuntime.SC2Mod`。
 
-- [ ] **Step 2: Get-SplitCatalogModDependencies 替换 CoopZeroPop**
+- [x] **Step 2: Get-SplitCatalogModDependencies 替换 CoopZeroPop**
 
 将 `file:Mods/7vs1/CoopZeroPop.SC2Mod` 替换为 `file:Mods/7vs1/CoreRuntime.SC2Mod` 和 `file:Mods/7vs1/CommanderBridge.SC2Mod`。
 
-- [ ] **Step 3: RuntimeBaseRoots 添加 CommanderBridge**
+- [x] **Step 3: RuntimeBaseRoots 添加 CommanderBridge**
 
 在自动扫描 CommanderUnits_* 的基础上，添加 CommanderBridge 的 Base.SC2Data。
 
-- [ ] **Step 4: workspaceDependencySkips 更新**
+- [x] **Step 4: workspaceDependencySkips 更新**
 
 将 `file:Mods/7vs1/CoopZeroPop.SC2Mod` 替换为 `file:Mods/7vs1/CoreRuntime.SC2Mod`。
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -368,3 +370,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "E:\Code\MyMod\SC2\合作指
 3. **测试时机**：Task 4（解耦）和 Task 9（删除 CoopZeroPop）是高风险点，必须充分测试
 4. **回滚策略**：每个 Task 都有独立 commit，如发现问题可 git revert 回滚
 5. **PVP 函数迁移**：从 PVP 库迁移函数时，必须完整复制函数体，不能只复制声明
+
+## 执行环境补充说明（2026-07-08）
+
+- **Task 9（清理死代码 + 删除 CoopZeroPop）与 Task 10（游戏内测试）未执行**：本机没有安装 StarCraft II，无法运行 launch-7vs1-coop-test.ps1 / wait-for-game-ready.ps1 做游戏内验证；按计划要求「Task 9 必须在 Task 1-8 全部完成并测试通过后执行」，这两个 Task 留待有游戏环境的机器完成。CoopZeroPop.SC2Mod 目录保持原样未动。
+- Task 1-5 由远端提交完成（Task 5 为远端提交 149976ce）；Task 6-8 在本机以文件操作完成，并用 scripts/galaxy-checker 做静态检查替代游戏内测试（改动文件无新增 error 级 issue，仅存在与 CoopZeroPop 原代码一致的历史告警）。

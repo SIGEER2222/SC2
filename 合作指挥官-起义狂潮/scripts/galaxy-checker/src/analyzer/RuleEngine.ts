@@ -1,7 +1,6 @@
 // src/analyzer/RuleEngine.ts
 import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolveDataFile } from '../dataPath.js';
 import type { Issue, Severity } from '../types.js';
 import { parse } from '../parser/index.js';
 import type { Node, ContinueStatement, VariableDeclaration } from '../parser/ast.js';
@@ -25,13 +24,7 @@ export interface RulesFile {
   nativeLibPath?: string;
 }
 
-const DEFAULT_RULES_PATH = join(
-  dirname(fileURLToPath(import.meta.url)),
-  '..',
-  '..',
-  'data',
-  'project-rules.json'
-);
+const DEFAULT_RULES_PATH = resolveDataFile('project-rules.json');
 
 const DEFAULT_MESSAGE: Record<string, string> = {
   SYNTAX_NO_CONTINUE: 'Galaxy 不支持 continue 语句',
@@ -98,9 +91,14 @@ export class RuleEngine {
   }
 }
 
-export function checkRules(source: string, filename: string): Issue[] {
+// parsed 可传入已解析结果，避免与语义分析重复 parse（大文件 parse 是主要耗时）
+export function checkRules(
+  source: string,
+  filename: string,
+  parsed?: { ast: Node; errors: Issue[] }
+): Issue[] {
   const engine = new RuleEngine();
-  const { ast, errors } = parse(source, filename);
+  const { ast, errors } = parsed ?? parse(source, filename);
   const issues: Issue[] = [...errors];
 
   walk(ast, (node, parent) => {

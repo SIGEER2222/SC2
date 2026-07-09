@@ -6,32 +6,73 @@ import { NativeFunctionTable } from './NativeFunctionTable.js';
 import type { Issue } from '../types.js';
 import type * as ast from '../parser/ast.js';
 
+// 分析上下文：目录模式（外部全局符号表）下已知的本地库前缀集合。
+// 引用完全未知库（如游戏自带 libNtve）时跳过报错，避免海量误报。
+interface AnalyzeContext {
+  hasGlobalTable: boolean;
+  libPrefixes: Set<string>;
+}
+
+const LIB_PREFIX_RE = /^(lib[0-9A-Za-z]*)_/;
+
+// 游戏自带常量（c_ 前缀，定义在 NativeLib/natives.galaxy 中，本地不可见）
+function isGameConstant(name: string): boolean {
+  return name.startsWith('c_');
+}
+
+// Galaxy 隐式类型放宽：int 可赋给 fixed（字面量与表达式均会自动提升）
+function isAssignable(from: string, to: string): boolean {
+  if (from === to) return true;
+  if (from === 'int' && to === 'fixed') return true;
+  return false;
+}
+
 export function analyze(
   source: string,
   filename: string,
   globalTable?: SymbolTable,
   nativeTable?: NativeFunctionTable,
-  engine?: RuleEngine
+  engine?: RuleEngine,
+  parsed?: { ast: ast.Program; errors: Issue[] }
 ): Issue[] {
-  const { ast: program, errors } = parse(source, filename);
+  const { ast: program, errors } = parsed ?? parse(source, filename);
   const issues: Issue[] = [...errors];
 
   const eng = engine ?? new RuleEngine();
   const table = globalTable ?? new SymbolTable();
 
-  // 第一遍：收集顶层声明
+  // 第一遍：收集顶层声明。
+  // 若使用外部全局符号表（目录扫描），本文件的顶层符号已被 ProjectLoader 收集过，
+  // 再次声明必然"重复"，此时静默跳过而非误报 SEM_DUPLICATE_DECLARATION。
+  const reportTopLevelDuplicates = globalTable === undefined;
   for (const decl of program.body) {
-    collectTopLevel(decl, table, eng, filename, issues);
+    collectTopLevel(decl, table, eng, filename, issues, reportTopLevelDuplicates);
   }
+
+  // 已知本地库前缀（libXXX_）：用于区分本地跨库引用与外部库（游戏/其他 Mod）
+  const libPrefixes = new Set<string>();
+  const globalScope = table.getGlobalScope();
+  for (const n of [...globalScope.getOwnFunctionNames(), ...globalScope.getOwnVariableNames()]) {
+    const m = n.match(LIB_PREFIX_RE);
+    if (m) libPrefixes.add(m[1]);
+  }
+  const ctx: AnalyzeContext = { hasGlobalTable: globalTable !== undefined, libPrefixes };
 
   // 第二遍：分析函数体
   for (const decl of program.body) {
     if (decl.type === 'FunctionDeclaration' && decl.body) {
-      analyzeFunction(decl, table, nativeTable, eng, filename, issues);
+      analyzeFunction(decl, table, nativeTable, eng, filename, issues, ctx);
     }
   }
 
   return issues;
+}
+
+// 外部库引用（前缀完全不在本地符号表中）在目录模式下跳过检查
+function isExternalLibRef(name: string, ctx: AnalyzeContext): boolean {
+  if (!ctx.hasGlobalTable) return false;
+  const m = name.match(LIB_PREFIX_RE);
+  return m !== null && !ctx.libPrefixes.has(m[1]);
 }
 
 function collectTopLevel(
@@ -39,7 +80,8 @@ function collectTopLevel(
   table: SymbolTable,
   engine: RuleEngine,
   filename: string,
-  issues: Issue[]
+  issues: Issue[],
+  reportDuplicates = true
 ): void {
   switch (decl.type) {
     case 'FunctionDeclaration':
@@ -51,7 +93,7 @@ function collectTopLevel(
           isNative: decl.isNative,
         },
         () => {
-          if (engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
+          if (reportDuplicates && engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
             issues.push(
               engine.makeIssue(
                 'SEM_DUPLICATE_DECLARATION',
@@ -67,7 +109,7 @@ function collectTopLevel(
       break;
     case 'VariableDeclaration':
       table.declareGlobalVariable(decl.varType, decl.name, decl.isArray, () => {
-        if (engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
+        if (reportDuplicates && engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
           issues.push(
             engine.makeIssue(
               'SEM_DUPLICATE_DECLARATION',
@@ -89,7 +131,8 @@ function analyzeFunction(
   nativeTable: NativeFunctionTable | undefined,
   engine: RuleEngine,
   filename: string,
-  issues: Issue[]
+  issues: Issue[],
+  ctx: AnalyzeContext
 ): void {
   const scope = table.createFunctionScope();
   for (const p of fn.params) {
@@ -109,7 +152,7 @@ function analyzeFunction(
   }
 
   if (fn.body) {
-    walkStatements(fn.body, fn, scope, table, nativeTable, engine, filename, issues);
+    walkStatements(fn.body, fn, scope, table, nativeTable, engine, filename, issues, ctx);
   }
 }
 
@@ -121,7 +164,8 @@ function walkStatements(
   nativeTable: NativeFunctionTable | undefined,
   engine: RuleEngine,
   filename: string,
-  issues: Issue[]
+  issues: Issue[],
+  ctx: AnalyzeContext
 ): void {
   if (!stmt) return;
   switch (stmt.type) {
@@ -139,37 +183,38 @@ function walkStatements(
           );
         }
       });
-      if (stmt.init) checkExpression(stmt.init, scope, table, nativeTable, engine, filename, issues);
+      if (stmt.init) checkExpression(stmt.init, scope, table, nativeTable, engine, filename, issues, ctx);
       break;
     case 'ExpressionStatement':
-      checkExpression(stmt.expression, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(stmt.expression, scope, table, nativeTable, engine, filename, issues, ctx);
       break;
     case 'IfStatement':
-      checkExpression(stmt.test, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(stmt.test, scope, table, nativeTable, engine, filename, issues, ctx);
       checkVoidInCondition(stmt.test, table, engine, filename, issues);
-      walkStatements(stmt.consequent, fn, scope, table, nativeTable, engine, filename, issues);
-      if (stmt.alternate) walkStatements(stmt.alternate, fn, scope, table, nativeTable, engine, filename, issues);
+      walkStatements(stmt.consequent, fn, scope, table, nativeTable, engine, filename, issues, ctx);
+      if (stmt.alternate) walkStatements(stmt.alternate, fn, scope, table, nativeTable, engine, filename, issues, ctx);
       break;
     case 'WhileStatement':
-      checkExpression(stmt.test, scope, table, nativeTable, engine, filename, issues);
+    case 'DoWhileStatement':
+      checkExpression(stmt.test, scope, table, nativeTable, engine, filename, issues, ctx);
       checkVoidInCondition(stmt.test, table, engine, filename, issues);
-      walkStatements(stmt.body, fn, scope, table, nativeTable, engine, filename, issues);
+      walkStatements(stmt.body, fn, scope, table, nativeTable, engine, filename, issues, ctx);
       break;
     case 'ForStatement': {
       const forScope = scope.createChild();
-      if (stmt.init) walkStatements(stmt.init, fn, forScope, table, nativeTable, engine, filename, issues);
+      if (stmt.init) walkStatements(stmt.init, fn, forScope, table, nativeTable, engine, filename, issues, ctx);
       if (stmt.test) {
-        checkExpression(stmt.test, forScope, table, nativeTable, engine, filename, issues);
+        checkExpression(stmt.test, forScope, table, nativeTable, engine, filename, issues, ctx);
         checkVoidInCondition(stmt.test, table, engine, filename, issues);
       }
-      if (stmt.update) checkExpression(stmt.update, forScope, table, nativeTable, engine, filename, issues);
-      walkStatements(stmt.body, fn, forScope, table, nativeTable, engine, filename, issues);
+      if (stmt.update) checkExpression(stmt.update, forScope, table, nativeTable, engine, filename, issues, ctx);
+      walkStatements(stmt.body, fn, forScope, table, nativeTable, engine, filename, issues, ctx);
       break;
     }
     case 'ReturnStatement': {
       if (stmt.argument && fn.returnType !== 'void') {
         const t = inferType(stmt.argument, scope);
-        if (t && t !== fn.returnType && engine.isRuleEnabled('SEM_RETURN_TYPE_MISMATCH')) {
+        if (t && !isAssignable(t, fn.returnType) && engine.isRuleEnabled('SEM_RETURN_TYPE_MISMATCH')) {
           issues.push(
             engine.makeIssue('SEM_RETURN_TYPE_MISMATCH', filename,
               (stmt as any).start?.line ?? 0, (stmt as any).start?.column ?? 0,
@@ -177,13 +222,13 @@ function walkStatements(
           );
         }
       }
-      if (stmt.argument) checkExpression(stmt.argument, scope, table, nativeTable, engine, filename, issues);
+      if (stmt.argument) checkExpression(stmt.argument, scope, table, nativeTable, engine, filename, issues, ctx);
       break;
     }
     case 'BlockStatement': {
       const blockScope = scope.createChild();
       for (const s of stmt.body) {
-        walkStatements(s, fn, blockScope, table, nativeTable, engine, filename, issues);
+        walkStatements(s, fn, blockScope, table, nativeTable, engine, filename, issues, ctx);
       }
       break;
     }
@@ -197,12 +242,15 @@ function checkExpression(
   nativeTable: NativeFunctionTable | undefined,
   engine: RuleEngine,
   filename: string,
-  issues: Issue[]
+  issues: Issue[],
+  ctx: AnalyzeContext
 ): void {
   if (!expr) return;
   switch (expr.type) {
     case 'Identifier':
       if (!scope.lookupVariable(expr.name)) {
+        // 游戏常量（c_*）与外部库符号无法本地验证，跳过
+        if (isGameConstant(expr.name) || isExternalLibRef(expr.name, ctx)) break;
         if (engine.isRuleEnabled('SEM_UNDECLARED_VARIABLE')) {
           issues.push(
             engine.makeIssue(
@@ -217,20 +265,20 @@ function checkExpression(
       }
       break;
     case 'BinaryExpression':
-      checkExpression(expr.left, scope, table, nativeTable, engine, filename, issues);
-      checkExpression(expr.right, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.left, scope, table, nativeTable, engine, filename, issues, ctx);
+      checkExpression(expr.right, scope, table, nativeTable, engine, filename, issues, ctx);
       break;
     case 'UnaryExpression':
-      checkExpression(expr.argument, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.argument, scope, table, nativeTable, engine, filename, issues, ctx);
       break;
     case 'AssignmentExpression':
-      checkExpression(expr.left, scope, table, nativeTable, engine, filename, issues);
-      checkExpression(expr.right, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.left, scope, table, nativeTable, engine, filename, issues, ctx);
+      checkExpression(expr.right, scope, table, nativeTable, engine, filename, issues, ctx);
       if (expr.left.type === 'Identifier') {
         const lv = scope.lookupVariable(expr.left.name);
         if (lv) {
           const rt = inferType(expr.right, scope);
-          if (rt && rt !== lv.varType && engine.isRuleEnabled('SEM_ASSIGNMENT_TYPE_MISMATCH')) {
+          if (rt && !isAssignable(rt, lv.varType) && engine.isRuleEnabled('SEM_ASSIGNMENT_TYPE_MISMATCH')) {
             issues.push(
               engine.makeIssue('SEM_ASSIGNMENT_TYPE_MISMATCH', filename,
                 (expr as any).start?.line ?? 0, (expr as any).start?.column ?? 0,
@@ -271,17 +319,34 @@ function checkExpression(
               `调用了不允许的 native 函数 '${fnName}()'${note ? ' (' + note + ')' : ''}`
             )!
           );
+        } else if (nativeTable?.isNative(fnName)) {
+          // 已知 native：只做参数数量对照
+          const sig = nativeTable.lookup(fnName)!;
+          if (sig.params.length !== expr.arguments.length && engine.isRuleEnabled('SEM_ARGUMENT_COUNT_MISMATCH')) {
+            issues.push(
+              engine.makeIssue(
+                'SEM_ARGUMENT_COUNT_MISMATCH',
+                filename,
+                (expr as any).start?.line ?? 0,
+                (expr as any).start?.column ?? 0,
+                `native '${fnName}()' 期望 ${sig.params.length} 个参数，实际 ${expr.arguments.length} 个`
+              )!
+            );
+          }
         } else if (fnName.startsWith('lib') && fnName.includes('_') && engine.isRuleEnabled('XLIB_UNDEFINED_CROSS_REF')) {
-          // 跨库引用未定义（libXXX_ 形式），替代 SEM_UNDECLARED_FUNCTION 更精确
-          issues.push(
-            engine.makeIssue(
-              'XLIB_UNDEFINED_CROSS_REF',
-              filename,
-              (expr as any).start?.line ?? 0,
-              (expr as any).start?.column ?? 0,
-              `跨库引用未定义 '${fnName}()'`
-            )!
-          );
+          // 跨库引用未定义（libXXX_ 形式），替代 SEM_UNDECLARED_FUNCTION 更精确。
+          // 外部库（前缀不在本地符号表，如游戏自带 libNtve）无法验证，跳过。
+          if (!isExternalLibRef(fnName, ctx)) {
+            issues.push(
+              engine.makeIssue(
+                'XLIB_UNDEFINED_CROSS_REF',
+                filename,
+                (expr as any).start?.line ?? 0,
+                (expr as any).start?.column ?? 0,
+                `跨库引用未定义 '${fnName}()'`
+              )!
+            );
+          }
         } else if (engine.isRuleEnabled('SEM_UNDECLARED_FUNCTION')) {
           // 普通未声明函数
           issues.push(
@@ -296,23 +361,23 @@ function checkExpression(
         }
       } else {
         // callee 非 Identifier（如 MemberExpression obj.method()），递归检查
-        checkExpression(expr.callee, scope, table, nativeTable, engine, filename, issues);
+        checkExpression(expr.callee, scope, table, nativeTable, engine, filename, issues, ctx);
       }
       for (const a of expr.arguments) {
-        checkExpression(a, scope, table, nativeTable, engine, filename, issues);
+        checkExpression(a, scope, table, nativeTable, engine, filename, issues, ctx);
       }
       break;
     case 'MemberExpression':
-      checkExpression(expr.object, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.object, scope, table, nativeTable, engine, filename, issues, ctx);
       break;
     case 'IndexExpression':
-      checkExpression(expr.object, scope, table, nativeTable, engine, filename, issues);
-      checkExpression(expr.index, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.object, scope, table, nativeTable, engine, filename, issues, ctx);
+      checkExpression(expr.index, scope, table, nativeTable, engine, filename, issues, ctx);
       break;
     case 'ConditionalExpression':
-      checkExpression(expr.test, scope, table, nativeTable, engine, filename, issues);
-      checkExpression(expr.consequent, scope, table, nativeTable, engine, filename, issues);
-      checkExpression(expr.alternate, scope, table, nativeTable, engine, filename, issues);
+      checkExpression(expr.test, scope, table, nativeTable, engine, filename, issues, ctx);
+      checkExpression(expr.consequent, scope, table, nativeTable, engine, filename, issues, ctx);
+      checkExpression(expr.alternate, scope, table, nativeTable, engine, filename, issues, ctx);
       break;
   }
 }

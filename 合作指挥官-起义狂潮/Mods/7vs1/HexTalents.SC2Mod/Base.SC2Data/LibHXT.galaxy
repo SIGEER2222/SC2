@@ -1,0 +1,916 @@
+//==================================================================================================
+// 海克斯天赋独立 Mod（HexTalents.SC2Mod）— 运行时实现
+// 前缀: libHXT_
+// 接入方式: 地图脚本 include "LibHXT" 后调用 libHXT_InitLib()（详见
+//           docs/others/海克斯天赋独立mod接入说明.md）
+//==================================================================================================
+
+include "LibHXT_h"
+
+//--------------------------------------------------------------------------------------------------
+// Bank / 指挥官解析
+//--------------------------------------------------------------------------------------------------
+string libHXT_gf_RuntimeCommanderName (string lp_shortName) {
+    if (lp_shortName == "Raynor") { return "TerranRaynor"; }
+    if (lp_shortName == "Swann") { return "TerranSwann"; }
+    if (lp_shortName == "Nova") { return "TerranNova"; }
+    if (lp_shortName == "Horner") { return "TerranHorner"; }
+    if (lp_shortName == "HanAndHorner") { return "TerranHorner"; }
+    if (lp_shortName == "Tychus") { return "TerranTychus"; }
+    if (lp_shortName == "Mengsk") { return "TerranMengsk"; }
+    if (lp_shortName == "Kerrigan") { return "ZergKerrigan"; }
+    if (lp_shortName == "Zagara") { return "ZergZagara"; }
+    if (lp_shortName == "Abathur") { return "ZergAbathur"; }
+    if (lp_shortName == "AbathurReborn") { return "ZergAbathurReborn"; }
+    if (lp_shortName == "Stukov") { return "ZergStukov"; }
+    if (lp_shortName == "Dehaka") { return "ZergDehaka"; }
+    if (lp_shortName == "Stetmann") { return "ZergStetmann"; }
+    if (lp_shortName == "Artanis") { return "ProtossArtanis"; }
+    if (lp_shortName == "Alarak") { return "ProtossAlarak"; }
+    if (lp_shortName == "Karax") { return "ProtossKarax"; }
+    if (lp_shortName == "Fenix") { return "ProtossFenix"; }
+    if (lp_shortName == "Vorazun") { return "ProtossVorazun"; }
+    if (lp_shortName == "Zeratul") { return "ProtossZeratul"; }
+    // 已是运行时全名（TerranXxx/ZergXxx/ProtossXxx）或未知值时原样返回
+    return lp_shortName;
+}
+
+string libHXT_gf_CommanderForPlayer (int lp_player) {
+    string lv_key;
+    string lv_shortName;
+
+    lv_shortName = "";
+    lv_key = ("CommanderP" + IntToString(lp_player));
+    if (BankKeyExists(libHXT_gv_bank, "XMRuntimeControl", lv_key)) {
+        lv_shortName = BankValueGetAsString(libHXT_gv_bank, "XMRuntimeControl", lv_key);
+    }
+    if ((lv_shortName == "") && BankKeyExists(libHXT_gv_bank, "XMRuntimeControl", "PrimaryCommander")) {
+        lv_shortName = BankValueGetAsString(libHXT_gv_bank, "XMRuntimeControl", "PrimaryCommander");
+    }
+    return libHXT_gf_RuntimeCommanderName(lv_shortName);
+}
+
+int libHXT_gf_TalentValue (string lp_commander, string lp_talentId) {
+    string lv_key;
+
+    if (lp_commander == "") {
+        return 0;
+    }
+    lv_key = (lp_commander + "." + lp_talentId);
+    if (BankKeyExists(libHXT_gv_bank, "CommanderTalents", lv_key)) {
+        return BankValueGetAsInt(libHXT_gv_bank, "CommanderTalents", lv_key);
+    }
+    return 0;
+}
+
+bool libHXT_gf_TalentEnabled (string lp_commander, string lp_talentId) {
+    return (libHXT_gf_TalentValue(lp_commander, lp_talentId) > 0);
+}
+
+// 通用天赋取值：先查 _Common 全局键，再查当前玩家指挥官的同名键
+int libHXT_gf_CommonTalentValue (int lp_player, string lp_talentId) {
+    int lv_value;
+
+    lv_value = libHXT_gf_TalentValue("_Common", lp_talentId);
+    if (lv_value == 0) {
+        lv_value = libHXT_gf_TalentValue(libHXT_gv_commander[lp_player], lp_talentId);
+    }
+    return lv_value;
+}
+
+//--------------------------------------------------------------------------------------------------
+// 通用天赋
+//--------------------------------------------------------------------------------------------------
+void libHXT_gf_ApplyCommonUpgrade (int lp_player, string lp_talentId, string lp_upgrade) {
+    if (libHXT_gf_CommonTalentValue(lp_player, lp_talentId) > 0) {
+        TechTreeUpgradeAddLevel(lp_player, lp_upgrade, 1);
+        libHXT_gv_hasBuffTalents[lp_player] = true;
+    }
+}
+
+void libHXT_gf_ApplyCommonTalents (int lp_player) {
+    int lv_value;
+    int lv_i;
+    int lv_bonus;
+    fixed lv_chance;
+    unitgroup lv_group;
+    int lv_count;
+
+    // ---- 白色（普通） ----
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_HealthBonus", "TNX_012");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_MoveSpeedBonus", "TNX_01");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_DamageBonus", "TNX_00");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_ArmorBonus", "TNX_013");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_EnergyBonus", "TNX_014");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_LifeLeech", "TNX_015");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_AttackSpeedBonus1", "TNX_016");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_EnergyRegen", "TNX_017");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_StructureDamage", "TNX_018");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_SightRangeBonus", "TNX_019");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_RegenBonus", "TNX_0110");
+
+    // ---- 蓝色（稀有） ----
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_WeaponRangeBonus", "TNX_0111");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_NoArmorType", "TNX_0112");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_SpellDamageLeech", "TNX_0113");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_Berserker", "TNX_0114");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_Detector", "TNX_0115");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_AstralBody", "TNX_0116");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_StrongRegen", "TNX_0117");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_GlassCannon", "TNX_0118");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_EnergyRegen2", "TNX_0172");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_CooldownSpeed", "TNX_01622");
+
+    // ---- 红色（传说） ----
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_LifeFountain", "TNX_0119");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_Heroic", "TNX_01122");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_Telescope", "TNX_01112");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_BladesOfTheDestroyer", "TNX_002");
+    libHXT_gf_ApplyCommonUpgrade(lp_player, "HexTalent_QuickShooter", "TNX_0162");
+
+    // ---- 矿骡派对：补满 6 只永久矿骡 + 采集强化 ----
+    lv_value = libHXT_gf_CommonTalentValue(lp_player, "HexTalent_MuleParty");
+    if (lv_value > 0) {
+        lv_group = UnitGroup("TNX_MULEParty", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+        lv_count = UnitGroupCount(lv_group, c_unitCountAll);
+        if (lv_count < 6) {
+            libNtve_gf_CreateUnitsWithDefaultFacing((6 - lv_count), "TNX_MULEParty", 0, lp_player, PlayerStartLocation(lp_player));
+        }
+        lv_i = 0;
+        while (lv_i < lv_value) {
+            TechTreeUpgradeAddLevel(lp_player, "TNX_MULEParty_Mine", 1);
+            lv_i += 1;
+        }
+    }
+
+    // ---- 施法范围：巫术手杖 +1 / 聚能器 +2 / 灵能矩阵 +4 ----
+    lv_bonus = 0;
+    if (libHXT_gf_CommonTalentValue(lp_player, "HexTalent_SpellRange1") > 0) {
+        lv_bonus += 1;
+    }
+    if (libHXT_gf_CommonTalentValue(lp_player, "HexTalent_SpellRange2") > 0) {
+        lv_bonus += 2;
+    }
+    if (libHXT_gf_CommonTalentValue(lp_player, "HexTalent_SpellRange4") > 0) {
+        lv_bonus += 4;
+    }
+    libHXT_gv_spellRangeBonus[lp_player] = lv_bonus;
+
+    // ---- 缩小立场：体积 -10%/层，闪避（免伤判定）1-0.9^层 ----
+    lv_value = libHXT_gf_CommonTalentValue(lp_player, "HexTalent_ShrinkField");
+    if (lv_value > 3) {
+        lv_value = 3;
+    }
+    libHXT_gv_shrinkLevel[lp_player] = lv_value;
+    if (lv_value > 0) {
+        lv_chance = 1.0;
+        lv_i = 0;
+        while (lv_i < lv_value) {
+            lv_chance = (lv_chance * 0.9);
+            lv_i += 1;
+        }
+        CatalogFieldValueModify(c_gameCatalogBehavior, "TNX_missingdummy", "DamageResponse.Chance", lp_player, FixedToString((1.0 - lv_chance), 2), c_upgradeOperationSet);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// 单位 buff 挂载（与 LibE0EAE146_HexTalents 相同的排除规则）
+//--------------------------------------------------------------------------------------------------
+bool libHXT_gf_IsCasterUnit (string lp_unitType) {
+    if ((lp_unitType == "CoopCasterAbathur") || (lp_unitType == "CoopCasterAlarak") ||
+        (lp_unitType == "CoopCasterDehaka") || (lp_unitType == "CoopCasterFenix") ||
+        (lp_unitType == "CoopCasterHorner") || (lp_unitType == "CoopCasterKarax") ||
+        (lp_unitType == "CoopCasterKerrigan") || (lp_unitType == "CoopCasterMengsk") ||
+        (lp_unitType == "CoopCasterNova") || (lp_unitType == "CoopCasterRaynor") ||
+        (lp_unitType == "CoopCasterStetmann") || (lp_unitType == "CoopCasterStukov") ||
+        (lp_unitType == "CoopCasterSwann") || (lp_unitType == "CoopCasterTychus") ||
+        (lp_unitType == "CoopCasterVorazun") || (lp_unitType == "CoopCasterZagara") ||
+        (lp_unitType == "CoopCasterZeratul") || (lp_unitType == "SoACasterArtanis") ||
+        (lp_unitType == "SoACasterKarax") || (lp_unitType == "SoACasterFenix") ||
+        (lp_unitType == "SoACasterVorazun") || (lp_unitType == "CoopCasterZeratulSpecialization")) {
+        return true;
+    }
+    return false;
+}
+
+bool libHXT_gf_IsExcludedUnit (string lp_unitType) {
+    if ((lp_unitType == "InvisibleTargetDummy") || (lp_unitType == "DehakaCoopClone") ||
+        (lp_unitType == "EssencePickup") || (lp_unitType == "DNAPickup") ||
+        (lp_unitType == "BiomassPickup")) {
+        return true;
+    }
+    return false;
+}
+
+// 施法范围：对单位的非移动/攻击/停止/集结/变形类技能，按玩家目录把 Range 设为 基础值+加成。
+// 读取时用 player=0（基础目录值），因此对同一技能重复执行是幂等的（与源 mod 一致）。
+void libHXT_gf_ApplySpellRangeToUnit (unit lp_unit, int lp_player) {
+    int lv_i;
+    string lv_ability;
+    int lv_bonus;
+
+    lv_bonus = libHXT_gv_spellRangeBonus[lp_player];
+    if (lv_bonus <= 0) {
+        return;
+    }
+    lv_i = 1;
+    while (lv_i <= UnitAbilityCount(lp_unit)) {
+        lv_ability = UnitAbilityGet(lp_unit, lv_i);
+        if ((AbilityClass(lv_ability) != c_classIdCAbilMove) && (AbilityClass(lv_ability) != c_classIdCAbilAttack) &&
+            (AbilityClass(lv_ability) != c_classIdCAbilStop) && (AbilityClass(lv_ability) != c_classIdCAbilRally) &&
+            (AbilityClass(lv_ability) != c_classIdCAbilMorph)) {
+            CatalogFieldValueModify(c_gameCatalogAbil, lv_ability, ("Range[" + IntToString(0) + "]"), lp_player, IntToString((CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_ability, ("Range[" + IntToString(0) + "]"), 0) + lv_bonus)), c_upgradeOperationSet);
+            CatalogFieldValueModify(c_gameCatalogAbil, lv_ability, "AutoCastRange", lp_player, IntToString((CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_ability, "AutoCastRange", 0) + lv_bonus)), c_upgradeOperationSet);
+        }
+        lv_i += 1;
+    }
+}
+
+void libHXT_gf_ApplyBuffsToUnit (unit lp_unit, int lp_player) {
+    string lv_unitType;
+    fixed lv_scale;
+    int lv_i;
+
+    if ((libHXT_gv_hasBuffTalents[lp_player] == false) && (libHXT_gv_spellRangeBonus[lp_player] == 0) && (libHXT_gv_shrinkLevel[lp_player] == 0)) {
+        return;
+    }
+
+    lv_unitType = UnitGetType(lp_unit);
+    if (libHXT_gf_IsCasterUnit(lv_unitType) == true) {
+        return;
+    }
+    if (libHXT_gf_IsExcludedUnit(lv_unitType) == true) {
+        return;
+    }
+
+    if ((libHXT_gv_hasBuffTalents[lp_player] == true) && (UnitBehaviorCount(lp_unit, "TNX_Ability_total") == 0)) {
+        UnitBehaviorAddPlayer(lp_unit, "TNX_Ability_total", lp_player, 1);
+    }
+
+    if ((libHXT_gv_shrinkLevel[lp_player] > 0) && (UnitBehaviorCount(lp_unit, "TNX_missingdummy") == 0)) {
+        UnitBehaviorAddPlayer(lp_unit, "TNX_missingdummy", lp_player, 1);
+        lv_scale = 100.0;
+        lv_i = 0;
+        while (lv_i < libHXT_gv_shrinkLevel[lp_player]) {
+            lv_scale = (lv_scale * 0.9);
+            lv_i += 1;
+        }
+        UnitSetScale(lp_unit, lv_scale, lv_scale, lv_scale);
+    }
+
+    if (libHXT_gv_spellRangeBonus[lp_player] > 0) {
+        libHXT_gf_ApplySpellRangeToUnit(lp_unit, lp_player);
+    }
+}
+
+void libHXT_gf_ApplyToExistingUnits (int lp_player) {
+    unitgroup lv_group;
+    int lv_index;
+    unit lv_unit;
+
+    lv_group = UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_index = UnitGroupCount(lv_group, c_unitCountAll);
+    while (lv_index > 0) {
+        lv_unit = UnitGroupUnitFromEnd(lv_group, lv_index);
+        if (lv_unit != null) {
+            libHXT_gf_ApplyBuffsToUnit(lv_unit, lp_player);
+        }
+        lv_index -= 1;
+    }
+}
+
+bool libHXT_gt_UnitCreated_Func (bool testConds, bool runActions) {
+    unit lv_unit;
+    int lv_player;
+
+    lv_unit = EventUnit();
+    lv_player = UnitGetOwner(lv_unit);
+
+    if (testConds) {
+        if (!((PlayerStatus(lv_player) == c_playerStatusActive))) {
+            return false;
+        }
+        if (!((UnitIsAlive(lv_unit) == true))) {
+            return false;
+        }
+    }
+
+    if (!runActions) {
+        return true;
+    }
+
+    libHXT_gf_ApplyBuffsToUnit(lv_unit, lv_player);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+// 指挥官专属天赋（移植自 LibKPVP 各指挥官专属天赋函数，数值与源 mod 一致）
+//--------------------------------------------------------------------------------------------------
+void libHXT_gf_ApplyRaynorTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "TerranRaynor";
+    // 枪兵滚毒爆：陆战队员/劫掠者/火蝠/医疗兵 生命护甲 +2
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexRaynorInfantryArmor")) {
+        CatalogReferenceModify("Unit,Marine,LifeArmor", lp_player, "2", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,Marauder,LifeArmor", lp_player, "2", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,Firebat,LifeArmor", lp_player, "2", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,Medic,LifeArmor", lp_player, "2", c_upgradeOperationAdd);
+    }
+    // 好兄弟无穷无尽：机枪兵 20 矿、秃鹫 50 矿
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexRaynorCheapBio")) {
+        CatalogReferenceModify("Unit,Marine,CostResource[Minerals]", lp_player, "20", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,Vulture,CostResource[Minerals]", lp_player, "50", c_upgradeOperationSet);
+    }
+    // SCV升级：额外最多 4 个 SCV 可加入联合建造
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexRaynorBuilders")) {
+        TechTreeUpgradeAddLevel(lp_player, "TalentSmallCoopBuild", 1);
+    }
+    // 太阳拳：扫描/矿骡能量消耗减半
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexRaynorSolarPunch")) {
+        CatalogReferenceModify("Abil,ScannerSweep,Cost[0].Vital[Energy]", lp_player, "25", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,CalldownMULE,Cost[0].Vital[Energy]", lp_player, "25", c_upgradeOperationSet);
+    }
+    // 城市化拼图：攻城模式坦克可对空
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexRaynorTankAntiAir")) {
+        TechTreeUpgradeAddLevel(lp_player, "TalentTKAntiAir", 1);
+    }
+}
+
+void libHXT_gf_ApplySwannTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "TerranSwann";
+    // 飙车流：飓风护甲 6、移速 5
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexSwannCyclone")) {
+        CatalogReferenceModify("Unit,Cyclone,LifeArmor", lp_player, "6", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,Cyclone,Speed", lp_player, "5", c_upgradeOperationSet);
+    }
+    // 要塞能对空：飞行要塞双联加农炮可打空中（直接应用升级，替代源 mod 的研究入口）
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexSwannFortressAntiAir")) {
+        TechTreeUpgradeAddLevel(lp_player, "TNX_yaosai_atk_air", 1);
+    }
+    // 1470亿瓦：激光钻机普攻伤害提升
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexSwannDrill")) {
+        CatalogReferenceModify("Effect,LaserDrillTripodCoopFakeDamage,Amount", lp_player, "30", c_upgradeOperationAdd);
+        CatalogReferenceModify("Effect,LaserDrillTripodDamageCoop,Amount", lp_player, "3", c_upgradeOperationAdd);
+    }
+}
+
+void libHXT_gf_ApplyNovaTalents (int lp_player) {
+    string lv_cmd;
+    int lv_level;
+    int lv_i;
+
+    lv_cmd = "TerranNova";
+    // 核弹骑脸：核弹引导射程 20、CD 120
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexNovaNukeReady")) {
+        CatalogReferenceModify("Abil,NovaCoopCasterNuke,Range[0]", lp_player, "20", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,NovaCoopCasterNuke,Cost[0].Charge.TimeUse", lp_player, "120", c_upgradeOperationSet);
+    }
+    // 枪兵甩狗：机枪兵对轻甲 +24
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexNovaMarineLight")) {
+        CatalogReferenceModify("Effect,Marine_BlackOpsDamage,AttributeBonus[Light]", lp_player, "24", c_upgradeOperationSet);
+    }
+    // 隔山打牛：攻城坦克对重甲 +120
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexNovaTankArmored")) {
+        CatalogReferenceModify("Effect,SiegeTankSieged_BlackOpsDirected,AttributeBonus[Armored]", lp_player, "120", c_upgradeOperationSet);
+    }
+    // 快速空运：狮鹫空运 CD -30s、价格 +50/50（最多 3 层）
+    lv_level = libHXT_gf_TalentValue(lv_cmd, "HexNovaAirlift");
+    if (lv_level > 3) {
+        lv_level = 3;
+    }
+    lv_i = 0;
+    while (lv_i < lv_level) {
+        TechTreeUpgradeAddLevel(lp_player, "TNX_NovaAirlift", 1);
+        lv_i += 1;
+    }
+    // 超级量产化：兵营/重工/星港充能 5s、上限 1；若选择 P1 首建折扣威望则改为单位降价
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexNovaMassProduction")) {
+        if ((TechTreeUpgradeCount(lp_player, "CommanderPrestigeNovaBioBarracksFirst", c_techCountCompleteOnly) == 1)) {
+            TechTreeUpgradeAllow(lp_player, "CommanderPrestigeNovaBioBarracksFirst", false);
+            CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train1].Resource[Minerals]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train1].Resource[Minerals]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train2].Resource[Minerals]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train2].Resource[Minerals]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train2].Resource[Vespene]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train2].Resource[Vespene]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train3].Resource[Minerals]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train3].Resource[Minerals]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train3].Resource[Vespene]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train3].Resource[Vespene]", lp_player, "4", c_upgradeOperationDivide);
+        }
+        else if ((TechTreeUpgradeCount(lp_player, "CommanderPrestigeNovaBioFactoryFirst", c_techCountCompleteOnly) == 1)) {
+            TechTreeUpgradeAllow(lp_player, "CommanderPrestigeNovaBioFactoryFirst", false);
+            CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train1].Resource[Minerals]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train1].Resource[Minerals]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train1].Resource[Vespene]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train1].Resource[Vespene]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train2].Resource[Minerals]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train2].Resource[Minerals]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train2].Resource[Vespene]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train2].Resource[Vespene]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train3].Resource[Minerals]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train3].Resource[Minerals]", lp_player, "4", c_upgradeOperationDivide);
+        }
+        else if ((TechTreeUpgradeCount(lp_player, "CommanderPrestigeNovaBioStarportFirst", c_techCountCompleteOnly) == 1)) {
+            TechTreeUpgradeAllow(lp_player, "CommanderPrestigeNovaBioStarportFirst", false);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train1].Resource[Minerals]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train1].Resource[Minerals]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train1].Resource[Vespene]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train1].Resource[Vespene]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train2].Resource[Minerals]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train2].Resource[Minerals]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train2].Resource[Vespene]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train2].Resource[Vespene]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train3].Resource[Minerals]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train3].Resource[Minerals]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train3].Resource[Vespene]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train3].Resource[Vespene]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train4].Resource[Minerals]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train4].Resource[Minerals]", lp_player, "4", c_upgradeOperationDivide);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train4].Resource[Vespene]", lp_player, "3", c_upgradeOperationMultiply);
+            CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train4].Resource[Vespene]", lp_player, "4", c_upgradeOperationDivide);
+        }
+        CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train1].Charge.TimeUse", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train1].Charge.TimeStart", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train1].Charge.CountMax", lp_player, "1", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train2].Charge.TimeUse", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train2].Charge.TimeStart", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train2].Charge.CountMax", lp_player, "1", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train3].Charge.TimeUse", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train3].Charge.TimeStart", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,BarracksTrainNova,InfoArray[Train3].Charge.CountMax", lp_player, "1", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train1].Charge.TimeUse", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train1].Charge.TimeStart", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train1].Charge.CountMax", lp_player, "1", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train2].Charge.TimeUse", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train2].Charge.TimeStart", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train2].Charge.CountMax", lp_player, "1", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train3].Charge.TimeUse", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train3].Charge.TimeStart", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,FactoryTrainNova,InfoArray[Train3].Charge.CountMax", lp_player, "1", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train1].Charge.TimeUse", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train1].Charge.TimeStart", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train1].Charge.CountMax", lp_player, "1", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train2].Charge.TimeUse", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train2].Charge.TimeStart", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train2].Charge.CountMax", lp_player, "1", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train3].Charge.TimeUse", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train3].Charge.TimeStart", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train3].Charge.CountMax", lp_player, "1", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train4].Charge.TimeUse", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train4].Charge.TimeStart", lp_player, "5", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,StarportTrainNova,InfoArray[Train4].Charge.CountMax", lp_player, "1", c_upgradeOperationSet);
+    }
+}
+
+void libHXT_gf_ApplyHornerTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "TerranHorner";
+    // 佣兵头头：佣兵晶矿消耗下降
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexHornerCheapMercs")) {
+        CatalogReferenceModify("Unit,HHHellionTank,CostResource[Minerals]", lp_player, "60", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,HHHellion,CostResource[Minerals]", lp_player, "60", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,HHReaper,CostResource[Minerals]", lp_player, "30", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,HHWidowMine,CostResource[Minerals]", lp_player, "40", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,HHMercStarportUpgraded,CostResource[Minerals]", lp_player, "120", c_upgradeOperationSet);
+    }
+    // 高炮放平：导弹塔可攻击地面
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexHornerTurretGround")) {
+        TechTreeUpgradeAddLevel(lp_player, "TNX_HornerTurentattackground", 1);
+    }
+    // 泰伦快乐船：至尊大和 +300，维京/怨灵 +150
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexHornerHappyShips")) {
+        CatalogReferenceModify("Unit,HHBattlecruiser,LifeMax", lp_player, "300", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,HHBattlecruiser,LifeStart", lp_player, "300", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,HHVikingAssault,LifeMax", lp_player, "150", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,HHVikingAssault,LifeStart", lp_player, "150", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,HHVikingFighter,LifeMax", lp_player, "150", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,HHVikingFighter,LifeStart", lp_player, "150", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,HHWraith,LifeStart", lp_player, "150", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,HHWraith,LifeMax", lp_player, "150", c_upgradeOperationAdd);
+    }
+    // 收割者小宝贝：收割者落地可对空，武器 +15
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexHornerReaperAntiAir")) {
+        TechTreeUpgradeAddLevel(lp_player, "TalentReaperAntiAir", 1);
+    }
+    // 量产型帝国舰队：星港充能 5s、上限 1，单位 -20% 价格
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexHornerMassFleet")) {
+        TechTreeUpgradeAddLevel(lp_player, "TNX_Horner_MassProduct", 1);
+    }
+}
+
+void libHXT_gf_ApplyTychusTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "TerranTychus";
+    // 人多力量大：补给上限 +50，酒馆充能 +4
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexTychusMoreOutlaws")) {
+        PlayerAddChargeUsed(lp_player, "Abil/TychusTrain", -4.0);
+        PlayerModifyPropertyFixed(lp_player, c_playerPropSuppliesLimit, c_playerPropOperAdd, 50.0);
+        PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesMade, c_playerPropOperAdd, 50);
+    }
+}
+
+void libHXT_gf_ApplyMengskTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "TerranMengsk";
+    // 机械教：皇家机械卫队生命值提高
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexMengskMechs")) {
+        CatalogReferenceModify("Unit,BunkerDepotMengsk,LifeMax", lp_player, "800", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,BunkerDepotMengsk,LifeStart", lp_player, "800", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskGoliath,LifeMax", lp_player, "300", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskGoliath,LifeStart", lp_player, "300", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskThor,LifeMax", lp_player, "750", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskThor,LifeStart", lp_player, "750", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskHellion,LifeMax", lp_player, "200", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskHellion,LifeStart", lp_player, "200", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskBC,LifeMax", lp_player, "750", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskBC,LifeStart", lp_player, "750", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskDiamondback,LifeMax", lp_player, "400", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskDiamondback,LifeStart", lp_player, "400", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskVikingAssault,LifeMax", lp_player, "300", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskVikingAssault,LifeStart", lp_player, "300", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskVikingFighter,LifeMax", lp_player, "300", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,MengskVikingFighter,LifeStart", lp_player, "300", c_upgradeOperationSet);
+    }
+    // 地堡阵：地堡生命 800
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexMengskBunkers")) {
+        CatalogReferenceModify("Unit,BunkerDepotMengsk,LifeMax", lp_player, "800", c_upgradeOperationSet);
+        CatalogReferenceModify("Unit,BunkerDepotMengsk,LifeStart", lp_player, "800", c_upgradeOperationSet);
+    }
+}
+
+void libHXT_gf_ApplyKerriganTalents (int lp_player) {
+    string lv_cmd;
+    int lv_level;
+    int lv_i;
+
+    lv_cmd = "ZergKerrigan";
+    // 就是干：连锁攻击伤害不衰减（每段 30）
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexKerriganChainDamage")) {
+        CatalogReferenceModify("Effect,ChainReaction2Damage,Amount", lp_player, "30", c_upgradeOperationSet);
+        CatalogReferenceModify("Effect,ChainReaction3Damage,Amount", lp_player, "30", c_upgradeOperationSet);
+        CatalogReferenceModify("Effect,ChainReaction4Damage,Amount", lp_player, "30", c_upgradeOperationSet);
+        CatalogReferenceModify("Effect,ChainReaction5Damage,Amount", lp_player, "30", c_upgradeOperationSet);
+    }
+    // 怂：虫洞资源消耗 -25/25（最多 4 层）
+    lv_level = libHXT_gf_TalentValue(lv_cmd, "HexKerriganCheapNydus");
+    if (lv_level > 4) {
+        lv_level = 4;
+    }
+    lv_i = 0;
+    while (lv_i < lv_level) {
+        CatalogReferenceModify("Abil,BuildNydusCanal,InfoArray[Build1].Resource[Minerals]", lp_player, "25", c_upgradeOperationSubtract);
+        CatalogReferenceModify("Abil,BuildNydusCanal,InfoArray[Build1].Resource[Vespene]", lp_player, "25", c_upgradeOperationSubtract);
+        lv_i += 1;
+    }
+    // 坑道虫爆爆乐：坑道虫欧米茄死亡引发核爆
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexKerriganNydusNuke")) {
+        TechTreeUpgradeAddLevel(lp_player, "KerriganBomb", 1);
+    }
+}
+
+void libHXT_gf_ApplyZagaraTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "ZergZagara";
+    // 滚滚红尘+1：本体感染空投 CD 150
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexZagaraFastDrop")) {
+        CatalogReferenceModify("Abil,ZagaraVoidCoopMassRoachDrop,Cost[0].Cooldown.TimeUse", lp_player, "150", c_upgradeOperationSet);
+    }
+    // 声东击西：狂暴移速 1.5 倍
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexZagaraFrenzySpeed")) {
+        CatalogReferenceModify("Behavior,ZagaraVoidCoopMassFrenzyTarget,Modification.MoveSpeedMultiplier", lp_player, "1.5", c_upgradeOperationSet);
+    }
+    // 滚滚红尘：免费毒爆数量 +2
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexZagaraFreeBanelings")) {
+        CatalogReferenceModify("Abil,ZagaraVoidCoopBanelingSpawnerTrain,InfoArray[Train3].Charge.CountMax", lp_player, "2", c_upgradeOperationAdd);
+    }
+}
+
+void libHXT_gf_ApplyAbathurTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "ZergAbathur";
+    // 奶：面板治愈效果提升
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexAbathurMend")) {
+        CatalogReferenceModify("Effect,AbathurMendInitialHealer,RechargeVitalRate", lp_player, "300", c_upgradeOperationSet);
+    }
+    // 色：利维坦 +500 生命、+2 护甲
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexAbathurLeviathan")) {
+        CatalogReferenceModify("Unit,HotSLeviathan,LifeMax", lp_player, "500", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,HotSLeviathan,LifeArmor", lp_player, "2", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,HotSLeviathan,LifeStart", lp_player, "500", c_upgradeOperationAdd);
+    }
+}
+
+void libHXT_gf_ApplyStukovTalents (int lp_player) {
+    string lv_cmd;
+    int lv_level;
+    int lv_i;
+
+    lv_cmd = "ZergStukov";
+    // 草船借箭：被感染的平民生命 +80
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexStukovCivilians")) {
+        CatalogReferenceModify("Unit,SIInfestedCivilian,LifeMax", lp_player, "80", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,SIInfestedCivilian,LifeStart", lp_player, "80", c_upgradeOperationAdd);
+    }
+    // 隐形女妖屠龙：感染女妖对轻甲 +6
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexStukovBanshee")) {
+        CatalogReferenceModify("Effect,StukovInfestedBacklashRocketsDamage,AttributeBonus[Light]", lp_player, "6", c_upgradeOperationAdd);
+    }
+    // 末日维护者：限时单位强化；前 3 层同时把存在时间减半（A），之后仅数值强化（B）
+    lv_level = libHXT_gf_TalentValue(lv_cmd, "HexStukovTimedLife");
+    lv_i = 0;
+    while (lv_i < lv_level) {
+        if (TechTreeUpgradeCount(lp_player, "TalentStukovTimedLifeA", c_techCountCompleteOnly) <= 2) {
+            TechTreeUpgradeAddLevel(lp_player, "TalentStukovTimedLifeA", 1);
+        }
+        else {
+            TechTreeUpgradeAddLevel(lp_player, "TalentStukovTimedLifeB", 1);
+        }
+        lv_i += 1;
+    }
+}
+
+void libHXT_gf_ApplyDehakaTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "ZergDehaka";
+    // 正面更硬了：德哈卡/泽哈卡生命 +200
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexDehakaTougher")) {
+        CatalogReferenceModify("Unit,DehakaCoop,LifeMax", lp_player, "200", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,DehakaCoop,LifeStart", lp_player, "200", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,DehakaCoopClone,LifeMax", lp_player, "200", c_upgradeOperationAdd);
+    }
+    // 进攻更强了：德哈卡/泽哈卡攻击力 +15
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexDehakaStronger")) {
+        CatalogReferenceModify("Effect,DehakaCoop,Amount", lp_player, "15", c_upgradeOperationAdd);
+    }
+}
+
+void libHXT_gf_ApplyStetmannTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "ZergStetmann";
+    // 卫星点灯：艾星矿物消耗 -25
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexStetmannCheapSatellite")) {
+        CatalogReferenceModify("Abil,DeployPowerTowerStetmann,InfoArray[Build1].Resource[Minerals]", lp_player, "25", c_upgradeOperationSubtract);
+        if ((CatalogFieldValueGetAsInt(c_gameCatalogAbil, "DeployPowerTowerStetmann", ("Cost[" + IntToString(0) + "].Resource[" + IntToString(0) + "]"), lp_player) <= 0)) {
+            CatalogReferenceModify("Abil,DeployPowerTowerStetmann,InfoArray[Build1].Resource[Minerals]", lp_player, "0", c_upgradeOperationSet);
+        }
+    }
+    // 爆虫领主：机械巢式战列空母改射机械爆虫
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexStetmannBanelingLord")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("BroodLordStetmannBroodlingEscortArmAugment", 0), false);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("BroodLordStetmannBroodlingEscortArm", 0), false);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("ZerglingStetmannRespawn", 0), false);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("BroodLordHangarStetmann", 1), true);
+        TechTreeUpgradeAddLevel(lp_player, "TalentStetmannBanelingLord", 1);
+    }
+    // "艾"无限：艾星费用/充能翻倍，任意威望可变形超级盖瑞，能量场无限
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexStetmannInfiniteGary")) {
+        TechTreeUpgradeAddLevel(lp_player, "TNX_AinoGary", 1);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("MorphToSuperGaryStetmann", 0), true);
+    }
+}
+
+void libHXT_gf_ApplyArtanisTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "ProtossArtanis";
+    // 不朽爸爸：不朽屏障吸收 +100
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexArtanisImmortalDad")) {
+        CatalogReferenceModify("Behavior,ImmortalBarrierBase,DamageResponse.ModifyLimit", lp_player, "100", c_upgradeOperationAdd);
+    }
+    // 电中做自己：灵能风暴能量消耗 -25
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexArtanisCheapStorm")) {
+        CatalogReferenceModify("Abil,PsiStorm,Cost[0].Vital[Energy]", lp_player, "25", c_upgradeOperationSubtract);
+        CatalogReferenceModify("Abil,PsiStormArchon,Cost[0].Vital[Energy]", lp_player, "25", c_upgradeOperationSubtract);
+    }
+    // 春哥盾：守护之壳无敌时间 +1s
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexArtanisGuardianShell")) {
+        CatalogReferenceModify("Behavior,SOAHeroicShieldImmunity,Duration", lp_player, "1", c_upgradeOperationAdd);
+    }
+}
+
+void libHXT_gf_ApplyAlarakTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "ProtossAlarak";
+    // B格第一人：阿拉纳克 +100 生命、死徒 +50 生命
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexAlarakTough")) {
+        CatalogReferenceModify("Unit,AlarakCoop,LifeMax", lp_player, "100", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,AlarakCoop,LifeStart", lp_player, "100", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,Supplicant,LifeMax", lp_player, "50", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,Supplicant,LifeStart", lp_player, "50", c_upgradeOperationAdd);
+    }
+    // 机械供奉：先锋/天罚行者/追猎者/浩劫强化
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexAlarakMechs")) {
+        CatalogReferenceModify("Effect,ImmortalTaldarimWeaponDamage,AttributeBonus[Armored]", lp_player, "10", c_upgradeOperationAdd);
+        CatalogReferenceModify("Effect,ImmortalTaldarimWeaponDamage,AttributeBonus[Heroic]", lp_player, "10", c_upgradeOperationAdd);
+        CatalogReferenceModify("Effect,ColossusTaldarimDamage,AttributeBonus[Structure]", lp_player, "75", c_upgradeOperationAdd);
+        CatalogReferenceModify("Effect,ColossusTaldarimDamage,AttributeBonus[Heroic]", lp_player, "75", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,Stalker,LifeMax", lp_player, "100", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,Stalker,LifeStart", lp_player, "100", c_upgradeOperationAdd);
+        CatalogReferenceModify("Unit,Monitor,CostResource[Vespene]", lp_player, "25", c_upgradeOperationSubtract);
+    }
+    // 化骨绵掌：湮灭波基础 +25、对轻甲额外 +50
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexAlarakWave")) {
+        CatalogReferenceModify("Effect,DestructionWaveDamage,AttributeBonus[Light]", lp_player, "50", c_upgradeOperationAdd);
+        CatalogReferenceModify("Effect,DestructionWaveDamage,Amount", lp_player, "25", c_upgradeOperationAdd);
+    }
+    // 终极恐惧：心灵爆裂 +500 伤害、射程 +5
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexAlarakUltimateFear")) {
+        TechTreeUpgradeAddLevel(lp_player, "142Alarak", 1);
+    }
+    // 停不下来的坚果：供奉我持续时间无限、范围 +100%
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexAlarakEndlessNut")) {
+        TechTreeUpgradeAddLevel(lp_player, "TNX_UnstoppableAlarak", 1);
+    }
+}
+
+void libHXT_gf_ApplyKaraxTalents (int lp_player) {
+    string lv_cmd;
+    int lv_level;
+    int lv_i;
+
+    lv_cmd = "ProtossKarax";
+    // 巨像能对空：启用净化者巨像对空武器（直接应用升级，替代源 mod 的研究入口）
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexKaraxColossusAir")) {
+        TechTreeUpgradeAddLevel(lp_player, "TNX_colossus_atk_air", 1);
+    }
+    // 随心所欲：时空涌动 CD -60、消耗 +250/250（最多 4 层）
+    lv_level = libHXT_gf_TalentValue(lv_cmd, "HexKaraxFreeChrono");
+    if (lv_level > 4) {
+        lv_level = 4;
+    }
+    lv_i = 0;
+    while (lv_i < lv_level) {
+        CatalogReferenceModify("Abil,SOAMapWideChrono,Cost[0].Cooldown.TimeUse", lp_player, "60", c_upgradeOperationSubtract);
+        CatalogReferenceModify("Abil,SOAMapWideChrono,Cost[0].Resource[Minerals]", lp_player, "250", c_upgradeOperationAdd);
+        CatalogReferenceModify("Abil,SOAMapWideChrono,Cost[0].Resource[Vespene]", lp_player, "250", c_upgradeOperationAdd);
+        lv_i += 1;
+    }
+}
+
+void libHXT_gf_ApplyFenixTalents (int lp_player) {
+    string lv_cmd;
+
+    lv_cmd = "ProtossFenix";
+    // 近战增强：菲尼克斯（地面模式）护盾护甲 +5
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexFenixMelee")) {
+        CatalogReferenceModify("Unit,FenixCoop,ShieldArmor", lp_player, "5", c_upgradeOperationAdd);
+    }
+    // 远程增强：龙骑模式武器超载不再消耗资源
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexFenixDragoon")) {
+        CatalogReferenceModify("Abil,FenixDragoonArsenalOvercharge,Cost[0].Resource[Minerals]", lp_player, "0", c_upgradeOperationSet);
+        CatalogReferenceModify("Abil,FenixDragoonArsenalOvercharge,Cost[0].Resource[Vespene]", lp_player, "0", c_upgradeOperationSet);
+    }
+    // 法术增强：仲裁者武器基础 +25，对英雄/建筑/召唤额外 +25
+    if (libHXT_gf_TalentEnabled(lv_cmd, "HexFenixArbiter")) {
+        CatalogReferenceModify("Effect,FenixArbiterWeaponDamage,Amount", lp_player, "25", c_upgradeOperationAdd);
+        CatalogReferenceModify("Effect,FenixArbiterWeaponDamage,AttributeBonus[Heroic]", lp_player, "25", c_upgradeOperationAdd);
+        CatalogReferenceModify("Effect,FenixArbiterWeaponDamage,AttributeBonus[Structure]", lp_player, "25", c_upgradeOperationAdd);
+        CatalogReferenceModify("Effect,FenixArbiterWeaponDamage,AttributeBonus[Summoned]", lp_player, "25", c_upgradeOperationAdd);
+    }
+}
+
+void libHXT_gf_ApplyVorazunTalents (int lp_player) {
+    string lv_cmd;
+    int lv_level;
+    int lv_i;
+
+    lv_cmd = "ProtossVorazun";
+    // 万叉奔腾：百夫长黑暗冲锋 CD -2s（最多 2 层）
+    lv_level = libHXT_gf_TalentValue(lv_cmd, "HexVorazunCharge");
+    if (lv_level > 2) {
+        lv_level = 2;
+    }
+    lv_i = 0;
+    while (lv_i < lv_level) {
+        CatalogReferenceModify("Abil,ShadowCharge,Cost.Cooldown.TimeUse", lp_player, "2", c_upgradeOperationSubtract);
+        lv_i += 1;
+    }
+}
+
+void libHXT_gf_ApplyZeratulTalents (int lp_player) {
+    string lv_cmd;
+    int lv_level;
+    int lv_i;
+
+    lv_cmd = "ProtossZeratul";
+    // 传奇军团：召唤传奇军团资源 -400（最多 2 层）
+    lv_level = libHXT_gf_TalentValue(lv_cmd, "HexZeratulLegions");
+    if (lv_level > 2) {
+        lv_level = 2;
+    }
+    lv_i = 0;
+    while (lv_i < lv_level) {
+        CatalogReferenceModify("Abil,ZeratulTopBarWarpTrain,InfoArray[Train3].Resource[Minerals]", lp_player, "400", c_upgradeOperationSubtract);
+        CatalogReferenceModify("Abil,ZeratulTopBarWarpTrain,InfoArray[Train2].Resource[Minerals]", lp_player, "400", c_upgradeOperationSubtract);
+        CatalogReferenceModify("Abil,ZeratulTopBarWarpTrain,InfoArray[Train1].Resource[Minerals]", lp_player, "400", c_upgradeOperationSubtract);
+        lv_i += 1;
+    }
+}
+
+void libHXT_gf_ApplyCommanderTalents (int lp_player, string lp_commander) {
+    if (lp_commander == "TerranRaynor") {
+        libHXT_gf_ApplyRaynorTalents(lp_player);
+    }
+    else if (lp_commander == "TerranSwann") {
+        libHXT_gf_ApplySwannTalents(lp_player);
+    }
+    else if (lp_commander == "TerranNova") {
+        libHXT_gf_ApplyNovaTalents(lp_player);
+    }
+    else if (lp_commander == "TerranHorner") {
+        libHXT_gf_ApplyHornerTalents(lp_player);
+    }
+    else if (lp_commander == "TerranTychus") {
+        libHXT_gf_ApplyTychusTalents(lp_player);
+    }
+    else if (lp_commander == "TerranMengsk") {
+        libHXT_gf_ApplyMengskTalents(lp_player);
+    }
+    else if (lp_commander == "ZergKerrigan") {
+        libHXT_gf_ApplyKerriganTalents(lp_player);
+    }
+    else if (lp_commander == "ZergZagara") {
+        libHXT_gf_ApplyZagaraTalents(lp_player);
+    }
+    else if (lp_commander == "ZergAbathur") {
+        libHXT_gf_ApplyAbathurTalents(lp_player);
+    }
+    else if (lp_commander == "ZergStukov") {
+        libHXT_gf_ApplyStukovTalents(lp_player);
+    }
+    else if (lp_commander == "ZergDehaka") {
+        libHXT_gf_ApplyDehakaTalents(lp_player);
+    }
+    else if (lp_commander == "ZergStetmann") {
+        libHXT_gf_ApplyStetmannTalents(lp_player);
+    }
+    else if (lp_commander == "ProtossArtanis") {
+        libHXT_gf_ApplyArtanisTalents(lp_player);
+    }
+    else if (lp_commander == "ProtossAlarak") {
+        libHXT_gf_ApplyAlarakTalents(lp_player);
+    }
+    else if (lp_commander == "ProtossKarax") {
+        libHXT_gf_ApplyKaraxTalents(lp_player);
+    }
+    else if (lp_commander == "ProtossFenix") {
+        libHXT_gf_ApplyFenixTalents(lp_player);
+    }
+    else if (lp_commander == "ProtossVorazun") {
+        libHXT_gf_ApplyVorazunTalents(lp_player);
+    }
+    else if (lp_commander == "ProtossZeratul") {
+        libHXT_gf_ApplyZeratulTalents(lp_player);
+    }
+    // 其余指挥官（Izsha/RaynorX/AbathurReborn/TestZerg/Alenger3 等）暂无专属海克斯天赋
+}
+
+//--------------------------------------------------------------------------------------------------
+// 初始化入口
+//--------------------------------------------------------------------------------------------------
+void libHXT_InitHexTalents () {
+    int lv_player;
+    string lv_commander;
+
+    if (libHXT_gv_initialized == true) {
+        return;
+    }
+    libHXT_gv_initialized = true;
+
+    libHXT_gv_bank = BankLoad("CampaignXCore", 1);
+
+    libHXT_gt_UnitCreated = TriggerCreate("libHXT_gt_UnitCreated_Func");
+    TriggerAddEventUnitCreated(libHXT_gt_UnitCreated, null, null, null);
+
+    lv_player = 1;
+    while (lv_player <= libHXT_c_maxPlayers) {
+        libHXT_gv_commander[lv_player] = "";
+        libHXT_gv_hasBuffTalents[lv_player] = false;
+        libHXT_gv_spellRangeBonus[lv_player] = 0;
+        libHXT_gv_shrinkLevel[lv_player] = 0;
+        if ((PlayerStatus(lv_player) == c_playerStatusActive) && (PlayerType(lv_player) == c_playerTypeUser)) {
+            lv_commander = libHXT_gf_CommanderForPlayer(lv_player);
+            libHXT_gv_commander[lv_player] = lv_commander;
+            libHXT_gf_ApplyCommonTalents(lv_player);
+            libHXT_gf_ApplyCommanderTalents(lv_player, lv_commander);
+            libHXT_gf_ApplyToExistingUnits(lv_player);
+        }
+        lv_player += 1;
+    }
+}
+
+void libHXT_InitLib () {
+    libHXT_InitHexTalents();
+}

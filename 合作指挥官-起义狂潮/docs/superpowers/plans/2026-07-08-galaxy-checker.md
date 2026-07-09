@@ -47,7 +47,7 @@
 - Create: `scripts/galaxy-checker/tsconfig.json`
 - Create: `scripts/galaxy-checker/.gitignore`
 
-- [ ] **Step 1: 创建 `package.json`**
+- [x] **Step 1: 创建 `package.json`**
 
 ```json
 {
@@ -75,7 +75,7 @@
 }
 ```
 
-- [ ] **Step 2: 创建 `tsconfig.json`**
+- [x] **Step 2: 创建 `tsconfig.json`**
 
 ```json
 {
@@ -100,7 +100,7 @@
 }
 ```
 
-- [ ] **Step 3: 创建 `.gitignore`**
+- [x] **Step 3: 创建 `.gitignore`**
 
 ```
 node_modules/
@@ -108,17 +108,17 @@ dist/
 *.log
 ```
 
-- [ ] **Step 4: 安装依赖**
+- [x] **Step 4: 安装依赖**
 
 Run: `cd scripts/galaxy-checker && npm install`
 Expected: node_modules 创建成功，无错误
 
-- [ ] **Step 5: 验证 TypeScript 可用**
+- [x] **Step 5: 验证 TypeScript 可用**
 
 Run: `cd scripts/galaxy-checker && npx tsc --version`
 Expected: 显示 TypeScript 版本号
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add package.json tsconfig.json .gitignore
@@ -133,7 +133,7 @@ git commit -m "feat(galaxy-checker): 初始化项目脚手架"
 - Create: `scripts/galaxy-checker/src/types.ts`
 - Test: `scripts/galaxy-checker/tests/types.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/types.test.ts`**
+- [x] **Step 1: 写测试 `tests/types.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -163,12 +163,12 @@ describe('types', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败（找不到模块）**
+- [x] **Step 2: 运行测试，确认失败（找不到模块）**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/types.test.ts`
 Expected: FAIL，错误为找不到 `../src/types.js`
 
-- [ ] **Step 3: 实现 `src/types.ts`**
+- [x] **Step 3: 实现 `src/types.ts`**
 
 ```typescript
 // src/types.ts
@@ -217,12 +217,12 @@ export interface FunctionSignature {
 }
 ```
 
-- [ ] **Step 4: 运行测试，确认通过**
+- [x] **Step 4: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/types.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/types.ts tests/types.test.ts
@@ -237,7 +237,7 @@ git commit -m "feat(galaxy-checker): 添加共享类型定义"
 - Create: `scripts/galaxy-checker/src/lexer/tokens.ts`
 - Test: `scripts/galaxy-checker/tests/lexer.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/lexer.test.ts`**
+- [x] **Step 1: 写测试 `tests/lexer.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -302,12 +302,12 @@ describe('Lexer', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [x] **Step 2: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/lexer.test.ts`
 Expected: FAIL，找不到 `../src/lexer/tokens.js`
 
-- [ ] **Step 3: 实现 `src/lexer/tokens.ts`**
+- [x] **Step 3: 实现 `src/lexer/tokens.ts`**
 
 ```typescript
 // src/lexer/tokens.ts
@@ -462,12 +462,12 @@ export {
 };
 ```
 
-- [ ] **Step 4: 运行测试，确认通过**
+- [x] **Step 4: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/lexer.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/lexer/tokens.ts tests/lexer.test.ts
@@ -481,7 +481,7 @@ git commit -m "feat(galaxy-checker): 实现 Lexer token 定义"
 **Files:**
 - Create: `scripts/galaxy-checker/src/parser/ast.ts`
 
-- [ ] **Step 1: 实现 `src/parser/ast.ts`**
+- [x] **Step 1: 实现 `src/parser/ast.ts`**
 
 ```typescript
 // src/parser/ast.ts
@@ -681,12 +681,12 @@ export interface ConditionalExpression extends Node {
 }
 ```
 
-- [ ] **Step 2: 验证编译通过**
+- [x] **Step 2: 验证编译通过**
 
 Run: `cd scripts/galaxy-checker && npx tsc --noEmit`
 Expected: 无错误
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/parser/ast.ts
@@ -701,7 +701,7 @@ git commit -m "feat(galaxy-checker): 定义 AST 节点类型"
 - Create: `scripts/galaxy-checker/src/parser/GalaxyParser.ts`
 - Test: `scripts/galaxy-checker/tests/parser-declarations.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/parser-declarations.test.ts`**
+- [x] **Step 1: 写测试 `tests/parser-declarations.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -781,12 +781,12 @@ describe('Parser - 基础声明', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [x] **Step 2: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/parser-declarations.test.ts`
 Expected: FAIL，找不到 `../src/parser/index.js`
 
-- [ ] **Step 3: 实现 `src/parser/GalaxyParser.ts`**
+- [x] **Step 3: 实现 `src/parser/GalaxyParser.ts`**
 
 ```typescript
 // src/parser/GalaxyParser.ts
@@ -1439,7 +1439,7 @@ export function getParser(): GalaxyParser {
 }
 ```
 
-- [ ] **Step 4: 实现 `src/parser/index.ts`（公共入口）**
+- [x] **Step 4: 实现 `src/parser/index.ts`（公共入口）**
 
 ```typescript
 // src/parser/index.ts
@@ -1485,12 +1485,12 @@ export function parse(source: string, filename: string = '<inline>'): ParseResul
 }
 ```
 
-- [ ] **Step 5: 运行测试，确认通过**
+- [x] **Step 5: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/parser-declarations.test.ts`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/parser/GalaxyParser.ts src/parser/index.ts tests/parser-declarations.test.ts
@@ -1505,7 +1505,7 @@ git commit -m "feat(galaxy-checker): 实现基础 Parser（include/function/var�
 - Modify: `scripts/galaxy-checker/src/parser/GalaxyParser.ts`
 - Test: `scripts/galaxy-checker/tests/parser-control-flow.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/parser-control-flow.test.ts`**
+- [x] **Step 1: 写测试 `tests/parser-control-flow.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -1559,12 +1559,12 @@ describe('Parser - 控制流', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认部分失败（continue 在 statement 里没列出）**
+- [x] **Step 2: 运行测试，确认部分失败（continue 在 statement 里没列出）**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/parser-control-flow.test.ts`
 Expected: continue 测试 FAIL
 
-- [ ] **Step 3: 修改 `GalaxyParser.ts` 的 statement 规则，添加 continue**
+- [x] **Step 3: 修改 `GalaxyParser.ts` 的 statement 规则，添加 continue**
 
 在 `statement` 规则的 OR 选项里加：
 
@@ -1594,12 +1594,12 @@ private breakStatement = this.RULE('breakStatement', () => {
 
 把 statement 中的 `this.CONSUME(tok.Break)` 换成 `this.SUBRULE(this.breakStatement)`。
 
-- [ ] **Step 4: 运行测试，确认全部通过**
+- [x] **Step 4: 运行测试，确认全部通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/parser-control-flow.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/parser/GalaxyParser.ts tests/parser-control-flow.test.ts
@@ -1615,7 +1615,7 @@ git commit -m "feat(galaxy-checker): 支持 continue/break 与完整控制流语
 - Create: `scripts/galaxy-checker/data/project-rules.json`
 - Test: `scripts/galaxy-checker/tests/rule-engine.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/rule-engine.test.ts`**
+- [x] **Step 1: 写测试 `tests/rule-engine.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -1648,12 +1648,12 @@ describe('RuleEngine', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [x] **Step 2: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/rule-engine.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: 创建 `data/project-rules.json`**
+- [x] **Step 3: 创建 `data/project-rules.json`**
 
 ```json
 {
@@ -1686,7 +1686,7 @@ Expected: FAIL
 }
 ```
 
-- [ ] **Step 4: 实现 `src/analyzer/RuleEngine.ts`**
+- [x] **Step 4: 实现 `src/analyzer/RuleEngine.ts`**
 
 ```typescript
 // src/analyzer/RuleEngine.ts
@@ -1787,12 +1787,12 @@ export class RuleEngine {
 }
 ```
 
-- [ ] **Step 5: 运行测试，确认通过**
+- [x] **Step 5: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/rule-engine.test.ts`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/analyzer/RuleEngine.ts data/project-rules.json tests/rule-engine.test.ts
@@ -1807,7 +1807,7 @@ git commit -m "feat(galaxy-checker): 实现规则引擎与 JSON 配置加载"
 - Modify: `scripts/galaxy-checker/src/analyzer/RuleEngine.ts`
 - Test: `scripts/galaxy-checker/tests/rules-syntax.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/rules-syntax.test.ts`**
+- [x] **Step 1: 写测试 `tests/rules-syntax.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -1845,12 +1845,12 @@ describe('语法规则', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [x] **Step 2: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/rules-syntax.test.ts`
 Expected: FAIL，`checkRules` 不存在
 
-- [ ] **Step 3: 在 `RuleEngine.ts` 添加 `checkRules` 函数（走 parse + 遍历 AST）**
+- [x] **Step 3: 在 `RuleEngine.ts` 添加 `checkRules` 函数（走 parse + 遍历 AST）**
 
 在文件末尾追加：
 
@@ -1917,12 +1917,12 @@ function walk(node: Node, cb: (n: Node, parent: Node | null) => void, parent: No
 }
 ```
 
-- [ ] **Step 4: 运行测试，确认通过**
+- [x] **Step 4: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/rules-syntax.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/analyzer/RuleEngine.ts tests/rules-syntax.test.ts
@@ -1937,7 +1937,7 @@ git commit -m "feat(galaxy-checker): 实现 SYNTAX_NO_CONTINUE / NO_LOCAL_INIT_A
 - Create: `scripts/galaxy-checker/src/reporter/IssueReporter.ts`
 - Test: `scripts/galaxy-checker/tests/reporter.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/reporter.test.ts`**
+- [x] **Step 1: 写测试 `tests/reporter.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -1989,12 +1989,12 @@ describe('IssueReporter', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [x] **Step 2: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/reporter.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: 实现 `src/reporter/IssueReporter.ts`**
+- [x] **Step 3: 实现 `src/reporter/IssueReporter.ts`**
 
 ```typescript
 // src/reporter/IssueReporter.ts
@@ -2042,12 +2042,12 @@ export class IssueReporter {
 }
 ```
 
-- [ ] **Step 4: 运行测试，确认通过**
+- [x] **Step 4: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/reporter.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/reporter/IssueReporter.ts tests/reporter.test.ts
@@ -2063,7 +2063,7 @@ git commit -m "feat(galaxy-checker): 实现 IssueReporter（JSON/text 输出）"
 - Create: `scripts/galaxy-checker/src/cli.mjs`
 - Test: `scripts/galaxy-checker/tests/cli.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/cli.test.ts`**
+- [x] **Step 1: 写测试 `tests/cli.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -2098,14 +2098,14 @@ describe('check API', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [x] **Step 2: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/cli.test.ts`
 Expected: FAIL（注意上面 test 故意写错了一处 `'it'检查'`，先用错误的，验证 fail）
 
 修正测试里 `it'检查干净文件无报错'` → `it('检查干净文件无报错'`，再运行一次确认失败原因是 `check` 不存在。
 
-- [ ] **Step 3: 实现 `src/index.ts`**
+- [x] **Step 3: 实现 `src/index.ts`**
 
 ```typescript
 // src/index.ts
@@ -2190,7 +2190,7 @@ function stripBom(s: string): string {
 }
 ```
 
-- [ ] **Step 4: 实现 `src/cli.mjs`**
+- [x] **Step 4: 实现 `src/cli.mjs`**
 
 ```javascript
 #!/usr/bin/env node
@@ -2228,12 +2228,12 @@ try {
 }
 ```
 
-- [ ] **Step 5: 运行测试，确认通过**
+- [x] **Step 5: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/cli.test.ts`
 Expected: PASS
 
-- [ ] **Step 6: 端到端 CLI 测试**
+- [x] **Step 6: 端到端 CLI 测试**
 
 Run: `cd scripts/galaxy-checker && node dist/cli.mjs ../old/validate-galaxy-scripts.py --format text`
 （先 build 再跑）
@@ -2242,7 +2242,7 @@ cd scripts/galaxy-checker && npx tsc && node dist/cli.mjs <某个 Lib*.galaxy �
 ```
 Expected: 输出 JSON 或文本，exit code 反映是否有 error
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/index.ts src/cli.mjs tests/cli.test.ts
@@ -2259,7 +2259,7 @@ git commit -m "feat(galaxy-checker): 实现 check API 与 CLI 入口"
 - Create: `scripts/galaxy-checker/src/analyzer/SymbolTable.ts`
 - Test: `scripts/galaxy-checker/tests/symbol-table.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/symbol-table.test.ts`**
+- [x] **Step 1: 写测试 `tests/symbol-table.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -2301,12 +2301,12 @@ describe('SymbolTable', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [x] **Step 2: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/symbol-table.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: 实现 `src/analyzer/SymbolTable.ts`**
+- [x] **Step 3: 实现 `src/analyzer/SymbolTable.ts`**
 
 ```typescript
 // src/analyzer/SymbolTable.ts
@@ -2385,12 +2385,12 @@ export class SymbolTable {
 }
 ```
 
-- [ ] **Step 4: 运行测试，确认通过**
+- [x] **Step 4: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/symbol-table.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/analyzer/SymbolTable.ts tests/symbol-table.test.ts
@@ -2405,7 +2405,7 @@ git commit -m "feat(galaxy-checker): 实现作用域符号表"
 - Create: `scripts/galaxy-checker/src/analyzer/SemanticAnalyzer.ts`
 - Test: `scripts/galaxy-checker/tests/semantic-undeclared.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/semantic-undeclared.test.ts`**
+- [x] **Step 1: 写测试 `tests/semantic-undeclared.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -2444,12 +2444,12 @@ describe('SemanticAnalyzer - 未声明检查', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [x] **Step 2: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/semantic-undeclared.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: 实现 `src/analyzer/SemanticAnalyzer.ts`**
+- [x] **Step 3: 实现 `src/analyzer/SemanticAnalyzer.ts`**
 
 ```typescript
 // src/analyzer/SemanticAnalyzer.ts
@@ -2669,12 +2669,12 @@ function checkVoidInCondition(
 }
 ```
 
-- [ ] **Step 4: 运行测试，确认通过**
+- [x] **Step 4: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/semantic-undeclared.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/analyzer/SemanticAnalyzer.ts tests/semantic-undeclared.test.ts
@@ -2690,7 +2690,7 @@ git commit -m "feat(galaxy-checker): 实现未声明变量/函数与 void-in-con
 - Modify: `scripts/galaxy-checker/data/project-rules.json`
 - Test: `scripts/galaxy-checker/tests/semantic-args.test.ts`
 
-- [ ] **Step 1: 在 `project-rules.json` 加规则**
+- [x] **Step 1: 在 `project-rules.json` 加规则**
 
 ```json
 "SEM_ARGUMENT_COUNT_MISMATCH": {
@@ -2699,7 +2699,7 @@ git commit -m "feat(galaxy-checker): 实现未声明变量/函数与 void-in-con
 }
 ```
 
-- [ ] **Step 2: 写测试 `tests/semantic-args.test.ts`**
+- [x] **Step 2: 写测试 `tests/semantic-args.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -2728,12 +2728,12 @@ describe('SemanticAnalyzer - 参数数量', () => {
 });
 ```
 
-- [ ] **Step 3: 运行测试，确认失败**
+- [x] **Step 3: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/semantic-args.test.ts`
 Expected: FAIL
 
-- [ ] **Step 4: 在 `SemanticAnalyzer.ts` 的 CallExpression 分支加参数数量检查**
+- [x] **Step 4: 在 `SemanticAnalyzer.ts` 的 CallExpression 分支加参数数量检查**
 
 修改 `checkExpression` 的 `CallExpression` 分支，在函数已声明时加：
 
@@ -2755,12 +2755,12 @@ if (fn) {
 }
 ```
 
-- [ ] **Step 5: 运行测试，确认通过**
+- [x] **Step 5: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/semantic-args.test.ts`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/analyzer/SemanticAnalyzer.ts data/project-rules.json tests/semantic-args.test.ts
@@ -2776,7 +2776,7 @@ git commit -m "feat(galaxy-checker): 实现 SEM_ARGUMENT_COUNT_MISMATCH 检查"
 - Modify: `scripts/galaxy-checker/data/project-rules.json`
 - Test: `scripts/galaxy-checker/tests/semantic-duplicate.test.ts`
 
-- [ ] **Step 1: 在 `project-rules.json` 加规则**
+- [x] **Step 1: 在 `project-rules.json` 加规则**
 
 ```json
 "SEM_DUPLICATE_DECLARATION": {
@@ -2785,7 +2785,7 @@ git commit -m "feat(galaxy-checker): 实现 SEM_ARGUMENT_COUNT_MISMATCH 检查"
 }
 ```
 
-- [ ] **Step 2: 写测试 `tests/semantic-duplicate.test.ts`**
+- [x] **Step 2: 写测试 `tests/semantic-duplicate.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -2814,12 +2814,12 @@ describe('SemanticAnalyzer - 重复声明', () => {
 });
 ```
 
-- [ ] **Step 3: 运行测试，确认失败**
+- [x] **Step 3: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/semantic-duplicate.test.ts`
 Expected: FAIL
 
-- [ ] **Step 4: 修改 `SymbolTable.ts` 与 `SemanticAnalyzer.ts` 让重复声明产生 Issue 而非抛异常**
+- [x] **Step 4: 修改 `SymbolTable.ts` 与 `SemanticAnalyzer.ts` 让重复声明产生 Issue 而非抛异常**
 
 修改 `SymbolTable.ts` 的 `declareVariable` / `declareFunction`：
 
@@ -2856,17 +2856,17 @@ case 'FunctionDeclaration':
 
 （注意：需要把 `engine`/`filename`/`issues` 传进 `collectTopLevel`，调整签名）
 
-- [ ] **Step 5: 运行测试，确认通过**
+- [x] **Step 5: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/semantic-duplicate.test.ts`
 Expected: PASS
 
-- [ ] **Step 6: 运行全部测试，确保未破坏其他用例**
+- [x] **Step 6: 运行全部测试，确保未破坏其他用例**
 
 Run: `cd scripts/galaxy-checker && npx vitest run`
 Expected: 全部 PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/analyzer/SemanticAnalyzer.ts src/analyzer/SymbolTable.ts data/project-rules.json tests/semantic-duplicate.test.ts
@@ -2882,7 +2882,7 @@ git commit -m "feat(galaxy-checker): 实现 SEM_DUPLICATE_DECLARATION 检查"
 - Modify: `scripts/galaxy-checker/data/project-rules.json`
 - Test: `scripts/galaxy-checker/tests/semantic-types.test.ts`
 
-- [ ] **Step 1: 在 `project-rules.json` 加规则**
+- [x] **Step 1: 在 `project-rules.json` 加规则**
 
 ```json
 "SEM_RETURN_TYPE_MISMATCH": {
@@ -2895,7 +2895,7 @@ git commit -m "feat(galaxy-checker): 实现 SEM_DUPLICATE_DECLARATION 检查"
 }
 ```
 
-- [ ] **Step 2: 写测试 `tests/semantic-types.test.ts`**
+- [x] **Step 2: 写测试 `tests/semantic-types.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -2919,7 +2919,7 @@ describe('SemanticAnalyzer - 类型检查', () => {
 });
 ```
 
-- [ ] **Step 3: 实现 `inferType` 辅助函数（粗粒度类型推断）**
+- [x] **Step 3: 实现 `inferType` 辅助函数（粗粒度类型推断）**
 
 在 `SemanticAnalyzer.ts` 加：
 
@@ -2961,7 +2961,7 @@ function inferType(expr: ast.Expression, scope: Scope): string | null {
 }
 ```
 
-- [ ] **Step 4: 在 ReturnStatement 和 AssignmentExpression 加类型检查**
+- [x] **Step 4: 在 ReturnStatement 和 AssignmentExpression 加类型检查**
 
 ```typescript
 // ReturnStatement 分支：
@@ -3003,17 +3003,17 @@ case 'AssignmentExpression':
 
 注：`walkStatements` 需要传 `fn`（当前所在函数），签名调整为 `walkStatements(stmt, fn, scope, ...)`。
 
-- [ ] **Step 5: 运行测试，确认通过**
+- [x] **Step 5: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/semantic-types.test.ts`
 Expected: PASS
 
-- [ ] **Step 6: 运行全部测试**
+- [x] **Step 6: 运行全部测试**
 
 Run: `cd scripts/galaxy-checker && npx vitest run`
 Expected: 全部 PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/analyzer/SemanticAnalyzer.ts data/project-rules.json tests/semantic-types.test.ts
@@ -3029,7 +3029,7 @@ git commit -m "feat(galaxy-checker): 实现返回/赋值类型不匹配检查（
 **Files:**
 - Create: `scripts/galaxy-checker/tests/fixtures/*.galaxy` 与对应 `.expected.json`
 
-- [ ] **Step 1: 创建 fixtures 目录与文件**
+- [x] **Step 1: 创建 fixtures 目录与文件**
 
 `tests/fixtures/regression/no-continue.galaxy`:
 ```galaxy
@@ -3131,7 +3131,7 @@ void bar() {
 }
 ```
 
-- [ ] **Step 2: 写回归测试 `tests/regression.test.ts`**
+- [x] **Step 2: 写回归测试 `tests/regression.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -3168,12 +3168,12 @@ describe('回归测试夹具', () => {
 });
 ```
 
-- [ ] **Step 3: 运行测试，确认全部通过**
+- [x] **Step 3: 运行测试，确认全部通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/regression.test.ts`
 Expected: PASS
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add tests/fixtures tests/regression.test.ts
@@ -3189,7 +3189,7 @@ git commit -m "test(galaxy-checker): 添加回归测试夹具"
 - Create: `scripts/galaxy-checker/src/analyzer/NativeFunctionTable.ts`
 - Test: `scripts/galaxy-checker/tests/native-table.test.ts`
 
-- [ ] **Step 1: 创建 `data/native-blacklist.json`**
+- [x] **Step 1: 创建 `data/native-blacklist.json`**
 
 ```json
 {
@@ -3209,7 +3209,7 @@ git commit -m "test(galaxy-checker): 添加回归测试夹具"
 }
 ```
 
-- [ ] **Step 2: 写测试 `tests/native-table.test.ts`**
+- [x] **Step 2: 写测试 `tests/native-table.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -3246,12 +3246,12 @@ describe('NativeFunctionTable', () => {
 });
 ```
 
-- [ ] **Step 3: 运行测试，确认失败**
+- [x] **Step 3: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/native-table.test.ts`
 Expected: FAIL
 
-- [ ] **Step 4: 实现 `src/analyzer/NativeFunctionTable.ts`**
+- [x] **Step 4: 实现 `src/analyzer/NativeFunctionTable.ts`**
 
 ```typescript
 // src/analyzer/NativeFunctionTable.ts
@@ -3334,12 +3334,12 @@ export class NativeFunctionTable {
 }
 ```
 
-- [ ] **Step 5: 运行测试，确认通过**
+- [x] **Step 5: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/native-table.test.ts`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add data/native-blacklist.json src/analyzer/NativeFunctionTable.ts tests/native-table.test.ts
@@ -3354,7 +3354,7 @@ git commit -m "feat(galaxy-checker): 实现 NativeFunctionTable 与黑名单加�
 - Create: `scripts/galaxy-checker/src/analyzer/ProjectLoader.ts`
 - Test: `scripts/galaxy-checker/tests/project-loader.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/project-loader.test.ts`**
+- [x] **Step 1: 写测试 `tests/project-loader.test.ts`**
 
 ```typescript
 import { describe, it, expect, beforeAll } from 'vitest';
@@ -3390,12 +3390,12 @@ describe('ProjectLoader', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [x] **Step 2: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/project-loader.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: 实现 `src/analyzer/ProjectLoader.ts`**
+- [x] **Step 3: 实现 `src/analyzer/ProjectLoader.ts`**
 
 ```typescript
 // src/analyzer/ProjectLoader.ts
@@ -3453,12 +3453,12 @@ export class ProjectLoader {
 }
 ```
 
-- [ ] **Step 4: 运行测试，确认通过**
+- [x] **Step 4: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/project-loader.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/analyzer/ProjectLoader.ts tests/project-loader.test.ts
@@ -3474,7 +3474,7 @@ git commit -m "feat(galaxy-checker): 实现 ProjectLoader 全局符号表构建"
 - Modify: `scripts/galaxy-checker/src/index.ts`（接入 NativeFunctionTable + ProjectLoader）
 - Test: `scripts/galaxy-checker/tests/xlib-rules.test.ts`
 
-- [ ] **Step 1: 写测试 `tests/xlib-rules.test.ts`**
+- [x] **Step 1: 写测试 `tests/xlib-rules.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -3518,19 +3518,19 @@ describe('跨库/Native 规则', () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [x] **Step 2: 运行测试，确认失败**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/xlib-rules.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: 在 `project-rules.json` 补充规则**
+- [x] **Step 3: 在 `project-rules.json` 补充规则**
 
 ```json
 "XLIB_UNDEFINED_CROSS_REF": { "severity": "error" },
 "XLIB_MISSING_INCLUDE": { "severity": "warning" }
 ```
 
-- [ ] **Step 4: 修改 `src/index.ts`，加载 NativeFunctionTable 并传给 analyze**
+- [x] **Step 4: 修改 `src/index.ts`，加载 NativeFunctionTable 并传给 analyze**
 
 在 `src/index.ts` 顶部新增 import 与辅助函数：
 
@@ -3634,7 +3634,7 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
 > 这些细分规则在 MVP 阶段统一由 Chevrotain 报错，ruleCode 为 `SYNTAX_PARSE_ERROR`，
 > 不细分到 spec §8.1 列的子类。实用上等价（用户只看位置+消息），如后续需细拆可后处理 Chevrotain 错误信息。
 
-- [ ] **Step 5: 修改 `SemanticAnalyzer.ts` 的 `analyze` 签名，接受 `NativeFunctionTable`**
+- [x] **Step 5: 修改 `SemanticAnalyzer.ts` 的 `analyze` 签名，接受 `NativeFunctionTable`**
 
 ```typescript
 export function analyze(
@@ -3665,17 +3665,17 @@ export function analyze(
 }
 ```
 
-- [ ] **Step 6: 运行测试，确认通过**
+- [x] **Step 6: 运行测试，确认通过**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/xlib-rules.test.ts`
 Expected: PASS
 
-- [ ] **Step 7: 运行全部测试**
+- [x] **Step 7: 运行全部测试**
 
 Run: `cd scripts/galaxy-checker && npx vitest run`
 Expected: 全部 PASS
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add src/ data/project-rules.json tests/xlib-rules.test.ts
@@ -3691,7 +3691,7 @@ git commit -m "feat(galaxy-checker): 实现 XLIB_DISALLOWED_NATIVE / UNDEFINED_C
 **Files:**
 - Create: `scripts/galaxy-checker/README.md`
 
-- [ ] **Step 1: 编写 README**
+- [x] **Step 1: 编写 README**
 
 ```markdown
 # galaxy-checker
@@ -3763,7 +3763,7 @@ AI Agent 写完 Galaxy 代码后：
 - 2：工具异常
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add README.md
@@ -3777,7 +3777,7 @@ git commit -m "docs(galaxy-checker): 添加 README 使用说明"
 **Files:**
 - Create: `scripts/galaxy-checker/tests/compat-py.test.ts`
 
-- [ ] **Step 1: 写对比测试（用项目实际文件）**
+- [x] **Step 1: 写对比测试（用项目实际文件）**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -3808,12 +3808,12 @@ describe('与现有 .py 工具兼容性', () => {
 });
 ```
 
-- [ ] **Step 2: 运行对比测试**
+- [x] **Step 2: 运行对比测试**
 
 Run: `cd scripts/galaxy-checker && npx vitest run tests/compat-py.test.ts`
 Expected: PASS（或暴露误报，按需调整）
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 cd scripts/galaxy-checker && git add tests/compat-py.test.ts
@@ -3824,22 +3824,22 @@ git commit -m "test(galaxy-checker): 与现有 .py 工具对比测试"
 
 ### Task 22: 最终验收
 
-- [ ] **Step 1: 运行所有测试**
+- [x] **Step 1: 运行所有测试**
 
 Run: `cd scripts/galaxy-checker && npx vitest run`
 Expected: 全部 PASS
 
-- [ ] **Step 2: 性能验证**
+- [x] **Step 2: 性能验证**
 
 Run: `cd scripts/galaxy-checker && npx tsc && time node dist/cli.mjs <某个最大的 Lib*.galaxy> --format json`
 Expected: 单文件 < 200ms
 
-- [ ] **Step 3: 在项目根目录测试**
+- [x] **Step 3: 在项目根目录测试**
 
 Run: `node scripts/galaxy-checker/dist/cli.mjs "合作指挥官-起义狂潮/Mods/7vs1/CoopZeroPop.SC2Mod/Base.SC2Data" --format text`
 Expected: 输出所有 Lib*.galaxy 的检查结果，exit code 反映是否有 error
 
-- [ ] **Step 4: 写经验总结到 `合作指挥官-起义狂潮/docs/经验总结/`**
+- [x] **Step 4: 写经验总结到 `合作指挥官-起义狂潮/docs/经验总结/`**
 
 参考项目规则，把开发过程中遇到的关键经验写到 `docs/经验总结/2026-07-08_Galaxy脚本静态检查器.md`。
 
@@ -3859,12 +3859,12 @@ git push
 
 按设计文档 §15.4：
 
-- [ ] 所有 regression fixture 全部通过（Task 16）
-- [ ] 对项目当前所有 `Lib*.galaxy` 跑一遍，无新增误报（Task 21）
-- [ ] 单文件检查延迟 < 200ms（Task 22 Step 2）
-- [ ] CLI 可用：`node dist/cli.mjs <file> --format json` 输出符合设计 §11.1 格式（Task 10 + Task 19）
-- [ ] 库 API 可用：`import { check } from 'galaxy-checker'`（Task 10）
-- [ ] 规则 JSON 配置可调级（Task 7）
+- [x] 所有 regression fixture 全部通过（Task 16）
+- [x] 对项目当前所有 `Lib*.galaxy` 跑一遍，无新增误报（Task 21）
+- [x] 单文件检查延迟 < 200ms（Task 22 Step 2）
+- [x] CLI 可用：`node dist/cli.mjs <file> --format json` 输出符合设计 §11.1 格式（Task 10 + Task 19）
+- [x] 库 API 可用：`import { check } from 'galaxy-checker'`（Task 10）
+- [x] 规则 JSON 配置可调级（Task 7）
 
 ## 自我审查记录
 

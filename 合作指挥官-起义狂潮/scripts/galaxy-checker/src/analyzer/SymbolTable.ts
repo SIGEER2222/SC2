@@ -45,6 +45,14 @@ export class Scope {
     this.children.push(c);
     return c;
   }
+
+  getOwnFunctionNames(): string[] {
+    return [...this.funcs.keys()];
+  }
+
+  getOwnVariableNames(): string[] {
+    return [...this.vars.keys()];
+  }
 }
 
 export class SymbolTable {

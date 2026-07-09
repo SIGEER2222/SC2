@@ -1,7 +1,7 @@
 // src/index.ts
 import { readFileSync, statSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolveDataFile } from './dataPath.js';
 import { parse } from './parser/index.js';
 import { RuleEngine, checkRules } from './analyzer/RuleEngine.js';
 import { IssueReporter } from './reporter/IssueReporter.js';
@@ -14,12 +14,10 @@ import type { Issue, CheckResult, CheckOptions } from './types.js';
 export { parse, RuleEngine, checkRules, IssueReporter, NativeFunctionTable, ProjectLoader, analyze };
 export type { Issue, CheckResult, CheckOptions };
 
-const DEFAULT_RULES_PATH = join(
-  dirname(fileURLToPath(import.meta.url)),
-  '..',
-  'data',
-  'project-rules.json'
-);
+const DEFAULT_RULES_PATH = resolveDataFile('project-rules.json');
+
+// 随包附带的 native 函数签名表（由编辑器全函数索引生成）
+const DEFAULT_NATIVES_PATH = resolveDataFile('natives.galaxy');
 
 // 从源码提取 include 路径
 function extractIncludes(source: string): string[] {
@@ -62,11 +60,9 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
     globalTable = loader.buildGlobalSymbolTable();
   }
 
-  // native 表：默认自动加载 data/native-blacklist.json
-  const nativeTable = new NativeFunctionTable();
-  if (options.nativeLibPath && existsSync(options.nativeLibPath)) {
-    nativeTable.loadFromFile(options.nativeLibPath);
-  }
+  // native 表：黑名单默认加载 data/native-blacklist.json；
+  // native 签名优先用 options.nativeLibPath，否则回退到附带的 data/natives.galaxy
+  const nativeTable = getNativeTable(options.nativeLibPath);
 
   const files = collectFiles(target);
   const allIssues: Issue[] = [];
@@ -83,12 +79,16 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
       }
     }
 
-    // 语法层规则（SYNTAX_NO_CONTINUE 等）
-    const syntaxIssues = checkRules(content, basename(file));
+    // parse 一次，语法层与语义层共用（parse error 只由语法层收集一次）
+    const parsed = parse(content, basename(file));
+    const syntaxIssues = checkRules(content, basename(file), parsed);
     allIssues.push(...syntaxIssues);
 
     // 语义层 + 跨库/native 检查
-    const semanticIssues = analyze(content, basename(file), globalTable, nativeTable, engine);
+    const semanticIssues = analyze(
+      content, basename(file), globalTable, nativeTable, engine,
+      { ast: parsed.ast, errors: [] }
+    );
     allIssues.push(...semanticIssues);
 
     // include 存在性检查
@@ -109,6 +109,22 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
   }
 
   return reporter.buildResult(allIssues, files.length);
+}
+
+// natives 签名表按路径缓存（同进程内重复 check() 免重复 parse）
+let cachedNativeTable: NativeFunctionTable | null = null;
+let cachedNativePath: string | null = null;
+
+function getNativeTable(nativeLibPath?: string): NativeFunctionTable {
+  const path = nativeLibPath && existsSync(nativeLibPath)
+    ? nativeLibPath
+    : existsSync(DEFAULT_NATIVES_PATH) ? DEFAULT_NATIVES_PATH : null;
+  if (cachedNativeTable && cachedNativePath === path) return cachedNativeTable;
+  const table = new NativeFunctionTable();
+  if (path) table.loadFromFile(path);
+  cachedNativeTable = table;
+  cachedNativePath = path;
+  return table;
 }
 
 function collectFiles(target: string): string[] {

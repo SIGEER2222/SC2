@@ -5,10 +5,10 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "galaxy-check": "dist/cli.js"
+    "galaxy-check": "dist/cli.mjs"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && esbuild dist/cli.js --bundle --platform=node --format=esm --outfile=dist/cli.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -16,8 +16,9 @@
     "chevrotain": "^11.0.0"
   },
   "devDependencies": {
+    "@types/node": "^20.12.0",
+    "esbuild": "^0.28.1",
     "typescript": "^5.4.0",
-    "vitest": "^1.6.0",
-    "@types/node": "^20.12.0"
+    "vitest": "^1.6.0"
   }
 }

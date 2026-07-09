@@ -17,3 +17,72 @@ void libE0EAE146_gf_AlarakRuntimeInit (int lp_player, point lp_heroPoint, bool l
         TriggerEnable(libKMIS_gt_CM_HeroDied, false);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+// Alarak start squads (migrated from LibE0EAE146_CommanderStartSquads, Task 7)
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gf_AlarakCreateMapStartSquad (string lp_kind, int lp_player, point lp_point) {
+    string lv_kind;
+    lv_kind = lp_kind;
+    if ((lv_kind == "light")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(3, "Supplicant", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Stalker", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Monitor", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "heavy")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "Supplicant", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Stalker", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ImmortalTaldarim", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "HighTemplarTaldarim", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "air")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "Monitor", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "WarpPrismTaldarim", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Stalker", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "hero")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "Supplicant", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Stalker", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Monitor", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ImmortalTaldarim", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "HighTemplarTaldarim", 0, lp_player, lp_point);
+    }
+    else {
+        libE0EAE146_gf_AlarakCreateMapStartSquad("light", lp_player, lp_point);
+    }
+}
+
+void libE0EAE146_gf_AlarakCreateMapStartSquadInRegion (string lp_kind, int lp_player, region lp_region) {
+    libE0EAE146_gf_AlarakCreateMapStartSquad(lp_kind, lp_player, RegionGetCenter(lp_region));
+}
+
+void libE0EAE146_gf_AlarakCreateCargoSquad (unit lp_container, string lp_kind) {
+    string lv_kind;
+    lv_kind = lp_kind;
+    if ((lv_kind == "light")) {
+        UnitCargoCreate(lp_container, "Supplicant", 2);
+        UnitCargoCreate(lp_container, "Stalker", 1);
+        UnitCargoCreate(lp_container, "Monitor", 1);
+    }
+    else if ((lv_kind == "heavy")) {
+        UnitCargoCreate(lp_container, "Supplicant", 2);
+        UnitCargoCreate(lp_container, "Stalker", 1);
+        UnitCargoCreate(lp_container, "ImmortalTaldarim", 1);
+        UnitCargoCreate(lp_container, "HighTemplarTaldarim", 1);
+    }
+    else if ((lv_kind == "air")) {
+        UnitCargoCreate(lp_container, "Monitor", 2);
+        UnitCargoCreate(lp_container, "WarpPrismTaldarim", 1);
+        UnitCargoCreate(lp_container, "Stalker", 1);
+    }
+    else if ((lv_kind == "hero")) {
+        UnitCargoCreate(lp_container, "Supplicant", 2);
+        UnitCargoCreate(lp_container, "Stalker", 1);
+        UnitCargoCreate(lp_container, "Monitor", 1);
+        UnitCargoCreate(lp_container, "ImmortalTaldarim", 1);
+        UnitCargoCreate(lp_container, "HighTemplarTaldarim", 1);
+    }
+    else {
+        libE0EAE146_gf_AlarakCreateCargoSquad(lp_container, "light");
+    }
+}

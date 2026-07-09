@@ -100,7 +100,7 @@ function Resolve-ExtensionSource {
     param([string]$SourceRoot)
 
     $workspaceRoot = Get-WorkspaceRoot
-    $localExtension = Join-Path $workspaceRoot "Mods\7vs1\CoopZeroPop.SC2Mod"
+    $localExtension = Join-Path $workspaceRoot "Mods\7vs1\CoreRuntime.SC2Mod"
     if (Test-Path -LiteralPath $localExtension) {
         return $localExtension
     }
@@ -111,6 +111,7 @@ function Resolve-ExtensionSource {
 function Get-SplitCatalogModDependencies {
     return @(
         "file:Mods/7vs1/BaseCatalogPatch.SC2Mod",
+        "file:Mods/7vs1/CommanderBridge.SC2Mod",
         "file:Mods/7vs1/CommanderUnits_Abathur.SC2Mod",
         "file:Mods/7vs1/CommanderUnits_Horner.SC2Mod",
         "file:Mods/7vs1/CommanderUnits_Kerrigan.SC2Mod",
@@ -929,8 +930,11 @@ function Validate-LiveBaseTestlineInstall {
     $kpvp = Get-Content -LiteralPath (Join-Path $ExtensionLive "Base.SC2Data\LibKPVP.galaxy") -Raw
     $effectiveKpvp = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKPVP.galaxy") -Raw
     $effectiveKmis = Get-Content -LiteralPath (Get-EffectiveLiveRuntimeLibraryPath -MapLive $MapLive -ExtensionLive $ExtensionLive -LibraryName "LibKMIS.galaxy") -Raw
-    if (-not $mapInfo.Contains('file:Mods/7vs1/CoopZeroPop.SC2Mod')) {
-        throw 'Live base testline dependency missing: file:Mods/7vs1/CoopZeroPop.SC2Mod'
+    if (-not $mapInfo.Contains('file:Mods/7vs1/CoreRuntime.SC2Mod')) {
+        throw 'Live base testline dependency missing: file:Mods/7vs1/CoreRuntime.SC2Mod'
+    }
+    if (-not $mapInfo.Contains('file:Mods/7vs1/CommanderBridge.SC2Mod')) {
+        throw 'Live base testline dependency missing: file:Mods/7vs1/CommanderBridge.SC2Mod'
     }
     foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
         if (-not $mapInfo.Contains($catalogDep)) {
@@ -1076,7 +1080,7 @@ else {
 }
 $extensionSource = Resolve-ExtensionSource -SourceRoot $SourceRoot
 $mapLive = Join-Path (Join-Path $Sc2Root "Maps\7vs1") $LiveMapName
-$extensionLive = Join-Path $Sc2Root "Mods\7vs1\CoopZeroPop.SC2Mod"
+$extensionLive = Join-Path $Sc2Root "Mods\7vs1\CoreRuntime.SC2Mod"
 
 if (-not (Test-Path -LiteralPath $SwitcherPath)) {
     throw "SwitcherPath not found: $SwitcherPath"
@@ -1176,7 +1180,7 @@ $mapDependencies = @(
 )
 $mapDependencies = Normalize-MapRuntimeDependencies -Dependencies $mapDependencies
 if ($LiveMapName -ne "emptytest.SC2Map") {
-    $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CoopZeroPop.SC2Mod"
+    $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CoreRuntime.SC2Mod"
 }
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3Adapter.SC2Mod"
@@ -1187,6 +1191,8 @@ foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
 $mapDependencies = @($mapDependencies | Where-Object { $_ -ne 'file:Mods/7vs1/CommanderCatalog.SC2Mod' })
 # Remove the legacy CommanderUnits.SC2Mod dependency now that it is split into 17 per-commander mods.
 $mapDependencies = @($mapDependencies | Where-Object { $_ -ne 'file:Mods/7vs1/CommanderUnits.SC2Mod' })
+# Remove the legacy CoopZeroPop.SC2Mod dependency now that it is split into CoreRuntime + CommanderBridge.
+$mapDependencies = @($mapDependencies | Where-Object { $_ -ne 'file:Mods/7vs1/CoopZeroPop.SC2Mod' })
 
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $extensionDependencies -DependencyOwner "extension dependencies"
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $mapDependencies -DependencyOwner "map dependencies"
@@ -1203,7 +1209,7 @@ Set-PackageDependencies -PackageRoot $extensionLive -Dependencies $extensionDepe
 Set-PackageDependencies -PackageRoot $mapLive -Dependencies $mapDependencies
 
 $workspaceDependencySkips = @(
-    "file:Mods/7vs1/CoopZeroPop.SC2Mod"
+    "file:Mods/7vs1/CoreRuntime.SC2Mod"
 )
 $installedWorkspaceDependencyMods = Install-WorkspaceModDependencyClosure `
     -Dependencies $mapDependencies `
@@ -1212,6 +1218,7 @@ $installedWorkspaceDependencyMods = Install-WorkspaceModDependencyClosure `
     -SkipDependencies $workspaceDependencySkips
 
 $extensionBaseData = Join-Path $extensionLive "Base.SC2Data"
+$commanderBridgeLiveBaseData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/7vs1/CommanderBridge.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data"
 $kitMutationsLiveBaseData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/kit_mutations.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data"
 
 # 收集所有已安装的 CommanderUnits_*.SC2Mod 的 Base.SC2Data 目录
@@ -1236,6 +1243,7 @@ if ($LiveMapName -ne "emptytest.SC2Map") {
         -MapLive $mapLive `
         -RuntimeBaseRoots @(
             $extensionBaseData
+            $commanderBridgeLiveBaseData
             $commanderUnitsBaseDataRoots
             $kitMutationsLiveBaseData
         )

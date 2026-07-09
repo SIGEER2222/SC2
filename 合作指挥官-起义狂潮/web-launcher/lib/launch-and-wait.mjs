@@ -49,17 +49,21 @@ export async function launchAndWait(opts) {
     waitForGameReadyScript = null,
     maxWaitSeconds = 180,
     gracePeriodSeconds = 20,
+    // 为 true 时不再启动 SC2Switcher，只执行等待/日志收集。
+    // 用于游戏已由其他方式（如 launch-7vs1-coop-test.ps1）启动的场景，避免二次拉起游戏。
+    skipLaunch = false,
   } = opts;
 
   const startMs = Date.now();
-  const cmd = buildLaunchCommand({ mapPath, switcherPath });
-
-  const child = spawn(cmd.executable, cmd.args, {
-    detached: false,
-    windowsHide: false,
-  });
-
-  const pid = child.pid;
+  let pid = null;
+  if (!skipLaunch) {
+    const cmd = buildLaunchCommand({ mapPath, switcherPath });
+    const child = spawn(cmd.executable, cmd.args, {
+      detached: false,
+      windowsHide: false,
+    });
+    pid = child.pid;
+  }
 
   if (!waitForGameReadyScript) {
     return {

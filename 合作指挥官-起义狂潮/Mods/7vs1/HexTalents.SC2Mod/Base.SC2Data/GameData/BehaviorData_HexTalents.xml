@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <!-- 海克斯天赋核心 buff：所有通用天赋数值经 TNX_* Upgrade 叠加到此 buff 上。
+         DamageResponse(Chance=1) 供「英雄史诗 TNX_01122」的 ModifyFraction 减伤挂载。 -->
+    <CBehaviorBuff id="TNX_Ability_total">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <Modification>
+            <VitalMaxDecreaseAffectsCurrentArray index="Life" value="1"/>
+            <VitalMaxDecreaseAffectsCurrentArray index="Shields" value="1"/>
+            <VitalMaxDecreaseAffectsCurrentArray index="Energy" value="1"/>
+        </Modification>
+        <DamageResponse>
+            <Chance value="1"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <!-- 缩小立场：闪避 buff。Chance 由运行时按天赋等级设为 1-0.9^lv（源 mod 同名行为）。 -->
+    <CBehaviorBuff id="TNX_missingdummy">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <DamageResponse ModifyFraction="0" ModifyMinimumDamage="1">
+            <Chance value="0"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+</Catalog>

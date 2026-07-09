@@ -245,3 +245,64 @@ void libE0EAE146_gf_ZagaraRuntimeInit (int lp_player, point lp_heroPoint, bool l
     lib67C0F0E7_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
     lib67C0F0E7_gf_ShowChooseButton();
 }
+
+//--------------------------------------------------------------------------------------------------
+// Zagara start squads (migrated from LibE0EAE146_CommanderStartSquads, Task 7)
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gf_ZagaraCreateMapStartSquad (string lp_kind, int lp_player, point lp_point) {
+    string lv_kind;
+    lv_kind = lp_kind;
+    if ((lv_kind == "light")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(4, "HotSSwarmling", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "Baneling", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SwarmQueen", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "heavy")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(3, "HotSSwarmling", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "Baneling", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SwarmQueen", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "InfestedAbomination", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "air")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(4, "Scourge", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "ZagaraCorruptor", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "hero")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(3, "HotSSwarmling", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "Baneling", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SwarmQueen", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "InfestedAbomination", 0, lp_player, lp_point);
+    }
+    else {
+        libE0EAE146_gf_ZagaraCreateMapStartSquad("light", lp_player, lp_point);
+    }
+}
+
+void libE0EAE146_gf_ZagaraCreateMapStartSquadInRegion (string lp_kind, int lp_player, region lp_region) {
+    libE0EAE146_gf_ZagaraCreateMapStartSquad(lp_kind, lp_player, RegionGetCenter(lp_region));
+}
+
+void libE0EAE146_gf_ZagaraCreateCargoSquad (unit lp_container, string lp_kind) {
+    string lv_kind;
+    lv_kind = lp_kind;
+    if ((lv_kind == "light")) {
+        UnitCargoCreate(lp_container, "HotSSwarmling", 4);
+        UnitCargoCreate(lp_container, "Baneling", 2);
+        UnitCargoCreate(lp_container, "SwarmQueen", 1);
+    }
+    else if ((lv_kind == "heavy")) {
+        UnitCargoCreate(lp_container, "HotSSwarmling", 3);
+        UnitCargoCreate(lp_container, "Baneling", 2);
+        UnitCargoCreate(lp_container, "SwarmQueen", 1);
+        UnitCargoCreate(lp_container, "InfestedAbomination", 1);
+    }
+    else if ((lv_kind == "hero")) {
+        UnitCargoCreate(lp_container, "HotSSwarmling", 3);
+        UnitCargoCreate(lp_container, "Baneling", 2);
+        UnitCargoCreate(lp_container, "SwarmQueen", 1);
+        UnitCargoCreate(lp_container, "InfestedAbomination", 1);
+    }
+    else {
+        libE0EAE146_gf_ZagaraCreateCargoSquad(lp_container, "light");
+    }
+}

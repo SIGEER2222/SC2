@@ -2370,3 +2370,73 @@ void libE0EAE146_gt_ZeratulProphecyCast_Init () {
 
 }
 
+//--------------------------------------------------------------------------------------------------
+// Zeratul start squads (migrated from LibE0EAE146_CommanderStartSquads, Task 7)
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gf_ZeratulCreateMapStartSquad (string lp_kind, int lp_player, point lp_point) {
+    string lv_kind;
+    lv_kind = lp_kind;
+    if ((lv_kind == "light")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "ZeratulSummonZealot", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "ZeratulStalker", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulSentry", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "heavy")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "ZeratulStalker", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulImmortal", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulDisruptor", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulSentry", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "air")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulWarpPrism", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulObserver", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "hero")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "ZeratulStalker", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulImmortal", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulSentry", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "ultimate")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulXelNagaConstruct", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZeratulXelNagaConstructCyan", 0, lp_player, lp_point);
+    }
+    else {
+        libE0EAE146_gf_ZeratulCreateMapStartSquad("light", lp_player, lp_point);
+    }
+}
+
+void libE0EAE146_gf_ZeratulCreateMapStartSquadInRegion (string lp_kind, int lp_player, region lp_region) {
+    libE0EAE146_gf_ZeratulCreateMapStartSquad(lp_kind, lp_player, RegionGetCenter(lp_region));
+}
+
+void libE0EAE146_gf_ZeratulCreateCargoSquad (unit lp_container, string lp_kind) {
+    string lv_kind;
+    lv_kind = lp_kind;
+    if ((lv_kind == "light")) {
+        UnitCargoCreate(lp_container, "ZeratulSummonZealot", 2);
+        UnitCargoCreate(lp_container, "ZeratulStalker", 2);
+        UnitCargoCreate(lp_container, "ZeratulSentry", 1);
+    }
+    else if ((lv_kind == "heavy")) {
+        UnitCargoCreate(lp_container, "ZeratulStalker", 2);
+        UnitCargoCreate(lp_container, "ZeratulImmortal", 1);
+        UnitCargoCreate(lp_container, "ZeratulDisruptor", 1);
+        UnitCargoCreate(lp_container, "ZeratulSentry", 1);
+    }
+    else if ((lv_kind == "air")) {
+        UnitCargoCreate(lp_container, "ZeratulWarpPrism", 1);
+        UnitCargoCreate(lp_container, "ZeratulObserver", 1);
+    }
+    else if ((lv_kind == "hero")) {
+        UnitCargoCreate(lp_container, "ZeratulStalker", 2);
+        UnitCargoCreate(lp_container, "ZeratulImmortal", 1);
+        UnitCargoCreate(lp_container, "ZeratulSentry", 1);
+    }
+    else if ((lv_kind == "ultimate")) {
+        UnitCargoCreate(lp_container, "ZeratulXelNagaConstruct", 1);
+        UnitCargoCreate(lp_container, "ZeratulXelNagaConstructCyan", 1);
+    }
+    else {
+        libE0EAE146_gf_ZeratulCreateCargoSquad(lp_container, "light");
+    }
+}

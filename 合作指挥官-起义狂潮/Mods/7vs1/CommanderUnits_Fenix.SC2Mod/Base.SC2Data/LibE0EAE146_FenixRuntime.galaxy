@@ -2052,3 +2052,79 @@ void libE0EAE146_fenix_InitTriggers () {
     libE0EAE146_gt_CM_Fenix_TriggersInit_Init();
 }
 
+//--------------------------------------------------------------------------------------------------
+// Fenix start squads (migrated from LibE0EAE146_CommanderStartSquads, Task 7)
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gf_FenixCreateMapStartSquad (string lp_kind, int lp_player, point lp_point) {
+    string lv_kind;
+    lv_kind = lp_kind;
+    if ((lv_kind == "light")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(3, "ZealotPurifier", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "AdeptFenix", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SentryFenix", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "heavy")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "ZealotPurifier", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "AdeptFenix", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Immortal", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ColossusPurifier", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "air")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "Scout", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ObserverFenix", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Carrier", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "hero")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "FenixDragoon", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "ZealotPurifier", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "AdeptFenix", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "SentryFenix", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "ultimate")) {
+        if ((TechTreeUpgradeCount(1, "FenixChampionClolarionCarrier", c_techCountCompleteOnly) > 0)) {
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, "FenixKaldalisZealot", 0, lp_player, lp_point);
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, "FenixTalisAdept", 0, lp_player, lp_point);
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, "FenixClolarionCarrier", 0, lp_player, lp_point);
+        }
+        else {
+            libE0EAE146_gf_FenixCreateMapStartSquad("heavy", lp_player, lp_point);
+        }
+    }
+    else {
+        libE0EAE146_gf_FenixCreateMapStartSquad("light", lp_player, lp_point);
+    }
+}
+
+void libE0EAE146_gf_FenixCreateMapStartSquadInRegion (string lp_kind, int lp_player, region lp_region) {
+    libE0EAE146_gf_FenixCreateMapStartSquad(lp_kind, lp_player, RegionGetCenter(lp_region));
+}
+
+void libE0EAE146_gf_FenixCreateCargoSquad (unit lp_container, string lp_kind) {
+    string lv_kind;
+    lv_kind = lp_kind;
+    if ((lv_kind == "light")) {
+        UnitCargoCreate(lp_container, "ZealotPurifier", 3);
+        UnitCargoCreate(lp_container, "AdeptFenix", 2);
+        UnitCargoCreate(lp_container, "SentryFenix", 1);
+    }
+    else if ((lv_kind == "heavy")) {
+        UnitCargoCreate(lp_container, "ZealotPurifier", 2);
+        UnitCargoCreate(lp_container, "AdeptFenix", 2);
+        UnitCargoCreate(lp_container, "Immortal", 1);
+        UnitCargoCreate(lp_container, "ColossusPurifier", 1);
+    }
+    else if ((lv_kind == "air")) {
+        UnitCargoCreate(lp_container, "Scout", 2);
+        UnitCargoCreate(lp_container, "ObserverFenix", 1);
+        UnitCargoCreate(lp_container, "Carrier", 1);
+    }
+    else if ((lv_kind == "hero")) {
+        UnitCargoCreate(lp_container, "FenixDragoon", 1);
+        UnitCargoCreate(lp_container, "ZealotPurifier", 2);
+        UnitCargoCreate(lp_container, "AdeptFenix", 1);
+        UnitCargoCreate(lp_container, "SentryFenix", 1);
+    }
+    else {
+        libE0EAE146_gf_FenixCreateCargoSquad(lp_container, "light");
+    }
+}

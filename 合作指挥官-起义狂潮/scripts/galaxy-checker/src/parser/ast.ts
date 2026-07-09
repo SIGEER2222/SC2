@@ -79,6 +79,7 @@ export type Statement =
   | ExpressionStatement
   | IfStatement
   | WhileStatement
+  | DoWhileStatement
   | ForStatement
   | ReturnStatement
   | BreakStatement
@@ -99,6 +100,12 @@ export interface IfStatement extends Node {
 
 export interface WhileStatement extends Node {
   type: 'WhileStatement';
+  test: Expression;
+  body: Statement;
+}
+
+export interface DoWhileStatement extends Node {
+  type: 'DoWhileStatement';
   test: Expression;
   body: Statement;
 }

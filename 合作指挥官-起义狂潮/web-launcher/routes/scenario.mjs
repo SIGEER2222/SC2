@@ -5,7 +5,7 @@ import { stopAllSc2 } from '../lib/stop-sc2.mjs';
 import { launchAndWait } from '../lib/launch-and-wait.mjs';
 import { buildLaunchArgs } from '../services/launch-args-builder.mjs';
 import { fileURLToPath } from 'url';
-import { dirname, join, resolve } from 'path';
+import { basename, dirname, join, resolve } from 'path';
 import { spawn } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -54,7 +54,9 @@ router.post('/scenario/:id/test', async (req, res) => {
     // 3. 启动
     const launchStart = Date.now();
     let launchResult;
-    const mergedRequest = { ...scenario.defaultArgs, ...userSelection, map: scenario.defaultArgs?.map || scenario.mapPath };
+    // map 需要传地图 id（目录名/basename），maps-loader 的 id 是目录名而不是相对路径
+    const mapId = scenario.defaultArgs?.map || basename(scenario.mapPath || '');
+    const mergedRequest = { ...scenario.defaultArgs, ...userSelection, map: mapId };
     let args = null;
     try {
       const built = buildLaunchArgs(mergedRequest);
@@ -65,6 +67,7 @@ router.post('/scenario/:id/test', async (req, res) => {
     }
     if (args && scenario.launchMode !== 'sc2-switcher') {
       // 7vs1-launcher 模式：spawn pwsh + launch-7vs1-coop-test.ps1
+      // 脚本本身会安装并启动游戏，这里只等待检测结果，不再重复拉起 SC2Switcher
       const child = spawn('pwsh', args, { windowsHide: false });
       const pid = child.pid;
       const waitResult = await launchAndWait({
@@ -74,6 +77,7 @@ router.post('/scenario/:id/test', async (req, res) => {
         waitForGameReadyScript: WAIT_PS1,
         maxWaitSeconds: 180,
         gracePeriodSeconds: 20,
+        skipLaunch: true,
       });
       launchResult = { ...waitResult, pid };
     } else {

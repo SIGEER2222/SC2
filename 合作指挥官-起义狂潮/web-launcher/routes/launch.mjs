@@ -54,9 +54,19 @@ router.post('/launch', (req, res) => {
   const pid = child.pid;
   launchProcesses.set(String(pid), { process: child, stdoutPath, stderrPath });
 
-  // 进程退出时清理跟踪表
+  // 进程退出后保留跟踪条目：/api/launch-status 需要读取 exitCode 来做
+  // 「exit 0 才算验证通过」的判定；若在 exit 时删除条目，轮询到的永远是
+  // tasklist 回退路径（running=false, exitCode=null），退出码会丢失。
   child.on('exit', () => {
-    launchProcesses.delete(String(pid));
+    // 防止跟踪表无限增长：超过 32 条时淘汰最早的已结束条目
+    if (launchProcesses.size > 32) {
+      for (const [key, entry] of launchProcesses) {
+        if (key !== String(pid) && entry.process.exitCode !== null) {
+          launchProcesses.delete(key);
+          break;
+        }
+      }
+    }
   });
   child.on('error', () => {
     launchProcesses.delete(String(pid));

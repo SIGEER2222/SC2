@@ -18,3 +18,71 @@ void libE0EAE146_gf_VorazunRuntimeInit (int lp_player, point lp_heroPoint, bool 
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "VorazunChampion", 0, lp_player, lp_heroPoint);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+// Vorazun start squads (migrated from LibE0EAE146_CommanderStartSquads, Task 7)
+//--------------------------------------------------------------------------------------------------
+void libE0EAE146_gf_VorazunCreateMapStartSquad (string lp_kind, int lp_player, point lp_point) {
+    string lv_kind;
+    lv_kind = lp_kind;
+    if ((lv_kind == "light")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "ZealotShakuras", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Stalker", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "DarkTemplarShakuras", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "heavy")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "Stalker", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "DarkTemplarShakuras", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "CorsairMP", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "ZealotShakuras", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "air")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "CorsairMP", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "VoidRay", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Oracle", 0, lp_player, lp_point);
+    }
+    else if ((lv_kind == "hero")) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "VorazunChampion", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "DarkTemplarShakuras", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(2, "Stalker", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "CorsairMP", 0, lp_player, lp_point);
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Oracle", 0, lp_player, lp_point);
+    }
+    else {
+        libE0EAE146_gf_VorazunCreateMapStartSquad("light", lp_player, lp_point);
+    }
+}
+
+void libE0EAE146_gf_VorazunCreateMapStartSquadInRegion (string lp_kind, int lp_player, region lp_region) {
+    libE0EAE146_gf_VorazunCreateMapStartSquad(lp_kind, lp_player, RegionGetCenter(lp_region));
+}
+
+void libE0EAE146_gf_VorazunCreateCargoSquad (unit lp_container, string lp_kind) {
+    string lv_kind;
+    lv_kind = lp_kind;
+    if ((lv_kind == "light")) {
+        UnitCargoCreate(lp_container, "ZealotShakuras", 2);
+        UnitCargoCreate(lp_container, "Stalker", 1);
+        UnitCargoCreate(lp_container, "DarkTemplarShakuras", 2);
+    }
+    else if ((lv_kind == "heavy")) {
+        UnitCargoCreate(lp_container, "Stalker", 2);
+        UnitCargoCreate(lp_container, "DarkTemplarShakuras", 2);
+        UnitCargoCreate(lp_container, "ZealotShakuras", 1);
+    }
+    else if ((lv_kind == "air")) {
+        UnitCargoCreate(lp_container, "CorsairMP", 2);
+        UnitCargoCreate(lp_container, "VoidRay", 1);
+        UnitCargoCreate(lp_container, "Oracle", 1);
+    }
+    else if ((lv_kind == "hero")) {
+        UnitCargoCreate(lp_container, "VorazunChampion", 1);
+        UnitCargoCreate(lp_container, "DarkTemplarShakuras", 2);
+        UnitCargoCreate(lp_container, "Stalker", 2);
+        UnitCargoCreate(lp_container, "CorsairMP", 1);
+        UnitCargoCreate(lp_container, "Oracle", 1);
+    }
+    else {
+        libE0EAE146_gf_VorazunCreateCargoSquad(lp_container, "light");
+    }
+}

@@ -13,6 +13,7 @@ const Identifier = createToken({ name: 'Identifier', pattern: /[a-zA-Z_][a-zA-Z0
 const If = createToken({ name: 'If', pattern: /if/, longer_alt: Identifier });
 const Else = createToken({ name: 'Else', pattern: /else/, longer_alt: Identifier });
 const While = createToken({ name: 'While', pattern: /while/, longer_alt: Identifier });
+const Do = createToken({ name: 'Do', pattern: /do/, longer_alt: Identifier });
 const For = createToken({ name: 'For', pattern: /for/, longer_alt: Identifier });
 const Return = createToken({ name: 'Return', pattern: /return/, longer_alt: Identifier });
 const Break = createToken({ name: 'Break', pattern: /break/, longer_alt: Identifier });
@@ -36,7 +37,8 @@ const TypeTokens = GALAXY_TYPES.map(t =>
 // 字面量（Fixed 必须在 Integer 之前：更具体的 token 先定义，
 // 避免 Chevrotain 优化路径下 Integer 先消费数字导致 Fixed 失配）
 const Fixed = createToken({ name: 'Fixed', pattern: /[0-9]+\.[0-9]+f?/ });
-const Integer = createToken({ name: 'Integer', pattern: /[0-9]+/ });
+// 支持十六进制（如 0x1F，Galaxy 位运算常用）
+const Integer = createToken({ name: 'Integer', pattern: /0[xX][0-9a-fA-F]+|[0-9]+/ });
 const String = createToken({ name: 'String', pattern: /"(?:[^"\\]|\\.)*"/ });
 const Char = createToken({ name: 'Char', pattern: /'(?:[^'\\]|\\.)'/ });
 
@@ -59,6 +61,8 @@ const BlockComment = createToken({
 // 运算符（多字符先于单字符）
 const EqualsEquals = createToken({ name: 'EqualsEquals', pattern: /==/ });
 const ExclamationEquals = createToken({ name: 'ExclamationEquals', pattern: /!=/ });
+const ShiftLeft = createToken({ name: 'ShiftLeft', pattern: /<</ });
+const ShiftRight = createToken({ name: 'ShiftRight', pattern: />>/ });
 const LessEquals = createToken({ name: 'LessEquals', pattern: /<=/ });
 const GreaterEquals = createToken({ name: 'GreaterEquals', pattern: />=/ });
 const AmpersandAmpersand = createToken({ name: 'AmpersandAmpersand', pattern: /&&/ });
@@ -69,6 +73,8 @@ const PlusEquals = createToken({ name: 'PlusEquals', pattern: /\+=/ });
 const MinusEquals = createToken({ name: 'MinusEquals', pattern: /-=/ });
 const StarEquals = createToken({ name: 'StarEquals', pattern: /\*=/ });
 const SlashEquals = createToken({ name: 'SlashEquals', pattern: /\/=/ });
+const PipeEquals = createToken({ name: 'PipeEquals', pattern: /\|=/ });
+const AmpersandEquals = createToken({ name: 'AmpersandEquals', pattern: /&=/ });
 const Arrow = createToken({ name: 'Arrow', pattern: /->/ });
 
 const LBrace = createToken({ name: 'LBrace', pattern: /{/ });
@@ -114,16 +120,16 @@ const allTokens = [
   LineComment,
   BlockComment,
   // 关键字先于 Identifier
-  If, Else, While, For, Return, Break, Continue,
+  If, Else, While, Do, For, Return, Break, Continue,
   Struct, Enum, Typedef, Include, Const, Native, Static,
   True, False, Null,
   ...TypeTokens,
   Identifier,
   Fixed, Integer, String, Char,
   // 多字符运算符先于单字符
-  EqualsEquals, ExclamationEquals, LessEquals, GreaterEquals,
+  EqualsEquals, ExclamationEquals, ShiftLeft, ShiftRight, LessEquals, GreaterEquals,
   AmpersandAmpersand, PipePipe, PlusPlus, MinusMinus,
-  PlusEquals, MinusEquals, StarEquals, SlashEquals, Arrow,
+  PlusEquals, MinusEquals, StarEquals, SlashEquals, PipeEquals, AmpersandEquals, Arrow,
   LBrace, RBrace, LParen, RParen, LBracket, RBracket,
   Semicolon, Comma, Dot, Colon, Question,
   Equals, Exclamation, Less, Greater, Plus, Minus, Star, Slash,
@@ -142,14 +148,14 @@ export function tokenize(source: string): IToken[] {
 
 export {
   allTokens,
-  If, Else, While, For, Return, Break, Continue,
+  If, Else, While, Do, For, Return, Break, Continue,
   Struct, Enum, Typedef, Include, Const, Native, Static,
   True, False, Null,
   Identifier, Integer, Fixed, String, Char,
   LineComment, BlockComment,
-  EqualsEquals, ExclamationEquals, LessEquals, GreaterEquals,
+  EqualsEquals, ExclamationEquals, ShiftLeft, ShiftRight, LessEquals, GreaterEquals,
   AmpersandAmpersand, PipePipe, PlusPlus, MinusMinus,
-  PlusEquals, MinusEquals, StarEquals, SlashEquals, Arrow,
+  PlusEquals, MinusEquals, StarEquals, SlashEquals, PipeEquals, AmpersandEquals, Arrow,
   LBrace, RBrace, LParen, RParen, LBracket, RBracket,
   Semicolon, Comma, Dot, Colon, Question,
   Equals, Exclamation, Less, Greater, Plus, Minus, Star, Slash,
