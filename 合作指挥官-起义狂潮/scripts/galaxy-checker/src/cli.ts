@@ -13,6 +13,7 @@ if (args.length === 0 || args.includes('--help')) {
   --format <json|text>    输出格式，默认 json
   --rules <path>          项目规则 JSON 路径
   --native-lib <path>     NativeLib.galaxy 路径
+  --catalog-db <path>     catalog ID JSON 路径（默认 data/catalog-ids.json）
   --no-global-symbols     跳过全局符号表构建
   --help                  显示帮助`);
   process.exit(2);
@@ -25,11 +26,13 @@ const format: 'json' | 'text' = rawFormat === 'text' ? 'text' : 'json';
 
 const rulesIdx = args.indexOf('--rules');
 const nativeLibIdx = args.indexOf('--native-lib');
+const catalogDbIdx = args.indexOf('--catalog-db');
 
 try {
   const result = check(target, {
     rulesPath: rulesIdx >= 0 ? args[rulesIdx + 1] : undefined,
     nativeLibPath: nativeLibIdx >= 0 ? args[nativeLibIdx + 1] : undefined,
+    catalogDbPath: catalogDbIdx >= 0 ? args[catalogDbIdx + 1] : undefined,
     noGlobalSymbols: args.includes('--no-global-symbols'),
   });
   const reporter = new IssueReporter(format);

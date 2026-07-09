@@ -3,7 +3,7 @@ import { parse } from '../parser/index.js';
 import { SymbolTable, Scope } from './SymbolTable.js';
 import { RuleEngine } from './RuleEngine.js';
 import { NativeFunctionTable } from './NativeFunctionTable.js';
-import type { Issue } from '../types.js';
+import type { Issue, CatalogDb } from '../types.js';
 import type * as ast from '../parser/ast.js';
 
 // 分析上下文：目录模式（外部全局符号表）下已知的本地库前缀集合。
@@ -11,6 +11,7 @@ import type * as ast from '../parser/ast.js';
 interface AnalyzeContext {
   hasGlobalTable: boolean;
   libPrefixes: Set<string>;
+  catalogDb?: CatalogDb;
 }
 
 const LIB_PREFIX_RE = /^(lib[0-9A-Za-z]*)_/;
@@ -33,7 +34,8 @@ export function analyze(
   globalTable?: SymbolTable,
   nativeTable?: NativeFunctionTable,
   engine?: RuleEngine,
-  parsed?: { ast: ast.Program; errors: Issue[] }
+  parsed?: { ast: ast.Program; errors: Issue[] },
+  catalogDb?: CatalogDb
 ): Issue[] {
   const { ast: program, errors } = parsed ?? parse(source, filename);
   const issues: Issue[] = [...errors];
@@ -56,7 +58,7 @@ export function analyze(
     const m = n.match(LIB_PREFIX_RE);
     if (m) libPrefixes.add(m[1]);
   }
-  const ctx: AnalyzeContext = { hasGlobalTable: globalTable !== undefined, libPrefixes };
+  const ctx: AnalyzeContext = { hasGlobalTable: globalTable !== undefined, libPrefixes, catalogDb };
 
   // 第二遍：分析函数体
   for (const decl of program.body) {
@@ -235,6 +237,80 @@ function walkStatements(
   }
 }
 
+// ---------------------------------------------------------------------------
+// catalog 引用校验
+// ---------------------------------------------------------------------------
+// galaxy 脚本中常把 catalog ID 作为字符串字面量传给 native 函数（如单位类型、
+// 升级 ID）。这些 ID 必须在 GameData XML 中存在，否则运行时会静默失败
+// （单位不生成、属性查询返回空等）。此校验通过预导出的 catalog ID 集合
+// 检查字符串字面量是否指向有效条目，能在不启动游戏的情况下发现 mod 依赖
+// 缺失或 ID 拼写错误。
+
+// native 函数名 → 哪些位置的参数是 catalog ID（0-based），以及对应的 catalog 类型
+// 'any' 表示跨所有已导出的 catalog 类型查找（适用于 CatalogField* 系列，
+//   其 catalog 类型由 int 参数决定，无法静态解析）
+type CatalogRefSpec = { pos: number; catalog: keyof import('../types.js').CatalogDb | 'any' };
+const CATALOG_REF_FUNCS: Record<string, CatalogRefSpec[]> = {
+  // 单位类型字符串（Unit catalog）
+  UnitCreate: [{ pos: 1, catalog: 'Unit' }],
+  UnitTypeFromString: [{ pos: 0, catalog: 'Unit' }],
+  UnitTypeGetName: [{ pos: 0, catalog: 'Unit' }],
+  UnitTypeGetGenderCode: [{ pos: 0, catalog: 'Unit' }],
+  UnitTypeGetProperty: [{ pos: 0, catalog: 'Unit' }],
+  UnitTypeGetCost: [{ pos: 0, catalog: 'Unit' }],
+  UnitTypeTestFlag: [{ pos: 0, catalog: 'Unit' }],
+  UnitTypeTestAttribute: [{ pos: 0, catalog: 'Unit' }],
+  UnitTypeIsAffectedByUpgrade: [{ pos: 0, catalog: 'Unit' }, { pos: 1, catalog: 'Upgrade' }],
+  UnitTypeAnimationLoad: [{ pos: 0, catalog: 'Unit' }],
+  // 官方库包装的单位创建函数（libNtve_gf_*）
+  libNtve_gf_CreateUnitsWithDefaultFacing: [{ pos: 1, catalog: 'Unit' }],
+  // Catalog 系列的 entry 参数（第 2 个参数，index=1）
+  CatalogFieldValueGet: [{ pos: 1, catalog: 'any' }],
+  CatalogFieldValueGetAsInt: [{ pos: 1, catalog: 'any' }],
+  CatalogFieldValueGetFlagsAsInt: [{ pos: 1, catalog: 'any' }],
+  CatalogFieldValueSet: [{ pos: 1, catalog: 'any' }],
+  CatalogFieldValueModify: [{ pos: 1, catalog: 'any' }],
+  CatalogFieldValueCount: [{ pos: 1, catalog: 'any' }],
+};
+
+function checkCatalogRef(
+  expr: ast.CallExpression,
+  ctx: AnalyzeContext,
+  engine: RuleEngine,
+  filename: string,
+  issues: Issue[]
+): void {
+  if (!ctx.catalogDb) return;
+  if (!engine.isRuleEnabled('CATALOG_INVALID_UNIT_REF')) return;
+  if (expr.callee.type !== 'Identifier') return;
+  const specs = CATALOG_REF_FUNCS[expr.callee.name];
+  if (!specs) return;
+
+  for (const spec of specs) {
+    const arg = expr.arguments[spec.pos];
+    if (!arg || arg.type !== 'Literal' || arg.literalType !== 'string') continue;
+    const id = arg.value as string;
+    if (!id) continue;
+
+    const exists = spec.catalog === 'any'
+      ? Object.values(ctx.catalogDb).some(set => set?.has(id) ?? false)
+      : ctx.catalogDb[spec.catalog]?.has(id) ?? false;
+
+    if (!exists) {
+      const catLabel = spec.catalog === 'any' ? 'catalog' : spec.catalog;
+      issues.push(
+        engine.makeIssue(
+          'CATALOG_INVALID_UNIT_REF',
+          filename,
+          (arg as any).start?.line ?? (expr as any).start?.line ?? 0,
+          (arg as any).start?.column ?? (expr as any).start?.column ?? 0,
+          `字符串 '${id}' 在 ${catLabel} 中找不到，可能是 mod 依赖缺失或 ID 拼写错误（函数 ${expr.callee.name}）`
+        )!
+      );
+    }
+  }
+}
+
 function checkExpression(
   expr: ast.Expression,
   scope: Scope,
@@ -289,6 +365,8 @@ function checkExpression(
       }
       break;
     case 'CallExpression':
+      // catalog 引用校验：检查传给 catalog native 的字符串字面量是否指向有效条目
+      checkCatalogRef(expr, ctx, engine, filename, issues);
       if (expr.callee.type === 'Identifier') {
         const fnName = expr.callee.name;
         const fn = scope.lookupFunction(fnName);

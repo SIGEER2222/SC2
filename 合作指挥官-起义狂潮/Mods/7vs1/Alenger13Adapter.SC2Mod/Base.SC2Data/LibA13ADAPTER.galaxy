@@ -12,11 +12,48 @@ include "LibA13ADAPTER_h"
 //--------------------------------------------------------------------------------------------------
 bool libA13ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
     int lp_player = 1;
+    int lv_player;
+    int lv_i;
+    playergroup auto13ADAPTER_g;
 
     if (testConds) { return true; }
     if (!runActions) { return true; }
 
     // 13净化者无源 galaxy 运行时升级逻辑
+
+    // 为所有人类玩家解锁能力
+    auto13ADAPTER_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto13ADAPTER_g, lv_player);
+        if (lv_player < 0) { break; }
+        if ((PlayerType(lv_player) == c_playerTypeUser)) {
+            for (lv_i = 0; lv_i <= 31; lv_i += 1) {
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13zheyuejianzao", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13zheyuejianzao5", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13bianxingjianzao", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13bushufuwuqi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13zheyue1", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13zheyue2", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13zheyue5", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13zheyuebianxing", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13zheyuebianxing5", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13bianxingweijinghuazhehexin", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13bianxingweijinghuazhehexinPlacement", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13yanfa2", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13yanfa3", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13yanfa4", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13bianxingweijinghuazhehexin2", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13bianxingweiyingxionghexin", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13yunshumoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13xiangweimoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13jidongmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13kuozhanmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13shouweizhechonggou", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("13shouweizhesiwang", lv_i), true);
+            }
+        }
+    }
     return true;
 }
 

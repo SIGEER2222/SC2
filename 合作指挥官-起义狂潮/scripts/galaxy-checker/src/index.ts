@@ -9,7 +9,7 @@ import { NativeFunctionTable } from './analyzer/NativeFunctionTable.js';
 import { ProjectLoader } from './analyzer/ProjectLoader.js';
 import { analyze } from './analyzer/SemanticAnalyzer.js';
 import { SymbolTable } from './analyzer/SymbolTable.js';
-import type { Issue, CheckResult, CheckOptions } from './types.js';
+import type { Issue, CheckResult, CheckOptions, CatalogDb } from './types.js';
 
 export { parse, RuleEngine, checkRules, IssueReporter, NativeFunctionTable, ProjectLoader, analyze };
 export type { Issue, CheckResult, CheckOptions };
@@ -18,6 +18,9 @@ const DEFAULT_RULES_PATH = resolveDataFile('project-rules.json');
 
 // 随包附带的 native 函数签名表（由编辑器全函数索引生成）
 const DEFAULT_NATIVES_PATH = resolveDataFile('natives.galaxy');
+
+// 默认 catalog ID 数据库（由 sc2_unit_explorer.py --export-catalog-ids 导出）
+const DEFAULT_CATALOG_DB_PATH = resolveDataFile('catalog-ids.json');
 
 // 从源码提取 include 路径
 function extractIncludes(source: string): string[] {
@@ -64,6 +67,10 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
   // native 签名优先用 options.nativeLibPath，否则回退到附带的 data/natives.galaxy
   const nativeTable = getNativeTable(options.nativeLibPath);
 
+  // catalog ID 数据库：用于校验 galaxy 脚本中传给 catalog native 的字符串字面量
+  // 优先用 options.catalogDbPath，否则回退到附带的 data/catalog-ids.json
+  const catalogDb = loadCatalogDb(options.catalogDbPath);
+
   const files = collectFiles(target);
   const allIssues: Issue[] = [];
 
@@ -84,10 +91,10 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
     const syntaxIssues = checkRules(content, basename(file), parsed);
     allIssues.push(...syntaxIssues);
 
-    // 语义层 + 跨库/native 检查
+    // 语义层 + 跨库/native 检查 + catalog 引用校验
     const semanticIssues = analyze(
       content, basename(file), globalTable, nativeTable, engine,
-      { ast: parsed.ast, errors: [] }
+      { ast: parsed.ast, errors: [] }, catalogDb
     );
     allIssues.push(...semanticIssues);
 
@@ -125,6 +132,33 @@ function getNativeTable(nativeLibPath?: string): NativeFunctionTable {
   cachedNativeTable = table;
   cachedNativePath = path;
   return table;
+}
+
+// catalog ID 数据库按路径缓存（同进程内重复 check() 免重复解析 JSON）
+let cachedCatalogDb: CatalogDb | null = null;
+let cachedCatalogPath: string | null = null;
+
+function loadCatalogDb(catalogDbPath?: string): CatalogDb | undefined {
+  const path = catalogDbPath && existsSync(catalogDbPath)
+    ? catalogDbPath
+    : existsSync(DEFAULT_CATALOG_DB_PATH) ? DEFAULT_CATALOG_DB_PATH : null;
+  if (path === null) return undefined;
+  if (cachedCatalogDb && cachedCatalogPath === path) return cachedCatalogDb;
+  try {
+    const raw = JSON.parse(readFileSync(path, 'utf-8')) as Record<string, string[]>;
+    // 将 JSON 数组转换为 Set 实现 O(1) 查找
+    const db: CatalogDb = {};
+    for (const key of ['Unit', 'Abil', 'Upgrade', 'Behavior', 'Effect', 'Button'] as const) {
+      if (Array.isArray(raw[key])) {
+        db[key] = new Set(raw[key]);
+      }
+    }
+    cachedCatalogDb = db;
+    cachedCatalogPath = path;
+    return db;
+  } catch {
+    return undefined;
+  }
 }
 
 function collectFiles(target: string): string[] {

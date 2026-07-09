@@ -12,11 +12,60 @@ include "LibA6ADAPTER_h"
 //--------------------------------------------------------------------------------------------------
 bool libA6ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
     int lp_player = 1;
+    int lv_player;
+    int lv_i;
+    playergroup auto6ADAPTER_g;
 
     if (testConds) { return true; }
     if (!runActions) { return true; }
 
     // 6阿巴瑟无源 galaxy 运行时升级逻辑
+
+    // 为所有人类玩家解锁 6阿巴瑟 全部能力
+    // 能力解锁：7vs1 框架的 ApplyOriginal7v1OpenerTech 不覆盖 Alenger 指挥官，
+    // 需在此显式解锁工兵建造/主基地训练/研究/变异能力，否则建造面板按钮缺失
+    auto6ADAPTER_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto6ADAPTER_g, lv_player);
+        if (lv_player < 0) { break; }
+        if ((PlayerType(lv_player) == c_playerTypeUser)) {
+            // 解锁工兵建造能力 6jianzhubianyi / 6fuhuajuduzhongliu（cmd 0-31）
+            // 解锁主基地训练能力 6fuhualiweitan / 6danweibianyi / 6fuhuawangshou
+            // 解锁研究能力 6jinhua / 6jinhua2
+            // 解锁变异能力（20 条）
+            for (lv_i = 0; lv_i <= 31; lv_i += 1) {
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6jianzhubianyi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6fuhuajuduzhongliu", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6fuhualiweitan", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6danweibianyi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6fuhuawangshou", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6jinhua", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6jinhua2", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6jinhuaweijunwangliweitam", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6mangshouchudi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6mangshouqiandi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6zhanglangqiandi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6zhanglangchudi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6bianyiweichongxue", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6jizhenpachongzhanqi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6baozipachongzhanqi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6bianyiweizhuchao", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6juduzhongliumaidi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6huozhanglangqiandi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6huozhanglangchudi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6wangshouqiandi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6wangshouchudi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6buyuchonghouqiandi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6buyuchonghouchudi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6chongqunsuzhuqiandi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6chongqunsuzhuchudi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6xiechongchudi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("6xiechongqiandi", lv_i), true);
+            }
+        }
+    }
+
     return true;
 }
 

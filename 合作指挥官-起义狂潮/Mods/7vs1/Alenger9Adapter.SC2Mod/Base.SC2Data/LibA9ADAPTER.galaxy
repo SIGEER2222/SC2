@@ -12,6 +12,9 @@ include "LibA9ADAPTER_h"
 //--------------------------------------------------------------------------------------------------
 bool libA9ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
     int lp_player = 1;
+    int lv_player;
+    int lv_i;
+    playergroup auto9ADAPTER_g;
 
     if (testConds) { return true; }
     if (!runActions) { return true; }
@@ -27,6 +30,77 @@ bool libA9ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
     libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9xuanxueyuanli", 1);
     libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9wodelingyibanmila", 1);
     libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9wodelingyibanhuona", 1);
+
+    // 为所有人类玩家解锁 9海盗 全部单位（从 LibF8F3C7A7.galaxy 提取，20 条）
+    auto9ADAPTER_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto9ADAPTER_g, lv_player);
+        if (lv_player < 0) { break; }
+        if ((PlayerType(lv_player) == c_playerTypeUser)) {
+            TechTreeUnitAllow(lv_player, "9shougezhe", true);
+            TechTreeUnitAllow(lv_player, "9zonghuokuang", true);
+            TechTreeUnitAllow(lv_player, "9youqibing", true);
+            TechTreeUnitAllow(lv_player, "9mingfudilei", true);
+            TechTreeUnitAllow(lv_player, "9jieluezhe", true);
+            TechTreeUnitAllow(lv_player, "9boyinyunshuji", true);
+            TechTreeUnitAllow(lv_player, "9haiyao", true);
+            TechTreeUnitAllow(lv_player, "9penhuotankeTank", true);
+            TechTreeUnitAllow(lv_player, "9zhazhiji", true);
+            TechTreeUnitAllow(lv_player, "9shanginlieren", true);
+            TechTreeUnitAllow(lv_player, "9anya", true);
+            TechTreeUnitAllow(lv_player, "9jiaoshibaolei", true);
+            TechTreeUnitAllow(lv_player, "9jiefangzheAA", true);
+            TechTreeUnitAllow(lv_player, "9nvwangfuchoujizhanliexunhangjian", true);
+            TechTreeUnitAllow(lv_player, "9weijingzhanji", true);
+            TechTreeUnitAllow(lv_player, "9chenmomalihao", true);
+            TechTreeUnitAllow(lv_player, "9daodanfangyupingtai", true);
+            TechTreeUnitAllow(lv_player, "9haiguaihao", true);
+            TechTreeUnitAllow(lv_player, "9morizhadan", true);
+            TechTreeUnitAllow(lv_player, "9sepilongwang", true);
+
+            // 解锁工兵建造能力 9bushumorizhadan / 9jianzao（cmd 0-31）
+            // 解锁主基地训练能力 9bushu4 / 9bushu5 / 9guyong1 / 9guyong2 / 9guyong3 / 9zhaomushangjinlieren
+            // 解锁变异能力（25 条）
+            // 能力解锁：7vs1 框架的 ApplyOriginal7v1OpenerTech 不覆盖 Alenger 指挥官，
+            // 需在此显式解锁工兵建造/主基地训练/研究/变异能力，否则建造面板按钮缺失
+            for (lv_i = 0; lv_i <= 31; lv_i += 1) {
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9bushumorizhadan", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9jianzao", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9bushu4", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9bushu5", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9guyong1", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9guyong2", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9guyong3", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9zhaomushangjinlieren", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9bianxingweitujipaojian0", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9guanbijianduigongchengmoshi2", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9bianxingweituximujian0", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9jiangxia", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9luodi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9qifei1", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9guanbijianduigongchengmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9qifei2", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9shengkong1", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9shengqi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9shengkong", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9zhanjimoshiS", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9bianxingweixingkongyaosai", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9qiandi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9chudi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9bianxingweizonghuokuang", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9bianyiweiyouqibing", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9quxiaogongchengmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9gongchengmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9jijiamoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9zhanjimoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9fangweimoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9tujimoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("9paojimoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("4zhandoumoshi", lv_i), true);
+            }
+        }
+    }
 
     return true;
 }

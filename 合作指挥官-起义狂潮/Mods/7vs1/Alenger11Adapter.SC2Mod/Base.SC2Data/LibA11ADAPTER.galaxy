@@ -1,0 +1,40 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA11ADAPTER_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alenger11Adapter
+// 11群友 adapter，对接 7v1 框架。无源 galaxy 运行时，MapInit 触发器仅返回 true。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MapInit
+//--------------------------------------------------------------------------------------------------
+bool libA11ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
+    int lp_player = 1;
+
+    if (testConds) { return true; }
+    if (!runActions) { return true; }
+
+    // 11群友无源 galaxy 运行时升级逻辑
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libA11ADAPTER_InitTriggers () {
+    libA11ADAPTER_gt_MapInit = TriggerCreate("libA11ADAPTER_gt_MapInit_Func");
+    TriggerAddEventMapInit(libA11ADAPTER_gt_MapInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libA11ADAPTER_InitLib_completed = false;
+
+void libA11ADAPTER_InitLib () {
+    if (libA11ADAPTER_InitLib_completed) {
+        return;
+    }
+    libA11ADAPTER_InitLib_completed = true;
+    libA11ADAPTER_InitTriggers();
+}

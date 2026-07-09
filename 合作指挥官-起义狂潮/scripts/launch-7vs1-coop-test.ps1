@@ -1255,6 +1255,7 @@ $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependen
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger6.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger6Adapter.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger8.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger8Runtime.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger8Adapter.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger9.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger9Adapter.SC2Mod"
@@ -1262,6 +1263,14 @@ $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependen
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger12Adapter.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger13.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger13Adapter.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger2.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger2Adapter.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger7.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger7Adapter.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger10.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger10Adapter.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger11.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger11Adapter.SC2Mod"
 # 按需加载：只添加选中指挥官对应的 CommanderUnits mod
 foreach ($catalogDep in (Get-SplitCatalogModDependencies -Commanders $effectiveCommanders)) {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency $catalogDep
@@ -1317,6 +1326,21 @@ if (Test-Path -LiteralPath $workspaceCommanderUnitsRoot) {
         }
 }
 
+# 收集 Alenger*Adapter.SC2Mod 的 Base.SC2Data 目录用于 galaxy 注入。
+# LibE0EAE146_AdapterBootstrap include 了所有 adapter galaxy，
+# 需要把这些文件注入到地图 Base.SC2Data 目录以解析 include 链。
+$adapterBaseDataRoots = @()
+if (Test-Path -LiteralPath $workspaceCommanderUnitsRoot) {
+    Get-ChildItem -LiteralPath $workspaceCommanderUnitsRoot -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -like 'Alenger*Adapter.SC2Mod' } |
+        ForEach-Object {
+            $baseData = Join-Path $_.FullName "Base.SC2Data"
+            if (Test-Path -LiteralPath $baseData) {
+                $adapterBaseDataRoots += $baseData
+            }
+        }
+}
+
 if ($LiveMapName -ne "emptytest.SC2Map") {
     Sync-LiveMapRuntimeLibraries `
         -MapLive $mapLive `
@@ -1324,6 +1348,7 @@ if ($LiveMapName -ne "emptytest.SC2Map") {
             $extensionBaseData
             $commanderBridgeLiveBaseData
             $commanderUnitsBaseDataRoots
+            $adapterBaseDataRoots
             $kitMutationsLiveBaseData
         )
 }

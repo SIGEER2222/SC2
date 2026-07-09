@@ -12,11 +12,42 @@ include "LibA12ADAPTER_h"
 //--------------------------------------------------------------------------------------------------
 bool libA12ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
     int lp_player = 1;
+    int lv_player;
+    int lv_i;
+    playergroup auto12ADAPTER_g;
 
     if (testConds) { return true; }
     if (!runActions) { return true; }
 
     // 12游骑兵无源 galaxy 运行时升级逻辑
+
+    // 为所有人类玩家解锁能力
+    auto12ADAPTER_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto12ADAPTER_g, lv_player);
+        if (lv_player < 0) { break; }
+        if ((PlayerType(lv_player) == c_playerTypeUser)) {
+            for (lv_i = 0; lv_i <= 31; lv_i += 1) {
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12jianzao", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12hujiao4", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12hujiao5", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12shengchan3", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12xunlian1", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12xunlian2", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12shengkong1", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12shengkong3", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12shengkong4", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12shengkong22", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12gongchengmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12quxiaogongchengmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12chongjimoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12baoliemoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12jijiamoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("12zhanjimoshi", lv_i), true);
+            }
+        }
+    }
     return true;
 }
 

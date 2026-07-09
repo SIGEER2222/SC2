@@ -21,6 +21,19 @@ export interface CheckOptions {
   nativeLibPath?: string;
   globalSymbolGlobs?: string[];
   noGlobalSymbols?: boolean;
+  catalogDbPath?: string;
+}
+
+// Catalog ID 数据库：从 sc2_unit_explorer.py --export-catalog-ids 导出的 JSON
+// 用于校验 galaxy 脚本中传给 catalog native 的字符串字面量是否指向有效条目
+// 使用 Set 实现 O(1) 查找（JSON 中的数组在 index.ts 加载时转换为 Set）
+export interface CatalogDb {
+  Unit?: Set<string>;
+  Abil?: Set<string>;
+  Upgrade?: Set<string>;
+  Behavior?: Set<string>;
+  Effect?: Set<string>;
+  Button?: Set<string>;
 }
 
 // Galaxy 类型枚举（来自设计文档 §14.1）

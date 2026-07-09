@@ -1332,6 +1332,36 @@ def list_abilities(db: CatalogDB, pattern: Optional[str] = None) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Catalog ID 导出（供 galaxy-checker 校验脚本中的字符串引用）
+# ---------------------------------------------------------------------------
+def export_catalog_ids(db: CatalogDB, out_path: Optional[str]) -> int:
+    """导出所有 catalog ID 集合为 JSON。
+
+    galaxy-checker 的 CATALOG_INVALID_UNIT_REF 规则需要知道哪些 ID 真实存在，
+    以校验 galaxy 脚本中传给 UnitCreate / CatalogFieldValueGet 等 native 的
+    字符串字面量是否指向有效条目。
+
+    导出格式：{ "Unit": [...], "Abil": [...], "Upgrade": [...], ... }
+    """
+    # 只导出 galaxy 脚本中常作为字符串引用的 catalog 类型，避免 JSON 过大
+    export_catalogs = ("Unit", "Abil", "Upgrade", "Behavior", "Effect", "Button")
+    data = {}
+    for cat in export_catalogs:
+        ids = sorted(db.catalogs.get(cat, {}).keys())
+        data[cat] = ids
+    payload = json.dumps(data, ensure_ascii=False, indent=2)
+    if out_path:
+        Path(out_path).write_text(payload, encoding="utf-8")
+        total = sum(len(v) for v in data.values())
+        print(f"[INFO] 已导出 {total} 个 catalog ID 到: {out_path}", file=sys.stderr)
+        for cat in export_catalogs:
+            print(f"  {cat}: {len(data[cat])} 个", file=sys.stderr)
+    else:
+        print(payload)
+    return 0
+
+
+# ---------------------------------------------------------------------------
 # 命令行入口
 # ---------------------------------------------------------------------------
 def parse_args(argv: Optional[List[str]] = None):
@@ -1361,6 +1391,8 @@ def parse_args(argv: Optional[List[str]] = None):
     p.add_argument("--list-units", action="store_true", help="列出所有单位 ID")
     p.add_argument("--list-abilities", action="store_true", help="列出所有能力 ID")
     p.add_argument("--filter", help="配合 --list-units/--list-abilities 使用，正则过滤")
+    p.add_argument("--export-catalog-ids", action="store_true",
+                   help="导出所有 catalog ID 集合为 JSON（供 galaxy-checker 校验脚本中的字符串引用）")
     p.add_argument("--out", help="输出到文件（默认 stdout）")
     return p.parse_args(argv)
 
@@ -1395,6 +1427,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     if args.list_abilities:
         list_abilities(db, args.filter)
         return 0
+    if args.export_catalog_ids:
+        return export_catalog_ids(db, args.out)
 
     if not args.unit_id:
         print("[ERROR] 必须提供 unit_id，或使用 --list-units/--list-abilities",

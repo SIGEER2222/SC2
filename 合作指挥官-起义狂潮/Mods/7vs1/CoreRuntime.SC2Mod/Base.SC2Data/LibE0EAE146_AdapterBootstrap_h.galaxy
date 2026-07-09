@@ -1,0 +1,10 @@
+//--------------------------------------------------------------------------------------------------
+// Library: AdapterBootstrap Header
+// 统一引导所有 Alenger*Adapter 库的初始化。
+// 由于 7vs1 地图 MapScript.galaxy 的 InitLibs() 只调用标准库与 LibE0EAE146，
+// adapter 的 InitLib 从未被调用，导致 MapInit 触发器未创建、升级/解锁/生成代码未执行。
+// 本 bootstrap 由 LibE0EAE146 include 并在 InitLib 中调用，
+// 确保所有 adapter 的触发器被正确创建。
+//--------------------------------------------------------------------------------------------------
+
+void libE0EAE146_AdapterBootstrap_InitLib ();

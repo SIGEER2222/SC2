@@ -1,0 +1,74 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA7ADAPTER_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alenger7Adapter
+// 7卡莱 adapter，对接 7v1 框架。无源 galaxy 运行时，MapInit 触发器仅返回 true。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MapInit
+//--------------------------------------------------------------------------------------------------
+bool libA7ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
+    int lp_player = 1;
+    int lv_player;
+    int lv_i;
+    playergroup auto7ADAPTER_g;
+
+    if (testConds) { return true; }
+    if (!runActions) { return true; }
+
+    // 7卡莱无源 galaxy 运行时升级逻辑
+
+    // 为所有人类玩家解锁 7卡莱 全部能力
+    // 能力解锁：7vs1 框架的 ApplyOriginal7v1OpenerTech 不覆盖 Alenger 指挥官，
+    // 需在此显式解锁工兵建造/主基地训练/研究/变异能力，否则建造面板按钮缺失
+    auto7ADAPTER_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto7ADAPTER_g, lv_player);
+        if (lv_player < 0) { break; }
+        if ((PlayerType(lv_player) == c_playerTypeUser)) {
+            // 解锁工兵建造能力 7zheyuexiangweishuniu / 7zheyuejianzao（cmd 0-31）
+            // 解锁主基地训练能力 7zheyuetanji / 7zheyuemujianhexin
+            // 解锁研究能力 7yanjiu / 7taiyanghexinchongnengqi
+            // 解锁变异能力（6 条）
+            for (lv_i = 0; lv_i <= 31; lv_i += 1) {
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7zheyuexiangweishuniu", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7zheyuejianzao", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7zheyuetanji", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7zheyuemujianhexin", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7yanjiu", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7taiyanghexinchongnengqi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7longqishishengkong", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7longqishizhuolu", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7buxiuzhezhuolu", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7shengjiweitaiyangduanlu", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7xiangweimoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("7buxiuzheshengkong", lv_i), true);
+            }
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libA7ADAPTER_InitTriggers () {
+    libA7ADAPTER_gt_MapInit = TriggerCreate("libA7ADAPTER_gt_MapInit_Func");
+    TriggerAddEventMapInit(libA7ADAPTER_gt_MapInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libA7ADAPTER_InitLib_completed = false;
+
+void libA7ADAPTER_InitLib () {
+    if (libA7ADAPTER_InitLib_completed) {
+        return;
+    }
+    libA7ADAPTER_InitLib_completed = true;
+    libA7ADAPTER_InitTriggers();
+}

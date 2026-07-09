@@ -323,6 +323,10 @@ string libE0EAE146_gf_CommanderOfficialPlayerCommanderInstance (string lp_comman
     if (lp_commander == "Alenger9") { return "TerranAlenger9"; }
     if (lp_commander == "Alenger12") { return "TerranAlenger12"; }
     if (lp_commander == "Alenger13") { return "ProtossAlenger13"; }
+    if (lp_commander == "Alenger2") { return "ZergAlenger2"; }
+    if (lp_commander == "Alenger7") { return "ProtossAlenger7"; }
+    if (lp_commander == "Alenger10") { return "TerranAlenger10"; }
+    if (lp_commander == "Alenger11") { return "TerranAlenger11"; }
 
     return "";
 }
@@ -399,6 +403,10 @@ string libE0EAE146_gf_CommanderShortName (string lp_commander) {
     if (lp_commander == "TerranAlenger9") { return "Alenger9"; }
     if (lp_commander == "TerranAlenger12") { return "Alenger12"; }
     if (lp_commander == "ProtossAlenger13") { return "Alenger13"; }
+    if (lp_commander == "ZergAlenger2") { return "Alenger2"; }
+    if (lp_commander == "ProtossAlenger7") { return "Alenger7"; }
+    if (lp_commander == "TerranAlenger10") { return "Alenger10"; }
+    if (lp_commander == "TerranAlenger11") { return "Alenger11"; }
     return lp_commander;
 }
 
@@ -1601,6 +1609,94 @@ string libE0EAE146_gf_CommanderAchUnit (string lp_field) {
                 return lv_unit;
             }
             return libE0EAE146_gf_CatalogUnitOrEmpty("Zealot");
+        }
+    }
+
+    // Alenger2 (2贝希摩斯虫群): 使用 mod 自带单位作为开局基础
+    if (lv_commander == "Alenger2") {
+        if (lp_field == "CommandCenter") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("2chujichaoxue");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("Hatchery");
+        }
+        if (lp_field == "Worker") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("2gongchong");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("Drone");
+        }
+        if (lp_field == "SecondUnit") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("2chonghou");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("Zergling");
+        }
+    }
+
+    // Alenger7 (7卡莱): 使用 mod 自带单位作为开局基础
+    if (lv_commander == "Alenger7") {
+        if (lp_field == "CommandCenter") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("7xiangweishuniu");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("Nexus");
+        }
+        if (lp_field == "Worker") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("7xiangweitanji");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("Probe");
+        }
+        if (lp_field == "SecondUnit") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("7mujianhexin");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("Zealot");
+        }
+    }
+
+    // Alenger10 (10埃蒙): 无传统基地/工人，使用种族默认 fallback
+    if (lv_commander == "Alenger10") {
+        if (lp_field == "CommandCenter") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("10xukongliexi");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
+        }
+        if (lp_field == "Worker") {
+            return libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
+        }
+        if (lp_field == "SecondUnit") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("10hunhetiliulangzhe");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
+        }
+    }
+
+    // Alenger11 (11群友): 无传统基地/工人，使用种族默认 fallback
+    if (lv_commander == "Alenger11") {
+        if (lp_field == "CommandCenter") {
+            return libE0EAE146_gf_CatalogUnitOrEmpty("CommandCenter");
+        }
+        if (lp_field == "Worker") {
+            return libE0EAE146_gf_CatalogUnitOrEmpty("SCV");
+        }
+        if (lp_field == "SecondUnit") {
+            lv_unit = libE0EAE146_gf_CatalogUnitOrEmpty("11xiaojianguo");
+            if (lv_unit != "") {
+                return lv_unit;
+            }
+            return libE0EAE146_gf_CatalogUnitOrEmpty("Marine");
         }
     }
 

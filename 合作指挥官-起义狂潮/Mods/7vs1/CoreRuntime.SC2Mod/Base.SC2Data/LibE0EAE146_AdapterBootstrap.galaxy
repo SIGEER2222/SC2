@@ -1,0 +1,50 @@
+include "TriggerLibs/NativeLib"
+
+include "LibE0EAE146_AdapterBootstrap_h"
+
+// 包含所有 Alenger*Adapter 库，确保其 InitLib 可被调用。
+// adapter galaxy 文件由 launch-7vs1-coop-test.ps1 从工作区注入到地图 Base.SC2Data 目录。
+include "LibA1ADAPTER"
+include "LibA2ADAPTER"
+include "LibA3ADAPTER"
+include "LibA6ADAPTER"
+include "LibA7ADAPTER"
+include "LibA8ADAPTER"
+include "LibA9ADAPTER"
+include "LibA10ADAPTER"
+include "LibA11ADAPTER"
+include "LibA12ADAPTER"
+include "LibA13ADAPTER"
+
+//--------------------------------------------------------------------------------------------------
+// Library: AdapterBootstrap
+// 统一引导所有 Alenger*Adapter 库的初始化。
+// 7vs1 地图 MapScript.galaxy 的 InitLibs() 只调用标准库与 LibE0EAE146，
+// adapter 的 InitLib 从未被调用，导致 MapInit 触发器未创建、升级/解锁/生成代码未执行。
+// 本 bootstrap 由 LibE0EAE146 include 并在 InitLib 中调用，
+// 确保所有 adapter 的触发器被正确创建。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libE0EAE146_AdapterBootstrap_InitLib_completed = false;
+
+void libE0EAE146_AdapterBootstrap_InitLib () {
+    if (libE0EAE146_AdapterBootstrap_InitLib_completed) {
+        return;
+    }
+    libE0EAE146_AdapterBootstrap_InitLib_completed = true;
+
+    libA8ADAPTER_InitLib();
+    libA1ADAPTER_InitLib();
+    libA2ADAPTER_InitLib();
+    libA3ADAPTER_InitLib();
+    libA6ADAPTER_InitLib();
+    libA7ADAPTER_InitLib();
+    libA9ADAPTER_InitLib();
+    libA10ADAPTER_InitLib();
+    libA11ADAPTER_InitLib();
+    libA12ADAPTER_InitLib();
+    libA13ADAPTER_InitLib();
+}
