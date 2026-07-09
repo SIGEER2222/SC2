@@ -9,6 +9,13 @@
 - 只做当前任务需要的最小改动，不要顺手重构无关内容。
 - 编辑文件优先用 `apply_patch`。
 - 如果发现远端有新提交，先快进同步，再继续修改。
+- **编写/修改 galaxy 脚本（`.galaxy` / `_h.galaxy`）后，必须先调用 galaxy-checker 解析器验证再进图测试**：
+  - 路径：`E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\galaxy-checker\dist\cli.mjs`
+  - 用法：`node dist/cli.mjs "<目标 .galaxy 文件或 Base.SC2Data 目录>" --format text`
+  - 扫描整个 mod 目录比单文件更准（能加载 `_h.galaxy` 声明和跨文件符号）：`node dist/cli.mjs "E:\...\某mod.SC2Mod\Base.SC2Data" --format text`
+  - 解析器能识别 9 类错误（语法/语义/跨库引用/编码/BOM 等），行号定位精确到列，远优于 SC2 编译器（SC2 报"错误的参数集数"时常常滞后 1 行且不指明函数）。
+  - 优先修复解析器报出的 `[ERROR]` 级问题（特别是 `SEM_ARGUMENT_COUNT_MISMATCH` / `SEM_UNDECLARED_*` / `XLIB_UNDEFINED_CROSS_REF` / `SYNTAX_NO_CONTINUE` / `PROJ_BOM_DETECTED`），确认 0 错误或剩余错误均为已知跨 mod 引用问题后再进图。
+  - 若 `dist/` 不存在，先 `cd scripts/galaxy-checker && npm install && npm run build`。
 - 涉及地图/触发器/运行时改动时，**必须实际进入地图测试**。按以下优先级逐步校验：
   - 如果游戏正在运行，必须重启游戏，把这个写到启动脚本里，启动后**必须**运行 `powershell -NoProfile -ExecutionPolicy Bypass -File E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\wait-for-game-ready.ps1` 并**等待脚本返回结果**，不可提前结束任务。
   - 智能等待逻辑（不会删除任何日志文件）：
@@ -44,6 +51,41 @@
 E:\Code\MyMod\SC2\其他mod\SC2GameData
 
 ## 工具脚本
+
+### Galaxy 静态解析器（galaxy-checker）
+
+**路径**：`E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\galaxy-checker\`
+
+**用途**：静态解析 galaxy 脚本（`.galaxy` / `_h.galaxy`），无需启动游戏即可发现编译错误。**编写/修改 galaxy 脚本后必须先调用此工具验证**，避免把本可静态发现的错误拖到 30+ 秒的进图测试环节。
+
+**核心能力**：
+- Lexer / Parser（chevrotain 递归下降，C 优先级层次完整，支持 do-while / 位移 / 复合赋值 / 多维数组）
+- SemanticAnalyzer（声明收集、跨文件全局符号表、native 表、类型检查、外部库识别）
+- 行号定位精确到列（优于 SC2 编译器，SC2 报错常常滞后 1 行且不指明函数）
+- 14 条规则覆盖 9 类错误：SYNTAX（no-continue / no-local-init）、SEM（undeclared var/fn、arg-count、duplicate、void-in-condition、return/assign 类型）、XLIB（disallowed-native、undefined-cross-ref、missing-include）、PROJ（UTF-8 BOM、编码）
+
+**常用命令**：
+```powershell
+# 扫描单个文件
+node scripts/galaxy-checker/dist/cli.mjs "路径/某文件.galaxy" --format text
+
+# 扫描整个 mod 目录（推荐，能加载 _h.galaxy 声明和跨文件符号）
+node scripts/galaxy-checker/dist/cli.mjs "路径/某mod.SC2Mod/Base.SC2Data" --format text
+
+# JSON 格式输出
+node scripts/galaxy-checker/dist/cli.mjs "路径" --format json
+```
+
+**规则说明**：规则配置在 `data/project-rules.json`，可启用/禁用单条规则或自定义严重级别。
+
+**构建**（首次使用或修改了 `src/` 后）：`cd scripts/galaxy-checker && npm install && npm run build`，产物在 `dist/cli.mjs`。
+
+**测试**：`cd scripts/galaxy-checker && npx vitest run`（123 个测试）。
+
+**已知局限**：
+- 单文件扫描会报大量 `SEM_UNDECLARED_VARIABLE` / `XLIB_UNDEFINED_CROSS_REF`（因 `_h.galaxy` 声明和 NativeLib 跨库符号未加载），扫描整个 `Base.SC2Data` 目录可消除大部分噪音
+- 跨 mod 引用（如 CoreRuntime 的符号在 CommanderBridge 中引用）仍会报 `XLIB_UNDEFINED_CROSS_REF`，属已知问题，需结合上下文判断
+- 不解析 Actor 数据
 
 ### SC2 单位关系图查询工具（sc2_unit_explorer.py）
 
