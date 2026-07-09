@@ -108,32 +108,94 @@ function Resolve-ExtensionSource {
     return Join-Path $SourceRoot "s2ma_packages\pkg03\extract"
 }
 
+function Get-CommanderUnitsModName {
+    param([string]$Commander)
+
+    # 将 commander 标识符（如 "TerranRaynor"）映射到对应的 CommanderUnits mod 名称。
+    # 规则：去掉种族前缀（Terran/Zerg/Protoss）后的部分即 mod 后缀，
+    # 特殊情况单独处理。
+    $map = @{
+        "TerranRaynor"   = "Raynor"
+        "TerranRaynorX"  = "RaynorX"
+        "TerranNova"     = "Nova"
+        "TerranSwann"    = "Swann"
+        "TerranHorner"   = "Horner"
+        "TerranMengsk"   = "Mengsk"
+        "TerranTychus"   = "TychusXM"
+        "ZergKerrigan"   = "Kerrigan"
+        "ZergAbathur"    = "Abathur"
+        "ZergZagara"     = "Zagara"
+        "ZergStukov"     = "Stukov"
+        "ZergDehaka"     = "Dehaka"
+        "ZergStetmann"   = "Stetmann"
+        "ProtossArtanis" = "Artanis"
+        "ProtossVorazun" = "Vorazun"
+        "ProtossKarax"   = "Karax"
+        "ProtossFenix"   = "Fenix"
+        "ProtossAlarak"  = "Alarak"
+        "ProtossZeratul" = "Zeratul"
+    }
+
+    if ($map.ContainsKey($Commander)) {
+        return "CommanderUnits_$($map[$Commander])"
+    }
+    return $null
+}
+
 function Get-SplitCatalogModDependencies {
-    return @(
+    param(
+        [string[]]$Commanders = @()
+    )
+
+    # 基础共享 mod（无论选哪些指挥官都必须加载）
+    $base = @(
         "file:Mods/7vs1/BaseCatalogPatch.SC2Mod",
         "file:Mods/7vs1/CommanderBridge.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Abathur.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Horner.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Kerrigan.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Nova.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Raynor.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_RaynorX.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Alarak.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Artanis.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Dehaka.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Fenix.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Karax.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Mengsk.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Stukov.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Swann.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Vorazun.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Zagara.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Zeratul.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_Stetmann.SC2Mod",
-        "file:Mods/7vs1/CommanderUnits_TychusXM.SC2Mod",
         "file:Mods/7vs1/SharedUnits.SC2Mod",
         "file:Mods/7vs1/ExternalRefs.SC2Mod"
     )
+
+    # 未指定指挥官时返回全量依赖（向后兼容）
+    if ($Commanders.Count -eq 0) {
+        return @(
+            $base
+            "file:Mods/7vs1/CommanderUnits_Abathur.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Horner.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Kerrigan.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Nova.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Raynor.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_RaynorX.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Alarak.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Artanis.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Dehaka.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Fenix.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Karax.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Mengsk.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Stukov.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Swann.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Vorazun.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Zagara.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Zeratul.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_Stetmann.SC2Mod",
+            "file:Mods/7vs1/CommanderUnits_TychusXM.SC2Mod"
+        )
+    }
+
+    # 按需返回：只包含选中指挥官对应的 CommanderUnits mod
+    $result = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($b in $base) { $result.Add($b) }
+    foreach ($cmdr in $Commanders) {
+        $modName = Get-CommanderUnitsModName -Commander $cmdr
+        if ($modName) {
+            $dep = "file:Mods/7vs1/$modName.SC2Mod"
+            if (-not $result.Contains($dep)) {
+                $result.Add($dep)
+            }
+        }
+    }
+    $arr = New-Object 'string[]' $result.Count
+    $result.CopyTo($arr, 0)
+    return $arr
 }
 
 function Resolve-WorkspacePath {
@@ -936,7 +998,8 @@ function Validate-LiveBaseTestlineInstall {
     if (-not $mapInfo.Contains('file:Mods/7vs1/CommanderBridge.SC2Mod')) {
         throw 'Live base testline dependency missing: file:Mods/7vs1/CommanderBridge.SC2Mod'
     }
-    foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
+    # 按需校验：只检查选中指挥官对应的 CommanderUnits mod
+    foreach ($catalogDep in (Get-SplitCatalogModDependencies -Commanders $SelectedCommanders)) {
         if (-not $mapInfo.Contains($catalogDep)) {
             throw "Live base testline dependency missing: $catalogDep"
         }
@@ -1086,6 +1149,8 @@ if (-not (Test-Path -LiteralPath $SwitcherPath)) {
     throw "SwitcherPath not found: $SwitcherPath"
 }
 $workspaceRoot = Get-WorkspaceRoot
+# 工作区校验使用全量依赖列表，确保所有 CommanderUnits mod 都存在
+# （实际加载时按 -Commanders 参数按需选择）
 foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
     $catalogLocalPath = Join-Path $workspaceRoot ($catalogDep -replace '^file:', '')
     if (-not (Test-Path -LiteralPath $catalogLocalPath)) {
@@ -1184,7 +1249,8 @@ if ($LiveMapName -ne "emptytest.SC2Map") {
 }
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3Adapter.SC2Mod"
-foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
+# 按需加载：只添加选中指挥官对应的 CommanderUnits mod
+foreach ($catalogDep in (Get-SplitCatalogModDependencies -Commanders $effectiveCommanders)) {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency $catalogDep
 }
 # Remove the legacy CommanderCatalog.SC2Mod dependency now that it is split into the six mods above.
@@ -1221,14 +1287,14 @@ $extensionBaseData = Join-Path $extensionLive "Base.SC2Data"
 $commanderBridgeLiveBaseData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/7vs1/CommanderBridge.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data"
 $kitMutationsLiveBaseData = Join-Path (Resolve-LiveDependencyDestination -Dependency "file:Mods/kit_mutations.SC2Mod" -Sc2Root $Sc2Root) "Base.SC2Data"
 
-# 收集所有已安装的 CommanderUnits_*.SC2Mod 的 Base.SC2Data 目录
-# 各指挥官专属的 Runtime galaxy 文件已迁移到对应的 CommanderUnits mod 中，
-# 这里扫描 SC2 安装目录下的 Mods/7vs1/CommanderUnits_*.SC2Mod，将含有
-# Base.SC2Data 的目录加入运行时库注入列表，保证主库 include 能正确解析。
-$commanderUnitsModsRoot = Join-Path $Sc2Root "Mods\7vs1"
+# 收集 CommanderUnits_*.SC2Mod 的 Base.SC2Data 目录用于 galaxy 注入。
+# 按需加载后未选中的 mod 不会安装到 SC2 目录，因此从工作区源目录注入，
+# 保证主库 include 链能正确解析所有 Runtime galaxy 文件（即使对应 mod 未被加载，
+# galaxy 编译仍需要这些文件存在以避免 include 失败）。
+$workspaceCommanderUnitsRoot = Join-Path $workspaceRoot "Mods\7vs1"
 $commanderUnitsBaseDataRoots = @()
-if (Test-Path -LiteralPath $commanderUnitsModsRoot) {
-    Get-ChildItem -LiteralPath $commanderUnitsModsRoot -Directory -ErrorAction SilentlyContinue |
+if (Test-Path -LiteralPath $workspaceCommanderUnitsRoot) {
+    Get-ChildItem -LiteralPath $workspaceCommanderUnitsRoot -Directory -ErrorAction SilentlyContinue |
         Where-Object { $_.Name -like 'CommanderUnits_*.SC2Mod' } |
         ForEach-Object {
             $baseData = Join-Path $_.FullName "Base.SC2Data"
