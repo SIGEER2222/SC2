@@ -57,6 +57,16 @@ DEFAULT_MOD_PATHS: List[Path] = [
     PROJECT_ROOT / "Mods" / "7vs1" / "CommanderCatalog.SC2Mod",
 ]
 
+# 自动追加 7vs1 下的所有 *.SC2Mod 子目录（按字母序）
+# 确保所有指挥官模组的 catalog ID 都被导出，供 galaxy-checker 校验
+_7vs1_dir = PROJECT_ROOT / "Mods" / "7vs1"
+if _7vs1_dir.is_dir():
+    for _child in sorted(_7vs1_dir.iterdir()):
+        if _child.is_dir() and _child.name.upper().endswith(".SC2MOD"):
+            if _child not in DEFAULT_MOD_PATHS:
+                DEFAULT_MOD_PATHS.append(_child)
+    del _child
+
 # 自动追加 XM 下的所有 *.SC2Mod 子目录（按字母序）
 if XM_DIR.is_dir():
     for _child in sorted(XM_DIR.iterdir()):

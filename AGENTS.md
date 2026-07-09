@@ -61,8 +61,9 @@ E:\Code\MyMod\SC2\其他mod\SC2GameData
 **核心能力**：
 - Lexer / Parser（chevrotain 递归下降，C 优先级层次完整，支持 do-while / 位移 / 复合赋值 / 多维数组）
 - SemanticAnalyzer（声明收集、跨文件全局符号表、native 表、类型检查、外部库识别）
+- **catalog 引用校验**（CATALOG_INVALID_UNIT_REF）：检查 galaxy 脚本中传给 `UnitCreate`/`libNtve_gf_CreateUnitsWithDefaultFacing`/`UnitTypeGetProperty`/`CatalogFieldValueGet` 等 native 的字符串字面量是否在 GameData XML 中存在，能在不启动游戏的情况下发现 mod 依赖缺失或 ID 拼写错误
 - 行号定位精确到列（优于 SC2 编译器，SC2 报错常常滞后 1 行且不指明函数）
-- 14 条规则覆盖 9 类错误：SYNTAX（no-continue / no-local-init）、SEM（undeclared var/fn、arg-count、duplicate、void-in-condition、return/assign 类型）、XLIB（disallowed-native、undefined-cross-ref、missing-include）、PROJ（UTF-8 BOM、编码）
+- 15 条规则覆盖 10 类错误：SYNTAX（no-continue / no-local-init）、SEM（undeclared var/fn、arg-count、duplicate、void-in-condition、return/assign 类型）、XLIB（disallowed-native、undefined-cross-ref、missing-include）、PROJ（UTF-8 BOM、编码）、CATALOG（invalid-unit-ref）
 
 **常用命令**：
 ```powershell
@@ -80,11 +81,12 @@ node scripts/galaxy-checker/dist/cli.mjs "路径" --format json
 
 **构建**（首次使用或修改了 `src/` 后）：`cd scripts/galaxy-checker && npm install && npm run build`，产物在 `dist/cli.mjs`。
 
-**测试**：`cd scripts/galaxy-checker && npx vitest run`（123 个测试）。
+**测试**：`cd scripts/galaxy-checker && npx vitest run`（132 个测试）。
 
 **已知局限**：
 - 单文件扫描会报大量 `SEM_UNDECLARED_VARIABLE` / `XLIB_UNDEFINED_CROSS_REF`（因 `_h.galaxy` 声明和 NativeLib 跨库符号未加载），扫描整个 `Base.SC2Data` 目录可消除大部分噪音
 - 跨 mod 引用（如 CoreRuntime 的符号在 CommanderBridge 中引用）仍会报 `XLIB_UNDEFINED_CROSS_REF`，属已知问题，需结合上下文判断
+- catalog 引用校验仅检查字符串字面量（变量传递的 ID 无法追踪）；catalog DB 需包含所有相关 mod 才能避免误报（运行 `python scripts/sc2_unit_explorer.py --export-catalog-ids --out scripts/galaxy-checker/data/catalog-ids.json` 重新生成）
 - 不解析 Actor 数据
 
 ### SC2 单位关系图查询工具（sc2_unit_explorer.py）
