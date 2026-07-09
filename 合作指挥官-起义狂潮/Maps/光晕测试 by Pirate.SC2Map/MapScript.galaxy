@@ -26,6 +26,18 @@ int gv_debugButtonHaloReset;
 int gv_debugButtonHaloOn;
 int gv_debugButtonHaloOff;
 int gv_debugHaloFrame;
+
+//--------------------------------------------------------------------------------------------------
+// 小队弹仓系统全局变量
+// 模仿巢虫领主弹仓：英雄 RaynorMarine 携带 Marine 小队，初始 2 个，最大补充到 4 个
+//--------------------------------------------------------------------------------------------------
+unit gv_hero;
+unit[4] gv_squad;
+trigger gt_spawnHero;
+trigger gt_replenish;
+trigger gt_followHero;
+timer gv_replenishTimer;
+timer gv_followTimer;
 string[10] gv_sceneHaloWidth;
 string[6] gv_sceneHaloType;
 string[4] gv_sceneHaloRasterMode;
@@ -404,6 +416,162 @@ void gt_DebugFrameButtonHaloReset_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// 小队弹仓系统：地图初始化生成英雄 + 初始2个Marine，启动周期定时器
+//--------------------------------------------------------------------------------------------------
+bool gt_spawnHero_Func (bool testConds, bool runActions) {
+    point lv_center;
+    point lv_heroPos;
+    fixed lv_x;
+    fixed lv_y;
+
+    if (!runActions) {
+        return true;
+    }
+
+    // 初始资源：99999 矿物 + 99999 气体 + 500 人口上限
+    PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 99999);
+    PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 99999);
+    PlayerModifyPropertyInt(1, c_playerPropSuppliesLimit, c_playerPropOperSetTo, 500);
+
+    // 在可玩区域中心生成英雄（用 Marine 作为英雄单位，光晕地图仅依赖 Liberty mod）
+    lv_center = RegionGetCenter(RegionPlayableMap());
+    lv_x = PointGetX(lv_center);
+    lv_y = PointGetY(lv_center);
+    // 保护：确保 y 坐标非负，避免单位生成失败
+    if (lv_y < 5.0) {
+        lv_y = 5.0;
+    }
+    lv_heroPos = Point(lv_x, lv_y);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Marine", c_unitCreateIgnorePlacement, 1, lv_heroPos);
+    gv_hero = UnitLastCreated();
+
+    // 初始 2 个 Marine，分布在英雄两侧
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Marine", c_unitCreateIgnorePlacement, 1, Point(lv_x + 2.0, lv_y));
+    gv_squad[0] = UnitLastCreated();
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Marine", c_unitCreateIgnorePlacement, 1, Point(lv_x - 2.0, lv_y));
+    gv_squad[1] = UnitLastCreated();
+    gv_squad[2] = null;
+    gv_squad[3] = null;
+
+    // 选中英雄，方便玩家操作
+    UnitSelect(gv_hero, 1, true);
+
+    // 启动周期定时器：补充(6秒) + 跟随(2秒)
+    gv_replenishTimer = TimerCreate();
+    TimerStart(gv_replenishTimer, 6.0, true, c_timeGame);
+    TriggerAddEventTimer(gt_replenish, gv_replenishTimer);
+
+    gv_followTimer = TimerCreate();
+    TimerStart(gv_followTimer, 2.0, true, c_timeGame);
+    TriggerAddEventTimer(gt_followHero, gv_followTimer);
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_spawnHero_Init () {
+    gt_spawnHero = TriggerCreate("gt_spawnHero_Func");
+    TriggerAddEventMapInit(gt_spawnHero);
+}
+
+//--------------------------------------------------------------------------------------------------
+// 小队弹仓系统：周期补充（每6秒），清理死亡单位并补充空槽到最大4个
+//--------------------------------------------------------------------------------------------------
+bool gt_replenish_Func (bool testConds, bool runActions) {
+    int lv_i;
+    int lv_emptySlot;
+    point lv_heroPos;
+    fixed lv_x;
+    fixed lv_y;
+
+    if (!runActions) {
+        return true;
+    }
+
+    // 英雄死亡则不补充
+    if (gv_hero == null || !UnitIsAlive(gv_hero)) {
+        return true;
+    }
+
+    // 清理已死的小队成员槽位
+    for (lv_i = 0; lv_i <= 3; lv_i += 1) {
+        if (gv_squad[lv_i] != null) {
+            if (!UnitIsAlive(gv_squad[lv_i])) {
+                gv_squad[lv_i] = null;
+            }
+        }
+    }
+
+    // 找第一个空槽补充
+    lv_emptySlot = -1;
+    for (lv_i = 0; lv_i <= 3; lv_i += 1) {
+        if (gv_squad[lv_i] == null) {
+            lv_emptySlot = lv_i;
+            break;
+        }
+    }
+
+    if (lv_emptySlot >= 0) {
+        lv_heroPos = UnitGetPosition(gv_hero);
+        lv_x = PointGetX(lv_heroPos);
+        lv_y = PointGetY(lv_heroPos);
+        if (lv_y < 5.0) {
+            lv_y = 5.0;
+        }
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "Marine", c_unitCreateIgnorePlacement, 1, Point(lv_x + 2.0, lv_y + 2.0));
+        gv_squad[lv_emptySlot] = UnitLastCreated();
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_replenish_Init () {
+    gt_replenish = TriggerCreate("gt_replenish_Func");
+    TriggerEnable(gt_replenish, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// 小队弹仓系统：周期跟随（每2秒），距离英雄>6则移动到英雄附近
+//--------------------------------------------------------------------------------------------------
+bool gt_followHero_Func (bool testConds, bool runActions) {
+    int lv_i;
+    point lv_heroPos;
+    point lv_marinePos;
+    fixed lv_distSq;
+
+    if (!runActions) {
+        return true;
+    }
+
+    // 英雄死亡则不跟随
+    if (gv_hero == null || !UnitIsAlive(gv_hero)) {
+        return true;
+    }
+
+    lv_heroPos = UnitGetPosition(gv_hero);
+
+    for (lv_i = 0; lv_i <= 3; lv_i += 1) {
+        if (gv_squad[lv_i] != null && UnitIsAlive(gv_squad[lv_i])) {
+            lv_marinePos = UnitGetPosition(gv_squad[lv_i]);
+            // 距离平方 > 36（即距离 > 6）才下达移动命令
+            lv_distSq = ((PointGetX(lv_marinePos) - PointGetX(lv_heroPos)) * (PointGetX(lv_marinePos) - PointGetX(lv_heroPos))) + ((PointGetY(lv_marinePos) - PointGetY(lv_heroPos)) * (PointGetY(lv_marinePos) - PointGetY(lv_heroPos)));
+            if (lv_distSq > 36.0) {
+                UnitIssueOrder(gv_squad[lv_i], OrderTargetingPoint(AbilityCommand("move", 0), PointWithOffset(lv_heroPos, 2.0, 0.0)), c_orderQueueAddToEnd);
+            }
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_followHero_Init () {
+    gt_followHero = TriggerCreate("gt_followHero_Func");
+    TriggerEnable(gt_followHero, false);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger Initialization
 //--------------------------------------------------------------------------------------------------
 void InitTriggers () {
@@ -416,6 +584,10 @@ void InitTriggers () {
     gt_DebugFrameButtonHaloOn_Init();
     gt_DebugFrameButtonHaloOff_Init();
     gt_DebugFrameButtonHaloReset_Init();
+    // 小队弹仓系统触发器
+    gt_spawnHero_Init();
+    gt_replenish_Init();
+    gt_followHero_Init();
 }
 
 //--------------------------------------------------------------------------------------------------
