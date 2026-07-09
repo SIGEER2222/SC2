@@ -1,0 +1,51 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA8ADAPTER_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alenger8Adapter
+// 8扎加拉 adapter，对接 7v1 框架。MapInit 触发器为玩家1应用升级（从原 mod Lib7D89A044 提取）。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MapInit - 为玩家1执行 8扎加拉 升级逻辑
+//--------------------------------------------------------------------------------------------------
+bool libA8ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
+    int lp_player = 1;
+
+    if (testConds) { return true; }
+    if (!runActions) { return true; }
+
+    // 为玩家1升级全部科技（从 Lib7D89A044.galaxy 提取）
+    // 注意：包含跨指挥官引用（6fushujiaqiao、3kongtoubaochong），保留原样
+    TechTreeUpgradeAddLevel(lp_player, "6fushujiaqiao", 1);
+    TechTreeUpgradeAddLevel(lp_player, "8jisuyunyu", 1);
+    TechTreeUpgradeAddLevel(lp_player, "8jianhuajiyinzu", 1);
+    TechTreeUpgradeAddLevel(lp_player, "8shenjingwangluochongzu", 1);
+    TechTreeUpgradeAddLevel(lp_player, "8suanyedui", 1);
+    TechTreeUpgradeAddLevel(lp_player, "8chunbaihuajia", 1);
+    TechTreeUpgradeAddLevel(lp_player, "3kongtoubaochong", 1);
+    TechTreeUpgradeAddLevel(lp_player, "8meidushazhiren", 1);
+    TechTreeUpgradeAddLevel(lp_player, "8qiangsuanchonghou", 1);
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libA8ADAPTER_InitTriggers () {
+    libA8ADAPTER_gt_MapInit = TriggerCreate("libA8ADAPTER_gt_MapInit_Func");
+    TriggerAddEventMapInit(libA8ADAPTER_gt_MapInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libA8ADAPTER_InitLib_completed = false;
+
+void libA8ADAPTER_InitLib () {
+    if (libA8ADAPTER_InitLib_completed) {
+        return;
+    }
+    libA8ADAPTER_InitLib_completed = true;
+    libA8ADAPTER_InitTriggers();
+}

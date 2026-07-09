@@ -1,0 +1,51 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA9ADAPTER_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alenger9Adapter
+// 9海盗 adapter，对接 7v1 框架。MapInit 触发器为玩家1应用升级（从原 mod LibF8F3C7A7 提取）。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MapInit - 为玩家1执行 9海盗 升级逻辑
+//--------------------------------------------------------------------------------------------------
+bool libA9ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
+    int lp_player = 1;
+
+    if (testConds) { return true; }
+    if (!runActions) { return true; }
+
+    // 为玩家1升级全部科技（从 LibF8F3C7A7.galaxy 提取）
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9nailixunlian", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9canhaihuishou", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9heishijunhuo", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9gouxinggaijin", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9weixingguolv", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9leishehanqiang", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9guidaodiaodu", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9xuanxueyuanli", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9wodelingyibanmila", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "9wodelingyibanhuona", 1);
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libA9ADAPTER_InitTriggers () {
+    libA9ADAPTER_gt_MapInit = TriggerCreate("libA9ADAPTER_gt_MapInit_Func");
+    TriggerAddEventMapInit(libA9ADAPTER_gt_MapInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libA9ADAPTER_InitLib_completed = false;
+
+void libA9ADAPTER_InitLib () {
+    if (libA9ADAPTER_InitLib_completed) {
+        return;
+    }
+    libA9ADAPTER_InitLib_completed = true;
+    libA9ADAPTER_InitTriggers();
+}

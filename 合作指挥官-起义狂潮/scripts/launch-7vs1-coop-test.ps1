@@ -1249,6 +1249,19 @@ if ($LiveMapName -ne "emptytest.SC2Map") {
 }
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3.SC2Mod"
 $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3Adapter.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/AlengerCommon.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger1.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger1Adapter.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger6.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger6Adapter.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger8.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger8Adapter.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger9.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger9Adapter.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger12.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger12Adapter.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger13.SC2Mod"
+$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger13Adapter.SC2Mod"
 # 按需加载：只添加选中指挥官对应的 CommanderUnits mod
 foreach ($catalogDep in (Get-SplitCatalogModDependencies -Commanders $effectiveCommanders)) {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency $catalogDep

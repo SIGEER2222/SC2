@@ -1,0 +1,40 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA6ADAPTER_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alenger6Adapter
+// 6阿巴瑟 adapter，对接 7v1 框架。无源 galaxy 运行时，MapInit 触发器仅返回 true。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MapInit
+//--------------------------------------------------------------------------------------------------
+bool libA6ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
+    int lp_player = 1;
+
+    if (testConds) { return true; }
+    if (!runActions) { return true; }
+
+    // 6阿巴瑟无源 galaxy 运行时升级逻辑
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libA6ADAPTER_InitTriggers () {
+    libA6ADAPTER_gt_MapInit = TriggerCreate("libA6ADAPTER_gt_MapInit_Func");
+    TriggerAddEventMapInit(libA6ADAPTER_gt_MapInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libA6ADAPTER_InitLib_completed = false;
+
+void libA6ADAPTER_InitLib () {
+    if (libA6ADAPTER_InitLib_completed) {
+        return;
+    }
+    libA6ADAPTER_InitLib_completed = true;
+    libA6ADAPTER_InitTriggers();
+}

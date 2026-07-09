@@ -1,0 +1,83 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA1ADAPTER_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alenger1Adapter
+// 1钢铁 adapter，对接 7v1 框架。MapInit 触发器为玩家1应用升级（从原 mod Lib1A1D096B 提取）。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MapInit - 为玩家1执行 1钢铁 升级逻辑
+//--------------------------------------------------------------------------------------------------
+bool libA1ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
+    int lp_player = 1;
+
+    if (testConds) { return true; }
+    if (!runActions) { return true; }
+
+    // 为玩家1升级全部科技（从 Lib1A1D096B.galaxy 提取）
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "FireSuppressionSystems", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AutoHarvester", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1chengqiangzhunagjia", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1hedonglifanyingdui", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1jiguangzuanjishengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1jiguangzuanjishengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1kuaisubushu", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1liushuixiandashengchan", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1shengwugang", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1shunshizhuizong", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1zuozhandanweifangyushengji", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1zuozhandanweigongjishengji", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1baozhafanyinzhuangjiashengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1baozhafanyinzhuangjiashengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1jiaguzhuangjiashengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1jiaguzhuangjiashengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1jianongpaoshengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1jianongpaoshengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1qingxingzhuangjiashengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1qingxingzhuangjiashengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1zhongxingzhuangjiashengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1zhongxingzhuangjiashengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1baoliewuqishengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1baoliewuqishengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1diyuhuoyuranqi2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1huoyanwuqishengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1jiatelinpaotai", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1popianfangkongpao", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1popianwuqishengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1popianwuqishengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1renleifangyujianzhugongjishengji", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1renleifangyujianzhuzhuangjiashengji", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1fangyujuzhenshengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1fangyujuzhenshengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "4guidaopaowuqishengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "4guidaopaowuqishengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1houqingyouhua", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "4jiatelinwuqishengji1", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "4jiatelinwuqishengji2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1namiqianghua", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1shuangjiuqudong", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1zhinengchongjian", 1);
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libA1ADAPTER_InitTriggers () {
+    libA1ADAPTER_gt_MapInit = TriggerCreate("libA1ADAPTER_gt_MapInit_Func");
+    TriggerAddEventMapInit(libA1ADAPTER_gt_MapInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libA1ADAPTER_InitLib_completed = false;
+
+void libA1ADAPTER_InitLib () {
+    if (libA1ADAPTER_InitLib_completed) {
+        return;
+    }
+    libA1ADAPTER_InitLib_completed = true;
+    libA1ADAPTER_InitTriggers();
+}

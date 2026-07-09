@@ -1,0 +1,40 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA13ADAPTER_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alenger13Adapter
+// 13净化者 adapter，对接 7v1 框架。无源 galaxy 运行时，MapInit 触发器仅返回 true。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MapInit
+//--------------------------------------------------------------------------------------------------
+bool libA13ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
+    int lp_player = 1;
+
+    if (testConds) { return true; }
+    if (!runActions) { return true; }
+
+    // 13净化者无源 galaxy 运行时升级逻辑
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libA13ADAPTER_InitTriggers () {
+    libA13ADAPTER_gt_MapInit = TriggerCreate("libA13ADAPTER_gt_MapInit_Func");
+    TriggerAddEventMapInit(libA13ADAPTER_gt_MapInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libA13ADAPTER_InitLib_completed = false;
+
+void libA13ADAPTER_InitLib () {
+    if (libA13ADAPTER_InitLib_completed) {
+        return;
+    }
+    libA13ADAPTER_InitLib_completed = true;
+    libA13ADAPTER_InitTriggers();
+}

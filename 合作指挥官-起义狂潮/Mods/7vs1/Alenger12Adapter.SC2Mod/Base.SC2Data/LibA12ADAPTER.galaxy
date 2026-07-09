@@ -1,0 +1,40 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA12ADAPTER_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alenger12Adapter
+// 12游骑兵 adapter，对接 7v1 框架。无源 galaxy 运行时，MapInit 触发器仅返回 true。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MapInit
+//--------------------------------------------------------------------------------------------------
+bool libA12ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
+    int lp_player = 1;
+
+    if (testConds) { return true; }
+    if (!runActions) { return true; }
+
+    // 12游骑兵无源 galaxy 运行时升级逻辑
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libA12ADAPTER_InitTriggers () {
+    libA12ADAPTER_gt_MapInit = TriggerCreate("libA12ADAPTER_gt_MapInit_Func");
+    TriggerAddEventMapInit(libA12ADAPTER_gt_MapInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libA12ADAPTER_InitLib_completed = false;
+
+void libA12ADAPTER_InitLib () {
+    if (libA12ADAPTER_InitLib_completed) {
+        return;
+    }
+    libA12ADAPTER_InitLib_completed = true;
+    libA12ADAPTER_InitTriggers();
+}
