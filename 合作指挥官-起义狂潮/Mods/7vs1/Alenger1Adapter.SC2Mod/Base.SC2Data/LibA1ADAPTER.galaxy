@@ -12,6 +12,9 @@ include "LibA1ADAPTER_h"
 //--------------------------------------------------------------------------------------------------
 bool libA1ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
     int lp_player = 1;
+    int lv_player;
+    int lv_i;
+    playergroup auto1ADAPTER_g;
 
     if (testConds) { return true; }
     if (!runActions) { return true; }
@@ -59,6 +62,51 @@ bool libA1ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
     libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1namiqianghua", 1);
     libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1shuangjiuqudong", 1);
     libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "1zhinengchongjian", 1);
+
+    // 为所有人类玩家解锁能力（7vs1 框架 ApplyOriginal7v1OpenerTech 不覆盖 Alenger，需显式解锁）
+    // 能力解锁：工兵建造/主基地训练/研究/变异能力，否则建造面板按钮缺失
+    auto1ADAPTER_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto1ADAPTER_g, lv_player);
+        if (lv_player < 0) { break; }
+        if ((PlayerType(lv_player) == c_playerTypeUser)) {
+            // 解锁能力（cmd 0-31）
+            for (lv_i = 0; lv_i <= 31; lv_i += 1) {
+                // 建造
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1jianzao", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1jianzao2", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1jianzao5", lv_i), true);
+                // 训练
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1zhizaogangtiegongchengche", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1zhizao2", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1zhizao3", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1zhizao4", lv_i), true);
+                // 研究
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1shengjijiguangzuanji", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1yanjiu", lv_i), true);
+                // 变异
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1huoshenmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1xunhangmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1moripaotaijiangxia", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1moripaotaishengqi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1shengkong3", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1bianxingweigangtiepaojian", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1bianxingweigangtiepaoting", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1gongchengmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1quxiaogongchengmoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1shaobingdileiqiandi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1shaobingdileichudi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1shengkong4", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1zhanjimoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1jijiamoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1quxiaopaojimoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1qidongpaojimoshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1chongjiangangtiebaolei", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("1gangtiebaoleicanhai", lv_i), true);
+            }
+        }
+    }
 
     return true;
 }

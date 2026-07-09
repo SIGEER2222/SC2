@@ -1,0 +1,94 @@
+include "TriggerLibs/NativeLib"
+
+include "LibA2ADAPTER_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alenger2Adapter
+// 2贝希摩斯虫群 adapter，对接 7v1 框架。
+// MapInit 触发器：检查 Alenger6 单位是否可用，解锁相关升级/单位（从 Lib8ED086EE 提取）。
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MapInit - 解锁 2贝希摩斯虫群 相关单位/升级
+//--------------------------------------------------------------------------------------------------
+bool libA2ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
+    int lv_player;
+    int lv_i;
+    playergroup auto2ADAPTER_g;
+
+    if (testConds) { return true; }
+    if (!runActions) { return true; }
+
+    // 为所有人类玩家检查 Alenger6 单位是否可用，解锁相关升级/单位（从 Lib8ED086EE.galaxy 提取）
+    auto2ADAPTER_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto2ADAPTER_g, lv_player);
+        if (lv_player < 0) { break; }
+        if ((PlayerType(lv_player) == c_playerTypeUser)) {
+            if ((TechTreeUnitIsAllowed(lv_player, "6zhanglang") == true)) {
+                TechTreeUpgradeAllow(lv_player, "6fushinianye", true);
+            }
+
+            if ((TechTreeUnitIsAllowed(lv_player, "6buyuchonghou") == true)) {
+                TechTreeUnitAllow(lv_player, "6jizhenpachong", true);
+                TechTreeUnitAllow(lv_player, "6baozipachong", true);
+                TechTreeUnitAllow(lv_player, "6juduzhongliu", true);
+                TechTreeUpgradeAllow(lv_player, "6shengzhangcuihuaji", true);
+                TechTreeUpgradeAllow(lv_player, "6genxilianjie", true);
+            }
+
+            if ((TechTreeUnitIsAllowed(lv_player, "6huozhanglang") == true)) {
+                TechTreeUpgradeAllow(lv_player, "6ercpenyong", true);
+            }
+
+            if ((TechTreeUnitIsAllowed(lv_player, "Mutalisk2") == true)) {
+                TechTreeUpgradeAllow(lv_player, "6zuzhikuozeng", true);
+            }
+
+            if ((TechTreeUnitIsAllowed(lv_player, "6chongqunsuzhu") == true)) {
+                TechTreeUnitAllow(lv_player, "6danzhipensheti", true);
+                TechTreeUnitAllow(lv_player, "6baowenchaoxue", true);
+                TechTreeUpgradeAllow(lv_player, "6jiayaxianti", true);
+            }
+
+            // 解锁能力（7vs1 框架 ApplyOriginal7v1OpenerTech 不覆盖 Alenger，需显式解锁）
+            // 能力解锁：工兵建造/主基地训练/研究/变异能力，否则建造面板按钮缺失
+            for (lv_i = 0; lv_i <= 31; lv_i += 1) {
+                // 建造
+                TechTreeAbilityAllow(lv_player, AbilityCommand("2gongchongbianyi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("2fuhuajuntanzhongliu", lv_i), true);
+                // 训练
+                TechTreeAbilityAllow(lv_player, AbilityCommand("2fuhuabahamute", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("2youchongbianyi", lv_i), true);
+                // 研究
+                TechTreeAbilityAllow(lv_player, AbilityCommand("2jinhuachaoxue", lv_i), true);
+                // 变异
+                TechTreeAbilityAllow(lv_player, AbilityCommand("2wohaiyoujiangshi", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("2bianyiweichaoxue", lv_i), true);
+                TechTreeAbilityAllow(lv_player, AbilityCommand("2bianyiweidaxingchaoxue", lv_i), true);
+            }
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libA2ADAPTER_InitTriggers () {
+    libA2ADAPTER_gt_MapInit = TriggerCreate("libA2ADAPTER_gt_MapInit_Func");
+    TriggerAddEventMapInit(libA2ADAPTER_gt_MapInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libA2ADAPTER_InitLib_completed = false;
+
+void libA2ADAPTER_InitLib () {
+    if (libA2ADAPTER_InitLib_completed) {
+        return;
+    }
+    libA2ADAPTER_InitLib_completed = true;
+    libA2ADAPTER_InitTriggers();
+}
