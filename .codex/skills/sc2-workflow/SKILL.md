@@ -15,6 +15,19 @@ Set the toolkit path from the repository root:
 $tool = "合作指挥官-起义狂潮/scripts/sc2-editor-toolkit/cli.mjs"
 ```
 
+## Enforce Safe File Mutations
+
+Before creating, modifying, moving, renaming, or deleting any file, load and follow the project
+`$file-operations` skill.
+
+- Use the environment's native file operation or `apply_patch` for manual edits.
+- Do not write repository contents with `Out-File`, `Set-Content`, `Add-Content`, redirection,
+  `tee`, here-string pipelines, or inline Python/Node/PowerShell writers.
+- Do not generate a temporary `$scriptPath` and fill it from the shell.
+- Shell commands are for inspection, validation, tests, launching SC2, and checked-in generators.
+- A domain tool may generate artifacts only when its documented workflow requires those outputs;
+  inspect the resulting paths and diff afterward.
+
 ## Execute the Core Flow
 
 1. Classify the target as a 7vs1 unpacked map, ordinary MPQ map, standalone Mod, campaign map, or

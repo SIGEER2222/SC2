@@ -7,7 +7,9 @@
 - 开始任何任务前运行 `git status --short --branch`，确认当前分支和已有修改。
 - 保留用户和其他任务的现有修改；不得覆盖、回退或清理非本任务内容。
 - 只做当前任务需要的最小改动，不重构无关代码。
-- 手工编辑文件优先使用 `apply_patch`。
+- 创建、修改、移动、重命名或删除文件前必须加载并遵守 `$file-operations`。
+- 手工编辑文件必须使用环境原生文件操作或 `apply_patch`，不得使用 shell 命令写入文件内容。
+- 禁止使用 `Out-File`、`Set-Content`、`Add-Content`、重定向符、`tee`、临时脚本管道或内联 Python/Node/PowerShell 写入仓库文件。
 - 禁止使用 `git reset --hard`、`git checkout --`、强制推送或其他可能丢失现有工作的操作。
 
 ## Sync And Delivery
@@ -24,6 +26,7 @@
 
 | 任务类型 | 必须遵守 | 不可跳过的完成门禁 |
 | --- | --- | --- |
+| 任何创建、修改、移动、重命名或删除文件的任务 | `$file-operations`，并叠加命中的领域 Skill | 使用原生文件操作或 `apply_patch`；禁止 shell 内容写入；编辑后检查 diff |
 | SC2 地图、Mod、GameData、触发器、依赖、Adapter、生成地图、启动或同步逻辑 | `$sc2-workflow` + `references/runtime-testing.md` | 运行时产物有变化时必须实际进图，等待测试流程结束 |
 | `.galaxy` / `_h.galaxy` 修改或 ScriptError 调试 | `$sc2-workflow` + `references/galaxy-validation.md` + `references/runtime-testing.md` | 先完整运行 galaxy-checker，再进图；checker 漏报时先补规则和回归测试 |
 | 单位不能生产、缺技能/按钮、科技不一致、静态与运行时不同 | `$sc2-workflow` + `references/unit-diagnostics.md` | 先完成依赖和有效单位诊断；发生运行时修改时再执行进图测试 |
@@ -33,6 +36,7 @@
 ### Hard Gates
 
 - 未读取命中行要求的 Skill/reference 前不得开始编辑；文件缺失或无法读取时必须报告阻塞，不能凭记忆替代。
+- `$file-operations` 是所有写任务的前置门禁；领域 Skill 不能替代它，也不能授权使用 shell 写文件。
 - 静态检查不能替代进图测试；“用户没要求”“改动很小”“只改依赖/启动器”都不是跳过理由。
 - 运行时测试必须等待对应流程返回；测试仍在运行、退出非零或存在新 ScriptError 时不得结束任务。
 - 最终回复必须给出 `$sc2-workflow` 要求的验证证据；缺少地图、启动方式、等待结果、进程状态、ScriptError 状态或实际行为验证时，不得声称完成。
