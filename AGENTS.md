@@ -1,14 +1,11 @@
 # AGENTS.md
 
-- 回复简洁，避免发送不影响任务执行的可省略旁白。
+**Do NoT send optional commentary**
 
 ## Repository Safety
 
 - 开始任何任务前运行 `git status --short --branch`，确认当前分支和已有修改。
-- 保留用户和其他任务的现有修改；不得覆盖、回退或清理非本任务内容。
-- 只做当前任务需要的最小改动，不重构无关代码。
 - 手工编辑文件优先使用 `apply_patch`。
-- 禁止使用 `git reset --hard`、`git checkout --`、强制推送或其他可能丢失现有工作的操作。
 
 ## Sync And Delivery
 
