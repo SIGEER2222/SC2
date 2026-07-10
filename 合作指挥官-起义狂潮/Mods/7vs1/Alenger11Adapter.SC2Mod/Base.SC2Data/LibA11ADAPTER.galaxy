@@ -12,11 +12,36 @@ include "LibA11ADAPTER_h"
 //--------------------------------------------------------------------------------------------------
 bool libA11ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
     int lp_player = 1;
+    int lv_player;
+    playergroup auto11ADAPTER_g;
 
     if (testConds) { return true; }
     if (!runActions) { return true; }
 
     // 11群友无源 galaxy 运行时升级逻辑
+    // 为所有人类玩家解锁所有自定义单位（TechTreeUnitAllow）
+    auto11ADAPTER_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto11ADAPTER_g, lv_player);
+        if (lv_player < 0) { break; }
+        if ((PlayerType(lv_player) == c_playerTypeUser)) {
+            TechTreeUnitAllow(lv_player, "11xiaojianguo", true);
+            TechTreeUnitAllow(lv_player, "11nuowalu", true);
+            TechTreeUnitAllow(lv_player, "11yuyingweilai", true);
+            TechTreeUnitAllow(lv_player, "11zishen", true);
+            TechTreeUnitAllow(lv_player, "11jddhsn", true);
+            TechTreeUnitAllow(lv_player, "11jibianti", true);
+            TechTreeUnitAllow(lv_player, "11jjgg", true);
+            TechTreeUnitAllow(lv_player, "11xingchen", true);
+            TechTreeUnitAllow(lv_player, "11sepilongwang", true);
+            TechTreeUnitAllow(lv_player, "11zaixiaheikong", true);
+            TechTreeUnitAllow(lv_player, "11Ob", true);
+            TechTreeUnitAllow(lv_player, "11jibamaoxiaowo", true);
+            TechTreeUnitAllow(lv_player, "11qiuligao", true);
+        }
+    }
+
     return true;
 }
 
