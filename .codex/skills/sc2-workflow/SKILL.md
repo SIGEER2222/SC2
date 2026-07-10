@@ -90,6 +90,8 @@ design, and commits with the primary high-capability workflow.
 - Read [runtime-testing.md](references/runtime-testing.md) before launching any map.
 - Read [tooling.md](references/tooling.md) for analyzer paths, data sources, MPQ extraction, and
   maintenance boundaries.
+- Read [localization-scan.md](references/localization-scan.md) for scanning untranslated English
+  text in zhCN localization files.
 
 ## Definition of Done
 
