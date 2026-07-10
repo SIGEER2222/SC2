@@ -14,15 +14,7 @@ bool libA8ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
     int lp_player;
     int lv_player;
     int lv_i;
-    int lv_col;
-    int lv_row;
     playergroup auto8ADAPTER_g;
-    point lv_pos;
-    region lv_mapRegion;
-    point lv_minPoint;
-    point lv_maxPoint;
-    fixed lv_centerX;
-    fixed lv_centerY;
 
     if (testConds) { return true; }
     if (!runActions) { return true; }
@@ -85,47 +77,6 @@ bool libA8ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
             }
         }
     }
-
-    // === 调试：生成 8扎加拉 全部单位/建筑，供对比查看 ===
-    // 在地图中心附近生成，建筑一行（y=中心+10），单位一行（y=中心+4），每列间距 4.0
-    lv_mapRegion = RegionEntireMap();
-    lv_minPoint = RegionGetBoundsMin(lv_mapRegion);
-    lv_maxPoint = RegionGetBoundsMax(lv_mapRegion);
-    lv_centerX = (PointGetX(lv_minPoint) + PointGetX(lv_maxPoint)) / 2.0;
-    lv_centerY = (PointGetY(lv_minPoint) + PointGetY(lv_maxPoint)) / 2.0;
-
-    // 建筑（8 个）
-    lv_col = 0;
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 10.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8fuhuachang", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 10.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8fuhuachao", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 10.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8jinhuaqiang", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 10.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8wasicuiqufang", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 10.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8baochongchaoxue", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 10.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8baowenchaoxue", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 10.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8danzhipaotai", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 10.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8juntanzhongliu", c_unitCreateIgnorePlacement, 1, lv_pos);
-
-    // 单位（20 个）
-    lv_col = 0;
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8zhajiala", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8gongfeng", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8youchong", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8xunjielieshou", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8fushibaochong", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8baoliezhanglang", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8baoliewangchong", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8tuliezhe", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8baowen", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8gouzaofuhuazhe", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8gouzaojibianti", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8youleishou", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8wuranzhe", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8suanyechonghou", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8jicipachong", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8suanyepachong", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8chongluan", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8minibaochong", c_unitCreateIgnorePlacement, 1, lv_pos);
-    lv_pos = Point(lv_centerX + (lv_col * 4.0), lv_centerY + 4.0); lv_col += 1; libNtve_gf_CreateUnitsWithDefaultFacing(1, "8jizhenfengbao", c_unitCreateIgnorePlacement, 1, lv_pos);
 
     return true;
 }

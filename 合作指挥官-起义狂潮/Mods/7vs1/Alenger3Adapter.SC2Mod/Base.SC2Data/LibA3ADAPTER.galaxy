@@ -257,11 +257,7 @@ bool libA3ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
         }
     }
 
-    // -------- 4. 调试：生成一个建筑确认触发器执行 --------
-    // 如果游戏开始后玩家起点附近有帝国工厂，说明 MapInit 触发器执行了
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, "3diguogongchang", c_unitCreateIgnorePlacement, 1, PointWithOffsetPolar(PlayerStartLocation(1), 8.0, 90.0));
-
-    // -------- 5. 延时重新解锁，防止被框架后续操作覆盖 --------
+    // -------- 4. 延时重新解锁，防止被框架后续操作覆盖 --------
     // 7vs1 框架的 ApplyOriginal7V1OpenerTech 可能在 MapInit 后重新禁用能力，
     // 等待 3 秒后重新解锁，确保训练按钮显示。
     Wait(3.0, c_timeGame);
