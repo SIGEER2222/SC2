@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "dependencySearchRoots": [
+    ".",
+    "..",
+    "游戏数据/官方SC2原始文本镜像"
+  ],
+  "externalDependencies": [
+    "file:Campaigns/LibertyStory.SC2Campaign",
+    "file:Campaigns/Void.SC2Campaign",
+    "file:Mods/Liberty.SC2Mod",
+    "file:Mods/Void.SC2Mod"
+  ],
+  "dependencyAliases": {
+    "file:Mods/StarCoop.SC2Mod": "file:Mods/StarCoop/StarCoop.SC2Mod"
+  },
+  "legacyDependencies": {
+    "file:Mods/7vs1/CoopZeroPop.SC2Mod": {
+      "status": "transition",
+      "replacement": [
+        "file:Mods/7vs1/CoreRuntime.SC2Mod",
+        "file:Mods/7vs1/CommanderBridge.SC2Mod"
+      ],
+      "note": "源码地图仍保留旧依赖；launch-7vs1-coop-test.ps1 会在 live 地图中替换。"
+    },
+    "file:Mods/7vs1/CommanderCatalog.SC2Mod": {
+      "status": "dynamic",
+      "replacement": [
+        "file:Mods/7vs1/CommanderUnits_<Commander>.SC2Mod"
+      ],
+      "strategy": "selected-commander-units",
+      "note": "按测试指挥官选择拆分后的 CommanderUnits mod，不能静态展开为固定全集。"
+    },
+    "file:Mods/7vs1/CommanderUnits.SC2Mod": {
+      "status": "dynamic",
+      "replacement": [
+        "file:Mods/7vs1/CommanderUnits_<Commander>.SC2Mod"
+      ],
+      "strategy": "selected-commander-units",
+      "note": "旧聚合包已拆分为每个指挥官独立包。"
+    }
+  },
+  "runtimeMutationFunctions": [
+    "libNtve_gf_TechTreeUnitAllow",
+    "libNtve_gf_TechTreeAbilityAllow",
+    "libNtve_gf_UnitAbilityAdd",
+    "libNtve_gf_UnitAbilityRemove"
+  ],
+  "effectiveProfiles": [
+    {
+      "name": "7vs1",
+      "targetPattern": "_7vs1\\.SC2Map$",
+      "alwaysDependencies": [
+        "file:Mods/7vs1/CoreRuntime.SC2Mod",
+        "file:Mods/7vs1/Alenger3.SC2Mod",
+        "file:Mods/7vs1/Alenger3Adapter.SC2Mod",
+        "file:Mods/7vs1/AlengerCommon.SC2Mod",
+        "file:Mods/7vs1/Alenger1.SC2Mod",
+        "file:Mods/7vs1/Alenger1Adapter.SC2Mod",
+        "file:Mods/7vs1/Alenger6.SC2Mod",
+        "file:Mods/7vs1/Alenger6Adapter.SC2Mod",
+        "file:Mods/7vs1/Alenger8.SC2Mod",
+        "file:Mods/7vs1/Alenger8Runtime.SC2Mod",
+        "file:Mods/7vs1/Alenger8Adapter.SC2Mod",
+        "file:Mods/7vs1/Alenger9.SC2Mod",
+        "file:Mods/7vs1/Alenger9Adapter.SC2Mod",
+        "file:Mods/7vs1/Alenger12.SC2Mod",
+        "file:Mods/7vs1/Alenger12Adapter.SC2Mod",
+        "file:Mods/7vs1/Alenger13.SC2Mod",
+        "file:Mods/7vs1/Alenger13Adapter.SC2Mod",
+        "file:Mods/7vs1/Alenger2.SC2Mod",
+        "file:Mods/7vs1/Alenger2Adapter.SC2Mod",
+        "file:Mods/7vs1/Alenger7.SC2Mod",
+        "file:Mods/7vs1/Alenger7Adapter.SC2Mod",
+        "file:Mods/7vs1/Alenger10.SC2Mod",
+        "file:Mods/7vs1/Alenger10Adapter.SC2Mod",
+        "file:Mods/7vs1/Alenger11.SC2Mod",
+        "file:Mods/7vs1/Alenger11Adapter.SC2Mod",
+        "file:Mods/7vs1/BaseCatalogPatch.SC2Mod",
+        "file:Mods/7vs1/CommanderBridge.SC2Mod",
+        "file:Mods/7vs1/SharedUnits.SC2Mod",
+        "file:Mods/7vs1/ExternalRefs.SC2Mod"
+      ],
+      "commanderDependencies": {
+        "TerranRaynor": ["file:Mods/7vs1/CommanderUnits_Raynor.SC2Mod"],
+        "TerranRaynorX": ["file:Mods/7vs1/CommanderUnits_RaynorX.SC2Mod"],
+        "TerranNova": ["file:Mods/7vs1/CommanderUnits_Nova.SC2Mod"],
+        "TerranSwann": ["file:Mods/7vs1/CommanderUnits_Swann.SC2Mod"],
+        "TerranHorner": ["file:Mods/7vs1/CommanderUnits_Horner.SC2Mod"],
+        "TerranMengsk": ["file:Mods/7vs1/CommanderUnits_Mengsk.SC2Mod"],
+        "TerranTychus": ["file:Mods/7vs1/CommanderUnits_TychusXM.SC2Mod"],
+        "ZergKerrigan": ["file:Mods/7vs1/CommanderUnits_Kerrigan.SC2Mod"],
+        "ZergAbathur": ["file:Mods/7vs1/CommanderUnits_Abathur.SC2Mod"],
+        "ZergZagara": ["file:Mods/7vs1/CommanderUnits_Zagara.SC2Mod"],
+        "ZergStukov": ["file:Mods/7vs1/CommanderUnits_Stukov.SC2Mod"],
+        "ZergDehaka": ["file:Mods/7vs1/CommanderUnits_Dehaka.SC2Mod"],
+        "ZergStetmann": ["file:Mods/7vs1/CommanderUnits_Stetmann.SC2Mod"],
+        "ProtossArtanis": ["file:Mods/7vs1/CommanderUnits_Artanis.SC2Mod"],
+        "ProtossVorazun": ["file:Mods/7vs1/CommanderUnits_Vorazun.SC2Mod"],
+        "ProtossKarax": ["file:Mods/7vs1/CommanderUnits_Karax.SC2Mod"],
+        "ProtossFenix": ["file:Mods/7vs1/CommanderUnits_Fenix.SC2Mod"],
+        "ProtossAlarak": ["file:Mods/7vs1/CommanderUnits_Alarak.SC2Mod"],
+        "ProtossZeratul": ["file:Mods/7vs1/CommanderUnits_Zeratul.SC2Mod"]
+      }
+    }
+  ],
+  "validation": {
+    "galaxyChecker": "scripts/galaxy-checker/dist/cli.mjs",
+    "unitExplorer": "scripts/sc2_unit_explorer.py",
+    "waitForGame": "scripts/wait-for-game-ready.ps1",
+    "launch7vs1": "scripts/launch-7vs1-coop-test.ps1"
+  }
+}

@@ -4,7 +4,8 @@
  * 合并语义移植自 scripts/sc2_unit_explorer.py（Python 版已在真实 mod 上验证），
  * 并保留每个节点的 file/line 供 issue 定位：
  *   - 顶层条目按 (catalog, id) 合并，后加载的 mod 覆盖/叠加前者
- *   - 子元素按关键属性匹配：id > index > Row+Column > value(叶子) > Link
+ *   - 子元素按关键属性匹配：id > index > Row+Column > Array.value > Link
+ *   - 无关键属性的叶子标量按同 tag 覆盖
  *   - removed="1" 从已合并结果中移除匹配子元素
  *   - 无关键属性的子元素视为追加
  */
@@ -71,11 +72,11 @@ export function deepClone(node) {
 }
 
 /** 返回子元素用于匹配的关键属性名（SC2 合并语义） */
-function keyAttrs(elem) {
+export function keyAttrs(elem) {
   if ('id' in elem.attrs) return ['id'];
   if ('index' in elem.attrs) return ['index'];
   if ('Row' in elem.attrs && 'Column' in elem.attrs) return ['Row', 'Column'];
-  if ('value' in elem.attrs && elem.children.length === 0) return ['value'];
+  if ('value' in elem.attrs && elem.children.length === 0 && elem.tag.endsWith('Array')) return ['value'];
   if ('Link' in elem.attrs) return ['Link'];
   return [];
 }
@@ -99,9 +100,15 @@ export function mergeElement(dst, src) {
   for (const srcChild of src.children) {
     if (srcChild.attrs.removed === '1') continue;
     const keys = keyAttrs(srcChild);
-    const match = dst.children.find(
-      d => d.tag === srcChild.tag && matchKey(d, srcChild, keys)
-    );
+    const match = keys.length > 0
+      ? dst.children.find(d => d.tag === srcChild.tag && matchKey(d, srcChild, keys))
+      : srcChild.children.length === 0
+        ? dst.children.find(d =>
+            d.tag === srcChild.tag &&
+            d.children.length === 0 &&
+            keyAttrs(d).length === 0
+          )
+        : null;
     if (match) {
       for (const [k, v] of Object.entries(srcChild.attrs)) {
         if (k !== 'removed') match.attrs[k] = v;
