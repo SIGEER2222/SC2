@@ -204,9 +204,9 @@ bool gt_followHero_Func (bool testConds, bool runActions) {
     for (lv_i = 0; lv_i <= 3; lv_i += 1) {
         if (gv_squad[lv_i] != null && UnitIsAlive(gv_squad[lv_i])) {
             lv_marinePos = UnitGetPosition(gv_squad[lv_i]);
-            // 距离平方 > 9（即距离 > 3）才下达移动命令，缩短跟随距离避免散开过远
+            // 距离平方 > 4（即距离 > 2）才下达移动命令，缩短跟随距离避免散开过远
             lv_distSq = ((PointGetX(lv_marinePos) - PointGetX(lv_heroPos)) * (PointGetX(lv_marinePos) - PointGetX(lv_heroPos))) + ((PointGetY(lv_marinePos) - PointGetY(lv_heroPos)) * (PointGetY(lv_marinePos) - PointGetY(lv_heroPos)));
-            if (lv_distSq > 9.0) {
+            if (lv_distSq > 4.0) {
                 UnitIssueOrder(gv_squad[lv_i], OrderTargetingPoint(AbilityCommand("move", 0), PointWithOffset(lv_heroPos, 2.0, 0.0)), c_orderQueueAddToEnd);
             }
         }
