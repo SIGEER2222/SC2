@@ -64,13 +64,16 @@ $mapsLiveRoot = Join-Path $Sc2Root "Maps"
 $logsRoot = "C:\Users\22448\Documents\StarCraft II\GameLogs"
 $waitScript = Join-Path $workspaceRoot "scripts\wait-for-game-ready.ps1"
 
-# Reborn 5 mods
+# Reborn mods (5 base + bridge)
 $rebornMods = @(
     "crys_the_swarm_reborn.SC2Mod",
     "crys_swarm_assets.SC2Mod",
     "sibirens_starhooks_common.SC2Mod",
     "sibirens_starhooks_swarmstoryutils.SC2Mod",
     "sibirens_sundries_swarm_reborn.SC2Mod"
+)
+$rebornBridgeMods = @(
+    "Reborn\RebornBridge.SC2Mod"
 )
 
 # ============================================================
@@ -180,11 +183,14 @@ try {
         Write-Host "[0] SkipStopSc2 已设置，跳过停止" -ForegroundColor Yellow
     }
 
-    # ---- 1. 同步 5 个 Reborn Mod ----
+    # ---- 1. 同步 Reborn Mod 到 SC2 Mods 目录 ----
     if (-not $SkipModSync) {
         Write-Host ""
         Write-Host "[1] 同步 Reborn Mod 到 SC2 Mods 目录..." -ForegroundColor Cyan
         foreach ($mod in $rebornMods) {
+            Sync-ModToLive -ModName $mod
+        }
+        foreach ($mod in $rebornBridgeMods) {
             Sync-ModToLive -ModName $mod
         }
         Write-Host "    全部同步完成" -ForegroundColor Green
