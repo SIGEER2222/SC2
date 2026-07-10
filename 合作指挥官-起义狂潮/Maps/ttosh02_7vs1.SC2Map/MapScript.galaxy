@@ -5432,10 +5432,71 @@ void InitTriggers () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// 生成 Alenger3 所有建筑和单位用于检查 link 缺失
+//--------------------------------------------------------------------------------------------------
+void gf_SpawnAlenger3UnitsForInspection () {
+    point lv_center;
+    fixed lv_x;
+    fixed lv_y;
+
+    lv_center = PlayerStartLocation(gv_p1_USER);
+    lv_x = PointGetX(lv_center);
+    lv_y = PointGetY(lv_center);
+
+    // 建筑（12个）排成3行4列，间距6格
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguoqianshaojidi", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 9.0, lv_y + 15.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguobingying", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 3.0, lv_y + 15.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguogongchang", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 3.0, lv_y + 15.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguoxinggang", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 9.0, lv_y + 15.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguozhihuizhongxin", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 9.0, lv_y + 9.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3huangjiayaosai", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 3.0, lv_y + 9.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3bujidibao", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 3.0, lv_y + 9.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguogongchengzhan", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 9.0, lv_y + 9.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3huangjiafangkongta", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 9.0, lv_y + 3.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3shenkongzhenliepingtai", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 3.0, lv_y + 3.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguozhuzaochang", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 3.0, lv_y + 3.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguokexueyuan", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 9.0, lv_y + 3.0));
+
+    // 兵营单位（5冲锋队+5精英）
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguochongfengdui", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 6.0, lv_y - 5.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3huoyanchongfengdui", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 3.0, lv_y - 5.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3fengbaochongfengdui", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x, lv_y - 5.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3huojianchongfengdui", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 3.0, lv_y - 5.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3shuzuichongfengdui", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 6.0, lv_y - 5.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguozhijian", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 6.0, lv_y - 8.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3yuqianxianfeng", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 3.0, lv_y - 8.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3yuqianweishi", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x, lv_y - 8.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguoatianshi", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 3.0, lv_y - 8.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3liequanbudui", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 6.0, lv_y - 8.0));
+
+    // 工厂单位（4基础+5精英）
+    libNtve_gf_CreateUnitsAtPoint2(1, "3chongfengduitujiche", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 6.0, lv_y - 12.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3chongfengduibuxingji", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 3.0, lv_y - 12.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3chongfengduiyunbingche", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x, lv_y - 12.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3chongfengduigongchengtankeTankMode", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 3.0, lv_y - 12.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3pozhenpiaoqi", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 6.0, lv_y - 15.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3huguozhanjiang", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 3.0, lv_y - 15.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3jinweijijia", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x, lv_y - 15.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3junwangjichaozhongxinggongchengtankeSiegeMode", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 3.0, lv_y - 15.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3yuanlaobaolei", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 6.0, lv_y - 15.0));
+
+    // 星港单位（3基础+5精英）
+    libNtve_gf_CreateUnitsAtPoint2(1, "3yiliaoyunshuji", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 6.0, lv_y - 19.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3chongfengduizhanji", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 3.0, lv_y - 19.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3chongfengduixunhangjian", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x, lv_y - 19.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3diguojianzhengzhe", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 3.0, lv_y - 19.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3jindiaoFighterMode", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x + 6.0, lv_y - 19.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3zhifazheAA", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 6.0, lv_y - 22.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3gongtingmoshushi", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x - 3.0, lv_y - 22.0));
+    libNtve_gf_CreateUnitsAtPoint2(1, "3aogusigeledejiaoao", c_unitCreateIgnorePlacement, gv_p1_USER, Point(lv_x, lv_y - 22.0));
+}
+
+//--------------------------------------------------------------------------------------------------
 // Map Initialization
 //--------------------------------------------------------------------------------------------------
 void InitMap () {
     InitLibs();
     InitGlobals();
     InitTriggers();
+    gf_SpawnAlenger3UnitsForInspection();
 }

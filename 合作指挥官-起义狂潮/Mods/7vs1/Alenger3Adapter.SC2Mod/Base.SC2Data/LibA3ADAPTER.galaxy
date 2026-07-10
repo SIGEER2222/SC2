@@ -19,12 +19,14 @@ include "LibA3ADAPTER_Catalog"
 // Trigger: MapInit - 为玩家1执行 Alenger3 解锁逻辑
 //--------------------------------------------------------------------------------------------------
 bool libA3ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
-    int lp_player = 1;
+    int lp_player;
     int lv_i;
     string lv_upgradeId;
     int lv_upgradeLevel;
     string lv_abil;
     int lv_cmd;
+
+    lp_player = 1;
 
     // Conditions
     if (testConds) {
@@ -64,6 +66,109 @@ bool libA3ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
         if ((lv_abil != "") && (lv_cmd >= 0)) {
             TechTreeAbilityAllow(lp_player, AbilityCommand(lv_abil, lv_cmd), true);
         }
+    }
+
+    // -------- 4. 解锁所有 Alenger3 自定义能力（训练/研究/变异/升空/单位技能）--------
+    // 7vs1 框架 ApplyOriginal7v1OpenerTech 不覆盖 Alenger，未显式解锁的能力按钮不显示。
+    // 建造能力已由上方数据驱动解锁，此处补充训练/升空/变形/效果/运输等全部能力。
+    for (lv_i = 0; lv_i <= 31; lv_i += 1) {
+        // 训练
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3xunlian1", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3xunlian2A", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3xunlian2B", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3xunlian3A", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3xunlian3B", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3xunlian4A", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3xunlian4B", lv_i), true);
+        // 升空/降落
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3shengkong1", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3shengkong2", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3shengkong3", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3shengkong4", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhuolu1", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhuolu2", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhuolu3", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhuolu4", lv_i), true);
+        // 变形/模式切换
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3jijiamoshi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhanjimoshiS", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhanjimoshi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3paojimoshi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3guanbipaojimoshi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3gongchengmoshi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3quxiaogongchengmoshi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3chongfengduigongchengmoshi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3chongfengduiquxiaogongchengmoshi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhandouzhengzhao", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3laodongzhengzhao", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3shangjiaowuqi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhuangbeihuoyanpensheqi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3bianxingweihuangjiayaosai", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3bianxingweidiguozhihuizhongxin", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhuangbeibaonengchongfengqiang", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhuangbeifangkonghuojian", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhuangbeishuzuizhe", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3MorphtoAA", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3MorphtoAG", lv_i), true);
+        // 效果/技能
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3bianhuoyanchongfengdui", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3bianhuojianchongfengdui", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3chezaizheyuequdongqi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3daxingdianciganraomaichong", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3shiyichoushaling", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3chongshengxieyi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3renengbaoran", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3shiyanxingshanxianqudongqi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3yuanchenghedandahepao", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3yannengbaoran", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3donglijiasuqi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3gaojijiaozhunqi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3fangyudaodan", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3fangyupingzhang", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3diancizhenbao", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3yinxingmicai", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3denglizipaoqishe", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhanshudaodan", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zheyue", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3hezidahepao", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3hujiaodiguojiandui", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3jiyiyizhiqi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhaohuanjinjun", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhencezhiling", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3suxiaozhiliaoji", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3hedandaji", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3hedantianjie", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3hedandahepao", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3huishou", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3fangyuzhiling", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhanshuzheyue", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhongzituceng", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3dahepao", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhiliao", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3lieyanchongzhuang", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3bianfengbaochongfengdui", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3jingongzhiling", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhiliao2", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3hourantuijinqi", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3namixiufu", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3duanchengzheyue", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3jubiandaji", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3danmuhongzha", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3zhanliexunhangjianzhiyuan", lv_i), true);
+        // 增强
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3dengliziliudan", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3huojiandanmu", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3quandanqishe", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3liuxingfeidancang", lv_i), true);
+        // 运输
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3yuanlaobaoleiTransport", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3huangjiayaosaiTransport", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3diguoqianshaojidiTransport", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3bujidibaoTransport", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3chongfengduiyunbingcheTransport", lv_i), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3yiliaoyunshujiTransport", lv_i), true);
+        // 其他
+        TechTreeAbilityAllow(lp_player, AbilityCommand("3GardonofAvalon", lv_i), true);
     }
 
     return true;
