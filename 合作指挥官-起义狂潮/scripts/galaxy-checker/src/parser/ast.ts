@@ -45,6 +45,7 @@ export interface VariableDeclaration extends Node {
   varType: string;
   name: string;
   isArray?: boolean;
+  arrayDimensions: (Expression | null)[];
   init: Expression | null;
   isConst: boolean;
   isStatic: boolean;

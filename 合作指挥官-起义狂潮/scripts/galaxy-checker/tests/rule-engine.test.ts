@@ -4,7 +4,7 @@ import { RuleEngine } from '../src/analyzer/RuleEngine.js';
 describe('RuleEngine', () => {
   it('加载默认规则文件', () => {
     const engine = new RuleEngine();
-    expect(engine.getRule('SYNTAX_NO_CONTINUE')?.severity).toBe('error');
+    expect(engine.getRule('SYNTAX_NO_CONTINUE')?.severity).toBe('off');
     expect(engine.getRule('PROJ_UTF8_BOM')?.severity).toBe('error');
   });
 
@@ -18,7 +18,8 @@ describe('RuleEngine', () => {
   it('获取所有启用的规则', () => {
     const engine = new RuleEngine();
     const enabled = engine.getEnabledRules();
-    expect(enabled.find(r => r.code === 'SYNTAX_NO_CONTINUE')).toBeDefined();
+    expect(enabled.find(r => r.code === 'SYNTAX_NO_CONTINUE')).toBeUndefined();
+    expect(enabled.find(r => r.code === 'SEM_ARGUMENT_COUNT_MISMATCH')).toBeDefined();
   });
 
   it('未配置的规则默认 off', () => {

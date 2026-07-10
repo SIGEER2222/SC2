@@ -19,7 +19,7 @@ describe('SemanticAnalyzer - 类型检查', () => {
   });
 });
 
-describe('SemanticAnalyzer - text 类型拼接检测', () => {
+describe('SemanticAnalyzer - text 类型拼接', () => {
   // 加载含 StringToText/IntToText 的 native 表
   const natives = new NativeFunctionTable({ version: '1.0', disallowedNatives: [] });
   natives.loadFromString(`
@@ -30,24 +30,20 @@ describe('SemanticAnalyzer - text 类型拼接检测', () => {
     native void UnitSetInfoText(unit inUnit, text info, text tip, text subTip);
   `);
 
-  it('StringToText() + IntToText() 报 SEM_INVALID_TEXT_CONCAT', () => {
+  it('官方 Galaxy 支持 text + text', () => {
     const issues = analyze(
       'void f() { text t; t = StringToText("a") + IntToText(1); }',
       'test.galaxy', undefined, natives
     );
-    const hit = issues.find(i => i.ruleCode === 'SEM_INVALID_TEXT_CONCAT');
-    expect(hit).toBeDefined();
-    expect(hit?.severity).toBe('error');
-    // BinaryExpression 现已附加 start（取运算符 token 位置），行号应非 0
-    expect(hit?.line).toBeGreaterThan(0);
+    expect(issues.filter(i => i.severity === 'error')).toHaveLength(0);
   });
 
-  it('"str" + StringToText("x") 报 SEM_INVALID_TEXT_CONCAT', () => {
+  it('官方生成代码可拼接 text 变量与 StringToText()', () => {
     const issues = analyze(
-      'void f() { text t; t = "abc" + StringToText("x"); }',
+      'void f() { text t; t = StringToText("abc"); t = t + StringToText(", "); }',
       'test.galaxy', undefined, natives
     );
-    expect(issues.find(i => i.ruleCode === 'SEM_INVALID_TEXT_CONCAT')).toBeDefined();
+    expect(issues.filter(i => i.severity === 'error')).toHaveLength(0);
   });
 
   it('StringToText(str + IntToString(i)) 不报 text 拼接错误（正确写法）', () => {
@@ -55,7 +51,7 @@ describe('SemanticAnalyzer - text 类型拼接检测', () => {
       'void f() { text t; t = StringToText("abc" + IntToString(1)); }',
       'test.galaxy', undefined, natives
     );
-    expect(issues.find(i => i.ruleCode === 'SEM_INVALID_TEXT_CONCAT')).toBeUndefined();
+    expect(issues.filter(i => i.severity === 'error')).toHaveLength(0);
   });
 
   it('string + string 不报 text 拼接错误', () => {
@@ -63,7 +59,7 @@ describe('SemanticAnalyzer - text 类型拼接检测', () => {
       'void f() { string s; s = "a" + "b"; }',
       'test.galaxy', undefined, natives
     );
-    expect(issues.find(i => i.ruleCode === 'SEM_INVALID_TEXT_CONCAT')).toBeUndefined();
+    expect(issues.filter(i => i.severity === 'error')).toHaveLength(0);
   });
 
   it('int + int 不报 text 拼接错误', () => {
@@ -71,6 +67,6 @@ describe('SemanticAnalyzer - text 类型拼接检测', () => {
       'void f() { int x; x = 1 + 2; }',
       'test.galaxy', undefined, natives
     );
-    expect(issues.find(i => i.ruleCode === 'SEM_INVALID_TEXT_CONCAT')).toBeUndefined();
+    expect(issues.filter(i => i.severity === 'error')).toHaveLength(0);
   });
 });

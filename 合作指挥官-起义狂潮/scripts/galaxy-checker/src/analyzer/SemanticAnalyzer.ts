@@ -60,6 +60,20 @@ export function analyze(
   }
   const ctx: AnalyzeContext = { hasGlobalTable: globalTable !== undefined, libPrefixes, catalogDb };
 
+  // 顶层声明表达式也需要语义检查。旧实现只分析函数体，导致全局数组维度和
+  // 全局初始化中的未声明符号漏报，例如 `int[MISSING + 1] gv_values;`。
+  for (const decl of program.body) {
+    if (decl.type !== 'VariableDeclaration') continue;
+    for (const dimension of decl.arrayDimensions) {
+      if (dimension) {
+        checkExpression(dimension, globalScope, table, nativeTable, eng, filename, issues, ctx);
+      }
+    }
+    if (decl.init) {
+      checkExpression(decl.init, globalScope, table, nativeTable, eng, filename, issues, ctx);
+    }
+  }
+
   // 第二遍：分析函数体
   for (const decl of program.body) {
     if (decl.type === 'FunctionDeclaration' && decl.body) {
@@ -172,6 +186,11 @@ function walkStatements(
   if (!stmt) return;
   switch (stmt.type) {
     case 'VariableDeclaration':
+      for (const dimension of stmt.arrayDimensions) {
+        if (dimension) {
+          checkExpression(dimension, scope, table, nativeTable, engine, filename, issues, ctx);
+        }
+      }
       scope.declareVariable(stmt.varType, stmt.name, stmt.isArray, () => {
         if (engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
           issues.push(
@@ -343,28 +362,6 @@ function checkExpression(
     case 'BinaryExpression':
       checkExpression(expr.left, scope, table, nativeTable, engine, filename, issues, ctx);
       checkExpression(expr.right, scope, table, nativeTable, engine, filename, issues, ctx);
-      // text 类型不能用 + 拼接（Galaxy 限制：只能 string + string）
-      // 检测 text + X、X + text 报 SEM_INVALID_TEXT_CONCAT
-      if (expr.operator === '+' && engine.isRuleEnabled('SEM_INVALID_TEXT_CONCAT')) {
-        const lt = inferType(expr.left, scope, nativeTable);
-        const rt = inferType(expr.right, scope, nativeTable);
-        if (lt === 'text' || rt === 'text') {
-          // 优先用 BinaryExpression 的运算符位置；缺失时回退到 left 操作数位置
-          const binStart = (expr as any).start;
-          const leftStart = (expr.left as any).start;
-          const line = binStart?.line || leftStart?.line || 0;
-          const column = binStart?.column || leftStart?.column || 0;
-          issues.push(
-            engine.makeIssue(
-              'SEM_INVALID_TEXT_CONCAT',
-              filename,
-              line,
-              column,
-              `text 类型不能用 + 拼接，请用 string 拼接后再用 StringToText() 转换（${lt ?? '?'} + ${rt ?? '?'}）`
-            )!
-          );
-        }
-      }
       break;
     case 'UnaryExpression':
       checkExpression(expr.argument, scope, table, nativeTable, engine, filename, issues, ctx);
@@ -417,6 +414,17 @@ function checkExpression(
               (expr as any).start?.line ?? 0,
               (expr as any).start?.column ?? 0,
               `调用了不允许的 native 函数 '${fnName}()'${note ? ' (' + note + ')' : ''}`
+            )!
+          );
+        } else if (nativeTable?.isDiscouraged(fnName) && engine.isRuleEnabled('XLIB_DISCOURAGED_NATIVE')) {
+          const note = nativeTable.getNote(fnName);
+          issues.push(
+            engine.makeIssue(
+              'XLIB_DISCOURAGED_NATIVE',
+              filename,
+              (expr as any).start?.line ?? 0,
+              (expr as any).start?.column ?? 0,
+              `调用了项目不推荐的 native 函数 '${fnName}()'${note ? ' (' + note + ')' : ''}`
             )!
           );
         } else if (nativeTable?.isNative(fnName)) {

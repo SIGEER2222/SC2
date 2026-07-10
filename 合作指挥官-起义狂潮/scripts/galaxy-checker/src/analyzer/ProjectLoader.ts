@@ -5,7 +5,11 @@ import { parse } from '../parser/index.js';
 import { SymbolTable } from './SymbolTable.js';
 
 export class ProjectLoader {
-  constructor(private rootDir: string) {}
+  private rootDirs: string[];
+
+  constructor(rootDir: string | string[]) {
+    this.rootDirs = Array.isArray(rootDir) ? rootDir : [rootDir];
+  }
 
   collectGalaxyFiles(): string[] {
     return this.walkFiles(name => name.startsWith('Lib'));
@@ -18,7 +22,7 @@ export class ProjectLoader {
   }
 
   private walkFiles(filter: (name: string) => boolean): string[] {
-    const out: string[] = [];
+    const out = new Set<string>();
     const walk = (dir: string) => {
       const entries = readdirSync(dir, { withFileTypes: true });
       for (const e of entries) {
@@ -26,12 +30,14 @@ export class ProjectLoader {
         if (e.isDirectory()) {
           walk(full);
         } else if (e.isFile() && e.name.endsWith('.galaxy') && filter(e.name)) {
-          out.push(full);
+          out.add(full);
         }
       }
     };
-    walk(this.rootDir);
-    return out;
+    for (const rootDir of this.rootDirs) {
+      walk(rootDir);
+    }
+    return [...out];
   }
 
   buildGlobalSymbolTable(): SymbolTable {

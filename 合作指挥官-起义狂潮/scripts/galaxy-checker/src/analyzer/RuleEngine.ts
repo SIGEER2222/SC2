@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolveDataFile } from '../dataPath.js';
 import type { Issue, Severity } from '../types.js';
 import { parse } from '../parser/index.js';
-import type { Node, ContinueStatement, VariableDeclaration } from '../parser/ast.js';
+import type { Node } from '../parser/ast.js';
 
 export interface RuleConfig {
   severity: Severity | 'off';
@@ -27,13 +27,11 @@ export interface RulesFile {
 const DEFAULT_RULES_PATH = resolveDataFile('project-rules.json');
 
 const DEFAULT_MESSAGE: Record<string, string> = {
-  SYNTAX_NO_CONTINUE: 'Galaxy 不支持 continue 语句',
-  SYNTAX_NO_LOCAL_INIT_ASSIGN: 'Galaxy 局部变量不能用 = 初始化',
   SEM_VOID_IN_CONDITION: 'void 返回函数不能用在条件表达式',
   XLIB_DISALLOWED_NATIVE: '调用了不允许的 native 函数',
+  XLIB_DISCOURAGED_NATIVE: '调用了项目不推荐的 native 函数',
   PROJ_UTF8_BOM: '文件含 UTF-8 BOM',
   PROJ_ENCODING_INVALID: '文件编码非 UTF-8',
-  SEM_INVALID_TEXT_CONCAT: 'text 类型不能用 + 拼接',
 };
 
 export class RuleEngine {
@@ -98,58 +96,6 @@ export function checkRules(
   filename: string,
   parsed?: { ast: Node; errors: Issue[] }
 ): Issue[] {
-  const engine = new RuleEngine();
-  const { ast, errors } = parsed ?? parse(source, filename);
-  const issues: Issue[] = [...errors];
-
-  walk(ast, (node, parent) => {
-    if (node.type === 'ContinueStatement' && engine.isRuleEnabled('SYNTAX_NO_CONTINUE')) {
-      const n = node as ContinueStatement & { start?: { line: number; column: number } };
-      issues.push(
-        engine.makeIssue(
-          'SYNTAX_NO_CONTINUE',
-          filename,
-          n.start?.line ?? 0,
-          n.start?.column ?? 0
-        )!
-      );
-    }
-
-    if (
-      node.type === 'VariableDeclaration' &&
-      parent?.type !== 'Program' &&
-      (node as VariableDeclaration).init !== null &&
-      engine.isRuleEnabled('SYNTAX_NO_LOCAL_INIT_ASSIGN')
-    ) {
-      const n = node as VariableDeclaration & { start?: { line: number; column: number } };
-      issues.push(
-        engine.makeIssue(
-          'SYNTAX_NO_LOCAL_INIT_ASSIGN',
-          filename,
-          n.start?.line ?? 0,
-          n.start?.column ?? 0
-        )!
-      );
-    }
-  });
-
-  return issues;
-}
-
-function walk(node: Node, cb: (n: Node, parent: Node | null) => void, parent: Node | null = null) {
-  if (!node || typeof node !== 'object') return;
-  cb(node, parent);
-  for (const key of Object.keys(node)) {
-    if (key === 'type' || key === 'start' || key === 'end') continue;
-    const val = (node as any)[key];
-    if (Array.isArray(val)) {
-      for (const child of val) {
-        if (child && typeof child === 'object' && typeof child.type === 'string') {
-          walk(child, cb, node);
-        }
-      }
-    } else if (val && typeof val === 'object' && typeof val.type === 'string') {
-      walk(val, cb, node);
-    }
-  }
+  const { errors } = parsed ?? parse(source, filename);
+  return [...errors];
 }

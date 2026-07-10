@@ -1,14 +1,6 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "rules": {
-    "SYNTAX_NO_CONTINUE": {
-      "severity": "error",
-      "message": "Galaxy 不支持 continue 语句，请用 if 块包裹"
-    },
-    "SYNTAX_NO_LOCAL_INIT_ASSIGN": {
-      "severity": "error",
-      "message": "Galaxy 局部变量不能用 = 初始化，必须先声明再赋值"
-    },
     "SEM_VOID_IN_CONDITION": {
       "severity": "error",
       "message": "void 返回函数不能用在条件表达式"
@@ -37,11 +29,11 @@
       "severity": "warning",
       "message": "赋值类型不匹配"
     },
-    "SEM_INVALID_TEXT_CONCAT": {
-      "severity": "error",
-      "message": "text 类型不能用 + 拼接，请用 string 拼接后再用 StringToText() 转换"
-    },
     "XLIB_DISALLOWED_NATIVE": { "severity": "error" },
+    "XLIB_DISCOURAGED_NATIVE": {
+      "severity": "warning",
+      "message": "调用了项目不推荐的 native 函数；如需严格策略可在规则文件中升级为 error"
+    },
     "XLIB_UNDEFINED_CROSS_REF": { "severity": "error" },
     "XLIB_MISSING_INCLUDE": { "severity": "warning" },
     "PROJ_UTF8_BOM": {

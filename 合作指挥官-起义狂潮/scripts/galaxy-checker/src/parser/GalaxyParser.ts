@@ -184,21 +184,26 @@ export class GalaxyParser extends EmbeddedActionsParser {
     const varType = this.SUBRULE(this.typeName);
 
     let isArray = false;
+    const arrayDimensions: (ast.Expression | null)[] = [];
     this.OPTION3(() => {
       this.CONSUME(tok.LBracket);
       // 维度可为空（`type[] name`）、字面量、标识符或算术表达式（`gv_MAX + 1`）
+      let dimension: ast.Expression | null = null;
       this.OPTION4(() => {
-        this.SUBRULE(this.expression);
+        dimension = this.SUBRULE(this.expression) as ast.Expression;
       });
       this.CONSUME(tok.RBracket);
+      arrayDimensions.push(dimension);
       isArray = true;
       // 多维：`type[a][b] name`
       this.MANY2(() => {
         this.CONSUME2(tok.LBracket);
+        let nextDimension: ast.Expression | null = null;
         this.OPTION5(() => {
-          this.SUBRULE2(this.expression);
+          nextDimension = this.SUBRULE2(this.expression) as ast.Expression;
         });
         this.CONSUME2(tok.RBracket);
+        arrayDimensions.push(nextDimension);
       });
     });
 
@@ -217,6 +222,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
       varType,
       name: nameTok.image,
       isArray,
+      arrayDimensions,
       init,
       isConst,
       isStatic,

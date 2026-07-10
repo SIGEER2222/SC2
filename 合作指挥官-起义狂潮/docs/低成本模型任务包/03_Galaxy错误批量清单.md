@@ -4,6 +4,8 @@
 
 - `{{BATCH_ID}}`：本批次名称。
 - `{{BASE_DATA_DIRS_FILE}}`：UTF-8 文本，每行一个 `Base.SC2Data` 目录。
+- `{{SYMBOL_ROOTS_FILE}}`：UTF-8 文本，每行一个父级/依赖 Mod 的 `Base.SC2Data`；
+  不需要时留空。
 
 ## 目标
 
@@ -24,6 +26,15 @@
 $checker = "合作指挥官-起义狂潮/scripts/galaxy-checker/dist/cli.mjs"
 node $checker "<Base.SC2Data>" --format text
 ```
+
+读取 `{{SYMBOL_ROOTS_FILE}}`，为每行追加一次：
+
+```text
+--symbol-root "<依赖 Base.SC2Data>"
+```
+
+依赖项是父级数据源。扫描子 Mod 时必须加载已知父级符号根，不得把父级函数/变量缺失
+汇总成子 Mod 源码错误。
 
 如果 `dist/cli.mjs` 不存在，停止并报告 `CHECKER_BUILD_REQUIRED`。不要自行安装依赖或修改
 checker。
@@ -58,9 +69,10 @@ baseData,ruleCode,count
 列出：
 
 - 所有 `XLIB_DISALLOWED_NATIVE`
+- 所有 `XLIB_DISCOURAGED_NATIVE`
 - 所有 `SEM_UNDECLARED_FUNCTION`
 - 所有 `SEM_ARGUMENT_COUNT_MISMATCH`
-- 所有 `PROJ_BOM_DETECTED`
+- 所有 `PROJ_UTF8_BOM`
 - 连续重复但文件/行不同的错误
 - 解析器崩溃或输出不符合格式
 

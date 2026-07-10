@@ -7,6 +7,7 @@ import type { FunctionSignature } from '../types.js';
 export interface BlacklistFile {
   version: string;
   disallowedNatives: string[];
+  discouragedNatives?: string[];
   notes?: Record<string, string>;
 }
 
@@ -15,6 +16,7 @@ const DEFAULT_BLACKLIST_PATH = resolveDataFile('native-blacklist.json');
 export class NativeFunctionTable {
   private natives = new Map<string, FunctionSignature>();
   private disallowed = new Set<string>();
+  private discouraged = new Set<string>();
   private notes = new Map<string, string>();
 
   constructor(blacklist?: BlacklistFile | string) {
@@ -29,6 +31,9 @@ export class NativeFunctionTable {
     for (const name of file.disallowedNatives) {
       this.disallowed.add(name);
     }
+    for (const name of file.discouragedNatives ?? []) {
+      this.discouraged.add(name);
+    }
     if (file.notes) {
       for (const [k, v] of Object.entries(file.notes)) {
         this.notes.set(k, v);
@@ -37,23 +42,23 @@ export class NativeFunctionTable {
   }
 
   loadFromString(source: string): void {
-    // 快路径：native 原型声明用正则批量提取（比全量 parse 快约 10 倍），
+    // 快路径：native 与 TriggerLib 函数原型用正则批量提取（比全量 parse 快约 10 倍），
     // 一条都匹配不到时回退到完整 parser（处理非常规格式）
     const noComments = source
       .replace(/\/\*[\s\S]*?\*\//g, ' ')
       .replace(/\/\/[^\n]*/g, ' ');
-    const re = /\bnative\s+(\w+)\s+(\w+)\s*\(([^)]*)\)\s*;/g;
+    const re = /\b(native\s+)?(\w+)\s+(\w+)\s*\(([^)]*)\)\s*;/g;
     let matched = 0;
     for (const m of noComments.matchAll(re)) {
       matched++;
-      const [, returnType, name, rawParams] = m;
+      const [, nativeKeyword, returnType, name, rawParams] = m;
       const params: { type: string; name: string }[] = [];
       for (const p of rawParams.split(',')) {
         const tokens = p.trim().split(/\s+/).filter(Boolean);
         if (tokens.length >= 2) params.push({ type: tokens[0], name: tokens[1] });
         else if (tokens.length === 1 && tokens[0] !== '') params.push({ type: tokens[0], name: '' });
       }
-      this.natives.set(name, { name, returnType, params, isNative: true });
+      this.natives.set(name, { name, returnType, params, isNative: nativeKeyword !== undefined });
     }
     if (matched > 0) return;
 
@@ -84,6 +89,10 @@ export class NativeFunctionTable {
 
   isDisallowed(name: string): boolean {
     return this.disallowed.has(name);
+  }
+
+  isDiscouraged(name: string): boolean {
+    return this.discouraged.has(name);
   }
 
   getNote(name: string): string | undefined {

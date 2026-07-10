@@ -116,5 +116,20 @@ describe('Parser - 基础声明', () => {
       isArray: true,
       name: 'gv_players',
     });
+    const declaration = result.ast.body[0] as any;
+    expect(declaration.arrayDimensions).toHaveLength(1);
+    expect(declaration.arrayDimensions[0]).toMatchObject({
+      type: 'Identifier',
+      name: 'libKCOR_gv_cCC_MAXPLAYERS',
+    });
+  });
+
+  it('保留多维数组的全部维度表达式', () => {
+    const result = parse('unit[4][gv_MAX + 1] gv_units;');
+    expect(result.errors).toHaveLength(0);
+    const declaration = result.ast.body[0] as any;
+    expect(declaration.arrayDimensions).toHaveLength(2);
+    expect(declaration.arrayDimensions[0]).toMatchObject({ type: 'Literal', value: 4 });
+    expect(declaration.arrayDimensions[1]).toMatchObject({ type: 'BinaryExpression', operator: '+' });
   });
 });

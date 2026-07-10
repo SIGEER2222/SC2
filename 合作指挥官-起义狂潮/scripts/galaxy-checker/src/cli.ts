@@ -14,6 +14,7 @@ if (args.length === 0 || args.includes('--help')) {
   --rules <path>          项目规则 JSON 路径
   --native-lib <path>     NativeLib.galaxy 路径
   --catalog-db <path>     catalog ID JSON 路径（默认 data/catalog-ids.json）
+  --symbol-root <dir>     追加父级/依赖 Mod 的符号目录，可重复
   --no-global-symbols     跳过全局符号表构建
   --help                  显示帮助`);
   process.exit(2);
@@ -27,12 +28,20 @@ const format: 'json' | 'text' = rawFormat === 'text' ? 'text' : 'json';
 const rulesIdx = args.indexOf('--rules');
 const nativeLibIdx = args.indexOf('--native-lib');
 const catalogDbIdx = args.indexOf('--catalog-db');
+const symbolRoots: string[] = [];
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--symbol-root' && args[i + 1]) {
+    symbolRoots.push(args[i + 1]);
+    i++;
+  }
+}
 
 try {
   const result = check(target, {
     rulesPath: rulesIdx >= 0 ? args[rulesIdx + 1] : undefined,
     nativeLibPath: nativeLibIdx >= 0 ? args[nativeLibIdx + 1] : undefined,
     catalogDbPath: catalogDbIdx >= 0 ? args[catalogDbIdx + 1] : undefined,
+    symbolRoots,
     noGlobalSymbols: args.includes('--no-global-symbols'),
   });
   const reporter = new IssueReporter(format);

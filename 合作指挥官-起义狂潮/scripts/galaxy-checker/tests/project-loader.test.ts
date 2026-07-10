@@ -28,4 +28,18 @@ describe('ProjectLoader', () => {
     expect(table.lookupFunction('bar')).toBeDefined();
     expect(table.lookupVariable('gv_foo')).toBeDefined();
   });
+
+  it('从多个 Mod 根目录构建联合符号表', () => {
+    const parent = join(tmpProject, 'parent');
+    const child = join(tmpProject, 'child');
+    mkdirSync(parent, { recursive: true });
+    mkdirSync(child, { recursive: true });
+    writeFileSync(join(parent, 'LibParent.galaxy'), 'const int libSame_gv_MAX = 15;');
+    writeFileSync(join(child, 'LibChild.galaxy'), 'void libSame_gf_Child() {}');
+
+    const loader = new ProjectLoader([parent, child]);
+    const table = loader.buildGlobalSymbolTable();
+    expect(table.lookupVariable('libSame_gv_MAX')).toBeDefined();
+    expect(table.lookupFunction('libSame_gf_Child')).toBeDefined();
+  });
 });

@@ -12,15 +12,23 @@ describe('NativeFunctionTable', () => {
     expect(table.lookup('UnitIsAlive')?.returnType).toBe('bool');
   });
 
+  it('从官方头文件格式解析普通函数原型', () => {
+    const table = new NativeFunctionTable();
+    table.loadFromString('void SoundPlay(soundlink sound, playergroup players, fixed volume, fixed offset);');
+    expect(table.lookup('SoundPlay')?.params).toHaveLength(4);
+    expect(table.lookup('SoundPlay')?.isNative).toBe(false);
+  });
+
   it('加载黑名单', () => {
     const table = new NativeFunctionTable();
     expect(table.isDisallowed('UnitIsHero')).toBe(true);
     expect(table.isDisallowed('UnitIsAlive')).toBe(false);
   });
 
-  it('UnitCreate 在黑名单中（项目规则禁用直接调用）', () => {
+  it('UnitCreate 在项目不推荐列表中', () => {
     const table = new NativeFunctionTable();
-    expect(table.isDisallowed('UnitCreate')).toBe(true);
+    expect(table.isDisallowed('UnitCreate')).toBe(false);
+    expect(table.isDiscouraged('UnitCreate')).toBe(true);
   });
 
   it('获取黑名单备注', () => {

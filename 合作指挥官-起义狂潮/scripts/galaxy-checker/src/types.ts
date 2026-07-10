@@ -21,6 +21,7 @@ export interface CheckOptions {
   nativeLibPath?: string;
   globalSymbolGlobs?: string[];
   noGlobalSymbols?: boolean;
+  symbolRoots?: string[];
   catalogDbPath?: string;
 }
 

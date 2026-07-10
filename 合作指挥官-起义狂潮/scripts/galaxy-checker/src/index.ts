@@ -18,6 +18,7 @@ const DEFAULT_RULES_PATH = resolveDataFile('project-rules.json');
 
 // 随包附带的 native 函数签名表（由编辑器全函数索引生成）
 const DEFAULT_NATIVES_PATH = resolveDataFile('natives.galaxy');
+const DEFAULT_TRIGGERLIB_PATH = resolveDataFile('triggerlib-functions.galaxy');
 
 // 默认 catalog ID 数据库（由 sc2_unit_explorer.py --export-catalog-ids 导出）
 const DEFAULT_CATALOG_DB_PATH = resolveDataFile('catalog-ids.json');
@@ -58,8 +59,14 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
 
   // 全局符号表：仅当 target 是目录且未禁用时构建（跨文件符号可见性）
   let globalTable: SymbolTable | undefined;
-  if (!options.noGlobalSymbols && statSync(target).isDirectory()) {
-    const loader = new ProjectLoader(target);
+  const symbolRoots = [
+    ...(statSync(target).isDirectory() ? [target] : []),
+    ...(options.symbolRoots ?? []),
+  ].filter((root, index, roots) =>
+    roots.indexOf(root) === index && existsSync(root) && statSync(root).isDirectory()
+  );
+  if (!options.noGlobalSymbols && symbolRoots.length > 0) {
+    const loader = new ProjectLoader(symbolRoots);
     globalTable = loader.buildGlobalSymbolTable();
   }
 
@@ -102,7 +109,9 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
     const includes = extractIncludes(content);
     for (const inc of includes) {
       if (inc.startsWith('TriggerLibs/') || inc.startsWith('triggerlibs/')) continue;
-      if (!findIncludeFile(fileDir, inc) && engine.isRuleEnabled('XLIB_MISSING_INCLUDE')) {
+      const includeFound = findIncludeFile(fileDir, inc)
+        || symbolRoots.some(root => findIncludeFile(root, inc));
+      if (!includeFound && engine.isRuleEnabled('XLIB_MISSING_INCLUDE')) {
         const lines = content.split('\n');
         let line = 1;
         for (let i = 0; i < lines.length; i++) {
@@ -129,6 +138,7 @@ function getNativeTable(nativeLibPath?: string): NativeFunctionTable {
   if (cachedNativeTable && cachedNativePath === path) return cachedNativeTable;
   const table = new NativeFunctionTable();
   if (path) table.loadFromFile(path);
+  if (existsSync(DEFAULT_TRIGGERLIB_PATH)) table.loadFromFile(DEFAULT_TRIGGERLIB_PATH);
   cachedNativeTable = table;
   cachedNativePath = path;
   return table;

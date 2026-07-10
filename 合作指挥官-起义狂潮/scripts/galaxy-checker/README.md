@@ -23,6 +23,10 @@ node dist/cli.mjs path/to/LibFoo.galaxy
 # 检查目录（递归 lint 所有 Lib*.galaxy，并用目录内全部 .galaxy 构建全局符号表），text 输出
 node dist/cli.mjs "path/to/CoopZeroPop.SC2Mod/Base.SC2Data" --format text
 
+# 子 Mod 扫描时加载父级/依赖 Mod 符号，可重复传入
+node dist/cli.mjs "path/to/Child.SC2Mod/Base.SC2Data" `
+  --symbol-root "path/to/Parent.SC2Mod/Base.SC2Data" --format text
+
 # 指定自定义规则文件 / native 签名库
 node dist/cli.mjs path/to/file.galaxy --rules path/to/project-rules.json
 node dist/cli.mjs path/to/file.galaxy --native-lib path/to/NativeLib.galaxy
@@ -56,6 +60,7 @@ if (result.summary.errors > 0) {
 | `rulesPath` | 项目规则 JSON 路径，默认 `data/project-rules.json` |
 | `nativeLibPath` | native 签名库路径，默认回退到附带的 `data/natives.galaxy`（2874 个 native，由编辑器全函数索引 5.0.7 生成） |
 | `noGlobalSymbols` | 跳过目录级全局符号表构建 |
+| `symbolRoots` | 额外父级/依赖 Mod 的 `Base.SC2Data` 目录数组，只提供符号、不加入目标报告 |
 
 ## 规则
 
@@ -66,7 +71,7 @@ if (result.summary.errors > 0) {
 ```json
 {
   "rules": {
-    "SYNTAX_NO_CONTINUE": { "severity": "error" }
+    "SEM_ARGUMENT_COUNT_MISMATCH": { "severity": "error" }
   }
 }
 ```
@@ -75,14 +80,15 @@ severity 可选：`error` / `warning` / `info` / `off`
 
 主要规则一览：
 
-- `SYNTAX_NO_CONTINUE`：Galaxy 不支持 `continue`
-- `SYNTAX_NO_LOCAL_INIT_ASSIGN`：局部变量不能声明时初始化
+- `SEM_ARGUMENT_COUNT_MISMATCH`：函数参数数量不匹配
+- `SEM_UNDECLARED_FUNCTION`：调用了未声明的函数
 - `SEM_UNDECLARED_VARIABLE` / `SEM_UNDECLARED_FUNCTION`：未声明引用
 - `SEM_ARGUMENT_COUNT_MISMATCH`：参数数量不匹配
 - `SEM_DUPLICATE_DECLARATION`：同作用域重复定义
 - `SEM_VOID_IN_CONDITION`：void 函数用在条件表达式
 - `SEM_RETURN_TYPE_MISMATCH` / `SEM_ASSIGNMENT_TYPE_MISMATCH`：类型不匹配（warning）
-- `XLIB_DISALLOWED_NATIVE`：调用黑名单 native（`data/native-blacklist.json`）
+- `XLIB_DISALLOWED_NATIVE`：调用不存在或禁止使用的伪 native（error）
+- `XLIB_DISCOURAGED_NATIVE`：调用项目不推荐的 native（默认 warning，可在规则文件升级）
 - `XLIB_UNDEFINED_CROSS_REF`：`libXXX_` 形式跨库引用未定义
 - `XLIB_MISSING_INCLUDE`：include 的文件不存在
 - `PROJ_UTF8_BOM`：文件含 UTF-8 BOM（会导致库初始化失败）
