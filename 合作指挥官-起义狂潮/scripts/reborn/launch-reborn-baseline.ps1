@@ -73,7 +73,8 @@ $rebornMods = @(
     "sibirens_sundries_swarm_reborn.SC2Mod"
 )
 $rebornBridgeMods = @(
-    "Reborn\RebornBridge.SC2Mod"
+    "Reborn\RebornBridge.SC2Mod",
+    "Reborn\RebornMapAdapter.SC2Mod"
 )
 
 # ============================================================

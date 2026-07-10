@@ -7,6 +7,7 @@
 //==================================================================================================
 include "TriggerLibs/NativeLib"
 include "TriggerLibs/SwarmCampaignLib"
+include "RebornMapAdapter"
 include "Lib48DF4533"
 
 //--------------------------------------------------------------------------------------------------
@@ -14,7 +15,8 @@ include "Lib48DF4533"
 //--------------------------------------------------------------------------------------------------
 void InitLibs () {
     libNtve_InitLib();
-    libSwaC_InitLib();
+    // Reborn port: skip campaign init (calls restricted natives)
+    // libSwaC_InitLib();
     lib48DF4533_InitLib();
 }
 
@@ -698,7 +700,8 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    libSwaC_gf_ULoadCampaignData("ZExpedition3");
+    // Reborn port: skip campaign data load (calls restricted natives)
+    // libSwaC_gf_ULoadCampaignData("ZExpedition3");
     TriggerExecute(gt_Init01Technology, true, true);
     TriggerExecute(gt_Init02Players, true, true);
     TriggerExecute(gt_Init03Units, true, true);
@@ -706,7 +709,8 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     TriggerExecute(gt_Init05Environment, true, true);
     TriggerExecute(gt_Init06Difficulties, true, true);
     TriggerExecute(gt_Init07Help, true, true);
-    libSwaC_gf_PurchaseStorymodeTech();
+    // Reborn port: skip campaign tech purchase (calls restricted natives)
+    // libSwaC_gf_PurchaseStorymodeTech();
     TriggerExecute(gt_IntroQ, true, true);
     TriggerExecute(gt_StartGameQ, true, true);
     return true;
