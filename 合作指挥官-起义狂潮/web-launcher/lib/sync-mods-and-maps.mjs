@@ -5,7 +5,7 @@ import { join, resolve, basename, dirname } from 'path';
 const DEFAULT_PRESERVE = ['DocumentHeader', 'DocumentInfo'];
 
 // mod 搜索子目录（按优先级）
-const MOD_SEARCH_DIRS = ['', '7vs1', 'XM'];
+const MOD_SEARCH_DIRS = ['', '7vs1', 'XM', 'Reborn'];
 
 /**
  * 用 robocopy 复制目录（Windows），跳过 preserveFiles 中的文件
