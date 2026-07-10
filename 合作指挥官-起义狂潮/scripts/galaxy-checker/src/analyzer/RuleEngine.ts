@@ -33,6 +33,7 @@ const DEFAULT_MESSAGE: Record<string, string> = {
   XLIB_DISALLOWED_NATIVE: '调用了不允许的 native 函数',
   PROJ_UTF8_BOM: '文件含 UTF-8 BOM',
   PROJ_ENCODING_INVALID: '文件编码非 UTF-8',
+  SEM_INVALID_TEXT_CONCAT: 'text 类型不能用 + 拼接',
 };
 
 export class RuleEngine {

@@ -215,7 +215,7 @@ function walkStatements(
     }
     case 'ReturnStatement': {
       if (stmt.argument && fn.returnType !== 'void') {
-        const t = inferType(stmt.argument, scope);
+        const t = inferType(stmt.argument, scope, nativeTable);
         if (t && !isAssignable(t, fn.returnType) && engine.isRuleEnabled('SEM_RETURN_TYPE_MISMATCH')) {
           issues.push(
             engine.makeIssue('SEM_RETURN_TYPE_MISMATCH', filename,
@@ -343,6 +343,28 @@ function checkExpression(
     case 'BinaryExpression':
       checkExpression(expr.left, scope, table, nativeTable, engine, filename, issues, ctx);
       checkExpression(expr.right, scope, table, nativeTable, engine, filename, issues, ctx);
+      // text 类型不能用 + 拼接（Galaxy 限制：只能 string + string）
+      // 检测 text + X、X + text 报 SEM_INVALID_TEXT_CONCAT
+      if (expr.operator === '+' && engine.isRuleEnabled('SEM_INVALID_TEXT_CONCAT')) {
+        const lt = inferType(expr.left, scope, nativeTable);
+        const rt = inferType(expr.right, scope, nativeTable);
+        if (lt === 'text' || rt === 'text') {
+          // 优先用 BinaryExpression 的运算符位置；缺失时回退到 left 操作数位置
+          const binStart = (expr as any).start;
+          const leftStart = (expr.left as any).start;
+          const line = binStart?.line || leftStart?.line || 0;
+          const column = binStart?.column || leftStart?.column || 0;
+          issues.push(
+            engine.makeIssue(
+              'SEM_INVALID_TEXT_CONCAT',
+              filename,
+              line,
+              column,
+              `text 类型不能用 + 拼接，请用 string 拼接后再用 StringToText() 转换（${lt ?? '?'} + ${rt ?? '?'}）`
+            )!
+          );
+        }
+      }
       break;
     case 'UnaryExpression':
       checkExpression(expr.argument, scope, table, nativeTable, engine, filename, issues, ctx);
@@ -353,7 +375,7 @@ function checkExpression(
       if (expr.left.type === 'Identifier') {
         const lv = scope.lookupVariable(expr.left.name);
         if (lv) {
-          const rt = inferType(expr.right, scope);
+          const rt = inferType(expr.right, scope, nativeTable);
           if (rt && !isAssignable(rt, lv.varType) && engine.isRuleEnabled('SEM_ASSIGNMENT_TYPE_MISMATCH')) {
             issues.push(
               engine.makeIssue('SEM_ASSIGNMENT_TYPE_MISMATCH', filename,
@@ -484,7 +506,8 @@ function checkVoidInCondition(
 }
 
 // 粗粒度类型推断：返回 Galaxy 类型字符串或 null（无法推断时跳过检查）
-function inferType(expr: ast.Expression, scope: Scope): string | null {
+// nativeTable 可选：传入后可推断 native 函数调用（如 StringToText 返回 text）的返回类型
+function inferType(expr: ast.Expression, scope: Scope, nativeTable?: NativeFunctionTable): string | null {
   switch (expr.type) {
     case 'Literal':
       return expr.literalType === 'integer' ? 'int'
@@ -499,21 +522,26 @@ function inferType(expr: ast.Expression, scope: Scope): string | null {
     }
     case 'CallExpression':
       if (expr.callee.type === 'Identifier') {
+        // 优先查本地符号表，再查 native 表
         const fn = scope.lookupFunction(expr.callee.name);
-        return fn?.returnType ?? null;
+        if (fn) return fn.returnType;
+        const native = nativeTable?.lookup(expr.callee.name);
+        return native?.returnType ?? null;
       }
       return null;
     case 'BinaryExpression':
       if (['==', '!=', '<', '>', '<=', '>=', '&&', '||'].includes(expr.operator)) return 'bool';
       if (expr.operator === '+') {
-        const lt = inferType(expr.left, scope);
-        const rt = inferType(expr.right, scope);
+        const lt = inferType(expr.left, scope, nativeTable);
+        const rt = inferType(expr.right, scope, nativeTable);
+        // text 类型优先（text + X 实际非法，但推断为 text 便于上游规则检测）
+        if (lt === 'text' || rt === 'text') return 'text';
         if (lt === 'string' || rt === 'string') return 'string';
       }
-      return inferType(expr.left, scope) ?? inferType(expr.right, scope);
+      return inferType(expr.left, scope, nativeTable) ?? inferType(expr.right, scope, nativeTable);
     case 'UnaryExpression':
       if (expr.operator === '!') return 'bool';
-      return inferType(expr.argument, scope);
+      return inferType(expr.argument, scope, nativeTable);
     default:
       return null;
   }

@@ -16,6 +16,8 @@
   - 解析器能识别 9 类错误（语法/语义/跨库引用/编码/BOM 等），行号定位精确到列，远优于 SC2 编译器（SC2 报"错误的参数集数"时常常滞后 1 行且不指明函数）。
   - 优先修复解析器报出的 `[ERROR]` 级问题（特别是 `SEM_ARGUMENT_COUNT_MISMATCH` / `SEM_UNDECLARED_*` / `XLIB_UNDEFINED_CROSS_REF` / `SYNTAX_NO_CONTINUE` / `PROJ_BOM_DETECTED`），确认 0 错误或剩余错误均为已知跨 mod 引用问题后再进图。
   - 若 `dist/` 不存在，先 `cd scripts/galaxy-checker && npm install && npm run build`。
+  - **解析器输出必须完整查看**：不要用 `Select-String` / `grep` 过滤部分规则类型后草率判断"都是已知误报"。每次至少通读一遍全部 `[ERROR]` 行，确认无 `XLIB_DISALLOWED_NATIVE` / `SEM_UNDECLARED_FUNCTION` / `SEM_ARGUMENT_COUNT_MISMATCH` 等可修复的错误。
+  - **如果进图测试出现 ScriptError 但 galaxy-checker 未检测出来，必须先修复解析器**，补充对应规则后再继续。解析器的价值在于提前发现错误，漏报意味着规则覆盖有缺口，必须补齐。
 - 涉及地图/触发器/运行时改动时，**必须实际进入地图测试**。按以下优先级逐步校验：
   - 如果游戏正在运行，必须重启游戏，把这个写到启动脚本里，启动后**必须**运行 `powershell -NoProfile -ExecutionPolicy Bypass -File E:\Code\MyMod\SC2\合作指挥官-起义狂潮\scripts\wait-for-game-ready.ps1` 并**等待脚本返回结果**，不可提前结束任务。
   - 智能等待逻辑（不会删除任何日志文件）：

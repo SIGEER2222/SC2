@@ -453,6 +453,13 @@ bool gt_spawnHero_Func (bool testConds, bool runActions) {
     gv_squad[2] = null;
     gv_squad[3] = null;
 
+    // 给小队 Marine 设置更高移速（2.8 > 英雄Marine 2.25），避免跟丢
+    UnitSetPropertyFixed(gv_squad[0], c_unitPropMovementSpeed, 2.8);
+    UnitSetPropertyFixed(gv_squad[1], c_unitPropMovementSpeed, 2.8);
+
+    // 英雄头上显示"小队系统"技能信息和初始槽位数
+    UnitSetInfoText(gv_hero, StringToText("小队: 2/4"), StringToText("弹仓系统"), StringToText("模仿巢虫领主弹仓"));
+
     // 选中英雄，方便玩家操作
     UnitSelect(gv_hero, 1, true);
 
@@ -460,10 +467,15 @@ bool gt_spawnHero_Func (bool testConds, bool runActions) {
     gv_replenishTimer = TimerCreate();
     TimerStart(gv_replenishTimer, 6.0, true, c_timeGame);
     TriggerAddEventTimer(gt_replenish, gv_replenishTimer);
+    TriggerEnable(gt_replenish, true);
 
     gv_followTimer = TimerCreate();
     TimerStart(gv_followTimer, 2.0, true, c_timeGame);
     TriggerAddEventTimer(gt_followHero, gv_followTimer);
+    TriggerEnable(gt_followHero, true);
+
+    // 调试输出
+    TriggerDebugOutput(1, StringToText("[SQUAD] 英雄已生成 + 初始2个Marine小队, 定时器已启动"), false);
 
     return true;
 }
@@ -480,6 +492,7 @@ void gt_spawnHero_Init () {
 bool gt_replenish_Func (bool testConds, bool runActions) {
     int lv_i;
     int lv_emptySlot;
+    int lv_aliveCount;
     point lv_heroPos;
     fixed lv_x;
     fixed lv_y;
@@ -520,7 +533,20 @@ bool gt_replenish_Func (bool testConds, bool runActions) {
         }
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "Marine", c_unitCreateIgnorePlacement, 1, Point(lv_x + 2.0, lv_y + 2.0));
         gv_squad[lv_emptySlot] = UnitLastCreated();
+        // 给小队 Marine 设置更高移速（2.8 > 英雄Marine 2.25），避免跟丢
+        UnitSetPropertyFixed(gv_squad[lv_emptySlot], c_unitPropMovementSpeed, 2.8);
+        TriggerDebugOutput(1, StringToText("[SQUAD] 补充Marine到槽位" + IntToString(lv_emptySlot)), false);
     }
+
+    // 统计当前存活小队数量并更新英雄头上的槽位显示
+    lv_aliveCount = 0;
+    for (lv_i = 0; lv_i <= 3; lv_i += 1) {
+        if (gv_squad[lv_i] != null && UnitIsAlive(gv_squad[lv_i])) {
+            lv_aliveCount += 1;
+        }
+    }
+    UnitSetInfoText(gv_hero, StringToText("小队: " + IntToString(lv_aliveCount) + "/4"), StringToText("弹仓系统"), StringToText(""));
+    TriggerDebugOutput(1, StringToText("[SQUAD] 当前小队数量=" + IntToString(lv_aliveCount) + "/4"), false);
 
     return true;
 }
@@ -554,9 +580,9 @@ bool gt_followHero_Func (bool testConds, bool runActions) {
     for (lv_i = 0; lv_i <= 3; lv_i += 1) {
         if (gv_squad[lv_i] != null && UnitIsAlive(gv_squad[lv_i])) {
             lv_marinePos = UnitGetPosition(gv_squad[lv_i]);
-            // 距离平方 > 36（即距离 > 6）才下达移动命令
+            // 距离平方 > 9（即距离 > 3）才下达移动命令，缩短跟随距离
             lv_distSq = ((PointGetX(lv_marinePos) - PointGetX(lv_heroPos)) * (PointGetX(lv_marinePos) - PointGetX(lv_heroPos))) + ((PointGetY(lv_marinePos) - PointGetY(lv_heroPos)) * (PointGetY(lv_marinePos) - PointGetY(lv_heroPos)));
-            if (lv_distSq > 36.0) {
+            if (lv_distSq > 9.0) {
                 UnitIssueOrder(gv_squad[lv_i], OrderTargetingPoint(AbilityCommand("move", 0), PointWithOffset(lv_heroPos, 2.0, 0.0)), c_orderQueueAddToEnd);
             }
         }

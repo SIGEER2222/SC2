@@ -7,8 +7,9 @@ import type * as ast from './ast.js';
 // 从 IToken 构造 Position。
 // SemanticAnalyzer / RuleEngine 通过 node.start.line 报告 issue 行号，
 // 旧版未给节点附加 start，导致所有 semantic issue 输出 line=0。
-// 此处仅给会产生 issue 的节点（声明、return、continue、Identifier、CallExpression、
-// AssignmentExpression）附加 start，其他节点保持原样以减小改动面。
+// 此处给会产生 issue 的节点（声明、return、continue、Identifier、CallExpression、
+// AssignmentExpression、BinaryExpression）附加 start，其他节点保持原样以减小改动面。
+// BinaryExpression 的 start 取运算符 token 位置，便于定位 text + text 等拼接错误。
 function posOf(t: IToken): ast.Position {
   return {
     line: t.startLine ?? 0,
@@ -429,6 +430,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         operator: opTok.image,
         left,
         right,
+        start: posOf(opTok),
       } as ast.BinaryExpression;
     });
     return left;
@@ -445,6 +447,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         operator: opTok.image,
         left,
         right,
+        start: posOf(opTok),
       } as ast.BinaryExpression;
     });
     return left;
@@ -462,6 +465,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         operator: opTok.image,
         left,
         right,
+        start: posOf(opTok),
       } as ast.BinaryExpression;
     });
     return left;
@@ -478,6 +482,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         operator: opTok.image,
         left,
         right,
+        start: posOf(opTok),
       } as ast.BinaryExpression;
     });
     return left;
@@ -494,6 +499,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         operator: opTok.image,
         left,
         right,
+        start: posOf(opTok),
       } as ast.BinaryExpression;
     });
     return left;
@@ -513,6 +519,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         operator: opTok!.image,
         left,
         right,
+        start: posOf(opTok!),
       } as ast.BinaryExpression;
     });
     return left;
@@ -534,6 +541,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         operator: opTok!.image,
         left,
         right,
+        start: posOf(opTok!),
       } as ast.BinaryExpression;
     });
     return left;
@@ -554,6 +562,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         operator: opTok!.image,
         left,
         right,
+        start: posOf(opTok!),
       } as ast.BinaryExpression;
     });
     return left;
@@ -573,6 +582,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         operator: opTok!.image,
         left,
         right,
+        start: posOf(opTok!),
       } as ast.BinaryExpression;
     });
     return left;
@@ -593,6 +603,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
         operator: opTok!.image,
         left,
         right,
+        start: posOf(opTok!),
       } as ast.BinaryExpression;
     });
     return left;

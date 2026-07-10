@@ -152,11 +152,16 @@ while ($true) {
         Write-Host ""
         Write-Host ">>> Alerts.txt detected: $($alertsLog.FullName)"
         Write-Host ">>> Starting $GracePeriodSeconds s grace period..."
+        # 关键修复：Alerts.txt 出现时若 ScriptError 已含致命错误，直接判失败
+        # 编译错误在地图加载初期就发生，不能当作 baseline 容忍
+        if ($currentScriptError -and (Test-HasScriptError)) {
+            Write-Host ""
+            Write-Error "Fatal script error already present when Alerts.txt detected!"
+            Write-ScriptErrorReport
+            exit 1
+        }
         $scriptErrorBaselineTime = $currentScriptErrorTime
         $scriptErrorBaselineContent = $currentScriptErrorContent
-        if ($currentScriptError -and (Test-HasScriptError)) {
-            Write-Host ">>> ScriptError exists at start, observing for updates"
-        }
     }
 
     if ($null -ne $alertsDetectedTime) {
