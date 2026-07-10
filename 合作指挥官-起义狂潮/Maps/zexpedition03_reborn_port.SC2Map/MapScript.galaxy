@@ -15,9 +15,10 @@ include "Lib48DF4533"
 //--------------------------------------------------------------------------------------------------
 void InitLibs () {
     libNtve_InitLib();
-    // Reborn port: skip campaign init (calls restricted natives)
-    // libSwaC_InitLib();
+    libSwaC_InitLib();
     lib48DF4533_InitLib();
+    // Reborn port: register RebornMapAdapter after campaign init
+    libRebornAdapter_InitLib();
 }
 
 //--------------------------------------------------------------------------------------------------
