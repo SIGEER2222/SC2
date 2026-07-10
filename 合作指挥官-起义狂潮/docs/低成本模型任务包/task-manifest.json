@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "outputRoot": "合作指挥官-起义狂潮/docs/低成本模型产物",
+  "commonMode": "read-only-source",
+  "tasks": [
+    {
+      "id": "dependency-inventory",
+      "prompt": "01_依赖链批量盘点.md",
+      "intelligence": "low",
+      "tokenCost": "high",
+      "parallelKey": "target",
+      "outputs": ["raw/*.json", "dependency-summary.csv", "issues.md", "run-summary.json"]
+    },
+    {
+      "id": "unit-diagnostic-matrix",
+      "prompt": "02_单位诊断矩阵.md",
+      "intelligence": "low",
+      "tokenCost": "high",
+      "parallelKey": "case-row",
+      "outputs": ["raw/*.json", "unit-summary.csv", "issue-counts.csv", "needs-senior-review.md", "run-summary.json"]
+    },
+    {
+      "id": "galaxy-error-inventory",
+      "prompt": "03_Galaxy错误批量清单.md",
+      "intelligence": "low",
+      "tokenCost": "very-high",
+      "parallelKey": "base-data-directory",
+      "outputs": ["raw/*.txt", "errors.csv", "error-counts.csv", "needs-senior-review.md", "run-summary.json"]
+    },
+    {
+      "id": "catalog-trace-compare",
+      "prompt": "04_Catalog追踪与环境对比.md",
+      "intelligence": "low",
+      "tokenCost": "high",
+      "parallelKey": "case-row",
+      "outputs": ["raw/*.json", "catalog-summary.csv", "incomplete-boundaries.csv", "needs-senior-review.md", "run-summary.json"]
+    },
+    {
+      "id": "localized-name-candidates",
+      "prompt": "05_本地化名称反查候选.md",
+      "intelligence": "low",
+      "tokenCost": "high",
+      "parallelKey": "query-name",
+      "outputs": ["name-candidates.csv", "unmatched.txt", "needs-senior-review.md", "run-summary.json"]
+    },
+    {
+      "id": "mpq-inventory",
+      "prompt": "06_MPQ地图结构清单.md",
+      "intelligence": "low",
+      "tokenCost": "high",
+      "parallelKey": "map",
+      "outputs": ["raw/*.json", "map-summary.csv", "run-summary.json"]
+    },
+    {
+      "id": "validation-doc-audit",
+      "prompt": "07_验证日志与文档盘点.md",
+      "intelligence": "low",
+      "tokenCost": "high",
+      "parallelKey": "check",
+      "outputs": ["raw/*", "validation-summary.csv", "stale-doc-candidates.csv", "needs-senior-review.md", "run-summary.json"]
+    }
+  ],
+  "reservedForSeniorModel": [
+    "root-cause ownership decisions",
+    "source edits",
+    "runtime test interpretation",
+    "false-positive acceptance",
+    "regression design",
+    "commit and push"
+  ]
+}

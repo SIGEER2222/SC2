@@ -56,6 +56,19 @@ $tool = "合作指挥官-起义狂潮/scripts/sc2-editor-toolkit/cli.mjs"
    changed. Read [runtime-testing.md](references/runtime-testing.md).
 9. Convert new failure modes into configuration, parser rules, fixtures, and regression tests.
 
+## Delegate Bulk Evidence Collection
+
+For high-volume, low-judgment, read-only work, use the task prompts under:
+
+```text
+合作指挥官-起义狂潮/docs/低成本模型任务包
+```
+
+Delegate dependency inventories, unit diagnostic matrices, complete checker-log collection, Catalog
+trace batches, localized-name candidate searches, MPQ inventories, and test/document audits. Keep
+ownership decisions, source edits, false-positive acceptance, runtime interpretation, regression
+design, and commits with the primary high-capability workflow.
+
 ## Respect Evidence Boundaries
 
 - Do not infer campaign compatibility from success in custom melee.
