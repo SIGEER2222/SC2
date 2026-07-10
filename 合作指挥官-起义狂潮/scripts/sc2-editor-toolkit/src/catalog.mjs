@@ -197,4 +197,40 @@ export class CatalogStore {
     }
     return { chain, circular: false };
   }
+
+  /** 展开 parent 继承后的条目；返回 null 表示目标不存在。 */
+  resolveEntry(catalog, id) {
+    const target = this.getEntry(catalog, id);
+    if (!target) return null;
+    const parent = this.parentChain(catalog, id);
+    const last = parent.chain.at(-1);
+    const unresolvedParent = last?.node.attrs.parent &&
+      !this.getEntry(catalog, last.node.attrs.parent)
+      ? last.node.attrs.parent
+      : null;
+    let node = null;
+    for (const entry of [...parent.chain].reverse()) {
+      if (!node) {
+        node = deepClone(entry.node);
+        continue;
+      }
+      for (const [key, value] of Object.entries(entry.node.attrs)) {
+        if (key !== 'removed') node.attrs[key] = value;
+      }
+      mergeElement(node, entry.node);
+      node.file = entry.node.file;
+      node.line = entry.node.line;
+      node.col = entry.node.col;
+      node.tag = entry.node.tag;
+    }
+    return {
+      tag: target.tag,
+      id,
+      node,
+      sources: target.sources,
+      parentChain: parent.chain.map(entry => entry.id),
+      parentCircular: parent.circular,
+      unresolvedParent,
+    };
+  }
 }

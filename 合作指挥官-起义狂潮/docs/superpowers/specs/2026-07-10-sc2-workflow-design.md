@@ -1,7 +1,7 @@
 # SC2 依赖优先诊断与自迭代工作流设计文档
 
 - **日期**：2026-07-10
-- **状态**：首个可用版本已实现
+- **状态**：依赖追踪与单位故障诊断版本已实现
 - **目标读者**：SC2 Mod/地图维护者、自动化工具维护者、AI Agent
 - **实现位置**：`scripts/sc2-editor-toolkit`、`Shared/Workflow/sc2-workflow.json`
 - **Skill 位置**：仓库根目录 `.codex/skills/sc2-workflow`
@@ -33,12 +33,13 @@
 5. 明确区分 7vs1 地图和普通 MPQ 地图的运行时验证路径。
 6. 把新失败转化为配置、规则、fixture 和测试，使后续工作越来越快、越来越准。
 7. 输出稳定 JSON 契约，供 CLI、Skill 和后续 UI/CI 复用。
+8. 自动诊断常见生产链、继承技能、命令卡和静态/运行时差异问题。
 
 ### 2.2 非目标
 
 - 不完整模拟 SC2 引擎的全部 Catalog 运行时求值。
 - 不替代 `galaxy-checker` 的 Galaxy AST/语义检查。
-- 不替代 `sc2_unit_explorer.py` 的单位关系图查询。
+- 不替代 `sc2_unit_explorer.py` 的广域单位关系图查询；新诊断命令只聚焦故障链路。
 - 不自动修改地图依赖或 Catalog 数据。
 - `check --run` 不自动启动游戏，只声明是否需要运行时验证。
 - 不把外部官方依赖缺失伪装成完整结果。
@@ -114,6 +115,7 @@ node cli.mjs inspect "<map>" --effective --commander TerranRaynor
 sc2-editor-toolkit CLI
     |-- inspect  -> dependencyGraph.mjs
     |-- trace    -> dependencyGraph.mjs + provenance.mjs + CatalogStore
+    |-- diagnose-unit -> dependencyGraph.mjs + CatalogStore + unitDiagnostics.mjs
     |-- compare  -> two dependency graphs + two traces + focused differences
     |-- doctor   -> workflow.mjs
     |-- check    -> workflow.mjs validation router
@@ -128,9 +130,10 @@ sc2-editor-toolkit CLI
 ### 5.1 复用原则
 
 - Catalog 合并继续由 `CatalogStore` 负责。
+- Unit `parent` 继承展开继续由 `CatalogStore.resolveEntry` 负责。
 - Galaxy 静态错误继续由 `galaxy-checker` 负责。
 - 单位关系继续由 `sc2_unit_explorer.py` 负责。
-- 新工具只新增依赖图、来源追踪、诊断和验证编排，不复制已有分析逻辑。
+- `diagnose-unit` 只聚合生产链、技能、卡牌与局部运行时证据，不复制广域关系浏览器。
 
 ## 6. 配置契约
 
@@ -256,7 +259,78 @@ node cli.mjs compare <left-map-or-mod> <right-map-or-mod> \
 
 该命令用于直接回答“战役图和自定义对战为什么不一致”，减少手工拼接两份长 trace。
 
-### 7.5 `check`
+### 7.5 `diagnose-unit`
+
+```powershell
+node cli.mjs diagnose-unit <map|mod> `
+  --unit MarineRaynor `
+  --producer BarracksRaynor `
+  --expect-ability SuperStimpackMarineRaynor `
+  [--effective] [--commander TerranRaynor] [--allow-incomplete]
+```
+
+该命令针对最常见的“造不出来、造出来没技能、XML 与游戏内不一致”问题，一次完成：
+
+- 展开 Unit `parent` 链，生成继承后的 `AbilArray` 与 `CardLayouts`。
+- 反查 `CAbilTrain/CAbilBuild/CAbilMorph.InfoArray` 中指向目标单位的槽位。
+- 验证指定生产者是否拥有生产能力及匹配的 `AbilCmd` 按钮。
+- 标记静态 Requirement 和 `Restricted` 状态。
+- 验证预期能力是否有 Catalog 定义、是否静态/继承存在、是否缺按钮。
+- 扫描 `TechTreeUnitAllow`、`TechTreeAbilityAllow`、`UnitAbilityAdd/Remove` 和
+  `CatalogFieldValueSet*`。
+- 在静态能力上叠加检测到的运行时添加/移除，输出 `effectiveAbilities`。
+
+JSON 关键字段：
+
+```json
+{
+  "schemaVersion": 1,
+  "status": "ok|incomplete|error",
+  "complete": true,
+  "hasErrors": false,
+  "unit": {
+    "parentChain": [],
+    "staticAbilities": [],
+    "runtimeAddedAbilities": [],
+    "runtimeRemovedAbilities": [],
+    "effectiveAbilities": [],
+    "cards": []
+  },
+  "production": {
+    "targetSlots": [],
+    "candidates": [],
+    "selected": null
+  },
+  "runtime": {
+    "events": [],
+    "unitTech": {},
+    "abilityTech": {},
+    "catalogMutations": [],
+    "scan": {}
+  },
+  "issues": []
+}
+```
+
+`complete` 只表示依赖边界是否完整，`hasErrors` 表示是否发现行为错误。默认任一
+`hasErrors: true` 或 `complete: false` 都返回 exit 1；只有依赖不完整但没有诊断 error
+时，`--allow-incomplete` 才允许 exit 0。
+
+核心 issue code 包括：
+
+- `PRODUCTION_SLOT_MISSING`
+- `PRODUCTION_PRODUCER_MISSING`
+- `PRODUCER_MISSING_PRODUCTION_ABILITY`
+- `PRODUCTION_BUTTON_MISSING`
+- `PRODUCTION_REQUIREMENT_GATED`
+- `EXPECTED_ABILITY_MISSING`
+- `EXPECTED_ABILITY_BUTTON_MISSING`
+- `UNIT_TECH_LOCKED_RUNTIME`
+- `PRODUCTION_ABILITY_LOCKED_RUNTIME`
+- `EXPECTED_ABILITY_LOCKED_RUNTIME`
+- `STATIC_RUNTIME_DIVERGENCE`
+
+### 7.6 `check`
 
 ```powershell
 node cli.mjs check [files...] [--changed] [--run] [--format json|text]
@@ -307,8 +381,9 @@ CardLayouts[index=0]/LayoutButtons[Row=2,Column=0]/@AbilCmd
 ### 8.3 来源模式边界
 
 当前 `fieldProvenance` 是目标 ID 的定义历史，不是完整的继承后最终字段快照。父条目可
-正确出现在 `parentChain` 中，但父字段继承、Requirement 求值和所有引擎默认值仍需后续
-版本展开。因此结果明确标记：
+正确出现在 `parentChain` 中。`CatalogStore.resolveEntry` 已能为 `diagnose-unit` 展开
+继承后的 Unit 节点，但 `trace.fieldProvenance` 仍不把继承字段重新标成目标 ID 的定义
+历史；Requirement 求值和所有引擎默认值也仍需后续版本展开。因此 trace 结果明确标记：
 
 ```text
 provenanceMode: definition-history
@@ -325,7 +400,12 @@ provenanceMode: definition-history
 - `UnitAbilityRemove`
 - 配置中的项目包装函数
 
-当前只追踪同一行中包含目标 ID 字符串字面量的调用。返回函数名、文件、行号和原始文本。
+`trace` 只追踪同一行中包含目标 ID 字符串字面量的调用。返回函数名、文件、行号和原始
+文本。
+
+`diagnose-unit` 增加面向单位故障的局部上下文扫描：当附近出现
+`UnitGetType(...) == "<unit-id>"` 时，把随后的 `UnitAbilityAdd/Remove` 归属到该单位，
+并单独输出 `confidence: context-inferred`。原生函数名和带项目前缀的包装函数均可识别。
 
 该策略强调低误报和可解释性，不尝试跨函数数据流。变量传递、字符串拼接和运行时生成
 的 ID 属于已知限制。
@@ -373,8 +453,9 @@ provenanceMode: definition-history
 保护工作区
   -> 分类地图/Mod
   -> inspect 声明或有效依赖
-  -> trace Catalog ID/字段
-  -> 必要时运行 unit explorer
+  -> diagnose-unit 聚合生产/技能/卡牌/运行时故障
+  -> trace 仍有歧义的 Catalog ID/字段
+  -> 必要时运行 unit explorer 扩展广域关系
   -> 最小根因修复
   -> check 路由静态验证
   -> 按地图类型进图
@@ -423,6 +504,11 @@ Skill 不复制庞大的指挥官映射和工具实现，只引用机器可读�
 - 同 ID 定义历史。
 - parent 链解析和循环。
 - Galaxy 字面量运行时修改。
+- Unit `parent` 继承后的能力与卡牌。
+- Train/Build/Morph 生产槽、生产者能力和命令卡组合。
+- 预期技能缺失、按钮缺失和 Requirement/Restricted 状态。
+- Galaxy 能力注入、移除、科技锁定和静态/运行时差异。
+- `diagnose-unit` JSON、退出码与 `--allow-incomplete`。
 - 两个环境的字段与运行时差异比较。
 - 无 GameData 包的容错。
 - changed-file 路由。
@@ -456,22 +542,25 @@ Skill 不复制庞大的指挥官映射和工具实现，只引用机器可读�
 6. `trace` 为解析 parent 会加载依赖链中的全部 GameData；超大依赖链后续可加缓存。
 7. 普通 MPQ 内部结构仍需解包后才能参与完整静态追踪。
 8. 当前不直接读取 CASC/游戏归档，官方 Campaign 缺失时需先建立目录镜像。
-9. 中文名称反查和 Button/Abil/Upgrade/Requirement 科技链仍需人工串联。
+9. 中文名称反查和完整 Button/Abil/Upgrade/Requirement 科技链仍需人工串联；已知
+   ASCII ID 后的生产/技能/卡牌故障可由 `diagnose-unit` 自动聚合。
 10. 当前没有反向影响范围索引，定义所有权仍需结合消费地图和指挥官判断。
+11. `diagnose-unit` 的 UnitAbility 局部上下文不跨函数、不建控制流图，复杂变量传播仍
+   需人工检查。
 
 ## 16. 后续演进
 
 优先级从高到低：
 
-1. 生成继承展开后的最终字段快照，并区分 inherited/overridden/removed。
+1. 将 `resolveEntry` 的继承结果扩展到通用 trace 字段来源，区分
+   inherited/overridden/removed。
 2. 给 Galaxy 修改增加有限的局部变量与常量传播。
 3. 增加 `find-id`，从本地化名称反查 Button/Abil/Upgrade/Requirement。
 4. 增加 `trace-tech`，自动串联 Button/AbilCmd/InfoArray/Upgrade/Requirement/TechTreeAllow。
 5. 支持 MPQ 与 CASC 只读提取缓存，补齐官方 Campaign 依赖镜像。
 6. 支持可命名的 campaign/custom-melee/7vs1 profile 和显式依赖清单。
 7. 对配置与启动脚本做顺序一致性测试，防止 profile 漂移。
-8. 为常见问题生成聚合诊断，例如“训练按钮缺失”自动串联 Unit/Abil/Button/
-   Requirement/Upgrade。
+8. 扩展 `diagnose-unit` 到 Upgrade/Requirement 的布尔求值和科技前置解释。
 9. 建立反向消费索引，输出一个 Catalog 定义影响的地图、指挥官和 Adapter。
 10. 引入内容哈希缓存，避免重复解析未变化的官方镜像。
 

@@ -8,6 +8,7 @@
  *   node cli.mjs list <mod路径...> [--catalog <名>] [--filter <正则>]
  *   node cli.mjs inspect <地图或mod路径> [--format json|text]
  *   node cli.mjs trace <地图或mod路径> --catalog <名> --id <条目id> [--field <字段>]
+ *   node cli.mjs diagnose-unit <地图或mod路径> --unit <单位id> [--producer <单位id>]
  *   node cli.mjs compare <左地图或mod> <右地图或mod> --catalog <名> --id <条目id>
  *   node cli.mjs doctor [--format json|text]
  *   node cli.mjs check [文件...] [--changed] [--run] [--format json|text]
@@ -23,6 +24,7 @@ import { CatalogStore } from './src/catalog.mjs';
 import { loadModIntoStore } from './src/modLoader.mjs';
 import { buildDependencyGraph, readWorkflowConfig } from './src/dependencyGraph.mjs';
 import { compareCatalogTraces, traceCatalogId } from './src/provenance.mjs';
+import { diagnoseUnit } from './src/unitDiagnostics.mjs';
 import {
   buildValidationPlan,
   changedFiles,
@@ -60,6 +62,15 @@ const USAGE = `用法: node cli.mjs <command> ...
     --field <文本>        只保留路径包含该文本的字段
     --effective           应用启动器等价的有效依赖替换
     --commander <id,...>  有效依赖使用的指挥官 id
+    --format <json|text>  输出格式，默认 json
+
+  diagnose-unit <地图或mod路径> 诊断单位生产链、继承技能、卡牌按钮与运行时差异
+    --unit <id>           目标单位 Catalog ID
+    --producer <id>       可选，限定预期生产者单位
+    --expect-ability <id,...> 可选，要求目标单位具备的能力
+    --effective           应用启动器等价的有效依赖替换
+    --commander <id,...>  有效依赖使用的指挥官 id
+    --allow-incomplete    允许依赖不完整且没有诊断 error 时返回 exit 0
     --format <json|text>  输出格式，默认 json
 
   compare <左路径> <右路径> 对比两个环境中同一 Catalog ID 的定义历史、字段和运行时差异
@@ -264,6 +275,59 @@ function compareText(comparison) {
   return lines.join('\n');
 }
 
+function unitDiagnosisText(result) {
+  const lines = [
+    `单位诊断: ${result.unitId}`,
+    `目标: ${result.target}`,
+    `状态: ${result.status}`,
+    `依赖完整性: ${result.complete ? '完整' : '不完整'}`,
+    `生产者: ${result.producerId ?? '(自动发现)'}`,
+    `parent 链: ${result.unit.parentChain.join(' -> ') || '(无)'}`,
+    `静态能力: ${result.unit.staticAbilities.join(', ') || '(无)'}`,
+    `运行时有效能力: ${result.unit.effectiveAbilities.join(', ') || '(无)'}`,
+  ];
+  if (result.expectedAbilities.length > 0) {
+    lines.push(`预期能力: ${result.expectedAbilities.join(', ')}`);
+  }
+  const selected = result.production.selected;
+  lines.push('', '生产路径:');
+  if (!selected) {
+    lines.push('  (未找到可用生产路径)');
+  } else {
+    lines.push(
+      `  ${selected.producerId} --${selected.abilityId},${selected.command || '(默认)'}--> ${selected.targetUnit}`,
+      `  卡牌按钮: ${selected.buttonVisible ? '存在' : '缺失'}`,
+    );
+    if (selected.requirements) lines.push(`  Requirement: ${selected.requirements}`);
+    if (selected.state) lines.push(`  State: ${selected.state}`);
+  }
+  lines.push(
+    '',
+    `运行时事件 (${result.runtime.events.length}):`,
+  );
+  if (result.runtime.events.length === 0) lines.push('  (未发现字面量或局部上下文事件)');
+  for (const item of result.runtime.events) {
+    lines.push(`  - ${item.kind} ${item.targetType}:${item.targetId} ${item.file}:${item.line}`);
+  }
+  if (result.incompleteDependencies.length > 0) {
+    lines.push('', '缺失依赖边界:');
+    for (const dependency of result.incompleteDependencies) {
+      lines.push(`  - ${dependency.ref} [${dependency.status}]`);
+    }
+  }
+  lines.push('', `问题 (${result.issues.length}):`);
+  if (result.issues.length === 0) lines.push('  (无)');
+  for (const item of result.issues) {
+    lines.push(`  [${item.severity}] ${item.code}: ${item.message}`);
+  }
+  lines.push(
+    '',
+    `运行时扫描: ${result.runtime.scan.mode}（完整=${result.runtime.scan.complete}）`,
+    `限制: ${result.runtime.scan.limitations.join(', ') || '(无)'}`,
+  );
+  return lines.join('\n');
+}
+
 function listFlag(value) {
   return typeof value === 'string'
     ? value.split(',').map(item => item.trim()).filter(Boolean)
@@ -444,6 +508,30 @@ function main() {
     });
     outputValue(trace, format, traceText, flags.out);
     return trace.found ? 0 : 1;
+  }
+
+  if (command === 'diagnose-unit') {
+    if (positional.length !== 1 || typeof flags.unit !== 'string') {
+      console.error('diagnose-unit 需要一个地图或 mod 路径与 --unit\n' + USAGE);
+      return 2;
+    }
+    const graph = buildDependencyGraph({
+      target: positional[0],
+      projectRoot,
+      configPath: typeof flags.config === 'string' ? flags.config : null,
+      effective: Boolean(flags.effective || commanders.length > 0),
+      commanders,
+    });
+    const diagnosis = diagnoseUnit({
+      graph,
+      unitId: flags.unit,
+      producerId: typeof flags.producer === 'string' ? flags.producer : null,
+      expectedAbilities: listFlag(flags['expect-ability']),
+    });
+    outputValue(diagnosis, format, unitDiagnosisText, flags.out);
+    if (diagnosis.hasErrors) return 1;
+    if (!diagnosis.complete && !flags['allow-incomplete']) return 1;
+    return 0;
   }
 
   if (command === 'compare') {

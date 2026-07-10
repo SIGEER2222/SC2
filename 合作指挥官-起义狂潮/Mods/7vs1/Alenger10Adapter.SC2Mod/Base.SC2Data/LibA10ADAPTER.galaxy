@@ -12,11 +12,31 @@ include "LibA10ADAPTER_h"
 //--------------------------------------------------------------------------------------------------
 bool libA10ADAPTER_gt_MapInit_Func (bool testConds, bool runActions) {
     int lp_player = 1;
+    int lv_player;
+    playergroup auto10ADAPTER_g;
 
     if (testConds) { return true; }
     if (!runActions) { return true; }
 
     // 10埃蒙无源 galaxy 运行时升级逻辑
+    // 为所有人类玩家解锁所有自定义单位（TechTreeUnitAllow）
+    auto10ADAPTER_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto10ADAPTER_g, lv_player);
+        if (lv_player < 0) { break; }
+        if ((PlayerType(lv_player) == c_playerTypeUser)) {
+            TechTreeUnitAllow(lv_player, "10hunhetiliulangzhe", true);
+            TechTreeUnitAllow(lv_player, "10hunhetihuimiezhe", true);
+            TechTreeUnitAllow(lv_player, "10hunhetichengfazhe", true);
+            TechTreeUnitAllow(lv_player, "10hunhetizhongjiezhe", true);
+            TechTreeUnitAllow(lv_player, "10hunhetidiaolingzhe", true);
+            TechTreeUnitAllow(lv_player, "10hunhetifuchouzhe", true);
+            TechTreeUnitAllow(lv_player, "10xukongliexi", true);
+            TechTreeUnitAllow(lv_player, "10hunhetisiliezhe", true);
+        }
+    }
+
     return true;
 }
 
