@@ -105,7 +105,16 @@ export function syncMods(opts) {
     }
 
     const dst = join(targetModsRoot, modDirName);
-    copyDir(src, dst, preserveFiles);
+    const srcStat = statSyncSafe(src);
+    if (srcStat && srcStat.isDirectory()) {
+      copyDir(src, dst, preserveFiles);
+    } else if (srcStat && srcStat.isFile()) {
+      mkdirSync(targetModsRoot, { recursive: true });
+      copyFileSync(src, dst);
+    } else {
+      details.push({ path: modDirName, action: 'skipped', reason: 'source not a file or directory' });
+      continue;
+    }
     copied++;
     details.push({ path: modDirName, action: 'copied' });
   }
