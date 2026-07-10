@@ -1,20 +1,34 @@
 # 本地化扫描工具
 
-扫描 `zhCN` 本地化文件中未翻译的英文文本。
+## 工具列表
 
-## 工具路径
+### 1. 未翻译英文文本扫描
+
+扫描 `zhCN` 本地化文件中未翻译的英文文本。
 
 ```powershell
 python 合作指挥官-起义狂潮/scripts/scan_english_text.py [选项]
 ```
-
-## 选项
 
 | 选项 | 说明 |
 |------|------|
 | `--summary` | 只输出统计摘要 |
 | `--player-only` | 只显示玩家可见的文本 |
 | `--fix-report` | 输出需要修复的清单 |
+
+### 2. 缺失文本 key 扫描
+
+对比 zhCN 和 enUS/zhTW 本地化文件，找出 zhCN 中缺失或值为空的 key。
+
+```powershell
+python 合作指挥官-起义狂潮/scripts/scan_missing_text_keys.py [选项]
+```
+
+| 选项 | 说明 |
+|------|------|
+| `--summary` | 只输出统计摘要 |
+| `--missing-only` | 只显示缺失的 key |
+| `--empty-only` | 只显示值为空的 key |
 
 ## 扫描范围
 
