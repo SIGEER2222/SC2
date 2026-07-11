@@ -9,6 +9,15 @@ include "TriggerLibs/NativeLib"
 include "TriggerLibs/SwarmCampaignLib"
 include "RebornMapAdapter"
 include "Lib48DF4533"
+include "Lib67C0F0E7"
+include "LibC0F50AA6"
+include "Lib81FF3B49"
+include "LibDF8E6945"
+include "LibBE3BBD9F"
+include "Lib0940FFB7"
+include "Lib4B62E36B"
+include "Lib975E2FE9"
+include "LibE0EAE146"
 
 //--------------------------------------------------------------------------------------------------
 // Library Initialization
@@ -19,6 +28,7 @@ void InitLibs () {
     lib48DF4533_InitLib();
     // Reborn port: register RebornMapAdapter after campaign init
     libRebornAdapter_InitLib();
+    libE0EAE146_InitLib();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -712,8 +722,11 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     TriggerExecute(gt_Init07Help, true, true);
     // Reborn port: skip campaign tech purchase (calls restricted natives)
     // libSwaC_gf_PurchaseStorymodeTech();
-    TriggerExecute(gt_IntroQ, true, true);
-    TriggerExecute(gt_StartGameQ, true, true);
+    TriggerExecute(gt_IntroQ, true, false);
+    TriggerExecute(gt_StartGameQ, true, false);
+    // Reborn port: overlay 7vs1 commander system initialization
+    //libE0EAE146_gf_Initialize(false);
+    //libE0EAE146_gf_InitializeMapBaseScenario("zexpedition03_reborn");
     return true;
 }
 
