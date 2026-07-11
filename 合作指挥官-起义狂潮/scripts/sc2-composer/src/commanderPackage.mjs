@@ -2,11 +2,13 @@
  * CommanderPackage 校验与提取模块
  *
  * CommanderPackage 是一个可独立选择的指挥官实现清单，描述：
- *   - identity：ID、别名、种族、版本
- *   - dependencies：所需 base mod 与 capability
- *   - catalog：owned / extended IDs、本地化根
- *   - runtime：init/applyTech/createStartSquad 等 galaxy 函数
- *   - metadata / requirements / validation
+ *   - commanderId / displayName：标识与显示名
+ *   - dataCenter / modPath：引用的 DataCenter id 与 SC2Mod 路径
+ *   - techTree：建筑/单位/升级/技能 Catalog ID 列表
+ *   - runtimeHooks：Galaxy runtime 函数声明（init/applyTech/createStartSquad）
+ *   - panelLayout：UI 面板布局
+ *   - prestiges / masteries：威望与精通
+ *   - compatibleMapFamilies / incompatibleMapFamilies：地图族兼容性
  *
  * 详见 docs/指挥官地图组合框架设计.md 第 4.3 节。
  */
@@ -17,14 +19,8 @@ import { join, basename } from 'node:path';
 /** CommanderPackage 当前 schema 版本 */
 export const PACKAGE_SCHEMA_VERSION = 1;
 
-/** identity 对象的必填字段 */
-const IDENTITY_REQUIRED = ['id'];
-
-/** runtime 字段必须是字符串 */
-const RUNTIME_STRING_FIELDS = ['init', 'applyTech', 'createStartSquad', 'createCargoSquad', 'initUi'];
-
 /**
- * 校验 CommanderPackage manifest 结构。
+ * 校验 CommanderPackage manifest 结构（遵循 CommanderPackage.schema.json）。
  *
  * @param {any} pkg - 待校验的 CommanderPackage 对象
  * @returns {{ valid: boolean, errors: string[] }}
@@ -43,100 +39,78 @@ export function validatePackage(pkg) {
     errors.push(`schemaVersion 必须为 ${PACKAGE_SCHEMA_VERSION}，实际为 ${pkg.schemaVersion}`);
   }
 
-  // identity（必填）
-  if (pkg.identity === undefined) {
-    errors.push('缺少必填字段: identity');
-  } else if (typeof pkg.identity !== 'object' || pkg.identity === null || Array.isArray(pkg.identity)) {
-    errors.push('identity 必须是对象');
+  // commanderId（必填，非空字符串）
+  if (typeof pkg.commanderId !== 'string' || pkg.commanderId.length === 0) {
+    errors.push('commanderId 必须是非空字符串');
+  } else if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(pkg.commanderId)) {
+    errors.push('commanderId 格式无效，必须以字母开头，只含字母数字下划线');
+  }
+
+  // displayName（必填，非空字符串）
+  if (typeof pkg.displayName !== 'string' || pkg.displayName.length === 0) {
+    errors.push('displayName 必须是非空字符串');
+  }
+
+  // dataCenter（必填，非空字符串）
+  if (typeof pkg.dataCenter !== 'string' || pkg.dataCenter.length === 0) {
+    errors.push('dataCenter 必须是非空字符串');
+  }
+
+  // modPath（必填，非空字符串）
+  if (typeof pkg.modPath !== 'string' || pkg.modPath.length === 0) {
+    errors.push('modPath 必须是非空字符串');
+  }
+
+  // techTree（必填对象）
+  if (typeof pkg.techTree !== 'object' || pkg.techTree === null || Array.isArray(pkg.techTree)) {
+    errors.push('techTree 必须是对象');
   } else {
-    for (const f of IDENTITY_REQUIRED) {
-      if (pkg.identity[f] === undefined) {
-        errors.push(`identity.${f} 缺失`);
-      } else if (typeof pkg.identity[f] !== 'string' || pkg.identity[f].length === 0) {
-        errors.push(`identity.${f} 必须是非空字符串`);
-      }
-    }
-    if (pkg.identity.aliases !== undefined && !Array.isArray(pkg.identity.aliases)) {
-      errors.push('identity.aliases 必须是数组');
-    }
-    if (pkg.identity.race !== undefined && typeof pkg.identity.race !== 'string') {
-      errors.push('identity.race 必须是字符串');
-    }
-    if (pkg.identity.version !== undefined && typeof pkg.identity.version !== 'number') {
-      errors.push('identity.version 必须是数字');
-    }
-  }
-
-  // dependencies（可选）
-  if (pkg.dependencies !== undefined) {
-    if (typeof pkg.dependencies !== 'object' || pkg.dependencies === null || Array.isArray(pkg.dependencies)) {
-      errors.push('dependencies 必须是对象');
-    } else {
-      if (pkg.dependencies.requiredBaseMods !== undefined && !Array.isArray(pkg.dependencies.requiredBaseMods)) {
-        errors.push('dependencies.requiredBaseMods 必须是数组');
-      }
-      if (pkg.dependencies.requiredCapabilities !== undefined && !Array.isArray(pkg.dependencies.requiredCapabilities)) {
-        errors.push('dependencies.requiredCapabilities 必须是数组');
+    for (const f of ['buildings', 'units', 'upgrades', 'abilities']) {
+      if (!Array.isArray(pkg.techTree[f])) {
+        errors.push(`techTree.${f} 必须是数组`);
+      } else if (!pkg.techTree[f].every((v) => typeof v === 'string' && v.length > 0)) {
+        errors.push(`techTree.${f} 的每个元素必须是非空字符串`);
       }
     }
   }
 
-  // catalog（可选）
-  if (pkg.catalog !== undefined) {
-    if (typeof pkg.catalog !== 'object' || pkg.catalog === null || Array.isArray(pkg.catalog)) {
-      errors.push('catalog 必须是对象');
-    } else {
-      if (pkg.catalog.ownedIds !== undefined && !Array.isArray(pkg.catalog.ownedIds)) {
-        errors.push('catalog.ownedIds 必须是数组');
-      }
-      if (pkg.catalog.extendedIds !== undefined && !Array.isArray(pkg.catalog.extendedIds)) {
-        errors.push('catalog.extendedIds 必须是数组');
-      }
-      if (pkg.catalog.localizationRoots !== undefined && !Array.isArray(pkg.catalog.localizationRoots)) {
-        errors.push('catalog.localizationRoots 必须是数组');
+  // runtimeHooks（必填对象）
+  if (typeof pkg.runtimeHooks !== 'object' || pkg.runtimeHooks === null || Array.isArray(pkg.runtimeHooks)) {
+    errors.push('runtimeHooks 必须是对象');
+  } else {
+    for (const f of ['initFunction', 'applyTechFunction', 'createStartSquadFunction']) {
+      if (typeof pkg.runtimeHooks[f] !== 'string') {
+        errors.push(`runtimeHooks.${f} 必须是字符串`);
       }
     }
   }
 
-  // runtime（可选）
-  if (pkg.runtime !== undefined) {
-    if (typeof pkg.runtime !== 'object' || pkg.runtime === null || Array.isArray(pkg.runtime)) {
-      errors.push('runtime 必须是对象');
-    } else {
-      for (const f of RUNTIME_STRING_FIELDS) {
-        if (pkg.runtime[f] !== undefined && typeof pkg.runtime[f] !== 'string') {
-          errors.push(`runtime.${f} 必须是字符串`);
-        }
-      }
+  // panelLayout（必填对象）
+  if (typeof pkg.panelLayout !== 'object' || pkg.panelLayout === null || Array.isArray(pkg.panelLayout)) {
+    errors.push('panelLayout 必须是对象');
+  } else {
+    if (!Array.isArray(pkg.panelLayout.topPanelAbilities)) {
+      errors.push('panelLayout.topPanelAbilities 必须是数组');
+    }
+    if (!Array.isArray(pkg.panelLayout.commandCardLayouts)) {
+      errors.push('panelLayout.commandCardLayouts 必须是数组');
     }
   }
 
-  // metadata（可选，对象即可）
-  if (pkg.metadata !== undefined && (typeof pkg.metadata !== 'object' || pkg.metadata === null || Array.isArray(pkg.metadata))) {
-    errors.push('metadata 必须是对象');
+  // prestiges / masteries（必填数组）
+  if (!Array.isArray(pkg.prestiges)) {
+    errors.push('prestiges 必须是数组');
+  }
+  if (!Array.isArray(pkg.masteries)) {
+    errors.push('masteries 必须是数组');
   }
 
-  // requirements（可选）
-  if (pkg.requirements !== undefined) {
-    if (typeof pkg.requirements !== 'object' || pkg.requirements === null || Array.isArray(pkg.requirements)) {
-      errors.push('requirements 必须是对象');
-    } else if (pkg.requirements.mapCapabilities !== undefined && !Array.isArray(pkg.requirements.mapCapabilities)) {
-      errors.push('requirements.mapCapabilities 必须是数组');
-    }
+  // compatibleMapFamilies / incompatibleMapFamilies（必填数组）
+  if (!Array.isArray(pkg.compatibleMapFamilies)) {
+    errors.push('compatibleMapFamilies 必须是数组');
   }
-
-  // validation（可选）
-  if (pkg.validation !== undefined) {
-    if (typeof pkg.validation !== 'object' || pkg.validation === null || Array.isArray(pkg.validation)) {
-      errors.push('validation 必须是对象');
-    } else {
-      const arrFields = ['expectedProducers', 'expectedUnits', 'expectedAbilities', 'runtimeProbes'];
-      for (const f of arrFields) {
-        if (pkg.validation[f] !== undefined && !Array.isArray(pkg.validation[f])) {
-          errors.push(`validation.${f} 必须是数组`);
-        }
-      }
-    }
+  if (!Array.isArray(pkg.incompatibleMapFamilies)) {
+    errors.push('incompatibleMapFamilies 必须是数组');
   }
 
   return { valid: errors.length === 0, errors };
@@ -158,50 +132,55 @@ function inferRaceFromCommanderId(commanderId) {
 }
 
 /**
- * 从 DataCenter.exports 收集所有 ownedIds。
+ * 从 DataCenter.exports 收集所有 catalog ID（units + abilities）。
  *
  * @param {object} dataCenter
- * @returns {string[]}
+ * @returns {{ units: string[], abilities: string[] }}
  */
-function collectOwnedIds(dataCenter) {
-  const ids = [];
+function collectCatalogIds(dataCenter) {
+  const result = { units: [], abilities: [] };
   if (dataCenter.exports) {
-    for (const arr of Object.values(dataCenter.exports)) {
-      if (Array.isArray(arr)) ids.push(...arr);
-    }
+    if (Array.isArray(dataCenter.exports.units)) result.units = dataCenter.exports.units;
+    if (Array.isArray(dataCenter.exports.abilities)) result.abilities = dataCenter.exports.abilities;
   }
-  return ids;
+  return result;
 }
 
 /**
- * 从 DataCenter.galaxyRuntime 提取 runtime 字段。
+ * 从 DataCenter.galaxyRuntime 提取 runtimeHooks 字段。
  *
  * 字段映射：
- *   initFunction         -> init
- *   applyTechFunction    -> applyTech
- *   createStartSquadFunction -> createStartSquad
+ *   initFunction              -> initFunction
+ *   applyTechFunction         -> applyTechFunction
+ *   createStartSquadFunction  -> createStartSquadFunction
  *
  * @param {object} dataCenter
  * @returns {object}
  */
-function extractRuntime(dataCenter) {
+function extractRuntimeHooks(dataCenter) {
   const rt = dataCenter.galaxyRuntime;
-  if (!rt) return {};
-  const result = {};
-  if (rt.initFunction) result.init = rt.initFunction;
-  if (rt.applyTechFunction) result.applyTech = rt.applyTechFunction;
-  if (rt.createStartSquadFunction) result.createStartSquad = rt.createStartSquadFunction;
-  return result;
+  if (!rt) {
+    return {
+      initFunction: '',
+      applyTechFunction: '',
+      createStartSquadFunction: '',
+    };
+  }
+  return {
+    initFunction: rt.initFunction || '',
+    applyTechFunction: rt.applyTechFunction || '',
+    createStartSquadFunction: rt.createStartSquadFunction || '',
+  };
 }
 
 /**
  * 从现有 SC2Mod + DataCenter.json 提取 CommanderPackage 草案。
  *
  * 要求 modPath 下存在 DataCenter.json，且 type === 'CommanderDataCenter'。
- * 提取结果仅作草案，调用方需进一步补充 metadata、requirements 等。
+ * 提取结果仅作草案，调用方需进一步补充 panelLayout、prestiges 等。
  *
  * @param {string} modPath - SC2Mod 目录绝对路径
- * @returns {Promise<object>} CommanderPackage 草案对象
+ * @returns {Promise<object>} CommanderPackage 草案对象（遵循 CommanderPackage.schema.json）
  * @throws {Error} DataCenter.json 缺失、解析失败或类型不符时抛错
  */
 export async function extractPackageFromMod(modPath) {
@@ -227,39 +206,30 @@ export async function extractPackageFromMod(modPath) {
     throw new Error(`DataCenter.id 格式无效: ${dataCenter.id}，应为 Commander.<Name>`);
   }
   const commanderId = idParts[1];
+  const catalogIds = collectCatalogIds(dataCenter);
 
-  // 构建 CommanderPackage 草案
+  // 构建 CommanderPackage 草案（schema 格式）
   const pkg = {
     schemaVersion: PACKAGE_SCHEMA_VERSION,
-    identity: {
-      id: commanderId,
-      aliases: [],
-      race: inferRaceFromCommanderId(commanderId),
-      version: 1,
+    commanderId,
+    displayName: commanderId,
+    dataCenter: dataCenter.id,
+    modPath: `Mods/7vs1/${basename(modPath)}`,
+    techTree: {
+      buildings: [],
+      units: catalogIds.units,
+      upgrades: [],
+      abilities: catalogIds.abilities,
     },
-    dependencies: {
-      requiredBaseMods: [],
-      requiredCapabilities: dataCenter.imports?.capabilities || [],
+    runtimeHooks: extractRuntimeHooks(dataCenter),
+    panelLayout: {
+      topPanelAbilities: [],
+      commandCardLayouts: [],
     },
-    catalog: {
-      ownedIds: collectOwnedIds(dataCenter),
-      extendedIds: [],
-      localizationRoots: dataCenter.localization ? [dataCenter.localization] : [],
-    },
-    runtime: extractRuntime(dataCenter),
-    metadata: {
-      modName: basename(modPath),
-      dataCenterId: dataCenter.id,
-    },
-    requirements: {
-      mapCapabilities: [],
-    },
-    validation: {
-      expectedProducers: [],
-      expectedUnits: dataCenter.exports?.units || [],
-      expectedAbilities: dataCenter.exports?.abilities || [],
-      runtimeProbes: [],
-    },
+    prestiges: [],
+    masteries: [],
+    compatibleMapFamilies: [],
+    incompatibleMapFamilies: [],
   };
 
   return pkg;

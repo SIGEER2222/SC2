@@ -25,6 +25,41 @@ string libRebornAdapter_commanderSlot[16];
 // Commander Slot API
 // ============================================================
 
+// 默认指挥官（Bank 读取失败时使用）
+string libRebornAdapter_DEFAULT_COMMANDER = "TerranRaynor";
+
+// 从 CampaignXCore Bank 读取 player 槽位的指挥官 ID。
+// 优先读 XMRuntimeControl/CommanderP<slot>，回退到 PrimaryCommander，再回退默认值。
+string libRebornAdapter_ReadCommanderFromBank (int player) {
+    bank lv_bank;
+    string lv_commander;
+
+    lv_bank = BankLoad("CampaignXCore", player);
+    if (lv_bank == null) {
+        return libRebornAdapter_DEFAULT_COMMANDER;
+    }
+
+    // 尝试读取按槽位存储的指挥官
+    lv_commander = BankValueGetAsString(lv_bank, "XMRuntimeControl", "CommanderP" + IntToString(player));
+    if (lv_commander != "") {
+        return lv_commander;
+    }
+
+    // 回退到 PrimaryCommander
+    lv_commander = BankValueGetAsString(lv_bank, "XMRuntimeControl", "PrimaryCommander");
+    if (lv_commander != "") {
+        return lv_commander;
+    }
+
+    // 回退到 Ach/Commander
+    lv_commander = BankValueGetAsString(lv_bank, "Ach", "Commander");
+    if (lv_commander != "") {
+        return lv_commander;
+    }
+
+    return libRebornAdapter_DEFAULT_COMMANDER;
+}
+
 // 注册某 player 的指挥官 ID
 void libRebornAdapter_RegisterCommanderSlot (int player, string commanderId) {
     if (player < 0 || player >= 16) { return; }
@@ -70,20 +105,32 @@ void libRebornAdapter_OnAfterTechnologyInit () {
 }
 
 // Called after Init02Players completes.
-// 注册 player 1 为指挥官玩家
+// 从 CampaignXCore Bank 读取实际选中的指挥官 ID 并注册 player 1
 void libRebornAdapter_OnAfterPlayersInit () {
-    // 根据 MapProfile zexpedition03.json 的 commanderSlots 注册
-    libRebornAdapter_RegisterCommanderSlot(1, "RebornKerrigan");
+    string lv_commander;
+    lv_commander = libRebornAdapter_ReadCommanderFromBank(1);
+    libRebornAdapter_RegisterCommanderSlot(1, lv_commander);
     PlayerGroupAdd(libRebornAdapter_commanderPlayers, 1);
 }
 
 // Called after Init03Units completes.
-// 占位：在 player 1 起点位置创建英雄单位
+// 在 player 1 起点位置创建英雄单位（根据选中指挥官决定类型）
 void libRebornAdapter_OnAfterUnitsInit () {
     point lv_startPoint;
+    string lv_commander;
+    string lv_heroUnit;
+
     lv_startPoint = PlayerStartLocation(1);
-    // 占位实现：创建 RaynorCommando 英雄单位
-    libNtve_gf_CreateUnitsAtPoint2(1, "RaynorCommando", c_unitCreateIgnorePlacement, 1, lv_startPoint);
+    lv_commander = libRebornAdapter_GetCommanderForPlayer(1);
+
+    // 按指挥官映射英雄单位类型
+    lv_heroUnit = "RaynorCommando";
+    if (lv_commander == "TerranRaynor") {
+        lv_heroUnit = "RaynorCommando";
+    }
+    // 其他指挥官的英雄单位映射待补充
+
+    libNtve_gf_CreateUnitsAtPoint2(1, lv_heroUnit, c_unitCreateIgnorePlacement, 1, lv_startPoint);
 }
 
 // ============================================================

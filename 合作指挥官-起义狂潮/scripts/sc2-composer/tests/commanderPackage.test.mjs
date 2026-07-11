@@ -40,88 +40,113 @@ describe('validatePackage', () => {
     assert.ok(errors.some(e => e.includes('schemaVersion 必须为 1')));
   });
 
-  test('缺少 identity 时报错', () => {
+  test('缺少 commanderId 时报错', () => {
     const pkg = makeValidPackage();
-    delete pkg.identity;
+    delete pkg.commanderId;
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('identity')));
+    assert.ok(errors.some(e => e.includes('commanderId')));
   });
 
-  test('identity.id 必须是非空字符串', () => {
-    const pkg = makeValidPackage({ identity: { id: '', race: 'Terran' } });
+  test('commanderId 必须以字母开头', () => {
+    const pkg = makeValidPackage({ commanderId: '1Raynor' });
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('identity.id 必须是非空字符串')));
+    assert.ok(errors.some(e => e.includes('commanderId 格式无效')));
   });
 
-  test('identity.aliases 必须是数组', () => {
-    const pkg = makeValidPackage({ identity: { id: 'X', aliases: 'not array' } });
+  test('commanderId 为空字符串时报错', () => {
+    const pkg = makeValidPackage({ commanderId: '' });
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('aliases 必须是数组')));
+    assert.ok(errors.some(e => e.includes('commanderId 必须是非空字符串')));
   });
 
-  test('dependencies 必须是对象', () => {
-    const pkg = makeValidPackage({ dependencies: 'not object' });
+  test('缺少 displayName 时报错', () => {
+    const pkg = makeValidPackage();
+    delete pkg.displayName;
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('dependencies 必须是对象')));
+    assert.ok(errors.some(e => e.includes('displayName')));
   });
 
-  test('dependencies.requiredBaseMods 必须是数组', () => {
-    const pkg = makeValidPackage({ dependencies: { requiredBaseMods: 'not array' } });
+  test('缺少 dataCenter 时报错', () => {
+    const pkg = makeValidPackage();
+    delete pkg.dataCenter;
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('requiredBaseMods 必须是数组')));
+    assert.ok(errors.some(e => e.includes('dataCenter')));
   });
 
-  test('catalog 必须是对象', () => {
-    const pkg = makeValidPackage({ catalog: 'not object' });
+  test('缺少 modPath 时报错', () => {
+    const pkg = makeValidPackage();
+    delete pkg.modPath;
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('catalog 必须是对象')));
+    assert.ok(errors.some(e => e.includes('modPath')));
   });
 
-  test('catalog.ownedIds 必须是数组', () => {
-    const pkg = makeValidPackage({ catalog: { ownedIds: 'not array' } });
+  test('techTree 必须是对象', () => {
+    const pkg = makeValidPackage({ techTree: 'not object' });
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('ownedIds 必须是数组')));
+    assert.ok(errors.some(e => e.includes('techTree 必须是对象')));
   });
 
-  test('runtime 必须是对象', () => {
-    const pkg = makeValidPackage({ runtime: 'not object' });
+  test('techTree.buildings 必须是数组', () => {
+    const pkg = makeValidPackage({ techTree: { buildings: 'not array', units: [], upgrades: [], abilities: [] } });
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('runtime 必须是对象')));
+    assert.ok(errors.some(e => e.includes('techTree.buildings 必须是数组')));
   });
 
-  test('runtime.init 必须是字符串', () => {
-    const pkg = makeValidPackage({ runtime: { init: 123 } });
+  test('techTree.units 元素必须是非空字符串', () => {
+    const pkg = makeValidPackage({ techTree: { buildings: [], units: ['Marine', ''], upgrades: [], abilities: [] } });
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('runtime.init 必须是字符串')));
+    assert.ok(errors.some(e => e.includes('techTree.units 的每个元素必须是非空字符串')));
   });
 
-  test('validation.expectedUnits 必须是数组', () => {
-    const pkg = makeValidPackage({ validation: { expectedUnits: 'not array' } });
+  test('runtimeHooks 必须是对象', () => {
+    const pkg = makeValidPackage({ runtimeHooks: 'not object' });
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('expectedUnits 必须是数组')));
+    assert.ok(errors.some(e => e.includes('runtimeHooks 必须是对象')));
   });
 
-  test('metadata 必须是对象', () => {
-    const pkg = makeValidPackage({ metadata: 'not object' });
+  test('runtimeHooks.initFunction 必须是字符串', () => {
+    const pkg = makeValidPackage({ runtimeHooks: { initFunction: 123, applyTechFunction: 'a', createStartSquadFunction: 'b' } });
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, false);
-    assert.ok(errors.some(e => e.includes('metadata 必须是对象')));
+    assert.ok(errors.some(e => e.includes('runtimeHooks.initFunction 必须是字符串')));
   });
 
-  test('最小合法 package（仅 schemaVersion + identity）', () => {
-    const pkg = { schemaVersion: 1, identity: { id: 'TestCmd' } };
+  test('panelLayout 必须是对象', () => {
+    const pkg = makeValidPackage({ panelLayout: 'not object' });
     const { valid, errors } = validatePackage(pkg);
-    assert.equal(valid, true, `应当通过校验，错误: ${errors.join('; ')}`);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('panelLayout 必须是对象')));
+  });
+
+  test('panelLayout.topPanelAbilities 必须是数组', () => {
+    const pkg = makeValidPackage({ panelLayout: { topPanelAbilities: 'not array', commandCardLayouts: [] } });
+    const { valid, errors } = validatePackage(pkg);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('topPanelAbilities 必须是数组')));
+  });
+
+  test('prestiges 必须是数组', () => {
+    const pkg = makeValidPackage({ prestiges: 'not array' });
+    const { valid, errors } = validatePackage(pkg);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('prestiges 必须是数组')));
+  });
+
+  test('compatibleMapFamilies 必须是数组', () => {
+    const pkg = makeValidPackage({ compatibleMapFamilies: 'not array' });
+    const { valid, errors } = validatePackage(pkg);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('compatibleMapFamilies 必须是数组')));
   });
 
   test('PACKAGE_SCHEMA_VERSION 常量导出', () => {
@@ -197,15 +222,11 @@ describe('extractPackageFromMod', () => {
           units: ['Marine', 'Marauder'],
           abilities: ['Stimpack'],
         },
-        imports: {
-          capabilities: ['hero-revive', 'top-panel'],
-        },
         galaxyRuntime: {
           initFunction: 'RaynorRuntime_Init',
           applyTechFunction: 'RaynorRuntime_ApplyTech',
           createStartSquadFunction: 'RaynorRuntime_CreateStartSquad',
         },
-        localization: { enUS: 'enUS.SC2Data/LocalizedData/GameStrings.txt' },
       };
       writeFileSync(join(tmp, 'DataCenter.json'), JSON.stringify(dc));
 
@@ -214,29 +235,22 @@ describe('extractPackageFromMod', () => {
       // 顶层字段
       assert.equal(pkg.schemaVersion, 1);
 
-      // identity
-      assert.equal(pkg.identity.id, 'TerranRaynor');
-      assert.equal(pkg.identity.race, 'Terran');
-      assert.equal(pkg.identity.version, 1);
-      assert.deepEqual(pkg.identity.aliases, []);
+      // schema 字段
+      assert.equal(pkg.commanderId, 'TerranRaynor');
+      assert.equal(pkg.displayName, 'TerranRaynor');
+      assert.equal(pkg.dataCenter, 'Commander.TerranRaynor');
+      assert.ok(pkg.modPath.includes('sc2-cmd-'));
 
-      // dependencies
-      assert.deepEqual(pkg.dependencies.requiredCapabilities, ['hero-revive', 'top-panel']);
-      assert.deepEqual(pkg.dependencies.requiredBaseMods, []);
+      // techTree 从 exports 填充
+      assert.deepEqual(pkg.techTree.units, ['Marine', 'Marauder']);
+      assert.deepEqual(pkg.techTree.abilities, ['Stimpack']);
+      assert.deepEqual(pkg.techTree.buildings, []);
+      assert.deepEqual(pkg.techTree.upgrades, []);
 
-      // catalog.ownedIds 应包含所有 exports 中的 ID
-      assert.ok(pkg.catalog.ownedIds.includes('Marine'));
-      assert.ok(pkg.catalog.ownedIds.includes('Marauder'));
-      assert.ok(pkg.catalog.ownedIds.includes('Stimpack'));
-
-      // runtime 字段映射
-      assert.equal(pkg.runtime.init, 'RaynorRuntime_Init');
-      assert.equal(pkg.runtime.applyTech, 'RaynorRuntime_ApplyTech');
-      assert.equal(pkg.runtime.createStartSquad, 'RaynorRuntime_CreateStartSquad');
-
-      // validation
-      assert.deepEqual(pkg.validation.expectedUnits, ['Marine', 'Marauder']);
-      assert.deepEqual(pkg.validation.expectedAbilities, ['Stimpack']);
+      // runtimeHooks 从 galaxyRuntime 填充
+      assert.equal(pkg.runtimeHooks.initFunction, 'RaynorRuntime_Init');
+      assert.equal(pkg.runtimeHooks.applyTechFunction, 'RaynorRuntime_ApplyTech');
+      assert.equal(pkg.runtimeHooks.createStartSquadFunction, 'RaynorRuntime_CreateStartSquad');
 
       // 提取结果应该通过 validatePackage
       const { valid, errors } = validatePackage(pkg);
@@ -259,37 +273,21 @@ describe('extractPackageFromMod', () => {
     }
   });
 
-  test('Zerg commander 推断 race 为 Zerg', async () => {
+  test('无 galaxyRuntime 时 runtimeHooks 为空字符串', async () => {
     const tmp = mkdtempSync(join(tmpdir(), 'sc2-cmd-'));
     try {
       const dc = {
         schemaVersion: 1,
-        id: 'Commander.Kerrigan',
+        id: 'Commander.TerranRaynor',
         type: 'CommanderDataCenter',
         gameDataEntry: 'Base.SC2Data/GameData.xml',
         spaces: [],
       };
       writeFileSync(join(tmp, 'DataCenter.json'), JSON.stringify(dc));
       const pkg = await extractPackageFromMod(tmp);
-      assert.equal(pkg.identity.race, 'Zerg');
-    } finally {
-      rmSync(tmp, { recursive: true, force: true });
-    }
-  });
-
-  test('Protoss commander 推断 race 为 Protoss', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'sc2-cmd-'));
-    try {
-      const dc = {
-        schemaVersion: 1,
-        id: 'Commander.Zeratul',
-        type: 'CommanderDataCenter',
-        gameDataEntry: 'Base.SC2Data/GameData.xml',
-        spaces: [],
-      };
-      writeFileSync(join(tmp, 'DataCenter.json'), JSON.stringify(dc));
-      const pkg = await extractPackageFromMod(tmp);
-      assert.equal(pkg.identity.race, 'Protoss');
+      assert.equal(pkg.runtimeHooks.initFunction, '');
+      assert.equal(pkg.runtimeHooks.applyTechFunction, '');
+      assert.equal(pkg.runtimeHooks.createStartSquadFunction, '');
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
@@ -297,39 +295,34 @@ describe('extractPackageFromMod', () => {
 });
 
 /**
- * 构造一个合法的 CommanderPackage，可选 override 字段。
+ * 构造一个合法的 CommanderPackage（遵循 CommanderPackage.schema.json），可选 override 字段。
  */
 function makeValidPackage(overrides = {}) {
   return {
     schemaVersion: 1,
-    identity: {
-      id: 'TerranRaynor',
-      aliases: ['Raynor'],
-      race: 'Terran',
-      version: 1,
+    commanderId: 'TerranRaynor',
+    displayName: '雷诺',
+    dataCenter: 'Commander.Raynor',
+    modPath: 'Mods/7vs1/CommanderUnits_Raynor.SC2Mod',
+    techTree: {
+      buildings: ['BarracksRaynor'],
+      units: ['MarineRaynor'],
+      upgrades: [],
+      abilities: ['Stimpack'],
     },
-    dependencies: {
-      requiredBaseMods: [],
-      requiredCapabilities: ['top-panel'],
+    runtimeHooks: {
+      initFunction: 'libE0EAE146_gf_RaynorRuntimeInit',
+      applyTechFunction: 'libE0EAE146_gf_RaynorApplyTechFilter',
+      createStartSquadFunction: 'libE0EAE146_gf_RaynorCreateMapStartSquad',
     },
-    catalog: {
-      ownedIds: ['Marine'],
-      extendedIds: [],
-      localizationRoots: [],
+    panelLayout: {
+      topPanelAbilities: ['VoidCoopSummonHyperion'],
+      commandCardLayouts: [],
     },
-    runtime: {
-      init: 'RaynorRuntime_Init',
-      applyTech: 'RaynorRuntime_ApplyTech',
-      createStartSquad: 'RaynorRuntime_CreateStartSquad',
-    },
-    metadata: {},
-    requirements: { mapCapabilities: [] },
-    validation: {
-      expectedProducers: [],
-      expectedUnits: [],
-      expectedAbilities: [],
-      runtimeProbes: [],
-    },
+    prestiges: [],
+    masteries: [],
+    compatibleMapFamilies: [],
+    incompatibleMapFamilies: [],
     ...overrides,
   };
 }
