@@ -1,0 +1,165 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DataCenter",
+  "description": "数据中心清单，描述一个 SC2Mod 的 Catalog 数据空间归属、导出资源和 Galaxy runtime 声明。详见 docs/数据中心驱动项目结构设计.md。",
+  "type": "object",
+  "required": ["schemaVersion", "id", "type", "gameDataEntry", "spaces"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema 版本号，当前固定为 1。"
+    },
+    "id": {
+      "type": "string",
+      "description": "数据中心唯一 ID，格式 <type>.<Name>，如 Commander.TerranRaynor。",
+      "pattern": "^(Platform|Capability|Commander|MapFamily|PairPatch)\\.[A-Za-z][A-Za-z0-9_]*$"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "PlatformDataCenter",
+        "CapabilityDataCenter",
+        "CommanderDataCenter",
+        "MapFamilyDataCenter",
+        "PairPatchDataCenter"
+      ],
+      "description": "数据中心类型，决定 owner 字段的语义。"
+    },
+    "owner": {
+      "type": "string",
+      "description": "拥有者 ID。CommanderDataCenter 对应 commander id；MapFamilyDataCenter 对应 family id；Platform/Capability/PairPatch 可省略。"
+    },
+    "gameDataEntry": {
+      "type": "string",
+      "description": "GameData.xml 主入口相对路径，默认 Base.SC2Data/GameData.xml。",
+      "default": "Base.SC2Data/GameData.xml"
+    },
+    "migrationStatus": {
+      "type": "string",
+      "enum": ["pending", "partial", "complete"],
+      "default": "complete",
+      "description": "迁移状态。pending=未开始；partial=部分 catalog 已归位；complete=全部完成。"
+    },
+    "spaces": {
+      "type": "array",
+      "description": "数据空间列表，每个空间对应一个 GameData XML 文件。",
+      "items": {
+        "type": "object",
+        "required": ["path", "owns"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "数据空间 XML 相对路径，如 GameData/RaynorUnits.xml。"
+          },
+          "owns": {
+            "type": "array",
+            "description": "此空间拥有的 Catalog 类型，用于 linter 校验。",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CUnit",
+                "CAbil",
+                "CButton",
+                "CActor",
+                "CEffect",
+                "CBehavior",
+                "CUpgrade",
+                "CRequirement",
+                "CWeapon",
+                "CMover",
+                "CModel",
+                "CRace",
+                "CTurret",
+                "CSound",
+                "CCamera",
+                "CLight",
+                "CDoodad",
+                "CUnitSplat",
+                "CFootprint",
+                "CMoverFly",
+                "CMoverMissile",
+                "CMoverSet",
+                "CMoverTarget",
+                "CMoverAcquire",
+                "CMoverFlocking"
+              ]
+            },
+            "minItems": 1
+          },
+          "catalogIds": {
+            "type": "array",
+            "description": "此空间定义的 canonical Catalog ID 列表（可空，由 linter 填充校验）。",
+            "items": {"type": "string"}
+          }
+        }
+      },
+      "minItems": 0
+    },
+    "exports": {
+      "type": "object",
+      "description": "此数据中心导出的 canonical 资源，供其他数据中心引用。",
+      "additionalProperties": false,
+      "properties": {
+        "units": {"type": "array", "items": {"type": "string"}},
+        "abilities": {"type": "array", "items": {"type": "string"}},
+        "upgrades": {"type": "array", "items": {"type": "string"}},
+        "behaviors": {"type": "array", "items": {"type": "string"}},
+        "effects": {"type": "array", "items": {"type": "string"}},
+        "buttons": {"type": "array", "items": {"type": "string"}},
+        "requirements": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "imports": {
+      "type": "object",
+      "description": "此数据中心依赖的外部 capability 或数据中心。",
+      "additionalProperties": false,
+      "properties": {
+        "capabilities": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "依赖的 capability 名称，如 HeroRevive、TopPanel。"
+        },
+        "dataCenters": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "依赖的其他数据中心 ID。"
+        }
+      }
+    },
+    "galaxyRuntime": {
+      "type": "object",
+      "description": "Galaxy runtime 代码声明。仅 CommanderDataCenter 通常需要。",
+      "additionalProperties": false,
+      "properties": {
+        "libFile": {
+          "type": "string",
+          "description": "主 runtime galaxy 文件名，如 LibE0EAE146_RaynorRuntime.galaxy。"
+        },
+        "initFunction": {
+          "type": "string",
+          "description": "初始化函数名。"
+        },
+        "applyTechFunction": {
+          "type": "string",
+          "description": "科技应用函数名。"
+        },
+        "createStartSquadFunction": {
+          "type": "string",
+          "description": "初始小队创建函数名。"
+        }
+      }
+    },
+    "localization": {
+      "type": "object",
+      "description": "本地化文件位置。",
+      "additionalProperties": false,
+      "properties": {
+        "enUS": {"type": "string"},
+        "zhCN": {"type": "string"}
+      }
+    }
+  }
+}
