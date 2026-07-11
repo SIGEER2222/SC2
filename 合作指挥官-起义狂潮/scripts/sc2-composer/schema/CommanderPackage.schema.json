@@ -1,0 +1,206 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CommanderPackage",
+  "description": "指挥官包清单，描述一个可独立选择的指挥官实现及其 Catalog、Runtime、UI、威望和精通。引用 DataCenter id。详见 docs/指挥官地图组合框架设计.md 第 4.3 节。",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "commanderId",
+    "displayName",
+    "dataCenter",
+    "modPath",
+    "techTree",
+    "runtimeHooks",
+    "panelLayout",
+    "prestiges",
+    "masteries",
+    "compatibleMapFamilies",
+    "incompatibleMapFamilies"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema 版本号，当前固定为 1。"
+    },
+    "commanderId": {
+      "type": "string",
+      "description": "指挥官唯一 ID，如 TerranRaynor、RebornKerrigan。",
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+    },
+    "displayName": {
+      "type": "string",
+      "description": "指挥官显示名称，如 Raynor。",
+      "minLength": 1
+    },
+    "dataCenter": {
+      "type": "string",
+      "description": "引用的 DataCenter id，格式如 Commander.TerranRaynor。",
+      "minLength": 1
+    },
+    "modPath": {
+      "type": "string",
+      "description": "SC2Mod 相对路径，如 Mods/Commanders/Raynor/Raynor.SC2Mod。",
+      "minLength": 1
+    },
+    "techTree": {
+      "type": "object",
+      "description": "科技树引用列表，指向 DataCenter 中定义的 Catalog ID。",
+      "required": ["buildings", "units", "upgrades", "abilities"],
+      "additionalProperties": false,
+      "properties": {
+        "buildings": {
+          "type": "array",
+          "description": "指挥官拥有的建筑 Catalog ID 列表。",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "units": {
+          "type": "array",
+          "description": "指挥官拥有的单位 Catalog ID 列表。",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "upgrades": {
+          "type": "array",
+          "description": "指挥官拥有的升级 Catalog ID 列表。",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "abilities": {
+          "type": "array",
+          "description": "指挥官拥有的技能 Catalog ID 列表。",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "runtimeHooks": {
+      "type": "object",
+      "description": "Galaxy runtime 函数声明，由组合 bootstrap 调用。",
+      "required": ["initFunction", "applyTechFunction", "createStartSquadFunction"],
+      "additionalProperties": false,
+      "properties": {
+        "initFunction": {
+          "type": "string",
+          "description": "指挥官初始化函数名，如 RaynorRuntime_Init。"
+        },
+        "applyTechFunction": {
+          "type": "string",
+          "description": "科技应用函数名，在 MapTechnologyReady 阶段调用。"
+        },
+        "createStartSquadFunction": {
+          "type": "string",
+          "description": "初始小队创建函数名，在 MapUnitsReady 阶段调用。"
+        }
+      }
+    },
+    "panelLayout": {
+      "type": "object",
+      "description": "UI 面板布局声明。",
+      "required": ["topPanelAbilities", "commandCardLayouts"],
+      "additionalProperties": false,
+      "properties": {
+        "topPanelAbilities": {
+          "type": "array",
+          "description": "顶栏技能 Abil ID 列表。",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "commandCardLayouts": {
+          "type": "array",
+          "description": "命令卡布局列表，每个条目描述一个单位的面板布局。",
+          "items": {
+            "type": "object",
+            "required": ["unitId", "layout"],
+            "additionalProperties": false,
+            "properties": {
+              "unitId": {
+                "type": "string",
+                "description": "关联的单位 Catalog ID。"
+              },
+              "layout": {
+                "type": "string",
+                "description": "布局标识或 UI Layout 文件相对路径。"
+              }
+            }
+          }
+        }
+      }
+    },
+    "prestiges": {
+      "type": "array",
+      "description": "威望列表。",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "modifier"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "威望 ID，如 RaynorPrestige1。"
+          },
+          "name": {
+            "type": "string",
+            "description": "威望显示名称。"
+          },
+          "modifier": {
+            "type": "string",
+            "description": "威望修正描述，如 +10% attack speed。"
+          }
+        }
+      }
+    },
+    "masteries": {
+      "type": "array",
+      "description": "精通列表。",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "stat"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "精通 ID，如 RaynorMastery1。"
+          },
+          "name": {
+            "type": "string",
+            "description": "精通显示名称。"
+          },
+          "stat": {
+            "type": "string",
+            "description": "精通影响的属性，如 attackSpeed、armor。"
+          }
+        }
+      }
+    },
+    "compatibleMapFamilies": {
+      "type": "array",
+      "description": "兼容的地图族列表。空数组表示兼容全部已接入地图族。",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "incompatibleMapFamilies": {
+      "type": "array",
+      "description": "明确不兼容的地图族列表。优先级高于 compatibleMapFamilies。",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

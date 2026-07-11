@@ -1,0 +1,424 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CompositionPlan",
+  "description": "组合计划单一真源，描述地图、指挥官槽位、依赖、冲突决策、Bank 配置和生成 bootstrap。是所有工具（CLI、Web、toolkit、launcher）消费的统一产物。详见 docs/指挥官地图组合框架设计.md 第 4.8 节。",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "planId",
+    "map",
+    "commanderSlots",
+    "dependencies",
+    "conflictResolution",
+    "bankConfig",
+    "victoryCondition",
+    "defeatCondition",
+    "bootstrap"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema 版本号，当前固定为 1。"
+    },
+    "planId": {
+      "type": "string",
+      "description": "组合计划唯一 ID，格式 <mapFamily>.<mapId>__p<playerId>-<commanderId>，如 RebornHotS.ZExpedition3__p1-TerranRaynor。",
+      "minLength": 1
+    },
+    "map": {
+      "type": "object",
+      "description": "目标地图信息。",
+      "required": ["mapId", "mapFamily", "mapName", "source", "adapter"],
+      "additionalProperties": false,
+      "properties": {
+        "mapId": {
+          "type": "string",
+          "description": "地图唯一 ID，如 ZExpedition3。"
+        },
+        "mapFamily": {
+          "type": "string",
+          "description": "地图族 ID，如 RebornHotS。"
+        },
+        "mapName": {
+          "type": "string",
+          "description": "地图显示名称。"
+        },
+        "source": {
+          "type": "string",
+          "description": "原始地图文件相对路径，如 Maps/zexpedition03.SC2Map。"
+        },
+        "adapter": {
+          "type": "string",
+          "description": "地图适配器标识，如 reborn、7vs1。"
+        }
+      }
+    },
+    "commanderSlots": {
+      "type": "array",
+      "description": "指挥官槽位列表，每个槽位包含运行时选项。",
+      "items": {
+        "type": "object",
+        "required": ["slotIndex", "playerId", "commanderId"],
+        "additionalProperties": false,
+        "properties": {
+          "slotIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "槽位序号，从 0 开始。"
+          },
+          "playerId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "对应的 SC2 玩家 ID。"
+          },
+          "commanderId": {
+            "type": "string",
+            "description": "指挥官 ID，如 TerranRaynor。"
+          },
+          "prestige": {
+            "type": ["string", "null"],
+            "description": "威望 ID，null 表示使用默认威望。"
+          },
+          "mastery": {
+            "type": ["string", "null"],
+            "description": "精通 ID，null 表示使用默认精通。"
+          },
+          "talents": {
+            "type": "array",
+            "description": "天赋 ID 列表。",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "bonuses": {
+            "type": "array",
+            "description": "通用加成 ID 列表。",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "完整有序依赖，按依赖层组织。",
+      "required": ["always", "commander", "pairPatches"],
+      "additionalProperties": false,
+      "properties": {
+        "always": {
+          "type": "array",
+          "description": "始终加载的依赖，按依赖层顺序排列（L0-L8）。每个条目包含路径、层和来源。",
+          "items": {
+            "type": "object",
+            "required": ["path", "layer", "source"],
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "依赖路径，支持 file: 前缀。"
+              },
+              "layer": {
+                "type": "string",
+                "description": "依赖层标识，如 L0-Base、L2-PlatformKernel、L5-MapAdapter。"
+              },
+              "source": {
+                "type": "string",
+                "description": "依赖来源，如 MapProfile.always、PlatformKernel。"
+              }
+            }
+          }
+        },
+        "commander": {
+          "type": "array",
+          "description": "按指挥官槽位展开的依赖列表。",
+          "items": {
+            "type": "object",
+            "required": ["slotIndex", "commanderId", "dependencies"],
+            "additionalProperties": false,
+            "properties": {
+              "slotIndex": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "对应槽位序号。"
+              },
+              "commanderId": {
+                "type": "string",
+                "description": "指挥官 ID。"
+              },
+              "dependencies": {
+                "type": "array",
+                "description": "该槽位指挥官所需的依赖列表。",
+                "items": {
+                  "type": "object",
+                  "required": ["path", "layer", "source"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "依赖路径。"
+                    },
+                    "layer": {
+                      "type": "string",
+                      "description": "依赖层标识，如 L4-CommanderPackage、L6-CommanderAdapter。"
+                    },
+                    "source": {
+                      "type": "string",
+                      "description": "依赖来源。"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pairPatches": {
+          "type": "array",
+          "description": "组合所需的 PairPatch 依赖列表（L7 层）。",
+          "items": {
+            "type": "object",
+            "required": ["commanderId", "patchPath", "reason"],
+            "additionalProperties": false,
+            "properties": {
+              "commanderId": {
+                "type": "string",
+                "description": "目标指挥官 ID。"
+              },
+              "patchPath": {
+                "type": "string",
+                "description": "PairPatch manifest 相对路径。"
+              },
+              "reason": {
+                "type": "string",
+                "description": "补丁存在原因。"
+              }
+            }
+          }
+        }
+      }
+    },
+    "conflictResolution": {
+      "type": "object",
+      "description": "Catalog 冲突决策记录。",
+      "required": ["overrideStrategy", "allowedConflicts"],
+      "additionalProperties": false,
+      "properties": {
+        "overrideStrategy": {
+          "type": "string",
+          "enum": [
+            "preserve-map",
+            "preserve-commander",
+            "merge-keyed-array",
+            "rename-and-alias",
+            "runtime-reapply",
+            "map-local-patch",
+            "explicitly-unsupported",
+            "manual-review"
+          ],
+          "description": "默认覆盖策略。详见设计文档第 8.2 节决策类型。"
+        },
+        "allowedConflicts": {
+          "type": "array",
+          "description": "允许的同 ID 冲突列表，每个条目记录冲突详情和决策。",
+          "items": {
+            "type": "object",
+            "required": ["catalogType", "catalogId", "fieldPath", "mapSource", "commanderSource", "decision"],
+            "additionalProperties": false,
+            "properties": {
+              "catalogType": {
+                "type": "string",
+                "description": "Catalog 类型，如 CUnit、CAbil、CUpgrade。"
+              },
+              "catalogId": {
+                "type": "string",
+                "description": "冲突的 Catalog ID。"
+              },
+              "fieldPath": {
+                "type": "string",
+                "description": "冲突字段路径，如 weapons[0].damage。"
+              },
+              "mapSource": {
+                "type": "string",
+                "description": "地图侧来源描述。"
+              },
+              "commanderSource": {
+                "type": "string",
+                "description": "指挥官侧来源描述。"
+              },
+              "decision": {
+                "type": "string",
+                "enum": [
+                  "preserve-map",
+                  "preserve-commander",
+                  "merge-keyed-array",
+                  "rename-and-alias",
+                  "runtime-reapply",
+                  "map-local-patch",
+                  "explicitly-unsupported",
+                  "manual-review"
+                ],
+                "description": "该冲突的修复方式。"
+              },
+              "targetOwner": {
+                "type": "string",
+                "description": "冲突解决后的目标所有者。"
+              }
+            }
+          }
+        }
+      }
+    },
+    "bankConfig": {
+      "type": "object",
+      "description": "Bank 访问配置，继承自 MapProfile 并叠加指挥官 Bank 命名空间。",
+      "required": ["protectedBanks", "playerBanks"],
+      "additionalProperties": false,
+      "properties": {
+        "protectedBanks": {
+          "type": "array",
+          "description": "受保护的地图/剧情 Bank 名称列表，指挥官运行时禁止写入。",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "playerBanks": {
+          "type": "object",
+          "description": "玩家 ID 到 Bank 名称的映射，如 {\"1\": \"cryswarmcoop\"}。",
+          "patternProperties": {
+            "^[0-9]+$": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "victoryCondition": {
+      "type": "object",
+      "description": "胜利条件声明，通常继承自 MapProfile。",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["native", "custom"],
+          "description": "native=使用地图原生胜利触发器；custom=由组合 bootstrap 控制。"
+        },
+        "trigger": {
+          "type": "string",
+          "description": "Galaxy 触发器函数名，type 为 native 时必填。"
+        }
+      }
+    },
+    "defeatCondition": {
+      "type": "object",
+      "description": "失败条件声明，通常继承自 MapProfile。",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["native", "custom"],
+          "description": "native=使用地图原生失败触发器；custom=由组合 bootstrap 控制。"
+        },
+        "trigger": {
+          "type": "string",
+          "description": "Galaxy 触发器函数名，type 为 native 时必填。"
+        }
+      }
+    },
+    "bootstrap": {
+      "type": "object",
+      "description": "生成组合专用 bootstrap 声明，只包含当前选中的指挥官和 Adapter。",
+      "required": ["galaxyIncludes", "initSequence", "runtimeOverrides"],
+      "additionalProperties": false,
+      "properties": {
+        "galaxyIncludes": {
+          "type": "array",
+          "description": "需要 include 的 Galaxy 文件列表，只包含当前组合所需的库。",
+          "items": {
+            "type": "object",
+            "required": ["path", "purpose"],
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Galaxy 文件相对路径。"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "用途说明，如 PlatformKernel、CommanderRuntime、MapAdapter。"
+              }
+            }
+          }
+        },
+        "initSequence": {
+          "type": "array",
+          "description": "初始化调用序列，按生命周期阶段顺序排列。",
+          "items": {
+            "type": "object",
+            "required": ["phase", "function"],
+            "additionalProperties": false,
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "CompositionRegistered",
+                  "MapTechnologyReady",
+                  "MapPlayersReady",
+                  "MapUnitsReady",
+                  "CommanderTechApplied",
+                  "CommanderStartCreated",
+                  "CommanderUiReady",
+                  "MapIntroReady",
+                  "MissionRunning",
+                  "MissionVictoryObserved",
+                  "MissionDefeatObserved"
+                ],
+                "description": "生命周期阶段，详见设计文档第 6.1 节。"
+              },
+              "function": {
+                "type": "string",
+                "description": "该阶段调用的 Galaxy 函数名。"
+              }
+            }
+          }
+        },
+        "runtimeOverrides": {
+          "type": "array",
+          "description": "运行时覆盖列表，在生命周期 hook 后安全恢复指挥官字段。",
+          "items": {
+            "type": "object",
+            "required": ["target", "fieldPath", "value"],
+            "additionalProperties": false,
+            "properties": {
+              "target": {
+                "type": "string",
+                "description": "覆盖目标，如 Catalog ID 或玩家 ID。"
+              },
+              "fieldPath": {
+                "type": "string",
+                "description": "覆盖字段路径。"
+              },
+              "value": {
+                "type": ["string", "number", "boolean"],
+                "description": "覆盖值。"
+              },
+              "reason": {
+                "type": "string",
+                "description": "覆盖原因。"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
