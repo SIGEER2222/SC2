@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "reborn-dependencies.schema.json",
+  "title": "Reborn map family dependency configuration",
+  "type": "object",
+  "required": ["family", "baseMods", "baseDependencyPaths", "galaxyInjection", "validCommanders"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "description": { "type": "string" },
+    "family": { "type": "string", "minLength": 1 },
+    "baseMods": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "baseDependencyPaths": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "galaxyInjection": {
+      "type": "object",
+      "required": ["sourcePatterns", "sourceRoot"],
+      "additionalProperties": true,
+      "properties": {
+        "description": { "type": "string" },
+        "sourcePatterns": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "sourceRoot": { "type": "string", "minLength": 1 }
+      }
+    },
+    "validCommanders": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  }
+}

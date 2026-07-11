@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "launcher-plan.schema.json",
+  "title": "LauncherCompatibilityPlan (CompositionPlan-like)",
+  "type": "object",
+  "required": ["schemaVersion", "kind", "compositionId", "mapProfile", "slots", "dependencyLayers", "galaxyInjection", "documentRewrite", "validation"],
+  "additionalProperties": true,
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "kind": { "type": "string", "const": "LauncherCompatibilityPlan" },
+    "compositionId": { "type": "string", "minLength": 1 },
+    "mapProfile": { "type": "string", "minLength": 1 },
+    "sourceMap": { "type": "string" },
+    "generatedMap": { "type": "string" },
+    "slots": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["commander"],
+        "properties": {
+          "commander": { "type": "string", "minLength": 1 },
+          "commanderPackage": { "type": "string" }
+        }
+      }
+    },
+    "dependencyLayers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["layer", "name", "entries"],
+        "properties": {
+          "layer": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["path"],
+              "properties": {
+                "path": { "type": "string", "minLength": 1 },
+                "source": { "type": "string" },
+                "reason": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "galaxyInjection": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["file", "owner", "reason"],
+        "properties": {
+          "file": { "type": "string", "minLength": 1 },
+          "owner": { "type": "string" },
+          "source": { "type": "string" },
+          "reason": { "type": "string" },
+          "selectedCommanderRequired": { "type": "boolean" },
+          "compatibilityOnly": { "type": "boolean" }
+        }
+      }
+    },
+    "documentRewrite": {
+      "type": "object",
+      "required": ["DocumentHeader", "DocumentInfo"],
+      "properties": {
+        "DocumentHeader": { "type": "array", "items": { "type": "string" } },
+        "DocumentInfo": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "configSchema": { "type": "string" },
+        "documentRoundtrip": { "type": "string" },
+        "galaxyChecker": { "type": "string" },
+        "runtimeSmoke": { "type": "string" }
+      }
+    }
+  }
+}

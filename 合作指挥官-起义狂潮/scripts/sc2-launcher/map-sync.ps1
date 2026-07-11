@@ -1,101 +1,17 @@
 <#
 .SYNOPSIS
-  Map synchronization and dependency management module for SC2 commander launchers.
+  Map synchronization module for SC2 commander launchers.
 .DESCRIPTION
   Handles:
   - Syncing map from workspace to SC2 live directory
   - Cleaning/injecting galaxy files to map Base.SC2Data
-  - Rewriting DocumentHeader/DocumentInfo dependencies
+  DocumentHeader/DocumentInfo dependency rewrite lives in document-dependencies.ps1,
+  which is dot-sourced below. Set-MapDependencies is re-exported from there.
   Separated from mod logic to keep map and mod concerns independent.
 #>
 
-# === DocumentHeader binary dependency rewrite ===
-function Test-ByteSequenceAt {
-    param([byte[]]$Bytes, [int]$Offset, [byte[]]$Needle)
-    if ($Offset + $Needle.Length -gt $Bytes.Length) { return $false }
-    for ($i = 0; $i -lt $Needle.Length; $i++) {
-        if ($Bytes[$Offset + $i] -ne $Needle[$i]) { return $false }
-    }
-    return $true
-}
-
-function Find-DocumentHeaderDependencyStart {
-    param([byte[]]$Bytes)
-    $markers = @(
-        [System.Text.Encoding]::UTF8.GetBytes("file:"),
-        [System.Text.Encoding]::UTF8.GetBytes("bnet:")
-    )
-    for ($offset = 4; $offset -lt $Bytes.Length; $offset++) {
-        foreach ($marker in $markers) {
-            if (-not (Test-ByteSequenceAt -Bytes $Bytes -Offset $offset -Needle $marker)) { continue }
-            $count = [System.BitConverter]::ToUInt32($Bytes, $offset - 4)
-            if (($count -gt 0) -and ($count -lt 128)) { return $offset }
-        }
-    }
-    throw "DocumentHeader dependency table not found."
-}
-
-function Get-DocumentHeaderDependencyEndOffset {
-    param([byte[]]$Bytes, [int]$Start, [uint32]$Count)
-    $offset = $Start
-    for ($index = 0; $index -lt $Count; $index++) {
-        while (($offset -lt $Bytes.Length) -and ($Bytes[$offset] -ne 0)) { $offset++ }
-        if ($offset -ge $Bytes.Length) { throw "DocumentHeader dependency string is not null-terminated." }
-        $offset++
-    }
-    return $offset
-}
-
-function Set-DocumentHeaderDependencies {
-    param(
-        [Parameter(Mandatory=$true)][string]$Path,
-        [Parameter(Mandatory=$true)][string[]]$Dependencies
-    )
-    if (-not (Test-Path -LiteralPath $Path)) { throw "DocumentHeader not found: $Path" }
-    [byte[]]$bytes = [System.IO.File]::ReadAllBytes($Path)
-    $dependencyStart = Find-DocumentHeaderDependencyStart -Bytes $bytes
-    $countOffset = $dependencyStart - 4
-    $currentCount = [System.BitConverter]::ToUInt32($bytes, $countOffset)
-    $dependencyEnd = Get-DocumentHeaderDependencyEndOffset -Bytes $bytes -Start $dependencyStart -Count $currentCount
-    $dependencyBytes = [System.Text.Encoding]::UTF8.GetBytes((($Dependencies -join "`0") + "`0"))
-    $countBytes = [System.BitConverter]::GetBytes([uint32]$Dependencies.Count)
-    $stream = New-Object System.IO.MemoryStream
-    $stream.Write($bytes, 0, $countOffset)
-    $stream.Write($countBytes, 0, $countBytes.Length)
-    $stream.Write($dependencyBytes, 0, $dependencyBytes.Length)
-    $stream.Write($bytes, $dependencyEnd, $bytes.Length - $dependencyEnd)
-    [System.IO.File]::WriteAllBytes($Path, $stream.ToArray())
-}
-
-function Set-DocumentInfoDependencies {
-    param(
-        [Parameter(Mandatory=$true)][string]$Path,
-        [Parameter(Mandatory=$true)][string[]]$Dependencies
-    )
-    $xml = "<?xml version='1.0' encoding='utf-8'?>`n<DocInfo>`n    <Dependencies>`n"
-    foreach ($dep in $Dependencies) {
-        $xml += "        <Value>$dep</Value>`n"
-    }
-    $xml += "    </Dependencies>`n"
-    # Preserve Preload section if it exists in original
-    $origContent = [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
-    if ($origContent -match '(?s)<Preload>.*?</Preload>') {
-        $preloadSection = $matches[0]
-        $xml += "    $preloadSection`n"
-    }
-    $xml += "</DocInfo>"
-    [System.IO.File]::WriteAllText($Path, $xml, [System.Text.Encoding]::UTF8)
-}
-
-function Set-MapDependencies {
-    param(
-        [Parameter(Mandatory=$true)][string]$MapPath,
-        [Parameter(Mandatory=$true)][string[]]$Dependencies
-    )
-    Set-DocumentInfoDependencies -Path (Join-Path $MapPath "DocumentInfo") -Dependencies $Dependencies
-    Set-DocumentHeaderDependencies -Path (Join-Path $MapPath "DocumentHeader") -Dependencies $Dependencies
-    Write-Host "SET DEPS: $($Dependencies.Count) dependencies written to map"
-}
+# === Document dependency operations (read/write/roundtrip/compare) ===
+. (Join-Path $PSScriptRoot "document-dependencies.ps1")
 
 # === Map sync ===
 function Sync-MapToLive {
