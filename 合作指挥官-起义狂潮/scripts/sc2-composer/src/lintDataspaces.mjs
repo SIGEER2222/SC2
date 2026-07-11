@@ -88,7 +88,7 @@ function analyzeCatalogElements(roots) {
     'CUnit', 'CAbil', 'CButton', 'CActor', 'CEffect', 'CBehavior',
     'CUpgrade', 'CRequirement', 'CWeapon', 'CMover', 'CModel', 'CRace',
     'CTurret', 'CSound', 'CCamera', 'CLight', 'CDoodad', 'CUnitSplat',
-    'CFootprint',
+    'CFootprint', 'CGame',
   ];
 
   const isCatalogTag = (tag) => {
