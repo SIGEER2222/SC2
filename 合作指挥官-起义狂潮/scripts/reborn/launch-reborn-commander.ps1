@@ -28,6 +28,87 @@ $Sc2Root  = "E:\SC2\SC2new\StarCraft II"
 . (Join-Path $ScriptsRoot "commander-power-metadata.ps1")
 . (Join-Path $ScriptsRoot "sc2\campaignxcore-bank.ps1")
 
+# === DocumentHeader/DocumentInfo dependency rewrite functions ===
+# Copied from launch-7vs1-coop-test.ps1 to dynamically set map dependencies
+function Test-ByteSequenceAt {
+    param([byte[]]$Bytes, [int]$Offset, [byte[]]$Needle)
+    if ($Offset + $Needle.Length -gt $Bytes.Length) { return $false }
+    for ($i = 0; $i -lt $Needle.Length; $i++) {
+        if ($Bytes[$Offset + $i] -ne $Needle[$i]) { return $false }
+    }
+    return $true
+}
+
+function Find-DocumentHeaderDependencyStart {
+    param([byte[]]$Bytes)
+    $markers = @(
+        [System.Text.Encoding]::UTF8.GetBytes("file:"),
+        [System.Text.Encoding]::UTF8.GetBytes("bnet:")
+    )
+    for ($offset = 4; $offset -lt $Bytes.Length; $offset++) {
+        foreach ($marker in $markers) {
+            if (-not (Test-ByteSequenceAt -Bytes $Bytes -Offset $offset -Needle $marker)) { continue }
+            $count = [System.BitConverter]::ToUInt32($Bytes, $offset - 4)
+            if (($count -gt 0) -and ($count -lt 128)) { return $offset }
+        }
+    }
+    throw "DocumentHeader dependency table not found."
+}
+
+function Get-DocumentHeaderDependencyEndOffset {
+    param([byte[]]$Bytes, [int]$Start, [uint32]$Count)
+    $offset = $Start
+    for ($index = 0; $index -lt $Count; $index++) {
+        while (($offset -lt $Bytes.Length) -and ($Bytes[$offset] -ne 0)) { $offset++ }
+        if ($offset -ge $Bytes.Length) { throw "DocumentHeader dependency string is not null-terminated." }
+        $offset++
+    }
+    return $offset
+}
+
+function Set-DocumentHeaderDependencies {
+    param([Parameter(Mandatory=$true)][string]$Path, [Parameter(Mandatory=$true)][string[]]$Dependencies)
+    if (-not (Test-Path -LiteralPath $Path)) { throw "DocumentHeader not found: $Path" }
+    [byte[]]$bytes = [System.IO.File]::ReadAllBytes($Path)
+    $dependencyStart = Find-DocumentHeaderDependencyStart -Bytes $bytes
+    $countOffset = $dependencyStart - 4
+    $currentCount = [System.BitConverter]::ToUInt32($bytes, $countOffset)
+    $dependencyEnd = Get-DocumentHeaderDependencyEndOffset -Bytes $bytes -Start $dependencyStart -Count $currentCount
+    $dependencyBytes = [System.Text.Encoding]::UTF8.GetBytes((($Dependencies -join "`0") + "`0"))
+    $countBytes = [System.BitConverter]::GetBytes([uint32]$Dependencies.Count)
+    $stream = New-Object System.IO.MemoryStream
+    $stream.Write($bytes, 0, $countOffset)
+    $stream.Write($countBytes, 0, $countBytes.Length)
+    $stream.Write($dependencyBytes, 0, $dependencyBytes.Length)
+    $stream.Write($bytes, $dependencyEnd, $bytes.Length - $dependencyEnd)
+    [System.IO.File]::WriteAllBytes($Path, $stream.ToArray())
+}
+
+function Set-DocumentInfoDependencies {
+    param([Parameter(Mandatory=$true)][string]$Path, [Parameter(Mandatory=$true)][string[]]$Dependencies)
+    $xml = "<?xml version='1.0' encoding='utf-8'?>`n<DocInfo>`n    <Dependencies>`n"
+    foreach ($dep in $Dependencies) {
+        $xml += "        <Value>$dep</Value>`n"
+    }
+    $xml += "    </Dependencies>`n"
+    # Preserve Preload section if it exists in original
+    $origContent = [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
+    if ($origContent -match '(?s)<Preload>.*?</Preload>') {
+        $preloadSection = $matches[0]
+        $xml += "    $preloadSection`n"
+    }
+    $xml += "</DocInfo>"
+    [System.IO.File]::WriteAllText($Path, $xml, [System.Text.Encoding]::UTF8)
+}
+
+function Set-MapDependencies {
+    param([string[]]$Dependencies)
+    $mapPath = Join-Path $Sc2Root "Maps\$MapName"
+    Set-DocumentInfoDependencies -Path (Join-Path $mapPath "DocumentInfo") -Dependencies $Dependencies
+    Set-DocumentHeaderDependencies -Path (Join-Path $mapPath "DocumentHeader") -Dependencies $Dependencies
+    Write-Host "SET DEPS: $($Dependencies.Count) dependencies written to map"
+}
+
 function Get-WorkspaceRoot {
     return $ProjRoot
 }
@@ -114,9 +195,13 @@ Sync-Mod "7vs1\CoreRuntime.SC2Mod"
 Sync-Mod "7vs1\CommanderBridge.SC2Mod"
 Sync-Mod "7vs1\BaseCatalogPatch.SC2Mod"
 
+# Sync kit_mutations (provides LibA070801C mutator runtime, required by LibE0EAE146_MutatorRuntime)
+Sync-Mod "kit_mutations.SC2Mod"
+
 # Sync ALL CommanderUnits mods (galaxy code references all commanders' functions for compilation)
 $allCommanderUnitsMods = @(
     "7vs1\CommanderUnits_Raynor.SC2Mod"
+    "7vs1\CommanderUnits_RaynorX.SC2Mod"
     "7vs1\CommanderUnits_Nova.SC2Mod"
     "7vs1\CommanderUnits_Swann.SC2Mod"
     "7vs1\CommanderUnits_Horner.SC2Mod"
@@ -144,6 +229,38 @@ foreach ($mod in $allCommanderUnitsMods) {
     Sync-Mod $mod
 }
 
+# Sync ALL Alenger mods (referenced by CoreRuntime's LibE0EAE146_AdapterBootstrap).
+# 7vs1 launcher adds all 24 Alenger mods as DocumentHeader dependencies.
+$alengerMods = @(
+    "7vs1\AlengerCommon.SC2Mod"
+    "7vs1\Alenger1.SC2Mod"
+    "7vs1\Alenger1Adapter.SC2Mod"
+    "7vs1\Alenger2.SC2Mod"
+    "7vs1\Alenger2Adapter.SC2Mod"
+    "7vs1\Alenger3.SC2Mod"
+    "7vs1\Alenger3Adapter.SC2Mod"
+    "7vs1\Alenger6.SC2Mod"
+    "7vs1\Alenger6Adapter.SC2Mod"
+    "7vs1\Alenger7.SC2Mod"
+    "7vs1\Alenger7Adapter.SC2Mod"
+    "7vs1\Alenger8.SC2Mod"
+    "7vs1\Alenger8Runtime.SC2Mod"
+    "7vs1\Alenger8Adapter.SC2Mod"
+    "7vs1\Alenger9.SC2Mod"
+    "7vs1\Alenger9Adapter.SC2Mod"
+    "7vs1\Alenger10.SC2Mod"
+    "7vs1\Alenger10Adapter.SC2Mod"
+    "7vs1\Alenger11.SC2Mod"
+    "7vs1\Alenger11Adapter.SC2Mod"
+    "7vs1\Alenger12.SC2Mod"
+    "7vs1\Alenger12Adapter.SC2Mod"
+    "7vs1\Alenger13.SC2Mod"
+    "7vs1\Alenger13Adapter.SC2Mod"
+)
+foreach ($mod in $alengerMods) {
+    Sync-Mod $mod
+}
+
 # Validate commander name
 $validCommanders = @(
     "TerranRaynor","TerranNova","TerranSwann","TerranHorner","TerranMengsk","TerranTychus",
@@ -158,9 +275,45 @@ if ($validCommanders -notcontains $Commander) {
 Sync-Map
 
 # === Galaxy library sync ===
-# 7vs1 CoreRuntime galaxy libs reference Lib*.galaxy from CommanderUnits mods.
-# SC2 include system does not search mod dependencies for galaxy files,
-# so they must be physically copied to the map Base.SC2Data directory.
+# SC2 loads galaxy files through mod dependency chain, NOT by copying to map.
+# Clean up previously injected 7vs1 runtime galaxy files from map Base.SC2Data,
+# but preserve galaxy files that ship with the source map (e.g. Lib48DF4533.galaxy).
+function Clean-MapRuntimeLibraries {
+    $mapBaseData = Join-Path $Sc2Root "Maps\$MapName\Base.SC2Data"
+    if (-not (Test-Path $mapBaseData)) {
+        return
+    }
+
+    # Build a set of galaxy file names that exist in the source map; these are
+    # map-owned and must never be deleted (only runtime-injected files are cleaned).
+    $sourceMapBaseData = Join-Path $ProjRoot "Maps\$MapName\Base.SC2Data"
+    $preserveNames = @{}
+    if (Test-Path $sourceMapBaseData) {
+        $sourceGalaxyFiles = Get-ChildItem $sourceMapBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+        foreach ($gf in $sourceGalaxyFiles) {
+            $preserveNames[$gf.Name] = $true
+        }
+    }
+
+    $galaxyFiles = Get-ChildItem $mapBaseData -File -Filter "Lib*.galaxy" -ErrorAction SilentlyContinue
+    $count = 0
+    foreach ($gf in $galaxyFiles) {
+        if ($preserveNames.ContainsKey($gf.Name)) {
+            continue
+        }
+        [System.IO.File]::Delete($gf.FullName)
+        $count++
+    }
+    if ($count -gt 0) {
+        Write-Host "CLEAN: removed $count stale runtime galaxy files (preserved $($preserveNames.Count) map-owned galaxy files)"
+    }
+}
+
+Clean-MapRuntimeLibraries
+
+# === Copy galaxy libs to map Base.SC2Data ===
+# SC2 include system searches Base.SC2Data for galaxy files when they are
+# directly included in MapScript.galaxy. Copy all Lib*.galaxy from 7vs1 mods.
 function Sync-MapRuntimeLibraries {
     $mapBaseData = Join-Path $Sc2Root "Maps\$MapName\Base.SC2Data"
     if (-not (Test-Path $mapBaseData)) {
@@ -168,23 +321,23 @@ function Sync-MapRuntimeLibraries {
     }
 
     $mods7vs1Root = Join-Path $Sc2Root "Mods\7vs1"
-    $skipMods = @("CoopZeroPop")
-
     $count = 0
     $modDirs = Get-ChildItem $mods7vs1Root -Directory -Filter "*.SC2Mod" -ErrorAction SilentlyContinue
     foreach ($modDir in $modDirs) {
-        $modName = $modDir.Name -replace '\.SC2Mod$', ''
-        if ($skipMods -contains $modName) {
-            continue
-        }
-
         $modBase = Join-Path $modDir.FullName "Base.SC2Data"
-        if (-not (Test-Path $modBase)) {
-            continue
-        }
-
+        if (-not (Test-Path $modBase)) { continue }
         $galaxyFiles = Get-ChildItem $modBase -File -Filter "Lib*.galaxy" -ErrorAction SilentlyContinue
         foreach ($gf in $galaxyFiles) {
+            $dst = Join-Path $mapBaseData $gf.Name
+            [System.IO.File]::Copy($gf.FullName, $dst, $true)
+            $count++
+        }
+    }
+    # Also scan kit_mutations
+    $kitMutationsBase = Join-Path $Sc2Root "Mods\kit_mutations.SC2Mod\Base.SC2Data"
+    if (Test-Path $kitMutationsBase) {
+        $kitGalaxyFiles = Get-ChildItem $kitMutationsBase -File -Filter "Lib*.galaxy" -ErrorAction SilentlyContinue
+        foreach ($gf in $kitGalaxyFiles) {
             $dst = Join-Path $mapBaseData $gf.Name
             [System.IO.File]::Copy($gf.FullName, $dst, $true)
             $count++
@@ -194,6 +347,9 @@ function Sync-MapRuntimeLibraries {
 }
 
 Sync-MapRuntimeLibraries
+
+# Note: DocumentHeader/DocumentInfo dependencies are pre-configured in source repo.
+# Sync-Map copies them as-is. No runtime rewrite needed.
 
 # Write Bank
 Write-Host "Writing CampaignXCore Bank..."
