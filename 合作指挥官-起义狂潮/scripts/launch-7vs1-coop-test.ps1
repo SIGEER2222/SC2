@@ -54,7 +54,9 @@ param(
     [string]$TestRunId = "",
     [switch]$SkipCommanderPowerPreset,
     [switch]$ForceStopSc2BeforeInstall,
-    [switch]$NoLaunch
+    [switch]$NoLaunch,
+    [switch]$ApiListen,
+    [int]$ApiPort = 8765
 )
 
 $ErrorActionPreference = "Stop"
@@ -68,6 +70,29 @@ if ([string]::IsNullOrWhiteSpace($TestRunId)) {
 
 function Get-WorkspaceRoot {
     return (Split-Path -Parent $PSScriptRoot)
+}
+
+function Find-Sc2Executable {
+    param([string]$Sc2Root)
+
+    $versionsDir = Join-Path $Sc2Root "Versions"
+    if (-not (Test-Path -LiteralPath $versionsDir)) {
+        return $null
+    }
+
+    $baseDirs = Get-ChildItem -LiteralPath $versionsDir -Directory -Filter "Base*" -ErrorAction SilentlyContinue |
+        Sort-Object Name -Descending |
+        Select-Object -First 1
+    if (-not $baseDirs) {
+        return $null
+    }
+
+    $exePath = Join-Path $baseDirs.FullName "SC2_x64.exe"
+    if (Test-Path -LiteralPath $exePath) {
+        return $exePath
+    }
+
+    return $null
 }
 
 function Resolve-DefaultSourceRoot {
@@ -1446,6 +1471,18 @@ if ($GenericBonuses.Count -gt 0) {
 Write-Host "Voice pack: $VoicePack"
 
 if (-not $NoLaunch) {
-    Write-Host "Launching map: $mapLive"
-    & $SwitcherPath $mapLive
+    if ($ApiListen) {
+        $sc2Exe = Find-Sc2Executable -Sc2Root $Sc2Root
+        if (-not $sc2Exe) {
+            throw "SC2_x64.exe not found under $Sc2Root\Versions\Base*. Falling back to Switcher."
+        }
+        Write-Host "Launching with API listen: $sc2Exe"
+        Write-Host "  Map:   $mapLive"
+        Write-Host "  Listen: 127.0.0.1:$ApiPort"
+        & $sc2Exe -listen 127.0.0.1 -port $ApiPort -displayMode 0 -windowwidth 1280 -windowheight 720 -loadmap $mapLive
+    }
+    else {
+        Write-Host "Launching map: $mapLive"
+        & $SwitcherPath $mapLive
+    }
 }
