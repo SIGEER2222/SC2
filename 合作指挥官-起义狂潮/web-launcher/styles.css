@@ -1865,6 +1865,33 @@ input[readonly] {
 }
 
 /* ── Scenario card (Tab B: Mod test maps) ── */
+.modtest-workspace {
+  display: grid;
+  gap: 14px;
+}
+
+.modtest-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.modtest-result-host:empty {
+  display: none;
+}
+
+.modtest-result-host:not(:empty) + .output-log {
+  margin-top: 12px;
+}
+
 .scenario-card {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -1875,9 +1902,45 @@ input[readonly] {
 }
 
 .scenario-card h3 {
-  margin: 0 0 8px;
+  margin: 0;
   color: var(--text);
   font-size: 15px;
+}
+
+.scenario-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.scenario-mod-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.scenario-mod-badges em {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid rgba(66, 84, 96, 0.72);
+  border-radius: 999px;
+  background: rgba(12, 17, 21, 0.96);
+  color: var(--muted);
+  font-style: normal;
+  font-size: 11px;
+}
+
+.scenario-mod-badges .muted-badge {
+  opacity: 0.75;
+}
+
+.scenario-card.empty-card h3 {
+  margin: 0;
 }
 
 .scenario-card .meta {
@@ -1887,16 +1950,16 @@ input[readonly] {
   line-height: 1.45;
 }
 
+.scenario-card .error {
+  color: var(--red);
+}
+
 .scenario-card .actions {
   display: flex;
   gap: 8px;
 }
 
-.scenario-card .error {
-  color: var(--red);
-}
-
-.scenario-card button {
+.scenario-card button.primary {
   padding: 8px 16px;
   background: linear-gradient(180deg, var(--amber-2), var(--amber));
   color: #20160a;
@@ -1908,7 +1971,18 @@ input[readonly] {
   transition: opacity 0.15s;
 }
 
-.scenario-card button:hover {
+.scenario-card button.secondary {
+  padding: 8px 16px;
+  background: rgba(16, 22, 27, 0.92);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.scenario-card button:hover:not(:disabled) {
   opacity: 0.88;
 }
 
@@ -1960,4 +2034,21 @@ input[readonly] {
   margin: 12px 0 4px;
   color: var(--amber-2);
   font-size: 13px;
+}
+
+.reborn-shell .workspace,
+.modtest-shell .workspace {
+  margin-top: 14px;
+}
+
+.modtest-bootstrap,
+.reborn-bootstrap {
+  grid-template-columns: 120px 120px 120px minmax(220px, 1fr);
+}
+
+@media (max-width: 960px) {
+  .modtest-bootstrap,
+  .reborn-bootstrap {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

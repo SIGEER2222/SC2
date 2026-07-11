@@ -100,3 +100,58 @@ function Sync-MapRuntimeLibraries {
 
     Write-Host "SYNC galaxy libs: $count files injected from workspace"
 }
+
+function Sync-MapRuntimeLibrariesFromManifest {
+    <#
+    .SYNOPSIS
+      Inject galaxy files from GalaxyManifest entries to map Base.SC2Data.
+      Priority 2: replaces directory-scan injection with explicit manifest-driven injection.
+      Only injects files declared in the manifest — undeclared files are NOT injected.
+    .PARAMETER MapPath
+      Target map directory path (live SC2 Maps dir).
+    .PARAMETER ProjRoot
+      Workspace root for resolving sourceMod paths.
+    .PARAMETER GalaxyInjectionEntries
+      Array of entries with .file (e.g. "Base.SC2Data/LibX.galaxy") and .source
+      (e.g. "Mods/7vs1/CommanderUnits_Raynor.SC2Mod\Base.SC2Data\LibX.galaxy").
+      Typically from Read-CompositionPlan output.
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$MapPath,
+        [Parameter(Mandatory=$true)][string]$ProjRoot,
+        [Parameter(Mandatory=$true)]$GalaxyInjectionEntries
+    )
+    $mapBaseData = Join-Path $MapPath "Base.SC2Data"
+    if (-not (Test-Path $mapBaseData)) {
+        [System.IO.Directory]::CreateDirectory($mapBaseData) | Out-Null
+    }
+
+    $count = 0
+    $missing = 0
+    foreach ($entry in $GalaxyInjectionEntries) {
+        # entry.source is like "Mods/7vs1/CommanderUnits_Raynor.SC2Mod\Base.SC2Data\LibX.galaxy"
+        # entry.file is like "Base.SC2Data/LibX.galaxy"
+        $srcPath = if ($entry.source) {
+            Join-Path $ProjRoot ($entry.source -replace '/', '\')
+        } else {
+            # source not resolved from manifest — skip with warning
+            Write-Host "WARN: no source for $($entry.file) (not in GalaxyManifest)"
+            $missing++
+            continue
+        }
+
+        if (-not (Test-Path -LiteralPath $srcPath)) {
+            Write-Host "WARN: source not found: $srcPath ($($entry.file))"
+            $missing++
+            continue
+        }
+
+        # Destination filename: just the galaxy filename (flat in Base.SC2Data)
+        $fileName = [System.IO.Path]::GetFileName($entry.file)
+        $dst = Join-Path $mapBaseData $fileName
+        [System.IO.File]::Copy($srcPath, $dst, $true)
+        $count++
+    }
+
+    Write-Host "SYNC galaxy libs (manifest): $count files injected, $missing missing"
+}

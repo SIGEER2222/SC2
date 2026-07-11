@@ -2829,7 +2829,7 @@ document.querySelectorAll('.tab').forEach(btn => {
       c.hidden = c.dataset.tabContent !== tab;
     });
     if (tab === 'B') {
-      import('./components/scenario-panels.js').then(m => m.renderScenarioCards());
+      import('./components/scenario-panels.js').then(m => m.initModtestTab());
     }
     if (tab === 'C') {
       initRebornTab();
@@ -2845,42 +2845,129 @@ let rebornState = {
   commanders: null,
   maps: null,
   pollTimer: null,
+  lastLogPaths: null,
 };
 
-async function initRebornTab() {
+const rebornEl = {
+  dryRunToggle: document.getElementById('rebornDryRunToggle'),
+  refreshButton: document.getElementById('rebornRefreshButton'),
+  copyOutputButton: document.getElementById('rebornCopyOutputButton'),
+  copyLogPathsButton: document.getElementById('rebornCopyLogPathsButton'),
+  clearOutputButton: document.getElementById('rebornClearOutputButton'),
+  stdoutPathText: document.getElementById('rebornStdoutPathText'),
+  stderrPathText: document.getElementById('rebornStderrPathText'),
+  validationBadge: document.getElementById('rebornValidationBadge'),
+  configIssues: document.getElementById('rebornConfigIssues'),
+  summaryMapFile: document.getElementById('rebornSummaryMapFile'),
+  summaryMode: document.getElementById('rebornSummaryMode'),
+  commanderCount: document.getElementById('rebornCommanderCount'),
+  mapCount: document.getElementById('rebornMapCount'),
+  bootstrapCommanderCount: document.getElementById('rebornBootstrapCommanderCount'),
+  bootstrapMapCount: document.getElementById('rebornBootstrapMapCount'),
+};
+
+let rebornWired = false;
+
+function wireRebornEvents() {
+  if (rebornWired) return;
+  rebornWired = true;
+  rebornEl.refreshButton?.addEventListener('click', () => initRebornTab(true));
+  rebornEl.dryRunToggle?.addEventListener('change', updateRebornSummary);
+  rebornEl.copyOutputButton?.addEventListener('click', copyRebornOutput);
+  rebornEl.copyLogPathsButton?.addEventListener('click', copyRebornLogPaths);
+  rebornEl.clearOutputButton?.addEventListener('click', clearRebornOutput);
+}
+
+function setRebornLogPaths(stdout, stderr) {
+  rebornState.lastLogPaths = {
+    stdout: stdout || '',
+    stderr: stderr || '',
+  };
+  if (rebornEl.stdoutPathText) {
+    rebornEl.stdoutPathText.textContent = stdout ? `标准输出：${stdout}` : '标准输出：-';
+    rebornEl.stdoutPathText.title = stdout || '';
+  }
+  if (rebornEl.stderrPathText) {
+    rebornEl.stderrPathText.textContent = stderr ? `错误输出：${stderr}` : '错误输出：-';
+    rebornEl.stderrPathText.title = stderr || '';
+  }
+  if (rebornEl.copyLogPathsButton) {
+    rebornEl.copyLogPathsButton.disabled = !stdout && !stderr;
+  }
+}
+
+async function copyRebornOutput() {
+  const output = document.getElementById('rebornOutput');
+  const text = output?.textContent.trim();
+  if (!text || text === '等待操作') return;
+  await copyText(text);
+  const stateLabel = document.getElementById('rebornLaunchState');
+  if (stateLabel) stateLabel.textContent = '输出已复制';
+}
+
+async function copyRebornLogPaths() {
+  if (!rebornState.lastLogPaths) return;
+  const lines = [
+    rebornState.lastLogPaths.stdout ? `stdout=${rebornState.lastLogPaths.stdout}` : '',
+    rebornState.lastLogPaths.stderr ? `stderr=${rebornState.lastLogPaths.stderr}` : '',
+  ].filter(Boolean);
+  if (lines.length === 0) return;
+  await copyText(lines.join('\n'));
+  const stateLabel = document.getElementById('rebornLaunchState');
+  if (stateLabel) stateLabel.textContent = '日志路径已复制';
+}
+
+function clearRebornOutput() {
+  const output = document.getElementById('rebornOutput');
+  if (output) output.textContent = '等待操作';
+  if (rebornEl.copyOutputButton) rebornEl.copyOutputButton.disabled = true;
+  setRebornLogPaths('', '');
+  const stateLabel = document.getElementById('rebornLaunchState');
+  if (stateLabel) stateLabel.textContent = '输出已清空';
+}
+
+async function initRebornTab(forceReload = false) {
+  wireRebornEvents();
   const rebornStatus = document.getElementById('rebornStatus');
   const rebornLaunchButton = document.getElementById('rebornLaunchButton');
   rebornLaunchButton.disabled = true;
   rebornStatus.textContent = '加载中';
 
   try {
-    // 并行加载指挥官（复用 bootstrap）和地图列表
     if (!state.data) {
       rebornStatus.textContent = '等待主数据加载';
       return;
     }
     rebornState.commanders = state.data.commanders;
 
-    if (!rebornState.maps) {
+    if (!rebornState.maps || forceReload) {
       const mapsResp = await fetch('/api/reborn-maps');
       const mapsData = await mapsResp.json();
       rebornState.maps = mapsData.maps || [];
-      // 默认选中第一张地图（zexpedition03）
       if (rebornState.maps.length > 0) {
-        rebornState.selectedMapId = rebornState.maps[0].id;
-        rebornState.selectedMapFile = rebornState.maps[0].mapFile;
+        rebornState.selectedMapId = rebornState.selectedMapId || rebornState.maps[0].id;
+        rebornState.selectedMapFile = rebornState.maps.find(m => m.id === rebornState.selectedMapId)?.mapFile
+          || rebornState.maps[0].mapFile;
       }
+    }
+
+    if (!rebornState.selectedCommander && rebornState.commanders.length > 0) {
+      rebornState.selectedCommander = rebornState.commanders[0].runtime;
     }
 
     renderRebornCommanders();
     renderRebornMaps();
     updateRebornSummary();
+    updateRebornLaunchButton();
     rebornStatus.textContent = `已加载 ${rebornState.commanders.length} 个指挥官, ${rebornState.maps.length} 张地图`;
   } catch (e) {
     rebornStatus.textContent = `加载失败: ${e.message}`;
+    if (rebornEl.configIssues) {
+      rebornEl.configIssues.textContent = `加载失败: ${e.message}`;
+      rebornEl.configIssues.className = 'config-issues status-error';
+    }
   }
 
-  // 避免重复绑定
   rebornLaunchButton.removeEventListener('click', launchRebornGame);
   rebornLaunchButton.addEventListener('click', launchRebornGame);
 }
@@ -2986,17 +3073,53 @@ function updateRebornSummary() {
   const summaryCommander = document.getElementById('rebornSummaryCommander');
   const summaryMap = document.getElementById('rebornSummaryMap');
   const summary = document.getElementById('rebornSummary');
+  const dryRun = Boolean(rebornEl.dryRunToggle?.checked);
+  const map = rebornState.maps?.find(m => m.id === rebornState.selectedMapId);
+  const ready = Boolean(rebornState.selectedCommander && rebornState.selectedMapId);
+
   if (summaryCommander) {
     summaryCommander.textContent = rebornState.selectedCommander || '-';
   }
   if (summaryMap) {
-    const map = rebornState.maps?.find(m => m.id === rebornState.selectedMapId);
     summaryMap.textContent = map ? map.mapName : '-';
   }
+  if (rebornEl.summaryMapFile) {
+    rebornEl.summaryMapFile.textContent = rebornState.selectedMapFile || map?.mapFile || '-';
+  }
+  if (rebornEl.summaryMode) {
+    rebornEl.summaryMode.textContent = dryRun ? '只安装' : '启动';
+  }
   if (summary) {
-    const ready = rebornState.selectedCommander && rebornState.selectedMapId;
     summary.textContent = ready ? '就绪' : '未就绪';
     summary.className = ready ? 'badge status-ok' : 'badge';
+  }
+  if (rebornEl.validationBadge) {
+    rebornEl.validationBadge.textContent = ready ? '可启动' : '未验证';
+    rebornEl.validationBadge.className = ready ? 'badge status-ok' : 'badge';
+  }
+  if (rebornEl.configIssues) {
+    if (!ready) {
+      rebornEl.configIssues.textContent = '请选择指挥官与地图';
+      rebornEl.configIssues.className = 'config-issues status-warn';
+    } else if (dryRun) {
+      rebornEl.configIssues.textContent = '将执行 DryRun：同步 mod 与 Bank，不启动游戏';
+      rebornEl.configIssues.className = 'config-issues status-ok';
+    } else {
+      rebornEl.configIssues.textContent = '配置可启动';
+      rebornEl.configIssues.className = 'config-issues status-ok';
+    }
+  }
+  if (rebornEl.commanderCount) {
+    rebornEl.commanderCount.textContent = String(rebornState.commanders?.length || 0);
+  }
+  if (rebornEl.mapCount) {
+    rebornEl.mapCount.textContent = String(rebornState.maps?.length || 0);
+  }
+  if (rebornEl.bootstrapCommanderCount) {
+    rebornEl.bootstrapCommanderCount.textContent = String(rebornState.commanders?.length || 0);
+  }
+  if (rebornEl.bootstrapMapCount) {
+    rebornEl.bootstrapMapCount.textContent = String(rebornState.maps?.length || 0);
   }
 }
 
@@ -3017,14 +3140,16 @@ async function launchRebornGame() {
   const btn = document.getElementById('rebornLaunchButton');
   const stateLabel = document.getElementById('rebornLaunchState');
   const output = document.getElementById('rebornOutput');
+  const dryRun = Boolean(rebornEl.dryRunToggle?.checked);
   if (!rebornState.selectedCommander) return;
   if (rebornState.pollTimer) {
     stateLabel.textContent = '已有启动进程运行中';
     return;
   }
   btn.disabled = true;
-  stateLabel.textContent = '启动中...';
-  output.textContent = `启动指挥官: ${rebornState.selectedCommander}\n地图: ${rebornState.selectedMapFile || '默认'}\n`;
+  stateLabel.textContent = dryRun ? 'DryRun 中...' : '启动中...';
+  output.textContent = `启动指挥官: ${rebornState.selectedCommander}\n地图: ${rebornState.selectedMapFile || '默认'}\n模式: ${dryRun ? 'DryRun' : '启动'}\n`;
+  if (rebornEl.copyOutputButton) rebornEl.copyOutputButton.disabled = false;
   try {
     const result = await apiFetchJson('/api/reborn-launch', {
       method: 'POST',
@@ -3032,8 +3157,11 @@ async function launchRebornGame() {
       body: JSON.stringify({
         commander: rebornState.selectedCommander,
         mapName: rebornState.selectedMapFile || '',
+        dryRun,
+        noLaunch: dryRun,
       }),
     });
+    setRebornLogPaths(result.stdout, result.stderr);
     output.textContent += `进程 PID: ${result.pid}\n`;
     stateLabel.textContent = `PID ${result.pid}`;
     pollRebornLaunch(result);
@@ -3060,6 +3188,7 @@ function pollRebornLaunch(result) {
       });
       if (status.stdout?.tail) {
         output.textContent = `启动指挥官: ${rebornState.selectedCommander}\n进程 PID: ${result.pid}\n${status.stdout.tail}`;
+        if (rebornEl.copyOutputButton) rebornEl.copyOutputButton.disabled = false;
       }
       if (!status.running && status.exitCode !== null) {
         clearInterval(rebornState.pollTimer);

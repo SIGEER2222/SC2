@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { syncMods, syncMaps, syncAll } from '../lib/sync-mods-and-maps.mjs';
+import { stopAllSc2 } from '../lib/stop-sc2.mjs';
 import { loadScenarios } from '../services/scenario-registry.mjs';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
@@ -76,6 +77,15 @@ router.post('/sync-all', (req, res) => {
       workspaceRoot: WORKSPACE_ROOT,
       sc2Root: SC2_ROOT,
     });
+    res.json({ ok: true, data: result });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String(e) });
+  }
+});
+
+router.post('/stop-sc2', async (req, res) => {
+  try {
+    const result = await stopAllSc2();
     res.json({ ok: true, data: result });
   } catch (e) {
     res.status(500).json({ ok: false, error: String(e) });

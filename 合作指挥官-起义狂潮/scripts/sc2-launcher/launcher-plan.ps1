@@ -305,3 +305,128 @@ function Test-LauncherPlanStable {
     }
     return $result
 }
+
+function Read-CompositionPlan {
+    <#
+    .SYNOPSIS
+      读取 sc2-composer 生成的 CompositionPlan.json，转换为 launcher 可消费的执行参数。
+      这是 Priority 1 的核心：让 launcher 消费 plan 而非自己从 config 计算。
+    .DESCRIPTION
+      从 CompositionPlan 提取：
+      - mapName / commander / selectedCommanderUnitsMod
+      - modSyncList（从 dependencies.always + dependencies.commander 提取 source 路径）
+      - galaxyInjection（从 bootstrap.galaxyIncludes 提取，配合 GalaxyManifest 定位源文件）
+      - documentDeps（dependencies.always + commander 的所有 path）
+    .PARAMETER PlanPath
+      CompositionPlan.json 文件路径。
+    .PARAMETER ProjRoot
+      项目根目录。
+    .OUTPUTS
+      PSCustomObject with: mapName, commander, selectedCommanderUnitsMod, modSyncList,
+      galaxyInjectionEntries, documentDeps, compositionId, sourceMap, generatedMap, rawPlan
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$PlanPath,
+        [Parameter(Mandatory=$true)][string]$ProjRoot
+    )
+
+    if (-not (Test-Path -LiteralPath $PlanPath)) {
+        throw "CompositionPlan not found: $PlanPath"
+    }
+
+    $plan = Get-Content -LiteralPath $PlanPath -Raw -Encoding UTF8 | ConvertFrom-Json
+
+    # 从 plan.map.source 提取 mapName（格式: Maps/<mapName>.SC2Map）
+    $mapSource = $plan.map.source
+    $mapName = [System.IO.Path]::GetFileName($mapSource)
+
+    # 从 commanderSlots[0] 提取 commander
+    $commander = $plan.commanderSlots[0].commanderId
+
+    # 从 _compat 提取 selectedCommanderUnitsMod（过渡期字段）
+    $selectedCommanderUnitsMod = $null
+    if ($plan._compat -and $plan._compat.selectedCommanderUnitsMod) {
+        $selectedCommanderUnitsMod = $plan._compat.selectedCommanderUnitsMod
+    } else {
+        # Fallback: 从 dependencies.commander 路径推导
+        foreach ($cd in $plan.dependencies.commander) {
+            foreach ($d in $cd.dependencies) {
+                if ($d.path -match 'CommanderUnits_(\w+)\.SC2Mod') {
+                    $selectedCommanderUnitsMod = "CommanderUnits_$($Matches[1])"
+                    break
+                }
+            }
+        }
+    }
+
+    # sourceMap / generatedMap
+    $sourceMap = if ($plan._compat -and $plan._compat.sourceMap) { $plan._compat.sourceMap } else { Join-Path $ProjRoot $mapSource }
+    $generatedMap = if ($plan._compat -and $plan._compat.generatedMap) { $plan._compat.generatedMap } else { Join-Path $Sc2Root "Maps\$mapName" }
+
+    # modSyncList: 从 dependencies.always + commander 提取需要同步的 mod 目录
+    # always 条目 path 格式: file:Mods/7vs1/xxx.SC2Mod → source: Mods\7vs1\xxx.SC2Mod
+    $modSyncList = @()
+    foreach ($d in $plan.dependencies.always) {
+        $modRel = $d.path -replace '^file:', '' -replace '/', '\'
+        $modSyncList += $modRel
+    }
+    foreach ($cd in $plan.dependencies.commander) {
+        foreach ($d in $cd.dependencies) {
+            $modRel = $d.path -replace '^file:', '' -replace '/', '\'
+            $modSyncList += $modRel
+        }
+    }
+
+    # documentDeps: 所有 path（保持顺序，去重）
+    $documentDeps = @()
+    $seen = @{}
+    foreach ($d in $plan.dependencies.always) {
+        if (-not $seen.ContainsKey($d.path)) { $seen[$d.path] = $true; $documentDeps += $d.path }
+    }
+    foreach ($cd in $plan.dependencies.commander) {
+        foreach ($d in $cd.dependencies) {
+            if (-not $seen.ContainsKey($d.path)) { $seen[$d.path] = $true; $documentDeps += $d.path }
+        }
+    }
+
+    # galaxyInjectionEntries: 从 bootstrap.galaxyIncludes 提取
+    # 配合 GalaxyManifest 定位每个文件的 source 路径
+    $galaxyInjectionEntries = @()
+    $manifestPath = Join-Path $ProjRoot "Shared\Galaxy\reborn-compat-galaxy-manifest.json"
+    $manifest = $null
+    if (Test-Path -LiteralPath $manifestPath) {
+        $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    }
+
+    foreach ($inc in $plan.bootstrap.galaxyIncludes) {
+        $entry = [PSCustomObject]@{
+            file    = $inc.path
+            purpose = $inc.purpose
+            source  = $null
+        }
+        # 从 manifest 查找 source
+        if ($manifest) {
+            foreach ($me in $manifest.entries) {
+                if ($me.file -eq $inc.path) {
+                    $entry.source = $me.sourceMod + '\Base.SC2Data\' + ($inc.path -replace '^Base\.SC2Data/', '')
+                    break
+                }
+            }
+        }
+        $galaxyInjectionEntries += $entry
+    }
+
+    return [PSCustomObject]@{
+        mapName                   = $mapName
+        commander                 = $commander
+        selectedCommanderUnitsMod = $selectedCommanderUnitsMod
+        sourceMap                 = $sourceMap
+        generatedMap              = $generatedMap
+        compositionId             = $plan.planId
+        modSyncList               = $modSyncList
+        documentDeps              = $documentDeps
+        galaxyInjectionEntries    = $galaxyInjectionEntries
+        rawPlan                   = $plan
+        planPath                  = $PlanPath
+    }
+}

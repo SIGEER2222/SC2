@@ -361,6 +361,85 @@ export function aggregateFromSchemaValidation(validationResult, options = {}) {
 }
 
 /**
+ * 从 galaxy-checker 结果聚合证据。
+ *
+ * @param {object} galaxyResult - galaxy-checker 输出（CheckResult JSON）
+ * @param {object} options - { compositionId }
+ * @returns {{ checks: object, evidence: object[], failures: object[] }}
+ */
+export function aggregateFromGalaxyChecker(galaxyResult, options = {}) {
+  const errorCount = galaxyResult.summary?.errors ?? 0;
+  const warningCount = galaxyResult.summary?.warnings ?? 0;
+  const filesChecked = galaxyResult.filesChecked ?? 0;
+
+  // blocking issues 决定 pass/fail；无 blocking 字段时按 error 数判断
+  const blockingIssues = (galaxyResult.issues || []).filter(i => i.blocking === true);
+  const status = blockingIssues.length > 0
+    ? 'fail'
+    : (errorCount > 0 ? 'partial' : 'pass');
+
+  const evidence = [{
+    check: 'galaxyChecker',
+    kind: 'galaxy-static-check',
+    summary: `${filesChecked} files checked, ${errorCount} errors, ${warningCount} warnings, ${blockingIssues.length} blocking`,
+    path: options.checkerPath,
+    details: {
+      filesChecked,
+      errorCount,
+      warningCount,
+      blockingCount: blockingIssues.length,
+      compositionId: galaxyResult.compositionId,
+      contextLoaded: galaxyResult.contextLoaded,
+    },
+  }];
+
+  const failures = blockingIssues.slice(0, 20).map(i => ({
+    check: 'galaxyChecker',
+    message: `${i.file}:${i.line} [${i.ruleCode}] ${i.message}`,
+    severity: 'error',
+    source: 'galaxy-checker',
+  }));
+
+  return { checks: { galaxyChecker: status }, evidence, failures };
+}
+
+/**
+ * 从 DocumentHeader/DocumentInfo roundtrip 结果聚合证据。
+ *
+ * @param {object} roundtripResult - { valid: boolean, originalDeps: string[], infoDeps: string[], errors: string[] }
+ * @param {object} options - { mapPath }
+ * @returns {{ checks: object, evidence: object[], failures: object[] }}
+ */
+export function aggregateFromDocumentRoundtrip(roundtripResult, options = {}) {
+  const status = roundtripResult.valid ? 'pass' : 'fail';
+
+  const evidence = [{
+    check: 'documentRoundtrip',
+    kind: 'document-dependency-roundtrip',
+    summary: roundtripResult.valid
+      ? `DocumentHeader/Info roundtrip 通过 (header: ${roundtripResult.originalDeps?.length ?? 0} deps, info: ${roundtripResult.infoDeps?.length ?? 0} deps)`
+      : `DocumentHeader/Info roundtrip 失败：${roundtripResult.errors?.length ?? 0} 个错误`,
+    path: options.mapPath,
+    details: {
+      headerDepCount: roundtripResult.originalDeps?.length ?? 0,
+      infoDepCount: roundtripResult.infoDeps?.length ?? 0,
+      errorCount: roundtripResult.errors?.length ?? 0,
+    },
+  }];
+
+  const failures = roundtripResult.valid
+    ? []
+    : (roundtripResult.errors || []).map(e => ({
+        check: 'documentRoundtrip',
+        message: e,
+        severity: 'error',
+        source: 'document-dependencies',
+      }));
+
+  return { checks: { documentRoundtrip: status }, evidence, failures };
+}
+
+/**
  * 合并多个聚合结果到一个 report。
  *
  * @param {object} report - 待合并入的 VerificationReport（会被修改）

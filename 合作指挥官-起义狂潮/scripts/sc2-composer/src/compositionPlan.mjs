@@ -31,11 +31,21 @@ export const DEPENDENCY_LAYERS = [
   { layer: 'L8', name: '地图本地 GameData、Triggers 和生成 bootstrap', source: 'map-local' },
 ];
 
-/** 必填顶层字段 */
-const REQUIRED_FIELDS = ['schemaVersion', 'compositionId', 'mapProfile', 'slots'];
+/** 必填顶层字段（旧 schema: compositionId/mapProfile/slots） */
+const REQUIRED_FIELDS_LEGACY = ['schemaVersion', 'compositionId', 'mapProfile', 'slots'];
+
+/** 必填顶层字段（新 schema: planId/map/commanderSlots/dependencies/bootstrap，对齐 CompositionPlan.schema.json） */
+const REQUIRED_FIELDS_NEW = ['schemaVersion', 'planId', 'map', 'commanderSlots', 'dependencies', 'conflictResolution', 'bankConfig', 'victoryCondition', 'defeatCondition', 'bootstrap'];
 
 /**
  * 校验 CompositionPlan 结构。
+ *
+ * 支持两种格式：
+ *   - 新 schema（CompositionPlan.schema.json）：planId/map/commanderSlots/dependencies/bootstrap
+ *   - 旧 schema（过渡期）：compositionId/mapProfile/slots
+ *
+ * 格式由 planId 字段存在性自动检测。generateCompositionPlan() 产出新格式，
+ * 旧格式仍被 resolveDependencies 及其测试使用，过渡期两种格式共存。
  *
  * @param {any} plan - 待校验的 CompositionPlan 对象
  * @returns {{ valid: boolean, errors: string[] }}
@@ -48,8 +58,12 @@ export function validatePlan(plan) {
     return { valid: false, errors: ['CompositionPlan 必须是对象'] };
   }
 
+  // 检测格式：新 schema 有 planId，旧 schema 有 compositionId
+  const isNewFormat = 'planId' in plan;
+  const requiredFields = isNewFormat ? REQUIRED_FIELDS_NEW : REQUIRED_FIELDS_LEGACY;
+
   // 必填字段
-  for (const field of REQUIRED_FIELDS) {
+  for (const field of requiredFields) {
     if (!(field in plan)) errors.push(`缺少必填字段: ${field}`);
   }
 
@@ -58,66 +72,100 @@ export function validatePlan(plan) {
     errors.push(`schemaVersion 必须为 ${PLAN_SCHEMA_VERSION}，实际为 ${plan.schemaVersion}`);
   }
 
-  // compositionId
-  if (plan.compositionId !== undefined) {
-    if (typeof plan.compositionId !== 'string' || plan.compositionId.length === 0) {
-      errors.push('compositionId 必须是非空字符串');
-    }
-  }
-
-  // mapProfile
-  if (plan.mapProfile !== undefined) {
-    if (typeof plan.mapProfile !== 'string' || plan.mapProfile.length === 0) {
-      errors.push('mapProfile 必须是非空字符串');
-    }
-  }
-
-  // slots：对象，键为数字字符串，值包含 commander
-  if (plan.slots !== undefined) {
-    if (typeof plan.slots !== 'object' || plan.slots === null || Array.isArray(plan.slots)) {
-      errors.push('slots 必须是对象（slotIndex -> slot 描述）');
-    } else {
-      const slotKeys = Object.keys(plan.slots);
-      if (slotKeys.length === 0) {
-        errors.push('slots 不能为空');
-      }
-      for (const slotKey of slotKeys) {
-        if (!/^\d+$/.test(slotKey)) {
-          errors.push(`slots 键 "${slotKey}" 必须是数字字符串`);
-        }
-        const slot = plan.slots[slotKey];
-        if (typeof slot !== 'object' || slot === null || Array.isArray(slot)) {
-          errors.push(`slots.${slotKey} 必须是对象`);
-          continue;
-        }
-        if (!slot.commander || typeof slot.commander !== 'string') {
-          errors.push(`slots.${slotKey}.commander 缺失或非字符串`);
-        }
-        if (slot.adapter !== undefined && typeof slot.adapter !== 'string') {
-          errors.push(`slots.${slotKey}.adapter 必须是字符串`);
-        }
+  if (isNewFormat) {
+    // === 新 schema 校验（对齐 CompositionPlan.schema.json）===
+    if (plan.planId !== undefined) {
+      if (typeof plan.planId !== 'string' || plan.planId.length === 0) {
+        errors.push('planId 必须是非空字符串');
       }
     }
-  }
 
-  // 可选字段类型检查
-  if (plan.dependencyLayers !== undefined && !Array.isArray(plan.dependencyLayers)) {
-    errors.push('dependencyLayers 必须是数组');
-  }
-  if (plan.capabilities !== undefined && (typeof plan.capabilities !== 'object' || plan.capabilities === null || Array.isArray(plan.capabilities))) {
-    errors.push('capabilities 必须是对象');
-  }
-  if (plan.catalogDecisions !== undefined && !Array.isArray(plan.catalogDecisions)) {
-    errors.push('catalogDecisions 必须是数组');
-  }
-  if (plan.localPatches !== undefined && !Array.isArray(plan.localPatches)) {
-    errors.push('localPatches 必须是数组');
-  }
-  if (plan.generatedBootstrap !== undefined && typeof plan.generatedBootstrap !== 'string') {
-    errors.push('generatedBootstrap 必须是字符串');
-  }
-  if (plan.validation !== undefined && (typeof plan.validation !== 'object' || plan.validation === null || Array.isArray(plan.validation))) {
-    errors.push('validation 必须是对象');
+    if (plan.map !== undefined) {
+      if (typeof plan.map !== 'object' || plan.map === null || Array.isArray(plan.map)) {
+        errors.push('map 必须是对象');
+      }
+    }
+
+    if (plan.commanderSlots !== undefined) {
+      if (!Array.isArray(plan.commanderSlots) || plan.commanderSlots.length === 0) {
+        errors.push('commanderSlots 必须是非空数组');
+      }
+    }
+
+    if (plan.dependencies !== undefined) {
+      if (typeof plan.dependencies !== 'object' || plan.dependencies === null || Array.isArray(plan.dependencies)) {
+        errors.push('dependencies 必须是对象');
+      }
+    }
+
+    if (plan.bootstrap !== undefined) {
+      if (typeof plan.bootstrap !== 'object' || plan.bootstrap === null || Array.isArray(plan.bootstrap)) {
+        errors.push('bootstrap 必须是对象');
+      }
+      if (plan.bootstrap && !Array.isArray(plan.bootstrap.galaxyIncludes)) {
+        errors.push('bootstrap.galaxyIncludes 必须是数组');
+      }
+    }
+  } else {
+    // === 旧 schema 校验（过渡期兼容）===
+    if (plan.compositionId !== undefined) {
+      if (typeof plan.compositionId !== 'string' || plan.compositionId.length === 0) {
+        errors.push('compositionId 必须是非空字符串');
+      }
+    }
+
+    if (plan.mapProfile !== undefined) {
+      if (typeof plan.mapProfile !== 'string' || plan.mapProfile.length === 0) {
+        errors.push('mapProfile 必须是非空字符串');
+      }
+    }
+
+    if (plan.slots !== undefined) {
+      if (typeof plan.slots !== 'object' || plan.slots === null || Array.isArray(plan.slots)) {
+        errors.push('slots 必须是对象（slotIndex -> slot 描述）');
+      } else {
+        const slotKeys = Object.keys(plan.slots);
+        if (slotKeys.length === 0) {
+          errors.push('slots 不能为空');
+        }
+        for (const slotKey of slotKeys) {
+          if (!/^\d+$/.test(slotKey)) {
+            errors.push(`slots 键 "${slotKey}" 必须是数字字符串`);
+          }
+          const slot = plan.slots[slotKey];
+          if (typeof slot !== 'object' || slot === null || Array.isArray(slot)) {
+            errors.push(`slots.${slotKey} 必须是对象`);
+            continue;
+          }
+          if (!slot.commander || typeof slot.commander !== 'string') {
+            errors.push(`slots.${slotKey}.commander 缺失或非字符串`);
+          }
+          if (slot.adapter !== undefined && typeof slot.adapter !== 'string') {
+            errors.push(`slots.${slotKey}.adapter 必须是字符串`);
+          }
+        }
+      }
+    }
+
+    // 可选字段类型检查（旧 schema）
+    if (plan.dependencyLayers !== undefined && !Array.isArray(plan.dependencyLayers)) {
+      errors.push('dependencyLayers 必须是数组');
+    }
+    if (plan.capabilities !== undefined && (typeof plan.capabilities !== 'object' || plan.capabilities === null || Array.isArray(plan.capabilities))) {
+      errors.push('capabilities 必须是对象');
+    }
+    if (plan.catalogDecisions !== undefined && !Array.isArray(plan.catalogDecisions)) {
+      errors.push('catalogDecisions 必须是数组');
+    }
+    if (plan.localPatches !== undefined && !Array.isArray(plan.localPatches)) {
+      errors.push('localPatches 必须是数组');
+    }
+    if (plan.generatedBootstrap !== undefined && typeof plan.generatedBootstrap !== 'string') {
+      errors.push('generatedBootstrap 必须是字符串');
+    }
+    if (plan.validation !== undefined && (typeof plan.validation !== 'object' || plan.validation === null || Array.isArray(plan.validation))) {
+      errors.push('validation 必须是对象');
+    }
   }
 
   return { valid: errors.length === 0, errors };

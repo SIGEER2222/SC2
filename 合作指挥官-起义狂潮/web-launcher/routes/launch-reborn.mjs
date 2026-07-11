@@ -24,6 +24,8 @@ router.post('/reborn-launch', (req, res) => {
   const request = req.body || {};
   const commander = String(request.commander || '').trim();
   const mapName = String(request.mapName || '').trim();
+  const dryRun = Boolean(request.dryRun);
+  const noLaunch = Boolean(request.noLaunch);
 
   if (!commander) {
     return res.status(400).json({ ok: false, error: '缺少 commander 参数' });
@@ -38,6 +40,12 @@ router.post('/reborn-launch', (req, res) => {
 
   if (mapName) {
     args.push('-MapName', mapName);
+  }
+  if (dryRun) {
+    args.push('-DryRun');
+  }
+  if (noLaunch) {
+    args.push('-NoLaunch');
   }
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '-').slice(0, 19);

@@ -5,18 +5,21 @@
 .DESCRIPTION
   1. (optional) CheckOnly: validate config + plan, no writes
   2. (optional) DryRun: compute plan + emit baseline report, no writes/launch
-  3. Stop SC2
-  4. Sync Reborn mod + 7vs1 CoreRuntime/CommanderBridge/CommanderUnits to live
-  5. Write CampaignXCore Bank (commander selection)
-  6. Launch map with SC2Switcher
-  7. Run wait-for-game-ready.ps1
+  3. (optional) -Plan: consume sc2-composer CompositionPlan.json as execution source
+  4. Stop SC2
+  5. Sync Reborn mod + 7vs1 CoreRuntime/CommanderBridge/CommanderUnits to live
+  6. Write CampaignXCore Bank (commander selection)
+  7. Launch map with SC2Switcher
+  8. Run wait-for-game-ready.ps1
 
   Uses shared modules from scripts/sc2-launcher/ and config from Shared/Launcher/.
+  When -Plan is provided, execution parameters (mods, galaxy injection, document deps)
+  are read from the CompositionPlan.json instead of computed from -Commander/-MapName.
 #>
 param(
-    [Parameter(Mandatory=$true)]
     [string]$Commander,
     [string]$MapName = "zexpedition03_reborn_port.SC2Map",
+    [string]$Plan,
     [switch]$NoLaunch,
     [switch]$SkipWait,
     [switch]$DryRun,
@@ -52,10 +55,33 @@ function Convert-TestCommanderToCommanderPowerKey {
 $rebornConfig = Import-LauncherConfig -Name "reborn-dependencies"
 $alengerConfig = Import-LauncherConfig -Name "alenger-mods"
 
-# === Main flow ===
-Write-Host "=== Reborn Commander Launcher ==="
-Write-Host "Commander: $Commander"
-Write-Host "Map: $MapName"
+# === -Plan mode: consume CompositionPlan.json ===
+$planMode = $false
+$planExec = $null
+if ($Plan) {
+    if (-not (Test-Path -LiteralPath $Plan)) {
+        Write-Host "ERROR: CompositionPlan not found: $Plan"
+        exit 1
+    }
+    $planExec = Read-CompositionPlan -PlanPath $Plan -ProjRoot $ProjRoot
+    # Override Commander/MapName from plan
+    $Commander = $planExec.commander
+    $MapName = $planExec.mapName
+    $MapLivePath = Join-Path $Sc2Root "Maps\$MapName"
+    $planMode = $true
+    Write-Host "=== Reborn Commander Launcher (Plan mode) ==="
+    Write-Host "Plan: $Plan"
+    Write-Host "Commander: $Commander (from plan)"
+    Write-Host "Map: $MapName (from plan)"
+} else {
+    if (-not $Commander) {
+        Write-Host "ERROR: -Commander is required when -Plan is not specified"
+        exit 1
+    }
+    Write-Host "=== Reborn Commander Launcher ==="
+    Write-Host "Commander: $Commander"
+    Write-Host "Map: $MapName"
+}
 if ($DryRun)   { Write-Host "Mode: DryRun (no writes, no launch)" }
 if ($CheckOnly) { Write-Host "Mode: CheckOnly (config + plan validation, no writes)" }
 
@@ -70,7 +96,19 @@ Write-Host "CONFIG VALID"
 
 # === Compute launcher plan ===
 $plan = New-LauncherPlan -Commander $Commander -MapName $MapName -ProjRoot $ProjRoot -Sc2Root $Sc2Root
-$plan.validation.configSchema = "pass"
+# PS 5.1 compatibility: ensure validation object exists and properties are settable
+if ($null -eq $plan.validation) {
+    $plan | Add-Member -NotePropertyName validation -NotePropertyValue ([PSCustomObject]@{
+        configSchema      = "pass"
+        documentRoundtrip = "pending"
+        galaxyChecker     = "pending"
+        runtimeSmoke      = "pending"
+    }) -Force
+} elseif ($null -eq $plan.validation.configSchema) {
+    $plan.validation | Add-Member -NotePropertyName configSchema -NotePropertyValue "pass" -Force
+} else {
+    $plan.validation.configSchema = "pass"
+}
 
 # === CheckOnly: emit plan + exit ===
 if ($CheckOnly) {
@@ -175,15 +213,25 @@ Stop-RunningSc2
 Clear-GameLogs
 
 # --- MOD SYNC SECTION ---
-# Sync Reborn base + bridge + 7vs1 core + shared mods (from config)
-Sync-ModSet -ModRelPaths $rebornConfig.baseMods -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+if ($planMode) {
+    # Plan mode: sync mods from plan.modSyncList
+    Write-Host "MOD SYNC (plan-driven): $($planExec.modSyncList.Count) mods"
+    Sync-ModSet -ModRelPaths $planExec.modSyncList -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+    $selectedCommanderUnitsMod = $planExec.selectedCommanderUnitsMod
+} else {
+    # Legacy mode: sync from config
+    Sync-ModSet -ModRelPaths $rebornConfig.baseMods -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 
-# Sync only the selected commander's CommanderUnits mod (on-demand loading).
-# Galaxy files for ALL commanders are injected from workspace source later
-# (Sync-MapRuntimeLibraries) to satisfy LibE0EAE146.galaxy's hardcoded includes.
-$selectedCommanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
-if ($selectedCommanderUnitsMod) {
-    Sync-ModToLive -ModRelPath "7vs1\$selectedCommanderUnitsMod.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+    # Sync only the selected commander's CommanderUnits mod (on-demand loading).
+    # Galaxy files for ALL commanders are injected from workspace source later
+    # (Sync-MapRuntimeLibraries) to satisfy LibE0EAE146.galaxy's hardcoded includes.
+    $selectedCommanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
+    if ($selectedCommanderUnitsMod) {
+        Sync-ModToLive -ModRelPath "7vs1\$selectedCommanderUnitsMod.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+    }
+
+    # Sync full Alenger set (Catalog deps must match AdapterBootstrap includes)
+    Sync-ModSet -ModRelPaths $alengerConfig.mods -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 }
 
 # Remove unselected CommanderUnits mods from live directory (stale from previous runs)
@@ -192,9 +240,6 @@ if ($selectedCommanderUnitsMod) {
     $allowedCommanderUnits += "$selectedCommanderUnitsMod.SC2Mod"
 }
 Remove-StaleCommanderUnitsMods -Sc2Root $Sc2Root -AllowedModNames $allowedCommanderUnits
-
-# Sync only AlengerCommon (Alenger1-13 + Adapter galaxy files are injected into map)
-Sync-ModToLive -ModRelPath "7vs1\AlengerCommon.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 
 # Validate commander name
 if ($rebornConfig.validCommanders -notcontains $Commander) {
@@ -217,19 +262,29 @@ if (Test-Path $sourceMapBaseData) {
 # Clean stale runtime galaxy files (preserve map-owned source files)
 Clean-MapRuntimeLibraries -MapPath $MapLivePath -PreserveNames $preserveNames
 
-# Inject galaxy files from workspace (CommanderUnits + Alenger*Adapter, NOT CoreRuntime)
-Sync-MapRuntimeLibraries `
-    -MapPath $MapLivePath `
-    -ProjRoot $ProjRoot `
-    -SourcePatterns $rebornConfig.galaxyInjection.sourcePatterns `
-    -SourceRoot $rebornConfig.galaxyInjection.sourceRoot
+# Inject galaxy files
+if ($planMode) {
+    # Plan mode: manifest-driven injection (Priority 2)
+    Sync-MapRuntimeLibrariesFromManifest `
+        -MapPath $MapLivePath `
+        -ProjRoot $ProjRoot `
+        -GalaxyInjectionEntries $planExec.galaxyInjectionEntries
+} else {
+    # Legacy mode: directory-scan injection
+    Sync-MapRuntimeLibraries `
+        -MapPath $MapLivePath `
+        -ProjRoot $ProjRoot `
+        -SourcePatterns $rebornConfig.galaxyInjection.sourcePatterns `
+        -SourceRoot $rebornConfig.galaxyInjection.sourceRoot
+}
 
 # --- DEPENDENCY REWRITE SECTION ---
-# Build runtime dependency list: base deps + AlengerCommon + selected commander mod
-# Alenger1-13 + Adapter galaxy files are injected into map, no need for mod dependencies
-$runtimeDeps = @() + $rebornConfig.baseDependencyPaths + @("file:Mods/7vs1/AlengerCommon.SC2Mod")
-if ($selectedCommanderUnitsMod) {
-    $runtimeDeps += "file:Mods/7vs1/$selectedCommanderUnitsMod.SC2Mod"
+if ($planMode) {
+    # Plan mode: use document deps from plan
+    $runtimeDeps = $planExec.documentDeps
+} else {
+    # Legacy mode: use launcher plan document deps (base + full Alenger + commander)
+    $runtimeDeps = @($plan.documentRewrite.DocumentHeader)
 }
 Set-MapDependencies -MapPath $MapLivePath -Dependencies $runtimeDeps
 
@@ -243,7 +298,13 @@ if (-not $rtResult.Valid) {
     Write-Host "Aborting before launch - DocumentHeader/DocumentInfo may be corrupted"
     exit 1
 }
-$plan.validation.documentRoundtrip = "pass"
+if ($null -ne $plan.validation) {
+    if ($null -eq $plan.validation.documentRoundtrip) {
+        $plan.validation | Add-Member -NotePropertyName documentRoundtrip -NotePropertyValue "pass" -Force
+    } else {
+        $plan.validation.documentRoundtrip = "pass"
+    }
+}
 Write-Host "DOCUMENT ROUNDTRIP VALID (header deps: $($rtResult.OriginalDeps.Count), info deps: $($rtResult.InfoDeps.Count))"
 
 # Emit plan after execution (captures actual state post-rewrite)

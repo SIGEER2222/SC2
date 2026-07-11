@@ -13,6 +13,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
+import { classifyEntry } from './bootstrapGenerator.mjs';
 
 /** CompositionPlan 当前 schema 版本 */
 export const PLAN_SCHEMA_VERSION = 1;
@@ -186,7 +187,7 @@ export function generateCompositionPlan(options) {
     for (const entry of manifest.entries) {
       galaxyIncludes.push({
         path: entry.file,
-        purpose: entry.compatibilityOnly ? 'CompatibilityInclude' : (entry.owner === `Commander.${commander}` ? 'CommanderRuntime' : 'CompatibilityInclude'),
+        purpose: classifyEntry(entry, commander),
       });
     }
   } else {

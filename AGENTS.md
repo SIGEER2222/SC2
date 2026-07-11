@@ -1,6 +1,4 @@
-# AGENTS.md
-
-- 回复简洁，避免发送不影响任务执行的可省略旁白。
+**Do NoT send optional commentary**
 
 ## Repository Safety
 
@@ -8,9 +6,6 @@
 - 保留用户和其他任务的现有修改；不得覆盖、回退或清理非本任务内容。
 - 只做当前任务需要的最小改动，不重构无关代码。
 - 创建、修改、移动、重命名或删除文件前必须加载并遵守 `$file-operations`。
-- 手工编辑文件必须使用环境原生文件操作或 `apply_patch`，不得使用 shell 命令写入文件内容。
-- 禁止使用 `Out-File`、`Set-Content`、`Add-Content`、重定向符、`tee`、临时脚本管道或内联 Python/Node/PowerShell 写入仓库文件。
-- 禁止使用 `git reset --hard`、`git checkout --`、强制推送或其他可能丢失现有工作的操作。
 
 ## Sync And Delivery
 

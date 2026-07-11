@@ -417,62 +417,218 @@
   </div>
   </div>
   <div class="tab-content" data-tab-content="B" hidden>
-    <div id="scenario-cards"></div>
-    <div id="test-result-panel"></div>
+    <div class="app-shell modtest-shell">
+      <header class="topbar">
+        <div>
+          <h1>Mod 测试地图</h1>
+          <div id="modtestStatus" class="subtle">加载中</div>
+        </div>
+        <div class="top-actions">
+          <div class="action-group config-action-group" aria-label="配置操作">
+            <span>操作</span>
+            <button id="modtestRefreshButton" type="button" class="secondary">刷新</button>
+            <button id="modtestSyncAllButton" type="button" class="secondary" disabled>同步全部</button>
+            <button id="modtestStopSc2Button" type="button" class="secondary">停止 SC2</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="workspace modtest-workspace">
+        <section class="panel summary-panel" aria-label="Mod 测试概览">
+          <div class="panel-head">
+            <h2>测试概览</h2>
+            <div class="summary-actions">
+              <span id="modtestLastResult" class="badge">未测试</span>
+            </div>
+          </div>
+          <div class="summary-strip">
+            <div class="summary-items">
+              <div class="summary-item">
+                <span>场景数</span>
+                <strong id="modtestScenarioCount">0</strong>
+              </div>
+              <div class="summary-item">
+                <span>Mod 依赖</span>
+                <strong id="modtestModCount">0</strong>
+              </div>
+              <div class="summary-item">
+                <span>地图数</span>
+                <strong id="modtestMapCount">0</strong>
+              </div>
+              <div class="summary-item">
+                <span>当前筛选</span>
+                <strong id="modtestFilterSummary">全部</strong>
+              </div>
+            </div>
+            <div id="modtestIssues" class="config-issues status-ok" aria-live="polite">等待加载场景</div>
+          </div>
+        </section>
+
+        <section class="panel modtest-scenario-panel" aria-labelledby="modtestScenarioTitle">
+          <div class="panel-head">
+            <h2 id="modtestScenarioTitle">测试场景</h2>
+            <span id="modtestVisibleCount" class="badge">0</span>
+          </div>
+          <div class="modtest-tools">
+            <label class="search">
+              <span>搜索</span>
+              <input id="modtestSearch" type="search" autocomplete="off" placeholder="按名称、ID 或 mod 搜索">
+            </label>
+            <label class="field">
+              <span>类型</span>
+              <select id="modtestTypeFilter">
+                <option value="all">全部</option>
+                <option value="modtest">Mod 测试</option>
+              </select>
+            </label>
+            <button id="modtestClearFilters" type="button" class="secondary">清除筛选</button>
+          </div>
+          <div id="scenario-cards" class="scenario-grid"></div>
+        </section>
+
+        <section class="panel output-panel modtest-output-panel" aria-labelledby="modtestOutputTitle">
+          <div class="panel-head">
+            <h2 id="modtestOutputTitle">测试输出</h2>
+            <div class="output-actions">
+              <button id="modtestCopyOutputButton" type="button" class="mini" disabled>复制输出</button>
+              <button id="modtestClearOutputButton" type="button" class="mini">清空输出</button>
+              <span id="modtestLaunchState" class="badge">空闲</span>
+            </div>
+          </div>
+          <div id="test-result-panel" class="modtest-result-host"></div>
+          <pre id="modtestOutputLog" class="output-log">等待操作</pre>
+        </section>
+      </main>
+
+      <section class="bootstrap-strip modtest-bootstrap" aria-label="Mod 测试数据概览">
+        <div class="bootstrap-metric">
+          <span>场景</span>
+          <strong id="modtestBootstrapScenarioCount">0</strong>
+        </div>
+        <div class="bootstrap-metric">
+          <span>Mod</span>
+          <strong id="modtestBootstrapModCount">0</strong>
+        </div>
+        <div class="bootstrap-metric">
+          <span>地图</span>
+          <strong id="modtestBootstrapMapCount">0</strong>
+        </div>
+        <div class="bootstrap-resource">
+          <span>说明</span>
+          <strong id="modtestBootstrapHint">一键测试会先停止 SC2、同步 mod/地图，再启动并等待进图</strong>
+        </div>
+      </section>
+    </div>
   </div>
   <div class="tab-content" data-tab-content="C" hidden>
-    <div class="app-shell">
+    <div class="app-shell reborn-shell">
       <header class="topbar">
         <div>
           <h1>Reborn 战役指挥官</h1>
           <div id="rebornStatus" class="subtle">加载中</div>
         </div>
         <div class="top-actions">
-          <div class="action-group">
+          <div class="action-group config-action-group" aria-label="配置操作">
+            <span>配置</span>
+            <button id="rebornRefreshButton" type="button" class="secondary">刷新</button>
+          </div>
+          <div class="action-group launch-action-group" aria-label="启动操作">
+            <label class="toggle">
+              <input id="rebornDryRunToggle" type="checkbox">
+              <span>只安装不启动</span>
+            </label>
             <span id="rebornSummary" class="badge">未就绪</span>
             <button id="rebornLaunchButton" type="button" class="primary" disabled>启动 Reborn 战役</button>
             <span id="rebornLaunchState" class="subtle"></span>
           </div>
         </div>
       </header>
-      <section class="setup-grid">
-        <section class="panel commander-panel" aria-labelledby="rebornCommanderTitle">
-          <div class="panel-head">
-            <h2 id="rebornCommanderTitle">指挥官</h2>
-          </div>
-          <div id="rebornCommanderList" class="commander-gallery"></div>
-        </section>
-        <div class="setup-side">
-          <section class="panel">
+
+      <main class="workspace">
+        <section class="setup-grid">
+          <section class="panel commander-panel" aria-labelledby="rebornCommanderTitle">
             <div class="panel-head">
-              <h2>当前配置</h2>
-            </div>
-            <div class="summary-strip">
-              <div class="summary-items">
-                <div class="summary-item">
-                  <span>指挥官</span>
-                  <strong id="rebornSummaryCommander">-</strong>
-                </div>
-                <div class="summary-item">
-                  <span>地图</span>
-                  <strong id="rebornSummaryMap">-</strong>
-                </div>
+              <h2 id="rebornCommanderTitle">指挥官</h2>
+              <div class="mastery-head-actions">
+                <strong id="rebornCommanderCount" class="badge">0</strong>
               </div>
             </div>
+            <div id="rebornCommanderList" class="commander-gallery"></div>
           </section>
-          <section class="panel map-panel" aria-label="地图选择">
-            <div class="panel-head">
-              <h2>地图</h2>
+          <div class="setup-side">
+            <section class="panel summary-panel" aria-label="Reborn 当前配置">
+              <div class="panel-head">
+                <h2>当前配置</h2>
+                <div class="summary-actions">
+                  <span id="rebornValidationBadge" class="badge">未验证</span>
+                </div>
+              </div>
+              <div class="summary-strip">
+                <div class="summary-items">
+                  <div class="summary-item">
+                    <span>指挥官</span>
+                    <strong id="rebornSummaryCommander">-</strong>
+                  </div>
+                  <div class="summary-item">
+                    <span>地图</span>
+                    <strong id="rebornSummaryMap">-</strong>
+                  </div>
+                  <div class="summary-item">
+                    <span>地图文件</span>
+                    <strong id="rebornSummaryMapFile">-</strong>
+                  </div>
+                  <div class="summary-item">
+                    <span>模式</span>
+                    <strong id="rebornSummaryMode">启动</strong>
+                  </div>
+                </div>
+                <div id="rebornConfigIssues" class="config-issues status-ok" aria-live="polite">等待选择指挥官与地图</div>
+              </div>
+            </section>
+            <section class="panel map-panel" aria-label="地图选择">
+              <div class="panel-head">
+                <h2>地图</h2>
+                <strong id="rebornMapCount" class="badge">0</strong>
+              </div>
+              <div id="rebornMapList" class="quick-pick-list map-quick-list map-gallery"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="panel output-panel reborn-output-panel" aria-labelledby="rebornOutputTitle">
+          <div class="panel-head">
+            <h2 id="rebornOutputTitle">输出</h2>
+            <div class="output-actions">
+              <button id="rebornCopyOutputButton" type="button" class="mini" disabled>复制输出</button>
+              <button id="rebornCopyLogPathsButton" type="button" class="mini" disabled>复制日志路径</button>
+              <button id="rebornClearOutputButton" type="button" class="mini">清空输出</button>
             </div>
-            <div id="rebornMapList" class="quick-pick-list map-quick-list map-gallery"></div>
-          </section>
+          </div>
+          <div class="log-path-strip" aria-label="Reborn 日志路径">
+            <span id="rebornStdoutPathText">标准输出：-</span>
+            <span id="rebornStderrPathText">错误输出：-</span>
+          </div>
+          <pre id="rebornOutput" class="output-log">等待操作</pre>
+        </section>
+      </main>
+
+      <section class="bootstrap-strip reborn-bootstrap" aria-label="Reborn 数据概览">
+        <div class="bootstrap-metric">
+          <span>指挥官</span>
+          <strong id="rebornBootstrapCommanderCount">0</strong>
         </div>
-      </section>
-      <section class="panel">
-        <div class="panel-head">
-          <h2>输出日志</h2>
+        <div class="bootstrap-metric">
+          <span>地图</span>
+          <strong id="rebornBootstrapMapCount">0</strong>
         </div>
-        <pre id="rebornOutput" class="output-log"></pre>
+        <div class="bootstrap-resource">
+          <span>启动脚本</span>
+          <strong id="rebornBootstrapScript">scripts/reborn/launch-reborn-commander.ps1</strong>
+        </div>
+        <div class="bootstrap-resource">
+          <span>说明</span>
+          <strong id="rebornBootstrapHint">同步 Reborn mod 与 7vs1 指挥官桥接后，写入 Bank 并启动战役地图</strong>
+        </div>
       </section>
     </div>
   </div>
