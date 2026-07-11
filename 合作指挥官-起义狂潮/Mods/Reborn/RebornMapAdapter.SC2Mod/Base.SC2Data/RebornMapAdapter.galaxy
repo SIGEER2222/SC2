@@ -1,36 +1,22 @@
 // RebornMapAdapter - Galaxy adapter for Reborn HotS maps
-// Provides lifecycle hooks and campaign API compatibility stubs
-//
-// Design ref: docs/指挥官地图组合框架设计.md section 4.5 MapAdapter
-// This adapter bridges Reborn campaign maps to the composition framework.
-// It provides hook points after Technology/Players/Units initialization,
-// and wraps victory/defeat to avoid calling restricted campaign natives.
 
 include "TriggerLibs/NativeLib"
+include "RebornMapAdapter_h"
 include "LibE0EAE146_h"
 
-// ============================================================
-// State
-// ============================================================
-
-bool libRebornAdapter_initialized = false;
-bool libRebornAdapter_gameOver = false;
-
-// 指挥官玩家组：包含所有已注册的指挥官玩家
-playergroup libRebornAdapter_commanderPlayers;
-
-// 每个 player 的指挥官 ID（空字符串表示未注册）
-string libRebornAdapter_commanderSlot[16];
-
-// ============================================================
-// Commander Slot API
-// ============================================================
-
-// 默认指挥官（Bank 读取失败时使用）
 string libRebornAdapter_DEFAULT_COMMANDER = "TerranRaynor";
 
-// 从 CampaignXCore Bank 读取 player 槽位的指挥官 ID。
-// 优先读 XMRuntimeControl/CommanderP<slot>，回退到 PrimaryCommander，再回退默认值。
+void libRebornAdapter_SetMapScenarioId (string mapScenarioId) {
+    libRebornAdapter_mapScenarioId = mapScenarioId;
+}
+
+// 非 Kerrigan 指挥官时跳过战役原生英雄与开场动画。
+bool libRebornAdapter_ShouldSkipNativeCampaignHero () {
+    string lv_commander;
+    lv_commander = libRebornAdapter_ReadCommanderFromBank(1);
+    return (lv_commander != "Kerrigan");
+}
+
 string libRebornAdapter_ReadCommanderFromBank (int player) {
     bank lv_bank;
     string lv_commander;
@@ -40,19 +26,16 @@ string libRebornAdapter_ReadCommanderFromBank (int player) {
         return libRebornAdapter_DEFAULT_COMMANDER;
     }
 
-    // 尝试读取按槽位存储的指挥官
     lv_commander = BankValueGetAsString(lv_bank, "XMRuntimeControl", "CommanderP" + IntToString(player));
     if (lv_commander != "") {
         return lv_commander;
     }
 
-    // 回退到 PrimaryCommander
     lv_commander = BankValueGetAsString(lv_bank, "XMRuntimeControl", "PrimaryCommander");
     if (lv_commander != "") {
         return lv_commander;
     }
 
-    // 回退到 Ach/Commander
     lv_commander = BankValueGetAsString(lv_bank, "Ach", "Commander");
     if (lv_commander != "") {
         return lv_commander;
@@ -61,54 +44,39 @@ string libRebornAdapter_ReadCommanderFromBank (int player) {
     return libRebornAdapter_DEFAULT_COMMANDER;
 }
 
-// 注册某 player 的指挥官 ID
 void libRebornAdapter_RegisterCommanderSlot (int player, string commanderId) {
     if (player < 0 || player >= 16) { return; }
     libRebornAdapter_commanderSlot[player] = commanderId;
 }
 
-// 返回某 player 的指挥官 ID，未注册时返回空字符串
 string libRebornAdapter_GetCommanderForPlayer (int player) {
     if (player < 0 || player >= 16) { return ""; }
     return libRebornAdapter_commanderSlot[player];
 }
 
-// 返回指挥官玩家组
 playergroup libRebornAdapter_CommanderPlayers () {
     return libRebornAdapter_commanderPlayers;
 }
 
-// ============================================================
-// Lifecycle Hooks
-// ============================================================
-
-// Called once at map initialization (from InitLibs)
 void libRebornAdapter_InitLib () {
     libRebornAdapter_initialized = true;
     libRebornAdapter_gameOver = false;
     libRebornAdapter_commanderPlayers = PlayerGroupEmpty();
+    libRebornAdapter_mapScenarioId = "";
 }
 
-// Called after Init01Technology completes.
-// 占位：为 player 1 解锁基础科技
 void libRebornAdapter_OnAfterTechnologyInit () {
     int lv_player;
     lv_player = -1;
     while (true) {
         lv_player = PlayerGroupNextPlayer(PlayerGroupAll(), lv_player);
         if (lv_player < 0) { break; }
-        // 占位：目前只处理 player 1
         if (lv_player == 1) {
-            // 占位实现：未来在此叠加选中指挥官的科技
             TechTreeUpgradeAllow(lv_player, "HotSRapidRegeneration", true);
         }
     }
 }
 
-// Called after Init02Players completes.
-// 从 CampaignXCore Bank 读取实际选中的指挥官 ID，写回 PrimaryCommander 并注册 player 1。
-// 必须写回 Bank，因为 CoreRuntime 的 RuntimePrimaryCommander 只读 PrimaryCommander/Ach/Commander，
-// 不读 CommanderP1。
 void libRebornAdapter_OnAfterPlayersInit () {
     string lv_commander;
     bank lv_bank;
@@ -117,7 +85,6 @@ void libRebornAdapter_OnAfterPlayersInit () {
     libRebornAdapter_RegisterCommanderSlot(1, lv_commander);
     PlayerGroupAdd(libRebornAdapter_commanderPlayers, 1);
 
-    // 写回 PrimaryCommander 和 Ach/Commander，让 CoreRuntime 的 RuntimePrimaryCommander 能读到
     lv_bank = BankLoad("CampaignXCore", 1);
     if (lv_bank != null) {
         BankValueSetFromString(lv_bank, "XMRuntimeControl", "PrimaryCommander", lv_commander);
@@ -126,60 +93,27 @@ void libRebornAdapter_OnAfterPlayersInit () {
     }
 }
 
-// Called after Init03Units completes.
-// 调用 CoreRuntime 的 Initialize + CommanderRuntimeInit，让选中指挥官真正生效。
-// CommanderRuntimeInit 内部会根据 commander ID 分发到对应指挥官的 RuntimeInit，
-// 执行 ApplyTechFilter + 英雄创建 + Talent 应用等。
 void libRebornAdapter_OnAfterUnitsInit () {
-    point lv_startPoint;
-    string lv_commander;
-
-    lv_startPoint = PlayerStartLocation(1);
-    lv_commander = libRebornAdapter_GetCommanderForPlayer(1);
-
-    // 初始化 CoreRuntime（设置 gv_commander、console skin 等）
     libE0EAE146_gf_Initialize(true);
-
-    // 分发到选中指挥官的 RuntimeInit（执行科技过滤、英雄创建、Talent 应用）
-    libE0EAE146_gf_CommanderRuntimeInit(1, lv_commander, lv_startPoint, true);
+    if (libRebornAdapter_mapScenarioId != "") {
+        libE0EAE146_gf_InitializeMapBaseScenario(libRebornAdapter_mapScenarioId);
+    }
 }
 
-// ============================================================
-// Victory / Defeat Wrappers
-// ============================================================
-
-// Called when the map's victory sequence reaches final结算.
-// Replaces libSwaC_gf_EndCampaignMission(1, c_gameOverVictory)
-// which calls restricted campaign natives.
 void libRebornAdapter_TriggerVictory () {
     if (libRebornAdapter_gameOver) { return; }
     libRebornAdapter_gameOver = true;
     GameOver(1, c_gameOverVictory, true, false);
 }
 
-// Called when the map's defeat sequence reaches final结算.
-// Replaces libSwaC_gf_EndCampaignMission(1, c_gameOverDefeat)
 void libRebornAdapter_TriggerDefeat () {
     if (libRebornAdapter_gameOver) { return; }
     libRebornAdapter_gameOver = true;
     GameOver(1, c_gameOverDefeat, true, false);
 }
 
-// ============================================================
-// Message Helpers
-// ============================================================
-
-// Replaces libSwaC_gf_DisplayCampaignMessage for simple mission messages
 void libRebornAdapter_DisplayMissionMessage (playergroup pg, string message) {
-    // Stub: messages are handled by map's own triggers
 }
 
-// ============================================================
-// Player Registration
-// ============================================================
-
-// Register player 1 as the commander player.
-// Future: this is where MapAdapter_CommanderPlayers() will return the group.
 void libRebornAdapter_RegisterPlayer1 () {
-    // Currently a no-op; map already sets up player 1
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "map-family-dependencies.schema.json",
-  "description": "Reborn map family dependency configuration. Defines base mods, galaxy injection sources, and dependency ordering for the Reborn (zexpedition) map family.",
+  "description": "Reborn map family dependency configuration. Campaign deps are per-map via mapCampaigns. Alenger deps are per-commander via commanderToAlenger.",
   "family": "reborn",
   "baseMods": [
     "crys_the_swarm_reborn.SC2Mod",
@@ -18,9 +18,6 @@
     "7vs1\\ExternalRefs.SC2Mod"
   ],
   "baseDependencyPaths": [
-    "bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign",
-    "bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod",
-    "bnet:Void Story (Campaign)/0.0/999,file:Campaigns/VoidStory.SC2Campaign",
     "file:Mods/crys_the_swarm_reborn.SC2Mod",
     "file:Mods/RebornBridge.SC2Mod",
     "file:Mods/RebornMapAdapter.SC2Mod",
@@ -31,17 +28,28 @@
     "file:Mods/7vs1/SharedUnits.SC2Mod",
     "file:Mods/7vs1/ExternalRefs.SC2Mod"
   ],
+  "mapCampaigns": {
+    "zexpedition03_reborn_port": [
+      "bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign",
+      "bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod",
+      "bnet:Void Story (Campaign)/0.0/999,file:Campaigns/VoidStory.SC2Campaign"
+    ],
+    "zevolutionbaneling2_reborn_port": [
+      "bnet:Void Story (Campaign)/0.0/999,file:Campaigns/VoidStory.SC2Campaign"
+    ]
+  },
   "galaxyInjection": {
-    "description": "Galaxy files injected from workspace to map Base.SC2Data. CoreRuntime galaxy files are NOT injected (loaded via mod chain). Only CommanderUnits and Alenger*Adapter galaxy files are injected to satisfy LibE0EAE146.galaxy hardcoded includes.",
+    "description": "Galaxy files injected from workspace to map Base.SC2Data. Alenger*Adapter galaxy files are NOT injected — they resolve via mod dependency chain when the selected Alenger mod is synced.",
     "sourcePatterns": [
-      "CommanderUnits_*.SC2Mod",
-      "Alenger*Adapter.SC2Mod"
+      "CommanderUnits_*.SC2Mod"
     ],
     "sourceRoot": "Mods\\7vs1"
   },
   "validCommanders": [
     "TerranRaynor", "TerranNova", "TerranSwann", "TerranHorner", "TerranMengsk", "TerranTychus",
     "ZergKerrigan", "ZergAbathur", "ZergZagara", "ZergStukov", "ZergDehaka", "ZergStetmann",
-    "ProtossArtanis", "ProtossVorazun", "ProtossKarax", "ProtossFenix", "ProtossAlarak", "ProtossZeratul"
+    "ProtossArtanis", "ProtossVorazun", "ProtossKarax", "ProtossFenix", "ProtossAlarak", "ProtossZeratul",
+    "TerranAlenger1", "TerranAlenger2", "TerranAlenger3", "TerranAlenger6", "TerranAlenger7",
+    "TerranAlenger8", "TerranAlenger9", "TerranAlenger10", "TerranAlenger11", "TerranAlenger12", "TerranAlenger13"
   ]
 }

@@ -2955,8 +2955,7 @@ async function initRebornTab(forceReload = false) {
       rebornState.selectedCommander = rebornState.commanders[0].runtime;
     }
 
-    renderRebornCommanders();
-    renderRebornMaps();
+    renderRebornPickers();
     updateRebornSummary();
     updateRebornLaunchButton();
     rebornStatus.textContent = `已加载 ${rebornState.commanders.length} 个指挥官, ${rebornState.maps.length} 张地图`;
@@ -2972,101 +2971,51 @@ async function initRebornTab(forceReload = false) {
   rebornLaunchButton.addEventListener('click', launchRebornGame);
 }
 
-function renderRebornCommanders() {
-  const container = document.getElementById('rebornCommanderList');
-  if (!container) return;
-  container.replaceChildren();
-  const commanders = rebornState.commanders || [];
-  if (commanders.length === 0) {
-    container.textContent = '无指挥官数据';
-    return;
-  }
-  const raceOrder = ['Terran', 'Protoss', 'Zerg', 'Other'];
-  const raceGroups = new Map(raceOrder.map(r => [r, []]));
-  for (const cmd of commanders) {
-    const race = getCommanderRaceSimple(cmd.runtime);
-    const bucket = raceGroups.get(race) || raceGroups.get('Other');
-    bucket.push(cmd);
-  }
-  for (const race of raceOrder) {
-    const group = raceGroups.get(race) || [];
-    if (group.length === 0) continue;
-    const section = document.createElement('section');
-    section.className = 'commander-race-group';
-    section.dataset.race = race;
-    const heading = document.createElement('h3');
-    heading.className = 'commander-race-label';
-    heading.textContent = { Terran: '人类', Protoss: '星灵', Zerg: '异虫', Other: '其他' }[race];
-    section.append(heading);
-    for (const cmd of group) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'commander-card';
-      btn.dataset.runtime = cmd.runtime;
-      if (rebornState.selectedCommander === cmd.runtime) {
-        btn.classList.add('selected');
-      }
-      // 复用 7vs1 tab 的图标加载逻辑
-      const art = cmd.image
-        ? `<img src="${escapeHtml(cmd.image)}" alt="${escapeHtml(cmd.displayName || cmd.runtime)}">`
-        : `<span class="commander-card-fallback">${escapeHtml(initials(cmd.displayName || cmd.runtime))}</span>`;
-      const raceLabel = { Terran: '人类', Protoss: '星灵', Zerg: '异虫', Other: '其他' }[race];
-      btn.innerHTML = `
-        <span class="commander-card-art">${art}</span>
-        <span class="commander-card-body">
-          <span class="commander-card-top">
-            <strong>${escapeHtml(cmd.displayName || cmd.runtime)}</strong>
-            <em>${escapeHtml(cmd.runtime)}</em>
-          </span>
-          <span class="commander-card-badges">
-            <em>${escapeHtml(raceLabel)}</em>
-          </span>
-        </span>
-      `;
-      btn.addEventListener('click', () => {
-        rebornState.selectedCommander = cmd.runtime;
-        renderRebornCommanders();
-        updateRebornSummary();
-        updateRebornLaunchButton();
-      });
-      section.append(btn);
-    }
-    container.append(section);
-  }
-}
+function renderRebornPickers() {
+  const commanderContainer = document.getElementById('rebornCommanderList');
+  const mapContainer = document.getElementById('rebornMapList');
+  const commanderCountElement = document.getElementById('rebornCommanderCount');
+  if (!commanderContainer || !mapContainer) return;
 
-function renderRebornMaps() {
-  const container = document.getElementById('rebornMapList');
-  if (!container) return;
-  container.replaceChildren();
-  const maps = rebornState.maps || [];
-  if (maps.length === 0) {
-    container.textContent = '无地图数据';
-    return;
-  }
-  for (const map of maps) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'map-card quick-pick-item';
-    if (rebornState.selectedMapId === map.id) {
-      btn.classList.add('selected');
-    }
-    btn.innerHTML = `
-      <span class="quick-pick-icon map-card-icon">${escapeHtml(initials(map.mapName || map.id))}</span>
-      <span class="map-card-copy">
-        <strong>${escapeHtml(map.mapName || map.id)}</strong>
-        <em>${escapeHtml(map.id)}</em>
-      </span>
-    `;
-    btn.addEventListener('click', () => {
-      rebornState.selectedMapId = map.id;
-      rebornState.selectedMapFile = map.mapFile;
-      renderRebornMaps();
+  const commanders = rebornState.commanders || [];
+  const maps = (rebornState.maps || []).map((map) => ({
+    ...map,
+    title: map.mapName || map.id,
+    displayName: map.mapName || map.id,
+  }));
+
+  renderQuickPickersComponent({
+    commanderContainer,
+    mapContainer,
+    commanderCountElement,
+    commanders,
+    allCommandersCount: commanders.length,
+    maps,
+    selectedCommanderRuntime: rebornState.selectedCommander,
+    selectedMapId: rebornState.selectedMapId,
+    getMapCompletionState: (mapId) => {
+      const map = rebornState.maps?.find((entry) => entry.id === mapId);
+      return {
+        label: 'Reborn',
+        tone: 'ok',
+        detail: map?.mapFile || '',
+        meta: map?.mapFamily || '',
+      };
+    },
+    onSelectCommander: (runtime) => {
+      rebornState.selectedCommander = runtime;
+      renderRebornPickers();
       updateRebornSummary();
       updateRebornLaunchButton();
-    });
-    container.append(btn);
-  }
+    },
+    onSelectMap: (mapId) => {
+      rebornState.selectedMapId = mapId;
+      rebornState.selectedMapFile = rebornState.maps?.find((entry) => entry.id === mapId)?.mapFile || '';
+      renderRebornPickers();
+      updateRebornSummary();
+      updateRebornLaunchButton();
+    },
+  });
 }
 
 function updateRebornSummary() {
@@ -3127,13 +3076,6 @@ function updateRebornLaunchButton() {
   const btn = document.getElementById('rebornLaunchButton');
   if (!btn) return;
   btn.disabled = !(rebornState.selectedCommander && rebornState.selectedMapId);
-}
-
-function getCommanderRaceSimple(runtime) {
-  if (runtime.startsWith('Terran')) return 'Terran';
-  if (runtime.startsWith('Protoss')) return 'Protoss';
-  if (runtime.startsWith('Zerg')) return 'Zerg';
-  return 'Other';
 }
 
 async function launchRebornGame() {

@@ -19,6 +19,8 @@ include "ai1AEFD599"
 include "aiF100E782"
 include "ai060F6AC8"
 include "aiAEC4064B"
+include "LibA070801C"
+include "LibE0EAE146"
 
 //--------------------------------------------------------------------------------------------------
 // Library Initialization
@@ -32,6 +34,8 @@ void InitLibs () {
     libVCMI_InitLib();
     libSwaC_InitLib();
     lib48DF4533_InitLib();
+    libA070801C_InitLib();
+    libE0EAE146_InitLib();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1078,6 +1082,9 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     if (!runActions) {
         return true;
     }
+
+    // CoreRuntime 初始化：加载 Bank、设置指挥官、创建基地/工人/第二单位
+    libE0EAE146_gf_InitializeMapScenario("zevolutionbaneling2_reborn_port", false);
 
     libVoiC_gf_ULoadCampaignData("PAiur05");
     TriggerExecute(gt_Init01Technology, true, false);

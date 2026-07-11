@@ -29,6 +29,7 @@ void InitLibs () {
     lib48DF4533_InitLib();
     // Reborn port: register RebornMapAdapter after campaign init
     libRebornAdapter_InitLib();
+    libRebornAdapter_SetMapScenarioId("zexpedition03_reborn");
     libA070801C_InitLib();
     libE0EAE146_InitLib();
 }
@@ -716,8 +717,11 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     // Reborn port: skip campaign data load (calls restricted natives)
     // libSwaC_gf_ULoadCampaignData("ZExpedition3");
     TriggerExecute(gt_Init01Technology, true, true);
+    libRebornAdapter_OnAfterTechnologyInit();
     TriggerExecute(gt_Init02Players, true, true);
+    libRebornAdapter_OnAfterPlayersInit();
     TriggerExecute(gt_Init03Units, true, true);
+    libRebornAdapter_OnAfterUnitsInit();
     TriggerExecute(gt_Init04MusicSound, true, true);
     TriggerExecute(gt_Init05Environment, true, true);
     TriggerExecute(gt_Init06Difficulties, true, true);
@@ -726,9 +730,6 @@ bool gt_Initialization_Func (bool testConds, bool runActions) {
     // libSwaC_gf_PurchaseStorymodeTech();
     TriggerExecute(gt_IntroQ, true, false);
     TriggerExecute(gt_StartGameQ, true, false);
-    // Reborn port: overlay 7vs1 commander system initialization
-    libE0EAE146_gf_Initialize(false);
-    libE0EAE146_gf_InitializeMapBaseScenario("zexpedition03_reborn");
     return true;
 }
 
@@ -907,12 +908,14 @@ bool gt_Init03Units_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    libSwaC_gf_CreateHero2(PointFromId(888873531), 1, libSwaC_ge_HeroUnit_Kerrigan, PointGetFacing(PointFromId(888873531)), 0, libSwaC_ge_KerriganCreatePurpose_GamePlay);
-    gv_kerrigan = UnitLastCreated();
+    if (!libRebornAdapter_ShouldSkipNativeCampaignHero()) {
+        libSwaC_gf_CreateHero2(PointFromId(888873531), 1, libSwaC_ge_HeroUnit_Kerrigan, PointGetFacing(PointFromId(888873531)), 0, libSwaC_ge_KerriganCreatePurpose_GamePlay);
+        gv_kerrigan = UnitLastCreated();
+        lib48DF4533_gf_SetHeroPanelUnit(1, UnitLastCreated());
+    }
     gv_mothership = UnitFromId(458804738);
     UnitSetPropertyFixed(gv_mothership, c_unitPropLifeMax, lib48DF4533_gf_DifficultyValueCrys(1000, 1000, 1500, 2000, 2500));
     UnitSetPropertyFixed(gv_mothership, c_unitPropLifePercent, 100.0);
-    lib48DF4533_gf_SetHeroPanelUnit(1, UnitLastCreated());
     AISetGroupScriptControlled(UnitGroupAlliance(1, c_unitAllianceEnemy, RegionFromId(10), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), true);
     UnitBehaviorAdd(UnitFromId(1638635079), "FlashFreeze", UnitFromId(1638635079), 1);
     libNtve_gf_ChangeUnitDamage(UnitFromId(1638635079), libNtve_ge_UnitDamageTakenDealt_Damage_Take, libNtve_ge_UnitDamageChangeOption_No);
@@ -2944,6 +2947,9 @@ bool gt_IntroQ_Func (bool testConds, bool runActions) {
     }
 
     TriggerEnable(TriggerGetCurrent(), false);
+    if (libRebornAdapter_ShouldSkipNativeCampaignHero()) {
+        return true;
+    }
     TriggerQueueEnter();
     TriggerExecute(gt_IntroSetup, true, true);
     TriggerExecute(gt_IntroCinematic, true, true);
@@ -2976,11 +2982,15 @@ bool gt_IntroSetup_Func (bool testConds, bool runActions) {
     GameTimeOfDayPause(true);
     libSwaC_gf_EnableDisableZerglingRespawn(false);
     libNtve_gf_ShowHideUnit(UnitFromId(155754125), false);
-    libNtve_gf_ShowHideUnit(gv_kerrigan, false);
+    if (gv_kerrigan != null) {
+        libNtve_gf_ShowHideUnit(gv_kerrigan, false);
+    }
     gv_introLasarra = UnitFromId(155754125);
     UnitGroupAdd(gv_cinematicTempUnits, gv_introLasarra);
-    libSwaC_gf_CreateHero2(PointFromId(888873531), 1, libSwaC_ge_HeroUnit_Kerrigan, 45.0, 0, libSwaC_ge_KerriganCreatePurpose_Cinematic);
-    gv_cinematicKerrigan = UnitLastCreated();
+    if (!libRebornAdapter_ShouldSkipNativeCampaignHero()) {
+        libSwaC_gf_CreateHero2(PointFromId(888873531), 1, libSwaC_ge_HeroUnit_Kerrigan, 45.0, 0, libSwaC_ge_KerriganCreatePurpose_Cinematic);
+        gv_cinematicKerrigan = UnitLastCreated();
+    }
     UnitGroupAdd(gv_cinematicTempUnits, gv_introLasarra);
     return true;
 }

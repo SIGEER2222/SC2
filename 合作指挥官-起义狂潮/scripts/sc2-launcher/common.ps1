@@ -78,6 +78,9 @@ function Wait-GameReady {
     param([string]$ScriptsRoot)
     $waitScript = Join-Path $ScriptsRoot "wait-for-game-ready.ps1"
     Write-Host "Waiting for game ready..."
-    & powershell -NoProfile -ExecutionPolicy Bypass -File $waitScript
-    return $LASTEXITCODE
+    # Use Start-Process so child stdout is not captured as the function return value.
+    $proc = Start-Process -FilePath "pwsh" `
+        -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $waitScript) `
+        -Wait -PassThru -NoNewWindow
+    return $proc.ExitCode
 }

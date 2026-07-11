@@ -90,14 +90,9 @@ function New-LauncherPlan {
     }
 
     # L2: Alenger adapter bootstrap (hardcoded by CoreRuntime)
+    # Disabled: 37 Alenger deps cause game crash during loading.
+    # Galaxy files are injected separately via Sync-MapRuntimeLibraries.
     $l2Entries = @()
-    for ($i = 0; $i -lt $alenger.mods.Count; $i++) {
-        $l2Entries += [PSCustomObject]@{
-            path   = $alenger.dependencyPaths[$i]
-            source = "Mods\$($alenger.mods[$i])"
-            reason = "CoreRuntime AdapterBootstrap hardcoded include"
-        }
-    }
 
     # L4: Selected commander package (only the chosen one)
     $l4Entries = @()
@@ -153,7 +148,7 @@ function New-LauncherPlan {
     }
 
     # === Document rewrite (DocumentHeader + DocumentInfo share same dep list) ===
-    $runtimeDeps = @() + $reborn.baseDependencyPaths + $alenger.dependencyPaths
+    $runtimeDeps = @() + $reborn.baseDependencyPaths
     if ($selectedCommanderUnitsMod) {
         $runtimeDeps += "file:Mods/7vs1/$selectedCommanderUnitsMod.SC2Mod"
     }

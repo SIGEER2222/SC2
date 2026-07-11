@@ -231,8 +231,9 @@ if ($planMode) {
         Sync-ModToLive -ModRelPath "7vs1\$selectedCommanderUnitsMod.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
     }
 
-    # Sync full Alenger set (Catalog deps must match AdapterBootstrap includes)
-    Sync-ModSet -ModRelPaths $alengerConfig.mods -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+    # Alenger mods sync disabled: 37 deps cause game crash during loading.
+    # Galaxy files for all commanders are injected via Sync-MapRuntimeLibraries.
+    # Sync-ModSet -ModRelPaths $alengerConfig.mods -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 }
 
 # Remove unselected CommanderUnits mods from live directory (stale from previous runs)
@@ -250,12 +251,15 @@ if ($rebornConfig.validCommanders -notcontains $Commander) {
 # --- MAP SYNC SECTION ---
 Sync-MapToLive -MapName $MapName -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 
-# Build preserve list of map-owned galaxy files (ship with source map)
+# Build preserve list of map-owned galaxy files (ship with source map).
+# RebornMapAdapter must always come from RebornMapAdapter.SC2Mod, not map stubs.
 $sourceMapBaseData = Join-Path $ProjRoot "Maps\$MapName\Base.SC2Data"
+$rebornAdapterGalaxyNames = @('RebornMapAdapter.galaxy', 'RebornMapAdapter_h.galaxy')
 $preserveNames = @{}
 if (Test-Path $sourceMapBaseData) {
     $sourceGalaxyFiles = Get-ChildItem $sourceMapBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
     foreach ($gf in $sourceGalaxyFiles) {
+        if ($rebornAdapterGalaxyNames -contains $gf.Name) { continue }
         $preserveNames[$gf.Name] = $true
     }
 }
@@ -279,12 +283,22 @@ if ($planMode) {
         -SourceRoot $rebornConfig.galaxyInjection.sourceRoot
 }
 
+# Ensure live map loads RebornMapAdapter from mod (include resolves map Base.SC2Data first).
+$adapterModBase = Join-Path $ProjRoot "Mods\Reborn\RebornMapAdapter.SC2Mod\Base.SC2Data"
+$mapLiveBaseData = Join-Path $MapLivePath "Base.SC2Data"
+foreach ($adapterFile in $rebornAdapterGalaxyNames) {
+    $src = Join-Path $adapterModBase $adapterFile
+    if (Test-Path -LiteralPath $src) {
+        Copy-Item -LiteralPath $src -Destination (Join-Path $mapLiveBaseData $adapterFile) -Force
+    }
+}
+
 # --- DEPENDENCY REWRITE SECTION ---
 if ($planMode) {
     # Plan mode: use document deps from plan
     $runtimeDeps = $planExec.documentDeps
 } else {
-    # Legacy mode: use launcher plan document deps (base + full Alenger + commander)
+    # Legacy mode: use launcher plan document deps (base + commander, Alenger disabled)
     $runtimeDeps = @($launcherPlan.documentRewrite.DocumentHeader)
 }
 Set-MapDependencies -MapPath $MapLivePath -Dependencies $runtimeDeps
