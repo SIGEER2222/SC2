@@ -23,6 +23,7 @@ const router = Router();
 router.post('/reborn-launch', (req, res) => {
   const request = req.body || {};
   const commander = String(request.commander || '').trim();
+  const mapName = String(request.mapName || '').trim();
 
   if (!commander) {
     return res.status(400).json({ ok: false, error: '缺少 commander 参数' });
@@ -34,6 +35,10 @@ router.post('/reborn-launch', (req, res) => {
     '-File', LAUNCH_REBORN_PS1,
     '-Commander', commander,
   ];
+
+  if (mapName) {
+    args.push('-MapName', mapName);
+  }
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '-').slice(0, 19);
   const stdoutPath = join(LOGS_ROOT, `web-launcher-reborn-${stamp}.out.log`);

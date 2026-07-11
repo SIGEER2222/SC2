@@ -2840,31 +2840,48 @@ document.querySelectorAll('.tab').forEach(btn => {
 // === Reborn 战役 Tab ===
 let rebornState = {
   selectedCommander: null,
-  data: null,
+  selectedMapId: null,
+  selectedMapFile: null,
+  commanders: null,
+  maps: null,
   pollTimer: null,
 };
 
 async function initRebornTab() {
-  if (rebornState.data) {
-    renderRebornCommanders();
-    return;
-  }
   const rebornStatus = document.getElementById('rebornStatus');
   const rebornLaunchButton = document.getElementById('rebornLaunchButton');
   rebornLaunchButton.disabled = true;
   rebornStatus.textContent = '加载中';
+
   try {
-    // 复用 bootstrap 数据中的指挥官列表
+    // 并行加载指挥官（复用 bootstrap）和地图列表
     if (!state.data) {
       rebornStatus.textContent = '等待主数据加载';
       return;
     }
-    rebornState.data = state.data.commanders;
+    rebornState.commanders = state.data.commanders;
+
+    if (!rebornState.maps) {
+      const mapsResp = await fetch('/api/reborn-maps');
+      const mapsData = await mapsResp.json();
+      rebornState.maps = mapsData.maps || [];
+      // 默认选中第一张地图（zexpedition03）
+      if (rebornState.maps.length > 0) {
+        rebornState.selectedMapId = rebornState.maps[0].id;
+        rebornState.selectedMapFile = rebornState.maps[0].mapFile;
+      }
+    }
+
     renderRebornCommanders();
-    rebornStatus.textContent = `已加载 ${rebornState.data.length} 个指挥官`;
+    renderRebornMaps();
+    updateRebornSummary();
+    rebornStatus.textContent = `已加载 ${rebornState.commanders.length} 个指挥官, ${rebornState.maps.length} 张地图`;
   } catch (e) {
     rebornStatus.textContent = `加载失败: ${e.message}`;
   }
+
+  // 避免重复绑定
+  rebornLaunchButton.removeEventListener('click', launchRebornGame);
   rebornLaunchButton.addEventListener('click', launchRebornGame);
 }
 
@@ -2872,7 +2889,7 @@ function renderRebornCommanders() {
   const container = document.getElementById('rebornCommanderList');
   if (!container) return;
   container.replaceChildren();
-  const commanders = rebornState.data || [];
+  const commanders = rebornState.commanders || [];
   if (commanders.length === 0) {
     container.textContent = '无指挥官数据';
     return;
@@ -2902,20 +2919,91 @@ function renderRebornCommanders() {
       if (rebornState.selectedCommander === cmd.runtime) {
         btn.classList.add('selected');
       }
+      // 复用 7vs1 tab 的图标加载逻辑
+      const art = cmd.image
+        ? `<img src="${escapeHtml(cmd.image)}" alt="${escapeHtml(cmd.displayName || cmd.runtime)}">`
+        : `<span class="commander-card-fallback">${escapeHtml(initials(cmd.displayName || cmd.runtime))}</span>`;
+      const raceLabel = { Terran: '人类', Protoss: '星灵', Zerg: '异虫', Other: '其他' }[race];
       btn.innerHTML = `
-        <span class="commander-card-avatar">${initials(cmd.displayName)}</span>
-        <span class="commander-card-name">${escapeHtml(cmd.displayName)}</span>
-        <span class="commander-card-runtime">${escapeHtml(cmd.runtime)}</span>
+        <span class="commander-card-art">${art}</span>
+        <span class="commander-card-body">
+          <span class="commander-card-top">
+            <strong>${escapeHtml(cmd.displayName || cmd.runtime)}</strong>
+            <em>${escapeHtml(cmd.runtime)}</em>
+          </span>
+          <span class="commander-card-badges">
+            <em>${escapeHtml(raceLabel)}</em>
+          </span>
+        </span>
       `;
       btn.addEventListener('click', () => {
         rebornState.selectedCommander = cmd.runtime;
         renderRebornCommanders();
-        document.getElementById('rebornLaunchButton').disabled = false;
+        updateRebornSummary();
+        updateRebornLaunchButton();
       });
       section.append(btn);
     }
     container.append(section);
   }
+}
+
+function renderRebornMaps() {
+  const container = document.getElementById('rebornMapList');
+  if (!container) return;
+  container.replaceChildren();
+  const maps = rebornState.maps || [];
+  if (maps.length === 0) {
+    container.textContent = '无地图数据';
+    return;
+  }
+  for (const map of maps) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'map-card quick-pick-item';
+    if (rebornState.selectedMapId === map.id) {
+      btn.classList.add('selected');
+    }
+    btn.innerHTML = `
+      <span class="quick-pick-icon map-card-icon">${escapeHtml(initials(map.mapName || map.id))}</span>
+      <span class="map-card-copy">
+        <strong>${escapeHtml(map.mapName || map.id)}</strong>
+        <em>${escapeHtml(map.id)}</em>
+      </span>
+    `;
+    btn.addEventListener('click', () => {
+      rebornState.selectedMapId = map.id;
+      rebornState.selectedMapFile = map.mapFile;
+      renderRebornMaps();
+      updateRebornSummary();
+      updateRebornLaunchButton();
+    });
+    container.append(btn);
+  }
+}
+
+function updateRebornSummary() {
+  const summaryCommander = document.getElementById('rebornSummaryCommander');
+  const summaryMap = document.getElementById('rebornSummaryMap');
+  const summary = document.getElementById('rebornSummary');
+  if (summaryCommander) {
+    summaryCommander.textContent = rebornState.selectedCommander || '-';
+  }
+  if (summaryMap) {
+    const map = rebornState.maps?.find(m => m.id === rebornState.selectedMapId);
+    summaryMap.textContent = map ? map.mapName : '-';
+  }
+  if (summary) {
+    const ready = rebornState.selectedCommander && rebornState.selectedMapId;
+    summary.textContent = ready ? '就绪' : '未就绪';
+    summary.className = ready ? 'badge status-ok' : 'badge';
+  }
+}
+
+function updateRebornLaunchButton() {
+  const btn = document.getElementById('rebornLaunchButton');
+  if (!btn) return;
+  btn.disabled = !(rebornState.selectedCommander && rebornState.selectedMapId);
 }
 
 function getCommanderRaceSimple(runtime) {
@@ -2936,12 +3024,15 @@ async function launchRebornGame() {
   }
   btn.disabled = true;
   stateLabel.textContent = '启动中...';
-  output.textContent = `启动指挥官: ${rebornState.selectedCommander}\n`;
+  output.textContent = `启动指挥官: ${rebornState.selectedCommander}\n地图: ${rebornState.selectedMapFile || '默认'}\n`;
   try {
     const result = await apiFetchJson('/api/reborn-launch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
-      body: JSON.stringify({ commander: rebornState.selectedCommander }),
+      body: JSON.stringify({
+        commander: rebornState.selectedCommander,
+        mapName: rebornState.selectedMapFile || '',
+      }),
     });
     output.textContent += `进程 PID: ${result.pid}\n`;
     stateLabel.textContent = `PID ${result.pid}`;
