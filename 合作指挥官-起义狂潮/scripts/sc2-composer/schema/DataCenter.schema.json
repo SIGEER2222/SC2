@@ -109,7 +109,13 @@
         "behaviors": {"type": "array", "items": {"type": "string"}},
         "effects": {"type": "array", "items": {"type": "string"}},
         "buttons": {"type": "array", "items": {"type": "string"}},
-        "requirements": {"type": "array", "items": {"type": "string"}}
+        "requirements": {"type": "array", "items": {"type": "string"}},
+        "weapons": {"type": "array", "items": {"type": "string"}},
+        "turrets": {"type": "array", "items": {"type": "string"}},
+        "models": {"type": "array", "items": {"type": "string"}},
+        "movers": {"type": "array", "items": {"type": "string"}},
+        "actors": {"type": "array", "items": {"type": "string"}},
+        "validators": {"type": "array", "items": {"type": "string"}}
       }
     },
     "imports": {
@@ -169,6 +175,18 @@
     "closureRole": {
       "type": "string",
       "description": "在依赖闭包中的角色标识，如 assets、common、story-utils、sundries、main-data。用于闭包清单描述。"
+    },
+    "contents": {
+      "type": "object",
+      "description": "MPQ 容器内部结构摘要（仅 containerType=mpq 时使用）。描述 MPQ 内部的 assets、gameData、galaxyLibs、localizedData、uiLayouts 等。",
+      "additionalProperties": false,
+      "properties": {
+        "assets": {"description": "资产文件摘要（纹理、模型等）"},
+        "gameData": {"description": "GameData XML 文件摘要"},
+        "galaxyLibs": {"type": "array", "items": {"type": "string"}, "description": "Galaxy 库文件列表"},
+        "localizedData": {"type": "array", "items": {"type": "string"}, "description": "本地化文件列表"},
+        "uiLayouts": {"type": "array", "items": {"type": "string"}, "description": "UI 布局文件列表"}
+      }
     }
   }
 }
