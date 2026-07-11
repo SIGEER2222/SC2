@@ -3,6 +3,7 @@
 include "TriggerLibs/NativeLib"
 include "RebornMapAdapter_h"
 include "LibE0EAE146_h"
+include "LibRebornAdapter_AlengerBootstrap_h"
 
 string libRebornAdapter_DEFAULT_COMMANDER = "TerranRaynor";
 
@@ -94,6 +95,7 @@ void libRebornAdapter_OnAfterPlayersInit () {
 }
 
 void libRebornAdapter_OnAfterUnitsInit () {
+    libRebornAdapter_AlengerBootstrap_InitLib();
     libE0EAE146_gf_Initialize(true);
     if (libRebornAdapter_mapScenarioId != "") {
         libE0EAE146_gf_InitializeMapBaseScenario(libRebornAdapter_mapScenarioId);

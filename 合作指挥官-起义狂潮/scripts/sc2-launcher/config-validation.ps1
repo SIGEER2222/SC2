@@ -172,7 +172,28 @@ function Test-LauncherConfig {
         # commander check
         if ($Commander -ne "") {
             if ($cmdMap.mappings.PSObject.Properties.Name -notcontains $Commander) {
-                Add-Error "Unknown commander: '$Commander' not in commander-units-mapping.mappings"
+                # Alenger commanders (e.g. TerranAlenger3) are not in commander-units-mapping;
+                # they resolve via alenger-mods.commanderToAlenger after race-prefix normalization.
+                $isAlengerCommander = $false
+                if ($Configs.ContainsKey("alenger-mods") -and $Configs["alenger-mods"].commanderToAlenger) {
+                    $alengerBase = $null
+                    if ($Commander -like 'Alenger*') {
+                        $alengerBase = $Commander
+                    } else {
+                        foreach ($pfx in @('Terran','Zerg','Protoss')) {
+                            if ($Commander -like "$pfx`Alenger*") {
+                                $alengerBase = $Commander.Substring($pfx.Length)
+                                break
+                            }
+                        }
+                    }
+                    if ($alengerBase -and $Configs["alenger-mods"].commanderToAlenger.PSObject.Properties.Name -contains $alengerBase) {
+                        $isAlengerCommander = $true
+                    }
+                }
+                if (-not $isAlengerCommander) {
+                    Add-Error "Unknown commander: '$Commander' not in commander-units-mapping.mappings"
+                }
             }
         }
     }

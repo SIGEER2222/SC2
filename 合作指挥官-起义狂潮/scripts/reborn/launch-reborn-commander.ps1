@@ -97,6 +97,26 @@ Write-Host "CONFIG VALID"
 # === Compute launcher plan ===
 # NOTE: use $launcherPlan (not $plan) — $Plan param is case-insensitive and typed [string].
 $launcherPlan = New-LauncherPlan -Commander $Commander -MapName $MapName -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+
+# === Alenger on-demand resolution ===
+# Normalize commander ID (TerranAlenger3 → Alenger3) to match commanderToAlenger keys
+$alengerBaseName = $null
+$racePrefixes = @('Terran', 'Zerg', 'Protoss')
+if ($Commander -like 'Alenger*') {
+    $alengerBaseName = $Commander
+} else {
+    foreach ($prefix in $racePrefixes) {
+        if ($Commander -like "$prefix`Alenger*") {
+            $alengerBaseName = $Commander.Substring($prefix.Length)
+            break
+        }
+    }
+}
+$selectedAlengerMods = @()
+if ($alengerBaseName -and $alengerConfig.commanderToAlenger.PSObject.Properties.Name -contains $alengerBaseName) {
+    $selectedAlengerMods = @($alengerConfig.commanderToAlenger.$alengerBaseName)
+}
+
 # PS 5.1 compatibility: ensure validation object exists and properties are settable
 if ($null -eq $launcherPlan.validation) {
     $launcherPlan | Add-Member -NotePropertyName validation -NotePropertyValue ([PSCustomObject]@{
@@ -231,9 +251,13 @@ if ($planMode) {
         Sync-ModToLive -ModRelPath "7vs1\$selectedCommanderUnitsMod.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
     }
 
-    # Alenger mods sync disabled: 37 deps cause game crash during loading.
-    # Galaxy files for all commanders are injected via Sync-MapRuntimeLibraries.
-    # Sync-ModSet -ModRelPaths $alengerConfig.mods -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+    # Sync only selected Alenger mods (on-demand loading)
+    if ($selectedAlengerMods.Count -gt 0) {
+        Write-Host "Alenger on-demand sync: $($selectedAlengerMods.Count) mods ($alengerBaseName)"
+        foreach ($modName in $selectedAlengerMods) {
+            Sync-ModToLive -ModRelPath "7vs1\$modName.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+        }
+    }
 }
 
 # Remove unselected CommanderUnits mods from live directory (stale from previous runs)
@@ -254,7 +278,7 @@ Sync-MapToLive -MapName $MapName -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 # Build preserve list of map-owned galaxy files (ship with source map).
 # RebornMapAdapter must always come from RebornMapAdapter.SC2Mod, not map stubs.
 $sourceMapBaseData = Join-Path $ProjRoot "Maps\$MapName\Base.SC2Data"
-$rebornAdapterGalaxyNames = @('RebornMapAdapter.galaxy', 'RebornMapAdapter_h.galaxy')
+$rebornAdapterGalaxyNames = @('RebornMapAdapter.galaxy', 'RebornMapAdapter_h.galaxy', 'LibRebornAdapter_AlengerBootstrap_h.galaxy')
 $preserveNames = @{}
 if (Test-Path $sourceMapBaseData) {
     $sourceGalaxyFiles = Get-ChildItem $sourceMapBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
@@ -293,12 +317,29 @@ foreach ($adapterFile in $rebornAdapterGalaxyNames) {
     }
 }
 
+# === Generate and inject AlengerBootstrap galaxy ===
+# The generated LibRebornAdapter_AlengerBootstrap.galaxy contains include directives
+# for only the selected commander's Alenger adapters, replacing the old hardcoded
+# AdapterBootstrap that forced all 24 Alenger mods to load.
+$alengerBootstrapCli = Join-Path $ScriptsRoot "sc2-composer\src\alengerBootstrapCli.mjs"
+$alengerBootstrapOutput = Join-Path $mapLiveBaseData "LibRebornAdapter_AlengerBootstrap.galaxy"
+$sharedRoot = Join-Path $ProjRoot "Shared\Launcher"
+$alengerModsJsonPath = Join-Path $sharedRoot "alenger-mods.json"
+
+Write-Host "Generating AlengerBootstrap for $Commander..."
+& node $alengerBootstrapCli --commander $Commander --output $alengerBootstrapOutput --alenger-mods $alengerModsJsonPath
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "ERROR: AlengerBootstrap generation failed (exit $LASTEXITCODE)"
+    exit 1
+}
+Write-Host "AlengerBootstrap injected: $alengerBootstrapOutput"
+
 # --- DEPENDENCY REWRITE SECTION ---
 if ($planMode) {
     # Plan mode: use document deps from plan
     $runtimeDeps = $planExec.documentDeps
 } else {
-    # Legacy mode: use launcher plan document deps (base + commander, Alenger disabled)
+    # Legacy mode: use launcher plan document deps (base + on-demand Alenger + commander + campaign)
     $runtimeDeps = @($launcherPlan.documentRewrite.DocumentHeader)
 }
 Set-MapDependencies -MapPath $MapLivePath -Dependencies $runtimeDeps
