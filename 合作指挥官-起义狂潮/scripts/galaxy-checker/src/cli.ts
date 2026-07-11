@@ -5,6 +5,8 @@ try { (Module as any).enableCompileCache?.(); } catch { /* ignore */ }
 
 const { check } = await import('./index.js');
 const { IssueReporter } = await import('./reporter/IssueReporter.js');
+const { runFixer } = await import('./fixer/Fixer.js');
+const { collectFiles } = await import('./index.js');
 
 const args = process.argv.slice(2);
 if (args.length === 0 || args.includes('--help')) {
@@ -15,7 +17,9 @@ if (args.length === 0 || args.includes('--help')) {
   --native-lib <path>     NativeLib.galaxy 路径
   --catalog-db <path>     catalog ID JSON 路径（默认 data/catalog-ids.json）
   --symbol-root <dir>     追加父级/依赖 Mod 的符号目录，可重复
+  --composition-plan <p>  CompositionPlan.json 路径，自动解析 symbolRoots/catalogDb
   --no-global-symbols     跳过全局符号表构建
+  --fix <rule>            自动修复指定规则（目前支持 XLIB_DISCOURAGED_NATIVE）
   --help                  显示帮助`);
   process.exit(2);
 }
@@ -28,6 +32,8 @@ const format: 'json' | 'text' = rawFormat === 'text' ? 'text' : 'json';
 const rulesIdx = args.indexOf('--rules');
 const nativeLibIdx = args.indexOf('--native-lib');
 const catalogDbIdx = args.indexOf('--catalog-db');
+const compositionPlanIdx = args.indexOf('--composition-plan');
+const fixIdx = args.indexOf('--fix');
 const symbolRoots: string[] = [];
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--symbol-root' && args[i + 1]) {
@@ -37,10 +43,27 @@ for (let i = 0; i < args.length; i++) {
 }
 
 try {
+  // --fix 模式：执行自动修复，不执行检查
+  if (fixIdx >= 0 && args[fixIdx + 1]) {
+    const ruleCode = args[fixIdx + 1];
+    const files = collectFiles(target);
+    const fixResult = runFixer(files, ruleCode);
+    console.log(JSON.stringify({
+      tool: 'galaxy-checker',
+      mode: 'fix',
+      rule: ruleCode,
+      applied: fixResult.applied.length,
+      filesChanged: fixResult.filesChanged,
+      edits: fixResult.applied,
+    }, null, 2));
+    process.exit(0);
+  }
+
   const result = check(target, {
     rulesPath: rulesIdx >= 0 ? args[rulesIdx + 1] : undefined,
     nativeLibPath: nativeLibIdx >= 0 ? args[nativeLibIdx + 1] : undefined,
     catalogDbPath: catalogDbIdx >= 0 ? args[catalogDbIdx + 1] : undefined,
+    compositionPlanPath: compositionPlanIdx >= 0 ? args[compositionPlanIdx + 1] : undefined,
     symbolRoots,
     noGlobalSymbols: args.includes('--no-global-symbols'),
   });

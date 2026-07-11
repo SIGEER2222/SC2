@@ -1,0 +1,11 @@
+// Fixture: XLIB_UNDEFINED_CROSS_REF 误报场景
+// 来源: CoreRuntime/LibE0EAE146.galaxy:126
+// 说明: libE0EAE146_tychus_InitVariables() 定义在 CommanderUnits_Tychus.galaxy 中，
+//       但 checker 未加载该 mod 时会误报为跨库引用未定义。
+// 期望: 无 CompositionPlan 时 confidence=low; 有 CompositionPlan 时 confidence=high
+
+void libE0EAE146_gf_InitVariables() {
+    libE0EAE146_tychus_InitVariables();
+    libE0EAE146_fenix_InitVariables();
+    libE0EAE146_mengsk_InitVariables();
+}

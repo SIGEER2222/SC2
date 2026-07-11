@@ -1,0 +1,12 @@
+// Fixture: SEM_UNDECLARED_VARIABLE 误报场景
+// 来源: CommanderBridge/LibE0EAE146_HeroRevive.galaxy:335
+// 说明: libE0EAE146_gv_effectiveBaseAnchor 定义在 CoreRuntime/LibE0EAE146.galaxy 中，
+//       但 CommanderBridge 单独扫描时未加载 CoreRuntime 的符号表。
+// 期望: 无 CompositionPlan 时 confidence=low; 有 CoreRuntime symbolRoot 时不再报错
+
+void libE0EAE146_gf_HeroReviveCheck(int lp_p) {
+    if (libE0EAE146_gv_effectiveBaseAnchor == lp_p) {
+        libE0EAE146_gv_commanderHeroRevivePending = true;
+    }
+    libE0EAE146_gv_currentMapId = 1;
+}

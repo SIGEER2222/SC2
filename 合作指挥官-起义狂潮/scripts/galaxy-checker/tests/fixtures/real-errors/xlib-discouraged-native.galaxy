@@ -1,0 +1,20 @@
+// Fixture: XLIB_DISCOURAGED_NATIVE 真实问题场景
+// 来源: CoreRuntime/LibKMIS.galaxy:3154, 3192, 4298, 4319, 4323, 5541, 6963
+// 说明: UnitCreate() 直接调用，应包装为 libNtve_gf_CreateUnitsAtPoint2()。
+//       这是当前唯一可自动修复的高频规则（confidence=high, autoFixable=true）。
+// 期望: fixer 应将 6 参数 UnitCreate 转换为 5 参数 libNtve_gf_CreateUnitsAtPoint2
+
+void libKMIS_gf_TestCreateUnits(int lp_p, point lp_location) {
+    // 标准调用 - createStyle=0
+    UnitCreate(1, "Marine", 0, lp_p, lp_location, 270.0);
+    // 常量 createStyle
+    UnitCreate(1, "ZergDropPod", c_unitCreateIgnorePlacement, lp_p, lp_location, 270.0);
+    // 变量参数
+    string lv_unitType = "Marine";
+    int lp_flags = 0;
+    point lv_placement = lp_location;
+    fixed lp_facing = 270.0;
+    UnitCreate(1, lv_unitType, lp_flags, lp_p, lv_placement, lp_facing);
+    // 嵌套函数调用参数
+    UnitCreate(1, "ProphecyCamera", 0, lp_p, UnitGetPosition(lp_location), libNtve_gf_RandomAngle());
+}

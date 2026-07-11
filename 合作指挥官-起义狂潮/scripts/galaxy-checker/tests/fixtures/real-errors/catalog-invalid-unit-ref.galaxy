@@ -1,0 +1,11 @@
+// Fixture: CATALOG_INVALID_UNIT_REF 误报/真实混合场景
+// 来源: CoreRuntime/LibKMIS.galaxy:3154
+// 说明: "ProphecyArtifactMineralPickup" 定义在战役 mod 中，checker 的 catalog-ids.json 未包含。
+//       "ZergDropPod" 定义在 map 依赖中。
+// 期望: confidence=medium (部分误报，部分真实缺失)
+
+void libKMIS_gf_CreateArtifact(int lp_p, point lp_location) {
+    int auto651D6CDD_var = lp_p;
+    UnitCreate(1, "ProphecyArtifactMineralPickup", 0, auto651D6CDD_var, lp_location, libNtve_gf_RandomAngle());
+    UnitCreate(1, "ZergDropPod", 0, lp_p, lp_location, 270.0);
+}

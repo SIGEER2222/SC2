@@ -1,6 +1,12 @@
 // src/types.ts
 export type Severity = 'error' | 'warning' | 'info';
 
+// 置信度：low=可能误报（缺依赖上下文）/ medium=需人工确认 / high=确信真实问题
+export type Confidence = 'low' | 'medium' | 'high';
+
+// 运行时风险：none=不影响运行 / low=风格问题 / medium=运行时降级 / high=ScriptError
+export type RuntimeRisk = 'none' | 'low' | 'medium' | 'high';
+
 export interface Issue {
   file: string;
   line: number;
@@ -8,12 +14,21 @@ export interface Issue {
   ruleCode: string;
   severity: Severity;
   message: string;
+  // 工程化扩展字段（ADR 冻结）
+  confidence?: Confidence;
+  autoFixable?: boolean;
+  runtimeRisk?: RuntimeRisk;
+  sourceDependency?: string;   // 导致此 issue 的依赖 mod（若可确定）
+  suggestedOwner?: string;     // 建议修复责任方
 }
 
 export interface CheckResult {
   filesChecked: number;
   issues: Issue[];
   summary: { errors: number; warnings: number; infos: number };
+  // 工程化扩展：带上下文信息的报告
+  compositionId?: string;
+  contextLoaded?: boolean;      // 是否加载了 CompositionPlan 上下文
 }
 
 export interface CheckOptions {
@@ -23,6 +38,8 @@ export interface CheckOptions {
   noGlobalSymbols?: boolean;
   symbolRoots?: string[];
   catalogDbPath?: string;
+  // 新增：CompositionPlan 集成
+  compositionPlanPath?: string;
 }
 
 // Catalog ID 数据库：从 sc2_unit_explorer.py --export-catalog-ids 导出的 JSON
@@ -55,4 +72,21 @@ export interface FunctionSignature {
   returnType: string;
   params: { type: string; name: string }[];
   isNative: boolean;
+}
+
+// Fixer 相关类型
+export interface FixEdit {
+  file: string;
+  line: number;
+  column: number;
+  oldText: string;
+  newText: string;
+  ruleCode: string;
+  description: string;
+}
+
+export interface FixResult {
+  applied: FixEdit[];
+  skipped: Array<{ issue: Issue; reason: string }>;
+  filesChanged: string[];
 }

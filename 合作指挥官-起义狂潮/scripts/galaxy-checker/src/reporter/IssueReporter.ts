@@ -9,13 +9,17 @@ export class IssueReporter {
   report(issues: Issue[], filesChecked: number): string {
     const result = this.buildResult(issues, filesChecked);
     if (this.format === 'json') {
-      return JSON.stringify({
-        version: '1.0',
+      const output: Record<string, unknown> = {
+        version: '1.1',
         tool: 'galaxy-checker',
         filesChecked: result.filesChecked,
         summary: result.summary,
         issues: result.issues,
-      }, null, 2);
+      };
+      // 工程化扩展字段（仅当存在时输出）
+      if (result.compositionId) output.compositionId = result.compositionId;
+      if (result.contextLoaded !== undefined) output.contextLoaded = result.contextLoaded;
+      return JSON.stringify(output, null, 2);
     }
     return this.formatText(result);
   }

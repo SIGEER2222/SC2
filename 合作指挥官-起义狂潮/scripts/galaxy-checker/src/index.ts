@@ -9,10 +9,13 @@ import { NativeFunctionTable } from './analyzer/NativeFunctionTable.js';
 import { ProjectLoader } from './analyzer/ProjectLoader.js';
 import { analyze } from './analyzer/SemanticAnalyzer.js';
 import { SymbolTable } from './analyzer/SymbolTable.js';
+import { enrichIssues } from './analyzer/IssueEnricher.js';
+import { resolveFromCompositionPlan } from './analyzer/CompositionPlanResolver.js';
 import type { Issue, CheckResult, CheckOptions, CatalogDb } from './types.js';
 
-export { parse, RuleEngine, checkRules, IssueReporter, NativeFunctionTable, ProjectLoader, analyze };
-export type { Issue, CheckResult, CheckOptions };
+export { parse, RuleEngine, checkRules, IssueReporter, NativeFunctionTable, ProjectLoader, analyze, enrichIssues, resolveFromCompositionPlan };
+export { runFixer, fixDiscouragedUnitCreate } from './fixer/Fixer.js';
+export type { Issue, CheckResult, CheckOptions, FixEdit, FixResult } from './types.js';
 
 const DEFAULT_RULES_PATH = resolveDataFile('project-rules.json');
 
@@ -57,11 +60,33 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
   const engine = new RuleEngine(rulesPath);
   const reporter = new IssueReporter('json');
 
+  // CompositionPlan 集成：从 plan 解析 symbolRoots/catalogDb/compositionId
+  let compositionId: string | undefined;
+  let contextLoaded = false;
+  let resolvedCatalogDbPath = options.catalogDbPath;
+  let extraSymbolRoots = options.symbolRoots ?? [];
+
+  if (options.compositionPlanPath) {
+    // projRoot = workspace root（target 的上溯）
+    const projRoot = guessProjRoot(target);
+    const ctx = resolveFromCompositionPlan(options.compositionPlanPath, projRoot);
+    if (ctx.contextLoaded) {
+      compositionId = ctx.compositionId;
+      contextLoaded = true;
+      // CompositionPlan 提供的 symbolRoots 与手动传入的合并
+      extraSymbolRoots = [...ctx.symbolRoots, ...extraSymbolRoots];
+      // CompositionPlan 提供的 catalogDb 优先级低于手动传入
+      if (!resolvedCatalogDbPath && ctx.catalogDbPath) {
+        resolvedCatalogDbPath = ctx.catalogDbPath;
+      }
+    }
+  }
+
   // 全局符号表：仅当 target 是目录且未禁用时构建（跨文件符号可见性）
   let globalTable: SymbolTable | undefined;
   const symbolRoots = [
     ...(statSync(target).isDirectory() ? [target] : []),
-    ...(options.symbolRoots ?? []),
+    ...extraSymbolRoots,
   ].filter((root, index, roots) =>
     roots.indexOf(root) === index && existsSync(root) && statSync(root).isDirectory()
   );
@@ -75,8 +100,8 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
   const nativeTable = getNativeTable(options.nativeLibPath);
 
   // catalog ID 数据库：用于校验 galaxy 脚本中传给 catalog native 的字符串字面量
-  // 优先用 options.catalogDbPath，否则回退到附带的 data/catalog-ids.json
-  const catalogDb = loadCatalogDb(options.catalogDbPath);
+  // 优先用 options.catalogDbPath（或 CompositionPlan 解析的），否则回退到附带的 data/catalog-ids.json
+  const catalogDb = loadCatalogDb(resolvedCatalogDbPath);
 
   const files = collectFiles(target);
   const allIssues: Issue[] = [];
@@ -124,7 +149,25 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
     }
   }
 
-  return reporter.buildResult(allIssues, files.length);
+  // 注入工程化元数据（confidence/autoFixable/runtimeRisk/suggestedOwner）
+  const enrichedIssues = enrichIssues(allIssues, { contextLoaded });
+
+  const result = reporter.buildResult(enrichedIssues, files.length);
+  result.compositionId = compositionId;
+  result.contextLoaded = contextLoaded;
+  return result;
+}
+
+// 从 target 路径猜测项目根目录（向上查找含 Mods/ 的目录）
+function guessProjRoot(target: string): string {
+  let dir = target;
+  for (let i = 0; i < 6; i++) {
+    if (existsSync(join(dir, 'Mods'))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return target;
 }
 
 // natives 签名表按路径缓存（同进程内重复 check() 免重复 parse）
@@ -171,7 +214,7 @@ function loadCatalogDb(catalogDbPath?: string): CatalogDb | undefined {
   }
 }
 
-function collectFiles(target: string): string[] {
+export function collectFiles(target: string): string[] {
   const stat = statSync(target);
   if (stat.isFile()) return [target];
   // 目录：递归扫 Lib*.galaxy
