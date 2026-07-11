@@ -149,6 +149,160 @@ if (Test-Path $MapLivePath) { [System.IO.Directory]::Delete($MapLivePath, $true)
 robocopy $mapSrcDir $MapLivePath /MIR /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
 Write-Host "SYNC map: $MapName (from Maps\AIRO\)"
 
+# === GALAXY INJECTION SECTION ===
+# LibE0EAE146.galaxy (CoreRuntime) hardcodes includes for ALL 19 commander runtime
+# galaxies (LibE0EAE146_AbathurRuntime, ..._RaynorRuntime, etc) plus 30+ core
+# libraries (LibE0EAE146_ProgressionRewards, MutatorCatalog, CoreInfra, etc).
+# On maps that don't ship with these galaxy files (e.g. vanilla WoL campaign maps),
+# the galaxy compiler cannot resolve includes via mod dependency chain alone —
+# the files must be physically present in map Base.SC2Data.
+# Inject ALL CommanderUnits_*.SC2Mod + CoreRuntime galaxy files into map.
+if (-not $isOriginalMode) {
+    Write-Host "--- Galaxy Injection ---"
+    $sourceMapBaseData = Join-Path $ProjRoot "Maps\AIRO\$MapName\Base.SC2Data"
+    $preserveNames = @{}
+    if (Test-Path $sourceMapBaseData) {
+        $sourceGalaxyFiles = Get-ChildItem $sourceMapBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+        foreach ($gf in $sourceGalaxyFiles) {
+            $preserveNames[$gf.Name] = $true
+        }
+    }
+    Clean-MapRuntimeLibraries -MapPath $MapLivePath -PreserveNames $preserveNames
+
+    # 1. Inject CommanderUnits_*.SC2Mod galaxy files (commander runtimes + adapters)
+    Sync-MapRuntimeLibraries `
+        -MapPath $MapLivePath `
+        -ProjRoot $ProjRoot `
+        -SourcePatterns $airoConfig.galaxyInjection.sourcePatterns `
+        -SourceRoot $airoConfig.galaxyInjection.sourceRoot
+
+    # 2. Inject CoreRuntime galaxy files (LibE0EAE146 + 30+ core libraries)
+    # These are required by LibE0EAE146.galaxy's include chain but don't auto-resolve
+    # on non-7vs1-native maps.
+    $coreRuntimeBaseData = Join-Path $ProjRoot "Mods\7vs1\CoreRuntime.SC2Mod\Base.SC2Data"
+    $mapLiveBaseData = Join-Path $MapLivePath "Base.SC2Data"
+    if (Test-Path $coreRuntimeBaseData) {
+        $coreGalaxyFiles = Get-ChildItem $coreRuntimeBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+        $coreCount = 0
+        foreach ($gf in $coreGalaxyFiles) {
+            $dst = Join-Path $mapLiveBaseData $gf.Name
+            [System.IO.File]::Copy($gf.FullName, $dst, $true)
+            $coreCount++
+        }
+        Write-Host "SYNC CoreRuntime galaxy: $coreCount files injected"
+    }
+
+    # 3. Inject CommanderBridge galaxy files (LibE0EAE146_HeroRevive, HeroStructures, etc.)
+    # These are in CommanderBridge.SC2Mod, not CommanderUnits_*, so sourcePatterns doesn't match.
+    $commanderBridgeBaseData = Join-Path $ProjRoot "Mods\7vs1\CommanderBridge.SC2Mod\Base.SC2Data"
+    if (Test-Path $commanderBridgeBaseData) {
+        $bridgeGalaxyFiles = Get-ChildItem $commanderBridgeBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+        $bridgeCount = 0
+        foreach ($gf in $bridgeGalaxyFiles) {
+            $dst = Join-Path $mapLiveBaseData $gf.Name
+            [System.IO.File]::Copy($gf.FullName, $dst, $true)
+            $bridgeCount++
+        }
+        Write-Host "SYNC CommanderBridge galaxy: $bridgeCount files injected"
+    }
+
+    # 3b. Inject kit_mutations galaxy files (LibA070801C — mutator runtime)
+    # LibE0EAE146_MutatorRuntime.galaxy calls libA070801C_gf_EnableDisableMutator,
+    # which is defined in kit_mutations.SC2Mod. Without this injection the galaxy
+    # compiler fails with "解析函数行出错" on the mutator clear function.
+    $kitMutationsBaseData = Join-Path $ProjRoot "Mods\kit_mutations.SC2Mod\Base.SC2Data"
+    if (Test-Path $kitMutationsBaseData) {
+        $kitMutGalaxyFiles = Get-ChildItem $kitMutationsBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+        $kitMutCount = 0
+        foreach ($gf in $kitMutGalaxyFiles) {
+            $dst = Join-Path $mapLiveBaseData $gf.Name
+            [System.IO.File]::Copy($gf.FullName, $dst, $true)
+            $kitMutCount++
+        }
+        Write-Host "SYNC kit_mutations galaxy: $kitMutCount files injected"
+    }
+
+    # 4. Patch MapScript.galaxy to include 7vs1 galaxy libraries
+    # traynor01 (and other WoL campaign maps) have MapScript.galaxy that only includes
+    # RO mod's galaxy files (LibWoLC, LibCamp, etc). 7vs1's LibE0EAE146 and its
+    # dependencies must be included and initialized for the commander system to work.
+    # This patch is applied to the live copy only — source map is untouched.
+    $mapScriptPath = Join-Path $MapLivePath "MapScript.galaxy"
+    if (Test-Path -LiteralPath $mapScriptPath) {
+        Write-Host "--- MapScript.galaxy Patch ---"
+        $content = [System.IO.File]::ReadAllText($mapScriptPath)
+
+        # Check if already patched (idempotent)
+        if ($content -notmatch 'include "LibE0EAE146"') {
+            # Insert 7vs1 includes after the last existing include line
+            $sevenOneIncludes = @(
+                'include "LibA070801C"',
+                'include "Lib67C0F0E7"',
+                'include "LibC0F50AA6"',
+                'include "Lib81FF3B49"',
+                'include "LibDF8E6945"',
+                'include "LibBE3BBD9F"',
+                'include "Lib0940FFB7"',
+                'include "Lib4B62E36B"',
+                'include "Lib975E2FE9"',
+                'include "LibE0EAE146"'
+            )
+            $includeBlock = $sevenOneIncludes -join "`n"
+            # Find the last include line and insert after it
+            $lastIncludePattern = '(?m)^(include "[^"]+"(?:\r?\n)*)'
+            $lastMatch = [regex]::Matches($content, $lastIncludePattern)
+            if ($lastMatch.Count -gt 0) {
+                $insertPos = $lastMatch[$lastMatch.Count - 1].Index + $lastMatch[$lastMatch.Count - 1].Length
+                $content = $content.Substring(0, $insertPos) + $includeBlock + "`n" + $content.Substring($insertPos)
+            }
+
+            # Insert init calls before the closing brace of InitLibs()
+            $initCalls = @(
+                '    libA070801C_InitLib();',
+                '    lib67C0F0E7_InitLib();',
+                '    libC0F50AA6_InitLib();',
+                '    lib81FF3B49_InitLib();',
+                '    libDF8E6945_InitLib();',
+                '    libBE3BBD9F_InitLib();',
+                '    lib0940FFB7_InitLib();',
+                '    lib4B62E36B_InitLib();',
+                '    lib975E2FE9_InitLib();',
+                '    libE0EAE146_InitLib();'
+            )
+            $initBlock = $initCalls -join "`n" + "`n"
+            # Find InitLibs() function and insert before its closing brace
+            # Pattern: void InitLibs () { ... }
+            $initLibsPattern = '(void\s+InitLibs\s*\(\s*\)\s*\{)([^}]+)(\})'
+            if ($content -match $initLibsPattern) {
+                $beforeBrace = $matches[2]
+                $content = $content -replace [regex]::Escape($beforeBrace), ($beforeBrace + $initBlock + "`n")
+            }
+
+            [System.IO.File]::WriteAllText($mapScriptPath, $content, [System.Text.UTF8Encoding]::new($false))
+            Write-Host "PATCHED MapScript.galaxy: added 10 includes + 10 init calls"
+        } else {
+            Write-Host "SKIP MapScript.galaxy patch: already patched"
+        }
+    } else {
+        Write-Host "WARN: MapScript.galaxy not found at $mapScriptPath"
+    }
+
+    # 5. Patch LibE0EAE146.galaxy to remove CampaignLib include
+    # RO mod has its own LibCamp (library name "Camp"), 7vs1's CampaignLib also uses "Camp".
+    # Both define libCamp_* constants → duplicate declaration crash.
+    # Fix: remove CampaignLib include from LibE0EAE146.galaxy live copy.
+    # RO mod's LibCamp provides libCamp_InitVariables() which LibE0EAE146 calls.
+    $libE0EAE146Path = Join-Path $mapLiveBaseData "LibE0EAE146.galaxy"
+    if (Test-Path -LiteralPath $libE0EAE146Path) {
+        $libContent = [System.IO.File]::ReadAllText($libE0EAE146Path)
+        if ($libContent -match 'include "TriggerLibs/CampaignLib"') {
+            $libContent = $libContent -replace '(?m)^include "TriggerLibs/CampaignLib"\r?\n', ''
+            [System.IO.File]::WriteAllText($libE0EAE146Path, $libContent, [System.Text.UTF8Encoding]::new($false))
+            Write-Host "PATCHED LibE0EAE146.galaxy: removed CampaignLib include (avoids LibCamp name conflict)"
+        }
+    }
+}
+
 # === DEPENDENCY REWRITE SECTION ===
 Write-Host "--- Dependency Rewrite ---"
 $runtimeDeps = @()
