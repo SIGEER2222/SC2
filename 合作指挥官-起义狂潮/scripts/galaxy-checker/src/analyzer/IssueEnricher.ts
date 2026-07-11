@@ -7,6 +7,7 @@ interface RuleMeta {
   confidence: Confidence;
   autoFixable: boolean;
   runtimeRisk: RuntimeRisk;
+  blocking: boolean;
   suggestedOwner: string;
   notes?: string;
 }
@@ -66,6 +67,7 @@ export function enrichIssues(
       confidence,
       autoFixable: ruleMeta.autoFixable,
       runtimeRisk: ruleMeta.runtimeRisk,
+      blocking: ruleMeta.blocking,
       suggestedOwner: ruleMeta.suggestedOwner,
     };
   });

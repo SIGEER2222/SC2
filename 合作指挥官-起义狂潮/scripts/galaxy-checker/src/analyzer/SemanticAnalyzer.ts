@@ -311,8 +311,9 @@ function checkCatalogRef(
     const id = arg.value as string;
     if (!id) continue;
 
+    // any 类型：优先用 any Set（覆盖所有 C* 元素），否则遍历所有已加载 catalog Set
     const exists = spec.catalog === 'any'
-      ? Object.values(ctx.catalogDb).some(set => set?.has(id) ?? false)
+      ? (ctx.catalogDb.any?.has(id) ?? Object.values(ctx.catalogDb).some(set => set?.has(id) ?? false))
       : ctx.catalogDb[spec.catalog]?.has(id) ?? false;
 
     if (!exists) {

@@ -18,6 +18,8 @@ export interface Issue {
   confidence?: Confidence;
   autoFixable?: boolean;
   runtimeRisk?: RuntimeRisk;
+  // CI 模式门禁：true=阻塞提交，false=可延期清理
+  blocking?: boolean;
   sourceDependency?: string;   // 导致此 issue 的依赖 mod（若可确定）
   suggestedOwner?: string;     // 建议修复责任方
 }
@@ -52,6 +54,9 @@ export interface CatalogDb {
   Behavior?: Set<string>;
   Effect?: Set<string>;
   Button?: Set<string>;
+  // any: 所有 C* 元素 ID 的并集（含 CWeapon/CActor/CValidator 等未单独跟踪的类型）
+  // 用于 CatalogFieldValueGet/Set/Modify 等跨 catalog 查询
+  any?: Set<string>;
 }
 
 // Galaxy 类型枚举（来自设计文档 §14.1）
@@ -106,4 +111,24 @@ export interface CompareResult {
   baselineTotal: number;
   currentTotal: number;
   currentResult: CheckResult;
+}
+
+// ScriptError 关联相关类型
+export interface ScriptErrorEntry {
+  rawLine: string;
+  lineNumber: number;
+  galaxyFile?: string;
+  galaxyLine?: number;
+  triggerName?: string;
+  errorMessage?: string;
+  correlatedIssue?: Issue;
+  suggestions?: string[];
+}
+
+export interface CorrelationResult {
+  totalErrors: number;
+  parsed: ScriptErrorEntry[];
+  correlated: number;
+  unresolved: number;
+  galaxyFilesChecked: Set<string>;
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // extract-catalog-ids.mjs
-// 从所有 mod 的 GameData XML 中提取 catalog ID，合并到 catalog-ids.json。
+// 从所有 mod 的 GameData XML 中提取 catalog ID，按 XML 元素名分类。
 // 用法: node extract-catalog-ids.mjs <mods-dir> <output-json>
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
@@ -17,29 +17,46 @@ function walkDir(dir, out) {
   }
 }
 
-// 从 XML 中提取所有 id="..." 属性值，按文件名分类
-function extractIdsFromXml(xmlPath) {
-  const content = readFileSync(xmlPath, 'utf-8');
-  const ids = new Set();
-  // 匹配 id="..." 属性（不区分大小写）
-  const re = /\bid\s*=\s*"([^"]+)"/gi;
-  let m;
-  while ((m = re.exec(content)) !== null) {
-    ids.add(m[1]);
-  }
-  return ids;
-}
+// XML 元素名前缀 → catalog 类型映射
+// SC2 GameData 中元素名是 C 前缀 + 子类型，如 CAbilEffectTarget, CBehaviorBuff, CEffectDamage
+const ELEMENT_PREFIX_TO_CATALOG = [
+  { prefix: 'CUnit', catType: 'Unit' },
+  { prefix: 'CAbil', catType: 'Abil' },
+  { prefix: 'CUpgrade', catType: 'Upgrade' },
+  { prefix: 'CBehavior', catType: 'Behavior' },
+  { prefix: 'CEffect', catType: 'Effect' },
+  { prefix: 'CButton', catType: 'Button' },
+];
 
-// 根据文件名推断 catalog 类型
-function inferCatalogType(fileName) {
-  const lower = fileName.toLowerCase();
-  if (lower.includes('unit')) return 'Unit';
-  if (lower.includes('abil')) return 'Abil';
-  if (lower.includes('upgrade')) return 'Upgrade';
-  if (lower.includes('behavior') || lower.includes('buff')) return 'Behavior';
-  if (lower.includes('effect')) return 'Effect';
-  if (lower.includes('button')) return 'Button';
-  return null; // 未知类型，归入 'any'
+// 从 XML 中按元素名前缀提取 id 属性，正确分类 catalog 类型
+// 同时将所有 C* 元素的 ID 纳入 any 集合（覆盖 CWeapon/CActor/CValidator 等未单独跟踪的类型）
+function extractIdsByElement(xmlPath) {
+  const content = readFileSync(xmlPath, 'utf-8');
+  const result = { Unit: new Set(), Abil: new Set(), Upgrade: new Set(), Behavior: new Set(), Effect: new Set(), Button: new Set(), any: new Set() };
+
+  // 按前缀分类提取
+  for (const { prefix, catType } of ELEMENT_PREFIX_TO_CATALOG) {
+    const re = new RegExp(`<${prefix}[A-Z][^>]*?\\bid\\s*=\\s*["']([^"']+)["']`, 'gi');
+    let m;
+    while ((m = re.exec(content)) !== null) {
+      result[catType].add(m[1]);
+      result.any.add(m[1]);
+    }
+    const re2 = new RegExp(`<${prefix}\\s+[^>]*?\\bid\\s*=\\s*["']([^"']+)["']`, 'gi');
+    while ((m = re2.exec(content)) !== null) {
+      result[catType].add(m[1]);
+      result.any.add(m[1]);
+    }
+  }
+
+  // 提取所有 C* 元素的 ID 到 any 集合（覆盖 CWeapon/CActor/CValidator/Camera 等未单独跟踪的类型）
+  const anyRe = /<C[A-Z][A-Za-z]+\s+[^>]*?\bid\s*=\s*["']([^"']+)["']/gi;
+  let m;
+  while ((m = anyRe.exec(content)) !== null) {
+    result.any.add(m[1]);
+  }
+
+  return result;
 }
 
 function main() {
@@ -67,19 +84,17 @@ function main() {
     Behavior: new Set(),
     Effect: new Set(),
     Button: new Set(),
-    any: new Set(), // 所有 ID 的并集
+    any: new Set(),
   };
 
   let totalIds = 0;
   for (const xmlFile of xmlFiles) {
-    const fileName = basename(xmlFile);
-    const cat = inferCatalogType(fileName);
-    const ids = extractIdsFromXml(xmlFile);
-    for (const id of ids) {
-      catalog.any.add(id);
-      totalIds++;
-      if (cat) {
-        catalog[cat].add(id);
+    const extracted = extractIdsByElement(xmlFile);
+    for (const [catType, ids] of Object.entries(extracted)) {
+      for (const id of ids) {
+        catalog[catType].add(id);
+        catalog.any.add(id);
+        totalIds++;
       }
     }
   }
@@ -91,11 +106,11 @@ function main() {
   }
 
   writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf-8');
-  console.log(`提取完成:`);
+  console.log(`提取完成（按 XML 元素名分类）:`);
   for (const [key, arr] of Object.entries(output)) {
     console.log(`  ${key}: ${arr.length} IDs`);
   }
-  console.log(`总计 ${totalIds} 个 ID 引用（含重复），输出到 ${outputPath}`);
+  console.log(`总计 ${totalIds} 个 ID 引用（含跨 catalog 重复），输出到 ${outputPath}`);
 }
 
 main();

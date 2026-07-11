@@ -21,6 +21,7 @@ if (args.length === 0 || args.includes('--help')) {
   --no-global-symbols     跳过全局符号表构建
   --fix <rule>            自动修复指定规则（目前支持 XLIB_DISCOURAGED_NATIVE）
   --dry-run               与 --fix 配合使用，只预览不写文件
+  --ci                    CI 门禁模式：只在 blocking=true 的 issue 存在时 exit 1
   --help                  显示帮助`);
   process.exit(2);
 }
@@ -70,7 +71,37 @@ try {
     noGlobalSymbols: args.includes('--no-global-symbols'),
   });
   const reporter = new IssueReporter(format);
-  const output = reporter.report(result.issues, result.filesChecked);
+  const ciMode = args.includes('--ci');
+
+  if (ciMode) {
+    // CI 模式：只输出 blocking issue，按 blocking 决定退出码
+    const blockingIssues = result.issues.filter(i => i.blocking === true);
+    const ciOutput = {
+      tool: 'galaxy-checker',
+      mode: 'ci',
+      compositionId: result.compositionId,
+      contextLoaded: result.contextLoaded,
+      filesChecked: result.filesChecked,
+      summary: {
+        total: result.issues.length,
+        blocking: blockingIssues.length,
+        nonBlocking: result.issues.length - blockingIssues.length,
+      },
+      blockingIssues: blockingIssues.map(i => ({
+        file: i.file,
+        line: i.line,
+        ruleCode: i.ruleCode,
+        message: i.message,
+        confidence: i.confidence,
+        runtimeRisk: i.runtimeRisk,
+        suggestedOwner: i.suggestedOwner,
+      })),
+    };
+    console.log(JSON.stringify(ciOutput, null, 2));
+    process.exit(blockingIssues.length > 0 ? 1 : 0);
+  }
+
+  const output = reporter.reportResult(result);
   console.log(output);
   process.exit(result.summary.errors > 0 ? 1 : 0);
 } catch (e: any) {

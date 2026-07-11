@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "planId": "Coop7vs1.DefaultTest__p1-TerranRaynor",
+  "map": {
+    "mapId": "DefaultTest",
+    "mapFamily": "Coop7vs1",
+    "mapName": "7vs1 合作测试地图",
+    "source": "Maps/7vs1-test.SC2Map",
+    "adapter": "7vs1"
+  },
+  "commanderSlots": [
+    {
+      "slotIndex": 0,
+      "playerId": 1,
+      "commanderId": "TerranRaynor",
+      "prestige": null,
+      "mastery": null,
+      "talents": [],
+      "bonuses": []
+    }
+  ],
+  "dependencies": {
+    "always": [
+      {
+        "path": "file:Mods/7vs1/CoreRuntime.SC2Mod",
+        "layer": "L0-Base",
+        "source": "PlatformKernel"
+      },
+      {
+        "path": "file:Mods/7vs1/CommanderBridge.SC2Mod",
+        "layer": "L2-PlatformKernel",
+        "source": "PlatformKernel"
+      },
+      {
+        "path": "file:Mods/7vs1/SharedUnits.SC2Mod",
+        "layer": "L1-SharedUnits",
+        "source": "PlatformKernel"
+      },
+      {
+        "path": "file:Mods/7vs1/BaseCatalogPatch.SC2Mod",
+        "layer": "L1-BaseCatalog",
+        "source": "PlatformKernel"
+      },
+      {
+        "path": "file:Mods/7vs1/ExternalRefs.SC2Mod",
+        "layer": "L1-ExternalRefs",
+        "source": "PlatformKernel"
+      }
+    ],
+    "commander": [
+      {
+        "slotIndex": 0,
+        "commanderId": "TerranRaynor",
+        "dependencies": [
+          {
+            "path": "file:Mods/7vs1/CommanderUnits_Raynor.SC2Mod",
+            "layer": "L4-CommanderPackage",
+            "source": "CommanderPackage.TerranRaynor"
+          }
+        ]
+      }
+    ],
+    "pairPatches": []
+  },
+  "conflictResolution": {
+    "overrideStrategy": "preserve-map",
+    "allowedConflicts": []
+  },
+  "bankConfig": {
+    "protectedBanks": ["CoopMap"],
+    "playerBanks": {
+      "1": "CoopZeroPop"
+    }
+  },
+  "victoryCondition": {
+    "type": "native"
+  },
+  "defeatCondition": {
+    "type": "native"
+  },
+  "bootstrap": {
+    "galaxyIncludes": [
+      {
+        "path": "LibKCOR.galaxy",
+        "purpose": "PlatformKernel"
+      },
+      {
+        "path": "LibKCUI.galaxy",
+        "purpose": "PlatformKernel"
+      },
+      {
+        "path": "LibKMIS.galaxy",
+        "purpose": "PlatformKernel"
+      },
+      {
+        "path": "LibKPVP.galaxy",
+        "purpose": "PlatformKernel"
+      }
+    ],
+    "initSequence": [
+      {
+        "phase": "CompositionRegistered",
+        "function": "libKCOR_gf_InitComposition"
+      },
+      {
+        "phase": "MapTechnologyReady",
+        "function": "libKCOR_gf_ApplyTechTree"
+      },
+      {
+        "phase": "CommanderStartCreated",
+        "function": "libKCOR_gf_CreateCommanderStart"
+      }
+    ],
+    "runtimeOverrides": []
+  }
+}

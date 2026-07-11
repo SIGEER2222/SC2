@@ -15,7 +15,10 @@ import type { Issue, CheckResult, CheckOptions, CatalogDb } from './types.js';
 
 export { parse, RuleEngine, checkRules, IssueReporter, NativeFunctionTable, ProjectLoader, analyze, enrichIssues, resolveFromCompositionPlan };
 export { runFixer, fixDiscouragedUnitCreate } from './fixer/Fixer.js';
-export type { Issue, CheckResult, CheckOptions, FixEdit, FixResult, BaselineEntry, CompareResult } from './types.js';
+// 注意：baseline-compare 和 script-error-correlator 的函数不在此导出，避免其 main()
+// 被 esbuild 打包进 cli.mjs / 其他 bundle 后因 import.meta.url 守卫失效而意外执行。
+// 这两个模块各自作为独立 bundle（galaxy-checker-baseline / galaxy-checker-scripterror）提供 CLI 入口。
+export type { Issue, CheckResult, CheckOptions, FixEdit, FixResult, BaselineEntry, CompareResult, ScriptErrorEntry, CorrelationResult } from './types.js';
 
 const DEFAULT_RULES_PATH = resolveDataFile('project-rules.json');
 
@@ -201,7 +204,7 @@ function loadCatalogDb(catalogDbPath?: string): CatalogDb | undefined {
     const raw = JSON.parse(readFileSync(path, 'utf-8')) as Record<string, string[]>;
     // 将 JSON 数组转换为 Set 实现 O(1) 查找
     const db: CatalogDb = {};
-    for (const key of ['Unit', 'Abil', 'Upgrade', 'Behavior', 'Effect', 'Button'] as const) {
+    for (const key of ['Unit', 'Abil', 'Upgrade', 'Behavior', 'Effect', 'Button', 'any'] as const) {
       if (Array.isArray(raw[key])) {
         db[key] = new Set(raw[key]);
       }

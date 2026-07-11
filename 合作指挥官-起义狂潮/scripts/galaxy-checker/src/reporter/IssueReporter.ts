@@ -8,6 +8,17 @@ export class IssueReporter {
 
   report(issues: Issue[], filesChecked: number): string {
     const result = this.buildResult(issues, filesChecked);
+    return this.formatResult(result);
+  }
+
+  /**
+   * 格式化完整 CheckResult（含 compositionId/contextLoaded 等扩展字段）。
+   */
+  reportResult(result: CheckResult): string {
+    return this.formatResult(result);
+  }
+
+  private formatResult(result: CheckResult): string {
     if (this.format === 'json') {
       const output: Record<string, unknown> = {
         version: '1.1',
