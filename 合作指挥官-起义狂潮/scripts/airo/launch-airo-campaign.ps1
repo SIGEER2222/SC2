@@ -40,7 +40,13 @@ $script:LauncherScriptsRoot = Join-Path $ScriptsRoot "sc2-launcher"
 . (Join-Path $script:LauncherScriptsRoot "config-validation.ps1")
 
 # === Load project-specific dependency scripts ===
+. (Join-Path $ScriptsRoot "commander-power-metadata.ps1")
 . (Join-Path $ScriptsRoot "sc2\campaignxcore-bank.ps1")
+
+function Convert-TestCommanderToCommanderPowerKey {
+    param([string]$Commander)
+    return (Convert-CommanderPowerCommanderToBankKey -Commander $Commander -WorkspaceRoot $ProjRoot)
+}
 
 # === Load configuration ===
 $airoConfig = Import-LauncherConfig -Name "airo-dependencies"
@@ -131,7 +137,17 @@ if (-not $isOriginalMode) {
 
 # === MAP SYNC SECTION ===
 Write-Host "--- Map Sync ---"
-Sync-MapToLive -MapName $MapName -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+# AIRO maps live in Maps\AIRO\ subdirectory, so sync directly instead of using Sync-MapToLive
+# (which expects Maps\<MapName> at top level)
+$mapSrcDir = Join-Path $ProjRoot "Maps\AIRO\$MapName"
+if (-not (Test-Path $mapSrcDir)) {
+    Write-Host "ERROR: map source not found: $mapSrcDir"
+    exit 1
+}
+if (Test-Path $MapLivePath) { [System.IO.Directory]::Delete($MapLivePath, $true) }
+[System.IO.Directory]::CreateDirectory($MapLivePath) | Out-Null
+robocopy $mapSrcDir $MapLivePath /MIR /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
+Write-Host "SYNC map: $MapName (from Maps\AIRO\)"
 
 # === DEPENDENCY REWRITE SECTION ===
 Write-Host "--- Dependency Rewrite ---"
