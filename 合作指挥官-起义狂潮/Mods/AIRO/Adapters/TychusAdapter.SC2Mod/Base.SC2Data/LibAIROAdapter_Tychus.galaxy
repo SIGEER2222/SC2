@@ -1,0 +1,31 @@
+include "TriggerLibs/natives"
+include "LibAIROAdapter_Tychus_h"
+
+string libAIROAdapterInterface_CommanderName() {
+    return "TerranTychus";
+}
+
+string libAIROAdapterInterface_GetReplacementUnit(string originalUnit) {
+    // === 建筑类 ===
+    if (originalUnit == "CommandCenter") { return "TychusCommandCenter"; }
+    if (originalUnit == "EngineeringBay") { return "TychusEngineeringBay"; }
+    if (originalUnit == "Armory") { return "TychusArmory"; }
+    if (originalUnit == "GhostAcademy") { return "TychusGhostAcademy"; }
+
+    // === 战斗单位类 ===
+    if (originalUnit == "SCV") { return "TychusSCV"; }
+    if (originalUnit == "Marauder" || originalUnit == "IronWarrior" || originalUnit == "DevilDog") { return "TychusMarauder"; }
+    if (originalUnit == "Firebat") { return "TychusFirebat"; }
+    if (originalUnit == "Medic") { return "TychusMedic"; }
+    if (originalUnit == "Reaper") { return "TychusReaper"; }
+    if (originalUnit == "Ghost") { return "TychusGhost"; }
+
+    // 无映射 → 保留原版
+    return originalUnit;
+}
+
+void libAIROAdapterInterface_OnUnitCreated(unit createdUnit) {
+}
+
+void libAIROAdapterInterface_OnGameStart() {
+}

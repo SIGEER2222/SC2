@@ -1,0 +1,24 @@
+include "TriggerLibs/natives"
+include "LibAIROAdapter_Mengsk_h"
+
+string libAIROAdapterInterface_CommanderName() {
+    return "TerranMengsk";
+}
+
+string libAIROAdapterInterface_GetReplacementUnit(string originalUnit) {
+    // === 战斗单位类 ===
+    if (originalUnit == "Marine" || originalUnit == "MurlocMarine") { return "MengskMarine"; }
+    if (originalUnit == "Marauder" || originalUnit == "IronWarrior" || originalUnit == "DevilDog") { return "MengskMarauder"; }
+    if (originalUnit == "Firebat") { return "MengskFirebat"; }
+    if (originalUnit == "Medic") { return "MengskMedic"; }
+    if (originalUnit == "Reaper") { return "MengskReaper"; }
+
+    // 其他（包括建筑）无 Mengsk 版本 → 保留原版
+    return originalUnit;
+}
+
+void libAIROAdapterInterface_OnUnitCreated(unit createdUnit) {
+}
+
+void libAIROAdapterInterface_OnGameStart() {
+}

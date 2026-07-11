@@ -1,0 +1,23 @@
+include "TriggerLibs/natives"
+include "LibAIROAdapter_Swann_h"
+
+string libAIROAdapterInterface_CommanderName() {
+    return "TerranSwann";
+}
+
+string libAIROAdapterInterface_GetReplacementUnit(string originalUnit) {
+    // === 建筑类 ===
+    if (originalUnit == "CommandCenter") { return "CommandCenterSwann"; }
+
+    // === 战斗单位类 ===
+    if (originalUnit == "SCV") { return "SCVSwann"; }
+
+    // 其他原版单位无 Swann 版本 → 保留原版
+    return originalUnit;
+}
+
+void libAIROAdapterInterface_OnUnitCreated(unit createdUnit) {
+}
+
+void libAIROAdapterInterface_OnGameStart() {
+}

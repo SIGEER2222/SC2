@@ -1,0 +1,24 @@
+include "TriggerLibs/natives"
+include "LibAIROAdapter_Dehaka_h"
+
+string libAIROAdapterInterface_CommanderName() {
+    return "ZergDehaka";
+}
+
+string libAIROAdapterInterface_GetReplacementUnit(string originalUnit) {
+    // === 建筑类 ===
+    if (originalUnit == "CommandCenter") { return "DehakaHatchery"; }
+    if (originalUnit == "Barracks") { return "DehakaHatchery"; }
+
+    // === 战斗单位类 ===
+    if (originalUnit == "SCV") { return "DehakaDrone"; }
+
+    // 其他原版单位无 Dehaka 版本 → 保留原版
+    return originalUnit;
+}
+
+void libAIROAdapterInterface_OnUnitCreated(unit createdUnit) {
+}
+
+void libAIROAdapterInterface_OnGameStart() {
+}
