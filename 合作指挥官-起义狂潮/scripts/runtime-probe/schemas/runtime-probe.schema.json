@@ -1,0 +1,362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MyMod/SC2/runtime-probe.schema.json",
+  "title": "RuntimeProbe VerificationReport",
+  "description": "Python Probe Runner 解析 Bank 后生成的诊断报告 JSON schema，对应 RuntimeProbe-Bank协议.md 第 10 节",
+  "type": "object",
+  "required": ["run_id", "composition_id", "timestamp", "status", "probe_state"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "本次启动的唯一 ID",
+      "pattern": "^run-[0-9]{8}-[0-9]{4}$",
+      "examples": ["run-20260712-0001"]
+    },
+    "composition_id": {
+      "type": "string",
+      "description": "组合配置 ID（commander + map + deps）",
+      "minLength": 1,
+      "examples": ["raynor-traynor01-7vs1"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "报告生成时间（ISO 8601）"
+    },
+    "status": {
+      "type": "object",
+      "description": "报告整体状态",
+      "required": ["launch_pass", "map_loaded", "probe_complete", "static_match", "runtime_assertions_pass", "script_error_free"],
+      "additionalProperties": false,
+      "properties": {
+        "launch_pass": {
+          "type": "boolean",
+          "description": "SC2 进程启动成功且 API 可连接"
+        },
+        "map_loaded": {
+          "type": "boolean",
+          "description": "Bank 心跳出现，heartbeat >= 1"
+        },
+        "probe_complete": {
+          "type": "boolean",
+          "description": "probe_state.phase == in_mission 且 probe_units 非空"
+        },
+        "static_match": {
+          "type": "boolean",
+          "description": "所有 diff.match == true"
+        },
+        "runtime_assertions_pass": {
+          "type": "boolean",
+          "description": "所有 assertion.status == pass"
+        },
+        "script_error_free": {
+          "type": "boolean",
+          "description": "script_error_count == 0"
+        }
+      }
+    },
+    "probe_state": {
+      "$ref": "#/$defs/ProbeState"
+    },
+    "probe_units": {
+      "type": "array",
+      "description": "单位与建筑摘要列表",
+      "items": {
+        "$ref": "#/$defs/ProbeUnit"
+      }
+    },
+    "probe_producers": {
+      "type": "array",
+      "description": "生产建筑与可训练项列表",
+      "items": {
+        "$ref": "#/$defs/ProbeProducer"
+      }
+    },
+    "probe_abilities": {
+      "type": "array",
+      "description": "关键单位能力与命令卡列表",
+      "items": {
+        "$ref": "#/$defs/ProbeAbility"
+      }
+    },
+    "probe_upgrades": {
+      "type": "array",
+      "description": "科技与升级状态列表",
+      "items": {
+        "$ref": "#/$defs/ProbeUpgrade"
+      }
+    },
+    "probe_assertions": {
+      "type": "array",
+      "description": "游戏内断言结果列表",
+      "items": {
+        "$ref": "#/$defs/ProbeAssertion"
+      }
+    },
+    "diffs": {
+      "type": "array",
+      "description": "三段式差异列表",
+      "items": {
+        "$ref": "#/$defs/ThreeWayDiff"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "description": "Probe Runner 自身遇到的错误（非游戏内错误）",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "ProbeState": {
+      "type": "object",
+      "required": ["heartbeat", "is_in_mission", "phase"],
+      "additionalProperties": false,
+      "properties": {
+        "run_id": { "type": "string" },
+        "composition_id": { "type": "string" },
+        "map_id": { "type": "string" },
+        "map_path": { "type": "string" },
+        "commander_id": { "type": "string" },
+        "player_id": { "type": "integer", "minimum": 0 },
+        "game_time": { "type": "integer", "minimum": 0, "description": "游戏时间（秒）" },
+        "game_loop": { "type": "integer", "minimum": 0 },
+        "phase": {
+          "type": "string",
+          "enum": ["loading", "in_mission", "transition", "ended", "unknown"]
+        },
+        "heartbeat": { "type": "integer", "minimum": 0, "description": "心跳值，单调递增" },
+        "is_paused": { "type": "boolean" },
+        "is_in_mission": { "type": "boolean" },
+        "script_error_count": { "type": "integer", "minimum": 0 },
+        "loaded_mods": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "实际加载的依赖链"
+        }
+      }
+    },
+    "ProbeUnit": {
+      "type": "object",
+      "description": "单位与建筑摘要（对应 probe_units section）",
+      "required": ["player_id", "unit_type_id", "count"],
+      "additionalProperties": false,
+      "properties": {
+        "player_id": { "type": "integer", "minimum": 0 },
+        "unit_type_id": { "type": "string", "minLength": 1 },
+        "catalog_id": { "type": "string" },
+        "count": { "type": "integer", "minimum": 0 },
+        "completed_count": { "type": "integer", "minimum": 0 },
+        "in_progress_count": { "type": "integer", "minimum": 0 },
+        "life_summary": {
+          "type": "object",
+          "properties": {
+            "avg": { "type": "number" },
+            "min": { "type": "number" },
+            "max": { "type": "number" }
+          }
+        },
+        "energy_summary": {
+          "type": "object",
+          "properties": {
+            "avg": { "type": "number" },
+            "min": { "type": "number" },
+            "max": { "type": "number" }
+          }
+        },
+        "owner": { "type": "integer", "minimum": 0 },
+        "is_structure": { "type": "boolean" },
+        "is_worker": { "type": "boolean" }
+      }
+    },
+    "ProbeProducer": {
+      "type": "object",
+      "description": "生产建筑与可训练项（对应 probe_producers section）",
+      "required": ["player_id", "producer_catalog_id"],
+      "additionalProperties": false,
+      "properties": {
+        "player_id": { "type": "integer", "minimum": 0 },
+        "producer_unit_id": { "type": "string" },
+        "producer_catalog_id": { "type": "string", "minLength": 1 },
+        "producer_count": { "type": "integer", "minimum": 0 },
+        "trainable_unit_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "blocked_unit_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "active_queue": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "last_order_ability": { "type": "string" }
+      }
+    },
+    "ProbeAbility": {
+      "type": "object",
+      "description": "关键单位能力与命令卡（对应 probe_abilities section）",
+      "required": ["player_id", "unit_type_id"],
+      "additionalProperties": false,
+      "properties": {
+        "player_id": { "type": "integer", "minimum": 0 },
+        "unit_type_id": { "type": "string", "minLength": 1 },
+        "ability_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "command_card_button_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "missing_expected_ability_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "missing_expected_button_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "autocast_flags": {
+          "type": "object",
+          "additionalProperties": { "type": "boolean" },
+          "description": "key=能力ID, value=是否开启自动施法"
+        }
+      }
+    },
+    "ProbeUpgrade": {
+      "type": "object",
+      "description": "科技与升级状态（对应 probe_upgrades section）",
+      "required": ["player_id", "upgrade_id"],
+      "additionalProperties": false,
+      "properties": {
+        "player_id": { "type": "integer", "minimum": 0 },
+        "upgrade_id": { "type": "string", "minLength": 1 },
+        "researched": { "type": "boolean" },
+        "available": { "type": "boolean" },
+        "in_progress": { "type": "boolean" },
+        "blocked_reason": { "type": "string" },
+        "affected_unit_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "ProbeAssertion": {
+      "type": "object",
+      "description": "游戏内断言结果（对应 probe_assertions section）",
+      "required": ["assertion_id", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "assertion_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_]+$",
+          "description": "断言 ID（ASCII）"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error", "critical"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "unknown"]
+        },
+        "expected": { "type": "string" },
+        "actual": { "type": "string" },
+        "message": { "type": "string" },
+        "source": {
+          "type": "string",
+          "description": "断言来源（probe section 名）"
+        }
+      }
+    },
+    "ThreeWayDiff": {
+      "type": "object",
+      "description": "三段式差异：DataCenter 期望 / 静态 Catalog / 运行时观测",
+      "required": ["match"],
+      "additionalProperties": false,
+      "properties": {
+        "producer": {
+          "type": "string",
+          "description": "生产建筑 ID（生产链差异时填写）"
+        },
+        "unit_type_id": {
+          "type": "string",
+          "description": "单位类型 ID（单位能力差异时填写）"
+        },
+        "expected_from_datacenter": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "static_effective_catalog": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "runtime_observed": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "match": {
+          "type": "boolean",
+          "description": "三段是否一致"
+        },
+        "mismatch_type": {
+          "type": "string",
+          "enum": [
+            "datacenter_wrong",
+            "dependency_wrong",
+            "catalog_overridden",
+            "galaxy_mutated",
+            "probe_underreport",
+            "none"
+          ],
+          "description": "不一致时的原因分类"
+        }
+      }
+    },
+    "ProbeAction": {
+      "type": "object",
+      "description": "外部请求触发器执行的诊断动作（对应 probe_actions section）",
+      "required": ["action_id", "action"],
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "pattern": "^[0-9]{4}$",
+          "description": "动作 ID（4 位数字字符串）"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "spawn_unit",
+            "select_producer",
+            "try_train_unit",
+            "try_research_upgrade",
+            "dump_command_card",
+            "dump_player_upgrades",
+            "dump_unit_abilities",
+            "advance_test_phase"
+          ]
+        },
+        "target_player": { "type": "integer", "minimum": 0 },
+        "target_unit": { "type": "string" },
+        "target_upgrade": { "type": "string" },
+        "producer": { "type": "string" },
+        "count": { "type": "integer", "minimum": 1 },
+        "location": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" }
+          }
+        },
+        "phase": { "type": "string" },
+        "args": { "type": "string" }
+      }
+    }
+  }
+}
