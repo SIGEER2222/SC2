@@ -5,6 +5,7 @@ import { bootstrapRouter } from './routes/bootstrap.mjs';
 import { syncRouter } from './routes/sync.mjs';
 import { scenarioRouter } from './routes/scenario.mjs';
 import { launchRouter } from './routes/launch.mjs';
+import { rebornLaunchRouter } from './routes/launch-reborn.mjs';
 
 // 进程级保护：未捕获的异常不退出进程
 process.on('uncaughtException', (err) => {
@@ -24,7 +25,7 @@ app.use(express.static(__dirname));
 // favicon.ico 不存在时返回 204，避免控制台 404 报错
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-app.use('/api', bootstrapRouter, syncRouter, scenarioRouter, launchRouter);
+app.use('/api', bootstrapRouter, syncRouter, scenarioRouter, launchRouter, rebornLaunchRouter);
 
 // 错误处理（必须放在路由之后，4 个参数才被识别为错误处理器）
 app.use((err, req, res, next) => {

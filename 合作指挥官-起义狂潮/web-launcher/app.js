@@ -2831,5 +2831,168 @@ document.querySelectorAll('.tab').forEach(btn => {
     if (tab === 'B') {
       import('./components/scenario-panels.js').then(m => m.renderScenarioCards());
     }
+    if (tab === 'C') {
+      initRebornTab();
+    }
   });
 });
+
+// === Reborn 战役 Tab ===
+let rebornState = {
+  selectedCommander: null,
+  data: null,
+  pollTimer: null,
+};
+
+async function initRebornTab() {
+  if (rebornState.data) {
+    renderRebornCommanders();
+    return;
+  }
+  const rebornStatus = document.getElementById('rebornStatus');
+  const rebornLaunchButton = document.getElementById('rebornLaunchButton');
+  rebornLaunchButton.disabled = true;
+  rebornStatus.textContent = '加载中';
+  try {
+    // 复用 bootstrap 数据中的指挥官列表
+    if (!state.data) {
+      rebornStatus.textContent = '等待主数据加载';
+      return;
+    }
+    rebornState.data = state.data.commanders;
+    renderRebornCommanders();
+    rebornStatus.textContent = `已加载 ${rebornState.data.length} 个指挥官`;
+  } catch (e) {
+    rebornStatus.textContent = `加载失败: ${e.message}`;
+  }
+  rebornLaunchButton.addEventListener('click', launchRebornGame);
+}
+
+function renderRebornCommanders() {
+  const container = document.getElementById('rebornCommanderList');
+  if (!container) return;
+  container.replaceChildren();
+  const commanders = rebornState.data || [];
+  if (commanders.length === 0) {
+    container.textContent = '无指挥官数据';
+    return;
+  }
+  const raceOrder = ['Terran', 'Protoss', 'Zerg', 'Other'];
+  const raceGroups = new Map(raceOrder.map(r => [r, []]));
+  for (const cmd of commanders) {
+    const race = getCommanderRaceSimple(cmd.runtime);
+    const bucket = raceGroups.get(race) || raceGroups.get('Other');
+    bucket.push(cmd);
+  }
+  for (const race of raceOrder) {
+    const group = raceGroups.get(race) || [];
+    if (group.length === 0) continue;
+    const section = document.createElement('section');
+    section.className = 'commander-race-group';
+    section.dataset.race = race;
+    const heading = document.createElement('h3');
+    heading.className = 'commander-race-label';
+    heading.textContent = { Terran: '人类', Protoss: '星灵', Zerg: '异虫', Other: '其他' }[race];
+    section.append(heading);
+    for (const cmd of group) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'commander-card';
+      btn.dataset.runtime = cmd.runtime;
+      if (rebornState.selectedCommander === cmd.runtime) {
+        btn.classList.add('selected');
+      }
+      btn.innerHTML = `
+        <span class="commander-card-avatar">${initials(cmd.displayName)}</span>
+        <span class="commander-card-name">${escapeHtml(cmd.displayName)}</span>
+        <span class="commander-card-runtime">${escapeHtml(cmd.runtime)}</span>
+      `;
+      btn.addEventListener('click', () => {
+        rebornState.selectedCommander = cmd.runtime;
+        renderRebornCommanders();
+        document.getElementById('rebornLaunchButton').disabled = false;
+      });
+      section.append(btn);
+    }
+    container.append(section);
+  }
+}
+
+function getCommanderRaceSimple(runtime) {
+  if (runtime.startsWith('Terran')) return 'Terran';
+  if (runtime.startsWith('Protoss')) return 'Protoss';
+  if (runtime.startsWith('Zerg')) return 'Zerg';
+  return 'Other';
+}
+
+async function launchRebornGame() {
+  const btn = document.getElementById('rebornLaunchButton');
+  const stateLabel = document.getElementById('rebornLaunchState');
+  const output = document.getElementById('rebornOutput');
+  if (!rebornState.selectedCommander) return;
+  if (rebornState.pollTimer) {
+    stateLabel.textContent = '已有启动进程运行中';
+    return;
+  }
+  btn.disabled = true;
+  stateLabel.textContent = '启动中...';
+  output.textContent = `启动指挥官: ${rebornState.selectedCommander}\n`;
+  try {
+    const result = await apiFetchJson('/api/reborn-launch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ commander: rebornState.selectedCommander }),
+    });
+    output.textContent += `进程 PID: ${result.pid}\n`;
+    stateLabel.textContent = `PID ${result.pid}`;
+    pollRebornLaunch(result);
+  } catch (e) {
+    output.textContent += `错误: ${e.message}\n`;
+    stateLabel.textContent = '错误';
+    btn.disabled = false;
+  }
+}
+
+function pollRebornLaunch(result) {
+  const btn = document.getElementById('rebornLaunchButton');
+  const stateLabel = document.getElementById('rebornLaunchState');
+  const output = document.getElementById('rebornOutput');
+  let attempts = 0;
+  const maxAttempts = 120;
+  rebornState.pollTimer = setInterval(async () => {
+    attempts++;
+    try {
+      const status = await apiFetchJson('/api/reborn-launch-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({ pid: result.pid, stdout: result.stdout, stderr: result.stderr }),
+      });
+      if (status.stdout?.tail) {
+        output.textContent = `启动指挥官: ${rebornState.selectedCommander}\n进程 PID: ${result.pid}\n${status.stdout.tail}`;
+      }
+      if (!status.running && status.exitCode !== null) {
+        clearInterval(rebornState.pollTimer);
+        rebornState.pollTimer = null;
+        if (status.exitCode === 0) {
+          stateLabel.textContent = '启动成功（游戏运行中）';
+          output.textContent += '\n=== 启动完成 ===\n';
+        } else {
+          stateLabel.textContent = `进程退出，退出码: ${status.exitCode}`;
+          output.textContent += `\n=== 进程退出，退出码: ${status.exitCode} ===\n`;
+          if (status.stderr?.tail) {
+            output.textContent += `stderr:\n${status.stderr.tail}\n`;
+          }
+        }
+        btn.disabled = false;
+      }
+      if (attempts >= maxAttempts) {
+        clearInterval(rebornState.pollTimer);
+        rebornState.pollTimer = null;
+        stateLabel.textContent = '轮询超时';
+        btn.disabled = false;
+      }
+    } catch (e) {
+      // 忽略轮询错误，继续重试
+    }
+  }, 2000);
+}
