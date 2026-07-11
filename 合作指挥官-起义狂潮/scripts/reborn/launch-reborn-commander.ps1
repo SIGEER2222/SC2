@@ -95,36 +95,37 @@ if (-not $configResult.Valid) {
 Write-Host "CONFIG VALID"
 
 # === Compute launcher plan ===
-$plan = New-LauncherPlan -Commander $Commander -MapName $MapName -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+# NOTE: use $launcherPlan (not $plan) — $Plan param is case-insensitive and typed [string].
+$launcherPlan = New-LauncherPlan -Commander $Commander -MapName $MapName -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 # PS 5.1 compatibility: ensure validation object exists and properties are settable
-if ($null -eq $plan.validation) {
-    $plan | Add-Member -NotePropertyName validation -NotePropertyValue ([PSCustomObject]@{
+if ($null -eq $launcherPlan.validation) {
+    $launcherPlan | Add-Member -NotePropertyName validation -NotePropertyValue ([PSCustomObject]@{
         configSchema      = "pass"
         documentRoundtrip = "pending"
         galaxyChecker     = "pending"
         runtimeSmoke      = "pending"
     }) -Force
-} elseif ($null -eq $plan.validation.configSchema) {
-    $plan.validation | Add-Member -NotePropertyName configSchema -NotePropertyValue "pass" -Force
+} elseif ($null -eq $launcherPlan.validation.configSchema) {
+    $launcherPlan.validation | Add-Member -NotePropertyName configSchema -NotePropertyValue "pass" -Force
 } else {
-    $plan.validation.configSchema = "pass"
+    $launcherPlan.validation.configSchema = "pass"
 }
 
 # === CheckOnly: emit plan + exit ===
 if ($CheckOnly) {
-    $planPath = Export-LauncherPlan -Plan $plan -ProjRoot $ProjRoot -Pretty
+    $planPath = Export-LauncherPlan -Plan $launcherPlan -ProjRoot $ProjRoot -Pretty
     Write-Host "PLAN emitted: $planPath"
     Write-Host "Plan summary:"
-    Write-Host "  compositionId: $($plan.compositionId)"
-    Write-Host "  dependencyLayers: $($plan.dependencyLayers.Count)"
-    Write-Host "  galaxyInjection: $($plan.galaxyInjection.Count) files"
-    Write-Host "  documentRewrite: $($plan.documentRewrite.DocumentHeader.Count) deps"
+    Write-Host "  compositionId: $($launcherPlan.compositionId)"
+    Write-Host "  dependencyLayers: $($launcherPlan.dependencyLayers.Count)"
+    Write-Host "  galaxyInjection: $($launcherPlan.galaxyInjection.Count) files"
+    Write-Host "  documentRewrite: $($launcherPlan.documentRewrite.DocumentHeader.Count) deps"
     exit 0
 }
 
 # === DryRun: emit plan + baseline report + exit ===
 if ($DryRun) {
-    $planPath = Export-LauncherPlan -Plan $plan -ProjRoot $ProjRoot -Pretty
+    $planPath = Export-LauncherPlan -Plan $launcherPlan -ProjRoot $ProjRoot -Pretty
     Write-Host "PLAN emitted: $planPath"
 
     # Emit baseline report
@@ -143,28 +144,28 @@ if ($DryRun) {
     $baseline = [PSCustomObject]@{
         schemaVersion = 1
         kind          = "LauncherBaselineReport"
-        compositionId = $plan.compositionId
+        compositionId = $launcherPlan.compositionId
         commander     = $Commander
         map           = $MapName
-        sourceMap     = $plan.sourceMap
-        generatedMap  = $plan.generatedMap
+        sourceMap     = $launcherPlan.sourceMap
+        generatedMap  = $launcherPlan.generatedMap
         modSync       = @()
         staleModClean = @()
-        dependencyRewrite = $plan.documentRewrite.DocumentHeader
-        galaxyInject  = $plan.galaxyInjection | ForEach-Object { $_.file }
-        documentHeaderDeps = $plan.documentRewrite.DocumentHeader
-        documentInfoDeps   = $plan.documentRewrite.DocumentInfo
+        dependencyRewrite = $launcherPlan.documentRewrite.DocumentHeader
+        galaxyInject  = $launcherPlan.galaxyInjection | ForEach-Object { $_.file }
+        documentHeaderDeps = $launcherPlan.documentRewrite.DocumentHeader
+        documentInfoDeps   = $launcherPlan.documentRewrite.DocumentInfo
         generatedAt   = (Get-Date).ToString("o")
     }
     # Populate modSync + staleModClean from plan layers
-    foreach ($layer in $plan.dependencyLayers) {
+    foreach ($layer in $launcherPlan.dependencyLayers) {
         foreach ($entry in $layer.entries) {
             $baseline.modSync += $entry.source
         }
     }
     # Stale commander units = all CommanderUnits_* except selected
     $allCommanderUnits = Get-ChildItem -LiteralPath (Join-Path $ProjRoot "Mods\7vs1") -Directory -Filter "CommanderUnits_*.SC2Mod" -ErrorAction SilentlyContinue
-    $selectedModName = if ($plan.selectedCommanderUnitsMod) { "$($plan.selectedCommanderUnitsMod).SC2Mod" } else { "" }
+    $selectedModName = if ($launcherPlan.selectedCommanderUnitsMod) { "$($launcherPlan.selectedCommanderUnitsMod).SC2Mod" } else { "" }
     foreach ($cu in $allCommanderUnits) {
         if ($cu.Name -ne $selectedModName) {
             $baseline.staleModClean += $cu.Name
@@ -179,9 +180,9 @@ if ($DryRun) {
     $md += "# Reborn Launcher Baseline - $mapBaseName x $Commander"
     $md += ""
     $md += "- Generated: $($baseline.generatedAt)"
-    $md += "- CompositionId: $($plan.compositionId)"
-    $md += "- SourceMap: $($plan.sourceMap)"
-    $md += "- GeneratedMap: $($plan.generatedMap)"
+    $md += "- CompositionId: $($launcherPlan.compositionId)"
+    $md += "- SourceMap: $($launcherPlan.sourceMap)"
+    $md += "- GeneratedMap: $($launcherPlan.generatedMap)"
     $md += ""
     $md += "## Mod Sync ($($baseline.modSync.Count) mods)"
     foreach ($m in $baseline.modSync) { $md += "- $m" }
@@ -196,10 +197,10 @@ if ($DryRun) {
     foreach ($d in $baseline.documentHeaderDeps) { $md += "- $d" }
     $md += ""
     $md += "## Validation"
-    $md += "- configSchema: $($plan.validation.configSchema)"
-    $md += "- documentRoundtrip: $($plan.validation.documentRoundtrip)"
-    $md += "- galaxyChecker: $($plan.validation.galaxyChecker)"
-    $md += "- runtimeSmoke: $($plan.validation.runtimeSmoke)"
+    $md += "- configSchema: $($launcherPlan.validation.configSchema)"
+    $md += "- documentRoundtrip: $($launcherPlan.validation.documentRoundtrip)"
+    $md += "- galaxyChecker: $($launcherPlan.validation.galaxyChecker)"
+    $md += "- runtimeSmoke: $($launcherPlan.validation.runtimeSmoke)"
     [System.IO.File]::WriteAllText($baselineMdPath, ($md -join "`n"), [System.Text.UTF8Encoding]::new($false))
 
     Write-Host "BASELINE JSON: $baselineJsonPath"
@@ -284,7 +285,7 @@ if ($planMode) {
     $runtimeDeps = $planExec.documentDeps
 } else {
     # Legacy mode: use launcher plan document deps (base + full Alenger + commander)
-    $runtimeDeps = @($plan.documentRewrite.DocumentHeader)
+    $runtimeDeps = @($launcherPlan.documentRewrite.DocumentHeader)
 }
 Set-MapDependencies -MapPath $MapLivePath -Dependencies $runtimeDeps
 
@@ -298,17 +299,17 @@ if (-not $rtResult.Valid) {
     Write-Host "Aborting before launch - DocumentHeader/DocumentInfo may be corrupted"
     exit 1
 }
-if ($null -ne $plan.validation) {
-    if ($null -eq $plan.validation.documentRoundtrip) {
-        $plan.validation | Add-Member -NotePropertyName documentRoundtrip -NotePropertyValue "pass" -Force
+if ($null -ne $launcherPlan.validation) {
+    if ($null -eq $launcherPlan.validation.documentRoundtrip) {
+        $launcherPlan.validation | Add-Member -NotePropertyName documentRoundtrip -NotePropertyValue "pass" -Force
     } else {
-        $plan.validation.documentRoundtrip = "pass"
+        $launcherPlan.validation.documentRoundtrip = "pass"
     }
 }
 Write-Host "DOCUMENT ROUNDTRIP VALID (header deps: $($rtResult.OriginalDeps.Count), info deps: $($rtResult.InfoDeps.Count))"
 
 # Emit plan after execution (captures actual state post-rewrite)
-$planPath = Export-LauncherPlan -Plan $plan -ProjRoot $ProjRoot -Pretty
+$planPath = Export-LauncherPlan -Plan $launcherPlan -ProjRoot $ProjRoot -Pretty
 Write-Host "PLAN emitted: $planPath"
 
 # --- BANK SECTION ---
