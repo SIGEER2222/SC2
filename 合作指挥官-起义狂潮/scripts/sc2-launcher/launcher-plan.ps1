@@ -204,6 +204,37 @@ function New-LauncherPlan {
             galaxyChecker      = "pending"
             runtimeSmoke       = "pending"
         }
+        migration = [PSCustomObject]@{
+            targetSchema = "scripts/sc2-composer/schema/CompositionPlan.schema.json"
+            status       = "transitional"
+            knownDebt    = @(
+                [PSCustomObject]@{
+                    id               = "core-runtime-full-include"
+                    reason           = "CoreRuntime LibE0EAE146.galaxy hardcodes include of all commander Runtime files, forcing unselected commander galaxy files to be injected into map Base.SC2Data"
+                    removalCondition = "generated bootstrap only includes selected commander Runtime, verified by Raynor/Kerrigan/Karax triple regression"
+                },
+                [PSCustomObject]@{
+                    id               = "galaxy-directory-scan"
+                    reason           = "galaxyInjection is built via Get-ChildItem directory scan; undeclared files may be injected; no GalaxyManifest explicit declaration"
+                    removalCondition = "Shared/Galaxy/reborn-compat-galaxy-manifest.json covers all injection entries, launcher reads from manifest, undeclared files not injected"
+                },
+                [PSCustomObject]@{
+                    id               = "launcher-config-as-temporary-source"
+                    reason           = "Shared/Launcher/*.json are Reborn transitional configs, duplicating commander mapping and deps that also exist in Shared/Commanders, DataCenter.json, MapProfile"
+                    removalCondition = "sc2-composer plan can generate equivalent CompositionPlan from Shared/Commanders + MapProfile + DataCenter, Shared/Launcher frozen as read-only compat shim"
+                },
+                [PSCustomObject]@{
+                    id               = "alenger-adapter-bootstrap-hardcoded"
+                    reason           = "LibE0EAE146_AdapterBootstrap.galaxy hardcodes include of LibA1ADAPTER through LibA13ADAPTER, forcing all 24 Alenger mods to be full dependencies"
+                    removalCondition = "AdapterBootstrap changed to on-demand include or generated bootstrap trim, verified by Alenger3 single-combo regression"
+                },
+                [PSCustomObject]@{
+                    id               = "schema-not-validated-by-ajv"
+                    reason           = "config-validation.ps1 now uses validate-config.mjs (minimal node JSON Schema validator) for structural checks, but it is not a full ajv implementation; complex schema features (oneOf, anyOf, $ref, format) are not supported"
+                    removalCondition = "ajv-cli (or equivalent full JSON Schema validator) installed and integrated into -CheckOnly, all 4 schema files fully enforced"
+                }
+            )
+        }
         generatedAt = (Get-Date).ToString("o")
     }
 

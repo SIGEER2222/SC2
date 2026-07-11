@@ -2,19 +2,52 @@
 .SYNOPSIS
   Configuration validation module for SC2 commander launchers.
 .DESCRIPTION
-  Validates launcher JSON configs against schema and semantic rules:
-  - JSON parseable
-  - schemaVersion supported
-  - commander id / mod suffix uniqueness
-  - dependency path non-empty
-  - workspace / live path resolvable
-  - galaxy inject rule matches >= 1 file
-  - unknown commander fails
-  - duplicate dependency fails
+  Two-layer validation:
+  Layer 1 (schema): JSON Schema structural check via node validate-config.mjs
+    - required fields, type, const, enum, minLength, minItems, uniqueItems
+    - runs if node.exe is on PATH; otherwise records a warning
+  Layer 2 (semantic): hand-written checks in PowerShell
+    - commander id / mod suffix uniqueness
+    - workspace / live path resolvable
+    - galaxy inject rule matches >= 1 file
+    - unknown commander fails
+    - duplicate dependency fails
 
   Returns a result object with .Valid (bool), .Errors (string[]), .Warnings (string[]).
   Callers should check $result.Valid before proceeding with map/mod sync.
 #>
+
+function Test-JsonSchema {
+    <#
+    .SYNOPSIS
+      Validate a JSON file against a JSON Schema file using node validate-config.mjs.
+      Returns $true if valid, $false if invalid (errors printed to stderr by node).
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$ConfigPath,
+        [Parameter(Mandatory=$true)][string]$SchemaPath,
+        [string]$ValidatorPath = ""
+    )
+    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+        return $false  # node not available
+    }
+    if (-not $ValidatorPath) {
+        $ValidatorPath = Join-Path $PSScriptRoot "validate-config.mjs"
+    }
+    if (-not (Test-Path -LiteralPath $ValidatorPath)) {
+        return $false
+    }
+    $output = & node $ValidatorPath $ConfigPath $SchemaPath 2>&1
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -eq 0) {
+        Write-Host "  SCHEMA VALID: $ConfigPath"
+        return $true
+    } else {
+        Write-Host "  SCHEMA INVALID: $ConfigPath" -ForegroundColor Red
+        $output | ForEach-Object { Write-Host "    $_" -ForegroundColor Red }
+        return $false
+    }
+}
 
 function Test-LauncherConfig {
     <#
@@ -47,6 +80,33 @@ function Test-LauncherConfig {
     function Add-Warning { param([string]$Msg) $result.Warnings += $Msg }
 
     $sharedRoot = Join-Path $ProjRoot "Shared\Launcher"
+    $schemaRoot = Join-Path $PSScriptRoot "schema"
+
+    # --- Layer 1: JSON Schema structural validation (via node) ---
+    $schemaMap = @{
+        "commander-units-mapping" = "commander-units-mapping.schema.json"
+        "alenger-mods"            = "alenger-mods.schema.json"
+        "reborn-dependencies"     = "reborn-dependencies.schema.json"
+    }
+    $nodeAvailable = (Get-Command node -ErrorAction SilentlyContinue) -ne $null
+    if (-not $nodeAvailable) {
+        Add-Warning "node.exe not on PATH - JSON Schema structural validation skipped (semantic checks still run)"
+    }
+    foreach ($configName in $schemaMap.Keys) {
+        $configPath = Join-Path $sharedRoot "$configName.json"
+        $schemaPath = Join-Path $schemaRoot $schemaMap[$configName]
+        if (-not (Test-Path -LiteralPath $configPath)) { continue }
+        if (-not (Test-Path -LiteralPath $schemaPath)) {
+            Add-Warning "Schema file missing for $configName : $schemaPath"
+            continue
+        }
+        if ($nodeAvailable) {
+            $schemaValid = Test-JsonSchema -ConfigPath $configPath -SchemaPath $schemaPath
+            if (-not $schemaValid) {
+                Add-Error "Schema validation failed for $configName.json (see SCHEMA INVALID output above)"
+            }
+        }
+    }
 
     # --- Load configs if not provided ---
     if (-not $Configs.ContainsKey("commander-units-mapping")) {

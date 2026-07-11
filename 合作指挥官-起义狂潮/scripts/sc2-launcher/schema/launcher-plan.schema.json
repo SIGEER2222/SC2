@@ -1,9 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "launcher-plan.schema.json",
-  "title": "LauncherCompatibilityPlan (CompositionPlan-like)",
+  "title": "LauncherCompatibilityPlan (transitional, CompositionPlan-like)",
+  "description": "Transitional plan format emitted by sc2-launcher. Will be replaced by the formal CompositionPlan (scripts/sc2-composer/schema/CompositionPlan.schema.json) once sc2-composer can generate equivalent plans. The 'kind' field is intentionally 'LauncherCompatibilityPlan' (not 'CompositionPlan') to avoid confusing the two formats.",
   "type": "object",
-  "required": ["schemaVersion", "kind", "compositionId", "mapProfile", "slots", "dependencyLayers", "galaxyInjection", "documentRewrite", "validation"],
+  "required": ["schemaVersion", "kind", "compositionId", "mapProfile", "slots", "dependencyLayers", "galaxyInjection", "documentRewrite", "validation", "migration"],
   "additionalProperties": true,
   "properties": {
     "schemaVersion": { "type": "integer", "const": 1 },
@@ -77,6 +78,33 @@
         "documentRoundtrip": { "type": "string" },
         "galaxyChecker": { "type": "string" },
         "runtimeSmoke": { "type": "string" }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "description": "Declares this format is transitional and how it maps to the formal CompositionPlan.",
+      "required": ["targetSchema", "status"],
+      "properties": {
+        "targetSchema": {
+          "type": "string",
+          "const": "scripts/sc2-composer/schema/CompositionPlan.schema.json"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["transitional", "deprecated", "migrated"]
+        },
+        "knownDebt": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "reason", "removalCondition"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "reason": { "type": "string" },
+              "removalCondition": { "type": "string" }
+            }
+          }
+        }
       }
     }
   }
