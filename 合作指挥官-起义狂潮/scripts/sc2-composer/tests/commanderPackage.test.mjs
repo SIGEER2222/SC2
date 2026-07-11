@@ -158,25 +158,76 @@ describe('validatePackage', () => {
 });
 
 describe('TerranRaynor.json 集成校验', () => {
+  const pkgPath = join(__dirname, '..', '..', '..', 'Mods', '7vs1', 'CommanderPackages', 'TerranRaynor.json');
+  const metaPath = join(__dirname, '..', '..', '..', 'Shared', 'CommanderPower', 'commander-power-metadata.json');
+
+  function loadPkg() { return JSON.parse(readFileSync(pkgPath, 'utf8')); }
+  function loadMeta() {
+    const meta = JSON.parse(readFileSync(metaPath, 'utf8'));
+    return meta.commanders.find(c => c.runtime_commander === 'TerranRaynor');
+  }
+
   test('真实 TerranRaynor.json 通过 validatePackage', () => {
-    const pkgPath = join(__dirname, '..', '..', '..', 'Mods', '7vs1', 'CommanderPackages', 'TerranRaynor.json');
-    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    const pkg = loadPkg();
     const { valid, errors } = validatePackage(pkg);
     assert.equal(valid, true, `TerranRaynor.json 应通过校验，错误: ${errors.join('; ')}`);
   });
 
-  test('TerranRaynor.json 包含 3 个威望', () => {
-    const pkgPath = join(__dirname, '..', '..', '..', 'Mods', '7vs1', 'CommanderPackages', 'TerranRaynor.json');
-    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-    assert.equal(pkg.prestiges.length, 3);
-    assert.ok(pkg.prestiges.every(p => p.id && p.name && p.modifier));
+  test('prestiges 与 commander-power-metadata.json 交叉一致', () => {
+    const pkg = loadPkg();
+    const meta = loadMeta();
+    assert.equal(pkg.prestiges.length, meta.prestiges.length,
+      `威望数量不一致: package=${pkg.prestiges.length}, metadata=${meta.prestiges.length}`);
+    for (let i = 0; i < pkg.prestiges.length; i++) {
+      assert.equal(pkg.prestiges[i].id, meta.prestiges[i].id,
+        `prestige[${i}].id 不一致: package=${pkg.prestiges[i].id}, metadata=${meta.prestiges[i].id}`);
+      assert.equal(pkg.prestiges[i].name, meta.prestiges[i].name,
+        `prestige[${i}].name 不一致`);
+      assert.ok(pkg.prestiges[i].modifier.length > 0, `prestige[${i}].modifier 不应为空`);
+    }
   });
 
-  test('TerranRaynor.json 包含 6 个精通', () => {
-    const pkgPath = join(__dirname, '..', '..', '..', 'Mods', '7vs1', 'CommanderPackages', 'TerranRaynor.json');
-    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-    assert.equal(pkg.masteries.length, 6);
-    assert.ok(pkg.masteries.every(m => m.id && m.name && m.stat));
+  test('masteries 与 commander-power-metadata.json 交叉一致', () => {
+    const pkg = loadPkg();
+    const meta = loadMeta();
+    assert.equal(pkg.masteries.length, meta.masteries.length,
+      `精通数量不一致: package=${pkg.masteries.length}, metadata=${meta.masteries.length}`);
+    for (let i = 0; i < pkg.masteries.length; i++) {
+      assert.equal(pkg.masteries[i].id, meta.masteries[i].id,
+        `mastery[${i}].id 不一致: package=${pkg.masteries[i].id}, metadata=${meta.masteries[i].id}`);
+      assert.equal(pkg.masteries[i].name, meta.masteries[i].name,
+        `mastery[${i}].name 不一致`);
+      assert.ok(pkg.masteries[i].stat.length > 0, `mastery[${i}].stat 不应为空`);
+    }
+  });
+
+  test('techTree.units 与 DataCenter.json exports.units 一致', () => {
+    const pkg = loadPkg();
+    const dcPath = join(__dirname, '..', '..', '..', 'Mods', '7vs1', 'CommanderUnits_Raynor.SC2Mod', 'DataCenter.json');
+    const dc = JSON.parse(readFileSync(dcPath, 'utf8'));
+    const dcUnits = new Set(dc.exports.units);
+    for (const uid of pkg.techTree.units) {
+      assert.ok(dcUnits.has(uid), `techTree.units 中的 ${uid} 不在 DataCenter.exports.units 中`);
+    }
+  });
+
+  test('techTree.buildings 中的 Raynor 后缀建筑均存在 DataCenter', () => {
+    const pkg = loadPkg();
+    const dcPath = join(__dirname, '..', '..', '..', 'Mods', '7vs1', 'CommanderUnits_Raynor.SC2Mod', 'DataCenter.json');
+    const dc = JSON.parse(readFileSync(dcPath, 'utf8'));
+    const dcUnits = new Set(dc.exports.units);
+    for (const bid of pkg.techTree.buildings) {
+      if (bid.endsWith('Raynor') || bid === 'Barracks' || bid === 'Factory' || bid === 'Starport') {
+        assert.ok(dcUnits.has(bid), `techTree.buildings 中的 ${bid} 不在 DataCenter.exports.units 中`);
+      }
+    }
+  });
+
+  test('runtimeHooks 函数名非空', () => {
+    const pkg = loadPkg();
+    assert.ok(pkg.runtimeHooks.initFunction.length > 0, 'initFunction 不应为空');
+    assert.ok(pkg.runtimeHooks.applyTechFunction.length > 0, 'applyTechFunction 不应为空');
+    assert.ok(pkg.runtimeHooks.createStartSquadFunction.length > 0, 'createStartSquadFunction 不应为空');
   });
 });
 
