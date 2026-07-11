@@ -1,0 +1,196 @@
+include "TriggerLibs/natives"
+include "LibNeuroBridge7vs1_h"
+
+//--------------------------------------------------------------------------------------------------
+// 初始化：注册 MapInit 触发器（在 NeuroIntegration InitLib 之后调用）
+//--------------------------------------------------------------------------------------------------
+void libNeuroBridge7vs1_InitLib() {
+    if (libNeuroBridge7vs1_initialized) {
+        return;
+    }
+    libNeuroBridge7vs1_gt_MapInit = TriggerCreate("libNeuroBridge7vs1_gt_MapInit_Func");
+    TriggerAddEventMapInit(libNeuroBridge7vs1_gt_MapInit);
+    libNeuroBridge7vs1_initialized = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+// 注册 7vs1 专属 action（需要在 NeuroIntegration bank 创建后调用）
+//--------------------------------------------------------------------------------------------------
+void libNeuroBridge7vs1_gf_RegisterActions() {
+    libEFA54406_gf_create_action_0_arg("get_mutators", true,
+        "Get the currently active mutators and resources in this 7vs1 mission", -1);
+    libEFA54406_gf_create_action_0_arg("get_commander_status", true,
+        "Get the current commander status including unit count and army composition", -1);
+    libEFA54406_gf_create_action_0_arg("get_production_queue", true,
+        "Get the current production queue of all buildings", -1);
+}
+
+//--------------------------------------------------------------------------------------------------
+// MapInit 触发器：在 NeuroIntegration bank 创建后注册 action 和心跳循环
+//--------------------------------------------------------------------------------------------------
+bool libNeuroBridge7vs1_gt_MapInit_Func(bool testConds, bool runActions) {
+    if (testConds) {
+        return true;
+    }
+    if (runActions) {
+        // 等待 NeuroIntegration bank 创建完成
+        Wait(2.0, c_timeReal);
+
+        // 注册 7vs1 专属 action
+        libNeuroBridge7vs1_gf_RegisterActions();
+
+        // 注册心跳循环触发器（监听 execute_actions_map 事件）
+        libNeuroBridge7vs1_gt_ExecuteActionsMap = TriggerCreate("libNeuroBridge7vs1_gt_ExecuteActionsMap_Func");
+        TriggerAddEventGeneric(libNeuroBridge7vs1_gt_ExecuteActionsMap, "execute_actions_map");
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+// 辅助函数：安全读取 bank flag
+//--------------------------------------------------------------------------------------------------
+bool libNeuroBridge7vs1_gf_ReadActionFlag(string actionName) {
+    if (libEFA54406_gv_neuroIntegration == null) {
+        return false;
+    }
+    return BankValueGetAsFlag(libEFA54406_gv_neuroIntegration, "do_action", actionName);
+}
+
+void libNeuroBridge7vs1_gf_ClearActionFlag(string actionName) {
+    if (libEFA54406_gv_neuroIntegration == null) {
+        return;
+    }
+    BankValueSetFromFlag(libEFA54406_gv_neuroIntegration, "do_action", actionName, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// 查询资源/单位概览（get_mutators action 的处理）
+//--------------------------------------------------------------------------------------------------
+string libNeuroBridge7vs1_gf_GetMutators() {
+    int lv_player = 1;
+    int lv_minerals = PlayerGetPropertyInt(lv_player, c_playerPropMinerals);
+    int lv_gas = PlayerGetPropertyInt(lv_player, c_playerPropVespene);
+    int lv_supplyUsed = PlayerGetPropertyInt(lv_player, c_playerPropSuppliesUsed);
+    int lv_supplyMade = PlayerGetPropertyInt(lv_player, c_playerPropSuppliesMade);
+
+    unitgroup lv_units = UnitGroup(null, lv_player, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+    int lv_unitCount = UnitGroupCount(lv_units, c_unitCountAll);
+
+    string lv_result = "Resources: " + IntToString(lv_minerals) + " min, " +
+        IntToString(lv_gas) + " gas. Supply: " +
+        IntToString(lv_supplyUsed) + "/" + IntToString(lv_supplyMade) +
+        ". Total units: " + IntToString(lv_unitCount) + ".";
+
+    return lv_result;
+}
+
+//--------------------------------------------------------------------------------------------------
+// 查询指挥官状态（get_commander_status action 的处理）
+//--------------------------------------------------------------------------------------------------
+string libNeuroBridge7vs1_gf_GetCommanderStatus() {
+    int lv_player = 1;
+    unitgroup lv_allUnits = UnitGroup(null, lv_player, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+    int lv_totalUnits = UnitGroupCount(lv_allUnits, c_unitCountAll);
+
+    unitgroup lv_structures = UnitGroup(null, lv_player, RegionEntireMap(),
+        UnitFilter((1 << c_unitFilterStructure), 0, (1 << 0), (1 << 1)), 0);
+    int lv_structureCount = UnitGroupCount(lv_structures, c_unitCountAll);
+
+    unitgroup lv_army = UnitGroup(null, lv_player, RegionEntireMap(),
+        UnitFilter(0, (1 << c_unitFilterStructure) | (1 << c_unitFilterWorker), (1 << 0), (1 << 1)), 0);
+    int lv_armyCount = UnitGroupCount(lv_army, c_unitCountAll);
+
+    string lv_result = "Commander status: " + IntToString(lv_totalUnits) + " total units, " +
+        IntToString(lv_structureCount) + " structures, " +
+        IntToString(lv_armyCount) + " army units.";
+
+    return lv_result;
+}
+
+//--------------------------------------------------------------------------------------------------
+// 查询生产队列（get_production_queue action 的处理）
+//--------------------------------------------------------------------------------------------------
+string libNeuroBridge7vs1_gf_GetProductionQueue() {
+    int lv_player = 1;
+    unitgroup lv_structures = UnitGroup(null, lv_player, RegionEntireMap(),
+        UnitFilter((1 << c_unitFilterStructure), 0, (1 << 0), (1 << 1)), 0);
+    string lv_result = "Production queue: ";
+    int lv_count = 0;
+
+    UnitGroupLoopBegin(lv_structures);
+    while (!UnitGroupLoopDone() && lv_count < 10) {
+        unit lv_u = UnitGroupLoopCurrent();
+        int lv_queueCount = UnitQueueItemCount(lv_u, 0);
+        if (lv_queueCount > 0) {
+            string lv_queueItem = UnitQueueItemGet(lv_u, 0, 0);
+            if (lv_queueItem != "" && lv_queueItem != null) {
+                lv_result = lv_result + UnitGetName(lv_u) + " -> " + lv_queueItem + "; ";
+                lv_count = lv_count + 1;
+            }
+        }
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+
+    if (lv_count == 0) {
+        lv_result = lv_result + "No active production.";
+    }
+
+    return lv_result;
+}
+
+//--------------------------------------------------------------------------------------------------
+// 心跳循环触发器：处理 7vs1 专属 action + 维护心跳 + 回调全局循环
+// 这是 NeuroIntegration Bank IPC 协议的地图侧实现
+//--------------------------------------------------------------------------------------------------
+bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runActions) {
+    if (testConds) {
+        return true;
+    }
+    if (runActions) {
+        // 1. 处理 7vs1 专属 action（读取/消费 flag，生成上下文）
+        if (libNeuroBridge7vs1_gf_ReadActionFlag("get_mutators")) {
+            libNeuroBridge7vs1_gf_ClearActionFlag("get_mutators");
+            string lv_result = libNeuroBridge7vs1_gf_GetMutators();
+            libEFA54406_gf_create_context("mutators_info", lv_result, true);
+        }
+
+        if (libNeuroBridge7vs1_gf_ReadActionFlag("get_commander_status")) {
+            libNeuroBridge7vs1_gf_ClearActionFlag("get_commander_status");
+            string lv_result = libNeuroBridge7vs1_gf_GetCommanderStatus();
+            libEFA54406_gf_create_context("commander_status", lv_result, true);
+        }
+
+        if (libNeuroBridge7vs1_gf_ReadActionFlag("get_production_queue")) {
+            libNeuroBridge7vs1_gf_ClearActionFlag("get_production_queue");
+            string lv_result = libNeuroBridge7vs1_gf_GetProductionQueue();
+            libEFA54406_gf_create_context("production_queue", lv_result, true);
+        }
+
+        // 2. 心跳信号递增（Python 运行时据此检测游戏是否活跃）
+        if (libEFA54406_gv_neuroIntegration != null) {
+            BankValueSetFromInt(libEFA54406_gv_neuroIntegration, "game_state", "active",
+                BankValueGetAsInt(libEFA54406_gv_neuroIntegration, "game_state", "active") + 1);
+            BankSave(libEFA54406_gv_neuroIntegration);
+        }
+
+        // 3. 等待 Python 运行时处理 bank
+        Wait(0.4, c_timeGame);
+
+        // 4. 重新加载 bank + 保存
+        if (libEFA54406_gv_neuroIntegration != null) {
+            BankReload(libEFA54406_gv_neuroIntegration);
+            BankWait(libEFA54406_gv_neuroIntegration);
+            BankSave(libEFA54406_gv_neuroIntegration);
+        }
+
+        // 5. 短暂解锁 bankwriteallowed 让 Python 写入
+        libEFA54406_gv_bankwriteallowed = true;
+        Wait(0.2, c_timeGame);
+        libEFA54406_gv_bankwriteallowed = false;
+
+        // 6. 回调全局循环
+        TriggerSendEvent("execute_actions_global");
+    }
+    return true;
+}

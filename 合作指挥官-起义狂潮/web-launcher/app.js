@@ -2837,6 +2837,9 @@ document.querySelectorAll('.tab').forEach(btn => {
     if (tab === 'D') {
       initAiroTab();
     }
+    if (tab === 'E') {
+      initNeuroTab();
+    }
   });
 });
 
@@ -3488,6 +3491,311 @@ function pollAiroLaunch(result) {
       if (attempts >= maxAttempts) {
         clearInterval(airoState.pollTimer);
         airoState.pollTimer = null;
+        stateLabel.textContent = '轮询超时';
+        btn.disabled = false;
+      }
+    } catch (e) {
+      // 忽略轮询错误，继续重试
+    }
+  }, 2000);
+}
+
+// === Neuro 集成 Tab ===
+let neuroState = {
+  selectedCommander: null,
+  selectedMapId: null,
+  selectedMapFile: null,
+  commanders: null,
+  maps: null,
+  pollTimer: null,
+  lastLogPaths: null,
+};
+
+const neuroEl = {
+  dryRunToggle: document.getElementById('neuroDryRunToggle'),
+  skipPythonToggle: document.getElementById('neuroSkipPythonToggle'),
+  refreshButton: document.getElementById('neuroRefreshButton'),
+  copyOutputButton: document.getElementById('neuroCopyOutputButton'),
+  copyLogPathsButton: document.getElementById('neuroCopyLogPathsButton'),
+  clearOutputButton: document.getElementById('neuroClearOutputButton'),
+  stdoutPathText: document.getElementById('neuroStdoutPathText'),
+  stderrPathText: document.getElementById('neuroStderrPathText'),
+  validationBadge: document.getElementById('neuroValidationBadge'),
+  configIssues: document.getElementById('neuroConfigIssues'),
+  summaryMapFile: document.getElementById('neuroSummaryMapFile'),
+  summaryPython: document.getElementById('neuroSummaryPython'),
+  commanderCount: document.getElementById('neuroCommanderCount'),
+  mapCount: document.getElementById('neuroMapCount'),
+  bootstrapCommanderCount: document.getElementById('neuroBootstrapCommanderCount'),
+  bootstrapMapCount: document.getElementById('neuroBootstrapMapCount'),
+};
+
+let neuroWired = false;
+
+function wireNeuroEvents() {
+  if (neuroWired) return;
+  neuroWired = true;
+  neuroEl.refreshButton?.addEventListener('click', () => initNeuroTab(true));
+  neuroEl.dryRunToggle?.addEventListener('change', updateNeuroSummary);
+  neuroEl.skipPythonToggle?.addEventListener('change', updateNeuroSummary);
+  neuroEl.copyOutputButton?.addEventListener('click', copyNeuroOutput);
+  neuroEl.copyLogPathsButton?.addEventListener('click', copyNeuroLogPaths);
+  neuroEl.clearOutputButton?.addEventListener('click', clearNeuroOutput);
+}
+
+function setNeuroLogPaths(stdout, stderr) {
+  neuroState.lastLogPaths = { stdout: stdout || '', stderr: stderr || '' };
+  if (neuroEl.stdoutPathText) {
+    neuroEl.stdoutPathText.textContent = stdout ? `标准输出：${stdout}` : '标准输出：-';
+    neuroEl.stdoutPathText.title = stdout || '';
+  }
+  if (neuroEl.stderrPathText) {
+    neuroEl.stderrPathText.textContent = stderr ? `错误输出：${stderr}` : '错误输出：-';
+    neuroEl.stderrPathText.title = stderr || '';
+  }
+  if (neuroEl.copyLogPathsButton) {
+    neuroEl.copyLogPathsButton.disabled = !stdout && !stderr;
+  }
+}
+
+async function copyNeuroOutput() {
+  const output = document.getElementById('neuroOutput');
+  const text = output?.textContent.trim();
+  if (!text || text === '等待操作') return;
+  await copyText(text);
+  const stateLabel = document.getElementById('neuroLaunchState');
+  if (stateLabel) stateLabel.textContent = '输出已复制';
+}
+
+async function copyNeuroLogPaths() {
+  if (!neuroState.lastLogPaths) return;
+  const lines = [
+    neuroState.lastLogPaths.stdout ? `stdout=${neuroState.lastLogPaths.stdout}` : '',
+    neuroState.lastLogPaths.stderr ? `stderr=${neuroState.lastLogPaths.stderr}` : '',
+  ].filter(Boolean);
+  if (lines.length === 0) return;
+  await copyText(lines.join('\n'));
+  const stateLabel = document.getElementById('neuroLaunchState');
+  if (stateLabel) stateLabel.textContent = '日志路径已复制';
+}
+
+function clearNeuroOutput() {
+  const output = document.getElementById('neuroOutput');
+  if (output) output.textContent = '等待操作';
+  if (neuroEl.copyOutputButton) neuroEl.copyOutputButton.disabled = true;
+  setNeuroLogPaths('', '');
+  const stateLabel = document.getElementById('neuroLaunchState');
+  if (stateLabel) stateLabel.textContent = '输出已清空';
+}
+
+async function initNeuroTab(forceReload = false) {
+  wireNeuroEvents();
+  const neuroStatus = document.getElementById('neuroStatus');
+  const neuroLaunchButton = document.getElementById('neuroLaunchButton');
+  neuroLaunchButton.disabled = true;
+  neuroStatus.textContent = '加载中';
+
+  try {
+    if (!state.data) {
+      neuroStatus.textContent = '等待主数据加载';
+      return;
+    }
+    // Neuro 复用 7vs1 指挥官列表
+    neuroState.commanders = state.data.commanders || [];
+    // Neuro 复用 7vs1 地图列表（只取 _7vs1 后缀的地图）
+    neuroState.maps = (state.data.maps || []).filter(m => m.id && m.id.endsWith('_7vs1'));
+
+    if (neuroState.maps.length > 0 && !neuroState.selectedMapId) {
+      // 默认选择 traynor01_7vs1
+      const defaultMap = neuroState.maps.find(m => m.id === 'traynor01_7vs1') || neuroState.maps[0];
+      neuroState.selectedMapId = defaultMap.id;
+      neuroState.selectedMapFile = defaultMap.id + '.SC2Map';
+    }
+    if (!neuroState.selectedCommander && neuroState.commanders.length > 0) {
+      neuroState.selectedCommander = neuroState.commanders[0].runtime;
+    }
+
+    renderNeuroPickers();
+    updateNeuroSummary();
+    updateNeuroLaunchButton();
+    neuroStatus.textContent = `已加载 ${neuroState.commanders.length} 个指挥官, ${neuroState.maps.length} 张地图`;
+  } catch (e) {
+    neuroStatus.textContent = `加载失败: ${e.message}`;
+    if (neuroEl.configIssues) {
+      neuroEl.configIssues.textContent = `加载失败: ${e.message}`;
+      neuroEl.configIssues.className = 'config-issues status-error';
+    }
+  }
+
+  neuroLaunchButton.removeEventListener('click', launchNeuroGame);
+  neuroLaunchButton.addEventListener('click', launchNeuroGame);
+}
+
+function renderNeuroPickers() {
+  const commanderContainer = document.getElementById('neuroCommanderList');
+  const mapContainer = document.getElementById('neuroMapList');
+  const commanderCountElement = document.getElementById('neuroCommanderCount');
+  if (!commanderContainer || !mapContainer) return;
+
+  const commanders = neuroState.commanders || [];
+  const maps = (neuroState.maps || []).map((map) => ({
+    ...map,
+    title: map.displayName || map.id,
+    displayName: map.displayName || map.id,
+  }));
+
+  renderQuickPickersComponent({
+    commanderContainer,
+    mapContainer,
+    commanderCountElement,
+    commanders,
+    allCommandersCount: commanders.length,
+    maps,
+    selectedCommanderRuntime: neuroState.selectedCommander,
+    selectedMapId: neuroState.selectedMapId,
+    getMapCompletionState: (mapId) => {
+      const map = neuroState.maps?.find((entry) => entry.id === mapId);
+      return {
+        label: '7vs1',
+        tone: 'ok',
+        detail: map?.id || '',
+        meta: '',
+      };
+    },
+    onSelectCommander: (runtime) => {
+      neuroState.selectedCommander = runtime;
+      renderNeuroPickers();
+      updateNeuroSummary();
+      updateNeuroLaunchButton();
+    },
+    onSelectMap: (mapId) => {
+      neuroState.selectedMapId = mapId;
+      neuroState.selectedMapFile = (mapId || '') + '.SC2Map';
+      renderNeuroPickers();
+      updateNeuroSummary();
+      updateNeuroLaunchButton();
+    },
+  });
+}
+
+function updateNeuroSummary() {
+  const summaryCommander = document.getElementById('neuroSummaryCommander');
+  const summaryMap = document.getElementById('neuroSummaryMap');
+  const summary = document.getElementById('neuroSummary');
+  const dryRun = Boolean(neuroEl.dryRunToggle?.checked);
+  const skipPython = Boolean(neuroEl.skipPythonToggle?.checked);
+  const map = neuroState.maps?.find(m => m.id === neuroState.selectedMapId);
+  const ready = Boolean(neuroState.selectedCommander && neuroState.selectedMapId);
+
+  if (summaryCommander) summaryCommander.textContent = neuroState.selectedCommander || '-';
+  if (summaryMap) summaryMap.textContent = map ? (map.displayName || map.id) : '-';
+  if (neuroEl.summaryMapFile) neuroEl.summaryMapFile.textContent = neuroState.selectedMapFile || '-';
+  if (neuroEl.summaryPython) neuroEl.summaryPython.textContent = skipPython ? '跳过' : '启用';
+  if (summary) {
+    summary.textContent = ready ? '就绪' : '未就绪';
+    summary.className = ready ? 'badge status-ok' : 'badge';
+  }
+  if (neuroEl.validationBadge) {
+    neuroEl.validationBadge.textContent = ready ? '可启动' : '未验证';
+    neuroEl.validationBadge.className = ready ? 'badge status-ok' : 'badge';
+  }
+  if (neuroEl.configIssues) {
+    if (!ready) {
+      neuroEl.configIssues.textContent = '请选择指挥官与地图';
+      neuroEl.configIssues.className = 'config-issues status-warn';
+    } else {
+      neuroEl.configIssues.textContent = dryRun
+        ? 'DryRun：仅安装 mod 与地图，不启动游戏'
+        : '7vs1 + NeuroIntegration + NeuroBridge7vs1，后台启动 Python 运行时';
+      neuroEl.configIssues.className = 'config-issues status-ok';
+    }
+  }
+  if (neuroEl.commanderCount) neuroEl.commanderCount.textContent = String(neuroState.commanders?.length || 0);
+  if (neuroEl.mapCount) neuroEl.mapCount.textContent = String(neuroState.maps?.length || 0);
+  if (neuroEl.bootstrapCommanderCount) neuroEl.bootstrapCommanderCount.textContent = String(neuroState.commanders?.length || 0);
+  if (neuroEl.bootstrapMapCount) neuroEl.bootstrapMapCount.textContent = String(neuroState.maps?.length || 0);
+}
+
+function updateNeuroLaunchButton() {
+  const btn = document.getElementById('neuroLaunchButton');
+  if (!btn) return;
+  btn.disabled = !(neuroState.selectedCommander && neuroState.selectedMapId);
+}
+
+async function launchNeuroGame() {
+  const btn = document.getElementById('neuroLaunchButton');
+  const stateLabel = document.getElementById('neuroLaunchState');
+  const output = document.getElementById('neuroOutput');
+  const dryRun = Boolean(neuroEl.dryRunToggle?.checked);
+  const skipPython = Boolean(neuroEl.skipPythonToggle?.checked);
+  if (!neuroState.selectedCommander) return;
+  if (neuroState.pollTimer) {
+    stateLabel.textContent = '已有启动进程运行中';
+    return;
+  }
+  btn.disabled = true;
+  stateLabel.textContent = dryRun ? 'DryRun 中...' : '启动中...';
+  output.textContent = `启动指挥官: ${neuroState.selectedCommander}\n地图: ${neuroState.selectedMapFile || '默认'}\n模式: ${dryRun ? 'DryRun' : '启动'}\nPython: ${skipPython ? '跳过' : '启用'}\n`;
+  if (neuroEl.copyOutputButton) neuroEl.copyOutputButton.disabled = false;
+  try {
+    const result = await apiFetchJson('/api/neuro-launch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        commander: neuroState.selectedCommander,
+        mapName: neuroState.selectedMapFile || '',
+        dryRun,
+        noLaunch: dryRun,
+        skipPython,
+      }),
+    });
+    setNeuroLogPaths(result.stdout, result.stderr);
+    output.textContent += `进程 PID: ${result.pid}\n`;
+    stateLabel.textContent = `PID ${result.pid}`;
+    pollNeuroLaunch(result);
+  } catch (e) {
+    output.textContent += `错误: ${e.message}\n`;
+    stateLabel.textContent = '错误';
+    btn.disabled = false;
+  }
+}
+
+function pollNeuroLaunch(result) {
+  const btn = document.getElementById('neuroLaunchButton');
+  const stateLabel = document.getElementById('neuroLaunchState');
+  const output = document.getElementById('neuroOutput');
+  let attempts = 0;
+  const maxAttempts = 120;
+  neuroState.pollTimer = setInterval(async () => {
+    attempts++;
+    try {
+      const status = await apiFetchJson('/api/neuro-launch-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({ pid: result.pid, stdout: result.stdout, stderr: result.stderr }),
+      });
+      if (status.stdout?.tail) {
+        output.textContent = `启动指挥官: ${neuroState.selectedCommander}\n进程 PID: ${result.pid}\n${status.stdout.tail}`;
+        if (neuroEl.copyOutputButton) neuroEl.copyOutputButton.disabled = false;
+      }
+      if (!status.running && status.exitCode !== null) {
+        clearInterval(neuroState.pollTimer);
+        neuroState.pollTimer = null;
+        if (status.exitCode === 0) {
+          stateLabel.textContent = '启动成功（游戏运行中）';
+          output.textContent += '\n=== 启动完成 ===\n';
+        } else {
+          stateLabel.textContent = `进程退出，退出码: ${status.exitCode}`;
+          output.textContent += `\n=== 进程退出，退出码: ${status.exitCode} ===\n`;
+          if (status.stderr?.tail) {
+            output.textContent += `stderr:\n${status.stderr.tail}\n`;
+          }
+        }
+        btn.disabled = false;
+      }
+      if (attempts >= maxAttempts) {
+        clearInterval(neuroState.pollTimer);
+        neuroState.pollTimer = null;
         stateLabel.textContent = '轮询超时';
         btn.disabled = false;
       }

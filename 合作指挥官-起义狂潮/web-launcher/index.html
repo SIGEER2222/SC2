@@ -12,6 +12,7 @@
     <button class="tab" data-tab="B">Mod 测试地图</button>
     <button class="tab" data-tab="C">Reborn 战役</button>
     <button class="tab" data-tab="D">AI 起义狂潮</button>
+    <button class="tab" data-tab="E">Neuro 集成</button>
   </div>
   <div class="tab-content" data-tab-content="A">
   <div class="app-shell">
@@ -751,6 +752,125 @@
     </div>
   </div>
 
-  <script type="module" src="/app.js?v=20260620-biomass-drop"></script>
+  <div class="tab-content" data-tab-content="E" hidden>
+    <div class="app-shell neuro-shell">
+      <header class="topbar">
+        <div>
+          <h1>Neuro 集成</h1>
+          <div id="neuroStatus" class="subtle">加载中</div>
+        </div>
+        <div class="top-actions">
+          <div class="action-group config-action-group" aria-label="配置操作">
+            <span>配置</span>
+            <button id="neuroRefreshButton" type="button" class="secondary">刷新</button>
+          </div>
+          <div class="action-group launch-action-group" aria-label="启动操作">
+            <label class="toggle">
+              <input id="neuroDryRunToggle" type="checkbox">
+              <span>只安装不启动</span>
+            </label>
+            <label class="toggle">
+              <input id="neuroSkipPythonToggle" type="checkbox">
+              <span>跳过 Python 运行时</span>
+            </label>
+            <span id="neuroSummary" class="badge">未就绪</span>
+            <button id="neuroLaunchButton" type="button" class="primary" disabled>启动 Neuro 集成</button>
+            <span id="neuroLaunchState" class="subtle"></span>
+          </div>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="setup-grid">
+          <section class="panel commander-panel" aria-labelledby="neuroCommanderTitle">
+            <div class="panel-head">
+              <h2 id="neuroCommanderTitle">指挥官</h2>
+              <div class="mastery-head-actions">
+                <strong id="neuroCommanderCount" class="badge">0</strong>
+              </div>
+            </div>
+            <div class="commander-gallery-block">
+              <div id="neuroCommanderList" class="commander-gallery"></div>
+            </div>
+          </section>
+          <div class="setup-side">
+            <section class="panel summary-panel" aria-label="Neuro 当前配置">
+              <div class="panel-head">
+                <h2>当前配置</h2>
+                <div class="summary-actions">
+                  <span id="neuroValidationBadge" class="badge">未验证</span>
+                </div>
+              </div>
+              <div class="summary-strip">
+                <div class="summary-items">
+                  <div class="summary-item">
+                    <span>指挥官</span>
+                    <strong id="neuroSummaryCommander">-</strong>
+                  </div>
+                  <div class="summary-item">
+                    <span>地图</span>
+                    <strong id="neuroSummaryMap">-</strong>
+                  </div>
+                  <div class="summary-item">
+                    <span>地图文件</span>
+                    <strong id="neuroSummaryMapFile">-</strong>
+                  </div>
+                  <div class="summary-item">
+                    <span>Python 运行时</span>
+                    <strong id="neuroSummaryPython">启用</strong>
+                  </div>
+                </div>
+                <div id="neuroConfigIssues" class="config-issues status-ok" aria-live="polite">等待选择指挥官与地图</div>
+              </div>
+            </section>
+            <section class="panel map-panel" aria-label="地图选择">
+              <div class="panel-head">
+                <h2>地图</h2>
+                <strong id="neuroMapCount" class="badge">0</strong>
+              </div>
+              <div id="neuroMapList" class="quick-pick-list map-quick-list map-gallery"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="panel output-panel neuro-output-panel" aria-labelledby="neuroOutputTitle">
+          <div class="panel-head">
+            <h2 id="neuroOutputTitle">输出</h2>
+            <div class="output-actions">
+              <button id="neuroCopyOutputButton" type="button" class="mini" disabled>复制输出</button>
+              <button id="neuroCopyLogPathsButton" type="button" class="mini" disabled>复制日志路径</button>
+              <button id="neuroClearOutputButton" type="button" class="mini">清空输出</button>
+            </div>
+          </div>
+          <div class="log-path-strip" aria-label="Neuro 日志路径">
+            <span id="neuroStdoutPathText">标准输出：-</span>
+            <span id="neuroStderrPathText">错误输出：-</span>
+          </div>
+          <pre id="neuroOutput" class="output-log">等待操作</pre>
+        </section>
+      </main>
+
+      <section class="bootstrap-strip neuro-bootstrap" aria-label="Neuro 数据概览">
+        <div class="bootstrap-metric">
+          <span>指挥官</span>
+          <strong id="neuroBootstrapCommanderCount">0</strong>
+        </div>
+        <div class="bootstrap-metric">
+          <span>地图</span>
+          <strong id="neuroBootstrapMapCount">0</strong>
+        </div>
+        <div class="bootstrap-resource">
+          <span>启动脚本</span>
+          <strong id="neuroBootstrapScript">scripts/launch-7vs1-neuro.ps1</strong>
+        </div>
+        <div class="bootstrap-resource">
+          <span>说明</span>
+          <strong id="neuroBootstrapHint">在 7vs1 合作地图上叠加 NeuroIntegration Bank IPC + NeuroBridge7vs1 专属 action，后台启动 Python 运行时连接 Neuro</strong>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module" src="/app.js?v=20260711-neuro-tab"></script>
 </body>
 </html>

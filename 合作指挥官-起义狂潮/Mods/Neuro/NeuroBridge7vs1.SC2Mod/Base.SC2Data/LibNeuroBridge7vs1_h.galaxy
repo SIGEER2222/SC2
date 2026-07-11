@@ -1,0 +1,19 @@
+include "TriggerLibs/natives"
+include "LibEFA54406_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: NeuroBridge7vs1
+// 7vs1 合作指挥官与 NeuroIntegration 的桥接层
+// 负责注册 7vs1 专属 action 并在 execute_actions_map 事件中处理
+//--------------------------------------------------------------------------------------------------
+
+// 变量声明
+bool libNeuroBridge7vs1_initialized;
+trigger libNeuroBridge7vs1_gt_MapInit;
+trigger libNeuroBridge7vs1_gt_ExecuteActionsMap;
+
+// 函数声明
+void libNeuroBridge7vs1_InitLib();
+void libNeuroBridge7vs1_gf_RegisterActions();
+bool libNeuroBridge7vs1_gt_MapInit_Func(bool testConds, bool runActions);
+bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runActions);
