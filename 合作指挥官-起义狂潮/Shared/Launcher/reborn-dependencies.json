@@ -1,0 +1,44 @@
+{
+  "$schema": "map-family-dependencies.schema.json",
+  "description": "Reborn map family dependency configuration. Defines base mods, galaxy injection sources, and dependency ordering for the Reborn (zexpedition) map family.",
+  "family": "reborn",
+  "baseMods": [
+    "crys_the_swarm_reborn.SC2Mod",
+    "crys_swarm_assets.SC2Mod",
+    "sibirens_starhooks_common.SC2Mod",
+    "sibirens_starhooks_swarmstoryutils.SC2Mod",
+    "sibirens_sundries_swarm_reborn.SC2Mod",
+    "Reborn\\RebornBridge.SC2Mod",
+    "Reborn\\RebornMapAdapter.SC2Mod",
+    "kit_mutations.SC2Mod",
+    "7vs1\\CoreRuntime.SC2Mod",
+    "7vs1\\CommanderBridge.SC2Mod",
+    "7vs1\\BaseCatalogPatch.SC2Mod",
+    "7vs1\\SharedUnits.SC2Mod",
+    "7vs1\\ExternalRefs.SC2Mod"
+  ],
+  "baseDependencyPaths": [
+    "file:Mods/crys_the_swarm_reborn.SC2Mod",
+    "file:Mods/RebornBridge.SC2Mod",
+    "file:Mods/RebornMapAdapter.SC2Mod",
+    "file:Mods/kit_mutations.SC2Mod",
+    "file:Mods/7vs1/BaseCatalogPatch.SC2Mod",
+    "file:Mods/7vs1/CommanderBridge.SC2Mod",
+    "file:Mods/7vs1/CoreRuntime.SC2Mod",
+    "file:Mods/7vs1/SharedUnits.SC2Mod",
+    "file:Mods/7vs1/ExternalRefs.SC2Mod"
+  ],
+  "galaxyInjection": {
+    "description": "Galaxy files injected from workspace to map Base.SC2Data. CoreRuntime galaxy files are NOT injected (loaded via mod chain). Only CommanderUnits and Alenger*Adapter galaxy files are injected to satisfy LibE0EAE146.galaxy hardcoded includes.",
+    "sourcePatterns": [
+      "CommanderUnits_*.SC2Mod",
+      "Alenger*Adapter.SC2Mod"
+    ],
+    "sourceRoot": "Mods\\7vs1"
+  },
+  "validCommanders": [
+    "TerranRaynor", "TerranNova", "TerranSwann", "TerranHorner", "TerranMengsk", "TerranTychus",
+    "ZergKerrigan", "ZergAbathur", "ZergZagara", "ZergStukov", "ZergDehaka", "ZergStetmann",
+    "ProtossArtanis", "ProtossVorazun", "ProtossKarax", "ProtossFenix", "ProtossAlarak", "ProtossZeratul"
+  ]
+}

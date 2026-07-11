@@ -8,6 +8,8 @@
   3. Write CampaignXCore Bank (commander selection)
   4. Launch map with SC2Switcher
   5. Run wait-for-game-ready.ps1
+
+  Uses shared modules from scripts/sc2-launcher/ and config from Shared/Launcher/.
 #>
 param(
     [Parameter(Mandatory=$true)]
@@ -19,186 +21,30 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# === Paths (use $PSScriptRoot to avoid Chinese path encoding issues) ===
+# === Paths ===
 $ScriptsRoot = Split-Path $PSScriptRoot -Parent
 $ProjRoot = Split-Path $ScriptsRoot -Parent
 $Sc2Root  = "E:\SC2\SC2new\StarCraft II"
+$MapLivePath = Join-Path $Sc2Root "Maps\$MapName"
 
-# === Load dependency scripts ===
+# === Load shared launcher modules ===
+$script:LauncherScriptsRoot = Join-Path $ScriptsRoot "sc2-launcher"
+. (Join-Path $script:LauncherScriptsRoot "common.ps1")
+. (Join-Path $script:LauncherScriptsRoot "mod-sync.ps1")
+. (Join-Path $script:LauncherScriptsRoot "map-sync.ps1")
+
+# === Load project-specific dependency scripts ===
 . (Join-Path $ScriptsRoot "commander-power-metadata.ps1")
 . (Join-Path $ScriptsRoot "sc2\campaignxcore-bank.ps1")
-
-# === DocumentHeader/DocumentInfo dependency rewrite functions ===
-# Copied from launch-7vs1-coop-test.ps1 to dynamically set map dependencies
-function Test-ByteSequenceAt {
-    param([byte[]]$Bytes, [int]$Offset, [byte[]]$Needle)
-    if ($Offset + $Needle.Length -gt $Bytes.Length) { return $false }
-    for ($i = 0; $i -lt $Needle.Length; $i++) {
-        if ($Bytes[$Offset + $i] -ne $Needle[$i]) { return $false }
-    }
-    return $true
-}
-
-function Find-DocumentHeaderDependencyStart {
-    param([byte[]]$Bytes)
-    $markers = @(
-        [System.Text.Encoding]::UTF8.GetBytes("file:"),
-        [System.Text.Encoding]::UTF8.GetBytes("bnet:")
-    )
-    for ($offset = 4; $offset -lt $Bytes.Length; $offset++) {
-        foreach ($marker in $markers) {
-            if (-not (Test-ByteSequenceAt -Bytes $Bytes -Offset $offset -Needle $marker)) { continue }
-            $count = [System.BitConverter]::ToUInt32($Bytes, $offset - 4)
-            if (($count -gt 0) -and ($count -lt 128)) { return $offset }
-        }
-    }
-    throw "DocumentHeader dependency table not found."
-}
-
-function Get-DocumentHeaderDependencyEndOffset {
-    param([byte[]]$Bytes, [int]$Start, [uint32]$Count)
-    $offset = $Start
-    for ($index = 0; $index -lt $Count; $index++) {
-        while (($offset -lt $Bytes.Length) -and ($Bytes[$offset] -ne 0)) { $offset++ }
-        if ($offset -ge $Bytes.Length) { throw "DocumentHeader dependency string is not null-terminated." }
-        $offset++
-    }
-    return $offset
-}
-
-function Set-DocumentHeaderDependencies {
-    param([Parameter(Mandatory=$true)][string]$Path, [Parameter(Mandatory=$true)][string[]]$Dependencies)
-    if (-not (Test-Path -LiteralPath $Path)) { throw "DocumentHeader not found: $Path" }
-    [byte[]]$bytes = [System.IO.File]::ReadAllBytes($Path)
-    $dependencyStart = Find-DocumentHeaderDependencyStart -Bytes $bytes
-    $countOffset = $dependencyStart - 4
-    $currentCount = [System.BitConverter]::ToUInt32($bytes, $countOffset)
-    $dependencyEnd = Get-DocumentHeaderDependencyEndOffset -Bytes $bytes -Start $dependencyStart -Count $currentCount
-    $dependencyBytes = [System.Text.Encoding]::UTF8.GetBytes((($Dependencies -join "`0") + "`0"))
-    $countBytes = [System.BitConverter]::GetBytes([uint32]$Dependencies.Count)
-    $stream = New-Object System.IO.MemoryStream
-    $stream.Write($bytes, 0, $countOffset)
-    $stream.Write($countBytes, 0, $countBytes.Length)
-    $stream.Write($dependencyBytes, 0, $dependencyBytes.Length)
-    $stream.Write($bytes, $dependencyEnd, $bytes.Length - $dependencyEnd)
-    [System.IO.File]::WriteAllBytes($Path, $stream.ToArray())
-}
-
-function Set-DocumentInfoDependencies {
-    param([Parameter(Mandatory=$true)][string]$Path, [Parameter(Mandatory=$true)][string[]]$Dependencies)
-    $xml = "<?xml version='1.0' encoding='utf-8'?>`n<DocInfo>`n    <Dependencies>`n"
-    foreach ($dep in $Dependencies) {
-        $xml += "        <Value>$dep</Value>`n"
-    }
-    $xml += "    </Dependencies>`n"
-    # Preserve Preload section if it exists in original
-    $origContent = [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
-    if ($origContent -match '(?s)<Preload>.*?</Preload>') {
-        $preloadSection = $matches[0]
-        $xml += "    $preloadSection`n"
-    }
-    $xml += "</DocInfo>"
-    [System.IO.File]::WriteAllText($Path, $xml, [System.Text.Encoding]::UTF8)
-}
-
-function Set-MapDependencies {
-    param([string[]]$Dependencies)
-    $mapPath = Join-Path $Sc2Root "Maps\$MapName"
-    Set-DocumentInfoDependencies -Path (Join-Path $mapPath "DocumentInfo") -Dependencies $Dependencies
-    Set-DocumentHeaderDependencies -Path (Join-Path $mapPath "DocumentHeader") -Dependencies $Dependencies
-    Write-Host "SET DEPS: $($Dependencies.Count) dependencies written to map"
-}
-
-function Get-WorkspaceRoot {
-    return $ProjRoot
-}
-
-# Map commander identifier (e.g. "TerranRaynor") to CommanderUnits mod suffix.
-function Get-CommanderUnitsModName {
-    param([string]$Commander)
-    $map = @{
-        "TerranRaynor"   = "Raynor"
-        "TerranRaynorX"  = "RaynorX"
-        "TerranNova"     = "Nova"
-        "TerranSwann"    = "Swann"
-        "TerranHorner"   = "Horner"
-        "TerranMengsk"   = "Mengsk"
-        "TerranTychus"   = "TychusXM"
-        "ZergKerrigan"   = "Kerrigan"
-        "ZergAbathur"    = "Abathur"
-        "ZergZagara"     = "Zagara"
-        "ZergStukov"     = "Stukov"
-        "ZergDehaka"     = "Dehaka"
-        "ZergStetmann"   = "Stetmann"
-        "ProtossArtanis" = "Artanis"
-        "ProtossVorazun" = "Vorazun"
-        "ProtossKarax"   = "Karax"
-        "ProtossFenix"   = "Fenix"
-        "ProtossAlarak"  = "Alarak"
-        "ProtossZeratul" = "Zeratul"
-    }
-    if ($map.ContainsKey($Commander)) {
-        return "CommanderUnits_$($map[$Commander])"
-    }
-    return $null
-}
 
 function Convert-TestCommanderToCommanderPowerKey {
     param([string]$Commander)
     return (Convert-CommanderPowerCommanderToBankKey -Commander $Commander -WorkspaceRoot $ProjRoot)
 }
 
-# === 1. Stop SC2 ===
-function Stop-RunningSc2 {
-    Get-Process -Name "SC2_x64","SC2Switcher_x64" -ErrorAction SilentlyContinue |
-        Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Sleep 2
-}
-
-# === 2. Sync mod ===
-function Sync-Mod {
-    param([string]$ModRelPath)
-    $src = Join-Path $ProjRoot "Mods\$ModRelPath"
-    $dst = Join-Path $Sc2Root "Mods\$ModRelPath"
-    if (-not (Test-Path $src)) {
-        Write-Host "WARN: mod source not found: $src"
-        return
-    }
-    $dstParent = Split-Path $dst -Parent
-    if (-not (Test-Path $dstParent)) {
-        [System.IO.Directory]::CreateDirectory($dstParent) | Out-Null
-    }
-    if (Test-Path $src -PathType Container) {
-        if (Test-Path $dst) { [System.IO.Directory]::Delete($dst, $true) }
-        [System.IO.Directory]::CreateDirectory($dst) | Out-Null
-        robocopy $src $dst /MIR /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
-    } else {
-        [System.IO.File]::Copy($src, $dst, $true)
-    }
-    Write-Host "SYNC: $ModRelPath"
-}
-
-# === 3. Sync map ===
-function Sync-Map {
-    $src = Join-Path $ProjRoot "Maps\$MapName"
-    $dst = Join-Path $Sc2Root "Maps\$MapName"
-    if (Test-Path $dst) { [System.IO.Directory]::Delete($dst, $true) }
-    [System.IO.Directory]::CreateDirectory($dst) | Out-Null
-    robocopy $src $dst /MIR /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
-    Write-Host "SYNC map: $MapName"
-}
-
-# === 4. Clear logs ===
-function Clear-GameLogs {
-    $logsRoot = "C:\Users\22448\Documents\StarCraft II\GameLogs"
-    $logFiles = Get-ChildItem $logsRoot -File -ErrorAction SilentlyContinue
-    foreach ($lf in $logFiles) {
-        $rmScript = "c:\Users\22448\.trae-cn\skills\file-ops\scripts\trae-rm.ps1"
-        if (Test-Path $rmScript) {
-            powershell -NoProfile -ExecutionPolicy Bypass -File $rmScript $lf.FullName 2>$null
-        }
-    }
-}
+# === Load configuration ===
+$rebornConfig = Import-LauncherConfig -Name "reborn-dependencies"
+$alengerConfig = Import-LauncherConfig -Name "alenger-mods"
 
 # === Main flow ===
 Write-Host "=== Reborn Commander Launcher ==="
@@ -209,245 +55,78 @@ Write-Host "Map: $MapName"
 Stop-RunningSc2
 Clear-GameLogs
 
-# Sync Reborn base mods
-Sync-Mod "crys_the_swarm_reborn.SC2Mod"
-Sync-Mod "crys_swarm_assets.SC2Mod"
-Sync-Mod "sibirens_starhooks_common.SC2Mod"
-Sync-Mod "sibirens_starhooks_swarmstoryutils.SC2Mod"
-Sync-Mod "sibirens_sundries_swarm_reborn.SC2Mod"
-
-# Sync Reborn bridge mods
-Sync-Mod "Reborn\RebornBridge.SC2Mod"
-Sync-Mod "Reborn\RebornMapAdapter.SC2Mod"
-
-# Sync 7vs1 commander system mods
-Sync-Mod "7vs1\CoreRuntime.SC2Mod"
-Sync-Mod "7vs1\CommanderBridge.SC2Mod"
-Sync-Mod "7vs1\BaseCatalogPatch.SC2Mod"
-
-# Sync kit_mutations (provides LibA070801C mutator runtime, required by LibE0EAE146_MutatorRuntime)
-Sync-Mod "kit_mutations.SC2Mod"
-
-# Sync shared mods needed for galaxy compilation
-Sync-Mod "7vs1\SharedUnits.SC2Mod"
-Sync-Mod "7vs1\ExternalRefs.SC2Mod"
+# --- MOD SYNC SECTION ---
+# Sync Reborn base + bridge + 7vs1 core + shared mods (from config)
+Sync-ModSet -ModRelPaths $rebornConfig.baseMods -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 
 # Sync only the selected commander's CommanderUnits mod (on-demand loading).
 # Galaxy files for ALL commanders are injected from workspace source later
 # (Sync-MapRuntimeLibraries) to satisfy LibE0EAE146.galaxy's hardcoded includes.
 $selectedCommanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
 if ($selectedCommanderUnitsMod) {
-    Sync-Mod "7vs1\$selectedCommanderUnitsMod.SC2Mod"
+    Sync-ModToLive -ModRelPath "7vs1\$selectedCommanderUnitsMod.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 }
 
 # Remove unselected CommanderUnits mods from live directory (stale from previous runs)
-$live7vs1Root = Join-Path $Sc2Root "Mods\7vs1"
 $allowedCommanderUnits = @()
 if ($selectedCommanderUnitsMod) {
     $allowedCommanderUnits += "$selectedCommanderUnitsMod.SC2Mod"
 }
-$staleCmdrUnits = Get-ChildItem $live7vs1Root -Directory -Filter "CommanderUnits_*.SC2Mod" -ErrorAction SilentlyContinue |
-    Where-Object { $allowedCommanderUnits -notcontains $_.Name }
-foreach ($stale in $staleCmdrUnits) {
-    [System.IO.Directory]::Delete($stale.FullName, $true)
-    Write-Host "CLEAN: removed stale $($stale.Name) from live"
-}
+Remove-StaleCommanderUnitsMods -Sc2Root $Sc2Root -AllowedModNames $allowedCommanderUnits
 
 # Sync ALL Alenger mods (referenced by CoreRuntime's LibE0EAE146_AdapterBootstrap).
-# 7vs1 launcher adds all 24 Alenger mods as DocumentHeader dependencies.
-$alengerMods = @(
-    "7vs1\AlengerCommon.SC2Mod"
-    "7vs1\Alenger1.SC2Mod"
-    "7vs1\Alenger1Adapter.SC2Mod"
-    "7vs1\Alenger2.SC2Mod"
-    "7vs1\Alenger2Adapter.SC2Mod"
-    "7vs1\Alenger3.SC2Mod"
-    "7vs1\Alenger3Adapter.SC2Mod"
-    "7vs1\Alenger6.SC2Mod"
-    "7vs1\Alenger6Adapter.SC2Mod"
-    "7vs1\Alenger7.SC2Mod"
-    "7vs1\Alenger7Adapter.SC2Mod"
-    "7vs1\Alenger8.SC2Mod"
-    "7vs1\Alenger8Runtime.SC2Mod"
-    "7vs1\Alenger8Adapter.SC2Mod"
-    "7vs1\Alenger9.SC2Mod"
-    "7vs1\Alenger9Adapter.SC2Mod"
-    "7vs1\Alenger10.SC2Mod"
-    "7vs1\Alenger10Adapter.SC2Mod"
-    "7vs1\Alenger11.SC2Mod"
-    "7vs1\Alenger11Adapter.SC2Mod"
-    "7vs1\Alenger12.SC2Mod"
-    "7vs1\Alenger12Adapter.SC2Mod"
-    "7vs1\Alenger13.SC2Mod"
-    "7vs1\Alenger13Adapter.SC2Mod"
-)
-foreach ($mod in $alengerMods) {
-    Sync-Mod $mod
-}
+Sync-ModSet -ModRelPaths $alengerConfig.mods -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 
 # Validate commander name
-$validCommanders = @(
-    "TerranRaynor","TerranNova","TerranSwann","TerranHorner","TerranMengsk","TerranTychus",
-    "ZergKerrigan","ZergAbathur","ZergZagara","ZergStukov","ZergDehaka","ZergStetmann",
-    "ProtossArtanis","ProtossVorazun","ProtossKarax","ProtossFenix","ProtossAlarak","ProtossZeratul"
-)
-if ($validCommanders -notcontains $Commander) {
+if ($rebornConfig.validCommanders -notcontains $Commander) {
     Write-Host "WARN: unknown commander $Commander, Bank may not select correctly"
 }
 
-# Sync map
-Sync-Map
+# --- MAP SYNC SECTION ---
+Sync-MapToLive -MapName $MapName -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 
-# === Galaxy library sync ===
-# SC2 loads galaxy files through mod dependency chain, NOT by copying to map.
-# Clean up previously injected 7vs1 runtime galaxy files from map Base.SC2Data,
-# but preserve galaxy files that ship with the source map (e.g. Lib48DF4533.galaxy).
-function Clean-MapRuntimeLibraries {
-    $mapBaseData = Join-Path $Sc2Root "Maps\$MapName\Base.SC2Data"
-    if (-not (Test-Path $mapBaseData)) {
-        return
-    }
-
-    # Build a set of galaxy file names that exist in the source map; these are
-    # map-owned and must never be deleted (only runtime-injected files are cleaned).
-    $sourceMapBaseData = Join-Path $ProjRoot "Maps\$MapName\Base.SC2Data"
-    $preserveNames = @{}
-    if (Test-Path $sourceMapBaseData) {
-        $sourceGalaxyFiles = Get-ChildItem $sourceMapBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
-        foreach ($gf in $sourceGalaxyFiles) {
-            $preserveNames[$gf.Name] = $true
-        }
-    }
-
-    $galaxyFiles = Get-ChildItem $mapBaseData -File -Filter "Lib*.galaxy" -ErrorAction SilentlyContinue
-    $count = 0
-    foreach ($gf in $galaxyFiles) {
-        if ($preserveNames.ContainsKey($gf.Name)) {
-            continue
-        }
-        [System.IO.File]::Delete($gf.FullName)
-        $count++
-    }
-    if ($count -gt 0) {
-        Write-Host "CLEAN: removed $count stale runtime galaxy files (preserved $($preserveNames.Count) map-owned galaxy files)"
+# Build preserve list of map-owned galaxy files (ship with source map)
+$sourceMapBaseData = Join-Path $ProjRoot "Maps\$MapName\Base.SC2Data"
+$preserveNames = @{}
+if (Test-Path $sourceMapBaseData) {
+    $sourceGalaxyFiles = Get-ChildItem $sourceMapBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+    foreach ($gf in $sourceGalaxyFiles) {
+        $preserveNames[$gf.Name] = $true
     }
 }
 
-Clean-MapRuntimeLibraries
+# Clean stale runtime galaxy files (preserve map-owned source files)
+Clean-MapRuntimeLibraries -MapPath $MapLivePath -PreserveNames $preserveNames
 
-# === Inject galaxy files from workspace (NOT from live mods) ===
-# CoreRuntime's LibE0EAE146.galaxy hardcodes includes for ALL commanders'
-# Runtime galaxy files (LibE0EAE146_AbathurRuntime, LibE0EAE146_RaynorRuntime, etc.).
-# With on-demand CommanderUnits loading, unselected mods are not installed to live,
-# so their galaxy files must be injected from workspace source to satisfy the
-# include chain. This mirrors the 7vs1 launcher's Sync-LiveMapRuntimeLibraries.
-#
-# Key: only inject CommanderUnits + Alenger*Adapter galaxy files.
-# Do NOT inject CoreRuntime galaxy files — those load via mod dependency chain,
-# and injecting them to Base.SC2Data causes nested include resolution failures.
-function Sync-MapRuntimeLibraries {
-    $mapBaseData = Join-Path $Sc2Root "Maps\$MapName\Base.SC2Data"
-    if (-not (Test-Path $mapBaseData)) {
-        [System.IO.Directory]::CreateDirectory($mapBaseData) | Out-Null
-    }
+# Inject galaxy files from workspace (CommanderUnits + Alenger*Adapter, NOT CoreRuntime)
+Sync-MapRuntimeLibraries `
+    -MapPath $MapLivePath `
+    -ProjRoot $ProjRoot `
+    -SourcePatterns $rebornConfig.galaxyInjection.sourcePatterns `
+    -SourceRoot $rebornConfig.galaxyInjection.sourceRoot
 
-    $workspace7vs1Root = Join-Path $ProjRoot "Mods\7vs1"
-    $count = 0
-
-    # Inject galaxy files from ALL CommanderUnits_*.SC2Mod (galaxy compile needs all)
-    $cmdrUnitsDirs = Get-ChildItem $workspace7vs1Root -Directory -Filter "CommanderUnits_*.SC2Mod" -ErrorAction SilentlyContinue
-    foreach ($modDir in $cmdrUnitsDirs) {
-        $modBase = Join-Path $modDir.FullName "Base.SC2Data"
-        if (-not (Test-Path $modBase)) { continue }
-        $galaxyFiles = Get-ChildItem $modBase -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
-        foreach ($gf in $galaxyFiles) {
-            $dst = Join-Path $mapBaseData $gf.Name
-            [System.IO.File]::Copy($gf.FullName, $dst, $true)
-            $count++
-        }
-    }
-
-    # Inject galaxy files from ALL Alenger*Adapter.SC2Mod (LibE0EAE146_AdapterBootstrap needs all)
-    $adapterDirs = Get-ChildItem $workspace7vs1Root -Directory -Filter "Alenger*Adapter.SC2Mod" -ErrorAction SilentlyContinue
-    foreach ($modDir in $adapterDirs) {
-        $modBase = Join-Path $modDir.FullName "Base.SC2Data"
-        if (-not (Test-Path $modBase)) { continue }
-        $galaxyFiles = Get-ChildItem $modBase -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
-        foreach ($gf in $galaxyFiles) {
-            $dst = Join-Path $mapBaseData $gf.Name
-            [System.IO.File]::Copy($gf.FullName, $dst, $true)
-            $count++
-        }
-    }
-
-    Write-Host "SYNC galaxy libs: $count files injected from workspace"
-}
-
-Sync-MapRuntimeLibraries
-
-# === Set runtime dependencies (on-demand) ===
-# Only depend on the selected commander's CommanderUnits mod.
-# Alenger mods are all required (LibE0EAE146_AdapterBootstrap hardcodes all adapters).
-# CoreRuntime galaxy files load via mod chain; CommanderUnits galaxy files load
-# from Base.SC2Data injection (workspace source).
-$runtimeDeps = @(
-    "file:Mods/crys_the_swarm_reborn.SC2Mod"
-    "file:Mods/RebornBridge.SC2Mod"
-    "file:Mods/RebornMapAdapter.SC2Mod"
-    "file:Mods/kit_mutations.SC2Mod"
-    "file:Mods/7vs1/BaseCatalogPatch.SC2Mod"
-    "file:Mods/7vs1/CommanderBridge.SC2Mod"
-    "file:Mods/7vs1/CoreRuntime.SC2Mod"
-    "file:Mods/7vs1/AlengerCommon.SC2Mod"
-    "file:Mods/7vs1/Alenger3.SC2Mod"
-    "file:Mods/7vs1/Alenger3Adapter.SC2Mod"
-    "file:Mods/7vs1/Alenger1.SC2Mod"
-    "file:Mods/7vs1/Alenger1Adapter.SC2Mod"
-    "file:Mods/7vs1/Alenger6.SC2Mod"
-    "file:Mods/7vs1/Alenger6Adapter.SC2Mod"
-    "file:Mods/7vs1/Alenger8.SC2Mod"
-    "file:Mods/7vs1/Alenger8Runtime.SC2Mod"
-    "file:Mods/7vs1/Alenger8Adapter.SC2Mod"
-    "file:Mods/7vs1/Alenger9.SC2Mod"
-    "file:Mods/7vs1/Alenger9Adapter.SC2Mod"
-    "file:Mods/7vs1/Alenger12.SC2Mod"
-    "file:Mods/7vs1/Alenger12Adapter.SC2Mod"
-    "file:Mods/7vs1/Alenger13.SC2Mod"
-    "file:Mods/7vs1/Alenger13Adapter.SC2Mod"
-    "file:Mods/7vs1/Alenger2.SC2Mod"
-    "file:Mods/7vs1/Alenger2Adapter.SC2Mod"
-    "file:Mods/7vs1/Alenger7.SC2Mod"
-    "file:Mods/7vs1/Alenger7Adapter.SC2Mod"
-    "file:Mods/7vs1/Alenger10.SC2Mod"
-    "file:Mods/7vs1/Alenger10Adapter.SC2Mod"
-    "file:Mods/7vs1/Alenger11.SC2Mod"
-    "file:Mods/7vs1/Alenger11Adapter.SC2Mod"
-    "file:Mods/7vs1/SharedUnits.SC2Mod"
-    "file:Mods/7vs1/ExternalRefs.SC2Mod"
-)
-
-# Add only the selected commander's CommanderUnits mod as dependency (on-demand)
+# --- DEPENDENCY REWRITE SECTION ---
+# Build runtime dependency list: base deps + alenger deps + selected commander mod
+$runtimeDeps = @() + $rebornConfig.baseDependencyPaths + $alengerConfig.dependencyPaths
 if ($selectedCommanderUnitsMod) {
     $runtimeDeps += "file:Mods/7vs1/$selectedCommanderUnitsMod.SC2Mod"
 }
+Set-MapDependencies -MapPath $MapLivePath -Dependencies $runtimeDeps
 
-Set-MapDependencies -Dependencies $runtimeDeps
-
-# Write Bank
+# --- BANK SECTION ---
 Write-Host "Writing CampaignXCore Bank..."
 Set-CampaignXCorePrimaryCommander -SelectedCommanders @($Commander)
 Set-CampaignXCoreTestRunId -RunId "RebornCommander"
 
-# Launch
+# --- LAUNCH SECTION ---
 if ($NoLaunch) {
     Write-Host "NoLaunch mode, skip launch"
     exit 0
 }
 
 $switcher = Join-Path $Sc2Root "Support64\SC2Switcher_x64.exe"
-$mapPath = Join-Path $Sc2Root "Maps\$MapName"
-Write-Host "Launching: $mapPath"
-Start-Process -FilePath $switcher -ArgumentList "`"$mapPath`""
+Write-Host "Launching: $MapLivePath"
+Start-Process -FilePath $switcher -ArgumentList "`"$MapLivePath`""
 
 if ($SkipWait) {
     Write-Host "SkipWait mode, skip wait"
@@ -455,9 +134,6 @@ if ($SkipWait) {
 }
 
 # Wait for game ready
-$waitScript = Join-Path $ScriptsRoot "wait-for-game-ready.ps1"
-Write-Host "Waiting for game ready..."
-& powershell -NoProfile -ExecutionPolicy Bypass -File $waitScript
-$exitCode = $LASTEXITCODE
+$exitCode = Wait-GameReady -ScriptsRoot $ScriptsRoot
 Write-Host "wait-for-game-ready exit code: $exitCode"
 exit $exitCode
