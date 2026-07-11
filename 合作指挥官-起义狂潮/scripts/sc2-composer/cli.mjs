@@ -16,6 +16,18 @@
 import { lintMod, lintProject } from './src/lintDataspaces.mjs';
 import { validatePlan, resolveDependencies, detectConflicts } from './src/compositionPlan.mjs';
 import { validatePackage, extractPackageFromMod } from './src/commanderPackage.mjs';
+import { generateCompositionPlan, comparePlans } from './src/rebornCompatibility.mjs';
+import {
+  createReport,
+  aggregateFromLint,
+  aggregateFromSchemaValidation,
+  aggregateFromComparePlans,
+  aggregateFromLauncherPlan,
+  mergeIntoReport,
+  summarize,
+  deriveOverallStatus,
+} from './src/verificationReport.mjs';
+import { writeFileSync, mkdirSync, existsSync as fsExistsSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync, existsSync } from 'node:fs';
@@ -28,6 +40,7 @@ const COMMANDS = [
   'validate-composition-plan',
   'validate-commander-package',
   'resolve-dependencies',
+  'verify',
 ];
 
 function printUsage() {
@@ -39,18 +52,24 @@ function printUsage() {
   node cli.mjs validate-composition-plan <plan.json>
   node cli.mjs validate-commander-package <package.json>
   node cli.mjs resolve-dependencies <plan.json> [--project-root <path>]
+  node cli.mjs verify --map <map.sc2map> --commander <id> [--launcher-plan <plan.json>] [--project-root <path>] [--json] [--md]
 
 子命令：
   lint-dataspaces               扫描 SC2Mod 数据空间，校验 DataCenter manifest
   validate-composition-plan     校验 CompositionPlan 结构
   validate-commander-package    校验 CommanderPackage manifest
   resolve-dependencies          根据 CompositionPlan 解析有序依赖列表
+  verify                        汇总 lint + schema + comparePlans 生成 VerificationReport
 
 选项：
   --mod <path>         [lint-dataspaces] 只 lint 指定的 SC2Mod 目录
-  --json               [lint-dataspaces] 输出 JSON 格式（便于 CI 集成）
+  --json               [lint-dataspaces/verify] 输出 JSON 格式（便于 CI 集成）
   --quiet              [lint-dataspaces] 只输出 error 级别问题
-  --project-root <p>   [resolve-dependencies] 项目根目录（默认自动探测）
+  --project-root <p>   [resolve-dependencies/verify] 项目根目录（默认自动探测）
+  --map <map.sc2map>   [verify] 目标地图文件名
+  --commander <id>     [verify] 指挥官 ID
+  --launcher-plan <p>  [verify] 可选的 launcher-plan.json 路径，用于 comparePlans
+  --md                 [verify] 同时输出 Markdown 摘要
   --help, -h           显示帮助
 
 示例：
@@ -60,6 +79,7 @@ function printUsage() {
   node cli.mjs validate-composition-plan plan.json
   node cli.mjs validate-commander-package Shared/Commanders/TerranRaynor.json
   node cli.mjs resolve-dependencies plan.json --project-root .
+  node cli.mjs verify --map zexpedition03_reborn_port.SC2Map --commander TerranRaynor --md
 `);
 }
 
@@ -76,15 +96,23 @@ function parseArgs(argv) {
     json: false,
     quiet: false,
     mod: null,
-    projectRoot: null, // resolve-dependencies 显式 --project-root
+    projectRoot: null, // resolve-dependencies / verify 显式 --project-root
+    map: null,         // verify --map
+    commander: null,   // verify --commander
+    launcherPlan: null,// verify --launcher-plan
+    md: false,         // verify --md
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--help' || a === '-h') { printUsage(); process.exit(0); }
     else if (a === '--json') opts.json = true;
     else if (a === '--quiet') opts.quiet = true;
+    else if (a === '--md') opts.md = true;
     else if (a === '--mod') opts.mod = argv[++i];
     else if (a === '--project-root') opts.projectRoot = argv[++i];
+    else if (a === '--map') opts.map = argv[++i];
+    else if (a === '--commander') opts.commander = argv[++i];
+    else if (a === '--launcher-plan') opts.launcherPlan = argv[++i];
     else if (!a.startsWith('--')) {
       if (!opts.command) opts.command = a;
       else if (opts.target === null) opts.target = a;
@@ -316,6 +344,124 @@ async function runResolveDependencies(opts) {
   }
 }
 
+// ============================================================
+// 子命令：verify - 汇总 lint + schema + comparePlans 生成 VerificationReport
+// ============================================================
+async function runVerify(opts) {
+  if (!opts.map) {
+    console.error('错误：verify 需要 --map <map.sc2map> 参数');
+    process.exit(2);
+  }
+  if (!opts.commander) {
+    console.error('错误：verify 需要 --commander <id> 参数');
+    process.exit(2);
+  }
+
+  const projectRoot = opts.projectRoot ? resolve(opts.projectRoot) : detectProjectRoot();
+
+  // === 1. 生成 CompositionPlan 并校验 schema ===
+  let compositionPlan;
+  try {
+    compositionPlan = generateCompositionPlan({
+      mapName: opts.map,
+      commander: opts.commander,
+      projectRoot,
+    });
+  } catch (e) {
+    // 生成失败：直接输出 fail 报告
+    const report = createReport({
+      compositionId: `reborn.${opts.map.replace(/\.SC2Map$/, '')}__p1-${opts.commander}`,
+      runId: new Date().toISOString().replace(/[:.]/g, '').slice(0, 14),
+      checks: { schema: 'fail' },
+      failures: [{
+        check: 'schema',
+        message: `generateCompositionPlan 失败: ${e.message}`,
+        severity: 'error',
+        source: 'generateCompositionPlan',
+      }],
+    });
+    emitVerifyReport(report, opts, projectRoot);
+    process.exit(1);
+  }
+
+  const schemaValidation = validatePlan(compositionPlan);
+
+  // === 2. lint-dataspaces ===
+  const lintResult = await lintProject(projectRoot);
+
+  // === 3. 可选 comparePlans ===
+  let compareAgg = null;
+  let launcherPlanAgg = null;
+  if (opts.launcherPlan && fsExistsSync(opts.launcherPlan)) {
+    const launcherPlan = readJsonFile(opts.launcherPlan);
+    const compareResult = comparePlans(compositionPlan, launcherPlan);
+    compareAgg = aggregateFromComparePlans(compareResult, {
+      compositionPlanPath: '(generated)',
+      launcherPlanPath: opts.launcherPlan,
+    });
+    launcherPlanAgg = aggregateFromLauncherPlan(launcherPlan, { planPath: opts.launcherPlan });
+  }
+
+  // === 4. 合并所有聚合结果 ===
+  let report = createReport({
+    compositionId: compositionPlan.planId,
+    runId: new Date().toISOString().replace(/[:.]/g, '').slice(0, 14),
+  });
+
+  report = mergeIntoReport(
+    report,
+    aggregateFromSchemaValidation(schemaValidation, { planPath: '(generated)' }),
+    aggregateFromLint(lintResult, { projectRoot }),
+  );
+  if (launcherPlanAgg) report = mergeIntoReport(report, launcherPlanAgg);
+  if (compareAgg) report = mergeIntoReport(report, compareAgg);
+
+  emitVerifyReport(report, opts, projectRoot);
+
+  const { overall } = deriveOverallStatus(report);
+  if (overall === 'fail') process.exit(1);
+}
+
+function emitVerifyReport(report, opts, projectRoot) {
+  const outDir = join(projectRoot, 'out', 'verification', report.compositionId);
+  if (!fsExistsSync(outDir)) {
+    mkdirSync(outDir, { recursive: true });
+  }
+  const jsonPath = join(outDir, `${report.runId}.verification.json`);
+  writeFileSync(jsonPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
+
+  if (opts.json) {
+    console.log(JSON.stringify(report, null, 2));
+  } else {
+    const { overall, summary: overallSummary } = deriveOverallStatus(report);
+    console.log(`\n=== verify ===`);
+    console.log(`CompositionId: ${report.compositionId}`);
+    console.log(`RunId: ${report.runId}`);
+    console.log(`Overall: ${overall} — ${overallSummary}`);
+    console.log(`Report: ${jsonPath}`);
+    console.log();
+    for (const [cp, status] of Object.entries(report.checks)) {
+      const icon = status === 'pass' ? '[PASS]' : status === 'fail' ? '[FAIL]' : `[${status.toUpperCase()}]`;
+      console.log(`  ${icon.padEnd(10)} ${cp}`);
+    }
+    if (report.failures.length > 0) {
+      console.log(`\nFailures (${report.failures.length}):`);
+      for (const f of report.failures.slice(0, 10)) {
+        console.log(`  [${f.severity || 'error'}] ${f.check}: ${f.message}`);
+      }
+      if (report.failures.length > 10) {
+        console.log(`  ... and ${report.failures.length - 10} more`);
+      }
+    }
+  }
+
+  if (opts.md) {
+    const mdPath = join(outDir, `${report.runId}.md`);
+    writeFileSync(mdPath, summarize(report), 'utf8');
+    if (!opts.json) console.log(`Markdown: ${mdPath}`);
+  }
+}
+
 async function main() {
   const opts = parseArgs(args);
 
@@ -336,6 +482,9 @@ async function main() {
       break;
     case 'resolve-dependencies':
       await runResolveDependencies(opts);
+      break;
+    case 'verify':
+      await runVerify(opts);
       break;
     default:
       console.error(`未知子命令: ${opts.command}`);

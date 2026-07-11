@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "schemaVersion": 1,
+  "closureName": "Reborn5ModClosure",
+  "description": "Reborn 地图依赖的 5 个源 mod 容器闭包清单（源包 v0.71）。定义闭包内 mod 的依赖关系、外部依赖和下游消费者，确保同步到 SC2 live 目录时形成完整依赖闭包，不依赖外部未声明的 mod。",
+  "sourcePackage": "v0.71",
+  "mods": [
+    {
+      "name": "crys_swarm_assets.SC2Mod",
+      "path": "Mods/crys_swarm_assets.SC2Mod",
+      "dataCenterId": "Platform.CrysSwarmAssets",
+      "dataCenterManifest": "Mods/crys_swarm_assets.DataCenter.json",
+      "containerType": "mpq",
+      "closureRole": "assets",
+      "dependsOn": []
+    },
+    {
+      "name": "sibirens_starhooks_common.SC2Mod",
+      "path": "Mods/sibirens_starhooks_common.SC2Mod",
+      "dataCenterId": "Platform.SibirensStarhooksCommon",
+      "dataCenterManifest": "Mods/sibirens_starhooks_common.DataCenter.json",
+      "containerType": "mpq",
+      "closureRole": "common",
+      "dependsOn": []
+    },
+    {
+      "name": "sibirens_starhooks_swarmstoryutils.SC2Mod",
+      "path": "Mods/sibirens_starhooks_swarmstoryutils.SC2Mod",
+      "dataCenterId": "Capability.SibirensSwarmStoryUtils",
+      "dataCenterManifest": "Mods/sibirens_starhooks_swarmstoryutils.DataCenter.json",
+      "containerType": "mpq",
+      "closureRole": "story-utils",
+      "dependsOn": ["sibirens_starhooks_common.SC2Mod"]
+    },
+    {
+      "name": "sibirens_sundries_swarm_reborn.SC2Mod",
+      "path": "Mods/sibirens_sundries_swarm_reborn.SC2Mod",
+      "dataCenterId": "Capability.SibirensSundriesReborn",
+      "dataCenterManifest": "Mods/sibirens_sundries_swarm_reborn.DataCenter.json",
+      "containerType": "mpq",
+      "closureRole": "sundries",
+      "dependsOn": ["sibirens_starhooks_common.SC2Mod", "crys_swarm_assets.SC2Mod"]
+    },
+    {
+      "name": "crys_the_swarm_reborn.SC2Mod",
+      "path": "Mods/crys_the_swarm_reborn.SC2Mod",
+      "dataCenterId": "MapFamily.CrysReborn",
+      "dataCenterManifest": "Mods/crys_the_swarm_reborn.SC2Mod/DataCenter.json",
+      "containerType": "directory",
+      "closureRole": "main-data",
+      "dependsOn": [
+        "crys_swarm_assets.SC2Mod",
+        "sibirens_starhooks_common.SC2Mod",
+        "sibirens_starhooks_swarmstoryutils.SC2Mod",
+        "sibirens_sundries_swarm_reborn.SC2Mod"
+      ]
+    }
+  ],
+  "externalDependencies": [
+    {
+      "name": "Void.SC2Mod",
+      "description": "官方虚空之遗基础数据 mod（SC2 公共依赖）"
+    },
+    {
+      "name": "Liberty.SC2Mod",
+      "description": "官方自由之翼基础数据 mod"
+    },
+    {
+      "name": "Swarm.SC2Mod",
+      "description": "官方虫群之心基础数据 mod"
+    }
+  ],
+  "consumers": [
+    {
+      "name": "RebornBridge.SC2Mod",
+      "path": "Mods/Reborn/RebornBridge.SC2Mod",
+      "description": "Reborn 桥接 mod，依赖本闭包的全部 5 个 mod"
+    },
+    {
+      "name": "RebornMapAdapter.SC2Mod",
+      "path": "Mods/Reborn/RebornMapAdapter.SC2Mod",
+      "description": "Reborn 地图适配器，依赖本闭包的全部 5 个 mod"
+    }
+  ]
+}

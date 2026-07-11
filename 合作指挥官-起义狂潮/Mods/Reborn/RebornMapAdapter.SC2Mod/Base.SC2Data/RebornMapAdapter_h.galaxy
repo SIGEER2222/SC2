@@ -1,10 +1,46 @@
 // RebornMapAdapter header
 
+// ============================================================
+// State
+// ============================================================
+
+bool libRebornAdapter_initialized;
+bool libRebornAdapter_gameOver;
+playergroup libRebornAdapter_commanderPlayers;
+string libRebornAdapter_commanderSlot[16];
+
+// ============================================================
+// Commander Slot API
+// ============================================================
+
+void libRebornAdapter_RegisterCommanderSlot (int player, string commanderId);
+string libRebornAdapter_GetCommanderForPlayer (int player);
+playergroup libRebornAdapter_CommanderPlayers ();
+
+// ============================================================
+// Lifecycle Hooks
+// ============================================================
+
 void libRebornAdapter_InitLib ();
 void libRebornAdapter_OnAfterTechnologyInit ();
 void libRebornAdapter_OnAfterPlayersInit ();
 void libRebornAdapter_OnAfterUnitsInit ();
+
+// ============================================================
+// Victory / Defeat Wrappers
+// ============================================================
+
 void libRebornAdapter_TriggerVictory ();
 void libRebornAdapter_TriggerDefeat ();
+
+// ============================================================
+// Message Helpers
+// ============================================================
+
 void libRebornAdapter_DisplayMissionMessage (playergroup pg, string message);
+
+// ============================================================
+// Player Registration
+// ============================================================
+
 void libRebornAdapter_RegisterPlayer1 ();

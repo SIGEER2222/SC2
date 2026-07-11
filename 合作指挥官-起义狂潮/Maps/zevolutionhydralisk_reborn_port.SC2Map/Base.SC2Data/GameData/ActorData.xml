@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <!-- Artanis Ulnar02 version -->
+    <CActorMissile id="ArtanisVoid">
+        <On index="71" Send="Create VoidHeroGlow"/>
+        <On index="72" Terms="Behavior.ArtanisChannel.On" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On index="73" Terms="Behavior.ArtanisChannel.Off" Send="AnimBracketStop Work"/>
+        <On index="74" Terms="Behavior.ArtanisResurgenceInvulnerable.On" Send="AnimBracketStop Attack"/>
+        <On index="75" Send="AnimClear Attack"/>
+        <On index="76" Send="AnimBracketStart Work Spell,F,Start Spell,F Spell,F,End"/>
+        <On index="77" Terms="Behavior.ArtanisResurgenceStun.Off" Send="AnimBracketStop Work"/>
+        <On index="78" Terms="Abil.ArtanisLightningDash.SourceCastStart" Send="$Spell,E 0 -1.000000 -1.000000 1.000000 AsTimeScale"/>
+        <On index="79" Terms="Abil.ArtanisAstralWind.SourceCastStart; !UnitWalking" Send="$Spell,B 0 -1.000000 -1.000000 1.000000 AsTimeScale"/>
+        <On index="80" Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Spell"/>
+        <On index="81" Terms="UnitHeightUpdate.*.Land" Send="Create Zealot_Land"/>
+        <On index="82" Send="Create Templar_LandSweetener"/>
+        <On index="83" removed="1"/>
+    </CActorMissile>
+    <!-- Attack                                                                                  -->
+    <CActorBeamSimple id="PurifierAttackBeam">
+        <Scale value="1.200000"/>
+    </CActorBeamSimple>
+    <CActorBeamSimple id="PurifierSecondaryAttackBeam">
+        <Scale value="1.200000"/>
+    </CActorBeamSimple>
+</Catalog>

@@ -15,6 +15,33 @@ include "TriggerLibs/NativeLib"
 bool libRebornAdapter_initialized = false;
 bool libRebornAdapter_gameOver = false;
 
+// 指挥官玩家组：包含所有已注册的指挥官玩家
+playergroup libRebornAdapter_commanderPlayers;
+
+// 每个 player 的指挥官 ID（空字符串表示未注册）
+string libRebornAdapter_commanderSlot[16];
+
+// ============================================================
+// Commander Slot API
+// ============================================================
+
+// 注册某 player 的指挥官 ID
+void libRebornAdapter_RegisterCommanderSlot (int player, string commanderId) {
+    if (player < 0 || player >= 16) { return; }
+    libRebornAdapter_commanderSlot[player] = commanderId;
+}
+
+// 返回某 player 的指挥官 ID，未注册时返回空字符串
+string libRebornAdapter_GetCommanderForPlayer (int player) {
+    if (player < 0 || player >= 16) { return ""; }
+    return libRebornAdapter_commanderSlot[player];
+}
+
+// 返回指挥官玩家组
+playergroup libRebornAdapter_CommanderPlayers () {
+    return libRebornAdapter_commanderPlayers;
+}
+
 // ============================================================
 // Lifecycle Hooks
 // ============================================================
@@ -23,24 +50,40 @@ bool libRebornAdapter_gameOver = false;
 void libRebornAdapter_InitLib () {
     libRebornAdapter_initialized = true;
     libRebornAdapter_gameOver = false;
+    libRebornAdapter_commanderPlayers = PlayerGroupEmpty();
 }
 
 // Called after Init01Technology completes.
-// Future: overlay selected commander tech here.
+// 占位：为 player 1 解锁基础科技
 void libRebornAdapter_OnAfterTechnologyInit () {
-    // Stub: map's own tech is already applied
+    int lv_player;
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(PlayerGroupAll(), lv_player);
+        if (lv_player < 0) { break; }
+        // 占位：目前只处理 player 1
+        if (lv_player == 1) {
+            // 占位实现：未来在此叠加选中指挥官的科技
+            TechTreeUpgradeAllow(lv_player, "HotSRapidRegeneration", true);
+        }
+    }
 }
 
 // Called after Init02Players completes.
-// Future: register commander slots here.
+// 注册 player 1 为指挥官玩家
 void libRebornAdapter_OnAfterPlayersInit () {
-    // Stub: map's own player setup is already done
+    // 根据 MapProfile zexpedition03.json 的 commanderSlots 注册
+    libRebornAdapter_RegisterCommanderSlot(1, "RebornKerrigan");
+    PlayerGroupAdd(libRebornAdapter_commanderPlayers, 1);
 }
 
 // Called after Init03Units completes.
-// Future: create commander start squad / hero here.
+// 占位：在 player 1 起点位置创建英雄单位
 void libRebornAdapter_OnAfterUnitsInit () {
-    // Stub: map's own units are already created
+    point lv_startPoint;
+    lv_startPoint = PlayerStartLocation(1);
+    // 占位实现：创建 RaynorCommando 英雄单位
+    libNtve_gf_CreateUnitsAtPoint2(1, "RaynorCommando", c_unitCreateIgnorePlacement, 1, lv_startPoint);
 }
 
 // ============================================================

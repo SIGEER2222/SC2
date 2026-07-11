@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CAbilEffectInstant id="DehakaHeal">
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <AutoCastValidatorArray value="CasterLifeLT90Percent"/>
+    </CAbilEffectInstant>
+    <CAbilMorph id="HyperionLand">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="LandHyperion"/>
+        <InfoArray Unit="HyperionKorhal" RandomDelayMin="0.1" RandomDelayMax="0.3">
+            <SectionArray index="Actor">
+                <DurationArray index="Delay" value="0.5"/>
+                <DurationArray index="Duration" value="2.5"/>
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Delay" value="0.5"/>
+                <DurationArray index="Duration" value="2.5"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="3"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="HyperionTakeOff">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="TakeOffHyperion"/>
+        <ActorKey value="HyperionLand"/>
+        <InfoArray Unit="Hyperion" RandomDelayMin="0.1" RandomDelayMax="0.3">
+            <SectionArray index="Actor">
+                <DurationArray index="Delay" value="0.5"/>
+                <DurationArray index="Duration" value="2.5"/>
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Delay" value="0.5"/>
+                <DurationArray index="Duration" value="2.5"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="3"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilTrain id="TrainKorhalMercenaries">
+        <InfoArray index="Train1" Time="20"/>
+        <InfoArray index="Train3" Time="30"/>
+        <InfoArray index="Train5" Time="35">
+            <Button Requirements="HaveAttachedTechLab"/>
+        </InfoArray>
+    </CAbilTrain>
+</Catalog>
