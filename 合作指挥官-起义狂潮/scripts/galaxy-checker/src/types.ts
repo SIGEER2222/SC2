@@ -90,3 +90,20 @@ export interface FixResult {
   skipped: Array<{ issue: Issue; reason: string }>;
   filesChanged: string[];
 }
+
+// 基线对比相关类型
+export interface BaselineEntry {
+  file: string;
+  line: number;
+  ruleCode: string;
+  message: string;
+}
+
+export interface CompareResult {
+  newIssues: Issue[];
+  resolvedIssues: BaselineEntry[];
+  unchangedCount: number;
+  baselineTotal: number;
+  currentTotal: number;
+  currentResult: CheckResult;
+}

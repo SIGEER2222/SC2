@@ -5,10 +5,11 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "galaxy-check": "dist/cli.mjs"
+    "galaxy-check": "dist/cli.mjs",
+    "galaxy-checker-baseline": "dist/baseline-compare.mjs"
   },
   "scripts": {
-    "build": "tsc && esbuild dist/cli.js --bundle --platform=node --format=esm --outfile=dist/cli.mjs",
+    "build": "tsc && esbuild dist/cli.js --bundle --platform=node --format=esm --outfile=dist/cli.mjs && esbuild dist/baseline-compare.js --bundle --platform=node --format=esm --outfile=dist/baseline-compare.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },

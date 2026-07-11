@@ -65,22 +65,18 @@ describe('Fixture 梯队回归 - 真实错误样本', () => {
     expect(discouragedIssues[0].suggestedOwner).toBe('Fixer.UnitCreateWrapper');
   });
 
-  it('XLIB_DISCOURAGED_NATIVE fixer: 正确转换 fixture 中的 4 个调用', () => {
+  it('XLIB_DISCOURAGED_NATIVE fixer: 只转换安全的 2 个调用（createStyle=c_unitCreateIgnorePlacement）', () => {
     const file = join(fixtureDir, 'xlib-discouraged-native.galaxy');
     // 注意: fixer 直接读文件并生成 edits，但不 apply（避免修改 fixture）
     const edits = fixDiscouragedUnitCreate(file);
-    expect(edits.length).toBe(4);
+    // 4 个 UnitCreate 调用中，只有 2 个 createStyle=c_unitCreateIgnorePlacement 可安全转换
+    expect(edits.length).toBe(2);
 
     // 验证每个 edit 都正确移除了 createStyle 参数
     for (const edit of edits) {
       expect(edit.newText).toContain('libNtve_gf_CreateUnitsAtPoint2');
       expect(edit.newText).not.toContain('UnitCreate');
-      // 验证不包含 createStyle 相关的常见值（0, c_unitCreateIgnorePlacement, lp_flags）
-      // 这些是 fixture 中的第 3 个参数，应被移除
-      const newCallContent = edit.newText.replace(/^libNtve_gf_CreateUnitsAtPoint2\(/, '').replace(/\)$/, '');
-      // 简单验证：新调用不应包含 ", 0, " 或 ", c_unitCreateIgnorePlacement, " 或 ", lp_flags, "
-      //（这些是 createStyle 参数的特征值）
-      // 注意：只检查是否移除了第 3 个参数，不精确计数（因含嵌套括号）
+      expect(edit.newText).not.toContain('c_unitCreateIgnorePlacement');
     }
 
     // 验证 fixture 文件未被修改

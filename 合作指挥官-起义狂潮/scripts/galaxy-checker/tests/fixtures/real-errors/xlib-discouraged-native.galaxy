@@ -2,19 +2,20 @@
 // 来源: CoreRuntime/LibKMIS.galaxy:3154, 3192, 4298, 4319, 4323, 5541, 6963
 // 说明: UnitCreate() 直接调用，应包装为 libNtve_gf_CreateUnitsAtPoint2()。
 //       这是当前唯一可自动修复的高频规则（confidence=high, autoFixable=true）。
-// 期望: fixer 应将 6 参数 UnitCreate 转换为 5 参数 libNtve_gf_CreateUnitsAtPoint2
+// 安全约束: Fixer 只转换 createStyle=c_unitCreateIgnorePlacement 的调用。
+// 期望: 4 个 XLIB_DISCOURAGED_NATIVE issue，但 fixer 只转换 2 个安全的
 
 void libKMIS_gf_TestCreateUnits(int lp_p, point lp_location) {
-    // 标准调用 - createStyle=0
-    UnitCreate(1, "Marine", 0, lp_p, lp_location, 270.0);
-    // 常量 createStyle
+    // 可安全转换 - createStyle=c_unitCreateIgnorePlacement
+    UnitCreate(1, "Marine", c_unitCreateIgnorePlacement, lp_p, lp_location, 270.0);
+    // 可安全转换 - 常量 createStyle
     UnitCreate(1, "ZergDropPod", c_unitCreateIgnorePlacement, lp_p, lp_location, 270.0);
-    // 变量参数
+    // 不安全 - createStyle=0（c_unitCreateConstruct），转换会改变放置验证行为
     string lv_unitType = "Marine";
     int lp_flags = 0;
     point lv_placement = lp_location;
     fixed lp_facing = 270.0;
     UnitCreate(1, lv_unitType, lp_flags, lp_p, lv_placement, lp_facing);
-    // 嵌套函数调用参数
+    // 不安全 - createStyle=0
     UnitCreate(1, "ProphecyCamera", 0, lp_p, UnitGetPosition(lp_location), libNtve_gf_RandomAngle());
 }

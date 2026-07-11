@@ -793,6 +793,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
   });
 
   // struct（简化）
+  // Galaxy 语法要求 struct 定义后跟分号：struct Foo { ... };
   private structDeclaration = this.RULE('structDeclaration', () => {
     this.CONSUME(tok.Struct);
     const nameTok = this.CONSUME(tok.Identifier);
@@ -802,6 +803,7 @@ export class GalaxyParser extends EmbeddedActionsParser {
       members.push(this.SUBRULE(this.varDeclaration) as any);
     });
     this.CONSUME(tok.RBrace);
+    this.CONSUME(tok.Semicolon);
     return { type: 'StructDeclaration', name: nameTok.image, members } as ast.StructDeclaration;
   });
 

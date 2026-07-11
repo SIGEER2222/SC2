@@ -127,20 +127,20 @@ describe('CompositionPlanResolver', () => {
 });
 
 describe('Fixer', () => {
-  it('识别并转换 6 参数 UnitCreate 调用', () => {
+  it('识别并转换 6 参数 UnitCreate 调用（createStyle=c_unitCreateIgnorePlacement）', () => {
     const tmpDir = join(tmpdir(), `galaxy-fixer-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     const filePath = join(tmpDir, 'TestLib.galaxy');
     writeFileSync(filePath, `
 void TestFunc() {
-    UnitCreate(1, "Marine", 0, 1, lv_pos, 270.0);
+    UnitCreate(1, "Marine", c_unitCreateIgnorePlacement, 1, lv_pos, 270.0);
 }
 `);
     const edits = fixDiscouragedUnitCreate(filePath);
     expect(edits.length).toBe(1);
     expect(edits[0].newText).toContain('libNtve_gf_CreateUnitsAtPoint2');
     expect(edits[0].newText).not.toContain('UnitCreate');
-    // 验证移除了第 3 个参数 (0)
+    // 验证移除了第 3 个参数 (c_unitCreateIgnorePlacement)
     expect(edits[0].newText).toBe('libNtve_gf_CreateUnitsAtPoint2(1, "Marine", 1, lv_pos, 270.0)');
 
     rmSync(tmpDir, { recursive: true, force: true });
@@ -152,10 +152,27 @@ void TestFunc() {
     const filePath = join(tmpDir, 'TestLib.galaxy');
     writeFileSync(filePath, `
 void TestFunc() {
-    UnitCreate(1, "Marine", 0, 1, lv_pos);
+    UnitCreate(1, "Marine", c_unitCreateIgnorePlacement, 1, lv_pos);
 }
 `);
     const edits = fixDiscouragedUnitCreate(filePath);
+    expect(edits.length).toBe(0);
+
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('跳过 createStyle 非 c_unitCreateIgnorePlacement 的调用（安全约束）', () => {
+    const tmpDir = join(tmpdir(), `galaxy-fixer-unsafe-${Date.now()}`);
+    mkdirSync(tmpDir, { recursive: true });
+    const filePath = join(tmpDir, 'TestLib.galaxy');
+    writeFileSync(filePath, `
+void TestFunc() {
+    UnitCreate(1, "Marine", 0, 1, lv_pos, 270.0);
+    UnitCreate(1, "Marine", c_unitCreateConstruct, 1, lv_pos, 270.0);
+}
+`);
+    const edits = fixDiscouragedUnitCreate(filePath);
+    // createStyle=0 和 c_unitCreateConstruct 都不是 c_unitCreateIgnorePlacement，跳过
     expect(edits.length).toBe(0);
 
     rmSync(tmpDir, { recursive: true, force: true });
@@ -182,7 +199,7 @@ void TestFunc() {
     const tmpDir = join(tmpdir(), `galaxy-fixer4-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     const filePath = join(tmpDir, 'TestLib.galaxy');
-    const original = `void TestFunc() {\n    UnitCreate(1, "Marine", 0, 1, lv_pos, 270.0);\n}\n`;
+    const original = `void TestFunc() {\n    UnitCreate(1, "Marine", c_unitCreateIgnorePlacement, 1, lv_pos, 270.0);\n}\n`;
     writeFileSync(filePath, original);
 
     const result = runFixer([filePath], 'XLIB_DISCOURAGED_NATIVE');
@@ -192,6 +209,23 @@ void TestFunc() {
     const after = readFileSync(filePath, 'utf-8');
     expect(after).toContain('libNtve_gf_CreateUnitsAtPoint2');
     expect(after).not.toContain('UnitCreate');
+
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('dryRun 模式不修改文件', () => {
+    const tmpDir = join(tmpdir(), `galaxy-fixer-dryrun-${Date.now()}`);
+    mkdirSync(tmpDir, { recursive: true });
+    const filePath = join(tmpDir, 'TestLib.galaxy');
+    const original = `void TestFunc() {\n    UnitCreate(1, "Marine", c_unitCreateIgnorePlacement, 1, lv_pos, 270.0);\n}\n`;
+    writeFileSync(filePath, original);
+
+    const result = runFixer([filePath], 'XLIB_DISCOURAGED_NATIVE', true);
+    expect(result.applied.length).toBe(1);
+    expect(result.filesChanged.length).toBe(0); // dry-run 不写文件
+
+    const after = readFileSync(filePath, 'utf-8');
+    expect(after).toBe(original); // 文件未被修改
 
     rmSync(tmpDir, { recursive: true, force: true });
   });

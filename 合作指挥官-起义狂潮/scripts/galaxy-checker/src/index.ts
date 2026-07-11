@@ -15,7 +15,7 @@ import type { Issue, CheckResult, CheckOptions, CatalogDb } from './types.js';
 
 export { parse, RuleEngine, checkRules, IssueReporter, NativeFunctionTable, ProjectLoader, analyze, enrichIssues, resolveFromCompositionPlan };
 export { runFixer, fixDiscouragedUnitCreate } from './fixer/Fixer.js';
-export type { Issue, CheckResult, CheckOptions, FixEdit, FixResult } from './types.js';
+export type { Issue, CheckResult, CheckOptions, FixEdit, FixResult, BaselineEntry, CompareResult } from './types.js';
 
 const DEFAULT_RULES_PATH = resolveDataFile('project-rules.json');
 

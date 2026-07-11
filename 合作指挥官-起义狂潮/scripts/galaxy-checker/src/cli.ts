@@ -20,6 +20,7 @@ if (args.length === 0 || args.includes('--help')) {
   --composition-plan <p>  CompositionPlan.json 路径，自动解析 symbolRoots/catalogDb
   --no-global-symbols     跳过全局符号表构建
   --fix <rule>            自动修复指定规则（目前支持 XLIB_DISCOURAGED_NATIVE）
+  --dry-run               与 --fix 配合使用，只预览不写文件
   --help                  显示帮助`);
   process.exit(2);
 }
@@ -46,11 +47,12 @@ try {
   // --fix 模式：执行自动修复，不执行检查
   if (fixIdx >= 0 && args[fixIdx + 1]) {
     const ruleCode = args[fixIdx + 1];
+    const dryRun = args.includes('--dry-run');
     const files = collectFiles(target);
-    const fixResult = runFixer(files, ruleCode);
+    const fixResult = runFixer(files, ruleCode, dryRun);
     console.log(JSON.stringify({
       tool: 'galaxy-checker',
-      mode: 'fix',
+      mode: dryRun ? 'fix-dry-run' : 'fix',
       rule: ruleCode,
       applied: fixResult.applied.length,
       filesChanged: fixResult.filesChanged,

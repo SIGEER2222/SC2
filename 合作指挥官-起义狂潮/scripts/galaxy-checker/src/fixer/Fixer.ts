@@ -76,7 +76,11 @@ function findUnitCreateCalls(source: string): Array<{ nameStart: number; callSta
  * 签名差异：UnitCreate 有 6 个参数（含 createStyle），
  * libNtve_gf_CreateUnitsAtPoint2 有 5 个参数（无 createStyle）。
  *
- * 仅当调用恰好 6 个参数时自动修复，其他情况跳过（需人工确认）。
+ * 安全约束：libNtve_gf_CreateUnitsAtPoint2 内部使用 c_unitCreateIgnorePlacement，
+ * 因此只有当原调用的 createStyle 参数为 c_unitCreateIgnorePlacement 时才安全转换。
+ * 其他 createStyle 值（如 0=c_unitCreateConstruct）会改变放置验证行为，必须跳过。
+ *
+ * 仅当调用恰好 6 个参数且 createStyle 匹配时自动修复，其他情况跳过（需人工确认）。
  */
 export function fixDiscouragedUnitCreate(filePath: string): FixEdit[] {
   const source = readFileSync(filePath, 'utf-8').replace(/^\uFEFF/, '');
@@ -86,6 +90,11 @@ export function fixDiscouragedUnitCreate(filePath: string): FixEdit[] {
   for (const call of calls) {
     const parsed = parseCallArgs(source, call.callStart);
     if (!parsed || parsed.args.length !== 6) continue;
+
+    // 安全检查：只有 createStyle = c_unitCreateIgnorePlacement 时才转换
+    // libNtve_gf_CreateUnitsAtPoint2 内部硬编码使用 c_unitCreateIgnorePlacement
+    const createStyle = parsed.args[2].text.trim();
+    if (createStyle !== 'c_unitCreateIgnorePlacement') continue;
 
     // 构造新调用：去掉第 3 个参数（createStyle，index=2）
     const newArgs = [
@@ -106,7 +115,7 @@ export function fixDiscouragedUnitCreate(filePath: string): FixEdit[] {
       oldText,
       newText,
       ruleCode: 'XLIB_DISCOURAGED_NATIVE',
-      description: `包装 UnitCreate() 为 libNtve_gf_CreateUnitsAtPoint2()（移除 createStyle 参数）`,
+      description: `包装 UnitCreate() 为 libNtve_gf_CreateUnitsAtPoint2()（createStyle=c_unitCreateIgnorePlacement，安全转换）`,
     });
   }
   return edits;
@@ -141,8 +150,9 @@ export function applyEdits(filePath: string, edits: FixEdit[]): FixEdit[] {
 
 /**
  * 主 fixer 入口：对一组文件执行指定规则的自动修复。
+ * dryRun=true 时只返回预览 edit，不写回文件。
  */
-export function runFixer(files: string[], ruleCode: string): FixResult {
+export function runFixer(files: string[], ruleCode: string, dryRun = false): FixResult {
   const applied: FixEdit[] = [];
   const skipped: Array<{ issue: Issue; reason: string }> = [];
   const filesChanged = new Set<string>();
@@ -153,11 +163,16 @@ export function runFixer(files: string[], ruleCode: string): FixResult {
       edits = fixDiscouragedUnitCreate(file);
     }
     if (edits.length > 0) {
-      const appliedEdits = applyEdits(file, edits);
-      applied.push(...appliedEdits);
-      if (appliedEdits.length > 0) filesChanged.add(file);
+      if (dryRun) {
+        // dry-run 模式：只收集 edit 不写文件
+        applied.push(...edits);
+      } else {
+        const appliedEdits = applyEdits(file, edits);
+        applied.push(...appliedEdits);
+        if (appliedEdits.length > 0) filesChanged.add(file);
+      }
     }
   }
 
-  return { applied, skipped, filesChanged: [...filesChanged] };
+  return { applied, skipped, filesChanged: dryRun ? [] : [...filesChanged] };
 }
