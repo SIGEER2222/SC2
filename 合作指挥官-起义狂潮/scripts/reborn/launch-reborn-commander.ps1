@@ -113,6 +113,36 @@ function Get-WorkspaceRoot {
     return $ProjRoot
 }
 
+# Map commander identifier (e.g. "TerranRaynor") to CommanderUnits mod suffix.
+function Get-CommanderUnitsModName {
+    param([string]$Commander)
+    $map = @{
+        "TerranRaynor"   = "Raynor"
+        "TerranRaynorX"  = "RaynorX"
+        "TerranNova"     = "Nova"
+        "TerranSwann"    = "Swann"
+        "TerranHorner"   = "Horner"
+        "TerranMengsk"   = "Mengsk"
+        "TerranTychus"   = "TychusXM"
+        "ZergKerrigan"   = "Kerrigan"
+        "ZergAbathur"    = "Abathur"
+        "ZergZagara"     = "Zagara"
+        "ZergStukov"     = "Stukov"
+        "ZergDehaka"     = "Dehaka"
+        "ZergStetmann"   = "Stetmann"
+        "ProtossArtanis" = "Artanis"
+        "ProtossVorazun" = "Vorazun"
+        "ProtossKarax"   = "Karax"
+        "ProtossFenix"   = "Fenix"
+        "ProtossAlarak"  = "Alarak"
+        "ProtossZeratul" = "Zeratul"
+    }
+    if ($map.ContainsKey($Commander)) {
+        return "CommanderUnits_$($map[$Commander])"
+    }
+    return $null
+}
+
 function Convert-TestCommanderToCommanderPowerKey {
     param([string]$Commander)
     return (Convert-CommanderPowerCommanderToBankKey -Commander $Commander -WorkspaceRoot $ProjRoot)
@@ -198,35 +228,29 @@ Sync-Mod "7vs1\BaseCatalogPatch.SC2Mod"
 # Sync kit_mutations (provides LibA070801C mutator runtime, required by LibE0EAE146_MutatorRuntime)
 Sync-Mod "kit_mutations.SC2Mod"
 
-# Sync ALL CommanderUnits mods (galaxy code references all commanders' functions for compilation)
-$allCommanderUnitsMods = @(
-    "7vs1\CommanderUnits_Raynor.SC2Mod"
-    "7vs1\CommanderUnits_RaynorX.SC2Mod"
-    "7vs1\CommanderUnits_Nova.SC2Mod"
-    "7vs1\CommanderUnits_Swann.SC2Mod"
-    "7vs1\CommanderUnits_Horner.SC2Mod"
-    "7vs1\CommanderUnits_Mengsk.SC2Mod"
-    "7vs1\CommanderUnits_TychusXM.SC2Mod"
-    "7vs1\CommanderUnits_Kerrigan.SC2Mod"
-    "7vs1\CommanderUnits_Abathur.SC2Mod"
-    "7vs1\CommanderUnits_Zagara.SC2Mod"
-    "7vs1\CommanderUnits_Stukov.SC2Mod"
-    "7vs1\CommanderUnits_Dehaka.SC2Mod"
-    "7vs1\CommanderUnits_Stetmann.SC2Mod"
-    "7vs1\CommanderUnits_Artanis.SC2Mod"
-    "7vs1\CommanderUnits_Vorazun.SC2Mod"
-    "7vs1\CommanderUnits_Karax.SC2Mod"
-    "7vs1\CommanderUnits_Fenix.SC2Mod"
-    "7vs1\CommanderUnits_Alarak.SC2Mod"
-    "7vs1\CommanderUnits_Zeratul.SC2Mod"
-)
-
-# Also sync shared mods needed for galaxy compilation
+# Sync shared mods needed for galaxy compilation
 Sync-Mod "7vs1\SharedUnits.SC2Mod"
 Sync-Mod "7vs1\ExternalRefs.SC2Mod"
 
-foreach ($mod in $allCommanderUnitsMods) {
-    Sync-Mod $mod
+# Sync only the selected commander's CommanderUnits mod (on-demand loading).
+# Galaxy files for ALL commanders are injected from workspace source later
+# (Sync-MapRuntimeLibraries) to satisfy LibE0EAE146.galaxy's hardcoded includes.
+$selectedCommanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
+if ($selectedCommanderUnitsMod) {
+    Sync-Mod "7vs1\$selectedCommanderUnitsMod.SC2Mod"
+}
+
+# Remove unselected CommanderUnits mods from live directory (stale from previous runs)
+$live7vs1Root = Join-Path $Sc2Root "Mods\7vs1"
+$allowedCommanderUnits = @()
+if ($selectedCommanderUnitsMod) {
+    $allowedCommanderUnits += "$selectedCommanderUnitsMod.SC2Mod"
+}
+$staleCmdrUnits = Get-ChildItem $live7vs1Root -Directory -Filter "CommanderUnits_*.SC2Mod" -ErrorAction SilentlyContinue |
+    Where-Object { $allowedCommanderUnits -notcontains $_.Name }
+foreach ($stale in $staleCmdrUnits) {
+    [System.IO.Directory]::Delete($stale.FullName, $true)
+    Write-Host "CLEAN: removed stale $($stale.Name) from live"
 }
 
 # Sync ALL Alenger mods (referenced by CoreRuntime's LibE0EAE146_AdapterBootstrap).
@@ -311,19 +335,61 @@ function Clean-MapRuntimeLibraries {
 
 Clean-MapRuntimeLibraries
 
-# === Set runtime dependencies ===
-# Do NOT copy 7vs1 runtime galaxy files to map Base.SC2Data.
-# 7vs1 reference map (ttosh02_7vs1) keeps Base.SC2Data empty and loads all
-# galaxy files via mod dependencies. Copying galaxy files to Base.SC2Data
-# causes nested include resolution failures (LibE0EAE146.galaxy includes
-# Lib67C0F0E7 etc. fail even when files are present in Base.SC2Data).
+# === Inject galaxy files from workspace (NOT from live mods) ===
+# CoreRuntime's LibE0EAE146.galaxy hardcodes includes for ALL commanders'
+# Runtime galaxy files (LibE0EAE146_AbathurRuntime, LibE0EAE146_RaynorRuntime, etc.).
+# With on-demand CommanderUnits loading, unselected mods are not installed to live,
+# so their galaxy files must be injected from workspace source to satisfy the
+# include chain. This mirrors the 7vs1 launcher's Sync-LiveMapRuntimeLibraries.
 #
-# Rewrite DocumentHeader/DocumentInfo to include all required mods:
-# - Reborn base + bridge mods
-# - 7vs1 CoreRuntime + CommanderBridge + BaseCatalogPatch + SharedUnits + ExternalRefs
-# - All 24 Alenger mods (required by CoreRuntime's LibE0EAE146_AdapterBootstrap)
-# - All 18 CommanderUnits mods (galaxy code references all commanders)
-# - kit_mutations (provides LibA070801C mutator runtime)
+# Key: only inject CommanderUnits + Alenger*Adapter galaxy files.
+# Do NOT inject CoreRuntime galaxy files — those load via mod dependency chain,
+# and injecting them to Base.SC2Data causes nested include resolution failures.
+function Sync-MapRuntimeLibraries {
+    $mapBaseData = Join-Path $Sc2Root "Maps\$MapName\Base.SC2Data"
+    if (-not (Test-Path $mapBaseData)) {
+        [System.IO.Directory]::CreateDirectory($mapBaseData) | Out-Null
+    }
+
+    $workspace7vs1Root = Join-Path $ProjRoot "Mods\7vs1"
+    $count = 0
+
+    # Inject galaxy files from ALL CommanderUnits_*.SC2Mod (galaxy compile needs all)
+    $cmdrUnitsDirs = Get-ChildItem $workspace7vs1Root -Directory -Filter "CommanderUnits_*.SC2Mod" -ErrorAction SilentlyContinue
+    foreach ($modDir in $cmdrUnitsDirs) {
+        $modBase = Join-Path $modDir.FullName "Base.SC2Data"
+        if (-not (Test-Path $modBase)) { continue }
+        $galaxyFiles = Get-ChildItem $modBase -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+        foreach ($gf in $galaxyFiles) {
+            $dst = Join-Path $mapBaseData $gf.Name
+            [System.IO.File]::Copy($gf.FullName, $dst, $true)
+            $count++
+        }
+    }
+
+    # Inject galaxy files from ALL Alenger*Adapter.SC2Mod (LibE0EAE146_AdapterBootstrap needs all)
+    $adapterDirs = Get-ChildItem $workspace7vs1Root -Directory -Filter "Alenger*Adapter.SC2Mod" -ErrorAction SilentlyContinue
+    foreach ($modDir in $adapterDirs) {
+        $modBase = Join-Path $modDir.FullName "Base.SC2Data"
+        if (-not (Test-Path $modBase)) { continue }
+        $galaxyFiles = Get-ChildItem $modBase -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+        foreach ($gf in $galaxyFiles) {
+            $dst = Join-Path $mapBaseData $gf.Name
+            [System.IO.File]::Copy($gf.FullName, $dst, $true)
+            $count++
+        }
+    }
+
+    Write-Host "SYNC galaxy libs: $count files injected from workspace"
+}
+
+Sync-MapRuntimeLibraries
+
+# === Set runtime dependencies (on-demand) ===
+# Only depend on the selected commander's CommanderUnits mod.
+# Alenger mods are all required (LibE0EAE146_AdapterBootstrap hardcodes all adapters).
+# CoreRuntime galaxy files load via mod chain; CommanderUnits galaxy files load
+# from Base.SC2Data injection (workspace source).
 $runtimeDeps = @(
     "file:Mods/crys_the_swarm_reborn.SC2Mod"
     "file:Mods/RebornBridge.SC2Mod"
@@ -358,25 +424,12 @@ $runtimeDeps = @(
     "file:Mods/7vs1/Alenger11Adapter.SC2Mod"
     "file:Mods/7vs1/SharedUnits.SC2Mod"
     "file:Mods/7vs1/ExternalRefs.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Raynor.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Nova.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Swann.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Horner.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Mengsk.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_TychusXM.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Kerrigan.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Abathur.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Zagara.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Stukov.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Dehaka.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Stetmann.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Artanis.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Vorazun.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Karax.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Fenix.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Alarak.SC2Mod"
-    "file:Mods/7vs1/CommanderUnits_Zeratul.SC2Mod"
 )
+
+# Add only the selected commander's CommanderUnits mod as dependency (on-demand)
+if ($selectedCommanderUnitsMod) {
+    $runtimeDeps += "file:Mods/7vs1/$selectedCommanderUnitsMod.SC2Mod"
+}
 
 Set-MapDependencies -Dependencies $runtimeDeps
 
