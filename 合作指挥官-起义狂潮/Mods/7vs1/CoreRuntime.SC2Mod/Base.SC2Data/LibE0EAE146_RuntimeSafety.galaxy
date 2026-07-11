@@ -156,6 +156,36 @@ void libE0EAE146_gf_RuntimeBaseProbe (string lp_key, int lp_value) {
     BankSave(BankLastCreated());
 }
 
+void libE0EAE146_gf_DumpStartUnits (int lp_player) {
+    unitgroup lv_ug;
+    int lv_count;
+    int lv_i;
+    unit lv_u;
+    string lv_type;
+    string lv_msg;
+
+    lv_ug = UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_count = UnitGroupCount(lv_ug, c_unitCountAll);
+
+    lv_msg = ("[DumpStartUnits] P" + IntToString(lp_player) + " units=" + IntToString(lv_count));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringToText(lv_msg));
+    TriggerDebugOutput(1, StringToText(lv_msg), true);
+
+    BankLoad("CampaignXCore", 1);
+    BankValueSetFromInt(BankLastCreated(), "StartUnits", "Count", lv_count);
+    lv_i = 1;
+    for ( ; lv_i <= lv_count ; lv_i += 1 ) {
+        lv_u = UnitGroupUnit(lv_ug, lv_i);
+        if (lv_u == null) { break; }
+        lv_type = UnitGetType(lv_u);
+        lv_msg = ("[StartUnit] #" + IntToString(lv_i) + " " + lv_type);
+        TriggerDebugOutput(1, StringToText(lv_msg), false);
+        BankValueSetFromString(BankLastCreated(), "StartUnits", ("SU_" + IntToString(lv_i)), lv_type);
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringToText(lv_msg));
+    }
+    BankSave(BankLastCreated());
+}
+
 string libE0EAE146_gf_CatalogUnitOrEmpty (string lp_unitType) {
     if ((lp_unitType != "") && CatalogEntryIsValid(c_gameCatalogUnit, lp_unitType)) {
         return lp_unitType;
