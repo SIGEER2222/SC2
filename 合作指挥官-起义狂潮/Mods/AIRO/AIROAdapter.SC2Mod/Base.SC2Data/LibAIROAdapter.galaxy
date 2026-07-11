@@ -1,0 +1,285 @@
+// LibAIROAdapter.galaxy
+// AIRO 单位替换系统
+// 在原版 WoL 战役地图上将原版 Terran 单位替换为指挥官对应单位
+// 两种机制：
+//   1. 起始单位清理（一次性）：删除起始位置附近的原版 Terran 基地单位
+//   2. 事件触发式替换（持续）：监听玩家 1 单位创建事件，将原版单位替换为指挥官单位
+
+include "TriggerLibs/NativeLib"
+include "LibE0EAE146_h"
+include "LibAIROAdapter_h"
+
+// === 单位映射表 ===
+// 查询原版单位对应的指挥官替换单位
+// 返回空字符串表示无替换（保留原版单位）
+string libAIROAdapter_gf_GetReplacementUnit (string lp_originalUnit, string lp_commander) {
+    // === 建筑类（起始单位清理用） ===
+    if (lp_originalUnit == "CommandCenter") {
+        if (lp_commander == "Kerrigan") { return "HatcheryKerrigan"; }
+        if (lp_commander == "Artanis") { return "NexusArtanis"; }
+        if (lp_commander == "Raynor") { return "CommandCenterRaynor"; }
+    }
+    else if (lp_originalUnit == "Barracks") {
+        if (lp_commander == "Kerrigan") { return "HatcheryKerrigan"; }
+        if (lp_commander == "Artanis") { return "GatewayArtanis"; }
+        if (lp_commander == "Raynor") { return "BarracksRaynor"; }
+    }
+    else if (lp_originalUnit == "SupplyDepot") {
+        if (lp_commander == "Kerrigan") { return "OverlordKerrigan"; }
+        if (lp_commander == "Artanis") { return "PylonArtanis"; }
+        if (lp_commander == "Raynor") { return "SupplyDepotRaynor"; }
+    }
+    else if (lp_originalUnit == "Refinery") {
+        if (lp_commander == "Kerrigan") { return "ExtractorKerrigan"; }
+        if (lp_commander == "Artanis") { return "AssimilatorArtanis"; }
+        if (lp_commander == "Raynor") { return "RefineryRaynor"; }
+    }
+    else if (lp_originalUnit == "EngineeringBay") {
+        if (lp_commander == "Kerrigan") { return "EvolutionChamberKerrigan"; }
+        if (lp_commander == "Artanis") { return "ForgeArtanis"; }
+        if (lp_commander == "Raynor") { return "EngineeringBayRaynor"; }
+    }
+    else if (lp_originalUnit == "Factory") {
+        if (lp_commander == "Kerrigan") { return "RoachWarrenKerrigan"; }
+        if (lp_commander == "Artanis") { return "RoboticsFacilityArtanis"; }
+        if (lp_commander == "Raynor") { return "FactoryRaynor"; }
+    }
+    else if (lp_originalUnit == "Starport") {
+        if (lp_commander == "Kerrigan") { return "SpireKerrigan"; }
+        if (lp_commander == "Artanis") { return "StargateArtanis"; }
+        if (lp_commander == "Raynor") { return "StarportRaynor"; }
+    }
+    else if (lp_originalUnit == "Armory") {
+        if (lp_commander == "Kerrigan") { return "SpireKerrigan"; }
+        if (lp_commander == "Artanis") { return "CyberneticsCoreArtanis"; }
+        if (lp_commander == "Raynor") { return "ArmoryRaynor"; }
+    }
+    else if (lp_originalUnit == "Bunker") {
+        if (lp_commander == "Kerrigan") { return "SpineCrawlerKerrigan"; }
+        if (lp_commander == "Artanis") { return "PhotonCannonArtanis"; }
+        if (lp_commander == "Raynor") { return "BunkerRaynor"; }
+    }
+    else if (lp_originalUnit == "MissileTurret") {
+        if (lp_commander == "Kerrigan") { return "SporeCrawlerKerrigan"; }
+        if (lp_commander == "Artanis") { return "PhotonCannonArtanis"; }
+        if (lp_commander == "Raynor") { return "MissileTurretRaynor"; }
+    }
+    else if (lp_originalUnit == "SensorTower") {
+        if (lp_commander == "Kerrigan") { return "OverseerKerrigan"; }
+        if (lp_commander == "Artanis") { return "OracleArtanis"; }
+        if (lp_commander == "Raynor") { return "SensorTowerRaynor"; }
+    }
+
+    // === 战斗单位类（动态单位替换用） ===
+    else if (lp_originalUnit == "SCV") {
+        if (lp_commander == "Kerrigan") { return "DroneKerrigan"; }
+        if (lp_commander == "Artanis") { return "ProbeArtanis"; }
+        if (lp_commander == "Raynor") { return "SCVRaynor"; }
+    }
+    else if (lp_originalUnit == "Marine") {
+        if (lp_commander == "Kerrigan") { return "ZerglingKerrigan"; }
+        if (lp_commander == "Artanis") { return "ZealotArtanis"; }
+        if (lp_commander == "Raynor") { return "MarineRaynor"; }
+    }
+    else if (lp_originalUnit == "Marauder") {
+        if (lp_commander == "Kerrigan") { return "RoachKerrigan"; }
+        if (lp_commander == "Artanis") { return "StalkerArtanis"; }
+        if (lp_commander == "Raynor") { return "MarauderRaynor"; }
+    }
+    else if (lp_commander == "Raynor" && lp_originalUnit == "Firebat") {
+        return "FirebatRaynor";
+    }
+    else if (lp_originalUnit == "Firebat") {
+        if (lp_commander == "Kerrigan") { return "BanelingKerrigan"; }
+        if (lp_commander == "Artanis") { return "HighTemplarArtanis"; }
+    }
+    else if (lp_originalUnit == "Medic") {
+        if (lp_commander == "Kerrigan") { return "QueenKerrigan"; }
+        if (lp_commander == "Artanis") { return "MedivacArtanis"; }
+        if (lp_commander == "Raynor") { return "MedicRaynor"; }
+    }
+    else if (lp_originalUnit == "Ghost") {
+        if (lp_commander == "Kerrigan") { return "InfestorKerrigan"; }
+        if (lp_commander == "Artanis") { return "DarkTemplarArtanis"; }
+        if (lp_commander == "Raynor") { return "GhostRaynor"; }
+    }
+    else if (lp_originalUnit == "Reaper") {
+        if (lp_commander == "Kerrigan") { return "ZerglingKerrigan"; }
+        if (lp_commander == "Artanis") { return "AdeptArtanis"; }
+        if (lp_commander == "Raynor") { return "ReaperRaynor"; }
+    }
+    else if (lp_originalUnit == "Hellion") {
+        if (lp_commander == "Kerrigan") { return "ZerglingKerrigan"; }
+        if (lp_commander == "Artanis") { return "AdeptArtanis"; }
+        if (lp_commander == "Raynor") { return "HellionRaynor"; }
+    }
+    else if (lp_originalUnit == "SiegeTank") {
+        if (lp_commander == "Kerrigan") { return "HydraliskKerrigan"; }
+        if (lp_commander == "Artanis") { return "ImmortalArtanis"; }
+        if (lp_commander == "Raynor") { return "SiegeTankRaynor"; }
+    }
+    else if (lp_originalUnit == "Thor") {
+        if (lp_commander == "Kerrigan") { return "UltraliskKerrigan"; }
+        if (lp_commander == "Artanis") { return "ColossusArtanis"; }
+        if (lp_commander == "Raynor") { return "ThorRaynor"; }
+    }
+    else if (lp_originalUnit == "Viking") {
+        if (lp_commander == "Kerrigan") { return "MutaliskKerrigan"; }
+        if (lp_commander == "Artanis") { return "VoidRayArtanis"; }
+        if (lp_commander == "Raynor") { return "VikingRaynor"; }
+    }
+    else if (lp_originalUnit == "Medivac") {
+        if (lp_commander == "Kerrigan") { return "OverlordKerrigan"; }
+        if (lp_commander == "Artanis") { return "WarpPrismArtanis"; }
+        if (lp_commander == "Raynor") { return "MedivacRaynor"; }
+    }
+    else if (lp_originalUnit == "Banshee") {
+        if (lp_commander == "Kerrigan") { return "MutaliskKerrigan"; }
+        if (lp_commander == "Artanis") { return "PhoenixArtanis"; }
+        if (lp_commander == "Raynor") { return "BansheeRaynor"; }
+    }
+    else if (lp_originalUnit == "Raven") {
+        if (lp_commander == "Kerrigan") { return "OverseerKerrigan"; }
+        if (lp_commander == "Artanis") { return "OracleArtanis"; }
+        if (lp_commander == "Raynor") { return "RavenRaynor"; }
+    }
+    else if (lp_originalUnit == "Battlecruiser") {
+        if (lp_commander == "Kerrigan") { return "BroodLordKerrigan"; }
+        if (lp_commander == "Artanis") { return "CarrierArtanis"; }
+        if (lp_commander == "Raynor") { return "BattlecruiserRaynor"; }
+    }
+    // IronWarrior 是 traynor01 空投小队的特殊单位
+    else if (lp_originalUnit == "IronWarrior") {
+        if (lp_commander == "Kerrigan") { return "HydraliskKerrigan"; }
+        if (lp_commander == "Artanis") { return "DragoonArtanis"; }
+        if (lp_commander == "Raynor") { return "MarauderRaynor"; }
+    }
+    // Goliath 是战役常见机甲单位
+    else if (lp_originalUnit == "Goliath") {
+        if (lp_commander == "Kerrigan") { return "HydraliskKerrigan"; }
+        if (lp_commander == "Artanis") { return "DragoonArtanis"; }
+        if (lp_commander == "Raynor") { return "GoliathRaynor"; }
+    }
+    // Vulture 是战役常见载具
+    else if (lp_originalUnit == "Vulture") {
+        if (lp_commander == "Kerrigan") { return "ZerglingKerrigan"; }
+        if (lp_commander == "Artanis") { return "AdeptArtanis"; }
+        if (lp_commander == "Raynor") { return "VultureRaynor"; }
+    }
+    // Dropship 是战役运输机
+    else if (lp_originalUnit == "Dropship") {
+        if (lp_commander == "Kerrigan") { return "OverlordKerrigan"; }
+        if (lp_commander == "Artanis") { return "WarpPrismArtanis"; }
+        if (lp_commander == "Raynor") { return "MedivacRaynor"; }
+    }
+    // Wraith 是战役隐形战机
+    else if (lp_originalUnit == "Wraith") {
+        if (lp_commander == "Kerrigan") { return "MutaliskKerrigan"; }
+        if (lp_commander == "Artanis") { return "PhoenixArtanis"; }
+        if (lp_commander == "Raynor") { return "WraithRaynor"; }
+    }
+
+    // 无映射 → 返回空字符串，保留原版单位
+    return "";
+}
+
+// === 起始单位清理（一次性） ===
+// 扫描起始位置附近玩家 1 的原版单位，删除有映射表条目的原版单位
+// CoreRuntime 已在此位置创建了指挥官单位，删除原版单位避免重复
+void libAIROAdapter_gf_CleanupStartLocationUnits () {
+    point lv_start;
+    region lv_startRegion;
+    unitgroup lv_units;
+    int lv_count;
+    int lv_i;
+    unit lv_u;
+    string lv_type;
+    string lv_replacement;
+
+    lv_start = PlayerStartLocation(1);
+    lv_startRegion = RegionCircle(lv_start, 25.0);
+
+    // 获取起始位置附近玩家 1 的所有单位
+    // UnitFilter 参数参考 LibE0EAE146_RuntimeSafety.galaxy 的用法
+    lv_units = UnitGroup(null, 1, lv_startRegion, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+
+    lv_i = 1;
+    for ( ; lv_i <= lv_count ; lv_i += 1 ) {
+        lv_u = UnitGroupUnit(lv_units, lv_i);
+        if (lv_u == null) { break; }
+
+        lv_type = UnitGetType(lv_u);
+        lv_replacement = libAIROAdapter_gf_GetReplacementUnit(lv_type, libE0EAE146_gv_commander);
+
+        if (lv_replacement != "" && lv_replacement != lv_type) {
+            // 有替换单位 → 删除原版单位
+            // CoreRuntime 已在附近创建了指挥官单位
+            UnitRemove(lv_u);
+        }
+        // 无替换单位或类型相同 → 保留
+    }
+}
+
+// === 事件触发式单位替换 ===
+// 监听所有玩家的单位创建事件，只替换玩家 1 的原版单位
+bool libAIROAdapter_gt_UnitCreated_Func (bool testConds, bool runActions) {
+    unit lv_createdUnit;
+    int lv_player;
+    string lv_type;
+    string lv_replacement;
+    point lv_pos;
+    fixed lv_facing;
+    unit lv_newUnit;
+
+    lv_createdUnit = EventUnitCreatedUnit();
+    lv_player = UnitGetOwner(lv_createdUnit);
+
+    // 只处理玩家 1 的单位
+    if (lv_player != 1) {
+        return true;
+    }
+
+    lv_type = UnitGetType(lv_createdUnit);
+    lv_replacement = libAIROAdapter_gf_GetReplacementUnit(lv_type, libE0EAE146_gv_commander);
+
+    // 无替换或类型相同 → 保留原版单位
+    if (lv_replacement == "" || lv_replacement == lv_type) {
+        return true;
+    }
+
+    // 安全检查：替换后的单位必须在 catalog 中有效
+    if (!CatalogEntryIsValid(c_gameCatalogUnit, lv_replacement)) {
+        return true;
+    }
+
+    // 执行替换：在同一位置创建指挥官单位，删除原版单位
+    lv_pos = UnitGetPosition(lv_createdUnit);
+    lv_facing = UnitGetFacing(lv_createdUnit);
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_replacement, c_unitCreateIgnorePlacement, 1, lv_pos);
+    lv_newUnit = UnitLastCreated();
+    UnitSetFacing(lv_newUnit, lv_facing, 0.0);
+
+    UnitRemove(lv_createdUnit);
+
+    return true;
+}
+
+// === 初始化单位替换系统 ===
+// 在 CoreRuntime 初始化之后调用
+void libAIROAdapter_gf_InitUnitReplacement () {
+    if (libAIROAdapter_initialized) { return; }
+    libAIROAdapter_initialized = true;
+
+    // 1. 先执行一次性起始单位清理
+    libAIROAdapter_gf_CleanupStartLocationUnits();
+
+    // 2. 注册单位创建事件监听器（监听所有玩家，在处理函数中过滤玩家 1）
+    libAIROAdapter_gt_UnitCreated = TriggerCreate("libAIROAdapter_gt_UnitCreated_Func");
+    TriggerAddEventUnitCreated(libAIROAdapter_gt_UnitCreated, null, null, null);
+}
+
+// === InitLib ===
+void libAIROAdapter_InitLib () {
+}

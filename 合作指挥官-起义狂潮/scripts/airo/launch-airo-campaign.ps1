@@ -222,6 +222,23 @@ if (-not $isOriginalMode) {
         Write-Host "SYNC kit_mutations galaxy: $kitMutCount files injected"
     }
 
+    # 3c. Inject AIROAdapter galaxy files (unit replacement system)
+    # LibAIROAdapter provides:
+    #   - Start location cleanup (removes original Terran units at PlayerStartLocation)
+    #   - Event-driven unit replacement (replaces IronWarrior/Marine/etc with commander units)
+    # Without this, commander units coexist with original Terran units (mixed units).
+    $airoAdapterBaseData = Join-Path $ProjRoot "Mods\AIRO\AIROAdapter.SC2Mod\Base.SC2Data"
+    if (Test-Path $airoAdapterBaseData) {
+        $adapterGalaxyFiles = Get-ChildItem $airoAdapterBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+        $adapterCount = 0
+        foreach ($gf in $adapterGalaxyFiles) {
+            $dst = Join-Path $mapLiveBaseData $gf.Name
+            [System.IO.File]::Copy($gf.FullName, $dst, $true)
+            $adapterCount++
+        }
+        Write-Host "SYNC AIROAdapter galaxy: $adapterCount files injected"
+    }
+
     # 4. Patch MapScript.galaxy to include 7vs1 galaxy libraries
     # traynor01 (and other WoL campaign maps) have MapScript.galaxy that only includes
     # RO mod's galaxy files (LibWoLC, LibCamp, etc). 7vs1's LibE0EAE146 and its
@@ -231,10 +248,10 @@ if (-not $isOriginalMode) {
     if (Test-Path -LiteralPath $mapScriptPath) {
         Write-Host "--- MapScript.galaxy Patch ---"
         $content = [System.IO.File]::ReadAllText($mapScriptPath)
+        $modified = $false
 
-        # Check if already patched (idempotent)
+        # 4a. Insert 7vs1 includes after the last existing include line
         if ($content -notmatch 'include "LibE0EAE146"') {
-            # Insert 7vs1 includes after the last existing include line
             $sevenOneIncludes = @(
                 'include "LibA070801C"',
                 'include "Lib67C0F0E7"',
@@ -245,10 +262,10 @@ if (-not $isOriginalMode) {
                 'include "Lib0940FFB7"',
                 'include "Lib4B62E36B"',
                 'include "Lib975E2FE9"',
-                'include "LibE0EAE146"'
+                'include "LibE0EAE146"',
+                'include "LibAIROAdapter"'
             )
             $includeBlock = $sevenOneIncludes -join "`n"
-            # Find the last include line and insert after it
             $lastIncludePattern = '(?m)^(include "[^"]+"(?:\r?\n)*)'
             $lastMatch = [regex]::Matches($content, $lastIncludePattern)
             if ($lastMatch.Count -gt 0) {
@@ -267,24 +284,64 @@ if (-not $isOriginalMode) {
                 '    lib0940FFB7_InitLib();',
                 '    lib4B62E36B_InitLib();',
                 '    lib975E2FE9_InitLib();',
-                '    libE0EAE146_InitLib();'
+                '    libE0EAE146_InitLib();',
+                '    libAIROAdapter_InitLib();'
             )
             $initBlock = $initCalls -join "`n" + "`n"
-            # Find InitLibs() function and insert before its closing brace
-            # Pattern: void InitLibs () { ... }
             $initLibsPattern = '(void\s+InitLibs\s*\(\s*\)\s*\{)([^}]+)(\})'
             if ($content -match $initLibsPattern) {
                 $beforeBrace = $matches[2]
                 $content = $content -replace [regex]::Escape($beforeBrace), ($beforeBrace + $initBlock + "`n")
             }
+            $modified = $true
+            Write-Host "  Added 11 includes + 11 init calls"
+        }
 
+        # 4b. Inject CoreRuntime initialization into gt_Initialization_Func
+        # InitLib() only initializes library variables — it does NOT create commander units.
+        # Unit creation requires calling libE0EAE146_gf_Initialize() (loads Bank, sets
+        # commander global) + libE0EAE146_gf_InitializeMapBaseScenario() (creates town hall,
+        # workers, hero at player start location).
+        # Pattern follows RebornMapAdapter: inject after gt_Init03Units trigger execute.
+        $mapId = [System.IO.Path]::GetFileNameWithoutExtension($MapName)
+        if ($content -notmatch 'libE0EAE146_gf_InitializeMapBaseScenario') {
+            $init03Pattern = '(?m)^(    TriggerExecute\(gt_Init03[^\r\n]+\r?\n)'
+            if ($content -match $init03Pattern) {
+                $initLine = $matches[0]
+                $coreInitCall = "    // AIRO: 7vs1 commander overlay initialization`n    libE0EAE146_gf_Initialize(true);`n    libE0EAE146_gf_InitializeMapBaseScenario(`"$mapId`");`n    // AIRO: unit replacement system (cleanup + event listener)`n    libAIROAdapter_gf_InitUnitReplacement();`n"
+                $content = $content -replace [regex]::Escape($initLine), ($initLine + $coreInitCall)
+                $modified = $true
+                Write-Host "  Injected CoreRuntime + AIROAdapter init after gt_Init03 trigger (mapId=$mapId)"
+            } else {
+                Write-Host "  WARN: could not find gt_Init03 trigger to inject CoreRuntime init"
+            }
+        }
+
+        if ($modified) {
             [System.IO.File]::WriteAllText($mapScriptPath, $content, [System.Text.UTF8Encoding]::new($false))
-            Write-Host "PATCHED MapScript.galaxy: added 10 includes + 10 init calls"
         } else {
-            Write-Host "SKIP MapScript.galaxy patch: already patched"
+            Write-Host "  SKIP: MapScript.galaxy already fully patched"
         }
     } else {
         Write-Host "WARN: MapScript.galaxy not found at $mapScriptPath"
+    }
+
+    # 4c. Patch BankList.xml to add CampaignXCore bank declaration
+    # libE0EAE146_gf_Initialize calls BankLoad("CampaignXCore", 1), which requires
+    # the map's BankList.xml to declare <Bank Name="CampaignXCore" Player="1"/>.
+    # Without this declaration, BankLoad returns null and commander resolution fails
+    # silently — units are never created.
+    $bankListPath = Join-Path $MapLivePath "BankList.xml"
+    if (Test-Path -LiteralPath $bankListPath) {
+        $bankContent = [System.IO.File]::ReadAllText($bankListPath)
+        if ($bankContent -notmatch 'Name="CampaignXCore"') {
+            $bankEntry = '    <Bank Name="CampaignXCore" Player="1"/>'
+            $bankContent = $bankContent.Replace('</BankList>', ($bankEntry + "`n</BankList>"))
+            [System.IO.File]::WriteAllText($bankListPath, $bankContent, [System.Text.UTF8Encoding]::new($false))
+            Write-Host "PATCHED BankList.xml: added CampaignXCore declaration"
+        }
+    } else {
+        Write-Host "WARN: BankList.xml not found at $bankListPath"
     }
 
     # 5. Patch LibE0EAE146.galaxy to remove CampaignLib include
@@ -316,6 +373,14 @@ foreach ($depPath in $airoConfig.baseDependencyPaths) {
 if (-not $isOriginalMode) {
     foreach ($depPath in $airoConfig.commanderBaseDependencyPaths) {
         $runtimeDeps += $depPath
+    }
+
+    # Add commander units mod dependency
+    # Without this, commander-specific units (BarracksRaynor, etc.) are not in catalog
+    # and libNtve_gf_CreateUnitsWithDefaultFacing fails with "无效的单位类型".
+    $commanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
+    if ($commanderUnitsMod) {
+        $runtimeDeps += "file:Mods/7vs1/$commanderUnitsMod.SC2Mod"
     }
 }
 
