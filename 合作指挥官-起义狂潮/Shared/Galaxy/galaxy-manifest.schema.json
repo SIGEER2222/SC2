@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "galaxy-manifest.schema.json",
+  "title": "GalaxyManifest",
+  "description": "Galaxy 文件注入清单，显式声明哪些 galaxy 文件需要被注入到地图 Base.SC2Data。替代目录扫描行为，未声明文件禁止注入。详见 docs/系统结构与工作流优化设计-2026-07-11.md §5.3。",
+  "type": "object",
+  "required": ["schemaVersion", "id", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema 版本号，当前固定为 1。"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Manifest 唯一 ID，如 reborn.compat。"
+    },
+    "description": {
+      "type": "string",
+      "description": "可选，manifest 用途说明。"
+    },
+    "scope": {
+      "type": "object",
+      "description": "可选，声明 manifest 覆盖范围。",
+      "additionalProperties": false,
+      "properties": {
+        "mapFamily": {
+          "type": "string",
+          "description": "地图族 ID，如 reborn。"
+        },
+        "coveredCompositions": {
+          "type": "array",
+          "description": "已验证覆盖的组合 ID 列表。",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "description": "Galaxy 注入条目列表。每条声明一个需要注入到地图 Base.SC2Data 的 galaxy 文件。",
+      "items": {
+        "type": "object",
+        "required": ["file", "owner", "sourceMod", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "type": "string",
+            "minLength": 1,
+            "description": "注入到地图的目标相对路径，如 Base.SC2Data/LibE0EAE146_RaynorRuntime.galaxy。"
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1,
+            "description": "文件所有者，格式 Commander.<CommanderId> 或 CoreRuntime.AdapterBootstrap 或 CoreRuntime.*。"
+          },
+          "sourceMod": {
+            "type": "string",
+            "minLength": 1,
+            "description": "源 mod 相对路径，如 Mods/7vs1/CommanderUnits_Raynor.SC2Mod。"
+          },
+          "compileProvides": {
+            "type": "array",
+            "description": "该 galaxy 文件编译提供的库符号名列表，如 [\"LibE0EAE146_RaynorRuntime\"]。从文件名推导，去掉 .galaxy 后缀。",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "compileRequires": {
+            "type": "array",
+            "description": "该 galaxy 文件编译依赖的库符号名列表。当前阶段可留空，后续由 galaxy-checker 补全。",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "注入原因，如 selected commander runtime、CoreRuntime LibE0EAE146.galaxy compatibility include。"
+          },
+          "compatibilityOnly": {
+            "type": "boolean",
+            "description": "true=仅因兼容性注入（如 unselected commander 的 Runtime），未来 generated bootstrap 裁剪后可移除；false=选中指挥官必需。"
+          },
+          "removalCondition": {
+            "type": "string",
+            "description": "可选，compatibilityOnly=true 时必填，声明移除条件。"
+          }
+        }
+      },
+      "minItems": 1
+    }
+  }
+}

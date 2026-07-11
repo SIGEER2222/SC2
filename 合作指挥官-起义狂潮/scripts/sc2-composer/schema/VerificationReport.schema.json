@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VerificationReport",
+  "description": "统一验证报告，汇总 CompositionPlan 执行链路各检查点的状态。检查点包括 schema、datacenter、dependencyClosure、galaxyChecker、documentRoundtrip、runtimeSmoke、unitDiagnostics、bankIsolation。详见 docs/系统结构与工作流优化设计-2026-07-11.md §5.6 与 Task 5。",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "compositionId",
+    "runId",
+    "checks",
+    "evidence",
+    "failures",
+    "incompleteReasons"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema 版本号，当前固定为 1。"
+    },
+    "compositionId": {
+      "type": "string",
+      "description": "关联的组合计划 ID（与 CompositionPlan.planId 对齐）。",
+      "minLength": 1
+    },
+    "runId": {
+      "type": "string",
+      "description": "单次验证运行的唯一 ID，建议格式 <YYYYMMDDHHmmss>-<short-hash> 或 ISO 时间戳。",
+      "minLength": 1
+    },
+    "generatedAt": {
+      "type": "string",
+      "description": "报告生成时间（ISO 8601）。"
+    },
+    "checks": {
+      "type": "object",
+      "description": "各检查点的状态。键为检查点名称，值为状态字符串。",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["pass", "fail", "partial", "pending", "skipped"]
+      },
+      "propertyNames": {
+        "enum": [
+          "schema",
+          "datacenter",
+          "dependencyClosure",
+          "galaxyChecker",
+          "documentRoundtrip",
+          "runtimeSmoke",
+          "unitDiagnostics",
+          "bankIsolation"
+        ]
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "description": "验证证据列表，如 lint 输出、日志路径、dry-run plan 路径等。",
+      "items": {
+        "type": "object",
+        "required": ["check", "kind", "summary"],
+        "additionalProperties": false,
+        "properties": {
+          "check": {
+            "type": "string",
+            "description": "对应的检查点名称（与 checks 的键对齐）。"
+          },
+          "kind": {
+            "type": "string",
+            "description": "证据类型，如 lint-output、plan-json、log-path、console-snippet。",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "description": "人类可读的证据摘要。"
+          },
+          "path": {
+            "type": "string",
+            "description": "关联文件或目录的相对/绝对路径（可选）。"
+          },
+          "details": {
+            "type": "object",
+            "description": "结构化附加细节（如 issue 计数、duration 等）。",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "failures": {
+      "type": "array",
+      "description": "失败项明细。每项对应一个 fail 或 partial 检查点的具体问题。",
+      "items": {
+        "type": "object",
+        "required": ["check", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "check": {
+            "type": "string",
+            "description": "对应的检查点名称。"
+          },
+          "message": {
+            "type": "string",
+            "description": "失败原因描述。"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["error", "warning"],
+            "description": "严重程度。默认 error。"
+          },
+          "source": {
+            "type": "string",
+            "description": "来源（如 issue code、log 行号等）。"
+          }
+        }
+      }
+    },
+    "incompleteReasons": {
+      "type": "array",
+      "description": "未完成检查的原因列表（pending/skipped 检查点的解释）。",
+      "items": {
+        "type": "object",
+        "required": ["check", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "check": {
+            "type": "string",
+            "description": "对应的检查点名称。"
+          },
+          "reason": {
+            "type": "string",
+            "description": "为何该检查点未执行或未完成。"
+          }
+        }
+      }
+    }
+  }
+}
