@@ -311,45 +311,74 @@ function Clean-MapRuntimeLibraries {
 
 Clean-MapRuntimeLibraries
 
-# === Copy galaxy libs to map Base.SC2Data ===
-# SC2 include system searches Base.SC2Data for galaxy files when they are
-# directly included in MapScript.galaxy. Copy all Lib*.galaxy from 7vs1 mods.
-function Sync-MapRuntimeLibraries {
-    $mapBaseData = Join-Path $Sc2Root "Maps\$MapName\Base.SC2Data"
-    if (-not (Test-Path $mapBaseData)) {
-        [System.IO.Directory]::CreateDirectory($mapBaseData) | Out-Null
-    }
+# === Set runtime dependencies ===
+# Do NOT copy 7vs1 runtime galaxy files to map Base.SC2Data.
+# 7vs1 reference map (ttosh02_7vs1) keeps Base.SC2Data empty and loads all
+# galaxy files via mod dependencies. Copying galaxy files to Base.SC2Data
+# causes nested include resolution failures (LibE0EAE146.galaxy includes
+# Lib67C0F0E7 etc. fail even when files are present in Base.SC2Data).
+#
+# Rewrite DocumentHeader/DocumentInfo to include all required mods:
+# - Reborn base + bridge mods
+# - 7vs1 CoreRuntime + CommanderBridge + BaseCatalogPatch + SharedUnits + ExternalRefs
+# - All 24 Alenger mods (required by CoreRuntime's LibE0EAE146_AdapterBootstrap)
+# - All 18 CommanderUnits mods (galaxy code references all commanders)
+# - kit_mutations (provides LibA070801C mutator runtime)
+$runtimeDeps = @(
+    "file:Mods/crys_the_swarm_reborn.SC2Mod"
+    "file:Mods/RebornBridge.SC2Mod"
+    "file:Mods/RebornMapAdapter.SC2Mod"
+    "file:Mods/kit_mutations.SC2Mod"
+    "file:Mods/7vs1/BaseCatalogPatch.SC2Mod"
+    "file:Mods/7vs1/CommanderBridge.SC2Mod"
+    "file:Mods/7vs1/CoreRuntime.SC2Mod"
+    "file:Mods/7vs1/AlengerCommon.SC2Mod"
+    "file:Mods/7vs1/Alenger3.SC2Mod"
+    "file:Mods/7vs1/Alenger3Adapter.SC2Mod"
+    "file:Mods/7vs1/Alenger1.SC2Mod"
+    "file:Mods/7vs1/Alenger1Adapter.SC2Mod"
+    "file:Mods/7vs1/Alenger6.SC2Mod"
+    "file:Mods/7vs1/Alenger6Adapter.SC2Mod"
+    "file:Mods/7vs1/Alenger8.SC2Mod"
+    "file:Mods/7vs1/Alenger8Runtime.SC2Mod"
+    "file:Mods/7vs1/Alenger8Adapter.SC2Mod"
+    "file:Mods/7vs1/Alenger9.SC2Mod"
+    "file:Mods/7vs1/Alenger9Adapter.SC2Mod"
+    "file:Mods/7vs1/Alenger12.SC2Mod"
+    "file:Mods/7vs1/Alenger12Adapter.SC2Mod"
+    "file:Mods/7vs1/Alenger13.SC2Mod"
+    "file:Mods/7vs1/Alenger13Adapter.SC2Mod"
+    "file:Mods/7vs1/Alenger2.SC2Mod"
+    "file:Mods/7vs1/Alenger2Adapter.SC2Mod"
+    "file:Mods/7vs1/Alenger7.SC2Mod"
+    "file:Mods/7vs1/Alenger7Adapter.SC2Mod"
+    "file:Mods/7vs1/Alenger10.SC2Mod"
+    "file:Mods/7vs1/Alenger10Adapter.SC2Mod"
+    "file:Mods/7vs1/Alenger11.SC2Mod"
+    "file:Mods/7vs1/Alenger11Adapter.SC2Mod"
+    "file:Mods/7vs1/SharedUnits.SC2Mod"
+    "file:Mods/7vs1/ExternalRefs.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Raynor.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Nova.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Swann.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Horner.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Mengsk.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_TychusXM.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Kerrigan.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Abathur.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Zagara.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Stukov.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Dehaka.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Stetmann.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Artanis.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Vorazun.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Karax.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Fenix.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Alarak.SC2Mod"
+    "file:Mods/7vs1/CommanderUnits_Zeratul.SC2Mod"
+)
 
-    $mods7vs1Root = Join-Path $Sc2Root "Mods\7vs1"
-    $count = 0
-    $modDirs = Get-ChildItem $mods7vs1Root -Directory -Filter "*.SC2Mod" -ErrorAction SilentlyContinue
-    foreach ($modDir in $modDirs) {
-        $modBase = Join-Path $modDir.FullName "Base.SC2Data"
-        if (-not (Test-Path $modBase)) { continue }
-        $galaxyFiles = Get-ChildItem $modBase -File -Filter "Lib*.galaxy" -ErrorAction SilentlyContinue
-        foreach ($gf in $galaxyFiles) {
-            $dst = Join-Path $mapBaseData $gf.Name
-            [System.IO.File]::Copy($gf.FullName, $dst, $true)
-            $count++
-        }
-    }
-    # Also scan kit_mutations
-    $kitMutationsBase = Join-Path $Sc2Root "Mods\kit_mutations.SC2Mod\Base.SC2Data"
-    if (Test-Path $kitMutationsBase) {
-        $kitGalaxyFiles = Get-ChildItem $kitMutationsBase -File -Filter "Lib*.galaxy" -ErrorAction SilentlyContinue
-        foreach ($gf in $kitGalaxyFiles) {
-            $dst = Join-Path $mapBaseData $gf.Name
-            [System.IO.File]::Copy($gf.FullName, $dst, $true)
-            $count++
-        }
-    }
-    Write-Host "SYNC galaxy libs: $count files copied to map Base.SC2Data"
-}
-
-Sync-MapRuntimeLibraries
-
-# Note: DocumentHeader/DocumentInfo dependencies are pre-configured in source repo.
-# Sync-Map copies them as-is. No runtime rewrite needed.
+Set-MapDependencies -Dependencies $runtimeDeps
 
 # Write Bank
 Write-Host "Writing CampaignXCore Bank..."
