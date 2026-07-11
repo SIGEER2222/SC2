@@ -2834,6 +2834,9 @@ document.querySelectorAll('.tab').forEach(btn => {
     if (tab === 'C') {
       initRebornTab();
     }
+    if (tab === 'D') {
+      initAiroTab();
+    }
   });
 });
 
@@ -3150,6 +3153,341 @@ function pollRebornLaunch(result) {
       if (attempts >= maxAttempts) {
         clearInterval(rebornState.pollTimer);
         rebornState.pollTimer = null;
+        stateLabel.textContent = '轮询超时';
+        btn.disabled = false;
+      }
+    } catch (e) {
+      // 忽略轮询错误，继续重试
+    }
+  }, 2000);
+}
+
+// === AI 起义狂潮 Tab ===
+const AIRO_ORIGINAL_COMMANDER = {
+  runtime: 'RevolutionOverdrive',
+  displayName: '原版 (Revolution Overdrive)',
+  integrationNote: '仅加载 RevolutionOverdrive mod，不叠加 7vs1 指挥官',
+  integrationTone: 'ok',
+};
+
+let airoState = {
+  selectedCommander: null,
+  selectedMapId: null,
+  selectedMapFile: null,
+  commanders: null,
+  maps: null,
+  pollTimer: null,
+  lastLogPaths: null,
+};
+
+const airoEl = {
+  dryRunToggle: document.getElementById('airoDryRunToggle'),
+  refreshButton: document.getElementById('airoRefreshButton'),
+  copyOutputButton: document.getElementById('airoCopyOutputButton'),
+  copyLogPathsButton: document.getElementById('airoCopyLogPathsButton'),
+  clearOutputButton: document.getElementById('airoClearOutputButton'),
+  stdoutPathText: document.getElementById('airoStdoutPathText'),
+  stderrPathText: document.getElementById('airoStderrPathText'),
+  validationBadge: document.getElementById('airoValidationBadge'),
+  configIssues: document.getElementById('airoConfigIssues'),
+  summaryMapFile: document.getElementById('airoSummaryMapFile'),
+  summaryMode: document.getElementById('airoSummaryMode'),
+  commanderCount: document.getElementById('airoCommanderCount'),
+  mapCount: document.getElementById('airoMapCount'),
+  bootstrapCommanderCount: document.getElementById('airoBootstrapCommanderCount'),
+  bootstrapMapCount: document.getElementById('airoBootstrapMapCount'),
+};
+
+let airoWired = false;
+
+function wireAiroEvents() {
+  if (airoWired) return;
+  airoWired = true;
+  airoEl.refreshButton?.addEventListener('click', () => initAiroTab(true));
+  airoEl.dryRunToggle?.addEventListener('change', updateAiroSummary);
+  airoEl.copyOutputButton?.addEventListener('click', copyAiroOutput);
+  airoEl.copyLogPathsButton?.addEventListener('click', copyAiroLogPaths);
+  airoEl.clearOutputButton?.addEventListener('click', clearAiroOutput);
+}
+
+function setAiroLogPaths(stdout, stderr) {
+  airoState.lastLogPaths = {
+    stdout: stdout || '',
+    stderr: stderr || '',
+  };
+  if (airoEl.stdoutPathText) {
+    airoEl.stdoutPathText.textContent = stdout ? `标准输出：${stdout}` : '标准输出：-';
+    airoEl.stdoutPathText.title = stdout || '';
+  }
+  if (airoEl.stderrPathText) {
+    airoEl.stderrPathText.textContent = stderr ? `错误输出：${stderr}` : '错误输出：-';
+    airoEl.stderrPathText.title = stderr || '';
+  }
+  if (airoEl.copyLogPathsButton) {
+    airoEl.copyLogPathsButton.disabled = !stdout && !stderr;
+  }
+}
+
+async function copyAiroOutput() {
+  const output = document.getElementById('airoOutput');
+  const text = output?.textContent.trim();
+  if (!text || text === '等待操作') return;
+  await copyText(text);
+  const stateLabel = document.getElementById('airoLaunchState');
+  if (stateLabel) stateLabel.textContent = '输出已复制';
+}
+
+async function copyAiroLogPaths() {
+  if (!airoState.lastLogPaths) return;
+  const lines = [
+    airoState.lastLogPaths.stdout ? `stdout=${airoState.lastLogPaths.stdout}` : '',
+    airoState.lastLogPaths.stderr ? `stderr=${airoState.lastLogPaths.stderr}` : '',
+  ].filter(Boolean);
+  if (lines.length === 0) return;
+  await copyText(lines.join('\n'));
+  const stateLabel = document.getElementById('airoLaunchState');
+  if (stateLabel) stateLabel.textContent = '日志路径已复制';
+}
+
+function clearAiroOutput() {
+  const output = document.getElementById('airoOutput');
+  if (output) output.textContent = '等待操作';
+  if (airoEl.copyOutputButton) airoEl.copyOutputButton.disabled = true;
+  setAiroLogPaths('', '');
+  const stateLabel = document.getElementById('airoLaunchState');
+  if (stateLabel) stateLabel.textContent = '输出已清空';
+}
+
+async function initAiroTab(forceReload = false) {
+  wireAiroEvents();
+  const airoStatus = document.getElementById('airoStatus');
+  const airoLaunchButton = document.getElementById('airoLaunchButton');
+  airoLaunchButton.disabled = true;
+  airoStatus.textContent = '加载中';
+
+  try {
+    if (!state.data) {
+      airoStatus.textContent = '等待主数据加载';
+      return;
+    }
+    // 指挥官列表 = 原版 + 7vs1 指挥官
+    airoState.commanders = [AIRO_ORIGINAL_COMMANDER, ...state.data.commanders];
+
+    if (!airoState.maps || forceReload) {
+      const mapsResp = await fetch('/api/airo-maps');
+      const mapsData = await mapsResp.json();
+      airoState.maps = mapsData.maps || [];
+      if (airoState.maps.length > 0) {
+        airoState.selectedMapId = airoState.selectedMapId || airoState.maps[0].id;
+        airoState.selectedMapFile = airoState.maps.find(m => m.id === airoState.selectedMapId)?.mapFile
+          || airoState.maps[0].mapFile;
+      }
+    }
+
+    if (!airoState.selectedCommander && airoState.commanders.length > 0) {
+      airoState.selectedCommander = airoState.commanders[0].runtime;
+    }
+
+    renderAiroPickers();
+    updateAiroSummary();
+    updateAiroLaunchButton();
+    airoStatus.textContent = `已加载 ${airoState.commanders.length} 个选项, ${airoState.maps.length} 张地图`;
+  } catch (e) {
+    airoStatus.textContent = `加载失败: ${e.message}`;
+    if (airoEl.configIssues) {
+      airoEl.configIssues.textContent = `加载失败: ${e.message}`;
+      airoEl.configIssues.className = 'config-issues status-error';
+    }
+  }
+
+  airoLaunchButton.removeEventListener('click', launchAiroGame);
+  airoLaunchButton.addEventListener('click', launchAiroGame);
+}
+
+function renderAiroPickers() {
+  const commanderContainer = document.getElementById('airoCommanderList');
+  const mapContainer = document.getElementById('airoMapList');
+  const commanderCountElement = document.getElementById('airoCommanderCount');
+  if (!commanderContainer || !mapContainer) return;
+
+  const commanders = airoState.commanders || [];
+  const maps = (airoState.maps || []).map((map) => ({
+    ...map,
+    title: map.mapName || map.id,
+    displayName: map.mapName || map.id,
+  }));
+
+  renderQuickPickersComponent({
+    commanderContainer,
+    mapContainer,
+    commanderCountElement,
+    commanders,
+    allCommandersCount: commanders.length,
+    maps,
+    selectedCommanderRuntime: airoState.selectedCommander,
+    selectedMapId: airoState.selectedMapId,
+    getMapCompletionState: (mapId) => {
+      const map = airoState.maps?.find((entry) => entry.id === mapId);
+      return {
+        label: 'AIRO',
+        tone: 'ok',
+        detail: map?.mapFile || '',
+        meta: map?.mapFamily || '',
+      };
+    },
+    onSelectCommander: (runtime) => {
+      airoState.selectedCommander = runtime;
+      renderAiroPickers();
+      updateAiroSummary();
+      updateAiroLaunchButton();
+    },
+    onSelectMap: (mapId) => {
+      airoState.selectedMapId = mapId;
+      airoState.selectedMapFile = airoState.maps?.find((entry) => entry.id === mapId)?.mapFile || '';
+      renderAiroPickers();
+      updateAiroSummary();
+      updateAiroLaunchButton();
+    },
+  });
+}
+
+function updateAiroSummary() {
+  const summaryCommander = document.getElementById('airoSummaryCommander');
+  const summaryMap = document.getElementById('airoSummaryMap');
+  const summary = document.getElementById('airoSummary');
+  const dryRun = Boolean(airoEl.dryRunToggle?.checked);
+  const map = airoState.maps?.find(m => m.id === airoState.selectedMapId);
+  const ready = Boolean(airoState.selectedCommander && airoState.selectedMapId);
+  const isOriginal = airoState.selectedCommander === 'RevolutionOverdrive';
+
+  if (summaryCommander) {
+    summaryCommander.textContent = airoState.selectedCommander || '-';
+  }
+  if (summaryMap) {
+    summaryMap.textContent = map ? map.mapName : '-';
+  }
+  if (airoEl.summaryMapFile) {
+    airoEl.summaryMapFile.textContent = airoState.selectedMapFile || map?.mapFile || '-';
+  }
+  if (airoEl.summaryMode) {
+    airoEl.summaryMode.textContent = dryRun ? '只安装' : '启动';
+  }
+  if (summary) {
+    summary.textContent = ready ? '就绪' : '未就绪';
+    summary.className = ready ? 'badge status-ok' : 'badge';
+  }
+  if (airoEl.validationBadge) {
+    airoEl.validationBadge.textContent = ready ? '可启动' : '未验证';
+    airoEl.validationBadge.className = ready ? 'badge status-ok' : 'badge';
+  }
+  if (airoEl.configIssues) {
+    if (!ready) {
+      airoEl.configIssues.textContent = '请选择指挥官与地图';
+      airoEl.configIssues.className = 'config-issues status-warn';
+    } else if (dryRun) {
+      airoEl.configIssues.textContent = isOriginal
+        ? '将执行 DryRun：仅同步 RO mod，不启动游戏'
+        : '将执行 DryRun：同步 RO + 7vs1 mod 与 Bank，不启动游戏';
+      airoEl.configIssues.className = 'config-issues status-ok';
+    } else {
+      airoEl.configIssues.textContent = isOriginal
+        ? '原版模式：仅加载 RevolutionOverdrive mod'
+        : '指挥官覆盖模式：RO + 7vs1 指挥官桥接';
+      airoEl.configIssues.className = 'config-issues status-ok';
+    }
+  }
+  if (airoEl.commanderCount) {
+    airoEl.commanderCount.textContent = String(airoState.commanders?.length || 0);
+  }
+  if (airoEl.mapCount) {
+    airoEl.mapCount.textContent = String(airoState.maps?.length || 0);
+  }
+  if (airoEl.bootstrapCommanderCount) {
+    airoEl.bootstrapCommanderCount.textContent = String(airoState.commanders?.length || 0);
+  }
+  if (airoEl.bootstrapMapCount) {
+    airoEl.bootstrapMapCount.textContent = String(airoState.maps?.length || 0);
+  }
+}
+
+function updateAiroLaunchButton() {
+  const btn = document.getElementById('airoLaunchButton');
+  if (!btn) return;
+  btn.disabled = !(airoState.selectedCommander && airoState.selectedMapId);
+}
+
+async function launchAiroGame() {
+  const btn = document.getElementById('airoLaunchButton');
+  const stateLabel = document.getElementById('airoLaunchState');
+  const output = document.getElementById('airoOutput');
+  const dryRun = Boolean(airoEl.dryRunToggle?.checked);
+  if (!airoState.selectedCommander) return;
+  if (airoState.pollTimer) {
+    stateLabel.textContent = '已有启动进程运行中';
+    return;
+  }
+  btn.disabled = true;
+  stateLabel.textContent = dryRun ? 'DryRun 中...' : '启动中...';
+  output.textContent = `启动指挥官: ${airoState.selectedCommander}\n地图: ${airoState.selectedMapFile || '默认'}\n模式: ${dryRun ? 'DryRun' : '启动'}\n`;
+  if (airoEl.copyOutputButton) airoEl.copyOutputButton.disabled = false;
+  try {
+    const result = await apiFetchJson('/api/airo-launch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        commander: airoState.selectedCommander,
+        mapName: airoState.selectedMapFile || '',
+        dryRun,
+        noLaunch: dryRun,
+      }),
+    });
+    setAiroLogPaths(result.stdout, result.stderr);
+    output.textContent += `进程 PID: ${result.pid}\n`;
+    stateLabel.textContent = `PID ${result.pid}`;
+    pollAiroLaunch(result);
+  } catch (e) {
+    output.textContent += `错误: ${e.message}\n`;
+    stateLabel.textContent = '错误';
+    btn.disabled = false;
+  }
+}
+
+function pollAiroLaunch(result) {
+  const btn = document.getElementById('airoLaunchButton');
+  const stateLabel = document.getElementById('airoLaunchState');
+  const output = document.getElementById('airoOutput');
+  let attempts = 0;
+  const maxAttempts = 120;
+  airoState.pollTimer = setInterval(async () => {
+    attempts++;
+    try {
+      const status = await apiFetchJson('/api/airo-launch-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({ pid: result.pid, stdout: result.stdout, stderr: result.stderr }),
+      });
+      if (status.stdout?.tail) {
+        output.textContent = `启动指挥官: ${airoState.selectedCommander}\n进程 PID: ${result.pid}\n${status.stdout.tail}`;
+        if (airoEl.copyOutputButton) airoEl.copyOutputButton.disabled = false;
+      }
+      if (!status.running && status.exitCode !== null) {
+        clearInterval(airoState.pollTimer);
+        airoState.pollTimer = null;
+        if (status.exitCode === 0) {
+          stateLabel.textContent = '启动成功（游戏运行中）';
+          output.textContent += '\n=== 启动完成 ===\n';
+        } else {
+          stateLabel.textContent = `进程退出，退出码: ${status.exitCode}`;
+          output.textContent += `\n=== 进程退出，退出码: ${status.exitCode} ===\n`;
+          if (status.stderr?.tail) {
+            output.textContent += `stderr:\n${status.stderr.tail}\n`;
+          }
+        }
+        btn.disabled = false;
+      }
+      if (attempts >= maxAttempts) {
+        clearInterval(airoState.pollTimer);
+        airoState.pollTimer = null;
         stateLabel.textContent = '轮询超时';
         btn.disabled = false;
       }

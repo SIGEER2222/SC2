@@ -11,6 +11,7 @@
     <button class="tab active" data-tab="A">7vs1 合作测试</button>
     <button class="tab" data-tab="B">Mod 测试地图</button>
     <button class="tab" data-tab="C">Reborn 战役</button>
+    <button class="tab" data-tab="D">AI 起义狂潮</button>
   </div>
   <div class="tab-content" data-tab-content="A">
   <div class="app-shell">
@@ -630,6 +631,121 @@
         <div class="bootstrap-resource">
           <span>说明</span>
           <strong id="rebornBootstrapHint">同步 Reborn mod 与 7vs1 指挥官桥接后，写入 Bank 并启动战役地图</strong>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="tab-content" data-tab-content="D" hidden>
+    <div class="app-shell airo-shell">
+      <header class="topbar">
+        <div>
+          <h1>AI 起义狂潮</h1>
+          <div id="airoStatus" class="subtle">加载中</div>
+        </div>
+        <div class="top-actions">
+          <div class="action-group config-action-group" aria-label="配置操作">
+            <span>配置</span>
+            <button id="airoRefreshButton" type="button" class="secondary">刷新</button>
+          </div>
+          <div class="action-group launch-action-group" aria-label="启动操作">
+            <label class="toggle">
+              <input id="airoDryRunToggle" type="checkbox">
+              <span>只安装不启动</span>
+            </label>
+            <span id="airoSummary" class="badge">未就绪</span>
+            <button id="airoLaunchButton" type="button" class="primary" disabled>启动 AI 起义狂潮</button>
+            <span id="airoLaunchState" class="subtle"></span>
+          </div>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="setup-grid">
+          <section class="panel commander-panel" aria-labelledby="airoCommanderTitle">
+            <div class="panel-head">
+              <h2 id="airoCommanderTitle">指挥官</h2>
+              <div class="mastery-head-actions">
+                <strong id="airoCommanderCount" class="badge">0</strong>
+              </div>
+            </div>
+            <div class="commander-gallery-block">
+              <div id="airoCommanderList" class="commander-gallery"></div>
+            </div>
+          </section>
+          <div class="setup-side">
+            <section class="panel summary-panel" aria-label="AIRO 当前配置">
+              <div class="panel-head">
+                <h2>当前配置</h2>
+                <div class="summary-actions">
+                  <span id="airoValidationBadge" class="badge">未验证</span>
+                </div>
+              </div>
+              <div class="summary-strip">
+                <div class="summary-items">
+                  <div class="summary-item">
+                    <span>指挥官</span>
+                    <strong id="airoSummaryCommander">-</strong>
+                  </div>
+                  <div class="summary-item">
+                    <span>地图</span>
+                    <strong id="airoSummaryMap">-</strong>
+                  </div>
+                  <div class="summary-item">
+                    <span>地图文件</span>
+                    <strong id="airoSummaryMapFile">-</strong>
+                  </div>
+                  <div class="summary-item">
+                    <span>模式</span>
+                    <strong id="airoSummaryMode">启动</strong>
+                  </div>
+                </div>
+                <div id="airoConfigIssues" class="config-issues status-ok" aria-live="polite">等待选择指挥官与地图</div>
+              </div>
+            </section>
+            <section class="panel map-panel" aria-label="地图选择">
+              <div class="panel-head">
+                <h2>地图</h2>
+                <strong id="airoMapCount" class="badge">0</strong>
+              </div>
+              <div id="airoMapList" class="quick-pick-list map-quick-list map-gallery"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="panel output-panel airo-output-panel" aria-labelledby="airoOutputTitle">
+          <div class="panel-head">
+            <h2 id="airoOutputTitle">输出</h2>
+            <div class="output-actions">
+              <button id="airoCopyOutputButton" type="button" class="mini" disabled>复制输出</button>
+              <button id="airoCopyLogPathsButton" type="button" class="mini" disabled>复制日志路径</button>
+              <button id="airoClearOutputButton" type="button" class="mini">清空输出</button>
+            </div>
+          </div>
+          <div class="log-path-strip" aria-label="AIRO 日志路径">
+            <span id="airoStdoutPathText">标准输出：-</span>
+            <span id="airoStderrPathText">错误输出：-</span>
+          </div>
+          <pre id="airoOutput" class="output-log">等待操作</pre>
+        </section>
+      </main>
+
+      <section class="bootstrap-strip airo-bootstrap" aria-label="AIRO 数据概览">
+        <div class="bootstrap-metric">
+          <span>指挥官</span>
+          <strong id="airoBootstrapCommanderCount">0</strong>
+        </div>
+        <div class="bootstrap-metric">
+          <span>地图</span>
+          <strong id="airoBootstrapMapCount">0</strong>
+        </div>
+        <div class="bootstrap-resource">
+          <span>启动脚本</span>
+          <strong id="airoBootstrapScript">scripts/airo/launch-airo-campaign.ps1</strong>
+        </div>
+        <div class="bootstrap-resource">
+          <span>说明</span>
+          <strong id="airoBootstrapHint">同步 RevolutionOverdrive mod，可选叠加 7vs1 指挥官桥接后写入 Bank 并启动 WoL 战役地图</strong>
         </div>
       </section>
     </div>

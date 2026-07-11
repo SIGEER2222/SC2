@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CActorModel id="GenericAttackDamageModel2" parent="ModelAnimationStyleOneShotNoOrphan">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Model value="GenericAttackModel"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorSound id="GenericAttackDamageSound2" parent="SoundOneShot">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <Sound value="GenericAttackSound"/>
+    </CActorSound>
+    <CActorModel id="GenericAttackImpactModel2" parent="ModelAnimationStyleOneShotNoOrphan">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Model value="GenericAttackModel"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorSound id="GenericAttackImpactSound2" parent="SoundOneShot">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <Sound value="GenericAttackSound"/>
+    </CActorSound>
+    <CActorModel id="GenericAttackLaunchModel2" parent="ModelAnimationStyleOneShotNoOrphan">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Model value="GenericAttackModel"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorSound id="GenericAttackLaunchSound2" parent="SoundOneShot">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <Sound value="GenericAttackSound"/>
+    </CActorSound>
+    <CActorUnit id="Marine2" parent="GenericUnitBase" unitName="Marine2">
+        <Aliases value="_UnitSmall"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <On Terms="ActorCreation; ValidatePlayer NoMarineShield" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
+        <On Terms="Upgrade.ShieldWall.Add" Send="AnimClear Cover"/>
+        <On Terms="Upgrade.ShieldWall.Remove" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
+        <On Terms="UnitDeath.Marine2; AnimPlaying Cover" Target="_DeathModel" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="ModelEvent; ModelEventName SquibStart" Send="Create MarineCheerSquib"/>
+        <On Terms="ModelEvent; ModelEventName SquibStop" Target="MarineCheerSquib" Send="Destroy"/>
+        <On Terms="ModelEvent; ModelEventName SquibStop" Target="MarineCheerSquibSound" Send="Destroy"/>
+        <On Terms="AnimDone; AnimName Cheer" Target="MarineCheerSquib" Send="Destroy"/>
+        <On Terms="AnimDone; AnimName Cheer" Target="MarineCheerSquibSound" Send="Destroy"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Marine_Land"/>
+        <On Terms="Upgrade.CombatShield.Add" Send="AnimClear Cover"/>
+        <On Terms="Upgrade.CombatShield.Remove" Send="AnimPlay Cover Cover PlayForever"/>
+        <On Terms="UnitDeathCustomize; PassChance 100.000000; ValidateUnit IsNotNeuralParasited" Send="Create Marine_Death"/>
+        <On Terms="UnitDeathCustomize; PassChance 100.000000; !ValidateUnit IsNotNeuralParasited" Send="Create Marine_Death_NP"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsCelestialBurning" Send="DeathCustomize Variation14"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsCelestialBurning" Send="DeathCustomize RagdollFire"/>
+        <On Terms="Upgrade.DarkMarineArmor.Add" Send="ModelSwap Shadow_MarineEX2"/>
+        <On Terms="UnitBirth; ValidateUnit HaveDarkMarineArmor" Send="ModelSwap Shadow_MarineEX2"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit HaveVoidShade" Send="DeathCustomize Shadow"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit HaveTerrazineShadow" Send="DeathCustomize Shadow"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="MarineDeath2" SoundLink="Marine_DeathFXBloodSpray2"/>
+        <DeathArray index="Blast" ModelLink="MarineDeathBlast2"/>
+        <DeathArray index="Disintegrate" ModelLink="MarineDeathAcid2" SoundLink="Uni_DeathFXAcid2"/>
+        <DeathArray index="Eat" AnimProps="Stand" ModelLink="MarineDeathEat2" SoundLink="Marine_DeathFXEat2"/>
+        <DeathArray index="Eviscerate" ModelLink="MarineDeathEviscerate2" SoundLink="Marine_DeathFXEviscerate2"/>
+        <DeathArray index="Fire" ModelLink="MarineDeathFire2" SoundLink="Marine_DeathFXFire2"/>
+        <DeathArray index="Silentkill" SoundLink="Uni_DeathFXSilentKill2"/>
+        <DeathArray index="Squish" SoundLink="Marine_DeathFXBloodSpray2"/>
+        <DeathCustoms index="0" ModelLink="ZergSmallUnitDeathLow2" Name="AntiGravGeneric"/>
+        <DeathCustoms index="1" ModelLink="ProtossSmallUnitDeathLow2" Name="AntiGravProtoss"/>
+        <DeathCustoms index="2" ModelLink="TerranSmallUnitDeathLow2" Name="AntiGravTerran"/>
+        <DeathCustoms index="3" ModelLink="ZergSmallUnitDeathLow2" Name="AntiGravZerg"/>
+        <DeathCustoms index="4" ModelLink="Invisible2" Name="Vortex"/>
+        <DeathCustoms ModelLink="TerranSmallBiologicalUnitDeathLow2" Name="AntiGravTerran"/>
+        <DeathCustoms ModelLink="MarineDeathRagdoll2" Name="RagdollBasic">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollBloodPrevent" ModelLink="MarineDeathRagdoll2" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ModelLink="MarineDeathFire2" Name="Variation14"/>
+        <DeathCustoms>
+            <ModelLink value="DeathVoidShadowSmall2"/>
+            <SoundLink value="ShadowUnit_DeathFX2"/>
+            <VoiceLink value="ShadowUnit_DeathVox"/>
+            <Name value="Shadow"/>
+        </DeathCustoms>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>
+        <PortraitModel value="MarinePortrait2"/>
+        <StandAnimTurnTime value="4"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.600000"/>
+            <RangeDown value="0.600000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleSmall"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <AbilSoundArray AbilCmd="Stimpack2,0" Sound="Marine_StimPackVO2"/>
+        <BarOffset value="40"/>
+        <BarWidth value="36"/>
+        <GlossaryAnim value="Spell"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Marine.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-marine.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Ready" value="Marine_Ready2"/>
+        <SoundArray index="Help" value="Marine_Help2"/>
+        <SoundArray index="What" value="Marine_What2"/>
+        <SoundArray index="Yes" value="Marine_Yes2"/>
+        <SoundArray index="Attack" value="Marine_Attack2"/>
+        <SoundArray index="Pissed" value="Marine_Pissed2"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-marine.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Marine.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorAction id="MarineAttack2" parent="GenericAttack" effectAttack="GuassRifle2">
+        <LaunchAssets Model="MarineAttackLaunch2" Sound="Marine_AttackLaunch2"/>
+        <LaunchModel value="GenericAttackLaunchModel2"/>
+        <LaunchSound value="GenericAttackLaunchSound2"/>
+        <ContainerAssets Model="MarineBunkerAttackLaunch2" Sound="Marine_BunkerAttackLaunch2"/>
+        <ContainerModel value="GenericAttackLaunchModel2"/>
+        <ContainerSound value="GenericAttackLaunchSound2"/>
+        <ImpactMap index="None" Model="MarineAttackImpact2" Sound="Marine_AttackImpact2"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact2"/>
+        <ImpactModel value="GenericAttackImpactModel2"/>
+        <ImpactSound value="GenericAttackImpactSound2"/>
+        <ImpactPhysics Name="BulletImpact" MatchKeys="Basic" Physics="MarineAttackDeathForce"/>
+        <DamageMap index="None" Sound=""/>
+        <DamageModel value="GenericAttackDamageModel2"/>
+        <DamageSound value="GenericAttackDamageSound2"/>
+        <AcquisitionYawHalfArc value="10.000000"/>
+        <AcquisitionPitchHalfArc value="15.000000"/>
+        <AccuracyHalfArc value="5.000000"/>
+    </CActorAction>
+    <CActorSound id="Marine_Death2" parent="SoundOneShot">
+        <Remove Terms="UnitDeath.Marine; PassChance 100.000000" Send="Create"/>
+        <On Terms="UnitDeath.Marine2; PassChance 100.000000" Send="Create"/>
+        <On Terms="UnitDeath.WarPig; PassChance 100.000000" Send="Create"/>
+        <On Terms="UnitDeath.MengskMarine; PassChance 100.000000" Send="Create"/>
+        <On Terms="UnitDeath.IronWarrior; PassChance 100.000000" Send="Create"/>
+    </CActorSound>
+    <CActorModel id="StimpackEndImpact2" parent="ModelAnimationStyleOneShot">
+        <Inherits index="CloakEffect" value="1"/>
+        <On Terms="Behavior.Stimpack2.Off; ValidateUnit NotDead" Send="Create"/>
+        <On Terms="Behavior.StimpackMarauder.Off; ValidateUnit NotDead" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+    </CActorModel>
+    <CActorUnit id="ZergTowerArtillery">
+        <DeathArray index="Normal" ModelLink="EvolutionChamberDeath"/>
+        <!--MinimapIcon value="Assets\Textures\ui_minimap_icon_scourgecannon.dds"/-->
+    </CActorUnit>
+</Catalog>
