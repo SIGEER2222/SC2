@@ -1,0 +1,45 @@
+include "TriggerLibs/natives"
+include "LibAIROAdapter_Raynor_h"
+
+string libAIROAdapterInterface_CommanderName() {
+    return "TerranRaynor";
+}
+
+string libAIROAdapterInterface_GetReplacementUnit(string originalUnit) {
+    // === 建筑类 ===
+    if (originalUnit == "CommandCenter") { return "CommandCenterRaynor"; }
+    if (originalUnit == "Barracks") { return "BarracksRaynor"; }
+    if (originalUnit == "Factory") { return "FactoryRaynor"; }
+    if (originalUnit == "Starport") { return "StarportRaynor"; }
+    if (originalUnit == "SupplyDepot") { return "SupplyDepotRaynor"; }
+    if (originalUnit == "Refinery") { return "RefineryRaynor"; }
+    if (originalUnit == "EngineeringBay") { return "EngineeringBayRaynor"; }
+    if (originalUnit == "Bunker") { return "BunkerRaynor"; }
+    if (originalUnit == "MissileTurret") { return "MissileTurretRaynor"; }
+    if (originalUnit == "SensorTower") { return "SensorTowerRaynor"; }
+    if (originalUnit == "Armory") { return "ArmoryRaynor"; }
+
+    // === 战斗单位类 ===
+    if (originalUnit == "SCV") { return "SCVRaynor"; }
+    if (originalUnit == "Marine" || originalUnit == "MurlocMarine") { return "MarineRaynor"; }
+    if (originalUnit == "Marauder" || originalUnit == "IronWarrior" || originalUnit == "DevilDog") { return "MarauderRaynor"; }
+    if (originalUnit == "Firebat") { return "FirebatRaynor"; }
+    if (originalUnit == "Medic") { return "MedicRaynor"; }
+    if (originalUnit == "SiegeTank") { return "SiegeTankRaynor"; }
+    if (originalUnit == "Vulture") { return "VultureRaynor"; }
+    if (originalUnit == "VikingAssault") { return "VikingAssaultRaynor"; }
+    if (originalUnit == "Battlecruiser") { return "BattlecruiserRaynor"; }
+
+    // 无 Raynor 版的单位（Goliath/Reaper 等）用相近单位替代
+    if (originalUnit == "Goliath") { return "VikingAssaultRaynor"; }
+    if (originalUnit == "Reaper") { return "MarineRaynor"; }
+
+    // 无映射 → 保留原版（Ghost/Medivac/Diamondback/Viking 飞行模式等）
+    return originalUnit;
+}
+
+void libAIROAdapterInterface_OnUnitCreated(unit createdUnit) {
+}
+
+void libAIROAdapterInterface_OnGameStart() {
+}
