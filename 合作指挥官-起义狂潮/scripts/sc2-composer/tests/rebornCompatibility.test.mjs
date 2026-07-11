@@ -214,19 +214,11 @@ describe('generateCompositionPlan', () => {
         commander: 'TerranRaynor',
         projectRoot: root,
       });
-      // validatePlan 只校验 compositionPlan.mjs 定义的必填字段
-      // _compat 是额外字段，需剥离后校验
+      // _compat 是过渡期扩展字段，schema 为 additionalProperties:false，剥离后校验
       const { _compat, ...planWithoutCompat } = plan;
       const { valid, errors } = validatePlan(planWithoutCompat);
-      // validatePlan 只校验 schemaVersion, compositionId, mapProfile, slots
-      // 我们的 plan 用 planId 而非 compositionId，用 map 对象而非 mapProfile 字符串
-      // 所以 validatePlan 可能不通过——这是预期的，因为 schema 不同
-      // 这里只验证基本结构
-      assert.ok(plan.schemaVersion === 1);
-      assert.ok(plan.planId);
-      assert.ok(plan.map);
-      assert.ok(plan.commanderSlots);
-      assert.ok(plan.dependencies);
+      assert.equal(valid, true, `plan 应通过校验，错误: ${errors.join('; ')}`);
+      assert.equal(errors.length, 0);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

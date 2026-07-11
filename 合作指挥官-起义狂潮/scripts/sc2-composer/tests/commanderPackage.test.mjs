@@ -7,9 +7,12 @@
 import { test, describe } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { validatePackage, extractPackageFromMod, PACKAGE_SCHEMA_VERSION } from '../src/commanderPackage.mjs';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdtempSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 describe('validatePackage', () => {
   test('合法 package 通过校验', () => {
@@ -151,6 +154,29 @@ describe('validatePackage', () => {
 
   test('PACKAGE_SCHEMA_VERSION 常量导出', () => {
     assert.equal(PACKAGE_SCHEMA_VERSION, 1);
+  });
+});
+
+describe('TerranRaynor.json 集成校验', () => {
+  test('真实 TerranRaynor.json 通过 validatePackage', () => {
+    const pkgPath = join(__dirname, '..', '..', '..', 'Mods', '7vs1', 'CommanderPackages', 'TerranRaynor.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    const { valid, errors } = validatePackage(pkg);
+    assert.equal(valid, true, `TerranRaynor.json 应通过校验，错误: ${errors.join('; ')}`);
+  });
+
+  test('TerranRaynor.json 包含 3 个威望', () => {
+    const pkgPath = join(__dirname, '..', '..', '..', 'Mods', '7vs1', 'CommanderPackages', 'TerranRaynor.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    assert.equal(pkg.prestiges.length, 3);
+    assert.ok(pkg.prestiges.every(p => p.id && p.name && p.modifier));
+  });
+
+  test('TerranRaynor.json 包含 6 个精通', () => {
+    const pkgPath = join(__dirname, '..', '..', '..', 'Mods', '7vs1', 'CommanderPackages', 'TerranRaynor.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    assert.equal(pkg.masteries.length, 6);
+    assert.ok(pkg.masteries.every(m => m.id && m.name && m.stat));
   });
 });
 

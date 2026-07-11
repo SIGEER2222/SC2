@@ -80,32 +80,14 @@ export function validatePlan(plan) {
       }
     }
 
-    if (plan.map !== undefined) {
-      if (typeof plan.map !== 'object' || plan.map === null || Array.isArray(plan.map)) {
-        errors.push('map 必须是对象');
-      }
-    }
-
-    if (plan.commanderSlots !== undefined) {
-      if (!Array.isArray(plan.commanderSlots) || plan.commanderSlots.length === 0) {
-        errors.push('commanderSlots 必须是非空数组');
-      }
-    }
-
-    if (plan.dependencies !== undefined) {
-      if (typeof plan.dependencies !== 'object' || plan.dependencies === null || Array.isArray(plan.dependencies)) {
-        errors.push('dependencies 必须是对象');
-      }
-    }
-
-    if (plan.bootstrap !== undefined) {
-      if (typeof plan.bootstrap !== 'object' || plan.bootstrap === null || Array.isArray(plan.bootstrap)) {
-        errors.push('bootstrap 必须是对象');
-      }
-      if (plan.bootstrap && !Array.isArray(plan.bootstrap.galaxyIncludes)) {
-        errors.push('bootstrap.galaxyIncludes 必须是数组');
-      }
-    }
+    validateMap(plan.map, errors);
+    validateCommanderSlots(plan.commanderSlots, errors);
+    validateDependencies(plan.dependencies, errors);
+    validateConflictResolution(plan.conflictResolution, errors);
+    validateBankConfig(plan.bankConfig, errors);
+    validateEndCondition(plan.victoryCondition, 'victoryCondition', errors);
+    validateEndCondition(plan.defeatCondition, 'defeatCondition', errors);
+    validateBootstrap(plan.bootstrap, errors);
   } else {
     // === 旧 schema 校验（过渡期兼容）===
     if (plan.compositionId !== undefined) {
@@ -353,4 +335,236 @@ export async function detectConflicts(plan, projectRoot) {
   // 占位：后续实现需遍历所有 CommanderPackage 的 catalog.ownedIds，
   // 与 MapProfile 的本地 catalog 比对，检测重复定义。
   return [];
+}
+
+// ============================================================
+// 新 schema 字段校验 helpers
+// 对齐 CompositionPlan.schema.json 各子对象的 required/properties。
+// 只做结构校验，不做语义校验（语义校验由 resolveDependencies/detectConflicts 处理）。
+// ============================================================
+
+function validateMap(map, errors) {
+  if (map === undefined) return; // 必填字段检查由顶层负责
+  if (typeof map !== 'object' || map === null || Array.isArray(map)) {
+    errors.push('map 必须是对象');
+    return;
+  }
+  for (const f of ['mapId', 'mapFamily', 'mapName', 'source', 'adapter']) {
+    if (typeof map[f] !== 'string' || map[f].length === 0) {
+      errors.push(`map.${f} 必须是非空字符串`);
+    }
+  }
+}
+
+function validateCommanderSlots(slots, errors) {
+  if (slots === undefined) return;
+  if (!Array.isArray(slots) || slots.length === 0) {
+    errors.push('commanderSlots 必须是非空数组');
+    return;
+  }
+  for (let i = 0; i < slots.length; i++) {
+    const slot = slots[i];
+    const ctx = `commanderSlots[${i}]`;
+    if (typeof slot !== 'object' || slot === null || Array.isArray(slot)) {
+      errors.push(`${ctx} 必须是对象`);
+      continue;
+    }
+    if (typeof slot.slotIndex !== 'number' || !Number.isInteger(slot.slotIndex) || slot.slotIndex < 0) {
+      errors.push(`${ctx}.slotIndex 必须是非负整数`);
+    }
+    if (typeof slot.playerId !== 'number' || !Number.isInteger(slot.playerId) || slot.playerId < 1) {
+      errors.push(`${ctx}.playerId 必须是 >= 1 的整数`);
+    }
+    if (typeof slot.commanderId !== 'string' || slot.commanderId.length === 0) {
+      errors.push(`${ctx}.commanderId 必须是非空字符串`);
+    }
+    if (slot.prestige !== null && typeof slot.prestige !== 'string') {
+      errors.push(`${ctx}.prestige 必须是字符串或 null`);
+    }
+    if (slot.mastery !== null && typeof slot.mastery !== 'string') {
+      errors.push(`${ctx}.mastery 必须是字符串或 null`);
+    }
+    if (slot.talents !== undefined && !Array.isArray(slot.talents)) {
+      errors.push(`${ctx}.talents 必须是数组`);
+    }
+    if (slot.bonuses !== undefined && !Array.isArray(slot.bonuses)) {
+      errors.push(`${ctx}.bonuses 必须是数组`);
+    }
+  }
+}
+
+function validateDependencyEntry(entry, ctx, errors) {
+  if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
+    errors.push(`${ctx} 必须是对象`);
+    return;
+  }
+  for (const f of ['path', 'layer', 'source']) {
+    if (typeof entry[f] !== 'string' || entry[f].length === 0) {
+      errors.push(`${ctx}.${f} 必须是非空字符串`);
+    }
+  }
+}
+
+function validateDependencies(deps, errors) {
+  if (deps === undefined) return;
+  if (typeof deps !== 'object' || deps === null || Array.isArray(deps)) {
+    errors.push('dependencies 必须是对象');
+    return;
+  }
+  for (const f of ['always', 'commander', 'pairPatches']) {
+    if (!Array.isArray(deps[f])) {
+      errors.push(`dependencies.${f} 必须是数组`);
+    }
+  }
+
+  if (Array.isArray(deps.always)) {
+    deps.always.forEach((entry, i) => validateDependencyEntry(entry, `dependencies.always[${i}]`, errors));
+  }
+
+  if (Array.isArray(deps.commander)) {
+    deps.commander.forEach((cmd, i) => {
+      const ctx = `dependencies.commander[${i}]`;
+      if (typeof cmd !== 'object' || cmd === null || Array.isArray(cmd)) {
+        errors.push(`${ctx} 必须是对象`);
+        return;
+      }
+      if (typeof cmd.slotIndex !== 'number' || !Number.isInteger(cmd.slotIndex) || cmd.slotIndex < 0) {
+        errors.push(`${ctx}.slotIndex 必须是非负整数`);
+      }
+      if (typeof cmd.commanderId !== 'string' || cmd.commanderId.length === 0) {
+        errors.push(`${ctx}.commanderId 必须是非空字符串`);
+      }
+      if (!Array.isArray(cmd.dependencies)) {
+        errors.push(`${ctx}.dependencies 必须是数组`);
+      } else {
+        cmd.dependencies.forEach((entry, j) => validateDependencyEntry(entry, `${ctx}.dependencies[${j}]`, errors));
+      }
+    });
+  }
+
+  if (Array.isArray(deps.pairPatches)) {
+    deps.pairPatches.forEach((patch, i) => {
+      const ctx = `dependencies.pairPatches[${i}]`;
+      if (typeof patch !== 'object' || patch === null || Array.isArray(patch)) {
+        errors.push(`${ctx} 必须是对象`);
+        return;
+      }
+      for (const f of ['commanderId', 'patchPath', 'reason']) {
+        if (typeof patch[f] !== 'string' || patch[f].length === 0) {
+          errors.push(`${ctx}.${f} 必须是非空字符串`);
+        }
+      }
+    });
+  }
+}
+
+function validateConflictResolution(cr, errors) {
+  if (cr === undefined) return;
+  if (typeof cr !== 'object' || cr === null || Array.isArray(cr)) {
+    errors.push('conflictResolution 必须是对象');
+    return;
+  }
+  const validStrategies = new Set([
+    'preserve-map', 'preserve-commander', 'merge-keyed-array',
+    'rename-and-alias', 'runtime-reapply', 'map-local-patch',
+    'explicitly-unsupported', 'manual-review',
+  ]);
+  if (!validStrategies.has(cr.overrideStrategy)) {
+    errors.push(`conflictResolution.overrideStrategy 非法: ${cr.overrideStrategy}`);
+  }
+  if (!Array.isArray(cr.allowedConflicts)) {
+    errors.push('conflictResolution.allowedConflicts 必须是数组');
+  }
+}
+
+function validateBankConfig(bc, errors) {
+  if (bc === undefined) return;
+  if (typeof bc !== 'object' || bc === null || Array.isArray(bc)) {
+    errors.push('bankConfig 必须是对象');
+    return;
+  }
+  if (!Array.isArray(bc.protectedBanks)) {
+    errors.push('bankConfig.protectedBanks 必须是数组');
+  }
+  if (typeof bc.playerBanks !== 'object' || bc.playerBanks === null || Array.isArray(bc.playerBanks)) {
+    errors.push('bankConfig.playerBanks 必须是对象');
+  }
+}
+
+function validateEndCondition(cond, fieldName, errors) {
+  if (cond === undefined) return;
+  if (typeof cond !== 'object' || cond === null || Array.isArray(cond)) {
+    errors.push(`${fieldName} 必须是对象`);
+    return;
+  }
+  if (cond.type !== 'native' && cond.type !== 'custom') {
+    errors.push(`${fieldName}.type 必须是 "native" 或 "custom"`);
+  }
+  if (cond.type === 'native' && (cond.trigger === undefined || typeof cond.trigger !== 'string' || cond.trigger.length === 0)) {
+    // schema 上 trigger 是可选的，但 type=native 时设计上应该指定触发器；
+    // 当前不强制报错，只在 trigger 缺失时提示
+    // 注：保持与 schema 一致，trigger 是 optional，不强制
+  }
+}
+
+function validateBootstrap(bootstrap, errors) {
+  if (bootstrap === undefined) return;
+  if (typeof bootstrap !== 'object' || bootstrap === null || Array.isArray(bootstrap)) {
+    errors.push('bootstrap 必须是对象');
+    return;
+  }
+  for (const f of ['galaxyIncludes', 'initSequence', 'runtimeOverrides']) {
+    if (!Array.isArray(bootstrap[f])) {
+      errors.push(`bootstrap.${f} 必须是数组`);
+    }
+  }
+
+  if (Array.isArray(bootstrap.galaxyIncludes)) {
+    bootstrap.galaxyIncludes.forEach((entry, i) => {
+      const ctx = `bootstrap.galaxyIncludes[${i}]`;
+      if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
+        errors.push(`${ctx} 必须是对象`);
+        return;
+      }
+      for (const f of ['path', 'purpose']) {
+        if (typeof entry[f] !== 'string' || entry[f].length === 0) {
+          errors.push(`${ctx}.${f} 必须是非空字符串`);
+        }
+      }
+    });
+  }
+
+  if (Array.isArray(bootstrap.initSequence)) {
+    bootstrap.initSequence.forEach((entry, i) => {
+      const ctx = `bootstrap.initSequence[${i}]`;
+      if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
+        errors.push(`${ctx} 必须是对象`);
+        return;
+      }
+      if (typeof entry.phase !== 'string' || entry.phase.length === 0) {
+        errors.push(`${ctx}.phase 必须是非空字符串`);
+      }
+      if (typeof entry.function !== 'string' || entry.function.length === 0) {
+        errors.push(`${ctx}.function 必须是非空字符串`);
+      }
+    });
+  }
+
+  if (Array.isArray(bootstrap.runtimeOverrides)) {
+    bootstrap.runtimeOverrides.forEach((entry, i) => {
+      const ctx = `bootstrap.runtimeOverrides[${i}]`;
+      if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
+        errors.push(`${ctx} 必须是对象`);
+        return;
+      }
+      for (const f of ['target', 'fieldPath']) {
+        if (typeof entry[f] !== 'string' || entry[f].length === 0) {
+          errors.push(`${ctx}.${f} 必须是非空字符串`);
+        }
+      }
+      if (typeof entry.value !== 'string' && typeof entry.value !== 'number' && typeof entry.value !== 'boolean') {
+        errors.push(`${ctx}.value 必须是 string/number/boolean`);
+      }
+    });
+  }
 }

@@ -107,6 +107,214 @@ describe('validatePlan', () => {
   });
 });
 
+// ============================================================
+// 新 schema 格式（planId/map/commanderSlots/...）校验测试
+// ============================================================
+
+describe('validatePlan 新 schema 格式', () => {
+  test('合法新格式 plan 通过校验', () => {
+    const plan = makeValidNewPlan();
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, true, `应当通过校验，错误: ${errors.join('; ')}`);
+    assert.equal(errors.length, 0);
+  });
+
+  test('map 必填字段缺失时报错', () => {
+    const plan = makeValidNewPlan({
+      map: { mapId: '', mapFamily: 'X', mapName: 'X', source: 'X', adapter: 'X' },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('map.mapId 必须是非空字符串')));
+  });
+
+  test('commanderSlots 元素缺少 commanderId 时报错', () => {
+    const plan = makeValidNewPlan({
+      commanderSlots: [{ slotIndex: 0, playerId: 1, commanderId: '' }],
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('commanderId 必须是非空字符串')));
+  });
+
+  test('commanderSlots slotIndex/playerId 类型检查', () => {
+    const plan = makeValidNewPlan({
+      commanderSlots: [{ slotIndex: -1, playerId: 0, commanderId: 'X' }],
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('slotIndex 必须是非负整数')));
+    assert.ok(errors.some(e => e.includes('playerId 必须是 >= 1 的整数')));
+  });
+
+  test('slot.prestige 必须是字符串或 null', () => {
+    const plan = makeValidNewPlan({
+      commanderSlots: [{ slotIndex: 0, playerId: 1, commanderId: 'X', prestige: 123 }],
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('prestige 必须是字符串或 null')));
+  });
+
+  test('dependencies.always 元素缺少 path 时报错', () => {
+    const plan = makeValidNewPlan({
+      dependencies: {
+        always: [{ path: '', layer: 'L0', source: 'X' }],
+        commander: [],
+        pairPatches: [],
+      },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('path 必须是非空字符串')));
+  });
+
+  test('dependencies.commander[].slotIndex 必须是非负整数', () => {
+    const plan = makeValidNewPlan({
+      dependencies: {
+        always: [],
+        commander: [{ slotIndex: -1, commanderId: 'X', dependencies: [] }],
+        pairPatches: [],
+      },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('slotIndex 必须是非负整数')));
+  });
+
+  test('dependencies.pairPatches 缺少 patchPath 时报错', () => {
+    const plan = makeValidNewPlan({
+      dependencies: {
+        always: [],
+        commander: [],
+        pairPatches: [{ commanderId: 'X', patchPath: '', reason: 'X' }],
+      },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('patchPath 必须是非空字符串')));
+  });
+
+  test('conflictResolution.overrideStrategy 非法时报错', () => {
+    const plan = makeValidNewPlan({
+      conflictResolution: { overrideStrategy: 'invalid', allowedConflicts: [] },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('overrideStrategy 非法')));
+  });
+
+  test('bankConfig.protectedBanks 必须是数组', () => {
+    const plan = makeValidNewPlan({
+      bankConfig: { protectedBanks: 'not array', playerBanks: {} },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('protectedBanks 必须是数组')));
+  });
+
+  test('victoryCondition.type 非法时报错', () => {
+    const plan = makeValidNewPlan({
+      victoryCondition: { type: 'invalid' },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('victoryCondition.type 必须是')));
+  });
+
+  test('bootstrap.galaxyIncludes 元素缺少 path 时报错', () => {
+    const plan = makeValidNewPlan({
+      bootstrap: {
+        galaxyIncludes: [{ path: '', purpose: 'X' }],
+        initSequence: [],
+        runtimeOverrides: [],
+      },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('path 必须是非空字符串')));
+  });
+
+  test('bootstrap.initSequence 元素缺少 function 时报错', () => {
+    const plan = makeValidNewPlan({
+      bootstrap: {
+        galaxyIncludes: [],
+        initSequence: [{ phase: 'CompositionRegistered', function: '' }],
+        runtimeOverrides: [],
+      },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('function 必须是非空字符串')));
+  });
+
+  test('bootstrap.runtimeOverrides value 必须是基本类型', () => {
+    const plan = makeValidNewPlan({
+      bootstrap: {
+        galaxyIncludes: [],
+        initSequence: [],
+        runtimeOverrides: [{ target: 'X', fieldPath: 'X', value: { obj: true } }],
+      },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, false);
+    assert.ok(errors.some(e => e.includes('value 必须是 string/number/boolean')));
+  });
+
+  test('bootstrap.runtimeOverrides value 接受 boolean', () => {
+    const plan = makeValidNewPlan({
+      bootstrap: {
+        galaxyIncludes: [],
+        initSequence: [],
+        runtimeOverrides: [{ target: 'X', fieldPath: 'X', value: true, reason: 'X' }],
+      },
+    });
+    const { valid, errors } = validatePlan(plan);
+    assert.equal(valid, true, `应当通过校验，错误: ${errors.join('; ')}`);
+  });
+});
+
+/**
+ * 构造一个合法的新 schema CompositionPlan，可选 override 字段。
+ */
+function makeValidNewPlan(overrides = {}) {
+  return {
+    schemaVersion: 1,
+    planId: 'reborn.test__p1-TerranRaynor',
+    map: {
+      mapId: 'Test',
+      mapFamily: 'RebornHotS',
+      mapName: 'Test Map',
+      source: 'Maps/test.SC2Map',
+      adapter: 'reborn',
+    },
+    commanderSlots: [
+      { slotIndex: 0, playerId: 1, commanderId: 'TerranRaynor', prestige: null, mastery: null, talents: [], bonuses: [] },
+    ],
+    dependencies: {
+      always: [],
+      commander: [],
+      pairPatches: [],
+    },
+    conflictResolution: {
+      overrideStrategy: 'preserve-map',
+      allowedConflicts: [],
+    },
+    bankConfig: {
+      protectedBanks: [],
+      playerBanks: {},
+    },
+    victoryCondition: { type: 'native' },
+    defeatCondition: { type: 'native' },
+    bootstrap: {
+      galaxyIncludes: [],
+      initSequence: [],
+      runtimeOverrides: [],
+    },
+    ...overrides,
+  };
+}
+
 describe('resolveDependencies', () => {
   test('校验失败时抛错', async () => {
     await assert.rejects(
