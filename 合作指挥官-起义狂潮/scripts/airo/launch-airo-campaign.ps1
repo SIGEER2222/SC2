@@ -48,6 +48,19 @@ function Convert-TestCommanderToCommanderPowerKey {
     return (Convert-CommanderPowerCommanderToBankKey -Commander $Commander -WorkspaceRoot $ProjRoot)
 }
 
+function Get-AiroAdapterModName {
+    <#
+    .SYNOPSIS
+      Resolve commander to AIRO adapter mod relative path under Mods/AIRO/.
+      Returns empty string when no adapter is mapped for this commander.
+    #>
+    param([string]$Commander)
+    if ($null -eq $airoConfig.adapterMapping) { return "" }
+    $prop = $airoConfig.adapterMapping.PSObject.Properties.Name -contains $Commander
+    if (-not $prop) { return "" }
+    return [string]$airoConfig.adapterMapping.$Commander
+}
+
 # === Load configuration ===
 $airoConfig = Import-LauncherConfig -Name "airo-dependencies"
 
@@ -125,6 +138,13 @@ if (-not $isOriginalMode) {
     if ($commanderUnitsMod) {
         Write-Host "Syncing commander units mod: 7vs1\$commanderUnitsMod.SC2Mod"
         Sync-ModToLive -ModRelPath "7vs1\$commanderUnitsMod.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+    }
+
+    # Sync AIRO adapter mod (per-commander unit replacement implementation)
+    $adapterModRel = Get-AiroAdapterModName -Commander $Commander
+    if ($adapterModRel -ne "") {
+        Write-Host "Syncing AIRO adapter mod: AIRO\$adapterModRel.SC2Mod"
+        Sync-ModToLive -ModRelPath "AIRO\$adapterModRel.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
     }
 
     # Remove unselected CommanderUnits mods from live directory
@@ -239,6 +259,28 @@ if (-not $isOriginalMode) {
         Write-Host "SYNC AIROAdapter galaxy: $adapterCount files injected"
     }
 
+    # 3d. Inject per-commander AIRO adapter galaxy files (interface implementation)
+    # LibAIROAdapter declares libAIROAdapterInterface_* functions, but the implementation
+    # lives in a per-commander adapter (e.g. LibAIROAdapter_ZergKerrigan.galaxy). Without
+    # injecting this file, the galaxy linker reports unresolved symbols and the entire
+    # map script fails to compile.
+    $adapterModRel = Get-AiroAdapterModName -Commander $Commander
+    if ($adapterModRel -ne "") {
+        $adapterSrcBaseData = Join-Path $ProjRoot "Mods\AIRO\$adapterModRel.SC2Mod\Base.SC2Data"
+        if (Test-Path $adapterSrcBaseData) {
+            $adapterImplFiles = Get-ChildItem $adapterSrcBaseData -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+            $implCount = 0
+            foreach ($gf in $adapterImplFiles) {
+                $dst = Join-Path $mapLiveBaseData $gf.Name
+                [System.IO.File]::Copy($gf.FullName, $dst, $true)
+                $implCount++
+            }
+            Write-Host "SYNC AIRO adapter ($Commander) galaxy: $implCount files injected"
+        } else {
+            Write-Host "WARN: adapter source not found: $adapterSrcBaseData"
+        }
+    }
+
     # 4. Patch MapScript.galaxy to include 7vs1 galaxy libraries
     # traynor01 (and other WoL campaign maps) have MapScript.galaxy that only includes
     # RO mod's galaxy files (LibWoLC, LibCamp, etc). 7vs1's LibE0EAE146 and its
@@ -295,6 +337,38 @@ if (-not $isOriginalMode) {
             }
             $modified = $true
             Write-Host "  Added 11 includes + 11 init calls"
+        }
+
+        # 4a-bis. Insert per-commander adapter include after LibAIROAdapter
+        # The adapter (e.g. LibAIROAdapter_ZergKerrigan) implements the
+        # libAIROAdapterInterface_* functions declared in LibAIROAdapterInterface_h.
+        # Without this include the galaxy linker fails with unresolved symbols.
+        $adapterModRel4 = Get-AiroAdapterModName -Commander $Commander
+        if ($adapterModRel4 -ne "") {
+            $adapterSrcBase4 = Join-Path $ProjRoot "Mods\AIRO\$adapterModRel4.SC2Mod\Base.SC2Data"
+            if (Test-Path $adapterSrcBase4) {
+                $adapterGalaxyImplFiles = Get-ChildItem $adapterSrcBase4 -File -Filter "*.galaxy" -ErrorAction SilentlyContinue |
+                    Where-Object { $_.Name -notmatch '_h\.galaxy$' }
+                foreach ($gf in $adapterGalaxyImplFiles) {
+                    $incName = [System.IO.Path]::GetFileNameWithoutExtension($gf.Name)
+                    if ($content -notmatch ("include `"" + [regex]::Escape($incName) + "`"")) {
+                        $adapterIncludeLine = "include `"$incName`""
+                        $libAiroIncludePattern = '(?m)^include "LibAIROAdapter"\r?\n'
+                        if ($content -match $libAiroIncludePattern) {
+                            $content = $content -replace [regex]::Escape($matches[0]), ($matches[0] + $adapterIncludeLine + "`n")
+                        } else {
+                            # Fallback: append after last include line
+                            $lastInc = [regex]::Matches($content, $lastIncludePattern)
+                            if ($lastInc.Count -gt 0) {
+                                $insertPos = $lastInc[$lastInc.Count - 1].Index + $lastInc[$lastInc.Count - 1].Length
+                                $content = $content.Substring(0, $insertPos) + $adapterIncludeLine + "`n" + $content.Substring($insertPos)
+                            }
+                        }
+                        $modified = $true
+                        Write-Host "  Added adapter include: $incName"
+                    }
+                }
+            }
         }
 
         # 4b. Inject CoreRuntime initialization into gt_Initialization_Func

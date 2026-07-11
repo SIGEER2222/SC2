@@ -1,0 +1,29 @@
+include "TriggerLibs/natives"
+include "LibAIROAdapter_ZergKerrigan_h"
+
+string libAIROAdapterInterface_CommanderName() {
+    return "ZergKerrigan";
+}
+
+string libAIROAdapterInterface_GetReplacementUnit(string originalUnit) {
+    if (originalUnit == "CommandCenter") { return "HatcheryKerrigan"; }
+    if (originalUnit == "Barracks") { return "HatcheryKerrigan"; }
+    if (originalUnit == "SupplyDepot") { return "OverlordKerrigan"; }
+    if (originalUnit == "Refinery") { return "ExtractorKerrigan"; }
+
+    if (originalUnit == "Marine" || originalUnit == "MurlocMarine") { return "ZerglingKerrigan"; }
+    if (originalUnit == "Marauder" || originalUnit == "IronWarrior") { return "HydraliskKerrigan"; }
+    if (originalUnit == "Firebat") { return "RoachKerrigan"; }
+    if (originalUnit == "Medic") { return "QueenKerrigan"; }
+    if (originalUnit == "SCV") { return "DroneKerrigan"; }
+    if (originalUnit == "Goliath") { return "HydraliskKerrigan"; }
+    if (originalUnit == "Reaper") { return "ZerglingKerrigan"; }
+
+    return originalUnit;
+}
+
+void libAIROAdapterInterface_OnUnitCreated(unit createdUnit) {
+}
+
+void libAIROAdapterInterface_OnGameStart() {
+}

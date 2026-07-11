@@ -1,0 +1,29 @@
+include "TriggerLibs/natives"
+include "LibAIROAdapter_ProtossArtanis_h"
+
+string libAIROAdapterInterface_CommanderName() {
+    return "ProtossArtanis";
+}
+
+string libAIROAdapterInterface_GetReplacementUnit(string originalUnit) {
+    if (originalUnit == "CommandCenter") { return "NexusArtanis"; }
+    if (originalUnit == "Barracks") { return "GatewayArtanis"; }
+    if (originalUnit == "SupplyDepot") { return "PylonArtanis"; }
+    if (originalUnit == "Refinery") { return "AssimilatorArtanis"; }
+
+    if (originalUnit == "Marine" || originalUnit == "MurlocMarine") { return "ZealotArtanis"; }
+    if (originalUnit == "Marauder" || originalUnit == "IronWarrior") { return "StalkerArtanis"; }
+    if (originalUnit == "Firebat") { return "HighTemplarArtanis"; }
+    if (originalUnit == "Medic") { return "MedivacArtanis"; }
+    if (originalUnit == "SCV") { return "ProbeArtanis"; }
+    if (originalUnit == "Goliath") { return "ImmortalArtanis"; }
+    if (originalUnit == "Reaper") { return "ZealotArtanis"; }
+
+    return originalUnit;
+}
+
+void libAIROAdapterInterface_OnUnitCreated(unit createdUnit) {
+}
+
+void libAIROAdapterInterface_OnGameStart() {
+}
