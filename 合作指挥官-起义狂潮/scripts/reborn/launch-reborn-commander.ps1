@@ -193,8 +193,8 @@ if ($selectedCommanderUnitsMod) {
 }
 Remove-StaleCommanderUnitsMods -Sc2Root $Sc2Root -AllowedModNames $allowedCommanderUnits
 
-# Sync ALL Alenger mods (referenced by CoreRuntime's LibE0EAE146_AdapterBootstrap).
-Sync-ModSet -ModRelPaths $alengerConfig.mods -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+# Sync only AlengerCommon (Alenger1-13 + Adapter galaxy files are injected into map)
+Sync-ModToLive -ModRelPath "7vs1\AlengerCommon.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
 
 # Validate commander name
 if ($rebornConfig.validCommanders -notcontains $Commander) {
@@ -225,8 +225,9 @@ Sync-MapRuntimeLibraries `
     -SourceRoot $rebornConfig.galaxyInjection.sourceRoot
 
 # --- DEPENDENCY REWRITE SECTION ---
-# Build runtime dependency list: base deps + alenger deps + selected commander mod
-$runtimeDeps = @() + $rebornConfig.baseDependencyPaths + $alengerConfig.dependencyPaths
+# Build runtime dependency list: base deps + AlengerCommon + selected commander mod
+# Alenger1-13 + Adapter galaxy files are injected into map, no need for mod dependencies
+$runtimeDeps = @() + $rebornConfig.baseDependencyPaths + @("file:Mods/7vs1/AlengerCommon.SC2Mod")
 if ($selectedCommanderUnitsMod) {
     $runtimeDeps += "file:Mods/7vs1/$selectedCommanderUnitsMod.SC2Mod"
 }

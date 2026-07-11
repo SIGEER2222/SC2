@@ -7,6 +7,7 @@
 // and wraps victory/defeat to avoid calling restricted campaign natives.
 
 include "TriggerLibs/NativeLib"
+include "LibE0EAE146_h"
 
 // ============================================================
 // State
@@ -105,32 +106,42 @@ void libRebornAdapter_OnAfterTechnologyInit () {
 }
 
 // Called after Init02Players completes.
-// 从 CampaignXCore Bank 读取实际选中的指挥官 ID 并注册 player 1
+// 从 CampaignXCore Bank 读取实际选中的指挥官 ID，写回 PrimaryCommander 并注册 player 1。
+// 必须写回 Bank，因为 CoreRuntime 的 RuntimePrimaryCommander 只读 PrimaryCommander/Ach/Commander，
+// 不读 CommanderP1。
 void libRebornAdapter_OnAfterPlayersInit () {
     string lv_commander;
+    bank lv_bank;
+
     lv_commander = libRebornAdapter_ReadCommanderFromBank(1);
     libRebornAdapter_RegisterCommanderSlot(1, lv_commander);
     PlayerGroupAdd(libRebornAdapter_commanderPlayers, 1);
+
+    // 写回 PrimaryCommander 和 Ach/Commander，让 CoreRuntime 的 RuntimePrimaryCommander 能读到
+    lv_bank = BankLoad("CampaignXCore", 1);
+    if (lv_bank != null) {
+        BankValueSetFromString(lv_bank, "XMRuntimeControl", "PrimaryCommander", lv_commander);
+        BankValueSetFromString(lv_bank, "Ach", "Commander", lv_commander);
+        BankSave(lv_bank);
+    }
 }
 
 // Called after Init03Units completes.
-// 在 player 1 起点位置创建英雄单位（根据选中指挥官决定类型）
+// 调用 CoreRuntime 的 Initialize + CommanderRuntimeInit，让选中指挥官真正生效。
+// CommanderRuntimeInit 内部会根据 commander ID 分发到对应指挥官的 RuntimeInit，
+// 执行 ApplyTechFilter + 英雄创建 + Talent 应用等。
 void libRebornAdapter_OnAfterUnitsInit () {
     point lv_startPoint;
     string lv_commander;
-    string lv_heroUnit;
 
     lv_startPoint = PlayerStartLocation(1);
     lv_commander = libRebornAdapter_GetCommanderForPlayer(1);
 
-    // 按指挥官映射英雄单位类型
-    lv_heroUnit = "RaynorCommando";
-    if (lv_commander == "TerranRaynor") {
-        lv_heroUnit = "RaynorCommando";
-    }
-    // 其他指挥官的英雄单位映射待补充
+    // 初始化 CoreRuntime（设置 gv_commander、console skin 等）
+    libE0EAE146_gf_Initialize(true);
 
-    libNtve_gf_CreateUnitsAtPoint2(1, lv_heroUnit, c_unitCreateIgnorePlacement, 1, lv_startPoint);
+    // 分发到选中指挥官的 RuntimeInit（执行科技过滤、英雄创建、Talent 应用）
+    libE0EAE146_gf_CommanderRuntimeInit(1, lv_commander, lv_startPoint, true);
 }
 
 // ============================================================
