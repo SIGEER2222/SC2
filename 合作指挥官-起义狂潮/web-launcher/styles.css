@@ -1821,77 +1821,143 @@ input[readonly] {
   }
 }
 
+/* ── Tab bar (top-level page switcher) ── */
 .tab-bar {
   display: flex;
   gap: 4px;
-  padding: 8px 16px;
-  background: #1a1a1a;
-  border-bottom: 1px solid #333;
+  padding: 10px 16px 0;
+  background: linear-gradient(180deg, rgba(24, 33, 39, 0.96), rgba(16, 22, 27, 0.94));
+  border-bottom: 1px solid var(--line);
 }
+
 .tab {
-  padding: 8px 16px;
-  background: #2a2a2a;
-  color: #ccc;
-  border: none;
-  border-radius: 4px 4px 0 0;
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: transparent;
+  color: var(--muted);
   cursor: pointer;
   font-size: 14px;
+  font-weight: 600;
+  transition: color 0.15s, background 0.15s;
 }
+
+.tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .tab.active {
-  background: #3a5a8a;
-  color: #fff;
+  background: var(--panel);
+  color: var(--amber-2);
+  border-color: var(--line);
+  border-bottom: 1px solid var(--panel);
+  margin-bottom: -1px;
 }
+
 .tab-content {
-  padding: 16px;
+  padding: 0;
 }
+
 .tab-content[hidden] {
   display: none;
 }
+
+/* ── Scenario card (Tab B: Mod test maps) ── */
 .scenario-card {
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
   padding: 16px;
   margin-bottom: 12px;
+  box-shadow: var(--shadow);
 }
+
 .scenario-card h3 {
-  margin: 0 0 8px 0;
-  color: #eee;
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 15px;
 }
+
 .scenario-card .meta {
-  color: #888;
+  color: var(--muted);
   font-size: 12px;
   margin-bottom: 12px;
+  line-height: 1.45;
 }
+
 .scenario-card .actions {
   display: flex;
   gap: 8px;
 }
+
+.scenario-card .error {
+  color: var(--red);
+}
+
 .scenario-card button {
-  padding: 6px 12px;
-  background: #3a5a8a;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
+  padding: 8px 16px;
+  background: linear-gradient(180deg, var(--amber-2), var(--amber));
+  color: #20160a;
+  border: 1px solid #f2c36a;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  transition: opacity 0.15s;
 }
+
 .scenario-card button:hover {
-  background: #4a6aaa;
+  opacity: 0.88;
 }
+
+/* ── Test result (Tab B) ── */
 .test-result {
-  background: #1a1a1a;
-  border: 1px solid #555;
-  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
   padding: 16px;
   margin-top: 16px;
+  box-shadow: var(--shadow);
 }
-.test-result.success { border-color: #4a4; }
-.test-result.error { border-color: #a44; }
-.test-result.timeout { border-color: #aa4; }
+
+.test-result h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.test-result.success { border-color: rgba(128, 198, 122, 0.5); }
+.test-result.success h3 { color: var(--green); }
+.test-result.error { border-color: rgba(217, 101, 101, 0.5); }
+.test-result.error h3 { color: var(--red); }
+.test-result.timeout { border-color: rgba(240, 182, 77, 0.5); }
+.test-result.timeout h3 { color: var(--amber-2); }
+
 .test-result pre {
-  background: #0a0a0a;
-  padding: 8px;
-  border-radius: 4px;
+  background: #080c0f;
+  color: #c9d4d9;
+  border: 1px solid var(--line);
+  padding: 10px;
+  border-radius: 5px;
   overflow: auto;
   max-height: 300px;
+  font: 12px/1.5 Consolas, "Cascadia Mono", monospace;
+}
+
+.test-result .steps {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.test-result .steps div {
+  padding: 2px 0;
+}
+
+.test-result h4 {
+  margin: 12px 0 4px;
+  color: var(--amber-2);
+  font-size: 13px;
 }
