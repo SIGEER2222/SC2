@@ -12,11 +12,24 @@
 6. 后台启动 Python 运行时（headless_runner.py）
 7. 启动 SC2
 
+Neuro 连接模式：
+- Mock 模式（默认）：连接 ws://127.0.0.1:8000，需先启动 mock_neuro_server.py
+- Gary 真实模式（-UseGary）：自动启动 gary.exe，连接 ws://127.0.0.1:64998
+- 自定义 URL（-NeuroUrl "ws://host:port"）
+
 .EXAMPLE
   pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\launch-7vs1-neuro.ps1 -Commanders @("TerranRaynor")
 
 .EXAMPLE
   pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\launch-7vs1-neuro.ps1 -Commanders @("TerranRaynor") -MapSource ".\Maps\traynor01_7vs1.SC2Map" -LiveMapName "traynor01_7vs1.SC2Map"
+
+.EXAMPLE
+  # 真实 Neuro-sama 模式：自动启动 Gary
+  pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\launch-7vs1-neuro.ps1 -Commanders @("TerranRaynor") -UseGary
+
+.EXAMPLE
+  # 自定义 Neuro URL
+  pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\launch-7vs1-neuro.ps1 -Commanders @("TerranRaynor") -NeuroUrl "ws://192.168.1.100:8000"
 #>
 [CmdletBinding()]
 param(
@@ -32,7 +45,10 @@ param(
     [string]$PythonPath = "C:\Users\22448\AppData\Local\Programs\Python\Python313\python.exe",
     [string]$NeuroApiRoot = "",
     [string]$NeuroModSource = "",
-    [string]$BridgeModSource = ""
+    [string]$BridgeModSource = "",
+    [string]$NeuroUrl = "",
+    [switch]$UseGary,
+    [string]$GaryPath = "C:\Users\22448\AppData\Local\Gary\gary.exe"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -252,26 +268,55 @@ if (Test-Path -LiteralPath $mapScriptPath) {
 
 # === Step 7: 启动 Python 运行时（可选）===
 $pythonProcessId = $null
+$garyProcessId = $null
 if (-not $SkipPythonRuntime -and -not $NoLaunch) {
     Write-Host "`n--- Step 7: Start Python runtime ---" -ForegroundColor Yellow
 
     $headlessRunner = Join-Path $NeuroApiRoot "headless_runner.py"
     $configureJson = Join-Path $NeuroApiRoot "configure.json"
 
-    if (Test-Path -LiteralPath $headlessRunner) {
-        if (-not (Test-Path -LiteralPath $configureJson)) {
-            # 创建默认配置
-            $config = @{
-                game_path = $Sc2Root
-                banks_path = "C:\Users\22448\Documents\StarCraft II\Banks"
-                neuro_url = "ws://127.0.0.1:8000"
-                verbosity = 1
-            }
-            $configJson = $config | ConvertTo-Json -Depth 3
-            [System.IO.File]::WriteAllText($configureJson, $configJson, $utf8NoBom)
-            Write-Host "  Created configure.json"
+    # === 7a: 解析 NeuroUrl（默认 mock，可切换到真实 Gary）===
+    $effectiveNeuroUrl = $NeuroUrl
+    if ([string]::IsNullOrWhiteSpace($effectiveNeuroUrl)) {
+        if ($UseGary) {
+            $effectiveNeuroUrl = "ws://127.0.0.1:64998"
+            Write-Host "  Mode: Gary (real Neuro-sama)" -ForegroundColor Magenta
+        } else {
+            $effectiveNeuroUrl = "ws://127.0.0.1:8000"
+            Write-Host "  Mode: Mock server (default)" -ForegroundColor DarkGray
         }
+    } else {
+        Write-Host "  Mode: Custom URL = $effectiveNeuroUrl"
+    }
 
+    # === 7b: 如需 Gary，先启动 Gary 进程 ===
+    if ($UseGary) {
+        if (Test-Path -LiteralPath $GaryPath) {
+            Write-Host "  Starting Gary at: $GaryPath"
+            $garyProc = Start-Process -FilePath $GaryPath -PassThru -WindowStyle Normal
+            $garyProcessId = $garyProc.Id
+            Write-Host "  Gary PID: $garyProcessId" -ForegroundColor Green
+            Write-Host "  Waiting 8s for Gary to start WebSocket server..." -ForegroundColor DarkGray
+            Start-Sleep -Seconds 8
+        } else {
+            Write-Host "  WARN: Gary not found at $GaryPath, falling back to mock URL" -ForegroundColor Yellow
+            $effectiveNeuroUrl = "ws://127.0.0.1:8000"
+        }
+    }
+
+    if (Test-Path -LiteralPath $headlessRunner) {
+        # === 7c: 写/更新 configure.json（强制使用当前 $effectiveNeuroUrl）===
+        $config = @{
+            game_path = $Sc2Root
+            banks_path = "C:\Users\22448\Documents\StarCraft II\Banks"
+            neuro_url = $effectiveNeuroUrl
+            verbosity = 1
+        }
+        $configJson = $config | ConvertTo-Json -Depth 3
+        [System.IO.File]::WriteAllText($configureJson, $configJson, $utf8NoBom)
+        Write-Host "  configure.json written (neuro_url=$effectiveNeuroUrl)"
+
+        # === 7d: 启动 Python 运行时 ===
         Write-Host "  Starting headless_runner.py..."
         $pyProc = Start-Process -FilePath $PythonPath `
             -ArgumentList @($headlessRunner) `
@@ -297,6 +342,9 @@ if (-not $NoLaunch) {
 }
 
 Write-Host "`n=== Neuro 7vs1 Integration Complete ===" -ForegroundColor Cyan
+if ($garyProcessId) {
+    Write-Host "Gary PID: $garyProcessId (close manually when done)"
+}
 if ($pythonProcessId) {
     Write-Host "Python runtime PID: $pythonProcessId (close manually when done)"
 }

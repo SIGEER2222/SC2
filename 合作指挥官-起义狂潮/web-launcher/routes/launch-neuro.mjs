@@ -27,6 +27,7 @@ router.post('/neuro-launch', (req, res) => {
   const dryRun = Boolean(request.dryRun);
   const noLaunch = Boolean(request.noLaunch);
   const skipPython = Boolean(request.skipPython);
+  const useGary = Boolean(request.useGary);
 
   if (!commander) {
     return res.status(400).json({ ok: false, error: '缺少 commander 参数' });
@@ -47,6 +48,9 @@ router.post('/neuro-launch', (req, res) => {
   }
   if (skipPython) {
     args.push('-SkipPythonRuntime');
+  }
+  if (useGary) {
+    args.push('-UseGary');
   }
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '-').slice(0, 19);

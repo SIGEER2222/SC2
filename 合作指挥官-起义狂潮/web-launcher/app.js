@@ -3514,6 +3514,7 @@ let neuroState = {
 const neuroEl = {
   dryRunToggle: document.getElementById('neuroDryRunToggle'),
   skipPythonToggle: document.getElementById('neuroSkipPythonToggle'),
+  useGaryToggle: document.getElementById('neuroUseGaryToggle'),
   refreshButton: document.getElementById('neuroRefreshButton'),
   copyOutputButton: document.getElementById('neuroCopyOutputButton'),
   copyLogPathsButton: document.getElementById('neuroCopyLogPathsButton'),
@@ -3524,6 +3525,7 @@ const neuroEl = {
   configIssues: document.getElementById('neuroConfigIssues'),
   summaryMapFile: document.getElementById('neuroSummaryMapFile'),
   summaryPython: document.getElementById('neuroSummaryPython'),
+  summaryGary: document.getElementById('neuroSummaryGary'),
   commanderCount: document.getElementById('neuroCommanderCount'),
   mapCount: document.getElementById('neuroMapCount'),
   bootstrapCommanderCount: document.getElementById('neuroBootstrapCommanderCount'),
@@ -3538,6 +3540,7 @@ function wireNeuroEvents() {
   neuroEl.refreshButton?.addEventListener('click', () => initNeuroTab(true));
   neuroEl.dryRunToggle?.addEventListener('change', updateNeuroSummary);
   neuroEl.skipPythonToggle?.addEventListener('change', updateNeuroSummary);
+  neuroEl.useGaryToggle?.addEventListener('change', updateNeuroSummary);
   neuroEl.copyOutputButton?.addEventListener('click', copyNeuroOutput);
   neuroEl.copyLogPathsButton?.addEventListener('click', copyNeuroLogPaths);
   neuroEl.clearOutputButton?.addEventListener('click', clearNeuroOutput);
@@ -3684,6 +3687,7 @@ function updateNeuroSummary() {
   const summary = document.getElementById('neuroSummary');
   const dryRun = Boolean(neuroEl.dryRunToggle?.checked);
   const skipPython = Boolean(neuroEl.skipPythonToggle?.checked);
+  const useGary = Boolean(neuroEl.useGaryToggle?.checked);
   const map = neuroState.maps?.find(m => m.id === neuroState.selectedMapId);
   const ready = Boolean(neuroState.selectedCommander && neuroState.selectedMapId);
 
@@ -3691,6 +3695,7 @@ function updateNeuroSummary() {
   if (summaryMap) summaryMap.textContent = map ? (map.displayName || map.id) : '-';
   if (neuroEl.summaryMapFile) neuroEl.summaryMapFile.textContent = neuroState.selectedMapFile || '-';
   if (neuroEl.summaryPython) neuroEl.summaryPython.textContent = skipPython ? '跳过' : '启用';
+  if (neuroEl.summaryGary) neuroEl.summaryGary.textContent = useGary ? 'Gary 真实模式' : 'Mock 模式';
   if (summary) {
     summary.textContent = ready ? '就绪' : '未就绪';
     summary.className = ready ? 'badge status-ok' : 'badge';
@@ -3704,9 +3709,10 @@ function updateNeuroSummary() {
       neuroEl.configIssues.textContent = '请选择指挥官与地图';
       neuroEl.configIssues.className = 'config-issues status-warn';
     } else {
+      const modeLabel = useGary ? 'Gary 真实模式（Neuro-sama）' : 'Mock 模式';
       neuroEl.configIssues.textContent = dryRun
-        ? 'DryRun：仅安装 mod 与地图，不启动游戏'
-        : '7vs1 + NeuroIntegration + NeuroBridge7vs1，后台启动 Python 运行时';
+        ? `DryRun：仅安装 mod 与地图，不启动游戏（${modeLabel}）`
+        : `7vs1 + NeuroIntegration + NeuroBridge7vs1，${modeLabel}`;
       neuroEl.configIssues.className = 'config-issues status-ok';
     }
   }
@@ -3728,6 +3734,7 @@ async function launchNeuroGame() {
   const output = document.getElementById('neuroOutput');
   const dryRun = Boolean(neuroEl.dryRunToggle?.checked);
   const skipPython = Boolean(neuroEl.skipPythonToggle?.checked);
+  const useGary = Boolean(neuroEl.useGaryToggle?.checked);
   if (!neuroState.selectedCommander) return;
   if (neuroState.pollTimer) {
     stateLabel.textContent = '已有启动进程运行中';
@@ -3735,7 +3742,8 @@ async function launchNeuroGame() {
   }
   btn.disabled = true;
   stateLabel.textContent = dryRun ? 'DryRun 中...' : '启动中...';
-  output.textContent = `启动指挥官: ${neuroState.selectedCommander}\n地图: ${neuroState.selectedMapFile || '默认'}\n模式: ${dryRun ? 'DryRun' : '启动'}\nPython: ${skipPython ? '跳过' : '启用'}\n`;
+  const modeLabel = useGary ? 'Gary 真实模式' : 'Mock 模式';
+  output.textContent = `启动指挥官: ${neuroState.selectedCommander}\n地图: ${neuroState.selectedMapFile || '默认'}\n模式: ${dryRun ? 'DryRun' : '启动'}\nPython: ${skipPython ? '跳过' : '启用'}\nNeuro: ${modeLabel}\n`;
   if (neuroEl.copyOutputButton) neuroEl.copyOutputButton.disabled = false;
   try {
     const result = await apiFetchJson('/api/neuro-launch', {
@@ -3747,6 +3755,7 @@ async function launchNeuroGame() {
         dryRun,
         noLaunch: dryRun,
         skipPython,
+        useGary,
       }),
     });
     setNeuroLogPaths(result.stdout, result.stderr);

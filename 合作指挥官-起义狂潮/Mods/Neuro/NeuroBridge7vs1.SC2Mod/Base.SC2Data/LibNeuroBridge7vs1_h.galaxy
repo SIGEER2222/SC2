@@ -5,15 +5,47 @@ include "LibEFA54406_h"
 // Library: NeuroBridge7vs1
 // 7vs1 合作指挥官与 NeuroIntegration 的桥接层
 // 负责注册 7vs1 专属 action 并在 execute_actions_map 事件中处理
+//
+// Action 清单：
+//   只读查询型：
+//     - get_mutators          查询当前激活的突变因子（含本地化名称和描述）
+//     - get_commander_status  查询指挥官状态（单位数/建筑数/军队数）
+//     - get_production_queue  查询所有建筑的生产队列
+//     - get_active_mutators   查询激活的突变因子列表（含语义化描述，供 Neuro 理解机制）
+//   写入型（Neuro 可主动触发游戏行为）：
+//     - train_unit            指挥生产单位（arg_1=单位类型，如 "Marine"）
+//     - use_ability           指挥使用单位技能（arg_1=技能 ID，arg_2=目标单位类型可选）
+//     - research_upgrade      指挥研究升级（arg_1=升级 ID）
 //--------------------------------------------------------------------------------------------------
 
 // 变量声明
-bool libNeuroBridge7vs1_initialized;
+bool   libNeuroBridge7vs1_initialized;
+bool   libNeuroBridge7vs1_mutatorContextPushed;   // 突变因子 context 是否已推送（防止重复）
 trigger libNeuroBridge7vs1_gt_MapInit;
 trigger libNeuroBridge7vs1_gt_ExecuteActionsMap;
 
 // 函数声明
-void libNeuroBridge7vs1_InitLib();
-void libNeuroBridge7vs1_gf_RegisterActions();
-bool libNeuroBridge7vs1_gt_MapInit_Func(bool testConds, bool runActions);
-bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runActions);
+void   libNeuroBridge7vs1_InitLib();
+void   libNeuroBridge7vs1_gf_RegisterActions();
+bool   libNeuroBridge7vs1_gt_MapInit_Func(bool testConds, bool runActions);
+bool   libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runActions);
+
+// Bank flag 辅助
+bool   libNeuroBridge7vs1_gf_ReadActionFlag(string actionName);
+void   libNeuroBridge7vs1_gf_ClearActionFlag(string actionName);
+string libNeuroBridge7vs1_gf_ReadActionStringArg(string actionName, string argName);
+
+// 只读查询型 action 实现
+string libNeuroBridge7vs1_gf_GetMutators();
+string libNeuroBridge7vs1_gf_GetCommanderStatus();
+string libNeuroBridge7vs1_gf_GetProductionQueue();
+string libNeuroBridge7vs1_gf_GetActiveMutators();
+
+// 写入型 action 实现
+string libNeuroBridge7vs1_gf_TrainUnit(string unitType);
+string libNeuroBridge7vs1_gf_UseAbility(string abilityId, string targetUnitType);
+string libNeuroBridge7vs1_gf_ResearchUpgrade(string upgradeId);
+
+// 突变因子语义对齐
+void   libNeuroBridge7vs1_gf_PushMutatorContext();
+string libNeuroBridge7vs1_gf_GetMutatorSemanticDescription(string mutatorId);
