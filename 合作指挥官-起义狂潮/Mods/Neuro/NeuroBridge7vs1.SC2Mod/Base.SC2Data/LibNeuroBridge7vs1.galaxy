@@ -10,7 +10,42 @@ void libNeuroBridge7vs1_InitLib() {
     }
     libNeuroBridge7vs1_gt_MapInit = TriggerCreate("libNeuroBridge7vs1_gt_MapInit_Func");
     TriggerAddEventMapInit(libNeuroBridge7vs1_gt_MapInit);
+
+    // Phase D: 任务结束钩子（使用独立触发器，参考 zexpedition03_reborn_port 地图模式）
+    libNeuroBridge7vs1_gt_MissionVictory = TriggerCreate("libNeuroBridge7vs1_gt_MissionVictory_Func");
+    TriggerAddEventPlayerLeft(libNeuroBridge7vs1_gt_MissionVictory, 1, c_gameResultVictory);
+    libNeuroBridge7vs1_gt_MissionDefeat = TriggerCreate("libNeuroBridge7vs1_gt_MissionDefeat_Func");
+    TriggerAddEventPlayerLeft(libNeuroBridge7vs1_gt_MissionDefeat, 1, c_gameResultDefeat);
+
     libNeuroBridge7vs1_initialized = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Phase D: 任务胜利钩子
+//--------------------------------------------------------------------------------------------------
+bool libNeuroBridge7vs1_gt_MissionVictory_Func(bool testConds, bool runActions) {
+    if (testConds) {
+        return true;
+    }
+    if (!runActions) {
+        return true;
+    }
+    libNeuroBridge7vs1_gf_OnMissionVictory("current_map", 0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Phase D: 任务失败钩子
+//--------------------------------------------------------------------------------------------------
+bool libNeuroBridge7vs1_gt_MissionDefeat_Func(bool testConds, bool runActions) {
+    if (testConds) {
+        return true;
+    }
+    if (!runActions) {
+        return true;
+    }
+    libNeuroBridge7vs1_gf_OnMissionDefeat("current_map");
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -656,10 +691,12 @@ void libNeuroBridge7vs1_gf_SaveMissionSummary(string mapId, string summary) {
 }
 
 string libNeuroBridge7vs1_gf_GetLastMissionSummary() {
+    string lv_lastMap = "";
+
     if (!libNeuroBridge7vs1_gf_LoadPermanentBank()) {
         return "";
     }
-    string lv_lastMap = BankValueGetAsString(libNeuroBridge7vs1_gv_permanentBank, "mission_summaries", "last_mission");
+    lv_lastMap = BankValueGetAsString(libNeuroBridge7vs1_gv_permanentBank, "mission_summaries", "last_mission");
     if (lv_lastMap == "") {
         return "";
     }
