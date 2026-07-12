@@ -520,16 +520,35 @@ if ($EnableRuntimeProbe) {
         Write-Host "  MapScript.galaxy saved"
     }
 
-    # RP-3. Patch BankList.xml 追加 RuntimeProbe Bank 声明
+    # RP-3. Patch BankList.xml 追加 RuntimeProbe 和 CampaignXCore Bank 声明
+    # CampaignXCore 声明是必须的：RebornMapAdapter.OnAfterPlayersInit 调用 BankLoad("CampaignXCore", 1)
+    # 如果 BankList 没有声明，游戏运行时 BankLoad 会创建空 Bank，BankSave 覆盖磁盘文件，
+    # 导致启动器设置的 TestRunId/CommanderP1 等字段丢失，RaynorTrainProbe 无法触发。
     Write-Host "`n--- RuntimeProbe Step 3: Patch BankList.xml ---" -ForegroundColor Yellow
     if (Test-Path -LiteralPath $bankListPath) {
         $bankListContent = [System.IO.File]::ReadAllText($bankListPath)
+        $bankListModified = $false
+
+        # 添加 CampaignXCore 声明（如果缺失）
+        if ($bankListContent -notmatch 'Name="CampaignXCore"') {
+            $bankListContent = $bankListContent -replace '</BankList>', '    <Bank Name="CampaignXCore" Player="1"/>`r`n</BankList>'
+            $bankListModified = $true
+            Write-Host "  Added CampaignXCore Bank declaration"
+        } else {
+            Write-Host "  CampaignXCore Bank already declared"
+        }
+
+        # 添加 RuntimeProbe 声明（如果缺失）
         if ($bankListContent -notmatch 'Name="RuntimeProbe"') {
             $bankListContent = $bankListContent -replace '</BankList>', '    <Bank Name="RuntimeProbe" Player="1"/>`r`n</BankList>'
-            [System.IO.File]::WriteAllText($bankListPath, $bankListContent, $utf8NoBom)
+            $bankListModified = $true
             Write-Host "  Added RuntimeProbe Bank declaration"
         } else {
             Write-Host "  RuntimeProbe Bank already declared"
+        }
+
+        if ($bankListModified) {
+            [System.IO.File]::WriteAllText($bankListPath, $bankListContent, $utf8NoBom)
         }
     } else {
         Write-Host "  WARN: BankList.xml not found at $bankListPath" -ForegroundColor Yellow
