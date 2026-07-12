@@ -1,7 +1,7 @@
 # 项目状态页
 
 > 范围：`合作指挥官-起义狂潮`
-> 更新时间：2026-07-11
+> 更新时间：2026-07-12
 > 状态来源：本文件只放状态，长设计见 `docs/系统结构与工作流优化设计-2026-07-11.md` 与 `docs/指挥官地图组合框架设计.md`
 
 ## 1. 当前主线目标
@@ -19,7 +19,7 @@
 
 | 组合 | 入口脚本 | 验证状态 | 说明 |
 | --- | --- | --- | --- |
-| `reborn.zexpedition03 × TerranRaynor` | `scripts/reborn/launch-reborn-commander.ps1` | smoke 通过 | 58 galaxy 注入、34 依赖、无 ScriptError、exit code 0 |
+| `reborn.zexpedition03 × TerranRaynor` | `scripts/reborn/launch-reborn-commander.ps1` | smoke 通过 | 35 galaxy 注入、9 依赖、无致命 ScriptError、exit code 0；RebornBridge 空骨架验证通过（Phase 3） |
 | `reborn.zexpedition03 × TerranAlenger3` | `scripts/reborn/launch-reborn-commander.ps1` | smoke 通过 | 24 Alenger mod 全依赖、无 ScriptError |
 | 7vs1 系列地图（traynor01 等） | `scripts/launch-7vs1-coop-test.ps1` | 历史通过 | 旧启动器，硬编码 commander 映射，待迁移 |
 | 光晕测试地图 | 已移除（工作区已删除） | n/a | 实验：残影效果数据空间集成 |
@@ -71,6 +71,7 @@
 
 ## 7. 最近一次验证报告路径
 
+- **Phase 3 RebornBridge 骨架验证**：`docs/reborn-port/phase-3-report.md`（2026-07-12，空骨架 smoke 通过）
 - smoke 报告：`docs/经验总结/2026-07-11_Reborn地图ScriptError修复.md`
 - 工程化总结：`docs/经验总结/reborn启动器工程化总结-2026-07-11.md`
 - 数据空间迁移：fix_003 分支 commit `69dcdb6`（55 mods 通过 lint）
