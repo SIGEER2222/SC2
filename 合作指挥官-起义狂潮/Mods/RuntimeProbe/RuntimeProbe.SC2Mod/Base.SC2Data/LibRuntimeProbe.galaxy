@@ -547,8 +547,8 @@ void libRuntimeProbe_gf_ScanTechAvailability() {
 // 注意: 只能使用 DialogControlHookupStandard（标准路径，只读），不能用 DialogControlHookup
 //       DialogControlHookup 会修改控件关联状态，导致 "已经被关联...无法再次被关联" 错误
 // 写入 probe_ui section:
-//   gp_holder_id, gp_holder_exists (GlobalCastingPanel holder)
-//   army_btn_id, army_btn_exists (ArmySelectButton, gf_ShowChooseButton 中 hookup)
+//   gp_holder_id, gp_holder_exists, gp_holder_visible (GlobalCastingPanel holder)
+//   army_btn_id, army_btn_exists, army_btn_visible (ArmySelectButton)
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_ScanUI() {
     int lv_holder;
@@ -565,6 +565,10 @@ void libRuntimeProbe_gf_ScanUI() {
     lv_holder = DialogControlLastCreated();
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_id", lv_holder);
     BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_exists", (lv_holder != c_invalidDialogControlId));
+    // 可见性检查: GPShowHide(true) 后 holder 应可见
+    if (lv_holder != c_invalidDialogControlId) {
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_visible", DialogControlIsVisible(lv_holder, 1));
+    }
 
     // 2. ArmySelectButton (Lib67C0F0E7 行 1490 中 gf_ShowChooseButton hookup)
     //    如果此按钮存在，说明 gf_ShowChooseButton 已执行，即 GPInit 流程已完成
@@ -572,6 +576,9 @@ void libRuntimeProbe_gf_ScanUI() {
     lv_btn = DialogControlLastCreated();
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "army_btn_id", lv_btn);
     BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "army_btn_exists", (lv_btn != c_invalidDialogControlId));
+    if (lv_btn != c_invalidDialogControlId) {
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "army_btn_visible", DialogControlIsVisible(lv_btn, 1));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
