@@ -223,6 +223,51 @@ function Get-SplitCatalogModDependencies {
     return $arr
 }
 
+function Get-AlengerModsForCommanders {
+    param([string[]]$Commanders = @())
+
+    # 读取 alenger-mods.json 配置，按需返回 Alenger mod 依赖路径。
+    $alengerModsPath = Join-Path (Get-WorkspaceRoot) "Shared\Launcher\alenger-mods.json"
+    if (-not (Test-Path -LiteralPath $alengerModsPath)) {
+        return @()
+    }
+
+    $alengerConfig = Get-Content -LiteralPath $alengerModsPath -Raw | ConvertFrom-Json
+    $commanderToAlenger = $alengerConfig.commanderToAlenger
+
+    # 未指定指挥官时返回全量依赖（向后兼容）
+    if ($Commanders.Count -eq 0) {
+        return @($alengerConfig.dependencyPaths)
+    }
+
+    $result = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($cmdr in $Commanders) {
+        # 规范化指挥官 ID：去掉种族前缀（Terran/Zerg/Protoss）
+        $alengerBase = $null
+        if ($cmdr -like 'Alenger*') {
+            $alengerBase = $cmdr
+        } else {
+            foreach ($pfx in @('Terran','Zerg','Protoss')) {
+                if ($cmdr -like "$pfx`Alenger*") {
+                    $alengerBase = $cmdr.Substring($pfx.Length)
+                    break
+                }
+            }
+        }
+
+        if ($alengerBase -and $commanderToAlenger.PSObject.Properties.Name -contains $alengerBase) {
+            foreach ($modName in $commanderToAlenger.$alengerBase) {
+                $dep = "file:Mods/7vs1/$modName.SC2Mod"
+                if (-not $result.Contains($dep)) {
+                    $result.Add($dep)
+                }
+            }
+        }
+    }
+
+    return $result.ToArray()
+}
+
 function Resolve-WorkspacePath {
     param([string]$Path)
 
@@ -1272,30 +1317,10 @@ $mapDependencies = Normalize-MapRuntimeDependencies -Dependencies $mapDependenci
 if ($LiveMapName -ne "emptytest.SC2Map") {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CoreRuntime.SC2Mod"
 }
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger3Adapter.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/AlengerCommon.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger1.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger1Adapter.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger6.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger6Adapter.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger8.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger8Runtime.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger8Adapter.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger9.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger9Adapter.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger12.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger12Adapter.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger13.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger13Adapter.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger2.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger2Adapter.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger7.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger7Adapter.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger10.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger10Adapter.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger11.SC2Mod"
-$mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/Alenger11Adapter.SC2Mod"
+# 按需加载：只添加选中指挥官对应的 Alenger mod（读取 alenger-mods.json 配置）
+foreach ($alengerDep in (Get-AlengerModsForCommanders -Commanders $effectiveCommanders)) {
+    $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency $alengerDep
+}
 # 按需加载：只添加选中指挥官对应的 CommanderUnits mod
 foreach ($catalogDep in (Get-SplitCatalogModDependencies -Commanders $effectiveCommanders)) {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency $catalogDep
