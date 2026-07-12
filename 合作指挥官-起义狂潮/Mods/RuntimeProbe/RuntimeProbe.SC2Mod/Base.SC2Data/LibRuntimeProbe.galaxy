@@ -64,6 +64,21 @@ void libRuntimeProbe_gf_WriteState() {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Clear all keys in a Bank section before writing fresh scan data.
+// Prevents stale entries (e.g. removed units) from polluting the Bank.
+// Uses BankSectionRemove for atomic deletion (逐个 BankKeyRemove 会导致触发器错误).
+//--------------------------------------------------------------------------------------------------
+void libRuntimeProbe_gf_ClearBankSection(string lp_section) {
+    if (libRuntimeProbe_gv_bank == null) {
+        return;
+    }
+    if (!BankSectionExists(libRuntimeProbe_gv_bank, lp_section)) {
+        return;
+    }
+    BankSectionRemove(libRuntimeProbe_gv_bank, lp_section);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Scan all units for player 1, aggregate by type, write probe_units
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_ScanUnits() {
@@ -85,7 +100,11 @@ void libRuntimeProbe_gf_ScanUnits() {
 
     libRuntimeProbe_gv_scanId = libRuntimeProbe_gv_scanId + 1;
 
-    lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+    // Clear stale entries so removed units do not linger in the Bank.
+    libRuntimeProbe_gf_ClearBankSection("probe_units");
+
+    lv_all = UnitGroup(null, 1, RegionEntireMap(),
+        UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     lv_total = UnitGroupCount(lv_all, c_unitCountAll);
     lv_unique = 0;
 
@@ -162,6 +181,9 @@ void libRuntimeProbe_gf_ScanUpgrades() {
     string lv_key;
     string lv_val;
 
+    // Clear stale entries so removed upgrades do not linger in the Bank.
+    libRuntimeProbe_gf_ClearBankSection("probe_upgrades");
+
     lv_count = CatalogEntryCount(c_gameCatalogUpgrade);
     lv_i = 1;
     while (lv_i <= lv_count) {
@@ -236,7 +258,8 @@ void libRuntimeProbe_gf_ScanReplacement () {
 
     // 统计 Player 1 各种族单位
     // 注意：SC2 CatalogFieldValueGet 返回的 Race 值为 "Terr"/"Zerg"/"Prot"，不是 "Terran"/"Zerg"/"Protoss"
-    lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+    lv_all = UnitGroup(null, 1, RegionEntireMap(),
+        UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     lv_total = UnitGroupCount(lv_all, c_unitCountAll);
     lv_zergCount = 0;
     lv_terranCount = 0;
@@ -295,6 +318,7 @@ void libRuntimeProbe_gf_ScanReplacement () {
 
 //--------------------------------------------------------------------------------------------------
 // Scan production structures: enumerate by type, write probe_producers
+// 对每个建筑类型，检查关键生产能力的 UnitOrderIsValid 状态
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_ScanProducers() {
     unitgroup lv_structures;
@@ -304,13 +328,22 @@ void libRuntimeProbe_gf_ScanProducers() {
     int lv_idx;
     bool lv_found;
     unit lv_u;
+    unit lv_sample;
     string lv_type;
     string lv_key;
     string lv_val;
+    string lv_trainable;
     int lv_j;
+    int lv_k;
+    string lv_abil;
+    int lv_cmdIdx;
+    order lv_order;
+
+    // Clear stale entries so removed producers do not linger in the Bank.
+    libRuntimeProbe_gf_ClearBankSection("probe_producers");
 
     lv_structures = UnitGroup(null, 1, RegionEntireMap(),
-        UnitFilter((1 << c_targetFilterStructure), 0, (1 << 0), (1 << 1)), 0);
+        UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     lv_total = UnitGroupCount(lv_structures, c_unitCountAll);
     lv_unique = 0;
 
@@ -342,10 +375,170 @@ void libRuntimeProbe_gf_ScanProducers() {
     lv_j = 1;
     while (lv_j <= lv_unique) {
         lv_key = "p_1_" + libRuntimeProbe_gv_producerTypes[lv_j];
+        lv_trainable = "";
+
+        // 取该类型的第一个实例作为样本，检测生产能力
+        lv_sample = null;
+        lv_i = 1;
+        while (lv_i <= lv_total) {
+            lv_u = UnitGroupUnit(lv_structures, lv_i);
+            if (UnitGetType(lv_u) == libRuntimeProbe_gv_producerTypes[lv_j]) {
+                lv_sample = lv_u;
+                break;
+            }
+            lv_i = lv_i + 1;
+        }
+
+        if (lv_sample != null) {
+            // 根据建筑类型检测关键生产能力
+            // 注意：AbilityCommand 的 index 对应 InfoArray 的 Train1=0, Train2=1, ...
+            // BarracksRaynor: BarracksTrainRaynor (Train1=Marine, Train4=Marauder, Train5=Medic, Train6=Firebat)
+            if (libRuntimeProbe_gv_producerTypes[lv_j] == "BarracksRaynor") {
+                lv_abil = "BarracksTrainRaynor";
+                lv_k = 0;
+                while (lv_k <= 7) {
+                    lv_order = Order(AbilityCommand(lv_abil, lv_k));
+                    if (UnitOrderIsValid(lv_sample, lv_order)) {
+                        if (lv_trainable != "") { lv_trainable = lv_trainable + "|"; }
+                        lv_trainable = lv_trainable + lv_abil + ":" + IntToString(lv_k);
+                    }
+                    lv_k = lv_k + 1;
+                }
+            }
+            // OrbitalCommandRaynor / CommandCenterRaynor: CommandCenterTrainRaynor (Train1=SCV)
+            else if ((libRuntimeProbe_gv_producerTypes[lv_j] == "OrbitalCommandRaynor") ||
+                     (libRuntimeProbe_gv_producerTypes[lv_j] == "CommandCenterRaynor")) {
+                lv_abil = "CommandCenterTrainRaynor";
+                lv_k = 0;
+                while (lv_k <= 3) {
+                    lv_order = Order(AbilityCommand(lv_abil, lv_k));
+                    if (UnitOrderIsValid(lv_sample, lv_order)) {
+                        if (lv_trainable != "") { lv_trainable = lv_trainable + "|"; }
+                        lv_trainable = lv_trainable + lv_abil + ":" + IntToString(lv_k);
+                    }
+                    lv_k = lv_k + 1;
+                }
+                // 也检查原版 CommandCenterTrain
+                lv_abil = "CommandCenterTrain";
+                lv_k = 0;
+                while (lv_k <= 3) {
+                    lv_order = Order(AbilityCommand(lv_abil, lv_k));
+                    if (UnitOrderIsValid(lv_sample, lv_order)) {
+                        if (lv_trainable != "") { lv_trainable = lv_trainable + "|"; }
+                        lv_trainable = lv_trainable + lv_abil + ":" + IntToString(lv_k);
+                    }
+                    lv_k = lv_k + 1;
+                }
+            }
+            // BarracksRaynorX: 检测 BarracksTrainRaynorX (RaynorX 版本生产能力)
+            else if (libRuntimeProbe_gv_producerTypes[lv_j] == "BarracksRaynorX") {
+                lv_abil = "BarracksTrainRaynorX";
+                lv_k = 0;
+                while (lv_k <= 7) {
+                    lv_order = Order(AbilityCommand(lv_abil, lv_k));
+                    if (UnitOrderIsValid(lv_sample, lv_order)) {
+                        if (lv_trainable != "") { lv_trainable = lv_trainable + "|"; }
+                        lv_trainable = lv_trainable + lv_abil + ":" + IntToString(lv_k);
+                    }
+                    lv_k = lv_k + 1;
+                }
+            }
+            // Barracks (原版，已被 TechFilter 屏蔽原版单位，trainable 预期为空)
+            else if (libRuntimeProbe_gv_producerTypes[lv_j] == "Barracks") {
+                lv_abil = "BarracksTrain";
+                lv_k = 0;
+                while (lv_k <= 7) {
+                    lv_order = Order(AbilityCommand(lv_abil, lv_k));
+                    if (UnitOrderIsValid(lv_sample, lv_order)) {
+                        if (lv_trainable != "") { lv_trainable = lv_trainable + "|"; }
+                        lv_trainable = lv_trainable + lv_abil + ":" + IntToString(lv_k);
+                    }
+                    lv_k = lv_k + 1;
+                }
+            }
+        }
+
         lv_val = "producer_count:" + IntToString(libRuntimeProbe_gv_producerCounts[lv_j]) +
-            ",trainable:,blocked:,queue:,last_order:None";
+            ",trainable:" + lv_trainable +
+            ",blocked:,queue:,last_order:None";
         BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_producers", lv_key, lv_val);
         lv_j = lv_j + 1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// Scan tech availability: check if key Raynor abilities are allowed
+// Uses TechTreeAbilityIsAllowed to check build/train/research abilities
+//--------------------------------------------------------------------------------------------------
+void libRuntimeProbe_gf_ScanTechAvailability() {
+    int lv_i;
+    int lv_allowed;
+    int lv_count;
+    string lv_key;
+    string lv_abil;
+    int lv_cmdIdx;
+    string[32] lv_abilNames;
+    int[32] lv_abilMaxCmd;
+    string[32] lv_upgrades;
+
+    // Clear stale entries
+    libRuntimeProbe_gf_ClearBankSection("probe_tech");
+
+    // Check key build/train/research abilities via TechTreeAbilityIsAllowed
+    // Each entry: ability name + max cmd index to check
+    lv_abilNames[1] = "TerranBuildRaynor";          lv_abilMaxCmd[1] = 16;
+    lv_abilNames[2] = "BarracksTrainRaynor";         lv_abilMaxCmd[2] = 5;
+    lv_abilNames[3] = "BarracksTrainRaynorX";        lv_abilMaxCmd[3] = 6;
+    lv_abilNames[4] = "FactoryTrainRaynor";          lv_abilMaxCmd[4] = 9;
+    lv_abilNames[5] = "StarportTrainRaynor";         lv_abilMaxCmd[5] = 4;
+    lv_abilNames[6] = "EngineeringBayResearchRaynor"; lv_abilMaxCmd[6] = 21;
+    lv_abilNames[7] = "ArmoryResearchRaynor";        lv_abilMaxCmd[7] = 9;
+    lv_abilNames[8] = "BarracksTechLabResearchRaynor"; lv_abilMaxCmd[8] = 15;
+    lv_abilNames[9] = "FactoryTechLabResearchRaynor"; lv_abilMaxCmd[9] = 15;
+    lv_abilNames[10] = "StarportTechLabResearchRaynor"; lv_abilMaxCmd[10] = 18;
+    lv_abilNames[11] = "CommandCenterTrainRaynor";   lv_abilMaxCmd[11] = 0;
+    lv_abilNames[12] = "UpgradeToOrbitalRaynor";     lv_abilMaxCmd[12] = 0;
+    lv_abilNames[13] = "BarracksAddOnsRaynor";       lv_abilMaxCmd[13] = 3;
+    lv_abilNames[14] = "FactoryAddOnsRaynor";        lv_abilMaxCmd[14] = 3;
+    lv_abilNames[15] = "StarportAddOnsRaynor";       lv_abilMaxCmd[15] = 3;
+
+    lv_i = 1;
+    while (lv_i <= 15) {
+        lv_abil = lv_abilNames[lv_i];
+        if (lv_abil != "" && CatalogEntryIsValid(c_gameCatalogAbil, lv_abil)) {
+            lv_cmdIdx = 0;
+            while (lv_cmdIdx <= lv_abilMaxCmd[lv_i]) {
+                if (TechTreeAbilityIsAllowed(1, AbilityCommand(lv_abil, lv_cmdIdx))) {
+                    lv_key = "a_" + lv_abil + "_" + IntToString(lv_cmdIdx);
+                    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_tech", lv_key, 1);
+                }
+                lv_cmdIdx = lv_cmdIdx + 1;
+            }
+        }
+        lv_i = lv_i + 1;
+    }
+
+    // Check key upgrade availability (researched count)
+    lv_upgrades[1] = "Stimpack";
+    lv_upgrades[2] = "ShieldWall";
+    lv_upgrades[3] = "TerranInfantryWeaponsLevel1";
+    lv_upgrades[4] = "TerranInfantryArmorsLevel1";
+    lv_upgrades[5] = "TerranVehicleAndShipWeaponsLevel1";
+    lv_upgrades[6] = "TerranVehicleAndShipPlatingLevel1";
+    lv_upgrades[7] = "HiSecAutoTracking";
+    lv_upgrades[8] = "NeosteelFrame";
+    lv_upgrades[9] = "BuildingArmor";
+    lv_upgrades[10] = "RaynorCommanderStimUpgrade";
+    lv_upgrades[11] = "RaynorFirebatMedicRange";
+    lv_upgrades[12] = "RaynorUnlockBattlecruiser";
+
+    lv_i = 1;
+    while (lv_i <= 12) {
+        if (lv_upgrades[lv_i] != "" && CatalogEntryIsValid(c_gameCatalogUpgrade, lv_upgrades[lv_i])) {
+            lv_count = TechTreeUpgradeCount(1, lv_upgrades[lv_i], c_techCountCompleteOnly);
+            BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_tech", "up_" + lv_upgrades[lv_i], lv_count);
+        }
+        lv_i = lv_i + 1;
     }
 }
 
@@ -373,6 +566,7 @@ bool libRuntimeProbe_gt_Loop_Func(bool testConds, bool runActions) {
             libRuntimeProbe_gf_ScanUpgrades();
             libRuntimeProbe_gf_ScanProducers();
             libRuntimeProbe_gf_ScanReplacement();
+            libRuntimeProbe_gf_ScanTechAvailability();
             BankSave(libRuntimeProbe_gv_bank);
         }
         Wait(3.0, c_timeReal);
@@ -416,6 +610,7 @@ void libRuntimeProbe_gf_StartProbe() {
         libRuntimeProbe_gf_ScanUpgrades();
         libRuntimeProbe_gf_ScanProducers();
         libRuntimeProbe_gf_ScanReplacement();
+        libRuntimeProbe_gf_ScanTechAvailability();
         BankSave(libRuntimeProbe_gv_bank);
     }
 
