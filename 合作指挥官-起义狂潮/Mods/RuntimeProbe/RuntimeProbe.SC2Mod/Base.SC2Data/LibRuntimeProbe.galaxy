@@ -290,23 +290,26 @@ bool libRuntimeProbe_gt_MapInit_Func(bool testConds, bool runActions) {
 }
 
 //--------------------------------------------------------------------------------------------------
-// StartProbe: register the periodic tick and perform an immediate state write.
+// StartProbe: perform a single scan and write state to Bank, then return.
 // Called from gt_Initialization_Func (injected by launch-runtime-probe.ps1) after
-// the game is fully initialized. This is the correct time to register periodic
-// events — registering in InitLib() is too early (trigger system may not be ready).
+// the game is fully initialized.
+//
+// 单次扫描模式：不注册周期性 tick，只在初始化时扫描一次。
+// 游戏内开销几乎为零（只在初始化时执行一次 UnitGroup/Upgrade 枚举）。
+// 如需持续观测，可在此处取消注释 TriggerAddEventTimePeriodic 行。
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_StartProbe() {
     if (!libRuntimeProbe_initialized) {
         libRuntimeProbe_InitLib();
     }
 
-    // Register the periodic tick now that the game is fully initialized.
-    TriggerAddEventTimePeriodic(libRuntimeProbe_gt_Tick, 1.0, c_timeGame);
+    // 单次扫描模式：不注册周期性 tick
+    // TriggerAddEventTimePeriodic(libRuntimeProbe_gt_Tick, 1.0, c_timeGame);
 
     // Immediate state write so the Bank has fresh data right away.
     if (libRuntimeProbe_gf_TryLoadBank()) {
         BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "run_id", "startprobe");
-        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "probe_started");
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "single_scan");
         libRuntimeProbe_gf_WriteState();
         libRuntimeProbe_gf_ScanUnits();
         libRuntimeProbe_gf_ScanUpgrades();
