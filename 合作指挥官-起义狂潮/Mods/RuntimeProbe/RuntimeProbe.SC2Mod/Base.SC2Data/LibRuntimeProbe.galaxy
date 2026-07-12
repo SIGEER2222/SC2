@@ -1,0 +1,271 @@
+include "TriggerLibs/natives"
+include "LibRuntimeProbe_h"
+
+//--------------------------------------------------------------------------------------------------
+// RuntimeProbe Phase 1+2 Implementation
+// Writes runtime diagnostics to RuntimeProbe.SC2Bank for external Python probe runner.
+// All Bank keys/values use ASCII to avoid Galaxy encoding issues.
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Write probe_state: heartbeat, game time, resources, supply
+//--------------------------------------------------------------------------------------------------
+void libRuntimeProbe_gf_WriteState() {
+    int lv_player = 1;
+
+    libRuntimeProbe_gv_heartbeat = libRuntimeProbe_gv_heartbeat + 1;
+    if (libRuntimeProbe_gv_heartbeat > 999999) {
+        libRuntimeProbe_gv_heartbeat = 1;
+    }
+
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "heartbeat", libRuntimeProbe_gv_heartbeat);
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "game_time", FixedToInt(GameGetMissionTime()));
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "game_loop", FixedToInt(GameGetMissionTime() * 16.0));
+    BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "in_mission");
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_state", "is_in_mission", true);
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_state", "is_paused", false);
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "player_id", lv_player);
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "minerals", PlayerGetPropertyInt(lv_player, c_playerPropMinerals));
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "gas", PlayerGetPropertyInt(lv_player, c_playerPropVespene));
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "supply_used", PlayerGetPropertyInt(lv_player, c_playerPropSuppliesUsed));
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "supply_cap", PlayerGetPropertyInt(lv_player, c_playerPropSuppliesMade));
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "script_error_count", 0);
+
+    BankSave(libRuntimeProbe_gv_bank);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Scan all units for player 1, aggregate by type, write probe_units
+//--------------------------------------------------------------------------------------------------
+void libRuntimeProbe_gf_ScanUnits() {
+    unitgroup lv_all;
+    int lv_total;
+    int lv_unique;
+    int lv_i;
+    int lv_idx;
+    bool lv_found;
+    unit lv_u;
+    string lv_type;
+    fixed lv_life;
+    fixed lv_energy;
+    string lv_key;
+    string lv_val;
+    int lv_avgLife;
+    int lv_avgEnergy;
+    int lv_j;
+
+    libRuntimeProbe_gv_scanId = libRuntimeProbe_gv_scanId + 1;
+
+    lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+    lv_total = UnitGroupCount(lv_all, c_unitCountAll);
+    lv_unique = 0;
+
+    lv_i = 1;
+    while (lv_i <= lv_total) {
+        lv_u = UnitGroupUnit(lv_all, lv_i);
+        lv_type = UnitGetType(lv_u);
+        lv_life = UnitGetPropertyFixed(lv_u, c_unitPropLife, c_unitPropCurrent);
+        lv_energy = UnitGetPropertyFixed(lv_u, c_unitPropEnergy, c_unitPropCurrent);
+
+        lv_idx = 1;
+        lv_found = false;
+        while (lv_idx <= lv_unique) {
+            if (libRuntimeProbe_gv_unitTypes[lv_idx] == lv_type) {
+                libRuntimeProbe_gv_unitCounts[lv_idx] = libRuntimeProbe_gv_unitCounts[lv_idx] + 1;
+                libRuntimeProbe_gv_unitLifeSum[lv_idx] = libRuntimeProbe_gv_unitLifeSum[lv_idx] + FixedToInt(lv_life);
+                libRuntimeProbe_gv_unitEnergySum[lv_idx] = libRuntimeProbe_gv_unitEnergySum[lv_idx] + FixedToInt(lv_energy);
+                lv_found = true;
+                break;
+            }
+            lv_idx = lv_idx + 1;
+        }
+        if (!lv_found) {
+            if (lv_unique < 255) {
+                lv_unique = lv_unique + 1;
+                libRuntimeProbe_gv_unitTypes[lv_unique] = lv_type;
+                libRuntimeProbe_gv_unitCounts[lv_unique] = 1;
+                libRuntimeProbe_gv_unitLifeSum[lv_unique] = FixedToInt(lv_life);
+                libRuntimeProbe_gv_unitEnergySum[lv_unique] = FixedToInt(lv_energy);
+            }
+        }
+        lv_i = lv_i + 1;
+    }
+
+    lv_j = 1;
+    while (lv_j <= lv_unique) {
+        lv_key = "u_1_" + libRuntimeProbe_gv_unitTypes[lv_j];
+        lv_avgLife = 0;
+        lv_avgEnergy = 0;
+        if (libRuntimeProbe_gv_unitCounts[lv_j] > 0) {
+            lv_avgLife = libRuntimeProbe_gv_unitLifeSum[lv_j] / libRuntimeProbe_gv_unitCounts[lv_j];
+            lv_avgEnergy = libRuntimeProbe_gv_unitEnergySum[lv_j] / libRuntimeProbe_gv_unitCounts[lv_j];
+        }
+        lv_val = "count:" + IntToString(libRuntimeProbe_gv_unitCounts[lv_j]) +
+            ",completed:" + IntToString(libRuntimeProbe_gv_unitCounts[lv_j]) +
+            ",in_progress:0" +
+            ",life_avg:" + IntToString(lv_avgLife) + ".0" +
+            ",energy_avg:" + IntToString(lv_avgEnergy) + ".0" +
+            ",owner:1,is_structure:0,is_worker:0" +
+            ",scan_id:" + IntToString(libRuntimeProbe_gv_scanId);
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_units", lv_key, lv_val);
+        lv_j = lv_j + 1;
+    }
+
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "unit_scan_id", libRuntimeProbe_gv_scanId);
+    BankSave(libRuntimeProbe_gv_bank);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Scan upgrades: iterate upgrade catalog, write researched upgrades
+//--------------------------------------------------------------------------------------------------
+void libRuntimeProbe_gf_ScanUpgrades() {
+    int lv_count;
+    int lv_i;
+    string lv_upgradeId;
+    int lv_resCount;
+    string lv_key;
+    string lv_val;
+
+    lv_count = CatalogEntryCount(c_gameCatalogUpgrade);
+    lv_i = 1;
+    while (lv_i <= lv_count) {
+        lv_upgradeId = CatalogEntryGet(c_gameCatalogUpgrade, lv_i);
+        if (CatalogEntryIsValid(c_gameCatalogUpgrade, lv_upgradeId)) {
+            lv_resCount = TechTreeUpgradeCount(1, lv_upgradeId, c_techCountCompleteOnly);
+            if (lv_resCount > 0) {
+                lv_key = "up_1_" + lv_upgradeId;
+                lv_val = "upgrade_id:" + lv_upgradeId +
+                    ",researched:1,in_progress:0,available:1,blocked_reason:None";
+                BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_upgrades", lv_key, lv_val);
+            }
+        }
+        lv_i = lv_i + 1;
+    }
+    BankSave(libRuntimeProbe_gv_bank);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Scan production structures: enumerate by type, write probe_producers
+//--------------------------------------------------------------------------------------------------
+void libRuntimeProbe_gf_ScanProducers() {
+    unitgroup lv_structures;
+    int lv_total;
+    int lv_unique;
+    int lv_i;
+    int lv_idx;
+    bool lv_found;
+    unit lv_u;
+    string lv_type;
+    string lv_key;
+    string lv_val;
+    int lv_j;
+
+    lv_structures = UnitGroup(null, 1, RegionEntireMap(),
+        UnitFilter((1 << c_targetFilterStructure), 0, (1 << 0), (1 << 1)), 0);
+    lv_total = UnitGroupCount(lv_structures, c_unitCountAll);
+    lv_unique = 0;
+
+    lv_i = 1;
+    while (lv_i <= lv_total) {
+        lv_u = UnitGroupUnit(lv_structures, lv_i);
+        lv_type = UnitGetType(lv_u);
+
+        lv_idx = 1;
+        lv_found = false;
+        while (lv_idx <= lv_unique) {
+            if (libRuntimeProbe_gv_producerTypes[lv_idx] == lv_type) {
+                libRuntimeProbe_gv_producerCounts[lv_idx] = libRuntimeProbe_gv_producerCounts[lv_idx] + 1;
+                lv_found = true;
+                break;
+            }
+            lv_idx = lv_idx + 1;
+        }
+        if (!lv_found) {
+            if (lv_unique < 127) {
+                lv_unique = lv_unique + 1;
+                libRuntimeProbe_gv_producerTypes[lv_unique] = lv_type;
+                libRuntimeProbe_gv_producerCounts[lv_unique] = 1;
+            }
+        }
+        lv_i = lv_i + 1;
+    }
+
+    lv_j = 1;
+    while (lv_j <= lv_unique) {
+        lv_key = "p_1_" + libRuntimeProbe_gv_producerTypes[lv_j];
+        lv_val = "producer_count:" + IntToString(libRuntimeProbe_gv_producerCounts[lv_j]) +
+            ",trainable:,blocked:,queue:,last_order:None";
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_producers", lv_key, lv_val);
+        lv_j = lv_j + 1;
+    }
+
+    BankSave(libRuntimeProbe_gv_bank);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Periodic tick: heartbeat every 1s, units every 2s, upgrades/producers every 5s
+//--------------------------------------------------------------------------------------------------
+bool libRuntimeProbe_gt_Tick_Func(bool testConds, bool runActions) {
+    if (testConds) {
+        return true;
+    }
+    if (runActions) {
+        if (libRuntimeProbe_gv_bank == null) {
+            return true;
+        }
+        libRuntimeProbe_gf_WriteState();
+
+        libRuntimeProbe_gv_unitScanCounter = libRuntimeProbe_gv_unitScanCounter + 1;
+        if (libRuntimeProbe_gv_unitScanCounter >= 2) {
+            libRuntimeProbe_gv_unitScanCounter = 0;
+            libRuntimeProbe_gf_ScanUnits();
+        }
+
+        libRuntimeProbe_gv_upgradeScanCounter = libRuntimeProbe_gv_upgradeScanCounter + 1;
+        if (libRuntimeProbe_gv_upgradeScanCounter >= 5) {
+            libRuntimeProbe_gv_upgradeScanCounter = 0;
+            libRuntimeProbe_gf_ScanUpgrades();
+        }
+
+        libRuntimeProbe_gv_producerScanCounter = libRuntimeProbe_gv_producerScanCounter + 1;
+        if (libRuntimeProbe_gv_producerScanCounter >= 5) {
+            libRuntimeProbe_gv_producerScanCounter = 0;
+            libRuntimeProbe_gf_ScanProducers();
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+// MapInit: load bank, write initial state, register periodic tick
+//--------------------------------------------------------------------------------------------------
+bool libRuntimeProbe_gt_MapInit_Func(bool testConds, bool runActions) {
+    if (testConds) {
+        return true;
+    }
+    if (runActions) {
+        libRuntimeProbe_gv_bank = BankLoad("RuntimeProbe", 1);
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "run_id", "pending");
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "loading");
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_state", "is_in_mission", false);
+        BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "heartbeat", 1);
+        BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "unit_scan_id", 0);
+        BankSave(libRuntimeProbe_gv_bank);
+
+        TriggerAddEventTimePeriodic(libRuntimeProbe_gt_Tick, 1.0, c_timeGame);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+// InitLib: register MapInit trigger
+//--------------------------------------------------------------------------------------------------
+void libRuntimeProbe_InitLib() {
+    if (libRuntimeProbe_initialized) {
+        return;
+    }
+    libRuntimeProbe_gt_MapInit = TriggerCreate("libRuntimeProbe_gt_MapInit_Func");
+    TriggerAddEventMapInit(libRuntimeProbe_gt_MapInit);
+    libRuntimeProbe_gt_Tick = TriggerCreate("libRuntimeProbe_gt_Tick_Func");
+    libRuntimeProbe_initialized = true;
+}
