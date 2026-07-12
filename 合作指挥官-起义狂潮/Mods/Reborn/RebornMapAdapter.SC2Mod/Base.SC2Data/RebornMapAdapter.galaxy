@@ -111,39 +111,70 @@ bool libRebornAdapter_IsZergCommander (string commander) {
     return false;
 }
 
-// 清理地图预放置的虫族单位（Reborn 战役图改造为 7vs1 时使用）
-// 非虫族指挥官时，移除 Player 1 全部虫族预放置单位，由 InitializeBase 创建正确种族的初始单位
+// 替换地图预放置的虫族单位（Reborn 战役图改造为 7vs1 时使用）
+// 非虫族指挥官时：
+//   - Lair/Hatchery/Hive → 记录原位置，移除 InitializeBase 创建的偏移 CC，在 Lair 原位置重建 CC
+//   - 其他虫族建筑 → 移除
+//   - 非建筑虫族单位 → 移除
 // 注意：UnitRemove 在 gt_Initialization_Func 执行期间不生效，必须延迟到初始化触发器返回后执行
-void libRebornAdapter_RemovePreplacedZergUnits () {
+void libRebornAdapter_ReplacePreplacedZergUnits () {
     unitgroup lv_all;
     int lv_total;
     int lv_i;
     unit lv_u;
     string lv_type;
     string lv_race;
-    int lv_zergBefore;
+    point lv_lairPos;
+    string lv_commander;
+    string lv_townHallType;
+    int lv_replacedBuildings;
+    int lv_removedUnits;
     int lv_zergAfter;
-    int lv_removeCalls;
     bank lv_bank;
+    unitgroup lv_ccGroup;
+    int lv_ccCount;
 
+    lv_commander = libRebornAdapter_ReadCommanderFromBank(1);
+    lv_townHallType = libE0EAE146_gf_CommanderAchUnit("CommandCenter");
+
+    // 第一步：找到 Lair 位置
+    lv_lairPos = null;
     lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
     lv_total = UnitGroupCount(lv_all, c_unitCountAll);
-
-    // 统计清理前的虫族单位数量
-    lv_zergBefore = 0;
     lv_i = 1;
     while (lv_i <= lv_total) {
         lv_u = UnitGroupUnit(lv_all, lv_i);
         lv_type = UnitGetType(lv_u);
-        lv_race = CatalogFieldValueGet(c_gameCatalogUnit, lv_type, "Race", 1);
-        if (lv_race == "Zerg") {
-            lv_zergBefore = lv_zergBefore + 1;
+        if ((lv_type == "Lair") || (lv_type == "Hatchery") || (lv_type == "Hive") ||
+            (lv_type == "HatcheryZerg")) {
+            lv_lairPos = UnitGetPosition(lv_u);
+            break;
         }
         lv_i = lv_i + 1;
     }
 
-    // 从后往前遍历，移除虫族单位
-    lv_removeCalls = 0;
+    // 第二步：如果找到 Lair，移除偏移的 CC（由 InitializeBase 创建）并在 Lair 原位置重建
+    lv_replacedBuildings = 0;
+    if (lv_lairPos != null) {
+        // 移除所有已创建的 CC（InitializeBase 创建的，位置可能偏移）
+        if ((lv_townHallType != "") && CatalogEntryIsValid(c_gameCatalogUnit, lv_townHallType)) {
+            lv_ccGroup = UnitGroup(lv_townHallType, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+            lv_ccCount = UnitGroupCount(lv_ccGroup, c_unitCountAll);
+            while (lv_ccCount > 0) {
+                lv_u = UnitGroupUnit(lv_ccGroup, lv_ccCount);
+                UnitRemove(lv_u);
+                lv_ccCount = lv_ccCount - 1;
+            }
+            // 在 Lair 原位置创建新 CC（IgnorePlacement 确保位置准确）
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_townHallType, c_unitCreateIgnorePlacement, 1, lv_lairPos);
+            lv_replacedBuildings = 1;
+        }
+    }
+
+    // 第三步：移除所有虫族单位（包括 Lair）
+    lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+    lv_total = UnitGroupCount(lv_all, c_unitCountAll);
+    lv_removedUnits = 0;
     lv_i = lv_total;
     while (lv_i >= 1) {
         lv_u = UnitGroupUnit(lv_all, lv_i);
@@ -151,12 +182,12 @@ void libRebornAdapter_RemovePreplacedZergUnits () {
         lv_race = CatalogFieldValueGet(c_gameCatalogUnit, lv_type, "Race", 1);
         if (lv_race == "Zerg") {
             UnitRemove(lv_u);
-            lv_removeCalls = lv_removeCalls + 1;
+            lv_removedUnits = lv_removedUnits + 1;
         }
         lv_i = lv_i - 1;
     }
 
-    // 统计清理后的虫族单位数量
+    // 统计替换后的虫族单位数量
     lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
     lv_total = UnitGroupCount(lv_all, c_unitCountAll);
     lv_zergAfter = 0;
@@ -174,15 +205,16 @@ void libRebornAdapter_RemovePreplacedZergUnits () {
     // 写入诊断 Bank
     lv_bank = BankLoad("CampaignXCore", 1);
     if (lv_bank != null) {
-        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "ZergCleanupBefore", lv_zergBefore);
-        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "ZergCleanupAfter", lv_zergAfter);
-        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "ZergRemoveCalls", lv_removeCalls);
-        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "CleanupTotalUnits", lv_total);
+        BankValueSetFromString(lv_bank, "XMRuntimeDebug", "ReplaceMode", "replace_cc");
+        BankValueSetFromString(lv_bank, "XMRuntimeDebug", "ReplaceTownHallType", lv_townHallType);
+        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "ReplaceBuildingsCount", lv_replacedBuildings);
+        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "RemoveUnitsCount", lv_removedUnits);
+        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "ZergAfterReplace", lv_zergAfter);
         BankSave(lv_bank);
     }
 }
 
-// 延迟清理触发器函数：等待初始化完成后执行清理
+// 延迟替换触发器函数：等待初始化完成后执行替换
 // UnitRemove 在 gt_Initialization_Func 期间不生效，必须通过 Wait 延迟到触发器返回后
 bool libRebornAdapter_gt_DeferredCleanup_Func (bool testConds, bool runActions) {
     if (testConds) {
@@ -195,7 +227,7 @@ bool libRebornAdapter_gt_DeferredCleanup_Func (bool testConds, bool runActions) 
     // 等待初始化触发器返回，确保 UnitRemove 能生效
     Wait(2.0, c_timeReal);
 
-    libRebornAdapter_RemovePreplacedZergUnits();
+    libRebornAdapter_ReplacePreplacedZergUnits();
     return true;
 }
 
@@ -235,7 +267,7 @@ void libRebornAdapter_OnAfterUnitsInit () {
         libE0EAE146_gv_effectiveBaseAnchor = libRebornAdapter_FindPreplacedBasePoint();
     }
 
-    // 非虫族指挥官时，延迟清理地图预放置的虫族单位
+    // 非虫族指挥官时，延迟替换地图预放置的虫族单位
     // UnitRemove 在 gt_Initialization_Func 期间不生效，必须通过异步触发器延迟执行
     lv_commander = libRebornAdapter_ReadCommanderFromBank(1);
     if (!libRebornAdapter_IsZergCommander(lv_commander)) {

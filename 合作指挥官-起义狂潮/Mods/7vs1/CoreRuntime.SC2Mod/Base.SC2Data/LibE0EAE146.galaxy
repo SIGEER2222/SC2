@@ -1469,7 +1469,10 @@ void libE0EAE146_gf_InitializeBase (point lp_secondUnit, int lp_worker, point lp
     }
     libE0EAE146_gv_effectiveBaseAnchor = lv_baseAnchor;
     libE0EAE146_gf_RelocateCommanderHeroStructureOffStartLocation(1);
-    libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("CommandCenter"), 0, 1, lv_baseAnchor);
+    // Reborn 战役图：跳过 CC 创建，由 RebornMapAdapter DeferredCleanup 在虫族基地原位置替换
+    if (!libE0EAE146_gv_skipTownHallCreate) {
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("CommandCenter"), 0, 1, lv_baseAnchor);
+    }
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterTownHall");
     if ((lp_secondBase == null)) {
     }
