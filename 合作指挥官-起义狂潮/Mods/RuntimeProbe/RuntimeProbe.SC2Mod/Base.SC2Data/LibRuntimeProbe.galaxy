@@ -543,6 +543,28 @@ void libRuntimeProbe_gf_ScanTechAvailability() {
 }
 
 //--------------------------------------------------------------------------------------------------
+// ScanUI: 检查 GlobalCastingPanel holder 是否存在（面板是否被创建）
+// 通过 DialogControlHookupStandard 获取 frame 引用，不改变游戏状态
+// 写入 probe_ui section: gp_holder_id, gp_holder_exists
+//--------------------------------------------------------------------------------------------------
+void libRuntimeProbe_gf_ScanUI() {
+    int lv_holder;
+
+    if (libRuntimeProbe_gv_bank == null) {
+        return;
+    }
+
+    libRuntimeProbe_gf_ClearBankSection("probe_ui");
+
+    // 检查 GlobalCastingPanel holder 是否存在
+    DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/GlobalCastingPanel");
+    lv_holder = DialogControlLastCreated();
+
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_id", lv_holder);
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_exists", (lv_holder != c_invalidDialogControlId));
+}
+
+//--------------------------------------------------------------------------------------------------
 // Periodic loop: Wait 循环实现周期性全量扫描 + 批量 BankSave
 // 不使用 TriggerAddEventTimePeriodic（7vs1 地图中不触发），改用 Wait(3.0, c_timeReal) 循环
 // 与 7vs1 地图自身模式一致（gt_StartGame_Func 大量使用 Wait + c_timeReal）
@@ -567,6 +589,7 @@ bool libRuntimeProbe_gt_Loop_Func(bool testConds, bool runActions) {
             libRuntimeProbe_gf_ScanProducers();
             libRuntimeProbe_gf_ScanReplacement();
             libRuntimeProbe_gf_ScanTechAvailability();
+            libRuntimeProbe_gf_ScanUI();
             BankSave(libRuntimeProbe_gv_bank);
         }
         Wait(3.0, c_timeReal);
@@ -611,6 +634,7 @@ void libRuntimeProbe_gf_StartProbe() {
         libRuntimeProbe_gf_ScanProducers();
         libRuntimeProbe_gf_ScanReplacement();
         libRuntimeProbe_gf_ScanTechAvailability();
+        libRuntimeProbe_gf_ScanUI();
         BankSave(libRuntimeProbe_gv_bank);
     }
 
