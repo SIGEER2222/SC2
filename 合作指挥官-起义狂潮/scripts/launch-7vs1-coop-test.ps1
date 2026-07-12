@@ -1643,14 +1643,20 @@ if ($EnableNeuro) {
         if ($bankContent -notmatch 'Name="NeuroIntegration"') {
             $bankEntry = '    <Bank Name="NeuroIntegration" Player="1"/>'
             $bankContent = $bankContent.Replace('</BankList>', ($bankEntry + "`n</BankList>"))
-            [System.IO.File]::WriteAllText($bankListPath, $bankContent, $utf8NoBom)
             Write-Host "  Added NeuroIntegration bank declaration"
         } else {
             Write-Host "  Already has NeuroIntegration bank"
         }
+        # 同时添加 NeuroPermanent bank（用于跨任务持久化）
+        if ($bankContent -notmatch 'Name="NeuroPermanent"') {
+            $permanentEntry = '    <Bank Name="NeuroPermanent" Player="1"/>'
+            $bankContent = $bankContent.Replace('</BankList>', ($permanentEntry + "`n</BankList>"))
+            Write-Host "  Added NeuroPermanent bank declaration"
+        }
+        [System.IO.File]::WriteAllText($bankListPath, $bankContent, $utf8NoBom)
     } else {
         Write-Host "  WARN: BankList.xml not found, creating minimal one"
-        $bankContent = "<?xml version=`"1.0`" encoding=`"utf-8`"?>`n<BankList>`n    <Bank Name=`"NeuroIntegration`" Player=`"1`"/>`n</BankList>`n"
+        $bankContent = "<?xml version=`"1.0`" encoding=`"utf-8`"?>`n<BankList>`n    <Bank Name=`"NeuroIntegration`" Player=`"1`"/>`n    <Bank Name=`"NeuroPermanent`" Player=`"1`"/>`n</BankList>`n"
         [System.IO.File]::WriteAllText($bankListPath, $bankContent, $utf8NoBom)
     }
 
@@ -1693,6 +1699,39 @@ if ($EnableNeuro) {
                 Write-Host "  Added Neuro InitLib calls"
             } else {
                 Write-Host "  WARN: could not find InitLibs() function"
+            }
+        }
+
+        # N5c. 注入任务结束触发器（Phase D：任务胜利/失败钩子）
+        if ($content -notmatch 'libNeuroBridge7vs1_gt_MissionEnd_Func') {
+            $missionEndBlock = @(
+                '',
+                '// === Phase D: 任务结束钩子 ===',
+                'bool libNeuroBridge7vs1_gt_MissionEnd_Func(bool testConds, bool runActions) {',
+                '    if (testConds) { return true; }',
+                '    if (runActions) {',
+                '        if (EventPlayerLeft() == c_gameResultVictory) {',
+                '            libNeuroBridge7vs1_gf_OnMissionVictory("current_map", 0);',
+                '        } else if (EventPlayerLeft() == c_gameResultDefeat) {',
+                '            libNeuroBridge7vs1_gf_OnMissionDefeat("current_map");',
+                '        }',
+                '    }',
+                '    return true;',
+                '}',
+                'trigger libNeuroBridge7vs1_gt_MissionEnd;',
+                'libNeuroBridge7vs1_gt_MissionEnd = TriggerCreate("libNeuroBridge7vs1_gt_MissionEnd_Func");',
+                'TriggerAddEventPlayerLeft(libNeuroBridge7vs1_gt_MissionEnd, 1, c_gameResultVictory);',
+                'TriggerAddEventPlayerLeft(libNeuroBridge7vs1_gt_MissionEnd, 1, c_gameResultDefeat);',
+                ''
+            ) -join "`n"
+            $initLibsEndPattern = '(void\s+InitLibs\s*\(\s*\)\s*\{[^}]*\})'
+            if ($content -match $initLibsEndPattern) {
+                $initLibsFull = $matches[1]
+                $content = $content -replace [regex]::Escape($initLibsFull), ($initLibsFull + "`n" + $missionEndBlock)
+                $modified = $true
+                Write-Host "  Added Phase D mission end hook"
+            } else {
+                Write-Host "  WARN: could not find InitLibs() function end for Phase D injection"
             }
         }
 
