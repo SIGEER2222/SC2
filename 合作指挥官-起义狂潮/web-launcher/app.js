@@ -61,18 +61,18 @@ const MAX_LAUNCH_HISTORY = 8;
 const MAX_SCENARIO_PRESETS = 16;
 const SERVICE_RETRY_MS = 1500;
 const GENERIC_BONUS_OPTIONS = [
-  { id: "DoubleMinerals", name: "çŸ¿ç‰©å‚¨é‡å€ç‡", description: "æ¯åŠ  1 ç‚¹ï¼Œæ‰€æœ‰çŸ¿ç‚¹å½“å‰ä¸ä¸Šé™å‚¨é‡é¢å¤–å¢åŠ  100%ã€‚1 çº§ä¸º x2ï¼Œ9 çº§ä¸º x10ã€‚", maxLevel: 9 },
-  { id: "DoubleVespene", name: "ç“¦æ–¯å‚¨é‡å€ç‡", description: "æ¯åŠ  1 ç‚¹ï¼Œæ‰€æœ‰æ°”çŸ¿å½“å‰ä¸ä¸Šé™å‚¨é‡é¢å¤–å¢åŠ  100%ã€‚1 çº§ä¸º x2ï¼Œ9 çº§ä¸º x10ã€‚", maxLevel: 9 },
-  { id: "RichResources", name: "é«˜äº§çŸ¿è„‰ä¸ç“¦æ–¯", description: "æé«˜èµ„æºé‡‡é›†æ•ˆç‡å¹¶ä¿ç•™å½“å‰å‚¨é‡ï¼Œæ™¶ä½“çŸ¿è„‰ä¸ç“¦æ–¯èŠ‚ç‚¹æ›¿æ¢ä¸ºé«˜äº§æ¨¡å‹ã€‚" },
-  { id: "GuardianShell", name: "å®ˆæŠ¤è€…ä¹‹å£³", description: "è·å¾—é˜¿å¡”å°¼æ–¯çš„å®ˆæŠ¤è€…ä¹‹å£³è¢«åŠ¨ã€‚" },
-  { id: "CreepRegeneration", name: "èŒæ¯¯å›è¡€", description: "è·å¾—å‡¯ç‘ç”˜èŒæ¯¯å›è¡€æ•ˆæœã€‚" },
-  { id: "MechanicalRepair", name: "æœºæ¢°ç»´ä¿®", description: "æœºæ¢°å•ä½å‘¨æœŸæ€§è‡ªæˆ‘ä¿®å¤ã€‚" },
-  { id: "ChronoBoost", name: "æ—¶ç©ºåŠ é€Ÿ", description: "åŸºåœ°æ—æ§åˆ¶å»ºç­‘è·å¾—ä¸€æ¬¡å…¨å›¾æ—¶ç©ºåŠ é€Ÿä¸»åŠ¨æŠ€èƒ½ã€‚" },
-  { id: "AbathurBiomassDrop", name: "ç”Ÿç‰©è´¨æ‰è½", description: "å¼•å…¥é˜¿å·´ç‘Ÿçš„ç”Ÿç‰©è´¨ç‰¹æ€§ï¼šæ•Œæ–¹éå»ºç­‘å•ä½æ­»äº¡æ—¶æ‰è½å¯æ‹¾å–çš„ç”Ÿç‰©è´¨ã€‚" },
-  { id: "AllyEarlyDamageReduction", name: "ç›Ÿå‹å¼€å±€å‡ä¼¤", description: "æœ‰å‰§æƒ…ç›Ÿå‹çš„åœ°å›¾ä¸­ï¼ŒçœŸå®ç›Ÿå‹å•ä½åœ¨å¼€å±€ 5 åˆ†é’Ÿå†…å—åˆ°ä¼¤å®³é™ä½ 90%ã€‚" },
-  { id: "AllySustainBoost", name: "ç›Ÿå‹æŒç»­å¼ºåŒ–", description: "æœ‰å‰§æƒ…ç›Ÿå‹çš„åœ°å›¾ä¸­ï¼ŒçœŸå®ç›Ÿå‹è·å¾—é€šç”¨æ”»é˜²å‡çº§ï¼Œå¹¶å‘¨æœŸæ€§è¡¥æ»¡ç”Ÿå‘½å’ŒæŠ¤ç›¾ã€‚" },
-  { id: "MaxSupply50", name: "äººå£ä¸Šé™+50", description: "äººå£ä¸Šé™é¢å¤–å¢åŠ  50ã€‚" },
-  { id: "ZeroSupply", name: "å•ä½0äººå£", description: "å¯ç”¨å…¬å…±å±‚ 0/200 ä¾›ç»™è„šæœ¬ï¼šå®šæ—¶æŠŠäººå£ä¸Šé™è®¾ä¸º 200ï¼Œå¹¶å°†ç°æœ‰å•ä½æ”¹ä¸ºä¸å äººå£ã€‚" },
+  { id: "DoubleMinerals", name: "¿óÎï´¢Á¿±¶ÂÊ", description: "Ã¿¼Ó 1 µã£¬ËùÓĞ¿óµãµ±Ç°ÓëÉÏÏŞ´¢Á¿¶îÍâÔö¼Ó 100%¡£1 ¼¶Îª x2£¬9 ¼¶Îª x10¡£", maxLevel: 9 },
+  { id: "DoubleVespene", name: "ÍßË¹´¢Á¿±¶ÂÊ", description: "Ã¿¼Ó 1 µã£¬ËùÓĞÆø¿óµ±Ç°ÓëÉÏÏŞ´¢Á¿¶îÍâÔö¼Ó 100%¡£1 ¼¶Îª x2£¬9 ¼¶Îª x10¡£", maxLevel: 9 },
+  { id: "RichResources", name: "¸ß²ú¿óÂöÓëÍßË¹", description: "Ìá¸ß×ÊÔ´²É¼¯Ğ§ÂÊ²¢±£Áôµ±Ç°´¢Á¿£¬¾§Ìå¿óÂöÓëÍßË¹½ÚµãÌæ»»Îª¸ß²úÄ£ĞÍ¡£" },
+  { id: "GuardianShell", name: "ÊØ»¤ÕßÖ®¿Ç", description: "»ñµÃ°¢ËşÄáË¹µÄÊØ»¤ÕßÖ®¿Ç±»¶¯¡£" },
+  { id: "CreepRegeneration", name: "¾úÌº»ØÑª", description: "»ñµÃ¿­Èğ¸Ê¾úÌº»ØÑªĞ§¹û¡£" },
+  { id: "MechanicalRepair", name: "»úĞµÎ¬ĞŞ", description: "»úĞµµ¥Î»ÖÜÆÚĞÔ×ÔÎÒĞŞ¸´¡£" },
+  { id: "ChronoBoost", name: "Ê±¿Õ¼ÓËÙ", description: "»ùµØÅÔ¿ØÖÆ½¨Öş»ñµÃÒ»´ÎÈ«Í¼Ê±¿Õ¼ÓËÙÖ÷¶¯¼¼ÄÜ¡£" },
+  { id: "AbathurBiomassDrop", name: "ÉúÎïÖÊµôÂä", description: "ÒıÈë°¢°ÍÉªµÄÉúÎïÖÊÌØĞÔ£ºµĞ·½·Ç½¨Öşµ¥Î»ËÀÍöÊ±µôÂä¿ÉÊ°È¡µÄÉúÎïÖÊ¡£" },
+  { id: "AllyEarlyDamageReduction", name: "ÃËÓÑ¿ª¾Ö¼õÉË", description: "ÓĞ¾çÇéÃËÓÑµÄµØÍ¼ÖĞ£¬ÕæÊµÃËÓÑµ¥Î»ÔÚ¿ª¾Ö 5 ·ÖÖÓÄÚÊÜµ½ÉËº¦½µµÍ 90%¡£" },
+  { id: "AllySustainBoost", name: "ÃËÓÑ³ÖĞøÇ¿»¯", description: "ÓĞ¾çÇéÃËÓÑµÄµØÍ¼ÖĞ£¬ÕæÊµÃËÓÑ»ñµÃÍ¨ÓÃ¹¥·ÀÉı¼¶£¬²¢ÖÜÆÚĞÔ²¹ÂúÉúÃüºÍ»¤¶Ü¡£" },
+  { id: "MaxSupply50", name: "ÈË¿ÚÉÏÏŞ+50", description: "ÈË¿ÚÉÏÏŞ¶îÍâÔö¼Ó 50¡£" },
+  { id: "ZeroSupply", name: "µ¥Î»0ÈË¿Ú", description: "ÆôÓÃ¹«¹²²ã 0/200 ¹©¸ø½Å±¾£º¶¨Ê±°ÑÈË¿ÚÉÏÏŞÉèÎª 200£¬²¢½«ÏÖÓĞµ¥Î»¸ÄÎª²»Õ¼ÈË¿Ú¡£" },
 ];
 const LEVELABLE_GENERIC_BONUS_IDS = new Set(
   GENERIC_BONUS_OPTIONS.filter((item) => Number.isFinite(item.maxLevel) && item.maxLevel > 0).map((item) => item.id),
@@ -414,7 +414,7 @@ function scheduleAutosave() {
         activeSheet: state.activeSheet,
       });
     } catch (error) {
-      writeOutput(`è‡ªåŠ¨ä¿å­˜å¤±è´¥ï¼š${error.message}`);
+      writeOutput(`×Ô¶¯±£´æÊ§°Ü£º${error.message}`);
     }
   }, 100);
 }
@@ -439,9 +439,9 @@ async function copyText(value) {
 
 async function copyOutputLog() {
   const text = el.outputLog.textContent.trim();
-  if (!text || text === "ç­‰å¾…æ“ä½œ") return;
+  if (!text || text === "µÈ´ı²Ù×÷") return;
   await copyText(text);
-  el.launchState.textContent = "è¾“å‡ºå·²å¤åˆ¶";
+  el.launchState.textContent = "Êä³öÒÑ¸´ÖÆ";
 }
 
 function setLastLogPaths(stdout, stderr) {
@@ -464,30 +464,30 @@ async function copyLogPaths() {
   ].filter(Boolean);
   if (lines.length === 0) return;
   await copyText(lines.join("\n"));
-  el.launchState.textContent = "æ—¥å¿—è·¯å¾„å·²å¤åˆ¶";
+  el.launchState.textContent = "ÈÕÖ¾Â·¾¶ÒÑ¸´ÖÆ";
 }
 
 function clearOutputLog() {
-  el.outputLog.textContent = "ç­‰å¾…æ“ä½œ";
+  el.outputLog.textContent = "µÈ´ı²Ù×÷";
   el.copyOutputButton.disabled = true;
   el.copyCommandButton.disabled = true;
   el.copyCommandButton.dataset.command = "";
   setLastLogPaths("", "");
-  el.launchState.textContent = "è¾“å‡ºå·²æ¸…ç©º";
+  el.launchState.textContent = "Êä³öÒÑÇå¿Õ";
 }
 
 function formatLaunchStatus(status) {
   const lines = [
     `PID: ${status.pid || "-"}`,
-    `çŠ¶æ€: ${status.running ? "è¿è¡Œä¸­" : "å·²ç»“æŸ"}`,
-    `é€€å‡ºç : ${status.exitCode ?? "-"}`,
-    `æ£€æŸ¥æ—¶é—´: ${status.checkedAt || "-"}`,
+    `×´Ì¬: ${status.running ? "ÔËĞĞÖĞ" : "ÒÑ½áÊø"}`,
+    `ÍË³öÂë: ${status.exitCode ?? "-"}`,
+    `¼ì²éÊ±¼ä: ${status.checkedAt || "-"}`,
     "",
     `[stdout] ${status.stdout?.path || ""}`,
-    status.stdout?.tail || "(ç©º)",
+    status.stdout?.tail || "(¿Õ)",
     "",
     `[stderr] ${status.stderr?.path || ""}`,
-    status.stderr?.tail || "(ç©º)",
+    status.stderr?.tail || "(¿Õ)",
   ];
   return lines.join("\n");
 }
@@ -502,8 +502,8 @@ function getStatusStdout(status) {
 
 function isDryRunComplete(status) {
   const stdout = getStatusStdout(status);
-  // launch-7vs1-coop-test.ps1 è¾“å‡º "Mutator preset:" / "Mutators:"ï¼›
-  // launch-xm-scenario.ps1ï¼ˆ*_xm.SC2Map åœ°å›¾ï¼‰ä¸è¾“å‡ºå› å­è¡Œï¼Œç»“æŸæ ‡è®°æ˜¯ "=== Done ==="
+  // launch-7vs1-coop-test.ps1 Êä³ö "Mutator preset:" / "Mutators:"£»
+  // launch-xm-scenario.ps1£¨*_xm.SC2Map µØÍ¼£©²»Êä³öÒò×ÓĞĞ£¬½áÊø±ê¼ÇÊÇ "=== Done ==="
   return stdout.includes("Mutator preset:") || stdout.includes("Mutators:") || stdout.includes("=== Done ===");
 }
 
@@ -522,7 +522,7 @@ async function apiFetchJson(path, options = {}) {
   try {
     response = await fetch(path, options);
   } catch (error) {
-    throw new Error(`æœ¬åœ°å¯åŠ¨å™¨ä¸å¯ç”¨: ${error?.message || error}`);
+    throw new Error(`±¾µØÆô¶¯Æ÷²»¿ÉÓÃ: ${error?.message || error}`);
   }
 
   let result = null;
@@ -539,10 +539,10 @@ async function apiFetchJson(path, options = {}) {
   return result;
 }
 
-function setServiceUnavailable(message = "æœ¬åœ°å¯åŠ¨å™¨ç¦»çº¿") {
+function setServiceUnavailable(message = "±¾µØÆô¶¯Æ÷ÀëÏß") {
   state.serviceUnavailable = true;
   setStatus(message, "status-error");
-  el.launchState.textContent = "æœåŠ¡ç¦»çº¿";
+  el.launchState.textContent = "·şÎñÀëÏß";
   updateConfigActionButtons(true);
 }
 
@@ -756,16 +756,16 @@ function getScoreRuleText() {
   const mutatorRules = rules.mutatorTierPoints || {};
   const bonusRules = (rules.genericBonusCosts || []).map((item) => {
     if (item.costMode === "perLevel") {
-      return `${getGenericBonusLabel(item.id)} æ¯çº§ ${item.costPerLevel} åˆ†`;
+      return `${getGenericBonusLabel(item.id)} Ã¿¼¶ ${item.costPerLevel} ·Ö`;
     }
-    return `${getGenericBonusLabel(item.id)} ${item.cost} åˆ†`;
+    return `${getGenericBonusLabel(item.id)} ${item.cost} ·Ö`;
   });
   return [
-    `é¦–é€š ${rules.firstCommanderMapClearPoints} åˆ†/æŒ‡æŒ¥å®˜åœ°å›¾`,
-    `å¥–åŠ±åˆ† ${rules.bonusObjectivePointValue} åˆ†/ç‚¹`,
-    `å› å­ æ™®é€š=${mutatorRules.normal ?? 1} / ä¸­ç­‰=${mutatorRules.medium ?? 2} / å›°éš¾=${mutatorRules.hard ?? 3}`,
-    `åŠ æˆ ${bonusRules.join("ï¼›")}`,
-  ].join(" Â· ");
+    `Ê×Í¨ ${rules.firstCommanderMapClearPoints} ·Ö/Ö¸»Ó¹ÙµØÍ¼`,
+    `½±Àø·Ö ${rules.bonusObjectivePointValue} ·Ö/µã`,
+    `Òò×Ó ÆÕÍ¨=${mutatorRules.normal ?? 1} / ÖĞµÈ=${mutatorRules.medium ?? 2} / À§ÄÑ=${mutatorRules.hard ?? 3}`,
+    `¼Ó³É ${bonusRules.join("£»")}`,
+  ].join(" ¡¤ ");
 }
 
 function getMapCompletionState(mapId, commander = getCommander()) {
@@ -773,9 +773,9 @@ function getMapCompletionState(mapId, commander = getCommander()) {
   const normalizedMapId = normalizeMapBankId(mapId);
   if (completion?.bankFound !== true) {
     return {
-      label: "æœªè¯»å–å­˜æ¡£",
+      label: "Î´¶ÁÈ¡´æµµ",
       tone: "warn",
-      detail: "æœªæ‰¾åˆ° CampaignXCore.SC2Bankï¼Œå½“å‰æ— æ³•åˆ¤æ–­è¿™å¼ åœ°å›¾æ˜¯å¦å·²é€šå…³ã€‚",
+      detail: "Î´ÕÒµ½ CampaignXCore.SC2Bank£¬µ±Ç°ÎŞ·¨ÅĞ¶ÏÕâÕÅµØÍ¼ÊÇ·ñÒÑÍ¨¹Ø¡£",
     };
   }
   const bankCommander = commander?.bankCommander || "";
@@ -790,30 +790,30 @@ function getMapCompletionState(mapId, commander = getCommander()) {
   const bonusCount = Math.max(commanderBonusScore, objectiveStats.completed, mapBonusScore);
   const bonusLabel = bonusCount > 0
     ? commanderBonusScore > 0 || objectiveStats.completed > 0
-      ? `å¥–åŠ± ${bonusCount}`
-      : `å¥–åŠ± ${bonusCount} (åœ°å›¾)`
-    : "å¥–åŠ± 0";
+      ? `½±Àø ${bonusCount}`
+      : `½±Àø ${bonusCount} (µØÍ¼)`
+    : "½±Àø 0";
 
   if (commanderCleared) {
     return {
-      label: "å½“å‰æŒ‡æŒ¥å®˜å·²é€šå…³",
+      label: "µ±Ç°Ö¸»Ó¹ÙÒÑÍ¨¹Ø",
       tone: "ok",
-      detail: `æ¥è‡ªæŒ‡æŒ¥å®˜é€šå…³è®°å½•ï¼š${commanderMapKey}`,
+      detail: `À´×ÔÖ¸»Ó¹ÙÍ¨¹Ø¼ÇÂ¼£º${commanderMapKey}`,
       meta: bonusLabel,
     };
   }
   if (mapCleared) {
     return {
-      label: "åœ°å›¾å·²é€šå…³",
+      label: "µØÍ¼ÒÑÍ¨¹Ø",
       tone: "warn",
-      detail: `æ¥è‡ªåœ°å›¾é€šå…³è®°å½•ï¼š${normalizedMapId}ã€‚å½“å‰åœ°å›¾æœ‰é€šå…³è®°å½•ï¼Œä½†æœªæ‰¾åˆ°å½“å‰æŒ‡æŒ¥å®˜ä¸“å±é€šå…³æ ‡è®°ã€‚`,
+      detail: `À´×ÔµØÍ¼Í¨¹Ø¼ÇÂ¼£º${normalizedMapId}¡£µ±Ç°µØÍ¼ÓĞÍ¨¹Ø¼ÇÂ¼£¬µ«Î´ÕÒµ½µ±Ç°Ö¸»Ó¹Ù×¨ÊôÍ¨¹Ø±ê¼Ç¡£`,
       meta: bonusLabel,
     };
   }
   return {
-    label: "æœªé€šå…³",
+    label: "Î´Í¨¹Ø",
     tone: "error",
-    detail: `å­˜æ¡£å·²è¯»å–ï¼Œä½†æœªæ‰¾åˆ° ${normalizedMapId} æˆ– ${commanderMapKey || "å½“å‰æŒ‡æŒ¥å®˜"} çš„é€šå…³æ ‡è®°ã€‚`,
+    detail: `´æµµÒÑ¶ÁÈ¡£¬µ«Î´ÕÒµ½ ${normalizedMapId} »ò ${commanderMapKey || "µ±Ç°Ö¸»Ó¹Ù"} µÄÍ¨¹Ø±ê¼Ç¡£`,
     meta: bonusLabel,
   };
 }
@@ -899,34 +899,34 @@ function getMapPack(id) {
 
 function getMapPackLabel(pack) {
   return {
-    hanson: "æ±‰æ£®",
-    horner: "éœçº³",
-    raynor: "é›·è¯º",
-    tosh: "æ‰˜ä»€",
-    tychus: "æ³°å‡¯æ–¯",
-    valerian: "ç“¦ä¼¦é‡Œå®‰",
-    zeratul: "æ³½æ‹‰å›¾",
-    zerg: "è™«ç¾¤",
-    other: "å…¶ä»–",
+    hanson: "ººÉ­",
+    horner: "»ôÄÉ",
+    raynor: "À×Åµ",
+    tosh: "ÍĞÊ²",
+    tychus: "Ì©¿­Ë¹",
+    valerian: "ÍßÂ×Àï°²",
+    zeratul: "ÔóÀ­Í¼",
+    zerg: "³æÈº",
+    other: "ÆäËû",
   }[pack] || pack;
 }
 
 function getMutatorCategoryLabel(category) {
   return {
-    random: "éšæœº/è½®æ¢",
-    environment: "ç¯å¢ƒå‹åŠ›",
-    enemy: "æ•Œå†›å¼ºåŒ–",
-    economy: "ç»æµ/æ“ä½œ",
-    defense: "é˜²å¾¡/ååˆ¶",
-    other: "å…¶ä»–",
+    random: "Ëæ»ú/ÂÖ»»",
+    environment: "»·¾³Ñ¹Á¦",
+    enemy: "µĞ¾üÇ¿»¯",
+    economy: "¾­¼Ã/²Ù×÷",
+    defense: "·ÀÓù/·´ÖÆ",
+    other: "ÆäËû",
   }[category] || category;
 }
 
 function getMutatorTierLabel(tier) {
   return {
-    normal: "æ™®é€š",
-    medium: "ä¸­ç­‰",
-    hard: "é«˜å‹",
+    normal: "ÆÕÍ¨",
+    medium: "ÖĞµÈ",
+    hard: "¸ßÑ¹",
   }[tier] || tier;
 }
 
@@ -938,13 +938,13 @@ function populateMutatorFilters() {
     el.mutatorCategoryFilter,
     ["all", ...categories],
     (item) => item,
-    (item) => (item === "all" ? "å…¨éƒ¨" : getMutatorCategoryLabel(item)),
+    (item) => (item === "all" ? "È«²¿" : getMutatorCategoryLabel(item)),
   );
   populateSelect(
     el.mutatorTierFilter,
     ["all", ...tiers],
     (item) => item,
-    (item) => (item === "all" ? "å…¨éƒ¨" : getMutatorTierLabel(item)),
+    (item) => (item === "all" ? "È«²¿" : getMutatorTierLabel(item)),
   );
 }
 
@@ -1035,7 +1035,7 @@ function renderTalents(commander) {
 function renderStartTalents(commander) {
   const defaultMask = getCommanderDefaultStartTalentMask(commander);
   const maxMask = getStartTalentMaxMask(commander);
-  // æ©ç æ˜¯ä½é›†åˆï¼Œè·¨æŒ‡æŒ¥å®˜æ®‹ç•™çš„æ©ç è¦æŒ‰ä½è£å‰ªè€Œä¸æ˜¯å–æ•°å€¼è¾ƒå°è€…
+  // ÑÚÂëÊÇÎ»¼¯ºÏ£¬¿çÖ¸»Ó¹Ù²ĞÁôµÄÑÚÂëÒª°´Î»²Ã¼ô¶ø²»ÊÇÈ¡ÊıÖµ½ÏĞ¡Õß
   const activeMask = (Number(el.startTalentMask.value) || 0) & maxMask;
   const enabled = el.enableStartTalents.checked;
   renderStartTalentPanelComponent({
@@ -1070,7 +1070,7 @@ function renderStartTalents(commander) {
     (talent) => (activeMask & Number(talent.bitMask)) === Number(talent.bitMask),
   ).length;
   if (el.startTalentStatus) {
-    el.startTalentStatus.textContent = `å·²é€‰ ${selectedCount}`;
+    el.startTalentStatus.textContent = `ÒÑÑ¡ ${selectedCount}`;
   }
   if (el.startTalentMaskBadge) {
     el.startTalentMaskBadge.textContent = String(activeMask);
@@ -1132,10 +1132,10 @@ function renderMutators() {
     },
   });
 
-  el.mutatorCount.textContent = `${state.selectedMutators.size}/${state.data.mutators.length} Â· æ˜¾ç¤º ${mutators.length}`;
+  el.mutatorCount.textContent = `${state.selectedMutators.size}/${state.data.mutators.length} ¡¤ ÏÔÊ¾ ${mutators.length}`;
   el.mutatorPoolStatus.textContent = randomPoolCount === 0
-    ? "éšæœºæ± : 0 (å…ˆæ¸…é™¤ç­›é€‰)"
-    : `éšæœºæ± : ${randomPoolCount}${hasFilter ? " (å·²ç­›é€‰)" : ""}`;
+    ? "Ëæ»ú³Ø: 0 (ÏÈÇå³ıÉ¸Ñ¡)"
+    : `Ëæ»ú³Ø: ${randomPoolCount}${hasFilter ? " (ÒÑÉ¸Ñ¡)" : ""}`;
   el.mutatorPoolStatus.className = randomPoolCount === 0
     ? "mutator-pool-status status-error"
     : hasFilter ? "mutator-pool-status status-warn" : "mutator-pool-status status-ok";
@@ -1187,7 +1187,7 @@ function clearMutatorFilters() {
   el.mutatorCategoryFilter.value = "all";
   el.mutatorTierFilter.value = "all";
   renderMutators();
-  el.launchState.textContent = "å› å­ç­›é€‰å·²æ¸…é™¤";
+  el.launchState.textContent = "Òò×ÓÉ¸Ñ¡ÒÑÇå³ı";
 }
 
 function renderSelectedMutators() {
@@ -1248,7 +1248,7 @@ function clearMatchedSelectedMutators() {
   renderMutators();
   updateSummary();
   scheduleAutosave();
-  el.launchState.textContent = `å·²æ¸…é™¤ ${matched.length} ä¸ªåŒ¹é…å› å­`;
+  el.launchState.textContent = `ÒÑÇå³ı ${matched.length} ¸öÆ¥ÅäÒò×Ó`;
 }
 
 function resetSelectedMutatorView() {
@@ -1269,29 +1269,29 @@ function getPayloadSummaryText(payload) {
   const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
   const talentSummary = getTalentSummary(payload.commander);
   return [
-    `æŒ‡æŒ¥å®˜=${getCommanderLabel(payload.commander)}(${payload.commander})`,
-    `åœ°å›¾=${getMapLabel(payload.map)}(${payload.map})`,
-    `å¤©èµ‹=å¼€å…³${talentSummary.activeSwitchCount}é¡¹/ç­‰çº§åˆè®¡${talentSummary.totalLevel}`,
-    `é¢å¤–å‡çº§=${overrideLabels.length === 0 ? "æ— " : overrideLabels.join(",")}`,
-    `è¯­éŸ³=${getVoicePackLabel(payload.voicePack || "Default")}(${payload.voicePack || "Default"})`,
-    `é€šç”¨åŠ æˆ=${genericBonuses.length === 0 ? "æ— " : genericBonuses.map((id) => getGenericBonusDisplayName(id, genericBonusLevels)).join(",")}`,
-    `å› å­=${mutators.length === 0 ? "æ— " : mutators.join(",")}`,
-    `ç§¯åˆ†=${scoreState.earnedPoints}+${scoreState.mutatorPoints}-${scoreState.bonusCost}=${scoreState.balanceAfterSelection}`,
-    `æ¨¡å¼=${payload.noLaunch ? "éªŒè¯" : "å¯åŠ¨"}`,
+    `Ö¸»Ó¹Ù=${getCommanderLabel(payload.commander)}(${payload.commander})`,
+    `µØÍ¼=${getMapLabel(payload.map)}(${payload.map})`,
+    `Ìì¸³=¿ª¹Ø${talentSummary.activeSwitchCount}Ïî/µÈ¼¶ºÏ¼Æ${talentSummary.totalLevel}`,
+    `¶îÍâÉı¼¶=${overrideLabels.length === 0 ? "ÎŞ" : overrideLabels.join(",")}`,
+    `ÓïÒô=${getVoicePackLabel(payload.voicePack || "Default")}(${payload.voicePack || "Default"})`,
+    `Í¨ÓÃ¼Ó³É=${genericBonuses.length === 0 ? "ÎŞ" : genericBonuses.map((id) => getGenericBonusDisplayName(id, genericBonusLevels)).join(",")}`,
+    `Òò×Ó=${mutators.length === 0 ? "ÎŞ" : mutators.join(",")}`,
+    `»ı·Ö=${scoreState.earnedPoints}+${scoreState.mutatorPoints}-${scoreState.bonusCost}=${scoreState.balanceAfterSelection}`,
+    `Ä£Ê½=${payload.noLaunch ? "ÑéÖ¤" : "Æô¶¯"}`,
   ].join(" | ");
 }
 
 function getPayloadModeBadge(payload = {}) {
-  return payload.noLaunch ? "å®‰è£…" : "å¯åŠ¨";
+  return payload.noLaunch ? "°²×°" : "Æô¶¯";
 }
 
 function getPayloadMutatorBadge(payload = {}) {
-  return `${(payload.mutators || []).length} å› å­`;
+  return `${(payload.mutators || []).length} Òò×Ó`;
 }
 
 function getPayloadMasteryBadge(payload = {}) {
   const talentSummary = getTalentSummary(payload.commander);
-  return `å¤©èµ‹ å¼€å…³${talentSummary.activeSwitchCount}/ç­‰çº§${talentSummary.totalLevel}`;
+  return `Ìì¸³ ¿ª¹Ø${talentSummary.activeSwitchCount}/µÈ¼¶${talentSummary.totalLevel}`;
 }
 
 function getHistoryStatusClass(item) {
@@ -1340,7 +1340,7 @@ function setValidationSummary(text, className = "") {
   el.summaryValidation.textContent = text;
 }
 
-function setValidatedConfig(payload, result = {}, finalStatus = null, source = "éªŒè¯") {
+function setValidatedConfig(payload, result = {}, finalStatus = null, source = "ÑéÖ¤") {
   state.lastValidatedSignature = getValidationSignature(payload);
   state.lastValidatedPayload = normalizeLaunchPayload(payload);
   state.lastValidationDetail = {
@@ -1364,7 +1364,7 @@ function getValidationDetailText() {
   const detail = state.lastValidationDetail;
   if (!detail) return "";
   return [
-    `${detail.source || "éªŒè¯"}: ${formatTime(detail.checkedAt)}`,
+    `${detail.source || "ÑéÖ¤"}: ${formatTime(detail.checkedAt)}`,
     detail.pid ? `PID ${detail.pid}` : "",
     detail.stdout ? `stdout=${detail.stdout}` : "",
     detail.stderr ? `stderr=${detail.stderr}` : "",
@@ -1376,46 +1376,46 @@ function getValidationChangeSummary(currentPayload = normalizeLaunchPayload()) {
   if (!previous) return "";
   const changes = [];
   if (previous.commander !== currentPayload.commander) {
-    changes.push(`æŒ‡æŒ¥å®˜: ${getCommanderLabel(previous.commander)} -> ${getCommanderLabel(currentPayload.commander)}`);
+    changes.push(`Ö¸»Ó¹Ù: ${getCommanderLabel(previous.commander)} -> ${getCommanderLabel(currentPayload.commander)}`);
   }
   if (previous.map !== currentPayload.map) {
-    changes.push(`åœ°å›¾: ${getMapLabel(previous.map)} -> ${getMapLabel(currentPayload.map)}`);
+    changes.push(`µØÍ¼: ${getMapLabel(previous.map)} -> ${getMapLabel(currentPayload.map)}`);
   }
   if (JSON.stringify(previous.talentSelections || {}) !== JSON.stringify(currentPayload.talentSelections || {})) {
     const prevSummary = getTalentSummary(previous.commander);
     const currSummary = getTalentSummary(currentPayload.commander);
-    changes.push(`å¤©èµ‹: å¼€å…³${prevSummary.activeSwitchCount}/ç­‰çº§${prevSummary.totalLevel} -> å¼€å…³${currSummary.activeSwitchCount}/ç­‰çº§${currSummary.totalLevel}`);
+    changes.push(`Ìì¸³: ¿ª¹Ø${prevSummary.activeSwitchCount}/µÈ¼¶${prevSummary.totalLevel} -> ¿ª¹Ø${currSummary.activeSwitchCount}/µÈ¼¶${currSummary.totalLevel}`);
   }
   if ((previous.commanderOverrides || []).join(",") !== (currentPayload.commanderOverrides || []).join(",")) {
-    changes.push(`é¢å¤–å‡çº§: ${(previous.commanderOverrides || []).length} -> ${(currentPayload.commanderOverrides || []).length}`);
+    changes.push(`¶îÍâÉı¼¶: ${(previous.commanderOverrides || []).length} -> ${(currentPayload.commanderOverrides || []).length}`);
   }
   if ((previous.voicePack || "Default") !== (currentPayload.voicePack || "Default")) {
-    changes.push(`è¯­éŸ³åŒ…: ${getVoicePackLabel(previous.voicePack || "Default")} -> ${getVoicePackLabel(currentPayload.voicePack || "Default")}`);
+    changes.push(`ÓïÒô°ü: ${getVoicePackLabel(previous.voicePack || "Default")} -> ${getVoicePackLabel(currentPayload.voicePack || "Default")}`);
   }
   if ((previous.genericBonuses || []).join(",") !== (currentPayload.genericBonuses || []).join(",")) {
-    changes.push(`é€šç”¨åŠ æˆ: ${(previous.genericBonuses || []).length} -> ${(currentPayload.genericBonuses || []).length}`);
+    changes.push(`Í¨ÓÃ¼Ó³É: ${(previous.genericBonuses || []).length} -> ${(currentPayload.genericBonuses || []).length}`);
   }
   if (JSON.stringify(previous.genericBonusLevels || {}) !== JSON.stringify(currentPayload.genericBonusLevels || {})) {
-    changes.push(`èµ„æºå€ç‡ç‚¹æ•°: ${JSON.stringify(previous.genericBonusLevels || {})} -> ${JSON.stringify(currentPayload.genericBonusLevels || {})}`);
+    changes.push(`×ÊÔ´±¶ÂÊµãÊı: ${JSON.stringify(previous.genericBonusLevels || {})} -> ${JSON.stringify(currentPayload.genericBonusLevels || {})}`);
   }
   if (previous.mutatorPreset !== currentPayload.mutatorPreset) {
-    changes.push(`å› å­é¢„è®¾: ${previous.mutatorPreset} -> ${currentPayload.mutatorPreset}`);
+    changes.push(`Òò×ÓÔ¤Éè: ${previous.mutatorPreset} -> ${currentPayload.mutatorPreset}`);
   }
   if (previous.mutators.join(",") !== currentPayload.mutators.join(",")) {
-    changes.push(`å› å­: ${previous.mutators.length} -> ${currentPayload.mutators.length}`);
+    changes.push(`Òò×Ó: ${previous.mutators.length} -> ${currentPayload.mutators.length}`);
   }
-  return changes.length > 0 ? `å˜æ›´:\n${changes.join("\n")}` : "";
+  return changes.length > 0 ? `±ä¸ü:\n${changes.join("\n")}` : "";
 }
 
 function getLaunchModeLabels(payload = buildLaunchPayload()) {
   const dryRun = payload.noLaunch === true;
   return {
-    mode: dryRun ? "éªŒè¯" : "å¯åŠ¨",
-    launch: dryRun ? "éªŒè¯" : "å¯åŠ¨",
-    validateLaunch: dryRun ? "éªŒè¯åå®‰è£…" : "éªŒè¯åå¯åŠ¨",
-    pending: dryRun ? "éªŒè¯ä¸­" : "å¯åŠ¨ä¸­",
-    started: dryRun ? "éªŒè¯ä¸­" : "",
-    running: dryRun ? "éªŒè¯ä¸­" : "",
+    mode: dryRun ? "ÑéÖ¤" : "Æô¶¯",
+    launch: dryRun ? "ÑéÖ¤" : "Æô¶¯",
+    validateLaunch: dryRun ? "ÑéÖ¤ºó°²×°" : "ÑéÖ¤ºóÆô¶¯",
+    pending: dryRun ? "ÑéÖ¤ÖĞ" : "Æô¶¯ÖĞ",
+    started: dryRun ? "ÑéÖ¤ÖĞ" : "",
+    running: dryRun ? "ÑéÖ¤ÖĞ" : "",
   };
 }
 
@@ -1428,16 +1428,16 @@ function updateLaunchModeLabels(payload = buildLaunchPayload()) {
 
 function updateValidationSummary() {
   if (!state.data) {
-    setValidationSummary("æœªéªŒè¯");
+    setValidationSummary("Î´ÑéÖ¤");
     el.summaryValidation.title = "";
     el.summaryValidation.removeAttribute("aria-label");
     return;
   }
 
   if (!state.lastValidatedSignature) {
-    setValidationSummary("æœªéªŒè¯", "status-warn");
+    setValidationSummary("Î´ÑéÖ¤", "status-warn");
     el.summaryValidation.title = "";
-    el.summaryValidation.setAttribute("aria-label", "å½“å‰é…ç½®æœªéªŒè¯");
+    el.summaryValidation.setAttribute("aria-label", "µ±Ç°ÅäÖÃÎ´ÑéÖ¤");
     return;
   }
 
@@ -1445,15 +1445,15 @@ function updateValidationSummary() {
   if (state.lastValidatedSignature === currentSignature) {
     const detail = getValidationDetailText();
     const suffix = state.lastValidationDetail?.checkedAt ? ` ${formatShortTime(state.lastValidationDetail.checkedAt)}` : "";
-    setValidationSummary(`å·²éªŒè¯${suffix}`, "status-ok validation-ok");
-    el.summaryValidation.title = detail || "å½“å‰é…ç½®å·²é€šè¿‡éªŒè¯";
-    el.summaryValidation.setAttribute("aria-label", detail || "å½“å‰é…ç½®å·²é€šè¿‡éªŒè¯");
+    setValidationSummary(`ÒÑÑéÖ¤${suffix}`, "status-ok validation-ok");
+    el.summaryValidation.title = detail || "µ±Ç°ÅäÖÃÒÑÍ¨¹ıÑéÖ¤";
+    el.summaryValidation.setAttribute("aria-label", detail || "µ±Ç°ÅäÖÃÒÑÍ¨¹ıÑéÖ¤");
   } else {
-    setValidationSummary("å·²å˜æ›´", "status-warn");
+    setValidationSummary("ÒÑ±ä¸ü", "status-warn");
     const detail = getValidationDetailText();
     const changes = getValidationChangeSummary();
-    el.summaryValidation.title = [detail, changes, "å½“å‰é…ç½®å·²å˜æ›´ï¼Œéœ€è¦é‡æ–°éªŒè¯"].filter(Boolean).join("\n");
-    el.summaryValidation.setAttribute("aria-label", changes ? `å½“å‰é…ç½®å·²å˜æ›´ï¼Œéœ€è¦é‡æ–°éªŒè¯ã€‚${changes.replace(/\n/g, " ")}` : "å½“å‰é…ç½®å·²å˜æ›´ï¼Œéœ€è¦é‡æ–°éªŒè¯");
+    el.summaryValidation.title = [detail, changes, "µ±Ç°ÅäÖÃÒÑ±ä¸ü£¬ĞèÒªÖØĞÂÑéÖ¤"].filter(Boolean).join("\n");
+    el.summaryValidation.setAttribute("aria-label", changes ? `µ±Ç°ÅäÖÃÒÑ±ä¸ü£¬ĞèÒªÖØĞÂÑéÖ¤¡£${changes.replace(/\n/g, " ")}` : "µ±Ç°ÅäÖÃÒÑ±ä¸ü£¬ĞèÒªÖØĞÂÑéÖ¤");
   }
 }
 
@@ -1461,14 +1461,14 @@ function getConfigIssues(payload = buildLaunchPayload()) {
   const issues = [];
   const commanderExists = state.data?.commanders.some((item) => item.runtime === payload.commander);
   const mapExists = state.data?.maps.some((item) => item.id === payload.map);
-  if (!commanderExists) issues.push(`æœªçŸ¥æŒ‡æŒ¥å®˜: ${payload.commander || "-"}`);
-  if (!mapExists) issues.push(`æœªçŸ¥åœ°å›¾: ${payload.map || "-"}`);
+  if (!commanderExists) issues.push(`Î´ÖªÖ¸»Ó¹Ù: ${payload.commander || "-"}`);
+  if (!mapExists) issues.push(`Î´ÖªµØÍ¼: ${payload.map || "-"}`);
   return issues;
 }
 
 function updateConfigIssues(payload = buildLaunchPayload()) {
   if (!state.data) {
-    el.configIssues.textContent = "é…ç½®æœªå°±ç»ª";
+    el.configIssues.textContent = "ÅäÖÃÎ´¾ÍĞ÷";
     el.configIssues.className = "config-issues status-warn";
     updateConfigActionButtons(true);
     return;
@@ -1476,10 +1476,10 @@ function updateConfigIssues(payload = buildLaunchPayload()) {
 
   const issues = getConfigIssues(payload);
   if (issues.length === 0) {
-    el.configIssues.textContent = "é…ç½®å¯å¯åŠ¨";
+    el.configIssues.textContent = "ÅäÖÃ¿ÉÆô¶¯";
     el.configIssues.className = "config-issues status-ok";
   } else {
-    el.configIssues.textContent = `éœ€å¤„ç†: ${issues.join("ï¼›")}`;
+    el.configIssues.textContent = `Ğè´¦Àí: ${issues.join("£»")}`;
     el.configIssues.className = "config-issues status-error";
   }
   updateConfigActionButtons();
@@ -1503,8 +1503,8 @@ function updateRowSubmitButtons() {
 function assertLaunchPayloadValid(payload = buildLaunchPayload()) {
   const issues = getConfigIssues(payload);
   if (issues.length > 0) {
-    const message = `é…ç½®å­˜åœ¨é—®é¢˜ï¼Œå·²æ‹¦æˆª:\n${issues.join("\n")}`;
-    el.launchState.textContent = "é…ç½®é”™è¯¯";
+    const message = `ÅäÖÃ´æÔÚÎÊÌâ£¬ÒÑÀ¹½Ø:\n${issues.join("\n")}`;
+    el.launchState.textContent = "ÅäÖÃ´íÎó";
     updateConfigIssues(payload);
     writeOutput(message);
     return false;
@@ -1515,11 +1515,11 @@ function assertLaunchPayloadValid(payload = buildLaunchPayload()) {
 async function copyConfigSummary() {
   if (!state.data) return;
   await copyText(getConfigSummaryText());
-  el.launchState.textContent = "æ‘˜è¦å·²å¤åˆ¶";
+  el.launchState.textContent = "ÕªÒªÒÑ¸´ÖÆ";
 }
 
 function updateSummaryDetails(payload = buildLaunchPayload()) {
-  const mutatorIds = payload.mutators.length === 0 ? "æ— " : payload.mutators.join(", ");
+  const mutatorIds = payload.mutators.length === 0 ? "ÎŞ" : payload.mutators.join(", ");
   const genericBonusLevels = normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || []);
   const genericBonusLabels = (payload.genericBonuses || []).map((id) => getGenericBonusDisplayName(id, genericBonusLevels));
   const overrideLabels = getCommanderOverrideLabels(payload.commanderOverrides || [], payload.commander);
@@ -1543,7 +1543,7 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     mutatorPreset: payload.mutatorPreset,
     mutatorIdsText: mutatorIds,
     genericBonusLabels,
-    modeLabel: payload.noLaunch ? "éªŒè¯å®‰è£…" : "æ­£å¼å¯åŠ¨",
+    modeLabel: payload.noLaunch ? "ÑéÖ¤°²×°" : "ÕıÊ½Æô¶¯",
     overrideLabels,
   });
   if (el.voicePackBadge) {
@@ -1556,7 +1556,7 @@ function updateSummaryDetails(payload = buildLaunchPayload()) {
     el.voicePackRaceReward.textContent = voicePackReward;
   }
   if (el.voicePackMode) {
-    el.voicePackMode.textContent = (payload.voicePack || "Default") === "Default" ? "æŒ‡æŒ¥å®˜é»˜è®¤" : "æŒ‰å­˜æ¡£è¦†ç›–";
+    el.voicePackMode.textContent = (payload.voicePack || "Default") === "Default" ? "Ö¸»Ó¹ÙÄ¬ÈÏ" : "°´´æµµ¸²¸Ç";
   }
 }
 
@@ -1566,16 +1566,16 @@ function updateScorePanel(payload = buildLaunchPayload()) {
   const commander = getCommander();
   const mapLabel = getMapLabel(payload.map);
   const commanderProgressText = commander
-    ? `${commander.displayName || commander.runtime} / ${mapLabel || payload.map || "-"} / ${scoreState.commanderCleared ? "å·²é¦–é€š" : "æœªé¦–é€š"} / å¥–åŠ± ${Math.max(scoreState.commanderBonusScore, scoreState.objectiveStats.completed)}`
-    : "ç­‰å¾…é€‰æ‹©";
+    ? `${commander.displayName || commander.runtime} / ${mapLabel || payload.map || "-"} / ${scoreState.commanderCleared ? "ÒÑÊ×Í¨" : "Î´Ê×Í¨"} / ½±Àø ${Math.max(scoreState.commanderBonusScore, scoreState.objectiveStats.completed)}`
+    : "µÈ´ıÑ¡Ôñ";
   const detailParts = [
-    `é¦–é€š ${scoreState.firstClearCount} æ¬¡ = ${scoreState.firstClearPoints} åˆ†`,
-    `å¥–åŠ± ${scoreState.bonusObjectiveCount} ç‚¹ = ${scoreState.bonusObjectivePoints} åˆ†`,
-    `å½“å‰å› å­ +${scoreState.mutatorPoints}`,
-    `å½“å‰åŠ æˆ -${scoreState.bonusCost}`,
+    `Ê×Í¨ ${scoreState.firstClearCount} ´Î = ${scoreState.firstClearPoints} ·Ö`,
+    `½±Àø ${scoreState.bonusObjectiveCount} µã = ${scoreState.bonusObjectivePoints} ·Ö`,
+    `µ±Ç°Òò×Ó +${scoreState.mutatorPoints}`,
+    `µ±Ç°¼Ó³É -${scoreState.bonusCost}`,
   ];
   if (scoreState.objectiveStats.failed > 0) {
-    detailParts.push(`å¤±è´¥ç›®æ ‡ ${scoreState.objectiveStats.failed}`);
+    detailParts.push(`Ê§°ÜÄ¿±ê ${scoreState.objectiveStats.failed}`);
   }
   updateScorePanelComponent({
     budgetBadgeElement: el.scoreBudgetBadge,
@@ -1591,18 +1591,18 @@ function updateScorePanel(payload = buildLaunchPayload()) {
     bonusCost: scoreState.bonusCost,
     balanceAfter: scoreState.balanceAfterSelection,
     commanderProgressText,
-    detailText: detailParts.join(" Â· "),
+    detailText: detailParts.join(" ¡¤ "),
     ruleText: getScoreRuleText(),
   });
 }
 
 function updateSummary() {
   if (!state.data) {
-    el.selectionSummary.textContent = "æœªå°±ç»ª";
+    el.selectionSummary.textContent = "Î´¾ÍĞ÷";
     el.copySummaryButton.disabled = true;
     if (el.summaryPoints) el.summaryPoints.textContent = "0";
-    setValidationSummary("æœªéªŒè¯");
-    el.configIssues.textContent = "é…ç½®æœªå°±ç»ª";
+    setValidationSummary("Î´ÑéÖ¤");
+    el.configIssues.textContent = "ÅäÖÃÎ´¾ÍĞ÷";
     el.configIssues.className = "config-issues status-warn";
     return;
   }
@@ -1651,19 +1651,19 @@ function updateBootstrapStrip() {
   const completionStatus = [];
   const scoreStatus = [];
   if (completion.bankFound) {
-    completionStatus.push(`å·²è¯»å– Bank`);
+    completionStatus.push(`ÒÑ¶ÁÈ¡ Bank`);
     if (completion.lastCommander || completion.lastMap) {
-      completionStatus.push(`æœ€è¿‘è¿›åº¦ ${completion.lastCommander || "-"}/${completion.lastMap || "-"}`);
+      completionStatus.push(`×î½ü½ø¶È ${completion.lastCommander || "-"}/${completion.lastMap || "-"}`);
     }
     if (completion.bankLastWriteTime) {
-      completionStatus.push(`æ›´æ–°æ—¶é—´ ${formatShortTime(completion.bankLastWriteTime)}`);
+      completionStatus.push(`¸üĞÂÊ±¼ä ${formatShortTime(completion.bankLastWriteTime)}`);
     }
-    scoreStatus.push(`å·²å¾— ${completion.pointLedger?.earnedPoints || 0} åˆ†`);
-    scoreStatus.push(`é¦–é€š ${completion.pointLedger?.firstClearCount || 0}`);
-    scoreStatus.push(`å¥–åŠ± ${completion.pointLedger?.bonusObjectiveCount || 0}`);
+    scoreStatus.push(`ÒÑµÃ ${completion.pointLedger?.earnedPoints || 0} ·Ö`);
+    scoreStatus.push(`Ê×Í¨ ${completion.pointLedger?.firstClearCount || 0}`);
+    scoreStatus.push(`½±Àø ${completion.pointLedger?.bonusObjectiveCount || 0}`);
   } else {
-    completionStatus.push("æœªæ‰¾åˆ° CampaignXCore.SC2Bank");
-    scoreStatus.push("ç§¯åˆ†ä» 0 å¼€å§‹");
+    completionStatus.push("Î´ÕÒµ½ CampaignXCore.SC2Bank");
+    scoreStatus.push("»ı·Ö´Ó 0 ¿ªÊ¼");
   }
   const resourcePlan = state.data.resourcePlan || {};
   updateBootstrapStripPanelComponent({
@@ -1677,13 +1677,13 @@ function updateBootstrapStrip() {
     mapCount: state.data.counts?.maps ?? state.data.maps?.length ?? 0,
     mutatorCount: state.data.counts?.mutators ?? state.data.mutators?.length ?? 0,
     completion,
-    completionStatusText: completionStatus.join(" Â· "),
-    scoreStatusText: scoreStatus.join(" Â· "),
+    completionStatusText: completionStatus.join(" ¡¤ "),
+    scoreStatusText: scoreStatus.join(" ¡¤ "),
     resourcePlanText: [
-    resourcePlan.text || "æ•°æ®ç´¢å¼•å·²å°±ç»ª",
+    resourcePlan.text || "Êı¾İË÷ÒıÒÑ¾ÍĞ÷",
     resourcePlan.icons || "",
     resourcePlan.audio || "",
-  ].filter(Boolean).join(" Â· "),
+  ].filter(Boolean).join(" ¡¤ "),
   });
 }
 
@@ -1801,43 +1801,43 @@ function getDefaultPayload() {
 function parsePayloadText() {
   const raw = el.payloadText.value.trim();
   if (!raw) {
-    setPayloadStatus("ç­‰å¾…é…ç½®");
+    setPayloadStatus("µÈ´ıÅäÖÃ");
     return null;
   }
 
   try {
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      throw new Error("JSON æ ¹èŠ‚ç‚¹å¿…é¡»æ˜¯å¯¹è±¡");
+      throw new Error("JSON ¸ù½Úµã±ØĞëÊÇ¶ÔÏó");
     }
-    setPayloadStatus("JSON å¯åº”ç”¨", "status-ok");
+    setPayloadStatus("JSON ¿ÉÓ¦ÓÃ", "status-ok");
     return parsed;
   } catch (error) {
-    setPayloadStatus(`JSON æ— æ•ˆï¼š${error.message}`, "status-error");
+    setPayloadStatus(`JSON ÎŞĞ§£º${error.message}`, "status-error");
     return null;
   }
 }
 
 function exportCurrentPayload() {
   const payload = buildLaunchPayload();
-  exportPayloadToEditor(payload, "å·²å¯¼å‡ºå½“å‰é…ç½®");
+  exportPayloadToEditor(payload, "ÒÑµ¼³öµ±Ç°ÅäÖÃ");
   writeOutput({ exportedPayload: payload });
 }
 
-function exportPayloadToEditor(payload, statusText = "å·²å¯¼å‡ºé…ç½®") {
+function exportPayloadToEditor(payload, statusText = "ÒÑµ¼³öÅäÖÃ") {
   el.payloadText.value = JSON.stringify(payload, null, 2);
   el.copyPayloadButton.disabled = false;
   el.applyPayloadButton.disabled = false;
   setPayloadStatus(statusText, "status-ok");
-  el.launchState.textContent = "å·²å¯¼å‡ºé…ç½®";
+  el.launchState.textContent = "ÒÑµ¼³öÅäÖÃ";
 }
 
 async function copyPayloadJson() {
   const raw = el.payloadText.value.trim();
   if (!raw) return;
   await copyText(raw);
-  setPayloadStatus("JSON å·²å¤åˆ¶", "status-ok");
-  el.launchState.textContent = "å·²å¤åˆ¶ JSON";
+  setPayloadStatus("JSON ÒÑ¸´ÖÆ", "status-ok");
+  el.launchState.textContent = "ÒÑ¸´ÖÆ JSON";
 }
 
 function applyPayloadJson() {
@@ -1848,11 +1848,11 @@ function applyPayloadJson() {
   el.copyPayloadButton.disabled = false;
   el.applyPayloadButton.disabled = false;
   if (report.ok) {
-    setPayloadStatus("JSON å·²åº”ç”¨", "status-ok");
-    el.launchState.textContent = "å·²åº”ç”¨é…ç½®";
+    setPayloadStatus("JSON ÒÑÓ¦ÓÃ", "status-ok");
+    el.launchState.textContent = "ÒÑÓ¦ÓÃÅäÖÃ";
   } else {
-    setPayloadStatus("JSON å·²éƒ¨åˆ†åº”ç”¨", "status-error");
-    el.launchState.textContent = "éƒ¨åˆ†åº”ç”¨";
+    setPayloadStatus("JSON ÒÑ²¿·ÖÓ¦ÓÃ", "status-error");
+    el.launchState.textContent = "²¿·ÖÓ¦ÓÃ";
   }
   writeOutput({ appliedPayload: buildLaunchPayload(), importReport: report });
 }
@@ -1861,7 +1861,7 @@ function clearPayloadJson() {
   el.payloadText.value = "";
   el.copyPayloadButton.disabled = true;
   el.applyPayloadButton.disabled = true;
-  setPayloadStatus("ç­‰å¾…é…ç½®");
+  setPayloadStatus("µÈ´ıÅäÖÃ");
 }
 
 function saveConfig() {
@@ -1873,7 +1873,7 @@ function saveConfig() {
     activeSheet: state.activeSheet,
   });
   addRecentConfig(payload);
-  el.launchState.textContent = "å·²ä¿å­˜";
+  el.launchState.textContent = "ÒÑ±£´æ";
   writeOutput({ saved: payload });
 }
 
@@ -1945,14 +1945,14 @@ function renderRecentConfigs() {
     getPayloadSummaryText,
     onApply: (payload) => {
       applyPayload(payload);
-      el.launchState.textContent = "å·²å¥—ç”¨";
+      el.launchState.textContent = "ÒÑÌ×ÓÃ";
       writeOutput({ appliedRecent: payload });
     },
     onValidate: async (payload) => {
-      await validatePayload(payload, "æœ€è¿‘éªŒè¯");
+      await validatePayload(payload, "×î½üÑéÖ¤");
     },
     onExportJson: (payload) => {
-      exportPayloadToEditor(payload, "å·²å¯¼å‡ºæœ€è¿‘é…ç½®");
+      exportPayloadToEditor(payload, "ÒÑµ¼³ö×î½üÅäÖÃ");
       writeOutput({ exportedRecent: payload });
     },
   });
@@ -1975,7 +1975,7 @@ function defaultScenarioName(payload) {
   const map = getMapLabel(payload.map);
   const mutatorCount = (payload.mutators || []).length;
   const genericBonusCount = getSelectedGenericBonusIds(new Set(payload.genericBonuses || []), normalizeGenericBonusLevels(payload.genericBonusLevels || {}, payload.genericBonuses || [])).length;
-  return `${commander} / ${map} / ${mutatorCount} å› å­ / ${genericBonusCount} åŠ æˆ`;
+  return `${commander} / ${map} / ${mutatorCount} Òò×Ó / ${genericBonusCount} ¼Ó³É`;
 }
 
 function saveScenarioPreset() {
@@ -1995,7 +1995,7 @@ function saveScenarioPreset() {
     ),
   ];
   writeScenarioPresets(next);
-  el.launchState.textContent = "åœºæ™¯å·²ä¿å­˜";
+  el.launchState.textContent = "³¡¾°ÒÑ±£´æ";
   writeOutput({ savedScenarioPreset: record });
 }
 
@@ -2014,7 +2014,7 @@ function renderScenarioPresets() {
     formatTime,
     onApply: (item, payload) => {
       applyPayload(payload);
-      el.launchState.textContent = "åœºæ™¯å·²å¥—ç”¨";
+      el.launchState.textContent = "³¡¾°ÒÑÌ×ÓÃ";
       writeOutput({ appliedScenarioPreset: item.name, payload });
     },
     onLaunch: async (payload) => {
@@ -2023,15 +2023,15 @@ function renderScenarioPresets() {
       }
     },
     onValidate: async (payload) => {
-      await validatePayload(payload, "åœºæ™¯éªŒè¯");
+      await validatePayload(payload, "³¡¾°ÑéÖ¤");
     },
     onExportJson: (item, payload) => {
-      exportPayloadToEditor(payload, "å·²å¯¼å‡ºåœºæ™¯é…ç½®");
+      exportPayloadToEditor(payload, "ÒÑµ¼³ö³¡¾°ÅäÖÃ");
       writeOutput({ exportedScenarioPreset: item.name, payload });
     },
     onRemove: (item) => {
       writeScenarioPresets(readScenarioPresets().filter((candidate) => candidate.id !== item.id));
-      el.launchState.textContent = "åœºæ™¯å·²åˆ é™¤";
+      el.launchState.textContent = "³¡¾°ÒÑÉ¾³ı";
     },
   });
   updateRowSubmitButtons();
@@ -2061,7 +2061,7 @@ function renderMutatorPresets() {
 function saveCurrentMutatorPreset() {
   const mutators = [...state.selectedMutators];
   const typedName = el.mutatorPresetName.value.trim();
-  const name = typedName || `${mutators.length} å› å­ç»„åˆ`;
+  const name = typedName || `${mutators.length} Òò×Ó×éºÏ`;
   const id = typedName || mutators.join("|") || "empty";
   const preset = {
     id: `${id}`.slice(0, 80),
@@ -2077,7 +2077,7 @@ function saveCurrentMutatorPreset() {
   writeMutatorPresets(next);
   el.savedMutatorPreset.value = preset.id;
   renderMutatorPresets();
-  el.launchState.textContent = "ç»„åˆå·²ä¿å­˜";
+  el.launchState.textContent = "×éºÏÒÑ±£´æ";
   writeOutput({ savedMutatorPreset: preset });
 }
 
@@ -2093,7 +2093,7 @@ function applySelectedMutatorPreset() {
   }
   renderMutators();
   updateSummary();
-  el.launchState.textContent = "ç»„åˆå·²å¥—ç”¨";
+  el.launchState.textContent = "×éºÏÒÑÌ×ÓÃ";
   writeOutput({
     appliedMutatorPreset: preset.name,
     mutators: [...state.selectedMutators].map((id) => `${getMutatorLabel(id)} (${id})`),
@@ -2104,7 +2104,7 @@ function deleteSelectedMutatorPreset() {
   const selectedId = el.savedMutatorPreset.value;
   if (!selectedId) return;
   writeMutatorPresets(readMutatorPresets().filter((item) => item.id !== selectedId));
-  el.launchState.textContent = "ç»„åˆå·²åˆ é™¤";
+  el.launchState.textContent = "×éºÏÒÑÉ¾³ı";
 }
 
 function readLaunchHistory() {
@@ -2157,13 +2157,13 @@ function updateLaunchHistoryStatus(recordId, finalStatus) {
 function getLaunchHistoryStatusLabel(item) {
   const result = item.result || {};
   if (result.noLaunch) {
-    if (result.exitCode === 0) return "éªŒè¯é€šè¿‡";
-    if (result.exitCode !== null && result.exitCode !== undefined) return `é€€å‡ºç  ${result.exitCode}`;
-    return "éªŒè¯ä¸­";
+    if (result.exitCode === 0) return "ÑéÖ¤Í¨¹ı";
+    if (result.exitCode !== null && result.exitCode !== undefined) return `ÍË³öÂë ${result.exitCode}`;
+    return "ÑéÖ¤ÖĞ";
   }
-  if (result.exitCode === 0) return "å¯åŠ¨æˆåŠŸ";
-  if (result.finalStatus?.timedOut) return "è½®è¯¢è¶…æ—¶";
-  if (result.exitCode !== null && result.exitCode !== undefined) return `é€€å‡ºç  ${result.exitCode}`;
+  if (result.exitCode === 0) return "Æô¶¯³É¹¦";
+  if (result.finalStatus?.timedOut) return "ÂÖÑ¯³¬Ê±";
+  if (result.exitCode !== null && result.exitCode !== undefined) return `ÍË³öÂë ${result.exitCode}`;
   return `PID ${result.pid || "-"}`;
 }
 
@@ -2198,11 +2198,11 @@ function renderLaunchHistory() {
     onApply: (item, payload) => {
       applyPayload(payload);
       if (isSuccessfulHistoryValidation(item.result || {})) {
-        setValidatedConfig(buildLaunchPayload(), item.result || {}, item.result?.finalStatus || null, "å†å²éªŒè¯");
+        setValidatedConfig(buildLaunchPayload(), item.result || {}, item.result?.finalStatus || null, "ÀúÊ·ÑéÖ¤");
       } else {
         clearValidatedConfig();
       }
-      el.launchState.textContent = "å†å²å·²å¥—ç”¨";
+      el.launchState.textContent = "ÀúÊ·ÒÑÌ×ÓÃ";
       writeOutput({ appliedLaunchHistory: payload, result: item.result });
     },
     onShowLogs: (item, payload, mutators, genericBonuses) => {
@@ -2219,13 +2219,13 @@ function renderLaunchHistory() {
         finalStatus: item.result?.finalStatus || null,
         logPaths,
       });
-      el.launchState.textContent = "å†å²æ—¥å¿—å·²è½½å…¥";
+      el.launchState.textContent = "ÀúÊ·ÈÕÖ¾ÒÑÔØÈë";
     },
     onValidate: async (payload) => {
-      await validatePayload(payload, "å†å²éªŒè¯");
+      await validatePayload(payload, "ÀúÊ·ÑéÖ¤");
     },
     onExportJson: (item, payload) => {
-      exportPayloadToEditor(payload, "å·²å¯¼å‡ºå†å²é…ç½®");
+      exportPayloadToEditor(payload, "ÒÑµ¼³öÀúÊ·ÅäÖÃ");
       writeOutput({ exportedLaunchHistory: item.launchedAt, payload, result: item.result });
     },
   });
@@ -2239,7 +2239,7 @@ function loadSavedConfig() {
     return applyPayload(JSON.parse(raw));
   } catch (error) {
     localStorage.removeItem(STORAGE_KEY);
-    writeOutput(`ä¿å­˜çš„é…ç½®æ— æ•ˆï¼Œå·²æ¸…é™¤ï¼š${error.message}`);
+    writeOutput(`±£´æµÄÅäÖÃÎŞĞ§£¬ÒÑÇå³ı£º${error.message}`);
     return false;
   }
 }
@@ -2252,8 +2252,8 @@ function resetConfig() {
   state.startTalentMaskMode = "default";
   state.activeSheet = DEFAULT_ACTIVE_SHEET;
   syncActiveSheetUI();
-  el.launchState.textContent = "é»˜è®¤";
-  writeOutput("å·²æ¢å¤é»˜è®¤é…ç½®");
+  el.launchState.textContent = "Ä¬ÈÏ";
+  writeOutput("ÒÑ»Ö¸´Ä¬ÈÏÅäÖÃ");
 }
 
 function randomizeMutators(countOverride = null, append = false) {
@@ -2265,16 +2265,16 @@ function randomizeMutators(countOverride = null, append = false) {
   el.randomMutatorCount.value = String(count);
   const pool = getRandomMutatorPool();
   if (pool.length === 0) {
-    el.launchState.textContent = "éšæœºæ± ä¸ºç©º";
-    writeOutput("å½“å‰å› å­ç­›é€‰æ²¡æœ‰å¯éšæœºçš„å› å­ï¼›è¯·æ¸…é™¤ç­›é€‰æˆ–æ”¾å®½æ¡ä»¶ã€‚");
+    el.launchState.textContent = "Ëæ»ú³ØÎª¿Õ";
+    writeOutput("µ±Ç°Òò×ÓÉ¸Ñ¡Ã»ÓĞ¿ÉËæ»úµÄÒò×Ó£»ÇëÇå³ıÉ¸Ñ¡»ò·Å¿íÌõ¼ş¡£");
     return;
   }
   const candidates = append
     ? pool.filter((item) => !state.selectedMutators.has(item.id))
     : pool;
   if (candidates.length === 0) {
-    el.launchState.textContent = "æ²¡æœ‰å¯è¿½åŠ å› å­";
-    writeOutput("å½“å‰ç­›é€‰æ± å†…çš„å› å­éƒ½å·²é€‰ä¸­ï¼›è¯·æ”¾å®½ç­›é€‰æˆ–æ¸…ç©ºéƒ¨åˆ†å·²é€‰å› å­ã€‚");
+    el.launchState.textContent = "Ã»ÓĞ¿É×·¼ÓÒò×Ó";
+    writeOutput("µ±Ç°É¸Ñ¡³ØÄÚµÄÒò×Ó¶¼ÒÑÑ¡ÖĞ£»Çë·Å¿íÉ¸Ñ¡»òÇå¿Õ²¿·ÖÒÑÑ¡Òò×Ó¡£");
     return;
   }
   const shuffled = [...candidates].sort(() => Math.random() - 0.5);
@@ -2289,8 +2289,8 @@ function randomizeMutators(countOverride = null, append = false) {
   updateSummary();
   scheduleAutosave();
   el.launchState.textContent = append
-    ? `è¿½åŠ  ${picked.length} å› å­`
-    : `éšæœº ${picked.length} å› å­`;
+    ? `×·¼Ó ${picked.length} Òò×Ó`
+    : `Ëæ»ú ${picked.length} Òò×Ó`;
   writeOutput({
     [append ? "appendedRandomMutators" : "randomMutators"]: picked.map((item) => `${getMutatorLabel(item.id)} (${item.id})`),
     selectedMutators: [...state.selectedMutators].map((id) => `${getMutatorLabel(id)} (${id})`),
@@ -2303,7 +2303,7 @@ async function copySelectedMutatorIds() {
   const ids = [...state.selectedMutators];
   if (ids.length === 0) return;
   await copyText(ids.join(","));
-  el.launchState.textContent = "å› å­ ID å·²å¤åˆ¶";
+  el.launchState.textContent = "Òò×Ó ID ÒÑ¸´ÖÆ";
 }
 
 function normalizeImportKey(value) {
@@ -2324,7 +2324,7 @@ function parseMutatorImport() {
   }
   const tokens = el.mutatorImportText.value
     .replace(/\\[rnt]/gi, " ")
-    .split(/[\s,;ï¼Œï¼›ã€|]+/)
+    .split(/[\s,;£¬£»¡¢|]+/)
     .map((item) => item.trim())
     .filter(Boolean);
   const matched = [];
@@ -2352,7 +2352,7 @@ function applyMutatorImport(replace) {
   renderMutators();
   updateSummary();
   scheduleAutosave();
-  el.launchState.textContent = unknown.length > 0 ? "éƒ¨åˆ†æœªè¯†åˆ«" : "å› å­å·²å¯¼å…¥";
+  el.launchState.textContent = unknown.length > 0 ? "²¿·ÖÎ´Ê¶±ğ" : "Òò×ÓÒÑµ¼Èë";
   writeOutput({
     importedMutators: matched.map((id) => `${getMutatorLabel(id)} (${id})`),
     unknownMutators: unknown,
@@ -2387,7 +2387,7 @@ async function loadBootstrap() {
   el.exportPayloadButton.disabled = true;
   el.applyPayloadButton.disabled = true;
   el.validateLaunchButton.disabled = true;
-  setStatus("åŠ è½½ä¸­");
+  setStatus("¼ÓÔØÖĞ");
   try {
     state.data = await apiFetchJson("/api/bootstrap?v=20260617-voicepacks", { cache: "no-store" });
     state.selectedMutators.clear();
@@ -2430,7 +2430,7 @@ async function loadBootstrap() {
     el.copyPayloadButton.disabled = el.payloadText.value.trim().length === 0;
     updateConfigActionButtons();
     setStatus(
-      `å·²è½½å…¥ ${state.data.counts.commanders} æŒ‡æŒ¥å®˜ / ${state.data.counts.maps} åœ°å›¾ / ${state.data.counts.mutators} å› å­`,
+      `ÒÑÔØÈë ${state.data.counts.commanders} Ö¸»Ó¹Ù / ${state.data.counts.maps} µØÍ¼ / ${state.data.counts.mutators} Òò×Ó`,
       "status-ok",
     );
     writeOutput({
@@ -2442,7 +2442,7 @@ async function loadBootstrap() {
     });
   } catch (error) {
     state.data = null;
-    setServiceUnavailable(error.message || "æœ¬åœ°å¯åŠ¨å™¨ç¦»çº¿");
+    setServiceUnavailable(error.message || "±¾µØÆô¶¯Æ÷ÀëÏß");
     writeOutput(error.stack || error.message);
     scheduleBootstrapRetry();
   }
@@ -2472,7 +2472,7 @@ async function pollLaunchStatus(launchResult) {
     });
   } catch (error) {
     if (isFetchFailure(error)) {
-      setServiceUnavailable(error.message || "æœ¬åœ°å¯åŠ¨å™¨ç¦»çº¿");
+      setServiceUnavailable(error.message || "±¾µØÆô¶¯Æ÷ÀëÏß");
       scheduleBootstrapRetry();
     }
     throw error;
@@ -2488,38 +2488,38 @@ async function waitForLaunchCompletion(launchResult, options = {}) {
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const status = await pollLaunchStatus(launchResult);
     setLastLogPaths(status.stdout?.path, status.stderr?.path);
-    el.launchState.textContent = status.running ? (runningLabel || `PID ${status.pid}`) : "å·²ç»“æŸ";
+    el.launchState.textContent = status.running ? (runningLabel || `PID ${status.pid}`) : "ÒÑ½áÊø";
     writeOutput(formatLaunchStatus(status));
     if (!status.running) {
       if (status.exitCode !== null && status.exitCode !== undefined && Number(status.exitCode) !== 0) {
-        throw new Error(`å¯åŠ¨è„šæœ¬é€€å‡ºç é 0: ${status.exitCode}`);
+        throw new Error(`Æô¶¯½Å±¾ÍË³öÂë·Ç 0: ${status.exitCode}`);
       }
       if (requireDryRunMarker && !isDryRunComplete(status)) {
-        throw new Error("dry-run æœªå†™å‡ºå®Œæ•´éªŒè¯æ—¥å¿—");
+        throw new Error("dry-run Î´Ğ´³öÍêÕûÑéÖ¤ÈÕÖ¾");
       }
       const stderr = getStatusStderr(status);
       if (stderr) {
-        throw new Error(`stderr éç©ºï¼ŒéªŒè¯å¤±è´¥:\n${stderr}`);
+        throw new Error(`stderr ·Ç¿Õ£¬ÑéÖ¤Ê§°Ü:\n${stderr}`);
       }
       return status;
     }
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
 
-  throw new Error("ç­‰å¾…å¯åŠ¨è¿›ç¨‹ç»“æŸè¶…æ—¶");
+  throw new Error("µÈ´ıÆô¶¯½ø³Ì½áÊø³¬Ê±");
 }
 
 async function submitLaunch(payload, labels = {}) {
   if (state.launchPollTimer) {
-    el.launchState.textContent = "å¯åŠ¨è¿è¡Œä¸­";
-    writeOutput("å·²æœ‰å¯åŠ¨è¿›ç¨‹æ­£åœ¨è½®è¯¢çŠ¶æ€ï¼›è¯·ç­‰å¾…ç»“æŸåå†æäº¤æ–°çš„å¯åŠ¨æˆ–éªŒè¯ã€‚");
+    el.launchState.textContent = "Æô¶¯ÔËĞĞÖĞ";
+    writeOutput("ÒÑÓĞÆô¶¯½ø³ÌÕıÔÚÂÖÑ¯×´Ì¬£»ÇëµÈ´ı½áÊøºóÔÙÌá½»ĞÂµÄÆô¶¯»òÑéÖ¤¡£");
     return null;
   }
   if (!assertLaunchPayloadValid(payload)) {
     return null;
   }
   setLaunchControlsDisabled(true);
-  el.launchState.textContent = labels.pending || "å¯åŠ¨ä¸­";
+  el.launchState.textContent = labels.pending || "Æô¶¯ÖĞ";
   writeOutput({ request: payload });
 
   try {
@@ -2537,8 +2537,8 @@ async function submitLaunch(payload, labels = {}) {
         requireDryRunMarker: true,
         runningLabel: labels.running || "",
       });
-      setValidatedConfig(payload, result, finalStatus, labels.validationSource || "éªŒè¯");
-      el.launchState.textContent = "éªŒè¯é€šè¿‡";
+      setValidatedConfig(payload, result, finalStatus, labels.validationSource || "ÑéÖ¤");
+      el.launchState.textContent = "ÑéÖ¤Í¨¹ı";
     } else {
       writeOutput(result);
     }
@@ -2554,10 +2554,10 @@ async function submitLaunch(payload, labels = {}) {
     };
   } catch (error) {
     if (isFetchFailure(error)) {
-      setServiceUnavailable(error.message || "æœ¬åœ°å¯åŠ¨å™¨ç¦»çº¿");
+      setServiceUnavailable(error.message || "±¾µØÆô¶¯Æ÷ÀëÏß");
       scheduleBootstrapRetry();
     } else {
-      el.launchState.textContent = "é”™è¯¯";
+      el.launchState.textContent = "´íÎó";
     }
     writeOutput(error.stack || error.message);
     return null;
@@ -2584,7 +2584,7 @@ async function validateCurrentConfig() {
     noLaunch: true,
   };
   await submitLaunch(payload, {
-    pending: "éªŒè¯ä¸­",
+    pending: "ÑéÖ¤ÖĞ",
     started: "dry-run",
   });
 }
@@ -2593,9 +2593,9 @@ async function validateThenLaunch() {
   const payload = buildLaunchPayload();
   if (payload.noLaunch) {
     await submitLaunch(payload, {
-      pending: "å®‰è£…éªŒè¯ä¸­",
-      started: "å®‰è£…ä¸­",
-      running: "å®‰è£…éªŒè¯ä¸­",
+      pending: "°²×°ÑéÖ¤ÖĞ",
+      started: "°²×°ÖĞ",
+      running: "°²×°ÑéÖ¤ÖĞ",
     });
     return;
   }
@@ -2605,7 +2605,7 @@ async function validateThenLaunch() {
     noLaunch: true,
   };
   const validationResult = await submitLaunch(validationPayload, {
-    pending: "éªŒè¯ä¸­",
+    pending: "ÑéÖ¤ÖĞ",
     started: "dry-run",
   });
   if (!validationResult) {
@@ -2617,12 +2617,12 @@ async function validateThenLaunch() {
       noLaunch: false,
     },
     {
-      pending: "éªŒè¯é€šè¿‡ï¼Œå¯åŠ¨ä¸­",
+      pending: "ÑéÖ¤Í¨¹ı£¬Æô¶¯ÖĞ",
     },
   );
 }
 
-async function validatePayload(payload, pending = "éªŒè¯ä¸­") {
+async function validatePayload(payload, pending = "ÑéÖ¤ÖĞ") {
   if (!applyPayload(payload)) return;
   await submitLaunch(
     {
@@ -2647,7 +2647,7 @@ function beginLaunchPolling(launchResult, historyId = null) {
     attempts += 1;
     try {
       const status = await pollLaunchStatus(launchResult);
-      el.launchState.textContent = status.running ? `PID ${status.pid}` : "å·²ç»“æŸ";
+      el.launchState.textContent = status.running ? `PID ${status.pid}` : "ÒÑ½áÊø";
       setLastLogPaths(status.stdout?.path, status.stderr?.path);
       writeOutput(formatLaunchStatus(status));
       if (!status.running || attempts >= 60) {
@@ -2660,8 +2660,8 @@ function beginLaunchPolling(launchResult, historyId = null) {
             checkedAt: status.checkedAt || new Date().toISOString(),
           };
           updateLaunchHistoryStatus(historyId, timedOutStatus);
-          el.launchState.textContent = "è½®è¯¢è¶…æ—¶";
-          writeOutput(`${formatLaunchStatus(status)}\n\nè½®è¯¢å·²è¾¾åˆ°ä¸Šé™ï¼Œå·²åœæ­¢è‡ªåŠ¨åˆ·æ–°ã€‚`);
+          el.launchState.textContent = "ÂÖÑ¯³¬Ê±";
+          writeOutput(`${formatLaunchStatus(status)}\n\nÂÖÑ¯ÒÑ´ïµ½ÉÏÏŞ£¬ÒÑÍ£Ö¹×Ô¶¯Ë¢ĞÂ¡£`);
         }
         clearInterval(state.launchPollTimer);
         state.launchPollTimer = null;
@@ -2671,7 +2671,7 @@ function beginLaunchPolling(launchResult, historyId = null) {
       clearInterval(state.launchPollTimer);
       state.launchPollTimer = null;
       setLaunchControlsDisabled(false);
-      el.launchState.textContent = "çŠ¶æ€é”™è¯¯";
+      el.launchState.textContent = "×´Ì¬´íÎó";
       writeOutput(error.stack || error.message);
     }
   };
@@ -2687,7 +2687,7 @@ async function previewLaunch() {
     return;
   }
   el.previewButton.disabled = true;
-  el.launchState.textContent = "é¢„è§ˆ";
+  el.launchState.textContent = "Ô¤ÀÀ";
   writeOutput({ request: payload });
 
   try {
@@ -2696,16 +2696,16 @@ async function previewLaunch() {
       headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify(payload),
     });
-    el.launchState.textContent = "å‚æ•°æœ‰æ•ˆ";
+    el.launchState.textContent = "²ÎÊıÓĞĞ§";
     el.copyCommandButton.disabled = !result.commandLine;
     el.copyCommandButton.dataset.command = result.commandLine || "";
     writeOutput(result);
   } catch (error) {
     if (isFetchFailure(error)) {
-      setServiceUnavailable(error.message || "æœ¬åœ°å¯åŠ¨å™¨ç¦»çº¿");
+      setServiceUnavailable(error.message || "±¾µØÆô¶¯Æ÷ÀëÏß");
       scheduleBootstrapRetry();
     } else {
-      el.launchState.textContent = "é”™è¯¯";
+      el.launchState.textContent = "´íÎó";
     }
     writeOutput(error.stack || error.message);
   } finally {
@@ -2718,7 +2718,7 @@ async function copyPreviewCommand() {
   if (!command) return;
 
   await copyText(command);
-  el.launchState.textContent = "å·²å¤åˆ¶";
+  el.launchState.textContent = "ÒÑ¸´ÖÆ";
 }
 
 el.commanderSelect.addEventListener("change", () => {
@@ -2806,7 +2806,7 @@ el.payloadText.addEventListener("input", () => {
   if (hasText) {
     parsePayloadText();
   } else {
-    setPayloadStatus("ç­‰å¾…é…ç½®");
+    setPayloadStatus("µÈ´ıÅäÖÃ");
   }
 });
 el.launchButton.addEventListener("click", launchGame);
@@ -2819,7 +2819,7 @@ el.copyMutatorIds.addEventListener("click", copySelectedMutatorIds);
 
 loadBootstrap();
 
-// === Tab åˆ‡æ¢ ===
+// === Tab ÇĞ»» ===
 document.querySelectorAll('.tab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
@@ -2840,10 +2840,13 @@ document.querySelectorAll('.tab').forEach(btn => {
     if (tab === 'E') {
       initNeuroTab();
     }
+    if (tab === 'F') {
+      initCmreTab();
+    }
   });
 });
 
-// === Reborn æˆ˜å½¹ Tab ===
+// === Reborn Õ½ÒÛ Tab ===
 let rebornState = {
   selectedCommander: null,
   selectedMapId: null,
@@ -2890,11 +2893,11 @@ function setRebornLogPaths(stdout, stderr) {
     stderr: stderr || '',
   };
   if (rebornEl.stdoutPathText) {
-    rebornEl.stdoutPathText.textContent = stdout ? `æ ‡å‡†è¾“å‡ºï¼š${stdout}` : 'æ ‡å‡†è¾“å‡ºï¼š-';
+    rebornEl.stdoutPathText.textContent = stdout ? `±ê×¼Êä³ö£º${stdout}` : '±ê×¼Êä³ö£º-';
     rebornEl.stdoutPathText.title = stdout || '';
   }
   if (rebornEl.stderrPathText) {
-    rebornEl.stderrPathText.textContent = stderr ? `é”™è¯¯è¾“å‡ºï¼š${stderr}` : 'é”™è¯¯è¾“å‡ºï¼š-';
+    rebornEl.stderrPathText.textContent = stderr ? `´íÎóÊä³ö£º${stderr}` : '´íÎóÊä³ö£º-';
     rebornEl.stderrPathText.title = stderr || '';
   }
   if (rebornEl.copyLogPathsButton) {
@@ -2905,10 +2908,10 @@ function setRebornLogPaths(stdout, stderr) {
 async function copyRebornOutput() {
   const output = document.getElementById('rebornOutput');
   const text = output?.textContent.trim();
-  if (!text || text === 'ç­‰å¾…æ“ä½œ') return;
+  if (!text || text === 'µÈ´ı²Ù×÷') return;
   await copyText(text);
   const stateLabel = document.getElementById('rebornLaunchState');
-  if (stateLabel) stateLabel.textContent = 'è¾“å‡ºå·²å¤åˆ¶';
+  if (stateLabel) stateLabel.textContent = 'Êä³öÒÑ¸´ÖÆ';
 }
 
 async function copyRebornLogPaths() {
@@ -2920,16 +2923,16 @@ async function copyRebornLogPaths() {
   if (lines.length === 0) return;
   await copyText(lines.join('\n'));
   const stateLabel = document.getElementById('rebornLaunchState');
-  if (stateLabel) stateLabel.textContent = 'æ—¥å¿—è·¯å¾„å·²å¤åˆ¶';
+  if (stateLabel) stateLabel.textContent = 'ÈÕÖ¾Â·¾¶ÒÑ¸´ÖÆ';
 }
 
 function clearRebornOutput() {
   const output = document.getElementById('rebornOutput');
-  if (output) output.textContent = 'ç­‰å¾…æ“ä½œ';
+  if (output) output.textContent = 'µÈ´ı²Ù×÷';
   if (rebornEl.copyOutputButton) rebornEl.copyOutputButton.disabled = true;
   setRebornLogPaths('', '');
   const stateLabel = document.getElementById('rebornLaunchState');
-  if (stateLabel) stateLabel.textContent = 'è¾“å‡ºå·²æ¸…ç©º';
+  if (stateLabel) stateLabel.textContent = 'Êä³öÒÑÇå¿Õ';
 }
 
 async function initRebornTab(forceReload = false) {
@@ -2937,11 +2940,11 @@ async function initRebornTab(forceReload = false) {
   const rebornStatus = document.getElementById('rebornStatus');
   const rebornLaunchButton = document.getElementById('rebornLaunchButton');
   rebornLaunchButton.disabled = true;
-  rebornStatus.textContent = 'åŠ è½½ä¸­';
+  rebornStatus.textContent = '¼ÓÔØÖĞ';
 
   try {
     if (!state.data) {
-      rebornStatus.textContent = 'ç­‰å¾…ä¸»æ•°æ®åŠ è½½';
+      rebornStatus.textContent = 'µÈ´ıÖ÷Êı¾İ¼ÓÔØ';
       return;
     }
     rebornState.commanders = state.data.commanders;
@@ -2964,11 +2967,11 @@ async function initRebornTab(forceReload = false) {
     renderRebornPickers();
     updateRebornSummary();
     updateRebornLaunchButton();
-    rebornStatus.textContent = `å·²åŠ è½½ ${rebornState.commanders.length} ä¸ªæŒ‡æŒ¥å®˜, ${rebornState.maps.length} å¼ åœ°å›¾`;
+    rebornStatus.textContent = `ÒÑ¼ÓÔØ ${rebornState.commanders.length} ¸öÖ¸»Ó¹Ù, ${rebornState.maps.length} ÕÅµØÍ¼`;
   } catch (e) {
-    rebornStatus.textContent = `åŠ è½½å¤±è´¥: ${e.message}`;
+    rebornStatus.textContent = `¼ÓÔØÊ§°Ü: ${e.message}`;
     if (rebornEl.configIssues) {
-      rebornEl.configIssues.textContent = `åŠ è½½å¤±è´¥: ${e.message}`;
+      rebornEl.configIssues.textContent = `¼ÓÔØÊ§°Ü: ${e.message}`;
       rebornEl.configIssues.className = 'config-issues status-error';
     }
   }
@@ -3042,25 +3045,25 @@ function updateRebornSummary() {
     rebornEl.summaryMapFile.textContent = rebornState.selectedMapFile || map?.mapFile || '-';
   }
   if (rebornEl.summaryMode) {
-    rebornEl.summaryMode.textContent = dryRun ? 'åªå®‰è£…' : 'å¯åŠ¨';
+    rebornEl.summaryMode.textContent = dryRun ? 'Ö»°²×°' : 'Æô¶¯';
   }
   if (summary) {
-    summary.textContent = ready ? 'å°±ç»ª' : 'æœªå°±ç»ª';
+    summary.textContent = ready ? '¾ÍĞ÷' : 'Î´¾ÍĞ÷';
     summary.className = ready ? 'badge status-ok' : 'badge';
   }
   if (rebornEl.validationBadge) {
-    rebornEl.validationBadge.textContent = ready ? 'å¯å¯åŠ¨' : 'æœªéªŒè¯';
+    rebornEl.validationBadge.textContent = ready ? '¿ÉÆô¶¯' : 'Î´ÑéÖ¤';
     rebornEl.validationBadge.className = ready ? 'badge status-ok' : 'badge';
   }
   if (rebornEl.configIssues) {
     if (!ready) {
-      rebornEl.configIssues.textContent = 'è¯·é€‰æ‹©æŒ‡æŒ¥å®˜ä¸åœ°å›¾';
+      rebornEl.configIssues.textContent = 'ÇëÑ¡ÔñÖ¸»Ó¹ÙÓëµØÍ¼';
       rebornEl.configIssues.className = 'config-issues status-warn';
     } else if (dryRun) {
-      rebornEl.configIssues.textContent = 'å°†æ‰§è¡Œ DryRunï¼šåŒæ­¥ mod ä¸ Bankï¼Œä¸å¯åŠ¨æ¸¸æˆ';
+      rebornEl.configIssues.textContent = '½«Ö´ĞĞ DryRun£ºÍ¬²½ mod Óë Bank£¬²»Æô¶¯ÓÎÏ·';
       rebornEl.configIssues.className = 'config-issues status-ok';
     } else {
-      rebornEl.configIssues.textContent = 'é…ç½®å¯å¯åŠ¨';
+      rebornEl.configIssues.textContent = 'ÅäÖÃ¿ÉÆô¶¯';
       rebornEl.configIssues.className = 'config-issues status-ok';
     }
   }
@@ -3091,12 +3094,12 @@ async function launchRebornGame() {
   const dryRun = Boolean(rebornEl.dryRunToggle?.checked);
   if (!rebornState.selectedCommander) return;
   if (rebornState.pollTimer) {
-    stateLabel.textContent = 'å·²æœ‰å¯åŠ¨è¿›ç¨‹è¿è¡Œä¸­';
+    stateLabel.textContent = 'ÒÑÓĞÆô¶¯½ø³ÌÔËĞĞÖĞ';
     return;
   }
   btn.disabled = true;
-  stateLabel.textContent = dryRun ? 'DryRun ä¸­...' : 'å¯åŠ¨ä¸­...';
-  output.textContent = `å¯åŠ¨æŒ‡æŒ¥å®˜: ${rebornState.selectedCommander}\nåœ°å›¾: ${rebornState.selectedMapFile || 'é»˜è®¤'}\næ¨¡å¼: ${dryRun ? 'DryRun' : 'å¯åŠ¨'}\n`;
+  stateLabel.textContent = dryRun ? 'DryRun ÖĞ...' : 'Æô¶¯ÖĞ...';
+  output.textContent = `Æô¶¯Ö¸»Ó¹Ù: ${rebornState.selectedCommander}\nµØÍ¼: ${rebornState.selectedMapFile || 'Ä¬ÈÏ'}\nÄ£Ê½: ${dryRun ? 'DryRun' : 'Æô¶¯'}\n`;
   if (rebornEl.copyOutputButton) rebornEl.copyOutputButton.disabled = false;
   try {
     const result = await apiFetchJson('/api/reborn-launch', {
@@ -3110,12 +3113,12 @@ async function launchRebornGame() {
       }),
     });
     setRebornLogPaths(result.stdout, result.stderr);
-    output.textContent += `è¿›ç¨‹ PID: ${result.pid}\n`;
+    output.textContent += `½ø³Ì PID: ${result.pid}\n`;
     stateLabel.textContent = `PID ${result.pid}`;
     pollRebornLaunch(result);
   } catch (e) {
-    output.textContent += `é”™è¯¯: ${e.message}\n`;
-    stateLabel.textContent = 'é”™è¯¯';
+    output.textContent += `´íÎó: ${e.message}\n`;
+    stateLabel.textContent = '´íÎó';
     btn.disabled = false;
   }
 }
@@ -3135,18 +3138,18 @@ function pollRebornLaunch(result) {
         body: JSON.stringify({ pid: result.pid, stdout: result.stdout, stderr: result.stderr }),
       });
       if (status.stdout?.tail) {
-        output.textContent = `å¯åŠ¨æŒ‡æŒ¥å®˜: ${rebornState.selectedCommander}\nè¿›ç¨‹ PID: ${result.pid}\n${status.stdout.tail}`;
+        output.textContent = `Æô¶¯Ö¸»Ó¹Ù: ${rebornState.selectedCommander}\n½ø³Ì PID: ${result.pid}\n${status.stdout.tail}`;
         if (rebornEl.copyOutputButton) rebornEl.copyOutputButton.disabled = false;
       }
       if (!status.running && status.exitCode !== null) {
         clearInterval(rebornState.pollTimer);
         rebornState.pollTimer = null;
         if (status.exitCode === 0) {
-          stateLabel.textContent = 'å¯åŠ¨æˆåŠŸï¼ˆæ¸¸æˆè¿è¡Œä¸­ï¼‰';
-          output.textContent += '\n=== å¯åŠ¨å®Œæˆ ===\n';
+          stateLabel.textContent = 'Æô¶¯³É¹¦£¨ÓÎÏ·ÔËĞĞÖĞ£©';
+          output.textContent += '\n=== Æô¶¯Íê³É ===\n';
         } else {
-          stateLabel.textContent = `è¿›ç¨‹é€€å‡ºï¼Œé€€å‡ºç : ${status.exitCode}`;
-          output.textContent += `\n=== è¿›ç¨‹é€€å‡ºï¼Œé€€å‡ºç : ${status.exitCode} ===\n`;
+          stateLabel.textContent = `½ø³ÌÍË³ö£¬ÍË³öÂë: ${status.exitCode}`;
+          output.textContent += `\n=== ½ø³ÌÍË³ö£¬ÍË³öÂë: ${status.exitCode} ===\n`;
           if (status.stderr?.tail) {
             output.textContent += `stderr:\n${status.stderr.tail}\n`;
           }
@@ -3156,20 +3159,20 @@ function pollRebornLaunch(result) {
       if (attempts >= maxAttempts) {
         clearInterval(rebornState.pollTimer);
         rebornState.pollTimer = null;
-        stateLabel.textContent = 'è½®è¯¢è¶…æ—¶';
+        stateLabel.textContent = 'ÂÖÑ¯³¬Ê±';
         btn.disabled = false;
       }
     } catch (e) {
-      // å¿½ç•¥è½®è¯¢é”™è¯¯ï¼Œç»§ç»­é‡è¯•
+      // ºöÂÔÂÖÑ¯´íÎó£¬¼ÌĞøÖØÊÔ
     }
   }, 2000);
 }
 
-// === AI èµ·ä¹‰ç‹‚æ½® Tab ===
+// === AI ÆğÒå¿ñ³± Tab ===
 const AIRO_ORIGINAL_COMMANDER = {
   runtime: 'RevolutionOverdrive',
-  displayName: 'åŸç‰ˆ (Revolution Overdrive)',
-  integrationNote: 'ä»…åŠ è½½ RevolutionOverdrive modï¼Œä¸å åŠ  7vs1 æŒ‡æŒ¥å®˜',
+  displayName: 'Ô­°æ (Revolution Overdrive)',
+  integrationNote: '½ö¼ÓÔØ RevolutionOverdrive mod£¬²»µş¼Ó 7vs1 Ö¸»Ó¹Ù',
   integrationTone: 'ok',
 };
 
@@ -3219,11 +3222,11 @@ function setAiroLogPaths(stdout, stderr) {
     stderr: stderr || '',
   };
   if (airoEl.stdoutPathText) {
-    airoEl.stdoutPathText.textContent = stdout ? `æ ‡å‡†è¾“å‡ºï¼š${stdout}` : 'æ ‡å‡†è¾“å‡ºï¼š-';
+    airoEl.stdoutPathText.textContent = stdout ? `±ê×¼Êä³ö£º${stdout}` : '±ê×¼Êä³ö£º-';
     airoEl.stdoutPathText.title = stdout || '';
   }
   if (airoEl.stderrPathText) {
-    airoEl.stderrPathText.textContent = stderr ? `é”™è¯¯è¾“å‡ºï¼š${stderr}` : 'é”™è¯¯è¾“å‡ºï¼š-';
+    airoEl.stderrPathText.textContent = stderr ? `´íÎóÊä³ö£º${stderr}` : '´íÎóÊä³ö£º-';
     airoEl.stderrPathText.title = stderr || '';
   }
   if (airoEl.copyLogPathsButton) {
@@ -3234,10 +3237,10 @@ function setAiroLogPaths(stdout, stderr) {
 async function copyAiroOutput() {
   const output = document.getElementById('airoOutput');
   const text = output?.textContent.trim();
-  if (!text || text === 'ç­‰å¾…æ“ä½œ') return;
+  if (!text || text === 'µÈ´ı²Ù×÷') return;
   await copyText(text);
   const stateLabel = document.getElementById('airoLaunchState');
-  if (stateLabel) stateLabel.textContent = 'è¾“å‡ºå·²å¤åˆ¶';
+  if (stateLabel) stateLabel.textContent = 'Êä³öÒÑ¸´ÖÆ';
 }
 
 async function copyAiroLogPaths() {
@@ -3249,16 +3252,16 @@ async function copyAiroLogPaths() {
   if (lines.length === 0) return;
   await copyText(lines.join('\n'));
   const stateLabel = document.getElementById('airoLaunchState');
-  if (stateLabel) stateLabel.textContent = 'æ—¥å¿—è·¯å¾„å·²å¤åˆ¶';
+  if (stateLabel) stateLabel.textContent = 'ÈÕÖ¾Â·¾¶ÒÑ¸´ÖÆ';
 }
 
 function clearAiroOutput() {
   const output = document.getElementById('airoOutput');
-  if (output) output.textContent = 'ç­‰å¾…æ“ä½œ';
+  if (output) output.textContent = 'µÈ´ı²Ù×÷';
   if (airoEl.copyOutputButton) airoEl.copyOutputButton.disabled = true;
   setAiroLogPaths('', '');
   const stateLabel = document.getElementById('airoLaunchState');
-  if (stateLabel) stateLabel.textContent = 'è¾“å‡ºå·²æ¸…ç©º';
+  if (stateLabel) stateLabel.textContent = 'Êä³öÒÑÇå¿Õ';
 }
 
 async function initAiroTab(forceReload = false) {
@@ -3266,14 +3269,14 @@ async function initAiroTab(forceReload = false) {
   const airoStatus = document.getElementById('airoStatus');
   const airoLaunchButton = document.getElementById('airoLaunchButton');
   airoLaunchButton.disabled = true;
-  airoStatus.textContent = 'åŠ è½½ä¸­';
+  airoStatus.textContent = '¼ÓÔØÖĞ';
 
   try {
     if (!state.data) {
-      airoStatus.textContent = 'ç­‰å¾…ä¸»æ•°æ®åŠ è½½';
+      airoStatus.textContent = 'µÈ´ıÖ÷Êı¾İ¼ÓÔØ';
       return;
     }
-    // æŒ‡æŒ¥å®˜åˆ—è¡¨ = åŸç‰ˆ + 7vs1 æŒ‡æŒ¥å®˜
+    // Ö¸»Ó¹ÙÁĞ±í = Ô­°æ + 7vs1 Ö¸»Ó¹Ù
     airoState.commanders = [AIRO_ORIGINAL_COMMANDER, ...state.data.commanders];
 
     if (!airoState.maps || forceReload) {
@@ -3294,11 +3297,11 @@ async function initAiroTab(forceReload = false) {
     renderAiroPickers();
     updateAiroSummary();
     updateAiroLaunchButton();
-    airoStatus.textContent = `å·²åŠ è½½ ${airoState.commanders.length} ä¸ªé€‰é¡¹, ${airoState.maps.length} å¼ åœ°å›¾`;
+    airoStatus.textContent = `ÒÑ¼ÓÔØ ${airoState.commanders.length} ¸öÑ¡Ïî, ${airoState.maps.length} ÕÅµØÍ¼`;
   } catch (e) {
-    airoStatus.textContent = `åŠ è½½å¤±è´¥: ${e.message}`;
+    airoStatus.textContent = `¼ÓÔØÊ§°Ü: ${e.message}`;
     if (airoEl.configIssues) {
-      airoEl.configIssues.textContent = `åŠ è½½å¤±è´¥: ${e.message}`;
+      airoEl.configIssues.textContent = `¼ÓÔØÊ§°Ü: ${e.message}`;
       airoEl.configIssues.className = 'config-issues status-error';
     }
   }
@@ -3373,29 +3376,29 @@ function updateAiroSummary() {
     airoEl.summaryMapFile.textContent = airoState.selectedMapFile || map?.mapFile || '-';
   }
   if (airoEl.summaryMode) {
-    airoEl.summaryMode.textContent = dryRun ? 'åªå®‰è£…' : 'å¯åŠ¨';
+    airoEl.summaryMode.textContent = dryRun ? 'Ö»°²×°' : 'Æô¶¯';
   }
   if (summary) {
-    summary.textContent = ready ? 'å°±ç»ª' : 'æœªå°±ç»ª';
+    summary.textContent = ready ? '¾ÍĞ÷' : 'Î´¾ÍĞ÷';
     summary.className = ready ? 'badge status-ok' : 'badge';
   }
   if (airoEl.validationBadge) {
-    airoEl.validationBadge.textContent = ready ? 'å¯å¯åŠ¨' : 'æœªéªŒè¯';
+    airoEl.validationBadge.textContent = ready ? '¿ÉÆô¶¯' : 'Î´ÑéÖ¤';
     airoEl.validationBadge.className = ready ? 'badge status-ok' : 'badge';
   }
   if (airoEl.configIssues) {
     if (!ready) {
-      airoEl.configIssues.textContent = 'è¯·é€‰æ‹©æŒ‡æŒ¥å®˜ä¸åœ°å›¾';
+      airoEl.configIssues.textContent = 'ÇëÑ¡ÔñÖ¸»Ó¹ÙÓëµØÍ¼';
       airoEl.configIssues.className = 'config-issues status-warn';
     } else if (dryRun) {
       airoEl.configIssues.textContent = isOriginal
-        ? 'å°†æ‰§è¡Œ DryRunï¼šä»…åŒæ­¥ RO modï¼Œä¸å¯åŠ¨æ¸¸æˆ'
-        : 'å°†æ‰§è¡Œ DryRunï¼šåŒæ­¥ RO + 7vs1 mod ä¸ Bankï¼Œä¸å¯åŠ¨æ¸¸æˆ';
+        ? '½«Ö´ĞĞ DryRun£º½öÍ¬²½ RO mod£¬²»Æô¶¯ÓÎÏ·'
+        : '½«Ö´ĞĞ DryRun£ºÍ¬²½ RO + 7vs1 mod Óë Bank£¬²»Æô¶¯ÓÎÏ·';
       airoEl.configIssues.className = 'config-issues status-ok';
     } else {
       airoEl.configIssues.textContent = isOriginal
-        ? 'åŸç‰ˆæ¨¡å¼ï¼šä»…åŠ è½½ RevolutionOverdrive mod'
-        : 'æŒ‡æŒ¥å®˜è¦†ç›–æ¨¡å¼ï¼šRO + 7vs1 æŒ‡æŒ¥å®˜æ¡¥æ¥';
+        ? 'Ô­°æÄ£Ê½£º½ö¼ÓÔØ RevolutionOverdrive mod'
+        : 'Ö¸»Ó¹Ù¸²¸ÇÄ£Ê½£ºRO + 7vs1 Ö¸»Ó¹ÙÇÅ½Ó';
       airoEl.configIssues.className = 'config-issues status-ok';
     }
   }
@@ -3426,12 +3429,12 @@ async function launchAiroGame() {
   const dryRun = Boolean(airoEl.dryRunToggle?.checked);
   if (!airoState.selectedCommander) return;
   if (airoState.pollTimer) {
-    stateLabel.textContent = 'å·²æœ‰å¯åŠ¨è¿›ç¨‹è¿è¡Œä¸­';
+    stateLabel.textContent = 'ÒÑÓĞÆô¶¯½ø³ÌÔËĞĞÖĞ';
     return;
   }
   btn.disabled = true;
-  stateLabel.textContent = dryRun ? 'DryRun ä¸­...' : 'å¯åŠ¨ä¸­...';
-  output.textContent = `å¯åŠ¨æŒ‡æŒ¥å®˜: ${airoState.selectedCommander}\nåœ°å›¾: ${airoState.selectedMapFile || 'é»˜è®¤'}\næ¨¡å¼: ${dryRun ? 'DryRun' : 'å¯åŠ¨'}\n`;
+  stateLabel.textContent = dryRun ? 'DryRun ÖĞ...' : 'Æô¶¯ÖĞ...';
+  output.textContent = `Æô¶¯Ö¸»Ó¹Ù: ${airoState.selectedCommander}\nµØÍ¼: ${airoState.selectedMapFile || 'Ä¬ÈÏ'}\nÄ£Ê½: ${dryRun ? 'DryRun' : 'Æô¶¯'}\n`;
   if (airoEl.copyOutputButton) airoEl.copyOutputButton.disabled = false;
   try {
     const result = await apiFetchJson('/api/airo-launch', {
@@ -3445,12 +3448,12 @@ async function launchAiroGame() {
       }),
     });
     setAiroLogPaths(result.stdout, result.stderr);
-    output.textContent += `è¿›ç¨‹ PID: ${result.pid}\n`;
+    output.textContent += `½ø³Ì PID: ${result.pid}\n`;
     stateLabel.textContent = `PID ${result.pid}`;
     pollAiroLaunch(result);
   } catch (e) {
-    output.textContent += `é”™è¯¯: ${e.message}\n`;
-    stateLabel.textContent = 'é”™è¯¯';
+    output.textContent += `´íÎó: ${e.message}\n`;
+    stateLabel.textContent = '´íÎó';
     btn.disabled = false;
   }
 }
@@ -3470,18 +3473,18 @@ function pollAiroLaunch(result) {
         body: JSON.stringify({ pid: result.pid, stdout: result.stdout, stderr: result.stderr }),
       });
       if (status.stdout?.tail) {
-        output.textContent = `å¯åŠ¨æŒ‡æŒ¥å®˜: ${airoState.selectedCommander}\nè¿›ç¨‹ PID: ${result.pid}\n${status.stdout.tail}`;
+        output.textContent = `Æô¶¯Ö¸»Ó¹Ù: ${airoState.selectedCommander}\n½ø³Ì PID: ${result.pid}\n${status.stdout.tail}`;
         if (airoEl.copyOutputButton) airoEl.copyOutputButton.disabled = false;
       }
       if (!status.running && status.exitCode !== null) {
         clearInterval(airoState.pollTimer);
         airoState.pollTimer = null;
         if (status.exitCode === 0) {
-          stateLabel.textContent = 'å¯åŠ¨æˆåŠŸï¼ˆæ¸¸æˆè¿è¡Œä¸­ï¼‰';
-          output.textContent += '\n=== å¯åŠ¨å®Œæˆ ===\n';
+          stateLabel.textContent = 'Æô¶¯³É¹¦£¨ÓÎÏ·ÔËĞĞÖĞ£©';
+          output.textContent += '\n=== Æô¶¯Íê³É ===\n';
         } else {
-          stateLabel.textContent = `è¿›ç¨‹é€€å‡ºï¼Œé€€å‡ºç : ${status.exitCode}`;
-          output.textContent += `\n=== è¿›ç¨‹é€€å‡ºï¼Œé€€å‡ºç : ${status.exitCode} ===\n`;
+          stateLabel.textContent = `½ø³ÌÍË³ö£¬ÍË³öÂë: ${status.exitCode}`;
+          output.textContent += `\n=== ½ø³ÌÍË³ö£¬ÍË³öÂë: ${status.exitCode} ===\n`;
           if (status.stderr?.tail) {
             output.textContent += `stderr:\n${status.stderr.tail}\n`;
           }
@@ -3491,16 +3494,16 @@ function pollAiroLaunch(result) {
       if (attempts >= maxAttempts) {
         clearInterval(airoState.pollTimer);
         airoState.pollTimer = null;
-        stateLabel.textContent = 'è½®è¯¢è¶…æ—¶';
+        stateLabel.textContent = 'ÂÖÑ¯³¬Ê±';
         btn.disabled = false;
       }
     } catch (e) {
-      // å¿½ç•¥è½®è¯¢é”™è¯¯ï¼Œç»§ç»­é‡è¯•
+      // ºöÂÔÂÖÑ¯´íÎó£¬¼ÌĞøÖØÊÔ
     }
   }, 2000);
 }
 
-// === Neuro é›†æˆ Tab ===
+// === Neuro ¼¯³É Tab ===
 let neuroState = {
   selectedCommander: null,
   selectedMapId: null,
@@ -3549,11 +3552,11 @@ function wireNeuroEvents() {
 function setNeuroLogPaths(stdout, stderr) {
   neuroState.lastLogPaths = { stdout: stdout || '', stderr: stderr || '' };
   if (neuroEl.stdoutPathText) {
-    neuroEl.stdoutPathText.textContent = stdout ? `æ ‡å‡†è¾“å‡ºï¼š${stdout}` : 'æ ‡å‡†è¾“å‡ºï¼š-';
+    neuroEl.stdoutPathText.textContent = stdout ? `±ê×¼Êä³ö£º${stdout}` : '±ê×¼Êä³ö£º-';
     neuroEl.stdoutPathText.title = stdout || '';
   }
   if (neuroEl.stderrPathText) {
-    neuroEl.stderrPathText.textContent = stderr ? `é”™è¯¯è¾“å‡ºï¼š${stderr}` : 'é”™è¯¯è¾“å‡ºï¼š-';
+    neuroEl.stderrPathText.textContent = stderr ? `´íÎóÊä³ö£º${stderr}` : '´íÎóÊä³ö£º-';
     neuroEl.stderrPathText.title = stderr || '';
   }
   if (neuroEl.copyLogPathsButton) {
@@ -3564,10 +3567,10 @@ function setNeuroLogPaths(stdout, stderr) {
 async function copyNeuroOutput() {
   const output = document.getElementById('neuroOutput');
   const text = output?.textContent.trim();
-  if (!text || text === 'ç­‰å¾…æ“ä½œ') return;
+  if (!text || text === 'µÈ´ı²Ù×÷') return;
   await copyText(text);
   const stateLabel = document.getElementById('neuroLaunchState');
-  if (stateLabel) stateLabel.textContent = 'è¾“å‡ºå·²å¤åˆ¶';
+  if (stateLabel) stateLabel.textContent = 'Êä³öÒÑ¸´ÖÆ';
 }
 
 async function copyNeuroLogPaths() {
@@ -3579,16 +3582,16 @@ async function copyNeuroLogPaths() {
   if (lines.length === 0) return;
   await copyText(lines.join('\n'));
   const stateLabel = document.getElementById('neuroLaunchState');
-  if (stateLabel) stateLabel.textContent = 'æ—¥å¿—è·¯å¾„å·²å¤åˆ¶';
+  if (stateLabel) stateLabel.textContent = 'ÈÕÖ¾Â·¾¶ÒÑ¸´ÖÆ';
 }
 
 function clearNeuroOutput() {
   const output = document.getElementById('neuroOutput');
-  if (output) output.textContent = 'ç­‰å¾…æ“ä½œ';
+  if (output) output.textContent = 'µÈ´ı²Ù×÷';
   if (neuroEl.copyOutputButton) neuroEl.copyOutputButton.disabled = true;
   setNeuroLogPaths('', '');
   const stateLabel = document.getElementById('neuroLaunchState');
-  if (stateLabel) stateLabel.textContent = 'è¾“å‡ºå·²æ¸…ç©º';
+  if (stateLabel) stateLabel.textContent = 'Êä³öÒÑÇå¿Õ';
 }
 
 async function initNeuroTab(forceReload = false) {
@@ -3596,20 +3599,20 @@ async function initNeuroTab(forceReload = false) {
   const neuroStatus = document.getElementById('neuroStatus');
   const neuroLaunchButton = document.getElementById('neuroLaunchButton');
   neuroLaunchButton.disabled = true;
-  neuroStatus.textContent = 'åŠ è½½ä¸­';
+  neuroStatus.textContent = '¼ÓÔØÖĞ';
 
   try {
     if (!state.data) {
-      neuroStatus.textContent = 'ç­‰å¾…ä¸»æ•°æ®åŠ è½½';
+      neuroStatus.textContent = 'µÈ´ıÖ÷Êı¾İ¼ÓÔØ';
       return;
     }
-    // Neuro å¤ç”¨ 7vs1 æŒ‡æŒ¥å®˜åˆ—è¡¨
+    // Neuro ¸´ÓÃ 7vs1 Ö¸»Ó¹ÙÁĞ±í
     neuroState.commanders = state.data.commanders || [];
-    // Neuro å¤ç”¨ 7vs1 åœ°å›¾åˆ—è¡¨ï¼ˆåªå– _7vs1 åç¼€çš„åœ°å›¾ï¼‰
+    // Neuro ¸´ÓÃ 7vs1 µØÍ¼ÁĞ±í£¨Ö»È¡ _7vs1 ºó×ºµÄµØÍ¼£©
     neuroState.maps = (state.data.maps || []).filter(m => m.id && m.id.endsWith('_7vs1'));
 
     if (neuroState.maps.length > 0 && !neuroState.selectedMapId) {
-      // é»˜è®¤é€‰æ‹© traynor01_7vs1
+      // Ä¬ÈÏÑ¡Ôñ traynor01_7vs1
       const defaultMap = neuroState.maps.find(m => m.id === 'traynor01_7vs1') || neuroState.maps[0];
       neuroState.selectedMapId = defaultMap.id;
       neuroState.selectedMapFile = defaultMap.id + '.SC2Map';
@@ -3621,11 +3624,11 @@ async function initNeuroTab(forceReload = false) {
     renderNeuroPickers();
     updateNeuroSummary();
     updateNeuroLaunchButton();
-    neuroStatus.textContent = `å·²åŠ è½½ ${neuroState.commanders.length} ä¸ªæŒ‡æŒ¥å®˜, ${neuroState.maps.length} å¼ åœ°å›¾`;
+    neuroStatus.textContent = `ÒÑ¼ÓÔØ ${neuroState.commanders.length} ¸öÖ¸»Ó¹Ù, ${neuroState.maps.length} ÕÅµØÍ¼`;
   } catch (e) {
-    neuroStatus.textContent = `åŠ è½½å¤±è´¥: ${e.message}`;
+    neuroStatus.textContent = `¼ÓÔØÊ§°Ü: ${e.message}`;
     if (neuroEl.configIssues) {
-      neuroEl.configIssues.textContent = `åŠ è½½å¤±è´¥: ${e.message}`;
+      neuroEl.configIssues.textContent = `¼ÓÔØÊ§°Ü: ${e.message}`;
       neuroEl.configIssues.className = 'config-issues status-error';
     }
   }
@@ -3694,25 +3697,25 @@ function updateNeuroSummary() {
   if (summaryCommander) summaryCommander.textContent = neuroState.selectedCommander || '-';
   if (summaryMap) summaryMap.textContent = map ? (map.displayName || map.id) : '-';
   if (neuroEl.summaryMapFile) neuroEl.summaryMapFile.textContent = neuroState.selectedMapFile || '-';
-  if (neuroEl.summaryPython) neuroEl.summaryPython.textContent = skipPython ? 'è·³è¿‡' : 'å¯ç”¨';
-  if (neuroEl.summaryGary) neuroEl.summaryGary.textContent = useGary ? 'Gary çœŸå®æ¨¡å¼' : 'Mock æ¨¡å¼';
+  if (neuroEl.summaryPython) neuroEl.summaryPython.textContent = skipPython ? 'Ìø¹ı' : 'ÆôÓÃ';
+  if (neuroEl.summaryGary) neuroEl.summaryGary.textContent = useGary ? 'Gary ÕæÊµÄ£Ê½' : 'Mock Ä£Ê½';
   if (summary) {
-    summary.textContent = ready ? 'å°±ç»ª' : 'æœªå°±ç»ª';
+    summary.textContent = ready ? '¾ÍĞ÷' : 'Î´¾ÍĞ÷';
     summary.className = ready ? 'badge status-ok' : 'badge';
   }
   if (neuroEl.validationBadge) {
-    neuroEl.validationBadge.textContent = ready ? 'å¯å¯åŠ¨' : 'æœªéªŒè¯';
+    neuroEl.validationBadge.textContent = ready ? '¿ÉÆô¶¯' : 'Î´ÑéÖ¤';
     neuroEl.validationBadge.className = ready ? 'badge status-ok' : 'badge';
   }
   if (neuroEl.configIssues) {
     if (!ready) {
-      neuroEl.configIssues.textContent = 'è¯·é€‰æ‹©æŒ‡æŒ¥å®˜ä¸åœ°å›¾';
+      neuroEl.configIssues.textContent = 'ÇëÑ¡ÔñÖ¸»Ó¹ÙÓëµØÍ¼';
       neuroEl.configIssues.className = 'config-issues status-warn';
     } else {
-      const modeLabel = useGary ? 'Gary çœŸå®æ¨¡å¼ï¼ˆNeuro-samaï¼‰' : 'Mock æ¨¡å¼';
+      const modeLabel = useGary ? 'Gary ÕæÊµÄ£Ê½£¨Neuro-sama£©' : 'Mock Ä£Ê½';
       neuroEl.configIssues.textContent = dryRun
-        ? `DryRunï¼šä»…å®‰è£… mod ä¸åœ°å›¾ï¼Œä¸å¯åŠ¨æ¸¸æˆï¼ˆ${modeLabel}ï¼‰`
-        : `7vs1 + NeuroIntegration + NeuroBridge7vs1ï¼Œ${modeLabel}`;
+        ? `DryRun£º½ö°²×° mod ÓëµØÍ¼£¬²»Æô¶¯ÓÎÏ·£¨${modeLabel}£©`
+        : `7vs1 + NeuroIntegration + NeuroBridge7vs1£¬${modeLabel}`;
       neuroEl.configIssues.className = 'config-issues status-ok';
     }
   }
@@ -3737,13 +3740,13 @@ async function launchNeuroGame() {
   const useGary = Boolean(neuroEl.useGaryToggle?.checked);
   if (!neuroState.selectedCommander) return;
   if (neuroState.pollTimer) {
-    stateLabel.textContent = 'å·²æœ‰å¯åŠ¨è¿›ç¨‹è¿è¡Œä¸­';
+    stateLabel.textContent = 'ÒÑÓĞÆô¶¯½ø³ÌÔËĞĞÖĞ';
     return;
   }
   btn.disabled = true;
-  stateLabel.textContent = dryRun ? 'DryRun ä¸­...' : 'å¯åŠ¨ä¸­...';
-  const modeLabel = useGary ? 'Gary çœŸå®æ¨¡å¼' : 'Mock æ¨¡å¼';
-  output.textContent = `å¯åŠ¨æŒ‡æŒ¥å®˜: ${neuroState.selectedCommander}\nåœ°å›¾: ${neuroState.selectedMapFile || 'é»˜è®¤'}\næ¨¡å¼: ${dryRun ? 'DryRun' : 'å¯åŠ¨'}\nPython: ${skipPython ? 'è·³è¿‡' : 'å¯ç”¨'}\nNeuro: ${modeLabel}\n`;
+  stateLabel.textContent = dryRun ? 'DryRun ÖĞ...' : 'Æô¶¯ÖĞ...';
+  const modeLabel = useGary ? 'Gary ÕæÊµÄ£Ê½' : 'Mock Ä£Ê½';
+  output.textContent = `Æô¶¯Ö¸»Ó¹Ù: ${neuroState.selectedCommander}\nµØÍ¼: ${neuroState.selectedMapFile || 'Ä¬ÈÏ'}\nÄ£Ê½: ${dryRun ? 'DryRun' : 'Æô¶¯'}\nPython: ${skipPython ? 'Ìø¹ı' : 'ÆôÓÃ'}\nNeuro: ${modeLabel}\n`;
   if (neuroEl.copyOutputButton) neuroEl.copyOutputButton.disabled = false;
   try {
     const result = await apiFetchJson('/api/neuro-launch', {
@@ -3759,12 +3762,12 @@ async function launchNeuroGame() {
       }),
     });
     setNeuroLogPaths(result.stdout, result.stderr);
-    output.textContent += `è¿›ç¨‹ PID: ${result.pid}\n`;
+    output.textContent += `½ø³Ì PID: ${result.pid}\n`;
     stateLabel.textContent = `PID ${result.pid}`;
     pollNeuroLaunch(result);
   } catch (e) {
-    output.textContent += `é”™è¯¯: ${e.message}\n`;
-    stateLabel.textContent = 'é”™è¯¯';
+    output.textContent += `´íÎó: ${e.message}\n`;
+    stateLabel.textContent = '´íÎó';
     btn.disabled = false;
   }
 }
@@ -3784,18 +3787,18 @@ function pollNeuroLaunch(result) {
         body: JSON.stringify({ pid: result.pid, stdout: result.stdout, stderr: result.stderr }),
       });
       if (status.stdout?.tail) {
-        output.textContent = `å¯åŠ¨æŒ‡æŒ¥å®˜: ${neuroState.selectedCommander}\nè¿›ç¨‹ PID: ${result.pid}\n${status.stdout.tail}`;
+        output.textContent = `Æô¶¯Ö¸»Ó¹Ù: ${neuroState.selectedCommander}\n½ø³Ì PID: ${result.pid}\n${status.stdout.tail}`;
         if (neuroEl.copyOutputButton) neuroEl.copyOutputButton.disabled = false;
       }
       if (!status.running && status.exitCode !== null) {
         clearInterval(neuroState.pollTimer);
         neuroState.pollTimer = null;
         if (status.exitCode === 0) {
-          stateLabel.textContent = 'å¯åŠ¨æˆåŠŸï¼ˆæ¸¸æˆè¿è¡Œä¸­ï¼‰';
-          output.textContent += '\n=== å¯åŠ¨å®Œæˆ ===\n';
+          stateLabel.textContent = 'Æô¶¯³É¹¦£¨ÓÎÏ·ÔËĞĞÖĞ£©';
+          output.textContent += '\n=== Æô¶¯Íê³É ===\n';
         } else {
-          stateLabel.textContent = `è¿›ç¨‹é€€å‡ºï¼Œé€€å‡ºç : ${status.exitCode}`;
-          output.textContent += `\n=== è¿›ç¨‹é€€å‡ºï¼Œé€€å‡ºç : ${status.exitCode} ===\n`;
+          stateLabel.textContent = `½ø³ÌÍË³ö£¬ÍË³öÂë: ${status.exitCode}`;
+          output.textContent += `\n=== ½ø³ÌÍË³ö£¬ÍË³öÂë: ${status.exitCode} ===\n`;
           if (status.stderr?.tail) {
             output.textContent += `stderr:\n${status.stderr.tail}\n`;
           }
@@ -3805,11 +3808,346 @@ function pollNeuroLaunch(result) {
       if (attempts >= maxAttempts) {
         clearInterval(neuroState.pollTimer);
         neuroState.pollTimer = null;
-        stateLabel.textContent = 'è½®è¯¢è¶…æ—¶';
+        stateLabel.textContent = 'ÂÖÑ¯³¬Ê±';
         btn.disabled = false;
       }
     } catch (e) {
-      // å¿½ç•¥è½®è¯¢é”™è¯¯ï¼Œç»§ç»­é‡è¯•
+      // ºöÂÔÂÖÑ¯´íÎó£¬¼ÌĞøÖØÊÔ
+    }
+  }, 2000);
+}
+
+// === CMRE ºÏ×÷ÖØÖÆ°æ Tab ===
+const CMRE_ORIGINAL_COMMANDER = {
+  runtime: 'CMRE',
+  displayName: 'Ô­°æ (CMRE)',
+  integrationNote: '½ö¼ÓÔØ CMRE mod£¬²»µş¼Ó 7vs1 Ö¸»Ó¹Ù',
+  integrationTone: 'ok',
+};
+
+let cmreState = {
+  selectedCommander: null,
+  selectedMapId: null,
+  selectedMapFile: null,
+  commanders: null,
+  maps: null,
+  pollTimer: null,
+  lastLogPaths: null,
+};
+
+const cmreEl = {
+  dryRunToggle: document.getElementById('cmreDryRunToggle'),
+  refreshButton: document.getElementById('cmreRefreshButton'),
+  copyOutputButton: document.getElementById('cmreCopyOutputButton'),
+  copyLogPathsButton: document.getElementById('cmreCopyLogPathsButton'),
+  clearOutputButton: document.getElementById('cmreClearOutputButton'),
+  stdoutPathText: document.getElementById('cmreStdoutPathText'),
+  stderrPathText: document.getElementById('cmreStderrPathText'),
+  validationBadge: document.getElementById('cmreValidationBadge'),
+  configIssues: document.getElementById('cmreConfigIssues'),
+  summaryMapFile: document.getElementById('cmreSummaryMapFile'),
+  summaryMode: document.getElementById('cmreSummaryMode'),
+  commanderCount: document.getElementById('cmreCommanderCount'),
+  mapCount: document.getElementById('cmreMapCount'),
+  bootstrapCommanderCount: document.getElementById('cmreBootstrapCommanderCount'),
+  bootstrapMapCount: document.getElementById('cmreBootstrapMapCount'),
+};
+
+let cmreWired = false;
+
+function wireCmreEvents() {
+  if (cmreWired) return;
+  cmreWired = true;
+  cmreEl.refreshButton?.addEventListener('click', () => initCmreTab(true));
+  cmreEl.dryRunToggle?.addEventListener('change', updateCmreSummary);
+  cmreEl.copyOutputButton?.addEventListener('click', copyCmreOutput);
+  cmreEl.copyLogPathsButton?.addEventListener('click', copyCmreLogPaths);
+  cmreEl.clearOutputButton?.addEventListener('click', clearCmreOutput);
+}
+
+function setCmreLogPaths(stdout, stderr) {
+  cmreState.lastLogPaths = {
+    stdout: stdout || '',
+    stderr: stderr || '',
+  };
+  if (cmreEl.stdoutPathText) {
+    cmreEl.stdoutPathText.textContent = stdout ? `±ê×¼Êä³ö£º${stdout}` : '±ê×¼Êä³ö£º-';
+    cmreEl.stdoutPathText.title = stdout || '';
+  }
+  if (cmreEl.stderrPathText) {
+    cmreEl.stderrPathText.textContent = stderr ? `´íÎóÊä³ö£º${stderr}` : '´íÎóÊä³ö£º-';
+    cmreEl.stderrPathText.title = stderr || '';
+  }
+  if (cmreEl.copyLogPathsButton) {
+    cmreEl.copyLogPathsButton.disabled = !stdout && !stderr;
+  }
+}
+
+async function copyCmreOutput() {
+  const output = document.getElementById('cmreOutput');
+  const text = output?.textContent.trim();
+  if (!text || text === 'µÈ´ı²Ù×÷') return;
+  await copyText(text);
+  const stateLabel = document.getElementById('cmreLaunchState');
+  if (stateLabel) stateLabel.textContent = 'Êä³öÒÑ¸´ÖÆ';
+}
+
+async function copyCmreLogPaths() {
+  if (!cmreState.lastLogPaths) return;
+  const lines = [
+    cmreState.lastLogPaths.stdout ? `stdout=${cmreState.lastLogPaths.stdout}` : '',
+    cmreState.lastLogPaths.stderr ? `stderr=${cmreState.lastLogPaths.stderr}` : '',
+  ].filter(Boolean);
+  if (lines.length === 0) return;
+  await copyText(lines.join('\n'));
+  const stateLabel = document.getElementById('cmreLaunchState');
+  if (stateLabel) stateLabel.textContent = 'ÈÕÖ¾Â·¾¶ÒÑ¸´ÖÆ';
+}
+
+function clearCmreOutput() {
+  const output = document.getElementById('cmreOutput');
+  if (output) output.textContent = 'µÈ´ı²Ù×÷';
+  if (cmreEl.copyOutputButton) cmreEl.copyOutputButton.disabled = true;
+  setCmreLogPaths('', '');
+  const stateLabel = document.getElementById('cmreLaunchState');
+  if (stateLabel) stateLabel.textContent = 'Êä³öÒÑÇå¿Õ';
+}
+
+async function initCmreTab(forceReload = false) {
+  wireCmreEvents();
+  const cmreStatus = document.getElementById('cmreStatus');
+  const cmreLaunchButton = document.getElementById('cmreLaunchButton');
+  cmreLaunchButton.disabled = true;
+  cmreStatus.textContent = '¼ÓÔØÖĞ';
+
+  try {
+    if (!state.data) {
+      cmreStatus.textContent = 'µÈ´ıÖ÷Êı¾İ¼ÓÔØ';
+      return;
+    }
+    // Ö¸»Ó¹ÙÁĞ±í = Ô­°æ + 7vs1 Ö¸»Ó¹Ù
+    cmreState.commanders = [CMRE_ORIGINAL_COMMANDER, ...state.data.commanders];
+
+    if (!cmreState.maps || forceReload) {
+      const mapsResp = await fetch('/api/cmre-maps');
+      const mapsData = await mapsResp.json();
+      cmreState.maps = mapsData.maps || [];
+      if (cmreState.maps.length > 0) {
+        cmreState.selectedMapId = cmreState.selectedMapId || cmreState.maps[0].id;
+        cmreState.selectedMapFile = cmreState.maps.find(m => m.id === cmreState.selectedMapId)?.mapFile
+          || cmreState.maps[0].mapFile;
+      }
+    }
+
+    if (!cmreState.selectedCommander && cmreState.commanders.length > 0) {
+      cmreState.selectedCommander = cmreState.commanders[0].runtime;
+    }
+
+    renderCmrePickers();
+    updateCmreSummary();
+    updateCmreLaunchButton();
+    cmreStatus.textContent = `ÒÑ¼ÓÔØ ${cmreState.commanders.length} ¸öÑ¡Ïî, ${cmreState.maps.length} ÕÅµØÍ¼`;
+  } catch (e) {
+    cmreStatus.textContent = `¼ÓÔØÊ§°Ü: ${e.message}`;
+    if (cmreEl.configIssues) {
+      cmreEl.configIssues.textContent = `¼ÓÔØÊ§°Ü: ${e.message}`;
+      cmreEl.configIssues.className = 'config-issues status-error';
+    }
+  }
+
+  cmreLaunchButton.removeEventListener('click', launchCmreGame);
+  cmreLaunchButton.addEventListener('click', launchCmreGame);
+}
+
+function renderCmrePickers() {
+  const commanderContainer = document.getElementById('cmreCommanderList');
+  const mapContainer = document.getElementById('cmreMapList');
+  const commanderCountElement = document.getElementById('cmreCommanderCount');
+  if (!commanderContainer || !mapContainer) return;
+
+  const commanders = cmreState.commanders || [];
+  const maps = (cmreState.maps || []).map((map) => ({
+    ...map,
+    title: map.mapName || map.id,
+    displayName: map.mapName || map.id,
+  }));
+
+  renderQuickPickersComponent({
+    commanderContainer,
+    mapContainer,
+    commanderCountElement,
+    commanders,
+    allCommandersCount: commanders.length,
+    maps,
+    selectedCommanderRuntime: cmreState.selectedCommander,
+    selectedMapId: cmreState.selectedMapId,
+    getMapCompletionState: (mapId) => {
+      const map = cmreState.maps?.find((entry) => entry.id === mapId);
+      return {
+        label: 'CMRE',
+        tone: 'ok',
+        detail: map?.mapFile || '',
+        meta: map?.mapFamily || '',
+      };
+    },
+    onSelectCommander: (runtime) => {
+      cmreState.selectedCommander = runtime;
+      renderCmrePickers();
+      updateCmreSummary();
+      updateCmreLaunchButton();
+    },
+    onSelectMap: (mapId) => {
+      cmreState.selectedMapId = mapId;
+      cmreState.selectedMapFile = cmreState.maps?.find((entry) => entry.id === mapId)?.mapFile || '';
+      renderCmrePickers();
+      updateCmreSummary();
+      updateCmreLaunchButton();
+    },
+  });
+}
+
+function updateCmreSummary() {
+  const summaryCommander = document.getElementById('cmreSummaryCommander');
+  const summaryMap = document.getElementById('cmreSummaryMap');
+  const summary = document.getElementById('cmreSummary');
+  const dryRun = Boolean(cmreEl.dryRunToggle?.checked);
+  const map = cmreState.maps?.find(m => m.id === cmreState.selectedMapId);
+  const ready = Boolean(cmreState.selectedCommander && cmreState.selectedMapId);
+  const isOriginal = cmreState.selectedCommander === 'CMRE';
+
+  if (summaryCommander) {
+    summaryCommander.textContent = cmreState.selectedCommander || '-';
+  }
+  if (summaryMap) {
+    summaryMap.textContent = map ? map.mapName : '-';
+  }
+  if (cmreEl.summaryMapFile) {
+    cmreEl.summaryMapFile.textContent = cmreState.selectedMapFile || map?.mapFile || '-';
+  }
+  if (cmreEl.summaryMode) {
+    cmreEl.summaryMode.textContent = dryRun ? 'Ö»°²×°' : 'Æô¶¯';
+  }
+  if (summary) {
+    summary.textContent = ready ? '¾ÍĞ÷' : 'Î´¾ÍĞ÷';
+    summary.className = ready ? 'badge status-ok' : 'badge';
+  }
+  if (cmreEl.validationBadge) {
+    cmreEl.validationBadge.textContent = ready ? '¿ÉÆô¶¯' : 'Î´ÑéÖ¤';
+    cmreEl.validationBadge.className = ready ? 'badge status-ok' : 'badge';
+  }
+  if (cmreEl.configIssues) {
+    if (!ready) {
+      cmreEl.configIssues.textContent = 'ÇëÑ¡ÔñÖ¸»Ó¹ÙÓëµØÍ¼';
+      cmreEl.configIssues.className = 'config-issues status-warn';
+    } else if (dryRun) {
+      cmreEl.configIssues.textContent = isOriginal
+        ? '½«Ö´ĞĞ DryRun£º½öÍ¬²½ CMRE mod£¬²»Æô¶¯ÓÎÏ·'
+        : '½«Ö´ĞĞ DryRun£ºÍ¬²½ CMRE + 7vs1 mod Óë Bank£¬²»Æô¶¯ÓÎÏ·';
+      cmreEl.configIssues.className = 'config-issues status-ok';
+    } else {
+      cmreEl.configIssues.textContent = isOriginal
+        ? 'Ô­°æÄ£Ê½£º½ö¼ÓÔØ CMRE ºÏ×÷ÖØÖÆ°æ mod'
+        : 'Ö¸»Ó¹Ù¸²¸ÇÄ£Ê½£ºCMRE + 7vs1 Ö¸»Ó¹ÙÇÅ½Ó';
+      cmreEl.configIssues.className = 'config-issues status-ok';
+    }
+  }
+  if (cmreEl.commanderCount) {
+    cmreEl.commanderCount.textContent = String(cmreState.commanders?.length || 0);
+  }
+  if (cmreEl.mapCount) {
+    cmreEl.mapCount.textContent = String(cmreState.maps?.length || 0);
+  }
+  if (cmreEl.bootstrapCommanderCount) {
+    cmreEl.bootstrapCommanderCount.textContent = String(cmreState.commanders?.length || 0);
+  }
+  if (cmreEl.bootstrapMapCount) {
+    cmreEl.bootstrapMapCount.textContent = String(cmreState.maps?.length || 0);
+  }
+}
+
+function updateCmreLaunchButton() {
+  const btn = document.getElementById('cmreLaunchButton');
+  if (!btn) return;
+  btn.disabled = !(cmreState.selectedCommander && cmreState.selectedMapId);
+}
+
+async function launchCmreGame() {
+  const btn = document.getElementById('cmreLaunchButton');
+  const stateLabel = document.getElementById('cmreLaunchState');
+  const output = document.getElementById('cmreOutput');
+  const dryRun = Boolean(cmreEl.dryRunToggle?.checked);
+  if (!cmreState.selectedCommander) return;
+  if (cmreState.pollTimer) {
+    stateLabel.textContent = 'ÒÑÓĞÆô¶¯½ø³ÌÔËĞĞÖĞ';
+    return;
+  }
+  btn.disabled = true;
+  stateLabel.textContent = dryRun ? 'DryRun ÖĞ...' : 'Æô¶¯ÖĞ...';
+  output.textContent = `Æô¶¯Ö¸»Ó¹Ù: ${cmreState.selectedCommander}\nµØÍ¼: ${cmreState.selectedMapFile || 'Ä¬ÈÏ'}\nÄ£Ê½: ${dryRun ? 'DryRun' : 'Æô¶¯'}\n`;
+  if (cmreEl.copyOutputButton) cmreEl.copyOutputButton.disabled = false;
+  try {
+    const result = await apiFetchJson('/api/cmre-launch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        commander: cmreState.selectedCommander,
+        mapName: cmreState.selectedMapFile || '',
+        dryRun,
+        noLaunch: dryRun,
+      }),
+    });
+    setCmreLogPaths(result.stdout, result.stderr);
+    output.textContent += `½ø³Ì PID: ${result.pid}\n`;
+    stateLabel.textContent = `PID ${result.pid}`;
+    pollCmreLaunch(result);
+  } catch (e) {
+    output.textContent += `´íÎó: ${e.message}\n`;
+    stateLabel.textContent = '´íÎó';
+    btn.disabled = false;
+  }
+}
+
+function pollCmreLaunch(result) {
+  const btn = document.getElementById('cmreLaunchButton');
+  const stateLabel = document.getElementById('cmreLaunchState');
+  const output = document.getElementById('cmreOutput');
+  let attempts = 0;
+  const maxAttempts = 120;
+  cmreState.pollTimer = setInterval(async () => {
+    attempts++;
+    try {
+      const status = await apiFetchJson('/api/cmre-launch-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({ pid: result.pid, stdout: result.stdout, stderr: result.stderr }),
+      });
+      if (status.stdout?.tail) {
+        output.textContent = `Æô¶¯Ö¸»Ó¹Ù: ${cmreState.selectedCommander}\n½ø³Ì PID: ${result.pid}\n${status.stdout.tail}`;
+        if (cmreEl.copyOutputButton) cmreEl.copyOutputButton.disabled = false;
+      }
+      if (!status.running && status.exitCode !== null) {
+        clearInterval(cmreState.pollTimer);
+        cmreState.pollTimer = null;
+        if (status.exitCode === 0) {
+          stateLabel.textContent = 'Æô¶¯³É¹¦£¨ÓÎÏ·ÔËĞĞÖĞ£©';
+          output.textContent += '\n=== Æô¶¯Íê³É ===\n';
+        } else {
+          stateLabel.textContent = `½ø³ÌÍË³ö£¬ÍË³öÂë: ${status.exitCode}`;
+          output.textContent += `\n=== ½ø³ÌÍË³ö£¬ÍË³öÂë: ${status.exitCode} ===\n`;
+          if (status.stderr?.tail) {
+            output.textContent += `stderr:\n${status.stderr.tail}\n`;
+          }
+        }
+        btn.disabled = false;
+      }
+      if (attempts >= maxAttempts) {
+        clearInterval(cmreState.pollTimer);
+        cmreState.pollTimer = null;
+        stateLabel.textContent = 'ÂÖÑ¯³¬Ê±';
+        btn.disabled = false;
+      }
+    } catch (e) {
+      // ºöÂÔÂÖÑ¯´íÎó£¬¼ÌĞøÖØÊÔ
     }
   }, 2000);
 }
