@@ -94,8 +94,124 @@ void libRebornAdapter_OnAfterPlayersInit () {
     }
 }
 
+// 判定是否为虫族指挥官（虫族指挥官不需要清理地图预放置的虫族单位）
+bool libRebornAdapter_IsZergCommander (string commander) {
+    if (commander == "Kerrigan") { return true; }
+    if (commander == "ZergKerrigan") { return true; }
+    if (commander == "Abathur") { return true; }
+    if (commander == "ZergAbathur") { return true; }
+    if (commander == "Zagara") { return true; }
+    if (commander == "ZergZagara") { return true; }
+    if (commander == "Stukov") { return true; }
+    if (commander == "ZergStukov") { return true; }
+    if (commander == "Dehaka") { return true; }
+    if (commander == "ZergDehaka") { return true; }
+    if (commander == "Stetmann") { return true; }
+    if (commander == "ZergStetmann") { return true; }
+    return false;
+}
+
+// 清理地图预放置的虫族单位（Reborn 战役图改造为 7vs1 时使用）
+// 非虫族指挥官时，移除 Player 1 全部虫族预放置单位，由 InitializeBase 创建正确种族的初始单位
+// 注意：UnitRemove 在 gt_Initialization_Func 执行期间不生效，必须延迟到初始化触发器返回后执行
+void libRebornAdapter_RemovePreplacedZergUnits () {
+    unitgroup lv_all;
+    int lv_total;
+    int lv_i;
+    unit lv_u;
+    string lv_type;
+    string lv_race;
+    int lv_zergBefore;
+    int lv_zergAfter;
+    int lv_removeCalls;
+    bank lv_bank;
+
+    lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+    lv_total = UnitGroupCount(lv_all, c_unitCountAll);
+
+    // 统计清理前的虫族单位数量
+    lv_zergBefore = 0;
+    lv_i = 1;
+    while (lv_i <= lv_total) {
+        lv_u = UnitGroupUnit(lv_all, lv_i);
+        lv_type = UnitGetType(lv_u);
+        lv_race = CatalogFieldValueGet(c_gameCatalogUnit, lv_type, "Race", 1);
+        if (lv_race == "Zerg") {
+            lv_zergBefore = lv_zergBefore + 1;
+        }
+        lv_i = lv_i + 1;
+    }
+
+    // 从后往前遍历，移除虫族单位
+    lv_removeCalls = 0;
+    lv_i = lv_total;
+    while (lv_i >= 1) {
+        lv_u = UnitGroupUnit(lv_all, lv_i);
+        lv_type = UnitGetType(lv_u);
+        lv_race = CatalogFieldValueGet(c_gameCatalogUnit, lv_type, "Race", 1);
+        if (lv_race == "Zerg") {
+            UnitRemove(lv_u);
+            lv_removeCalls = lv_removeCalls + 1;
+        }
+        lv_i = lv_i - 1;
+    }
+
+    // 统计清理后的虫族单位数量
+    lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+    lv_total = UnitGroupCount(lv_all, c_unitCountAll);
+    lv_zergAfter = 0;
+    lv_i = 1;
+    while (lv_i <= lv_total) {
+        lv_u = UnitGroupUnit(lv_all, lv_i);
+        lv_type = UnitGetType(lv_u);
+        lv_race = CatalogFieldValueGet(c_gameCatalogUnit, lv_type, "Race", 1);
+        if (lv_race == "Zerg") {
+            lv_zergAfter = lv_zergAfter + 1;
+        }
+        lv_i = lv_i + 1;
+    }
+
+    // 写入诊断 Bank
+    lv_bank = BankLoad("CampaignXCore", 1);
+    if (lv_bank != null) {
+        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "ZergCleanupBefore", lv_zergBefore);
+        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "ZergCleanupAfter", lv_zergAfter);
+        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "ZergRemoveCalls", lv_removeCalls);
+        BankValueSetFromInt(lv_bank, "XMRuntimeDebug", "CleanupTotalUnits", lv_total);
+        BankSave(lv_bank);
+    }
+}
+
+// 延迟清理触发器函数：等待初始化完成后执行清理
+// UnitRemove 在 gt_Initialization_Func 期间不生效，必须通过 Wait 延迟到触发器返回后
+bool libRebornAdapter_gt_DeferredCleanup_Func (bool testConds, bool runActions) {
+    if (testConds) {
+        return true;
+    }
+    if (!runActions) {
+        return true;
+    }
+
+    // 等待初始化触发器返回，确保 UnitRemove 能生效
+    Wait(2.0, c_timeReal);
+
+    libRebornAdapter_RemovePreplacedZergUnits();
+    return true;
+}
+
 void libRebornAdapter_OnAfterUnitsInit () {
+    string lv_commander;
+
     libRebornAdapter_AlengerBootstrap_InitLib();
+
+    // 非虫族指挥官时，延迟清理地图预放置的虫族单位
+    // UnitRemove 在 gt_Initialization_Func 期间不生效，必须通过异步触发器延迟执行
+    lv_commander = libRebornAdapter_ReadCommanderFromBank(1);
+    if (!libRebornAdapter_IsZergCommander(lv_commander)) {
+        libRebornAdapter_gt_DeferredCleanup = TriggerCreate("libRebornAdapter_gt_DeferredCleanup_Func");
+        TriggerExecute(libRebornAdapter_gt_DeferredCleanup, false, false);
+    }
+
     libE0EAE146_gf_Initialize(true);
     if (libRebornAdapter_mapScenarioId != "") {
         libE0EAE146_gf_InitializeMapBaseScenario(libRebornAdapter_mapScenarioId);

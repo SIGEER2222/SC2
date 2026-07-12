@@ -180,6 +180,120 @@ void libRuntimeProbe_gf_ScanUpgrades() {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Scan replacement status: detect residual zerg units and expected race mismatch
+// 这是判定指挥官替换是否真正成功的核心证据来源
+// 写入 probe_replacement section:
+//   expected_commander, expected_race, zerg_units_count, terran_units_count, protoss_units_count
+//   status: SUCCESS | FAILED_ZERG_RESIDUAL | FAILED_NO_EXPECTED_RACE | UNKNOWN_RACE
+//--------------------------------------------------------------------------------------------------
+void libRuntimeProbe_gf_ScanReplacement () {
+    bank lv_coreBank;
+    string lv_commander;
+    string lv_expectedRace;
+    unitgroup lv_all;
+    int lv_total;
+    int lv_i;
+    unit lv_u;
+    string lv_type;
+    string lv_race;
+    int lv_zergCount;
+    int lv_terranCount;
+    int lv_protossCount;
+
+    // 读取期望指挥官
+    lv_coreBank = BankLoad("CampaignXCore", 1);
+    if (lv_coreBank == null) {
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "status", "NO_CORE_BANK");
+        return;
+    }
+    lv_commander = BankValueGetAsString(lv_coreBank, "XMRuntimeControl", "PrimaryCommander");
+
+    // 判定期望种族
+    lv_expectedRace = "";
+    if ((lv_commander == "Raynor") || (lv_commander == "TerranRaynor") ||
+        (lv_commander == "Swann") || (lv_commander == "TerranSwann") ||
+        (lv_commander == "Nova") || (lv_commander == "TerranNova") ||
+        (lv_commander == "Horner") || (lv_commander == "TerranHorner") ||
+        (lv_commander == "Mengsk") || (lv_commander == "TerranMengsk") ||
+        (lv_commander == "Tychus") || (lv_commander == "TerranTychus") ||
+        (lv_commander == "TychusXM")) {
+        lv_expectedRace = "Terran";
+    } else if ((lv_commander == "Kerrigan") || (lv_commander == "ZergKerrigan") ||
+        (lv_commander == "Abathur") || (lv_commander == "ZergAbathur") ||
+        (lv_commander == "Zagara") || (lv_commander == "ZergZagara") ||
+        (lv_commander == "Stukov") || (lv_commander == "ZergStukov") ||
+        (lv_commander == "Dehaka") || (lv_commander == "ZergDehaka") ||
+        (lv_commander == "Stetmann") || (lv_commander == "ZergStetmann")) {
+        lv_expectedRace = "Zerg";
+    } else if ((lv_commander == "Artanis") || (lv_commander == "ProtossArtanis") ||
+        (lv_commander == "Vorazun") || (lv_commander == "ProtossVorazun") ||
+        (lv_commander == "Karax") || (lv_commander == "ProtossKarax") ||
+        (lv_commander == "Fenix") || (lv_commander == "ProtossFenix") ||
+        (lv_commander == "Alarak") || (lv_commander == "ProtossAlarak") ||
+        (lv_commander == "Zeratul") || (lv_commander == "ProtossZeratul")) {
+        lv_expectedRace = "Protoss";
+    }
+
+    // 统计 Player 1 各种族单位
+    // 注意：SC2 CatalogFieldValueGet 返回的 Race 值为 "Terr"/"Zerg"/"Prot"，不是 "Terran"/"Zerg"/"Protoss"
+    lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+    lv_total = UnitGroupCount(lv_all, c_unitCountAll);
+    lv_zergCount = 0;
+    lv_terranCount = 0;
+    lv_protossCount = 0;
+
+    lv_i = 1;
+    while (lv_i <= lv_total) {
+        lv_u = UnitGroupUnit(lv_all, lv_i);
+        lv_type = UnitGetType(lv_u);
+        lv_race = CatalogFieldValueGet(c_gameCatalogUnit, lv_type, "Race", 1);
+        if (lv_race == "Zerg") {
+            lv_zergCount = lv_zergCount + 1;
+        } else if (lv_race == "Terr") {
+            lv_terranCount = lv_terranCount + 1;
+        } else if (lv_race == "Prot") {
+            lv_protossCount = lv_protossCount + 1;
+        }
+        lv_i = lv_i + 1;
+    }
+
+    // 写入 Bank
+    BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "expected_commander", lv_commander);
+    BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "expected_race", lv_expectedRace);
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_replacement", "zerg_units_count", lv_zergCount);
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_replacement", "terran_units_count", lv_terranCount);
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_replacement", "protoss_units_count", lv_protossCount);
+
+    // 判定替换状态
+    if (lv_expectedRace == "Terran") {
+        if (lv_zergCount > 0) {
+            BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "status", "FAILED_ZERG_RESIDUAL");
+        } else if (lv_terranCount == 0) {
+            BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "status", "FAILED_NO_TERRAN");
+        } else {
+            BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "status", "SUCCESS");
+        }
+    } else if (lv_expectedRace == "Protoss") {
+        if (lv_zergCount > 0) {
+            BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "status", "FAILED_ZERG_RESIDUAL");
+        } else if (lv_protossCount == 0) {
+            BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "status", "FAILED_NO_PROTOSS");
+        } else {
+            BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "status", "SUCCESS");
+        }
+    } else if (lv_expectedRace == "Zerg") {
+        // 虫族指挥官：不检查虫族残留，只检查是否有虫族单位
+        if (lv_zergCount == 0) {
+            BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "status", "FAILED_NO_ZERG");
+        } else {
+            BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "status", "SUCCESS");
+        }
+    } else {
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_replacement", "status", "UNKNOWN_RACE");
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 // Scan production structures: enumerate by type, write probe_producers
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_ScanProducers() {
@@ -258,6 +372,7 @@ bool libRuntimeProbe_gt_Loop_Func(bool testConds, bool runActions) {
             libRuntimeProbe_gf_ScanUnits();
             libRuntimeProbe_gf_ScanUpgrades();
             libRuntimeProbe_gf_ScanProducers();
+            libRuntimeProbe_gf_ScanReplacement();
             BankSave(libRuntimeProbe_gv_bank);
         }
         Wait(3.0, c_timeReal);
@@ -300,6 +415,7 @@ void libRuntimeProbe_gf_StartProbe() {
         libRuntimeProbe_gf_ScanUnits();
         libRuntimeProbe_gf_ScanUpgrades();
         libRuntimeProbe_gf_ScanProducers();
+        libRuntimeProbe_gf_ScanReplacement();
         BankSave(libRuntimeProbe_gv_bank);
     }
 
