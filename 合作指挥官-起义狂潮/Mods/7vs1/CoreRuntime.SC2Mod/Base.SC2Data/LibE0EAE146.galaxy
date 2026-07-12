@@ -212,18 +212,28 @@ void libE0EAE146_gf_InitializeMapBaseScenario (string lp_mapId) {
     point lv_secondBase;
     bool lv_createHero;
     point lv_mapOverride;
+    point lv_startLoc;
 
     libE0EAE146_gv_currentMapId = lp_mapId;
-    lv_secondUnit = PointWithOffsetPolar(PlayerStartLocation(1), 6.0, 45.0);
+    // 战役图改造为 7vs1 时 PlayerStartLocation 可能返回 null，使用 effectiveBaseAnchor 作为回退
+    lv_startLoc = PlayerStartLocation(1);
+    if (lv_startLoc == null) {
+        lv_startLoc = libE0EAE146_gv_effectiveBaseAnchor;
+    }
+    if (lv_startLoc == null) {
+        // 仍然为 null 时无法继续，直接返回避免 ScriptError
+        return;
+    }
+    lv_secondUnit = PointWithOffsetPolar(lv_startLoc, 6.0, 45.0);
     lv_worker = 11;
     lv_secondBase = null;
     lv_createHero = true;
     // Horner-series commanders need extra space; offset to the other side.
     if (((libE0EAE146_gv_commander == "Mira") || (libE0EAE146_gv_commander == "Horner") || (libE0EAE146_gv_commander == "HanHorner") || (libE0EAE146_gv_commander == "HanAndHorner"))) {
-        lv_secondUnit = PointWithOffsetPolar(PlayerStartLocation(1), 8.0, -45.0);
+        lv_secondUnit = PointWithOffsetPolar(lv_startLoc, 8.0, -45.0);
     }
     // Map-specific second-unit override (data-driven, see LibE0EAE146_MapMetadata.galaxy).
-    lv_mapOverride = libE0EAE146_gf_MapSecondUnitPoint(lp_mapId, PlayerStartLocation(1));
+    lv_mapOverride = libE0EAE146_gf_MapSecondUnitPoint(lp_mapId, lv_startLoc);
     if (lv_mapOverride != null) {
         lv_secondUnit = lv_mapOverride;
     }
@@ -1452,9 +1462,12 @@ void libE0EAE146_gf_InitializeBase (point lp_secondUnit, int lp_worker, point lp
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterPower");
     libE0EAE146_gf_ApplyOriginal7v1OpenerTech(1, libE0EAE146_gv_commander);
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterOpenerTech");
-    libE0EAE146_gv_effectiveBaseAnchor = null;
     lv_baseAnchor = PlayerStartLocation(1);
-    libE0EAE146_gv_effectiveBaseAnchor = null;
+    if (lv_baseAnchor == null) {
+        // 战役图改造为 7vs1 时没有设置 PlayerStartLocation，回退到适配器设置的 effectiveBaseAnchor
+        lv_baseAnchor = libE0EAE146_gv_effectiveBaseAnchor;
+    }
+    libE0EAE146_gv_effectiveBaseAnchor = lv_baseAnchor;
     libE0EAE146_gf_RelocateCommanderHeroStructureOffStartLocation(1);
     libNtve_gf_CreateUnitsWithDefaultFacing(1, libE0EAE146_gf_CommanderAchUnit("CommandCenter"), 0, 1, lv_baseAnchor);
     libE0EAE146_gf_RuntimeCheckpoint("InitializeBase.afterTownHall");

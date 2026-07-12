@@ -199,10 +199,41 @@ bool libRebornAdapter_gt_DeferredCleanup_Func (bool testConds, bool runActions) 
     return true;
 }
 
+// 查找地图预放置的基地位置（Lair/Hatchery/Hive/CommandCenter），用作 effectiveBaseAnchor 回退
+// 战役图没有设置 PlayerStartLocation，InitializeBase 会因 null 失败
+point libRebornAdapter_FindPreplacedBasePoint () {
+    unitgroup lv_all;
+    int lv_total;
+    int lv_i;
+    unit lv_u;
+    string lv_type;
+
+    lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+    lv_total = UnitGroupCount(lv_all, c_unitCountAll);
+    lv_i = 1;
+    while (lv_i <= lv_total) {
+        lv_u = UnitGroupUnit(lv_all, lv_i);
+        lv_type = UnitGetType(lv_u);
+        if ((lv_type == "Lair") || (lv_type == "Hatchery") || (lv_type == "Hive") ||
+            (lv_type == "CommandCenter") || (lv_type == "OrbitalCommand") ||
+            (lv_type == "PlanetaryFortress") || (lv_type == "Nexus") || (lv_type == "HatcheryZerg")) {
+            return UnitGetPosition(lv_u);
+        }
+        lv_i = lv_i + 1;
+    }
+    return null;
+}
+
 void libRebornAdapter_OnAfterUnitsInit () {
     string lv_commander;
 
     libRebornAdapter_AlengerBootstrap_InitLib();
+
+    // 战役图没有 PlayerStartLocation，设置 effectiveBaseAnchor 作为 InitializeBase 的回退
+    // 使用预放置的 Lair 位置作为基地锚点
+    if (PlayerStartLocation(1) == null) {
+        libE0EAE146_gv_effectiveBaseAnchor = libRebornAdapter_FindPreplacedBasePoint();
+    }
 
     // 非虫族指挥官时，延迟清理地图预放置的虫族单位
     // UnitRemove 在 gt_Initialization_Func 期间不生效，必须通过异步触发器延迟执行
