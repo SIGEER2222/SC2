@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "id": "neuro.7vs1",
+  "description": "Neuro capability dependency closure for 7vs1 cooperative maps. Launch scripts with -EnableNeuro must materialize this closure into the live SC2 install.",
+  "capability": "Capability.NeuroBridge7vs1",
+  "mapFamilies": [
+    "7vs1"
+  ],
+  "mods": [
+    {
+      "id": "NeuroIntegration",
+      "role": "core-protocol",
+      "sourceWorkspace": "tools/SC2-Neuro-WoL-Integration/Mods/NeuroIntegration.SC2Mod",
+      "liveRel": "file:Mods/NeuroIntegration.SC2Mod",
+      "liveDir": "Mods/NeuroIntegration.SC2Mod",
+      "providesGalaxy": [
+        "LibEFA54406",
+        "LibEFA54406_h"
+      ],
+      "providesBank": [
+        "NeuroIntegration"
+      ],
+      "documentInfoFix": {
+        "reason": "Source mod uses English Liberty campaign paths that are missing on the CN SC2 install used by 7vs1.",
+        "rewriteTo": [
+          "bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign",
+          "bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod"
+        ]
+      },
+      "notes": "Owns Bank IPC and generic action protocol. Required compile provider for LibEFA54406_h referenced by NeuroBridge7vs1."
+    },
+    {
+      "id": "NeuroBridge7vs1",
+      "role": "map-family-bridge",
+      "sourceWorkspace": "Mods/Neuro/NeuroBridge7vs1.SC2Mod",
+      "liveRel": "file:Mods/Neuro/NeuroBridge7vs1.SC2Mod",
+      "liveDir": "Mods/Neuro/NeuroBridge7vs1.SC2Mod",
+      "dataCenterId": "Capability.NeuroBridge7vs1",
+      "providesGalaxy": [
+        "LibNeuroBridge7vs1",
+        "LibNeuroBridge7vs1_h"
+      ],
+      "providesBank": [
+        "NeuroPermanent"
+      ],
+      "requiresGalaxy": [
+        "LibEFA54406",
+        "LibEFA54406_h"
+      ],
+      "requiresMods": [
+        "NeuroIntegration"
+      ],
+      "notes": "7vs1-specific actions, mutator/commander context, player activity contexts, Phase B/C/D hooks."
+    }
+  ],
+  "banks": [
+    {
+      "name": "NeuroIntegration",
+      "player": 1,
+      "owner": "NeuroIntegration"
+    },
+    {
+      "name": "NeuroPermanent",
+      "player": 1,
+      "owner": "NeuroBridge7vs1"
+    }
+  ],
+  "mapScript": {
+    "includes": [
+      "LibEFA54406",
+      "LibNeuroBridge7vs1"
+    ],
+    "initCalls": [
+      "libEFA54406_InitLib",
+      "libNeuroBridge7vs1_InitLib"
+    ]
+  },
+  "pythonRuntime": {
+    "rootWorkspace": "tools/SC2-Neuro-API-Integration",
+    "entry": "run.py",
+    "legacyEntry": "headless_runner.py",
+    "mockServer": "mock_neuro_server.py",
+    "mockServerEnhanced": "mock_neuro_server_enhanced.py",
+    "defaultUrl": "ws://127.0.0.1:8000",
+    "garyUrl": "ws://127.0.0.1:64998",
+    "webui": "http://127.0.0.1:8080",
+    "banksPath": "C:\\Users\\22448\\Documents\\StarCraft II\\Banks"
+  },
+  "bridgeObserver": {
+    "scriptWorkspace": "scripts/runtime-probe/neuro_bridge.py",
+    "purpose": "Optional RuntimeProbe.Bank -> Neuro context bridge and chat subtitle writeback."
+  },
+  "galaxyManifest": "Shared/Galaxy/neuro-7vs1-galaxy-manifest.json",
+  "knownCheckerNotes": [
+    {
+      "code": "XLIB_MISSING_INCLUDE",
+      "file": "LibNeuroBridge7vs1_h.galaxy",
+      "include": "LibEFA54406_h",
+      "acceptance": "Accepted only when NeuroIntegration is present in the runtime dependency closure and injected into map Base.SC2Data together with the bridge."
+    }
+  ]
+}

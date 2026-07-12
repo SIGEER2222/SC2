@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "neuro.7vs1",
+  "description": "Galaxy files injected when -EnableNeuro is active on 7vs1 maps. Replaces ad-hoc directory scanning for the Neuro capability.",
+  "scope": {
+    "mapFamily": "7vs1",
+    "coveredCompositions": [
+      "7vs1.neuro.TerranRaynor"
+    ]
+  },
+  "entries": [
+    {
+      "file": "Base.SC2Data/LibEFA54406.galaxy",
+      "owner": "Capability.NeuroIntegration",
+      "sourceMod": "tools/SC2-Neuro-WoL-Integration/Mods/NeuroIntegration.SC2Mod",
+      "compileProvides": [
+        "LibEFA54406"
+      ],
+      "compileRequires": [],
+      "reason": "Neuro core Bank/action protocol library required by bridge and map InitLib.",
+      "compatibilityOnly": false
+    },
+    {
+      "file": "Base.SC2Data/LibEFA54406_h.galaxy",
+      "owner": "Capability.NeuroIntegration",
+      "sourceMod": "tools/SC2-Neuro-WoL-Integration/Mods/NeuroIntegration.SC2Mod",
+      "compileProvides": [
+        "LibEFA54406_h"
+      ],
+      "compileRequires": [],
+      "reason": "Header for LibEFA54406; satisfies NeuroBridge7vs1 include LibEFA54406_h.",
+      "compatibilityOnly": false
+    },
+    {
+      "file": "Base.SC2Data/LibNeuroBridge7vs1.galaxy",
+      "owner": "Capability.NeuroBridge7vs1",
+      "sourceMod": "Mods/Neuro/NeuroBridge7vs1.SC2Mod",
+      "compileProvides": [
+        "LibNeuroBridge7vs1"
+      ],
+      "compileRequires": [
+        "LibEFA54406",
+        "LibEFA54406_h"
+      ],
+      "reason": "7vs1 Neuro bridge runtime: actions, contexts, Phase B/C/D, activity tracking.",
+      "compatibilityOnly": false
+    },
+    {
+      "file": "Base.SC2Data/LibNeuroBridge7vs1_h.galaxy",
+      "owner": "Capability.NeuroBridge7vs1",
+      "sourceMod": "Mods/Neuro/NeuroBridge7vs1.SC2Mod",
+      "compileProvides": [
+        "LibNeuroBridge7vs1_h"
+      ],
+      "compileRequires": [
+        "LibEFA54406_h"
+      ],
+      "reason": "Header for NeuroBridge7vs1.",
+      "compatibilityOnly": false
+    }
+  ]
+}

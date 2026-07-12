@@ -1579,16 +1579,59 @@ if ($EnableNeuro) {
         [Microsoft.VisualBasic.FileIO.FileSystem]::CopyDirectory($Source, $Destination, $true)
     }
 
-    # === 路径解析 ===
+    # === 路径解析（优先 Shared/Launcher/neuro-dependencies.json 闭包事实）===
+    $neuroDepsPath = Join-Path $workspaceRoot "Shared\Launcher\neuro-dependencies.json"
+    $neuroManifestPath = Join-Path $workspaceRoot "Shared\Galaxy\neuro-7vs1-galaxy-manifest.json"
+    $repoRoot = Split-Path -Parent $workspaceRoot
+    $neuroDeps = $null
+    if (Test-Path -LiteralPath $neuroDepsPath) {
+        try {
+            $neuroDeps = Get-Content -LiteralPath $neuroDepsPath -Raw -Encoding UTF8 | ConvertFrom-Json
+            Write-Host "  Loaded neuro-dependencies.json (id=$($neuroDeps.id), capability=$($neuroDeps.capability))" -ForegroundColor DarkGray
+        } catch {
+            Write-Host "  WARN: failed to parse neuro-dependencies.json: $_" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  WARN: neuro-dependencies.json missing at $neuroDepsPath" -ForegroundColor Yellow
+    }
+    if (Test-Path -LiteralPath $neuroManifestPath) {
+        Write-Host "  Galaxy manifest present: Shared/Galaxy/neuro-7vs1-galaxy-manifest.json" -ForegroundColor DarkGray
+    } else {
+        Write-Host "  WARN: neuro-7vs1-galaxy-manifest.json missing" -ForegroundColor Yellow
+    }
+
     if ([string]::IsNullOrWhiteSpace($NeuroModSource)) {
-        $NeuroModSource = "E:\Code\MyMod\SC2\tools\SC2-Neuro-WoL-Integration\Mods\NeuroIntegration.SC2Mod"
+        $NeuroModSource = Join-Path $repoRoot "tools\SC2-Neuro-WoL-Integration\Mods\NeuroIntegration.SC2Mod"
+        if ($neuroDeps -and $neuroDeps.mods) {
+            $coreMod = @($neuroDeps.mods) | Where-Object { $_.id -eq "NeuroIntegration" } | Select-Object -First 1
+            if ($coreMod -and $coreMod.sourceWorkspace) {
+                $NeuroModSource = Join-Path $repoRoot ($coreMod.sourceWorkspace -replace '/', '\')
+            }
+        }
     }
     if ([string]::IsNullOrWhiteSpace($BridgeModSource)) {
         $BridgeModSource = Join-Path $workspaceRoot "Mods\Neuro\NeuroBridge7vs1.SC2Mod"
+        if ($neuroDeps -and $neuroDeps.mods) {
+            $bridgeMod = @($neuroDeps.mods) | Where-Object { $_.id -eq "NeuroBridge7vs1" } | Select-Object -First 1
+            if ($bridgeMod -and $bridgeMod.sourceWorkspace) {
+                $BridgeModSource = Join-Path $workspaceRoot ($bridgeMod.sourceWorkspace -replace '/', '\')
+            }
+        }
     }
     if ([string]::IsNullOrWhiteSpace($NeuroApiRoot)) {
-        $NeuroApiRoot = "E:\Code\MyMod\SC2\tools\SC2-Neuro-API-Integration"
+        $NeuroApiRoot = Join-Path $repoRoot "tools\SC2-Neuro-API-Integration"
+        if ($neuroDeps -and $neuroDeps.pythonRuntime -and $neuroDeps.pythonRuntime.rootWorkspace) {
+            $NeuroApiRoot = Join-Path $repoRoot ($neuroDeps.pythonRuntime.rootWorkspace -replace '/', '\')
+        }
     }
+
+    # Prove LibEFA54406 ownership before injection
+    $efaHeader = Join-Path $NeuroModSource "Base.SC2Data\LibEFA54406_h.galaxy"
+    $efaBody = Join-Path $NeuroModSource "Base.SC2Data\LibEFA54406.galaxy"
+    if (-not (Test-Path -LiteralPath $efaHeader) -or -not (Test-Path -LiteralPath $efaBody)) {
+        throw "LibEFA54406 closure incomplete under NeuroIntegration: missing $efaHeader or $efaBody"
+    }
+    Write-Host "  LibEFA54406 closure OK (owned by NeuroIntegration)" -ForegroundColor Green
 
     Write-Host "NeuroMod:  $NeuroModSource"
     Write-Host "BridgeMod: $BridgeModSource"
@@ -1785,20 +1828,32 @@ if ($EnableNeuro) {
     Write-Host "Neuro integration completed." -ForegroundColor Green
 
     # === Step N6: 启动 Python 运行时（可选，-NoLaunch 时跳过）===
+    $mockProcessId = $null
     if (-not $SkipPythonRuntime -and -not $NoLaunch) {
         Write-Host "`n--- Neuro Step 6: Start Python runtime ---" -ForegroundColor Yellow
 
         $runScript = Join-Path $NeuroApiRoot "run.py"
         $configureJson = Join-Path $NeuroApiRoot "configure.json"
+        $mockServerScript = Join-Path $NeuroApiRoot "mock_neuro_server.py"
+        if ($neuroDeps -and $neuroDeps.pythonRuntime -and $neuroDeps.pythonRuntime.mockServer) {
+            $mockServerScript = Join-Path $NeuroApiRoot $neuroDeps.pythonRuntime.mockServer
+        }
 
         # 解析 NeuroUrl（默认 mock，可切换到真实 Gary）
+        $defaultMockUrl = "ws://127.0.0.1:8000"
+        $defaultGaryUrl = "ws://127.0.0.1:64998"
+        if ($neuroDeps -and $neuroDeps.pythonRuntime) {
+            if ($neuroDeps.pythonRuntime.defaultUrl) { $defaultMockUrl = [string]$neuroDeps.pythonRuntime.defaultUrl }
+            if ($neuroDeps.pythonRuntime.garyUrl) { $defaultGaryUrl = [string]$neuroDeps.pythonRuntime.garyUrl }
+        }
+
         $effectiveNeuroUrl = $NeuroUrl
         if ([string]::IsNullOrWhiteSpace($effectiveNeuroUrl)) {
             if ($UseGary) {
-                $effectiveNeuroUrl = "ws://127.0.0.1:64998"
+                $effectiveNeuroUrl = $defaultGaryUrl
                 Write-Host "  Mode: Gary (real Neuro-sama)" -ForegroundColor Magenta
             } else {
-                $effectiveNeuroUrl = "ws://127.0.0.1:8000"
+                $effectiveNeuroUrl = $defaultMockUrl
                 Write-Host "  Mode: Mock server (default)" -ForegroundColor DarkGray
             }
         } else {
@@ -1816,15 +1871,53 @@ if ($EnableNeuro) {
                 Start-Sleep -Seconds 8
             } else {
                 Write-Host "  WARN: Gary not found at $GaryPath, falling back to mock URL" -ForegroundColor Yellow
-                $effectiveNeuroUrl = "ws://127.0.0.1:8000"
+                $effectiveNeuroUrl = $defaultMockUrl
             }
+        }
+
+        # Mock 模式：若目标为默认 mock URL，自动拉起 mock_neuro_server.py（若端口未占用）
+        $usingDefaultMock = ($effectiveNeuroUrl -eq $defaultMockUrl) -and (-not $UseGary -or $effectiveNeuroUrl -eq $defaultMockUrl)
+        if ($usingDefaultMock -and (Test-Path -LiteralPath $mockServerScript)) {
+            $mockPortBusy = $false
+            try {
+                $tcp = New-Object System.Net.Sockets.TcpClient
+                $iar = $tcp.BeginConnect("127.0.0.1", 8000, $null, $null)
+                $waited = $iar.AsyncWaitHandle.WaitOne(200)
+                if ($waited -and $tcp.Connected) { $mockPortBusy = $true }
+                $tcp.Close()
+            } catch {
+                $mockPortBusy = $false
+            }
+            if ($mockPortBusy) {
+                Write-Host "  Mock server already listening on :8000" -ForegroundColor DarkGray
+            } else {
+                Write-Host "  Starting mock_neuro_server.py on :8000..."
+                $mockLog = Join-Path $workspaceRoot "logs\neuro-mock-server.log"
+                $mockDir = Split-Path $mockLog -Parent
+                if (-not (Test-Path -LiteralPath $mockDir)) { New-DirSafe $mockDir }
+                $mockProc = Start-Process -FilePath $PythonPath `
+                    -ArgumentList @($mockServerScript) `
+                    -WorkingDirectory $NeuroApiRoot `
+                    -RedirectStandardOutput $mockLog `
+                    -RedirectStandardError $mockLog `
+                    -PassThru -WindowStyle Hidden
+                $mockProcessId = $mockProc.Id
+                Write-Host "  Mock server PID: $mockProcessId" -ForegroundColor Green
+                Start-Sleep -Seconds 2
+            }
+        } elseif ($usingDefaultMock) {
+            Write-Host "  WARN: mock server script not found at $mockServerScript" -ForegroundColor Yellow
         }
 
         if (Test-Path -LiteralPath $runScript) {
             # 写/更新 configure.json
+            $banksPath = "C:\Users\22448\Documents\StarCraft II\Banks"
+            if ($neuroDeps -and $neuroDeps.pythonRuntime -and $neuroDeps.pythonRuntime.banksPath) {
+                $banksPath = [string]$neuroDeps.pythonRuntime.banksPath
+            }
             $config = @{
                 game_path = $Sc2Root
-                banks_path = "C:\Users\22448\Documents\StarCraft II\Banks"
+                banks_path = $banksPath
                 neuro_url = $effectiveNeuroUrl
                 verbosity = 1
             }
@@ -1834,10 +1927,13 @@ if ($EnableNeuro) {
 
             # 启动 Python 运行时（带 webui）
             Write-Host "  Starting run.py (WebUI at http://127.0.0.1:8080)..."
-            $pyProc = Start-Process -FilePath $PythonPath -ArgumentList $runScript -PassThru -WindowStyle Normal
+            $pyProc = Start-Process -FilePath $PythonPath -ArgumentList $runScript -WorkingDirectory $NeuroApiRoot -PassThru -WindowStyle Normal
             $pythonProcessId = $pyProc.Id
             Write-Host "  Python PID: $pythonProcessId" -ForegroundColor Green
             Write-Host "  WebUI: http://127.0.0.1:8080" -ForegroundColor Cyan
+            if ($mockProcessId) {
+                Write-Host "  Mock PID: $mockProcessId" -ForegroundColor Cyan
+            }
         } else {
             Write-Host "  WARN: run.py not found at $runScript" -ForegroundColor Yellow
         }

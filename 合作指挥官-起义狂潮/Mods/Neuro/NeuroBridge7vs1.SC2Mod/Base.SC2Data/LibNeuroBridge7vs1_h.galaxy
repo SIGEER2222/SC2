@@ -20,10 +20,12 @@ include "LibEFA54406_h"
 
 // ��������
 bool   libNeuroBridge7vs1_initialized;
-bool   libNeuroBridge7vs1_actionsRegistered;      // 7vs1 ר�� action �Ƿ���ע��
-bool   libNeuroBridge7vs1_mutatorContextPushed;   // ͻ������ context �Ƿ������ͣ���ֹ�ظ���
+bool   libNeuroBridge7vs1_actionsRegistered;      // 7vs1 专属 action 是否已注册
+bool   libNeuroBridge7vs1_mutatorContextPushed;   // 突变因子 context 是否已推送（防重复）
+bool   libNeuroBridge7vs1_loopBootstrapped;       // 是否已异步拉起 global/map 循环
 trigger libNeuroBridge7vs1_gt_MapInit;
 trigger libNeuroBridge7vs1_gt_ExecuteActionsMap;
+trigger libNeuroBridge7vs1_gt_BootstrapLoop;
 trigger libNeuroBridge7vs1_gt_MissionVictory;
 trigger libNeuroBridge7vs1_gt_MissionDefeat;
 bool   libNeuroBridge7vs1_activityTrackingInitialized;
@@ -50,6 +52,7 @@ int    libNeuroBridge7vs1_neutralUnitsKilled;
 void   libNeuroBridge7vs1_InitLib();
 void   libNeuroBridge7vs1_gf_RegisterActions();
 bool   libNeuroBridge7vs1_gt_MapInit_Func(bool testConds, bool runActions);
+bool   libNeuroBridge7vs1_gt_BootstrapLoop_Func(bool testConds, bool runActions);
 bool   libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runActions);
 bool   libNeuroBridge7vs1_gt_MissionVictory_Func(bool testConds, bool runActions);
 bool   libNeuroBridge7vs1_gt_MissionDefeat_Func(bool testConds, bool runActions);

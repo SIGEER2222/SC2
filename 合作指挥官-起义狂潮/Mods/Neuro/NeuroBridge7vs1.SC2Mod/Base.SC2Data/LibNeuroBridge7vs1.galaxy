@@ -8,10 +8,12 @@ void libNeuroBridge7vs1_InitLib() {
     if (libNeuroBridge7vs1_initialized) {
         return;
     }
+
+    // 保留 MapInit 兼容路径。
     libNeuroBridge7vs1_gt_MapInit = TriggerCreate("libNeuroBridge7vs1_gt_MapInit_Func");
     TriggerAddEventMapInit(libNeuroBridge7vs1_gt_MapInit);
 
-    // Phase D: ����������ӣ�ʹ�ö������������ο� zexpedition03_reborn_port ��ͼģʽ��
+    // Phase D: 任务结束钩子
     libNeuroBridge7vs1_gt_MissionVictory = TriggerCreate("libNeuroBridge7vs1_gt_MissionVictory_Func");
     TriggerAddEventPlayerLeft(libNeuroBridge7vs1_gt_MissionVictory, 1, c_gameResultVictory);
     libNeuroBridge7vs1_gt_MissionDefeat = TriggerCreate("libNeuroBridge7vs1_gt_MissionDefeat_Func");
@@ -20,6 +22,18 @@ void libNeuroBridge7vs1_InitLib() {
     // Debug: monitor execute_actions_global event to confirm global loop execution
     libNeuroBridge7vs1_gt_DebugGlobalEvent = TriggerCreate("libNeuroBridge7vs1_gt_DebugGlobalEvent_Func");
     TriggerAddEventGeneric(libNeuroBridge7vs1_gt_DebugGlobalEvent, "execute_actions_global");
+
+    // 主路径：注册 map 执行触发器，并挂到 EFA 共享 hook。
+    // 7vs1 实测 TriggerSendEvent("execute_actions_map") 可能无法触发注入库监听，
+    // 因此 global 循环通过 libEFA54406_gt_MapActionHook 直接 TriggerExecute。
+    libNeuroBridge7vs1_gt_ExecuteActionsMap = TriggerCreate("libNeuroBridge7vs1_gt_ExecuteActionsMap_Func");
+    TriggerAddEventGeneric(libNeuroBridge7vs1_gt_ExecuteActionsMap, "execute_actions_map");
+    libEFA54406_gt_MapActionHook = libNeuroBridge7vs1_gt_ExecuteActionsMap;
+    libNeuroBridge7vs1_gf_InitActivityTracking();
+
+    libNeuroBridge7vs1_loopBootstrapped = false;
+    libNeuroBridge7vs1_gt_BootstrapLoop = TriggerCreate("libNeuroBridge7vs1_gt_BootstrapLoop_Func");
+    TriggerAddEventGeneric(libNeuroBridge7vs1_gt_BootstrapLoop, "neuro_bank_ready");
 
     libNeuroBridge7vs1_initialized = true;
 }
@@ -120,12 +134,75 @@ bool libNeuroBridge7vs1_gt_MapInit_Func(bool testConds, bool runActions) {
         return true;
     }
     if (runActions) {
-        // ֱ��ע������ѭ�������������� execute_actions_map �¼���
-        // ���� MapInit �� Wait�����ⴥ��������
-        libNeuroBridge7vs1_gt_ExecuteActionsMap = TriggerCreate("libNeuroBridge7vs1_gt_ExecuteActionsMap_Func");
-        TriggerAddEventGeneric(libNeuroBridge7vs1_gt_ExecuteActionsMap, "execute_actions_map");
-        libNeuroBridge7vs1_gf_InitActivityTracking();
+        // 兼容路径：若 InitLib 主路径未启动，则在此补启动。
+        if (libEFA54406_gv_neuroIntegration != null) {
+            BankValueSetFromInt(libEFA54406_gv_neuroIntegration, "game_state", "debug_mapinit", 1);
+            BankSave(libEFA54406_gv_neuroIntegration);
+        }
+
+        if (libNeuroBridge7vs1_gt_ExecuteActionsMap == null) {
+            libNeuroBridge7vs1_gt_ExecuteActionsMap = TriggerCreate("libNeuroBridge7vs1_gt_ExecuteActionsMap_Func");
+            TriggerAddEventGeneric(libNeuroBridge7vs1_gt_ExecuteActionsMap, "execute_actions_map");
+            libNeuroBridge7vs1_gf_InitActivityTracking();
+        }
+
+        if (!libNeuroBridge7vs1_loopBootstrapped) {
+            libNeuroBridge7vs1_loopBootstrapped = true;
+            libNeuroBridge7vs1_gt_BootstrapLoop = TriggerCreate("libNeuroBridge7vs1_gt_BootstrapLoop_Func");
+            TriggerExecute(libNeuroBridge7vs1_gt_BootstrapLoop, false, false);
+        }
     }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Bootstrap: 等 bank 就绪后异步启动 execute_actions_global
+// 解决：
+//   - MapInit 中 Wait 不恢复导致后续 MapInit 被堵
+//   - global 循环启动早于 map 监听注册
+//   - bankwriteallowed=false 时 RegisterActions 死锁
+//--------------------------------------------------------------------------------------------------
+bool libNeuroBridge7vs1_gt_BootstrapLoop_Func(bool testConds, bool runActions) {
+    if (testConds) {
+        return true;
+    }
+    if (!runActions) {
+        return true;
+    }
+
+    // 只执行一次
+    if (libNeuroBridge7vs1_loopBootstrapped) {
+        return true;
+    }
+    libNeuroBridge7vs1_loopBootstrapped = true;
+
+    // neuro_bank_ready 由 EFA CreateBank 发出，此时 bank 应已就绪
+    if (libEFA54406_gv_neuroIntegration != null) {
+        BankValueSetFromInt(libEFA54406_gv_neuroIntegration, "game_state", "debug_bootstrap", 1);
+        BankValueSetFromInt(libEFA54406_gv_neuroIntegration, "game_state", "debug_mapinit", 1);
+        BankSave(libEFA54406_gv_neuroIntegration);
+    }
+
+    // 确保 create_action 不会卡在 bankwriteallowed 等待
+    libEFA54406_gv_bankwriteallowed = true;
+
+    // 注册 7vs1 action（不依赖首轮 map 事件）
+    if ((libEFA54406_gv_neuroIntegration != null) && (!libNeuroBridge7vs1_actionsRegistered)) {
+        libNeuroBridge7vs1_gf_RegisterActions();
+        libNeuroBridge7vs1_actionsRegistered = true;
+        libNeuroBridge7vs1_gf_PushMutatorContext();
+        libNeuroBridge7vs1_gf_PushLastMissionSummary();
+        BankValueSetFromInt(libEFA54406_gv_neuroIntegration, "game_state", "debug_actions_registered", 1);
+        BankSave(libEFA54406_gv_neuroIntegration);
+    }
+
+    // 异步启动 global 循环
+    if (libEFA54406_gt_Executeactionsglobal != null) {
+        TriggerExecute(libEFA54406_gt_Executeactionsglobal, false, false);
+    } else {
+        TriggerSendEvent("execute_actions_global");
+    }
+
     return true;
 }
 
@@ -602,8 +679,16 @@ string libNeuroBridge7vs1_gf_TrainUnit(string unitType) {
     int lv_queueCount = 0;
     string lv_abilCmd = "";
     order lv_order = null;
-    string lv_buildAbil = "";
-    order lv_order2 = null;
+    int lv_cmdIndex = 0;
+
+    // 兼容简写：Marine -> MarineRaynor（7vs1 雷神单位 ID）
+    if (unitType == "Marine") {
+        unitType = "MarineRaynor";
+    } else if (unitType == "SCV") {
+        unitType = "SCVRaynor";
+    } else if (unitType == "Marauder") {
+        unitType = "MarauderRaynor";
+    }
 
     if (!CatalogEntryIsValid(c_gameCatalogUnit, unitType)) {
         return "ERROR: Invalid unit type '" + unitType + "'.";
@@ -616,29 +701,38 @@ string libNeuroBridge7vs1_gf_TrainUnit(string unitType) {
         return "ERROR: No production structures available.";
     }
 
+    // 7vs1 Raynor：优先用合作生产技能，按命令索引扫描
     UnitGroupLoopBegin(lv_structures);
     while (!UnitGroupLoopDone()) {
         lv_building = UnitGroupLoopCurrent();
         lv_queueCount = UnitQueueItemCount(lv_building, 0);
-
         if (lv_queueCount < 5) {
-            lv_abilCmd = "Train" + unitType;
+            // Barracks
+            lv_abilCmd = "BarracksTrainRaynor";
             if (CatalogEntryIsValid(c_gameCatalogAbil, lv_abilCmd)) {
-                lv_order = Order(AbilityCommand(lv_abilCmd, 0));
-                if (UnitOrderIsValid(lv_building, lv_order)) {
-                    UnitIssueOrder(lv_building, lv_order, c_orderQueueReplace);
-                    UnitGroupLoopEnd();
-                    return "OK: Ordered " + unitType + " from " + TextToString(UnitGetName(lv_building)) + ".";
+                lv_cmdIndex = 0;
+                while (lv_cmdIndex <= 8) {
+                    lv_order = Order(AbilityCommand(lv_abilCmd, lv_cmdIndex));
+                    if (UnitOrderIsValid(lv_building, lv_order)) {
+                        UnitIssueOrder(lv_building, lv_order, c_orderQueueReplace);
+                        UnitGroupLoopEnd();
+                        return "OK: Ordered " + unitType + " via " + lv_abilCmd + "[" + IntToString(lv_cmdIndex) + "] on " + TextToString(UnitGetName(lv_building)) + ".";
+                    }
+                    lv_cmdIndex = lv_cmdIndex + 1;
                 }
             }
-
-            lv_buildAbil = CatalogReferenceGet("Units," + unitType + ",BuiltFrom", lv_player);
-            if (lv_buildAbil != "" && lv_buildAbil != null) {
-                lv_order2 = Order(AbilityCommand(unitType + "Train", 0));
-                if (UnitOrderIsValid(lv_building, lv_order2)) {
-                    UnitIssueOrder(lv_building, lv_order2, c_orderQueueReplace);
-                    UnitGroupLoopEnd();
-                    return "OK: Ordered " + unitType + " from " + TextToString(UnitGetName(lv_building)) + ".";
+            // Command center / SCV
+            lv_abilCmd = "CommandCenterTrainRaynor";
+            if (CatalogEntryIsValid(c_gameCatalogAbil, lv_abilCmd)) {
+                lv_cmdIndex = 0;
+                while (lv_cmdIndex <= 4) {
+                    lv_order = Order(AbilityCommand(lv_abilCmd, lv_cmdIndex));
+                    if (UnitOrderIsValid(lv_building, lv_order)) {
+                        UnitIssueOrder(lv_building, lv_order, c_orderQueueReplace);
+                        UnitGroupLoopEnd();
+                        return "OK: Ordered " + unitType + " via " + lv_abilCmd + "[" + IntToString(lv_cmdIndex) + "] on " + TextToString(UnitGetName(lv_building)) + ".";
+                    }
+                    lv_cmdIndex = lv_cmdIndex + 1;
                 }
             }
         }
@@ -1207,16 +1301,18 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
             BankValueSetFromInt(libEFA54406_gv_neuroIntegration, "game_state", "debug_map_count", lv_mapCount + 1);
             BankSave(libEFA54406_gv_neuroIntegration);
         }
-        // === 0. �״ε��ã�ע�� action + ����ͻ������ context ===
+        // === 0. 首轮：注册 7vs1 action（主路径；bootstrap 事件仅为辅助）===
         if (!libNeuroBridge7vs1_actionsRegistered) {
-            // ��� NeuroIntegration bank �Ƿ��Ѵ���
             if (libEFA54406_gv_neuroIntegration != null) {
+                libEFA54406_gv_bankwriteallowed = true;
                 libNeuroBridge7vs1_gf_RegisterActions();
                 libNeuroBridge7vs1_actionsRegistered = true;
-                // ����ͻ����������������
+                libNeuroBridge7vs1_loopBootstrapped = true;
                 libNeuroBridge7vs1_gf_PushMutatorContext();
-                // ������һ������ժҪ����������䣩
                 libNeuroBridge7vs1_gf_PushLastMissionSummary();
+                BankValueSetFromInt(libEFA54406_gv_neuroIntegration, "game_state", "debug_actions_registered", 1);
+                BankValueSetFromInt(libEFA54406_gv_neuroIntegration, "game_state", "debug_bootstrap", 1);
+                BankSave(libEFA54406_gv_neuroIntegration);
             }
         }
 
@@ -1323,8 +1419,12 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
         Wait(0.2, c_timeGame);
         libEFA54406_gv_bankwriteallowed = false;
 
-        // === 7. �ص�ȫ��ѭ�� ===
-        TriggerSendEvent("execute_actions_global");
+        // === 7. 回抛 global 循环：直接 TriggerExecute，避免 7vs1 下 TriggerSendEvent 丢事件 ===
+        if (libEFA54406_gt_Executeactionsglobal != null) {
+            TriggerExecute(libEFA54406_gt_Executeactionsglobal, false, false);
+        } else {
+            TriggerSendEvent("execute_actions_global");
+        }
     }
     return true;
 }
