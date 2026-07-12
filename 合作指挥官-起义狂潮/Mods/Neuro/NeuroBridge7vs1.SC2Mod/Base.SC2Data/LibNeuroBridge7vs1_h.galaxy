@@ -50,3 +50,19 @@ string libNeuroBridge7vs1_gf_ResearchUpgrade(string upgradeId);
 // 突变因子语义对齐
 void   libNeuroBridge7vs1_gf_PushMutatorContext();
 string libNeuroBridge7vs1_gf_GetMutatorSemanticDescription(string mutatorId);
+
+// === Phase B: 角色对话推送 ===
+void   libNeuroBridge7vs1_gf_PushTransmissionContext(string soundLink, string speakerName, string subtitleText, bool silent);
+
+// === Phase C: 永久能力系统 ===
+bank   libNeuroBridge7vs1_gv_permanentBank;
+bool   libNeuroBridge7vs1_gf_LoadPermanentBank();
+void   libNeuroBridge7vs1_gf_UnlockAction(string actionName);
+bool   libNeuroBridge7vs1_gf_IsActionUnlocked(string actionName);
+void   libNeuroBridge7vs1_gf_SaveMissionSummary(string mapId, string summary);
+string libNeuroBridge7vs1_gf_GetLastMissionSummary();
+
+// === Phase D: 任务间隙逻辑 ===
+void   libNeuroBridge7vs1_gf_OnMissionVictory(string mapId, int bonusObjectives);
+void   libNeuroBridge7vs1_gf_OnMissionDefeat(string mapId);
+void   libNeuroBridge7vs1_gf_PushLastMissionSummary();

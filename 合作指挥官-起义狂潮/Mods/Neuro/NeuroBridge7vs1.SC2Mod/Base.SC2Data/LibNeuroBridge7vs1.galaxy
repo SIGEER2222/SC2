@@ -515,6 +515,8 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
                 libNeuroBridge7vs1_actionsRegistered = true;
                 // 推送突变因子语义上下文
                 libNeuroBridge7vs1_gf_PushMutatorContext();
+                // 推送上一次任务摘要（跨任务记忆）
+                libNeuroBridge7vs1_gf_PushLastMissionSummary();
             }
         }
 
@@ -592,4 +594,115 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
         TriggerSendEvent("execute_actions_global");
     }
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Phase B: 角色对话推送
+// 推送 Transmission context 给 Neuro，让 Neuro 知道游戏中的角色在说什么
+//--------------------------------------------------------------------------------------------------
+void libNeuroBridge7vs1_gf_PushTransmissionContext(string soundLink, string speakerName, string subtitleText, bool silent) {
+    string lv_context = "";
+
+    if (speakerName == "") {
+        speakerName = "Unknown";
+    }
+
+    if (subtitleText != "") {
+        lv_context = speakerName + ": " + subtitleText;
+    } else {
+        lv_context = speakerName + " is speaking.";
+    }
+
+    libEFA54406_gf_create_context("transmission", lv_context, silent);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Phase C: 永久能力系统
+// 使用 NeuroPermanent.SC2Bank 跨任务持久化已解锁的 action 和任务摘要
+//--------------------------------------------------------------------------------------------------
+bool libNeuroBridge7vs1_gf_LoadPermanentBank() {
+    if (libNeuroBridge7vs1_gv_permanentBank != null) {
+        return true;
+    }
+    libNeuroBridge7vs1_gv_permanentBank = BankLoad("NeuroPermanent", 1);
+    if (libNeuroBridge7vs1_gv_permanentBank == null) {
+        return false;
+    }
+    BankWait(libNeuroBridge7vs1_gv_permanentBank);
+    return true;
+}
+
+void libNeuroBridge7vs1_gf_UnlockAction(string actionName) {
+    if (!libNeuroBridge7vs1_gf_LoadPermanentBank()) {
+        return;
+    }
+    BankValueSetFromInt(libNeuroBridge7vs1_gv_permanentBank, "unlocked_actions", actionName, 1);
+    BankSave(libNeuroBridge7vs1_gv_permanentBank);
+}
+
+bool libNeuroBridge7vs1_gf_IsActionUnlocked(string actionName) {
+    if (!libNeuroBridge7vs1_gf_LoadPermanentBank()) {
+        return false;
+    }
+    return (BankValueGetAsInt(libNeuroBridge7vs1_gv_permanentBank, "unlocked_actions", actionName) > 0);
+}
+
+void libNeuroBridge7vs1_gf_SaveMissionSummary(string mapId, string summary) {
+    if (!libNeuroBridge7vs1_gf_LoadPermanentBank()) {
+        return;
+    }
+    BankValueSetFromString(libNeuroBridge7vs1_gv_permanentBank, "mission_summaries", mapId, summary);
+    BankSave(libNeuroBridge7vs1_gv_permanentBank);
+}
+
+string libNeuroBridge7vs1_gf_GetLastMissionSummary() {
+    if (!libNeuroBridge7vs1_gf_LoadPermanentBank()) {
+        return "";
+    }
+    string lv_lastMap = BankValueGetAsString(libNeuroBridge7vs1_gv_permanentBank, "mission_summaries", "last_mission");
+    if (lv_lastMap == "") {
+        return "";
+    }
+    return BankValueGetAsString(libNeuroBridge7vs1_gv_permanentBank, "mission_summaries", lv_lastMap);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Phase D: 任务间隙逻辑
+// 任务胜利/失败钩子 + 跨任务记忆推送
+//--------------------------------------------------------------------------------------------------
+void libNeuroBridge7vs1_gf_OnMissionVictory(string mapId, int bonusObjectives) {
+    string lv_summary = "";
+
+    lv_summary = "Mission " + mapId + " completed with " + IntToString(bonusObjectives) + " bonus objectives.";
+    libNeuroBridge7vs1_gf_SaveMissionSummary(mapId, lv_summary);
+
+    if (libNeuroBridge7vs1_gf_LoadPermanentBank()) {
+        BankValueSetFromString(libNeuroBridge7vs1_gv_permanentBank, "mission_summaries", "last_mission", mapId);
+        BankSave(libNeuroBridge7vs1_gv_permanentBank);
+    }
+
+    libEFA54406_gf_create_context("mission_victory", lv_summary, false);
+}
+
+void libNeuroBridge7vs1_gf_OnMissionDefeat(string mapId) {
+    string lv_summary = "";
+
+    lv_summary = "Mission " + mapId + " failed.";
+    libNeuroBridge7vs1_gf_SaveMissionSummary(mapId, lv_summary);
+
+    if (libNeuroBridge7vs1_gf_LoadPermanentBank()) {
+        BankValueSetFromString(libNeuroBridge7vs1_gv_permanentBank, "mission_summaries", "last_mission", mapId);
+        BankSave(libNeuroBridge7vs1_gv_permanentBank);
+    }
+
+    libEFA54406_gf_create_context("mission_defeat", lv_summary, false);
+}
+
+void libNeuroBridge7vs1_gf_PushLastMissionSummary() {
+    string lv_summary = "";
+
+    lv_summary = libNeuroBridge7vs1_gf_GetLastMissionSummary();
+    if (lv_summary != "") {
+        libEFA54406_gf_create_context("last_mission_summary", lv_summary, true);
+    }
 }
