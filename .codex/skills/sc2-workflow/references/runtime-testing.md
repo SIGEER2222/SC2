@@ -1,5 +1,55 @@
 # Runtime Testing
 
+## Test Lock Convention (测试锁约定)
+
+**所有启动 SC2 进程的 launch 脚本必须先获取测试锁，测试完成后释放。**
+
+同一时间只允许一个测试会话启动游戏，避免多个 AI/脚本互相覆盖 SC2 进程导致测试结果混乱。
+
+### 锁机制
+
+- 锁文件: `out/.test.lock` (JSON)
+- 超时: 3 分钟（180 秒），超时自动释放
+- 持有者进程退出时锁自动失效
+- 模块: `scripts/sc2-launcher/test-lock.ps1`
+
+### 集成方式
+
+```powershell
+. (Join-Path $LauncherScriptsRoot "test-lock.ps1")
+
+$lockCtx = $null
+try {
+    $lockCtx = Acquire-TestLock -TestType "reborn_commander" -MapName $MapName -Commander $Commander
+} catch {
+    Write-Host "[TestLock] 获取锁失败: $_" -ForegroundColor Red
+    exit 1
+}
+
+try {
+    # ... 启动游戏、等待、测试 ...
+    # 长时间测试可续期: Renew-TestLock -LockContext $lockCtx -AdditionalSeconds 600
+} finally {
+    Release-TestLock -LockContext $lockCtx
+}
+```
+
+### 锁失败时
+
+如果 `Acquire-TestLock` 抛出异常，说明有其他测试正在运行。**不得强制抢占**，应：
+1. 输出当前持有者信息
+2. 退出脚本（exit 1）
+3. 等待当前测试完成或锁过期（最多 3 分钟）
+
+### 查看锁状态
+
+```powershell
+. (Join-Path $PSScriptRoot "sc2-launcher\test-lock.ps1")
+Get-TestLockStatus
+```
+
+---
+
 Choose the launcher by target type. The wrong launcher can create failures that do not exist in the
 original map.
 

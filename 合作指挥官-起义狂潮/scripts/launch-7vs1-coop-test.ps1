@@ -66,7 +66,9 @@ param(
     [string]$PythonPath = "C:\Users\22448\AppData\Local\Programs\Python\Python313\python.exe",
     [string]$NeuroApiRoot = "",
     [string]$NeuroModSource = "",
-    [string]$BridgeModSource = ""
+    [string]$BridgeModSource = "",
+    [switch]$EnableChatParser,
+    [string]$NeuroBridgeScript = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -77,6 +79,7 @@ if ([string]::IsNullOrWhiteSpace($TestRunId)) {
 
 . (Join-Path $PSScriptRoot "commander-power-metadata.ps1")
 . (Join-Path $PSScriptRoot "sc2\campaignxcore-bank.ps1")
+. (Join-Path $PSScriptRoot "sc2-launcher\test-lock.ps1")
 
 function Get-WorkspaceRoot {
     return (Split-Path -Parent $PSScriptRoot)
@@ -1638,6 +1641,28 @@ if ($EnableNeuro) {
     Copy-DirSafe $NeuroModSource $neuroLiveDir
     Write-Host "  Copied NeuroIntegration -> $neuroLiveDir"
 
+    # Step N2b: 修正 NeuroIntegration 依赖项以匹配 7vs1 地图使用的中文 bnet 依赖
+    # 源 mod 使用英文 bnet:Liberty (Campaign) + Campaigns/Liberty.SC2Campaign，但 SC2 安装目录下不存在该路径
+    # 7vs1 地图实际使用：自由之翼剧情 (战役) + Campaigns/LibertyStory.SC2Campaign 和 自由之翼 (Mod) + Mods/Liberty.SC2Mod
+    $neuroDocInfoPath = Join-Path $neuroLiveDir "DocumentInfo"
+    if (Test-Path -LiteralPath $neuroDocInfoPath) {
+        $neuroDocInfo = [System.IO.File]::ReadAllText($neuroDocInfoPath)
+        $needsFix = $false
+        if ($neuroDocInfo -match 'Liberty \(Campaign\)') { $needsFix = $true }
+        if ($neuroDocInfo -match 'Campaigns/Liberty\.SC2Campaign') { $needsFix = $true }
+        if ($needsFix) {
+            $fixedDocInfo = '<?xml version="1.0" encoding="utf-8"?>' + "`n" +
+                '<DocInfo>' + "`n" +
+                '    <Dependencies>' + "`n" +
+                '        <Value>bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign</Value>' + "`n" +
+                '        <Value>bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod</Value>' + "`n" +
+                '    </Dependencies>' + "`n" +
+                '</DocInfo>'
+            [System.IO.File]::WriteAllText($neuroDocInfoPath, $fixedDocInfo, $utf8NoBom)
+            Write-Host "  Fixed NeuroIntegration DocumentInfo dependencies (matched 7vs1 map)" -ForegroundColor Green
+        }
+    }
+
     $bridgeLiveParent = Split-Path $bridgeLiveDir -Parent
     if (-not (Test-Path $bridgeLiveParent)) { New-DirSafe $bridgeLiveParent }
     if (Test-Path $bridgeLiveDir) { Remove-DirSafe $bridgeLiveDir }
@@ -1816,22 +1841,56 @@ if ($EnableNeuro) {
         } else {
             Write-Host "  WARN: run.py not found at $runScript" -ForegroundColor Yellow
         }
+
+        # === Step N6b: 启动 NeuroBridge 副官桥接器（监听 RuntimeProbe.Bank，把数据作为 context 推给 Neuro）===
+        if ([string]::IsNullOrWhiteSpace($NeuroBridgeScript)) {
+            $NeuroBridgeScript = Join-Path $workspaceRoot "scripts\runtime-probe\neuro_bridge.py"
+        }
+        if (Test-Path -LiteralPath $NeuroBridgeScript) {
+            Write-Host "  Starting neuro_bridge.py (副官桥接器)..."
+            $bridgeArgs = @($NeuroBridgeScript, "--neuro-url", $effectiveNeuroUrl)
+            if ($EnableChatParser) {
+                $bridgeArgs += @("--enable-chat-parser")
+                Write-Host "  Chat parser enabled (stdin 输入指令解析)" -ForegroundColor Magenta
+            }
+            $bridgeProc = Start-Process -FilePath $PythonPath -ArgumentList $bridgeArgs -PassThru -WindowStyle Normal
+            $neuroBridgeProcessId = $bridgeProc.Id
+            Write-Host "  NeuroBridge PID: $neuroBridgeProcessId" -ForegroundColor Green
+        } else {
+            Write-Host "  WARN: neuro_bridge.py not found at $NeuroBridgeScript" -ForegroundColor Yellow
+        }
     }
 }
 
 if (-not $NoLaunch) {
-    if ($ApiListen) {
-        $sc2Exe = Find-Sc2Executable -Sc2Root $Sc2Root
-        if (-not $sc2Exe) {
-            throw "SC2_x64.exe not found under $Sc2Root\Versions\Base*. Falling back to Switcher."
-        }
-        Write-Host "Launching with API listen: $sc2Exe"
-        Write-Host "  Map:   $mapLive"
-        Write-Host "  Listen: 127.0.0.1:$ApiPort"
-        & $sc2Exe -listen 127.0.0.1 -port $ApiPort -displayMode 0 -windowwidth 1280 -windowheight 720 -loadmap $mapLive
+    # 获取测试锁（确保同一时间只有一个测试会话）
+    $lockCtx = $null
+    $commandersStr = if ($effectiveCommanders) { $effectiveCommanders -join "," } else { "none" }
+    try {
+        $lockCtx = Acquire-TestLock -TestType "7vs1_coop_test" -MapName $LiveMapName -Commander $commandersStr -HolderScript "launch-7vs1-coop-test.ps1"
+    } catch {
+        Write-Host "[TestLock] 获取锁失败: $_" -ForegroundColor Red
+        exit 1
     }
-    else {
-        Write-Host "Launching map: $mapLive"
-        & $SwitcherPath $mapLive
+
+    try {
+        if ($ApiListen) {
+            $sc2Exe = Find-Sc2Executable -Sc2Root $Sc2Root
+            if (-not $sc2Exe) {
+                throw "SC2_x64.exe not found under $Sc2Root\Versions\Base*. Falling back to Switcher."
+            }
+            Write-Host "Launching with API listen: $sc2Exe"
+            Write-Host "  Map:   $mapLive"
+            Write-Host "  Listen: 127.0.0.1:$ApiPort"
+            # API listen 模式可能长时间运行，续期锁
+            Renew-TestLock -LockContext $lockCtx -AdditionalSeconds 600
+            & $sc2Exe -listen 127.0.0.1 -port $ApiPort -displayMode 0 -windowwidth 1280 -windowheight 720 -loadmap $mapLive
+        }
+        else {
+            Write-Host "Launching map: $mapLive"
+            & $SwitcherPath $mapLive
+        }
+    } finally {
+        Release-TestLock -LockContext $lockCtx
     }
 }

@@ -13,7 +13,7 @@ import { neuroLaunchRouter } from './routes/launch-neuro.mjs';
 import { cmreLaunchRouter } from './routes/launch-cmre.mjs';
 import { cmreMapsRouter } from './routes/cmre-maps.mjs';
 
-// ½ø³Ì¼¶±£»¤£ºÎ´²¶»ñµÄÒì³£²»ÍË³ö½ø³Ì
+// è¿›ç¨‹çº§ä¿æŠ¤ï¼šæœªæ•è·çš„å¼‚å¸¸ä¸é€€å‡ºè¿›ç¨‹
 process.on('uncaughtException', (err) => {
   console.error('[uncaughtException]', err);
 });
@@ -28,15 +28,15 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// favicon.ico ²»´æÔÚÊ±·µ»Ø 204£¬±ÜÃâ¿ØÖÆÌ¨ 404 ±¨´í
+// favicon.ico ä¸å­˜åœ¨æ—¶è¿”å› 204ï¼Œé¿å…æ§åˆ¶å° 404 æŠ¥é”™
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 app.use('/api', bootstrapRouter, syncRouter, scenarioRouter, launchRouter, rebornLaunchRouter, rebornMapsRouter, airoLaunchRouter, airoMapsRouter, neuroLaunchRouter, cmreLaunchRouter, cmreMapsRouter);
 
-// ´íÎó´¦Àí£¨±ØĞë·ÅÔÚÂ·ÓÉÖ®ºó£¬4 ¸ö²ÎÊı²Å±»Ê¶±ğÎª´íÎó´¦ÀíÆ÷£©
+// é”™è¯¯å¤„ç†ï¼ˆå¿…é¡»æ”¾åœ¨è·¯ç”±ä¹‹åï¼Œ4 ä¸ªå‚æ•°æ‰è¢«è¯†åˆ«ä¸ºé”™è¯¯å¤„ç†å™¨ï¼‰
 app.use((err, req, res, next) => {
   if (err && err.status === 400 && 'body' in err) {
-    return res.status(400).json({ ok: false, error: 'JSON ½âÎö´íÎó: ' + err.message });
+    return res.status(400).json({ ok: false, error: 'JSON è§£æé”™è¯¯: ' + err.message });
   }
   console.error('Unhandled error:', err);
   res.status(500).json({ ok: false, error: String(err?.message || err) });

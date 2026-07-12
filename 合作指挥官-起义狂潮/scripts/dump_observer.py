@@ -5,8 +5,8 @@ Observer 外挂连接脚本：连接已启动的 SC2 游戏，读取开局单位
   1. SC2 已以 -listen 127.0.0.1 -port 8765 启动并加载了地图。
      可通过修改后的 launch-7vs1-coop-test.ps1 -ApiListen 启动。
   2. 游戏已进入地图（玩家已选择指挥官并开始游戏）。
-  3. 安装依赖：pip install burnysc2
-     （burnysc2 会自动安装 s2clientprotocol、aiohttp 等依赖）
+  3. 安装依赖：pip install aiohttp s2clientprotocol
+     （不需要完整 burnysc2，本脚本直接用 protobuf 通信）
 
 用法：
   python dump_observer.py
@@ -22,10 +22,15 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
+
+# 解决 s2clientprotocol 与新版 protobuf (>=4.x) 的兼容性问题
+# 必须在 import s2clientprotocol 之前设置
+os.environ.setdefault("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION", "python")
 
 import aiohttp
 from s2clientprotocol import sc2api_pb2 as sc_pb
@@ -319,7 +324,7 @@ async def connect_and_dump(
         connect_start = time.time()
         while time.time() - connect_start < wait_timeout:
             try:
-                ws = await session.ws_connect(url, timeout=10)
+                ws = await session.ws_connect(url, timeout=aiohttp.ClientWSTimeout(ws_close=10))
                 break
             except (aiohttp.client_exceptions.ClientConnectorError, asyncio.TimeoutError, OSError):
                 elapsed = int(time.time() - connect_start)

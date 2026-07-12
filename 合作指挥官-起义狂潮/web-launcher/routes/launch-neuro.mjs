@@ -3,6 +3,7 @@ import { spawn, execSync } from 'child_process';
 import { existsSync, readFileSync, mkdirSync, openSync } from 'fs';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import { runPreLaunchValidation } from '../lib/validation.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(__dirname, '..', '..');
@@ -31,6 +32,16 @@ router.post('/neuro-launch', (req, res) => {
 
   if (!commander) {
     return res.status(400).json({ ok: false, error: '缺少 commander 参数' });
+  }
+
+  // 启动前校验
+  const validationResult = runPreLaunchValidation();
+  if (!validationResult.ok) {
+    return res.status(400).json({
+      ok: false,
+      error: validationResult.message,
+      validationResult: validationResult.validationResult,
+    });
   }
 
   const args = [

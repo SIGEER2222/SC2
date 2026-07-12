@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { buildValidationPlan, platformCommand } from '../src/workflow.mjs';
 
-test('buildValidationPlanï¼šGalaxy/XML/å·¥å…·æ”¹åŠ¨è·¯ç”±åˆ°æœ€å°é™æ€æ£€æŸ¥é›†åˆ', () => {
+test('buildValidationPlan£ºGalaxy/XML/¹¤¾ß¸Ä¶¯Â·ÓÉµ½×îÐ¡¾²Ì¬¼ì²é¼¯ºÏ', () => {
   const workspaceRoot = path.resolve('X:/Workspace');
   const projectRoot = path.join(workspaceRoot, 'Project');
   const files = [
@@ -13,13 +13,13 @@ test('buildValidationPlanï¼šGalaxy/XML/å·¥å…·æ”¹åŠ¨è·¯ç”±åˆ°æœ€å°é™æ€æ£€æŸ¥é›
   ];
   const plan = buildValidationPlan({ workspaceRoot, projectRoot, files });
   const kinds = new Set(plan.staticActions.map(action => action.kind));
-  assert.ok(kinds.has('galaxy-checker'));
+  assert.ok(kinds.has('toolkit-galaxy-check'));
   assert.ok(kinds.has('gamedata-validator'));
   assert.ok(kinds.has('toolkit-tests'));
   assert.equal(plan.runtimeValidation.required, true);
 });
 
-test('platformCommandï¼šWindows é€šè¿‡ node æ‰§è¡Œ npm/npx CLI', () => {
+test('platformCommand£ºWindows Í¨¹ý node Ö´ÐÐ npm/npx CLI', () => {
   const npm = platformCommand('npm', 'win32', 'X:/Node/node.exe', null);
   const npx = platformCommand('npx', 'win32', 'X:/Node/node.exe', null);
   assert.equal(npm.command, 'X:/Node/node.exe');

@@ -56,6 +56,7 @@ $script:LauncherScriptsRoot = Join-Path $ScriptsRoot "sc2-launcher"
 . (Join-Path $script:LauncherScriptsRoot "map-sync.ps1")
 . (Join-Path $script:LauncherScriptsRoot "config-validation.ps1")
 . (Join-Path $script:LauncherScriptsRoot "launcher-plan.ps1")
+. (Join-Path $script:LauncherScriptsRoot "test-lock.ps1")
 
 # === Load project-specific dependency scripts ===
 . (Join-Path $ScriptsRoot "commander-power-metadata.ps1")
@@ -796,38 +797,55 @@ if ($NoLaunch) {
     exit 0
 }
 
-$switcher = Join-Path $Sc2Root "Support64\SC2Switcher_x64.exe"
-Write-Host "Launching: $MapLivePath"
-Start-Process -FilePath $switcher -ArgumentList "`"$MapLivePath`""
-
-if ($SkipWait) {
-    Write-Host "SkipWait mode, skip wait"
-    exit 0
+# 获取测试锁（确保同一时间只有一个测试会话）
+$lockCtx = $null
+try {
+    $lockCtx = Acquire-TestLock -TestType "reborn_commander" -MapName $MapName -Commander $Commander
+} catch {
+    Write-Host "[TestLock] 获取锁失败: $_" -ForegroundColor Red
+    exit 1
 }
 
-# Wait for game ready
-$exitCode = Wait-GameReady -ScriptsRoot $ScriptsRoot
-Write-Host "wait-for-game-ready exit code: $exitCode"
+try {
+    $switcher = Join-Path $Sc2Root "Support64\SC2Switcher_x64.exe"
+    Write-Host "Launching: $MapLivePath"
+    Start-Process -FilePath $switcher -ArgumentList "`"$MapLivePath`""
 
-# === RuntimeProbe Post-Launch: 启动 Python watcher 读取 Bank ===
-if ($EnableRuntimeProbe -and $exitCode -eq 0) {
-    Write-Host "`n=== RuntimeProbe Post-Launch: Bank watcher ===" -ForegroundColor Cyan
-    $runnerScript = Join-Path $ScriptsRoot "runtime-probe\runtime_probe_runner.py"
-    $banksPath = "C:\Users\22448\Documents\StarCraft II\Banks"
-    $reportDir = Join-Path $ScriptsRoot "runtime-probe\reports"
-    $compositionId = "reborn-$Commander-$($MapName -replace '\.SC2Map$','')"
-
-    if (Test-Path -LiteralPath $runnerScript) {
-        Write-Host "  Runner:   $runnerScript"
-        Write-Host "  Banks:    $banksPath"
-        Write-Host "  Reports:  $reportDir"
-        Write-Host "  Duration: ${ProbeDuration}s"
-        Write-Host "  Composition: $compositionId"
-        Write-Host ""
-        & $PythonPath $runnerScript --banks-path $banksPath --composition-id $compositionId --output-dir $reportDir --duration $ProbeDuration
-    } else {
-        Write-Host "  WARN: runtime_probe_runner.py not found at $runnerScript" -ForegroundColor Yellow
+    if ($SkipWait) {
+        Write-Host "SkipWait mode, skip wait"
+        exit 0
     }
-}
 
-exit $exitCode
+    # Wait for game ready
+    $exitCode = Wait-GameReady -ScriptsRoot $ScriptsRoot
+    Write-Host "wait-for-game-ready exit code: $exitCode"
+
+    # === RuntimeProbe Post-Launch: 启动 Python watcher 读取 Bank ===
+    if ($EnableRuntimeProbe -and $exitCode -eq 0) {
+        Write-Host "`n=== RuntimeProbe Post-Launch: Bank watcher ===" -ForegroundColor Cyan
+        $runnerScript = Join-Path $ScriptsRoot "runtime-probe\runtime_probe_runner.py"
+        $banksPath = "C:\Users\22448\Documents\StarCraft II\Banks"
+        $reportDir = Join-Path $ScriptsRoot "runtime-probe\reports"
+        $compositionId = "reborn-$Commander-$($MapName -replace '\.SC2Map$','')"
+
+        if (Test-Path -LiteralPath $runnerScript) {
+            Write-Host "  Runner:   $runnerScript"
+            Write-Host "  Banks:    $banksPath"
+            Write-Host "  Reports:  $reportDir"
+            Write-Host "  Duration: ${ProbeDuration}s"
+            Write-Host "  Composition: $compositionId"
+            Write-Host ""
+            # 续期锁：长时间 RuntimeProbe 监听需要更多时间
+            if ($ProbeDuration -gt 120) {
+                Renew-TestLock -LockContext $lockCtx -AdditionalSeconds ($ProbeDuration + 30)
+            }
+            & $PythonPath $runnerScript --banks-path $banksPath --composition-id $compositionId --output-dir $reportDir --duration $ProbeDuration
+        } else {
+            Write-Host "  WARN: runtime_probe_runner.py not found at $runnerScript" -ForegroundColor Yellow
+        }
+    }
+
+    exit $exitCode
+} finally {
+    Release-TestLock -LockContext $lockCtx
+}

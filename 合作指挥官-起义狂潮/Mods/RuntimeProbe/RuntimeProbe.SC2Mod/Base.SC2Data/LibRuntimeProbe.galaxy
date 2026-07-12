@@ -543,12 +543,15 @@ void libRuntimeProbe_gf_ScanTechAvailability() {
 }
 
 //--------------------------------------------------------------------------------------------------
-// ScanUI: 检查 GlobalCastingPanel holder 是否存在（面板是否被创建）
+// ScanUI: 采集 GlobalCastingPanel 顶部技能面板的 UI 控件状态
 // 通过 DialogControlHookupStandard 获取 frame 引用，不改变游戏状态
-// 写入 probe_ui section: gp_holder_id, gp_holder_exists
+// 写入 probe_ui section:
+//   gp_holder_id, gp_holder_exists (GlobalCastingPanel holder)
+//   army_btn_id, army_btn_exists (ArmySelectButton, gf_ShowChooseButton 中 hookup)
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_ScanUI() {
     int lv_holder;
+    int lv_btn;
 
     if (libRuntimeProbe_gv_bank == null) {
         return;
@@ -556,12 +559,18 @@ void libRuntimeProbe_gf_ScanUI() {
 
     libRuntimeProbe_gf_ClearBankSection("probe_ui");
 
-    // 检查 GlobalCastingPanel holder 是否存在
+    // 1. GlobalCastingPanel holder (Lib67C0F0E7 行 2150-2154 获取)
     DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/GlobalCastingPanel");
     lv_holder = DialogControlLastCreated();
-
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_id", lv_holder);
     BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_exists", (lv_holder != c_invalidDialogControlId));
+
+    // 2. ArmySelectButton (Lib67C0F0E7 行 1490 中 gf_ShowChooseButton hookup)
+    //    如果此按钮存在，说明 gf_ShowChooseButton 已执行，即 GPInit 流程已完成
+    DialogControlHookupStandard(c_triggerControlTypeButton, "UIContainer/ConsoleUIContainer/ArmySelectButton");
+    lv_btn = DialogControlLastCreated();
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "army_btn_id", lv_btn);
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "army_btn_exists", (lv_btn != c_invalidDialogControlId));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -66,7 +66,7 @@ function checkDocumentationReferences(projectRoot) {
       const resolved = path.resolve(projectRoot, ref);
       if (fs.existsSync(resolved)) continue;
       const relocated = findRelocatedFile(projectRoot, path.basename(ref));
-      findings.push(issue('warning', 'DOC_STALE_PATH', `æ–‡æ¡£è·¯å¾„ä¸å­˜åœ¨: ${ref}`, {
+      findings.push(issue('warning', 'DOC_STALE_PATH', `ÎÄµµÂ·¾¶²»´æÔÚ: ${ref}`, {
         file: source,
         relocated,
       }));
@@ -82,7 +82,7 @@ export function doctorProject({ projectRoot, configPath = null }) {
     findings.push(issue(
       'warning',
       'PATH_NON_ASCII',
-      'é¡¹ç›®è·¯å¾„åŒ…å«éž ASCII å­—ç¬¦ï¼›é“¶æ²³ç¼–è¾‘å™¨ã€ç»„ä»¶ä¿å­˜å’Œéƒ¨åˆ†æ—§å·¥å…·å¯èƒ½å¤±è´¥',
+      'ÏîÄ¿Â·¾¶°üº¬·Ç ASCII ×Ö·û£»ÒøºÓ±à¼­Æ÷¡¢×é¼þ±£´æºÍ²¿·Ö¾É¹¤¾ß¿ÉÄÜÊ§°Ü',
       { path: projectRoot },
     ));
   }
@@ -91,19 +91,19 @@ export function doctorProject({ projectRoot, configPath = null }) {
     findings.push(issue(
       'warning',
       'INVALID_NESTED_GIT',
-      'é¡¹ç›®ç›®å½•å†…å­˜åœ¨éž Git ä»“åº“çš„ .git ç›®å½•ï¼Œå¯èƒ½è¯¯å¯¼å·¥å…·',
+      'ÏîÄ¿Ä¿Â¼ÄÚ´æÔÚ·Ç Git ²Ö¿âµÄ .git Ä¿Â¼£¬¿ÉÄÜÎóµ¼¹¤¾ß',
       { path: nestedGit },
     ));
   }
   const requiredTools = {
-    galaxyChecker: path.join(projectRoot, 'scripts', 'galaxy-checker', 'dist', 'cli.mjs'),
+    toolkitGalaxyChecker: path.join(projectRoot, 'scripts', 'sc2-editor-toolkit', 'toolkit-galaxy-check.mjs'),
     unitExplorer: path.join(projectRoot, 'scripts', 'sc2_unit_explorer.py'),
     waitForGame: path.join(projectRoot, 'scripts', 'wait-for-game-ready.ps1'),
     launch7vs1: path.join(projectRoot, 'scripts', 'launch-7vs1-coop-test.ps1'),
   };
   for (const [name, file] of Object.entries(requiredTools)) {
     if (!fs.existsSync(file)) {
-      findings.push(issue('error', 'TOOL_MISSING', `ç¼ºå°‘å·¥å…· ${name}`, { path: file }));
+      findings.push(issue('error', 'TOOL_MISSING', `È±ÉÙ¹¤¾ß ${name}`, { path: file }));
     }
   }
   findings.push(...checkDocumentationReferences(projectRoot));
@@ -127,7 +127,7 @@ export function doctorProject({ projectRoot, configPath = null }) {
     findings.push(issue(
       'warning',
       'RUNTIME_DUAL_SOURCE_DIVERGED',
-      `CoreRuntime ä¸Ž CoopZeroPop æœ‰ ${runtimeCopies.different} ä¸ªåŒè·¯å¾„ Galaxy æ–‡ä»¶å·²åˆ†å‰`,
+      `CoreRuntime Óë CoopZeroPop ÓÐ ${runtimeCopies.different} ¸öÍ¬Â·¾¶ Galaxy ÎÄ¼þÒÑ·Ö²æ`,
       runtimeCopies,
     ));
   }
@@ -194,6 +194,8 @@ function addAction(actions, action) {
   if (!actions.some(existing => existing.key === key)) actions.push({ key, ...action });
 }
 
+
+
 export function buildValidationPlan({ workspaceRoot, projectRoot, files }) {
   const actions = [];
   const runtimeReasons = [];
@@ -201,16 +203,32 @@ export function buildValidationPlan({ workspaceRoot, projectRoot, files }) {
   for (const relative of files) {
     const absolute = path.resolve(workspaceRoot, relative);
     const normalized = absolute.replaceAll('\\', '/').toLowerCase();
-    if (absolute.toLowerCase().endsWith('.galaxy')) {
-      const baseData = baseDataRootFor(absolute);
-      if (baseData) {
-        addAction(actions, {
-          kind: 'galaxy-checker',
-          cwd: path.join(projectRoot, 'scripts', 'galaxy-checker'),
-          command: 'node',
-          args: ['dist/cli.mjs', baseData, '--format', 'json'],
-        });
+    let baseData = null;
+    if (normalized.endsWith('.galaxy')) {
+      baseData = baseDataRootFor(absolute);
+    } else if (
+      normalized.endsWith('.sc2map') ||
+      normalized.endsWith('.sc2mod') ||
+      normalized.endsWith('.SC2Map') ||
+      normalized.endsWith('.SC2Mod') ||
+      fs.existsSync(path.join(absolute, 'GameData')) ||
+      normalized.endsWith('/base.sc2data') ||
+      fs.existsSync(path.join(absolute, 'DocumentInfo'))
+    ) {
+      if (normalized.endsWith('/base.sc2data')) {
+        baseData = absolute;
+      } else {
+        const baseDataUnder = path.join(absolute, 'Base.SC2Data');
+        baseData = fs.existsSync(baseDataUnder) ? baseDataUnder : absolute;
       }
+    }
+    if (baseData) {
+      addAction(actions, {
+        kind: 'toolkit-galaxy-check',
+        cwd: path.join(projectRoot, 'scripts', 'sc2-editor-toolkit'),
+        command: 'node',
+        args: ['toolkit-galaxy-check.mjs', baseData, '--format', 'json'],
+      });
     }
     if (absolute.toLowerCase().endsWith('.xml')) {
       const packageRoot = packageRootFor(absolute);
@@ -259,7 +277,7 @@ export function buildValidationPlan({ workspaceRoot, projectRoot, files }) {
       required: runtimeReasons.length > 0,
       reasons: runtimeReasons,
       policy: runtimeReasons.length > 0
-        ? 'æŒ‰åœ°å›¾ç±»åž‹å¯åŠ¨ï¼Œå¹¶ç­‰å¾… wait-for-game-ready.ps1 æˆ–æ™®é€š MPQ å®Œæ•´æ£€æŸ¥æµç¨‹ç»“æŸ'
+        ? '°´µØÍ¼ÀàÐÍÆô¶¯£¬²¢µÈ´ý wait-for-game-ready.ps1 »òÆÕÍ¨ MPQ ÍêÕû¼ì²éÁ÷³Ì½áÊø'
         : null,
     },
   };
@@ -311,9 +329,15 @@ export function runValidationPlan(plan) {
       stderr: (result.stderr ?? '').trim().split(/\r?\n/).filter(Boolean).slice(-80),
     });
   }
+  const ok = results.every(result => {
+    if (result.kind === 'toolkit-galaxy-check') {
+      return (result.parsed?.summary?.errors ?? 0) === 0;
+    }
+    return result.exitCode === 0;
+  });
   return {
     ...plan,
     results,
-    ok: results.every(result => result.exitCode === 0),
+    ok,
   };
 }

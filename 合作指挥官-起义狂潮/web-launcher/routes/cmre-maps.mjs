@@ -11,8 +11,8 @@ const router = Router();
 
 /**
  * GET /api/cmre-maps
- * ·µ»Ø CMRE µØÍ¼ÁÐ±í£¬É¨Ãè Maps/CMRE/ Ä¿Â¼ÏÂµÄ .SC2Map Ä¿Â¼
- * Ã¿¸öÌõÄ¿°üº¬£ºid¡¢mapId¡¢mapName¡¢mapFile¡¢mapFamily
+ * è¿”å›ž CMRE åœ°å›¾åˆ—è¡¨ï¼Œæ‰«æ Maps/CMRE/ ç›®å½•ä¸‹çš„ .SC2Map ç›®å½•
+ * æ¯ä¸ªæ¡ç›®åŒ…å«ï¼šidã€mapIdã€mapNameã€mapFileã€mapFamily
  */
 router.get('/cmre-maps', (req, res) => {
   if (!existsSync(MAPS_DIR)) {
@@ -34,7 +34,7 @@ router.get('/cmre-maps', (req, res) => {
     });
   }
 
-  // °´×ÖÄ¸ÅÅÐò
+  // æŒ‰å­—æ¯æŽ’åº
   maps.sort((a, b) => a.id.localeCompare(b.id));
 
   res.json({ ok: true, maps });

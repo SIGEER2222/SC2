@@ -3,6 +3,7 @@ import { spawn, execSync } from 'child_process';
 import { existsSync, readFileSync, mkdirSync, openSync } from 'fs';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import { runPreLaunchValidation } from '../lib/validation.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(__dirname, '..', '..');
@@ -11,14 +12,14 @@ const LAUNCH_CMRE_PS1 = join(__dirname, '..', '..', 'scripts', 'cmre', 'launch-c
 
 if (!existsSync(LOGS_ROOT)) mkdirSync(LOGS_ROOT, { recursive: true });
 
-// ¸ú×ÙÒÑÆô¶¯µÄ CMRE ½ø³Ì£ºpid -> { process, stdoutPath, stderrPath }
+// è·Ÿè¸ªå·²å¯åŠ¨çš„ CMRE è¿›ç¨‹ï¼špid -> { process, stdoutPath, stderrPath }
 const cmreLaunchProcesses = new Map();
 
 const router = Router();
 
 /**
  * POST /api/cmre-launch
- * Æô¶¯ CMRE£¨spawn pwsh + launch-cmre.ps1£©
+ * å¯åŠ¨ CMREï¼ˆspawn pwsh + launch-cmre.ps1ï¼‰
  */
 router.post('/cmre-launch', (req, res) => {
   const request = req.body || {};
@@ -28,7 +29,17 @@ router.post('/cmre-launch', (req, res) => {
   const noLaunch = Boolean(request.noLaunch);
 
   if (!commander) {
-    return res.status(400).json({ ok: false, error: 'È±ÉÙ commander ²ÎÊý' });
+    return res.status(400).json({ ok: false, error: 'ç¼ºå°‘ commander å‚æ•°' });
+  }
+
+  // å¯åŠ¨å‰æ ¡éªŒ
+  const validationResult = runPreLaunchValidation();
+  if (!validationResult.ok) {
+    return res.status(400).json({
+      ok: false,
+      error: validationResult.message,
+      validationResult: validationResult.validationResult,
+    });
   }
 
   const args = [
@@ -63,7 +74,7 @@ router.post('/cmre-launch', (req, res) => {
       stdio: ['ignore', outFd, errFd],
     });
   } catch (e) {
-    return res.status(500).json({ ok: false, error: `Æô¶¯½ø³ÌÊ§°Ü: ${String(e.message || e)}` });
+    return res.status(500).json({ ok: false, error: `å¯åŠ¨è¿›ç¨‹å¤±è´¥: ${String(e.message || e)}` });
   }
 
   const pid = child.pid;
@@ -95,7 +106,7 @@ router.post('/cmre-launch', (req, res) => {
 
 /**
  * POST /api/cmre-launch-status
- * ²éÑ¯ CMRE ½ø³ÌÊÇ·ñ»¹ÔÚÔËÐÐ£¬²¢·µ»Ø stdout/stderr Î²²¿ 80 ÐÐ
+ * æŸ¥è¯¢ CMRE è¿›ç¨‹æ˜¯å¦è¿˜åœ¨è¿è¡Œï¼Œå¹¶è¿”å›ž stdout/stderr å°¾éƒ¨ 80 è¡Œ
  */
 router.post('/cmre-launch-status', (req, res) => {
   const request = req.body || {};
@@ -141,8 +152,8 @@ router.post('/cmre-launch-status', (req, res) => {
 });
 
 /**
- * ¶ÁÈ¡ÈÕÖ¾ÎÄ¼þÎ²²¿ N ÐÐ
- * °²È«Ð£Ñé£ºÂ·¾¶±ØÐëÔÚ LOGS_ROOT ÏÂ
+ * è¯»å–æ—¥å¿—æ–‡ä»¶å°¾éƒ¨ N è¡Œ
+ * å®‰å…¨æ ¡éªŒï¼šè·¯å¾„å¿…é¡»åœ¨ LOGS_ROOT ä¸‹
  */
 function readLogTail(path, tail = 80) {
   if (!path) return '';

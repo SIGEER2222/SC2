@@ -3,62 +3,96 @@ include "LibEFA54406_h"
 
 //--------------------------------------------------------------------------------------------------
 // Library: NeuroBridge7vs1
-// 7vs1 合作指挥官与 NeuroIntegration 的桥接层
-// 负责注册 7vs1 专属 action 并在 execute_actions_map 事件中处理
+// 7vs1 ����ָ�ӹ��� NeuroIntegration ���ŽӲ�
+// ����ע�� 7vs1 ר�� action ���� execute_actions_map �¼��д���
 //
-// Action 清单：
-//   只读查询型：
-//     - get_mutators          查询当前激活的突变因子（含本地化名称和描述）
-//     - get_commander_status  查询指挥官状态（单位数/建筑数/军队数）
-//     - get_production_queue  查询所有建筑的生产队列
-//     - get_active_mutators   查询激活的突变因子列表（含语义化描述，供 Neuro 理解机制）
-//   写入型（Neuro 可主动触发游戏行为）：
-//     - train_unit            指挥生产单位（arg_1=单位类型，如 "Marine"）
-//     - use_ability           指挥使用单位技能（arg_1=技能 ID，arg_2=目标单位类型可选）
-//     - research_upgrade      指挥研究升级（arg_1=升级 ID）
+// Action �嵥��
+//   ֻ����ѯ�ͣ�
+//     - get_mutators          ��ѯ��ǰ�����ͻ�����ӣ������ػ����ƺ�������
+//     - get_commander_status  ��ѯָ�ӹ�״̬����λ��/������/��������
+//     - get_production_queue  ��ѯ���н�������������
+//     - get_active_mutators   ��ѯ�����ͻ�������б��������廯�������� Neuro ������ƣ�
+//   д���ͣ�Neuro ������������Ϸ��Ϊ����
+//     - train_unit            ָ��������λ��arg_1=��λ���ͣ��� "Marine"��
+//     - use_ability           ָ��ʹ�õ�λ���ܣ�arg_1=���� ID��arg_2=Ŀ�굥λ���Ϳ�ѡ��
+//     - research_upgrade      ָ���о�������arg_1=���� ID��
 //--------------------------------------------------------------------------------------------------
 
-// 变量声明
+// ��������
 bool   libNeuroBridge7vs1_initialized;
-bool   libNeuroBridge7vs1_actionsRegistered;      // 7vs1 专属 action 是否已注册
-bool   libNeuroBridge7vs1_mutatorContextPushed;   // 突变因子 context 是否已推送（防止重复）
+bool   libNeuroBridge7vs1_actionsRegistered;      // 7vs1 ר�� action �Ƿ���ע��
+bool   libNeuroBridge7vs1_mutatorContextPushed;   // ͻ������ context �Ƿ������ͣ���ֹ�ظ���
 trigger libNeuroBridge7vs1_gt_MapInit;
 trigger libNeuroBridge7vs1_gt_ExecuteActionsMap;
 trigger libNeuroBridge7vs1_gt_MissionVictory;
 trigger libNeuroBridge7vs1_gt_MissionDefeat;
+bool   libNeuroBridge7vs1_activityTrackingInitialized;
+trigger libNeuroBridge7vs1_gt_PlayerChatMessage;
+trigger libNeuroBridge7vs1_gt_DebugGlobalEvent;  // 调试：监听 execute_actions_global 事件
+trigger libNeuroBridge7vs1_gt_UnitAbility;
+trigger libNeuroBridge7vs1_gt_UnitDies;
+string libNeuroBridge7vs1_pendingChatContext;
+string libNeuroBridge7vs1_pendingCommandContext;
+string libNeuroBridge7vs1_lastSelectionContext;
+int    libNeuroBridge7vs1_selectionCooldownTicks;
+int    libNeuroBridge7vs1_economyTickCounter;
+int    libNeuroBridge7vs1_combatTickCounter;
+bool   libNeuroBridge7vs1_economySnapshotInitialized;
+int    libNeuroBridge7vs1_lastMinerals;
+int    libNeuroBridge7vs1_lastGas;
+int    libNeuroBridge7vs1_lastSupplyUsed;
+int    libNeuroBridge7vs1_ownUnitsLostToEnemy;
+int    libNeuroBridge7vs1_ownUnitsLostToSelf;
+int    libNeuroBridge7vs1_enemyUnitsKilled;
+int    libNeuroBridge7vs1_neutralUnitsKilled;
 
-// 函数声明
+// ��������
 void   libNeuroBridge7vs1_InitLib();
 void   libNeuroBridge7vs1_gf_RegisterActions();
 bool   libNeuroBridge7vs1_gt_MapInit_Func(bool testConds, bool runActions);
 bool   libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runActions);
 bool   libNeuroBridge7vs1_gt_MissionVictory_Func(bool testConds, bool runActions);
 bool   libNeuroBridge7vs1_gt_MissionDefeat_Func(bool testConds, bool runActions);
+void   libNeuroBridge7vs1_gf_InitActivityTracking();
+bool   libNeuroBridge7vs1_gt_PlayerChatMessage_Func(bool testConds, bool runActions);
+bool   libNeuroBridge7vs1_gt_UnitAbility_Func(bool testConds, bool runActions);
+bool   libNeuroBridge7vs1_gt_UnitDies_Func(bool testConds, bool runActions);
+void   libNeuroBridge7vs1_gf_FlushPendingContexts();
+void   libNeuroBridge7vs1_gf_UpdateSelectionContext();
+void   libNeuroBridge7vs1_gf_UpdateEconomyContext();
+void   libNeuroBridge7vs1_gf_UpdateCombatContext();
+string libNeuroBridge7vs1_gf_BuildSelectedUnitsContext();
 
-// Bank flag 辅助
+// Bank flag ����
 bool   libNeuroBridge7vs1_gf_ReadActionFlag(string actionName);
 void   libNeuroBridge7vs1_gf_ClearActionFlag(string actionName);
 string libNeuroBridge7vs1_gf_ReadActionStringArg(string actionName, string argName);
 
-// 只读查询型 action 实现
+// ֻ����ѯ�� action ʵ��
 string libNeuroBridge7vs1_gf_GetMutators();
 string libNeuroBridge7vs1_gf_GetCommanderStatus();
 string libNeuroBridge7vs1_gf_GetProductionQueue();
 string libNeuroBridge7vs1_gf_GetActiveMutators();
 
-// 写入型 action 实现
+// 写入型 action 实例
 string libNeuroBridge7vs1_gf_TrainUnit(string unitType);
 string libNeuroBridge7vs1_gf_UseAbility(string abilityId, string targetUnitType);
 string libNeuroBridge7vs1_gf_ResearchUpgrade(string upgradeId);
 
-// 突变因子语义对齐
+// 写入型 action：精确单位控制（基于目标单位类型定位，避免坐标参数）
+string libNeuroBridge7vs1_gf_AttackUnit(string targetUnitType);
+string libNeuroBridge7vs1_gf_FocusFire(string targetUnitType);
+string libNeuroBridge7vs1_gf_SetRally(string buildingType, string targetUnitType);
+string libNeuroBridge7vs1_gf_MoveToUnit(string sourceUnitType, string targetUnitType);
+
+// ͻ�������������
 void   libNeuroBridge7vs1_gf_PushMutatorContext();
 string libNeuroBridge7vs1_gf_GetMutatorSemanticDescription(string mutatorId);
 
-// === Phase B: 角色对话推送 ===
+// === Phase B: ��ɫ�Ի����� ===
 void   libNeuroBridge7vs1_gf_PushTransmissionContext(string soundLink, string speakerName, string subtitleText, bool silent);
 
-// === Phase C: 永久能力系统 ===
+// === Phase C: ��������ϵͳ ===
 bank   libNeuroBridge7vs1_gv_permanentBank;
 bool   libNeuroBridge7vs1_gf_LoadPermanentBank();
 void   libNeuroBridge7vs1_gf_UnlockAction(string actionName);
@@ -66,7 +100,7 @@ bool   libNeuroBridge7vs1_gf_IsActionUnlocked(string actionName);
 void   libNeuroBridge7vs1_gf_SaveMissionSummary(string mapId, string summary);
 string libNeuroBridge7vs1_gf_GetLastMissionSummary();
 
-// === Phase D: 任务间隙逻辑 ===
+// === Phase D: �����϶�߼� ===
 void   libNeuroBridge7vs1_gf_OnMissionVictory(string mapId, int bonusObjectives);
 void   libNeuroBridge7vs1_gf_OnMissionDefeat(string mapId);
 void   libNeuroBridge7vs1_gf_PushLastMissionSummary();
