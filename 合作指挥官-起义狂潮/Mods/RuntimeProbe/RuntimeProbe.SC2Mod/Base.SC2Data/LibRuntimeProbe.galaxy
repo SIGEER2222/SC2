@@ -37,6 +37,7 @@ bool libRuntimeProbe_gf_TryLoadBank() {
 
 //--------------------------------------------------------------------------------------------------
 // Write probe_state: heartbeat, game time, resources, supply
+// 不再单独 BankSave，由调用方批量保存
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_WriteState() {
     int lv_player = 1;
@@ -58,8 +59,6 @@ void libRuntimeProbe_gf_WriteState() {
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "supply_used", PlayerGetPropertyInt(lv_player, c_playerPropSuppliesUsed));
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "supply_cap", PlayerGetPropertyInt(lv_player, c_playerPropSuppliesMade));
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "script_error_count", 0);
-
-    BankSave(libRuntimeProbe_gv_bank);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,7 +147,6 @@ void libRuntimeProbe_gf_ScanUnits() {
     }
 
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "unit_scan_id", libRuntimeProbe_gv_scanId);
-    BankSave(libRuntimeProbe_gv_bank);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,7 +175,6 @@ void libRuntimeProbe_gf_ScanUpgrades() {
         }
         lv_i = lv_i + 1;
     }
-    BankSave(libRuntimeProbe_gv_bank);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,43 +231,29 @@ void libRuntimeProbe_gf_ScanProducers() {
         BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_producers", lv_key, lv_val);
         lv_j = lv_j + 1;
     }
-
-    BankSave(libRuntimeProbe_gv_bank);
 }
 
 //--------------------------------------------------------------------------------------------------
-// Periodic tick: try to load bank, then heartbeat/scan on schedule
+// Periodic tick: 全量扫描 + 批量 BankSave
+// 每 3 秒触发一次（由 StartProbe 注册的 TriggerAddEventTimePeriodic 控制）
+// 所有 BankValueSet 调用完成后，只调用一次 BankSave
 //--------------------------------------------------------------------------------------------------
 bool libRuntimeProbe_gt_Tick_Func(bool testConds, bool runActions) {
     if (testConds) {
         return true;
     }
     if (runActions) {
-        // Lazy-load the bank on each tick until it succeeds.
-        // This handles the case where player data isn't ready during early MapInit.
         if (!libRuntimeProbe_gf_TryLoadBank()) {
             return true;
         }
 
         libRuntimeProbe_gf_WriteState();
+        libRuntimeProbe_gf_ScanUnits();
+        libRuntimeProbe_gf_ScanUpgrades();
+        libRuntimeProbe_gf_ScanProducers();
 
-        libRuntimeProbe_gv_unitScanCounter = libRuntimeProbe_gv_unitScanCounter + 1;
-        if (libRuntimeProbe_gv_unitScanCounter >= 2) {
-            libRuntimeProbe_gv_unitScanCounter = 0;
-            libRuntimeProbe_gf_ScanUnits();
-        }
-
-        libRuntimeProbe_gv_upgradeScanCounter = libRuntimeProbe_gv_upgradeScanCounter + 1;
-        if (libRuntimeProbe_gv_upgradeScanCounter >= 5) {
-            libRuntimeProbe_gv_upgradeScanCounter = 0;
-            libRuntimeProbe_gf_ScanUpgrades();
-        }
-
-        libRuntimeProbe_gv_producerScanCounter = libRuntimeProbe_gv_producerScanCounter + 1;
-        if (libRuntimeProbe_gv_producerScanCounter >= 5) {
-            libRuntimeProbe_gv_producerScanCounter = 0;
-            libRuntimeProbe_gf_ScanProducers();
-        }
+        // 批量保存：整个 tick 只写一次磁盘
+        BankSave(libRuntimeProbe_gv_bank);
     }
     return true;
 }
@@ -290,30 +273,30 @@ bool libRuntimeProbe_gt_MapInit_Func(bool testConds, bool runActions) {
 }
 
 //--------------------------------------------------------------------------------------------------
-// StartProbe: perform a single scan and write state to Bank, then return.
+// StartProbe: register the periodic tick and perform an immediate state write.
 // Called from gt_Initialization_Func (injected by launch-runtime-probe.ps1) after
 // the game is fully initialized.
 //
-// 单次扫描模式：不注册周期性 tick，只在初始化时扫描一次。
-// 游戏内开销几乎为零（只在初始化时执行一次 UnitGroup/Upgrade 枚举）。
-// 如需持续观测，可在此处取消注释 TriggerAddEventTimePeriodic 行。
+// 持续扫描模式：每 3 秒执行一次全量扫描（units + upgrades + producers），
+// heartbeat 每 tick 更新。BankSave 在 tick 结束时只调用一次（批量化）。
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_StartProbe() {
     if (!libRuntimeProbe_initialized) {
         libRuntimeProbe_InitLib();
     }
 
-    // 单次扫描模式：不注册周期性 tick
-    // TriggerAddEventTimePeriodic(libRuntimeProbe_gt_Tick, 1.0, c_timeGame);
+    // 注册周期性 tick（3 秒一次，c_timeGame 在 briefing 期间不推进，但进入任务后正常）
+    TriggerAddEventTimePeriodic(libRuntimeProbe_gt_Tick, 3.0, c_timeGame);
 
     // Immediate state write so the Bank has fresh data right away.
     if (libRuntimeProbe_gf_TryLoadBank()) {
         BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "run_id", "startprobe");
-        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "single_scan");
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "probe_started");
         libRuntimeProbe_gf_WriteState();
         libRuntimeProbe_gf_ScanUnits();
         libRuntimeProbe_gf_ScanUpgrades();
         libRuntimeProbe_gf_ScanProducers();
+        BankSave(libRuntimeProbe_gv_bank);
     }
 }
 

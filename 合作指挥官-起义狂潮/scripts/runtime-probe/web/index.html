@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>RuntimeProbe 副官面板</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0a0e14; color: #c9d1d9; min-height: 100vh; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px 20px; background: #161b22; border-radius: 8px; border: 1px solid #30363d; }
+  header h1 { font-size: 22px; color: #58a6ff; }
+  .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+  .status-ok { background: #1a7f37; color: #fff; }
+  .status-fail { background: #da3633; color: #fff; }
+  .status-waiting { background: #424a53; color: #c9d1d9; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
+  .card-label { font-size: 12px; color: #8b949e; text-transform: uppercase; margin-bottom: 6px; }
+  .card-value { font-size: 28px; font-weight: 700; color: #58a6ff; }
+  .card-sub { font-size: 13px; color: #8b949e; margin-top: 4px; }
+
+  .section { background: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; }
+  .section-header { padding: 12px 18px; border-bottom: 1px solid #30363d; font-size: 15px; font-weight: 600; color: #58a6ff; display: flex; justify-content: space-between; }
+  .section-count { color: #8b949e; font-weight: 400; }
+  .section-body { padding: 12px 18px; max-height: 350px; overflow-y: auto; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 8px 10px; font-size: 12px; color: #8b949e; text-transform: uppercase; border-bottom: 1px solid #30363d; }
+  td { padding: 8px 10px; font-size: 14px; border-bottom: 1px solid #21262d; }
+  tr:hover { background: #1c2128; }
+  .unit-type { color: #79c0ff; font-family: 'Consolas', monospace; }
+  .upgrade-id { color: #7ee787; font-family: 'Consolas', monospace; font-size: 13px; }
+  .badge-y { color: #7ee787; }
+  .badge-n { color: #f85149; }
+
+  .log { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px; font-family: 'Consolas', monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }
+  .log-line { padding: 2px 0; color: #8b949e; }
+  .log-time { color: #58a6ff; }
+  .log-ok { color: #7ee787; }
+  .log-fail { color: #f85149; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>RuntimeProbe 副官面板</h1>
+    <div>
+      <span id="ws-status" class="status-badge status-waiting">连接中...</span>
+      <span id="heartbeat-badge" class="status-badge status-waiting" style="margin-left:8px;">HB: --</span>
+    </div>
+  </header>
+
+  <!-- 资源概览 -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-label">Heartbeat</div>
+      <div class="card-value" id="hb">--</div>
+      <div class="card-sub" id="phase">phase: --</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Minerals / Gas</div>
+      <div class="card-value" id="resources">-- / --</div>
+      <div class="card-sub" id="game-time">game_time: --</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Supply</div>
+      <div class="card-value" id="supply">-- / --</div>
+      <div class="card-sub" id="game-loop">loop: --</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Unit Types / Upgrades</div>
+      <div class="card-value" id="counts">-- / --</div>
+      <div class="card-sub" id="last-update">未更新</div>
+    </div>
+  </div>
+
+  <!-- 单位 + 生产建筑 -->
+  <div class="two-col">
+    <div class="section">
+      <div class="section-header">
+        <span>单位列表</span>
+        <span class="section-count" id="unit-count">0 types</span>
+      </div>
+      <div class="section-body">
+        <table>
+          <thead><tr><th>Unit Type</th><th>Count</th><th>Life Avg</th><th>Energy</th></tr></thead>
+          <tbody id="units-tbody"><tr><td colspan="4" style="color:#8b949e;text-align:center;">等待数据...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <span>生产建筑</span>
+        <span class="section-count" id="producer-count">0 types</span>
+      </div>
+      <div class="section-body">
+        <table>
+          <thead><tr><th>Structure Type</th><th>Count</th></tr></thead>
+          <tbody id="producers-tbody"><tr><td colspan="2" style="color:#8b949e;text-align:center;">等待数据...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 升级 -->
+  <div class="section">
+    <div class="section-header">
+      <span>已研究升级</span>
+      <span class="section-count" id="upgrade-count">0 active</span>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr><th>Upgrade ID</th><th>Researched</th><th>In Progress</th></tr></thead>
+        <tbody id="upgrades-tbody"><tr><td colspan="3" style="color:#8b949e;text-align:center;">等待数据...</td></tr></tbody>
+      </div>
+    </div>
+  </div>
+
+  <!-- 事件日志 -->
+  <div class="section">
+    <div class="section-header">
+      <span>事件日志</span>
+      <span class="section-count" id="log-count">0 entries</span>
+    </div>
+    <div class="log" id="log-area"></div>
+  </div>
+</div>
+
+<script>
+const wsUrl = `ws://${location.host}/ws/live`;
+let ws = null;
+let lastHeartbeat = -1;
+let logEntries = [];
+
+function log(msg, level = '') {
+  const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+  logEntries.unshift(`<span class="log-time">[${time}]</span> <span class="log-${level}">${msg}</span>`);
+  if (logEntries.length > 50) logEntries.pop();
+  document.getElementById('log-area').innerHTML = logEntries.map(l => `<div class="log-line">${l}</div>`).join('');
+  document.getElementById('log-count').textContent = `${logEntries.length} entries`;
+}
+
+function connect() {
+  ws = new WebSocket(wsUrl);
+  ws.onopen = () => {
+    document.getElementById('ws-status').textContent = '已连接';
+    document.getElementById('ws-status').className = 'status-badge status-ok';
+    log('WebSocket 已连接', 'ok');
+  };
+  ws.onmessage = (event) => {
+    const report = JSON.parse(event.data);
+    updateUI(report);
+  };
+  ws.onclose = () => {
+    document.getElementById('ws-status').textContent = '已断开';
+    document.getElementById('ws-status').className = 'status-badge status-fail';
+    log('WebSocket 断开，5 秒后重连...', 'fail');
+    setTimeout(connect, 5000);
+  };
+  ws.onerror = () => { ws.close(); };
+}
+
+function updateUI(report) {
+  const state = report.probe_state || {};
+  const units = report.probe_units || [];
+  const upgrades = report.probe_upgrades || [];
+  const producers = report.probe_producers || [];
+  const status = report.status || {};
+
+  const hb = state.heartbeat || 0;
+  const hbChanged = hb !== lastHeartbeat;
+  if (hbChanged) {
+    log(`Heartbeat 更新: ${lastHeartbeat} → ${hb}`, hb > 0 ? 'ok' : 'fail');
+    lastHeartbeat = hb;
+  }
+
+  document.getElementById('hb').textContent = hb;
+  document.getElementById('phase').textContent = `phase: ${state.phase || '--'}`;
+  document.getElementById('resources').textContent = `${state.minerals || 0} / ${state.gas || 0}`;
+  document.getElementById('game-time').textContent = `game_time: ${state.game_time || 0}s`;
+  document.getElementById('supply').textContent = `${state.supply_used || 0} / ${state.supply_cap || 0}`;
+  document.getElementById('game-loop').textContent = `loop: ${state.game_loop || 0}`;
+  document.getElementById('counts').textContent = `${units.length} / ${upgrades.length}`;
+  document.getElementById('last-update').textContent = `更新: ${new Date().toLocaleTimeString('zh-CN', {hour12:false})}`;
+
+  // heartbeat badge
+  const hbBadge = document.getElementById('heartbeat-badge');
+  hbBadge.textContent = `HB: ${hb}`;
+  const allOk = Object.values(status).every(v => v);
+  hbBadge.className = `status-badge ${allOk ? 'status-ok' : 'status-fail'}`;
+
+  // units table
+  document.getElementById('unit-count').textContent = `${units.length} types`;
+  const utbody = document.getElementById('units-tbody');
+  if (units.length > 0) {
+    utbody.innerHTML = units
+      .sort((a, b) => b.count - a.count)
+      .map(u => `<tr>
+        <td class="unit-type">${u.unit_type_id}</td>
+        <td>${u.count}</td>
+        <td>${(u.life_summary?.avg || 0).toFixed(0)}</td>
+        <td>${(u.energy_summary?.avg || 0).toFixed(0)}</td>
+      </tr>`).join('');
+  }
+
+  // producers table
+  document.getElementById('producer-count').textContent = `${producers.length} types`;
+  const ptbody = document.getElementById('producers-tbody');
+  if (producers.length > 0) {
+    ptbody.innerHTML = producers
+      .sort((a, b) => (b.producer_count || b.count || 0) - (a.producer_count || a.count || 0))
+      .map(p => `<tr>
+        <td class="unit-type">${p.producer_catalog_id || p.unit_type_id || '--'}</td>
+        <td>${p.producer_count || p.count || 0}</td>
+      </tr>`).join('');
+  }
+
+  // upgrades table
+  document.getElementById('upgrade-count').textContent = `${upgrades.length} active`;
+  const utbody2 = document.getElementById('upgrades-tbody');
+  if (upgrades.length > 0) {
+    utbody2.innerHTML = upgrades
+      .sort((a, b) => a.upgrade_id.localeCompare(b.upgrade_id))
+      .map(u => `<tr>
+        <td class="upgrade-id">${u.upgrade_id}</td>
+        <td class="${u.researched ? 'badge-y' : 'badge-n'}">${u.researched ? 'Y' : 'N'}</td>
+        <td class="${u.in_progress ? 'badge-y' : 'badge-n'}">${u.in_progress ? 'Y' : 'N'}</td>
+      </tr>`).join('');
+  }
+}
+
+connect();
+log('副官面板启动，等待 Bank 数据...');
+</script>
+</body>
+</html>
