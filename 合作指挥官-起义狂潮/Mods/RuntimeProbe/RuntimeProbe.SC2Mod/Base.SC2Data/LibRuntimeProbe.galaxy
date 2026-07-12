@@ -5,7 +5,35 @@ include "LibRuntimeProbe_h"
 // RuntimeProbe Phase 1+2 Implementation
 // Writes runtime diagnostics to RuntimeProbe.SC2Bank for external Python probe runner.
 // All Bank keys/values use ASCII to avoid Galaxy encoding issues.
+//
+// Design note: BankLoad is performed in the periodic Tick trigger (not MapInit) because
+// libRuntimeProbe_InitLib() is called early in InitLibs(), making our MapInit trigger the
+// FIRST to fire — before gt_InitializeBank / gt_Initialization. At that point player data
+// may not be fully initialized and BankLoad can return null. The Tick trigger fires every
+// 1 second during gameplay, by which time the game is fully initialized.
 //--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Try to load the Bank. Returns true on success.
+// Called from the Tick trigger until the bank is successfully loaded.
+//--------------------------------------------------------------------------------------------------
+bool libRuntimeProbe_gf_TryLoadBank() {
+    if (libRuntimeProbe_gv_bank != null) {
+        return true;
+    }
+    libRuntimeProbe_gv_bank = BankLoad("RuntimeProbe", 1);
+    if (libRuntimeProbe_gv_bank == null) {
+        return false;
+    }
+    // Initial state markers
+    BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "run_id", "pending");
+    BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "loading");
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_state", "is_in_mission", false);
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "heartbeat", 1);
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "unit_scan_id", 0);
+    BankSave(libRuntimeProbe_gv_bank);
+    return true;
+}
 
 //--------------------------------------------------------------------------------------------------
 // Write probe_state: heartbeat, game time, resources, supply
@@ -59,6 +87,14 @@ void libRuntimeProbe_gf_ScanUnits() {
     lv_all = UnitGroup(null, 1, RegionEntireMap(), UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
     lv_total = UnitGroupCount(lv_all, c_unitCountAll);
     lv_unique = 0;
+
+    // Reset arrays for this scan
+    lv_i = 1;
+    while (lv_i <= 255) {
+        libRuntimeProbe_gv_unitTypes[lv_i] = "";
+        libRuntimeProbe_gv_unitCounts[lv_i] = 0;
+        lv_i = lv_i + 1;
+    }
 
     lv_i = 1;
     while (lv_i <= lv_total) {
@@ -203,16 +239,19 @@ void libRuntimeProbe_gf_ScanProducers() {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Periodic tick: heartbeat every 1s, units every 2s, upgrades/producers every 5s
+// Periodic tick: try to load bank, then heartbeat/scan on schedule
 //--------------------------------------------------------------------------------------------------
 bool libRuntimeProbe_gt_Tick_Func(bool testConds, bool runActions) {
     if (testConds) {
         return true;
     }
     if (runActions) {
-        if (libRuntimeProbe_gv_bank == null) {
+        // Lazy-load the bank on each tick until it succeeds.
+        // This handles the case where player data isn't ready during early MapInit.
+        if (!libRuntimeProbe_gf_TryLoadBank()) {
             return true;
         }
+
         libRuntimeProbe_gf_WriteState();
 
         libRuntimeProbe_gv_unitScanCounter = libRuntimeProbe_gv_unitScanCounter + 1;
@@ -237,28 +276,48 @@ bool libRuntimeProbe_gt_Tick_Func(bool testConds, bool runActions) {
 }
 
 //--------------------------------------------------------------------------------------------------
-// MapInit: load bank, write initial state, register periodic tick
+// MapInit: try BankLoad immediately (tick trigger is already registered in InitLib).
 //--------------------------------------------------------------------------------------------------
 bool libRuntimeProbe_gt_MapInit_Func(bool testConds, bool runActions) {
     if (testConds) {
         return true;
     }
     if (runActions) {
-        libRuntimeProbe_gv_bank = BankLoad("RuntimeProbe", 1);
-        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "run_id", "pending");
-        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "loading");
-        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_state", "is_in_mission", false);
-        BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "heartbeat", 1);
-        BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "unit_scan_id", 0);
-        BankSave(libRuntimeProbe_gv_bank);
-
-        TriggerAddEventTimePeriodic(libRuntimeProbe_gt_Tick, 1.0, c_timeGame);
+        // Try to load the bank during MapInit (in case InitLib's BankLoad failed).
+        libRuntimeProbe_gf_TryLoadBank();
     }
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-// InitLib: register MapInit trigger
+// StartProbe: register the periodic tick and perform an immediate state write.
+// Called from gt_Initialization_Func (injected by launch-runtime-probe.ps1) after
+// the game is fully initialized. This is the correct time to register periodic
+// events — registering in InitLib() is too early (trigger system may not be ready).
+//--------------------------------------------------------------------------------------------------
+void libRuntimeProbe_gf_StartProbe() {
+    if (!libRuntimeProbe_initialized) {
+        libRuntimeProbe_InitLib();
+    }
+
+    // Register the periodic tick now that the game is fully initialized.
+    TriggerAddEventTimePeriodic(libRuntimeProbe_gt_Tick, 1.0, c_timeGame);
+
+    // Immediate state write so the Bank has fresh data right away.
+    if (libRuntimeProbe_gf_TryLoadBank()) {
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "run_id", "startprobe");
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "probe_started");
+        libRuntimeProbe_gf_WriteState();
+        libRuntimeProbe_gf_ScanUnits();
+        libRuntimeProbe_gf_ScanUpgrades();
+        libRuntimeProbe_gf_ScanProducers();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// InitLib: create triggers and attempt BankLoad.
+// Periodic tick registration is deferred to StartProbe() which is called from
+// gt_Initialization_Func after the game is fully initialized.
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_InitLib() {
     if (libRuntimeProbe_initialized) {
@@ -267,5 +326,16 @@ void libRuntimeProbe_InitLib() {
     libRuntimeProbe_gt_MapInit = TriggerCreate("libRuntimeProbe_gt_MapInit_Func");
     TriggerAddEventMapInit(libRuntimeProbe_gt_MapInit);
     libRuntimeProbe_gt_Tick = TriggerCreate("libRuntimeProbe_gt_Tick_Func");
+
+    // Direct BankLoad attempt during InitLib — verifies the Bank system is operational.
+    libRuntimeProbe_gv_bank = BankLoad("RuntimeProbe", 1);
+    if (libRuntimeProbe_gv_bank != null) {
+        libRuntimeProbe_gv_heartbeat = 1;
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "run_id", "initlib");
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "initlib_ok");
+        BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "heartbeat", libRuntimeProbe_gv_heartbeat);
+        BankSave(libRuntimeProbe_gv_bank);
+    }
+
     libRuntimeProbe_initialized = true;
 }
