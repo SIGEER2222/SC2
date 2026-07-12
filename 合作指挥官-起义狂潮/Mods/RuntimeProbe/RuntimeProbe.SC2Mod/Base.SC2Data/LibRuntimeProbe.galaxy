@@ -6,11 +6,13 @@ include "LibRuntimeProbe_h"
 // Writes runtime diagnostics to RuntimeProbe.SC2Bank for external Python probe runner.
 // All Bank keys/values use ASCII to avoid Galaxy encoding issues.
 //
-// Design note: BankLoad is performed in the periodic Tick trigger (not MapInit) because
-// libRuntimeProbe_InitLib() is called early in InitLibs(), making our MapInit trigger the
-// FIRST to fire — before gt_InitializeBank / gt_Initialization. At that point player data
-// may not be fully initialized and BankLoad can return null. The Tick trigger fires every
-// 1 second during gameplay, by which time the game is fully initialized.
+// 架构说明：
+// - 使用 Wait 循环实现周期性扫描（不依赖 TriggerAddEventTimePeriodic）
+//   7vs1 地图中 TriggerAddEventTimePeriodic 在所有位置和时间类型下均不触发，
+//   改用 Wait(3.0, c_timeReal) 循环，与 7vs1 地图自身模式一致（gt_StartGame_Func 大量使用 Wait）
+// - Loop_Func 由 StartProbe 通过 TriggerExecute(..., false, false) 异步启动，不阻塞调用方
+// - c_timeReal 不受 cinematic/briefing 影响，确保循环在过场动画期间也能执行
+// - StartProbe() 在 gt_Initialization_Func 中调用，执行首次全量扫描并启动循环
 //--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
@@ -234,32 +236,37 @@ void libRuntimeProbe_gf_ScanProducers() {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Periodic tick: 全量扫描 + 批量 BankSave
-// 每 3 秒触发一次（由 StartProbe 注册的 TriggerAddEventTimePeriodic 控制）
-// 所有 BankValueSet 调用完成后，只调用一次 BankSave
+// Periodic loop: Wait 循环实现周期性全量扫描 + 批量 BankSave
+// 不使用 TriggerAddEventTimePeriodic（7vs1 地图中不触发），改用 Wait(3.0, c_timeReal) 循环
+// 与 7vs1 地图自身模式一致（gt_StartGame_Func 大量使用 Wait + c_timeReal）
+// 由 StartProbe 通过 TriggerExecute(libRuntimeProbe_gt_Loop, false, false) 异步启动
 //--------------------------------------------------------------------------------------------------
-bool libRuntimeProbe_gt_Tick_Func(bool testConds, bool runActions) {
+bool libRuntimeProbe_gt_Loop_Func(bool testConds, bool runActions) {
     if (testConds) {
         return true;
     }
-    if (runActions) {
-        if (!libRuntimeProbe_gf_TryLoadBank()) {
-            return true;
+    if (!runActions) {
+        return true;
+    }
+
+    // 等待游戏初始化完成（跳过 cinematic/briefing 阶段）
+    Wait(5.0, c_timeReal);
+
+    while (true) {
+        if (libRuntimeProbe_gf_TryLoadBank()) {
+            libRuntimeProbe_gf_WriteState();
+            libRuntimeProbe_gf_ScanUnits();
+            libRuntimeProbe_gf_ScanUpgrades();
+            libRuntimeProbe_gf_ScanProducers();
+            BankSave(libRuntimeProbe_gv_bank);
         }
-
-        libRuntimeProbe_gf_WriteState();
-        libRuntimeProbe_gf_ScanUnits();
-        libRuntimeProbe_gf_ScanUpgrades();
-        libRuntimeProbe_gf_ScanProducers();
-
-        // 批量保存：整个 tick 只写一次磁盘
-        BankSave(libRuntimeProbe_gv_bank);
+        Wait(3.0, c_timeReal);
     }
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-// MapInit: try BankLoad immediately (tick trigger is already registered in InitLib).
+// MapInit: try BankLoad immediately (Loop trigger is created in InitLib, started by StartProbe).
 //--------------------------------------------------------------------------------------------------
 bool libRuntimeProbe_gt_MapInit_Func(bool testConds, bool runActions) {
     if (testConds) {
@@ -273,20 +280,17 @@ bool libRuntimeProbe_gt_MapInit_Func(bool testConds, bool runActions) {
 }
 
 //--------------------------------------------------------------------------------------------------
-// StartProbe: register the periodic tick and perform an immediate state write.
-// Called from gt_Initialization_Func (injected by launch-runtime-probe.ps1) after
-// the game is fully initialized.
+// StartProbe: perform an immediate state write and start the periodic loop.
+// Called from gt_Initialization_Func (injected by launch script) after
+// InitializeConfiguredMapScenario completes.
 //
-// 持续扫描模式：每 3 秒执行一次全量扫描（units + upgrades + producers），
-// heartbeat 每 tick 更新。BankSave 在 tick 结束时只调用一次（批量化）。
+// 首次全量扫描后，异步启动 Loop_Func（Wait 循环），不阻塞调用方。
+// Loop_Func 内部先 Wait(5.0, c_timeReal) 等待游戏初始化，然后每 3 秒扫描一次。
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_StartProbe() {
     if (!libRuntimeProbe_initialized) {
         libRuntimeProbe_InitLib();
     }
-
-    // 注册周期性 tick（3 秒一次，c_timeGame 在 briefing 期间不推进，但进入任务后正常）
-    TriggerAddEventTimePeriodic(libRuntimeProbe_gt_Tick, 3.0, c_timeGame);
 
     // Immediate state write so the Bank has fresh data right away.
     if (libRuntimeProbe_gf_TryLoadBank()) {
@@ -298,12 +302,15 @@ void libRuntimeProbe_gf_StartProbe() {
         libRuntimeProbe_gf_ScanProducers();
         BankSave(libRuntimeProbe_gv_bank);
     }
+
+    // 异步启动 Wait 循环（不等待完成），由 Loop_Func 周期性扫描
+    TriggerExecute(libRuntimeProbe_gt_Loop, false, false);
 }
 
 //--------------------------------------------------------------------------------------------------
 // InitLib: create triggers and attempt BankLoad.
-// Periodic tick registration is deferred to StartProbe() which is called from
-// gt_Initialization_Func after the game is fully initialized.
+// 不再注册 TriggerAddEventTimePeriodic（7vs1 地图中不触发）。
+// Loop_Func 由 StartProbe 通过 TriggerExecute 异步启动，使用 Wait 循环实现周期性扫描。
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_InitLib() {
     if (libRuntimeProbe_initialized) {
@@ -311,7 +318,7 @@ void libRuntimeProbe_InitLib() {
     }
     libRuntimeProbe_gt_MapInit = TriggerCreate("libRuntimeProbe_gt_MapInit_Func");
     TriggerAddEventMapInit(libRuntimeProbe_gt_MapInit);
-    libRuntimeProbe_gt_Tick = TriggerCreate("libRuntimeProbe_gt_Tick_Func");
+    libRuntimeProbe_gt_Loop = TriggerCreate("libRuntimeProbe_gt_Loop_Func");
 
     // Direct BankLoad attempt during InitLib — verifies the Bank system is operational.
     libRuntimeProbe_gv_bank = BankLoad("RuntimeProbe", 1);

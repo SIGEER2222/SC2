@@ -41,23 +41,16 @@ void libNeuroBridge7vs1_gf_RegisterActions() {
 }
 
 //--------------------------------------------------------------------------------------------------
-// MapInit 触发器：在 NeuroIntegration bank 创建后注册 action、推送突变因子 context、启动心跳循环
+// MapInit 触发器：注册心跳循环触发器（不使用 Wait，避免 MapInit 中挂起）
+// action 注册和 context 推送延迟到 execute_actions_map 首次调用时执行
 //--------------------------------------------------------------------------------------------------
 bool libNeuroBridge7vs1_gt_MapInit_Func(bool testConds, bool runActions) {
     if (testConds) {
         return true;
     }
     if (runActions) {
-        // 等待 NeuroIntegration bank 创建完成 + 突变因子启动完成
-        Wait(5.0, c_timeReal);
-
-        // 注册 7vs1 专属 action
-        libNeuroBridge7vs1_gf_RegisterActions();
-
-        // 推送突变因子语义上下文（让 Neuro 理解当前游戏的突变机制）
-        libNeuroBridge7vs1_gf_PushMutatorContext();
-
-        // 注册心跳循环触发器（监听 execute_actions_map 事件）
+        // 直接注册心跳循环触发器（监听 execute_actions_map 事件）
+        // 不在 MapInit 中 Wait，避免触发器挂起
         libNeuroBridge7vs1_gt_ExecuteActionsMap = TriggerCreate("libNeuroBridge7vs1_gt_ExecuteActionsMap_Func");
         TriggerAddEventGeneric(libNeuroBridge7vs1_gt_ExecuteActionsMap, "execute_actions_map");
     }
@@ -97,13 +90,14 @@ string libNeuroBridge7vs1_gf_GetMutators() {
     int lv_gas = PlayerGetPropertyInt(lv_player, c_playerPropVespene);
     int lv_supplyUsed = PlayerGetPropertyInt(lv_player, c_playerPropSuppliesUsed);
     int lv_supplyMade = PlayerGetPropertyInt(lv_player, c_playerPropSuppliesMade);
-
-    // 查询激活的突变因子
     string lv_mutatorList = "";
     int lv_mutatorCount = 0;
     int lv_i = 1;
+    string lv_id = "";
+    string lv_result = "";
+
     while (lv_i <= 69) {
-        string lv_id = libE0EAE146_gf_MutatorIdByIndex(lv_i);
+        lv_id = libE0EAE146_gf_MutatorIdByIndex(lv_i);
         if (lv_id != "" && lv_id != "Random") {
             if (libA070801C_gf_MutatorIsEnabled(lv_id)) {
                 if (lv_mutatorCount > 0) {
@@ -116,7 +110,7 @@ string libNeuroBridge7vs1_gf_GetMutators() {
         lv_i = lv_i + 1;
     }
 
-    string lv_result = "Resources: " + IntToString(lv_minerals) + " min, " +
+    lv_result = "Resources: " + IntToString(lv_minerals) + " min, " +
         IntToString(lv_gas) + " gas. Supply: " +
         IntToString(lv_supplyUsed) + "/" + IntToString(lv_supplyMade) +
         ". Active mutators (" + IntToString(lv_mutatorCount) + "): " + lv_mutatorList + ".";
@@ -133,11 +127,11 @@ string libNeuroBridge7vs1_gf_GetCommanderStatus() {
     int lv_totalUnits = UnitGroupCount(lv_allUnits, c_unitCountAll);
 
     unitgroup lv_structures = UnitGroup(null, lv_player, RegionEntireMap(),
-        UnitFilter((1 << c_unitFilterStructure), 0, (1 << 0), (1 << 1)), 0);
+        UnitFilter((1 << c_targetFilterStructure), 0, (1 << 0), (1 << 1)), 0);
     int lv_structureCount = UnitGroupCount(lv_structures, c_unitCountAll);
 
     unitgroup lv_army = UnitGroup(null, lv_player, RegionEntireMap(),
-        UnitFilter(0, (1 << c_unitFilterStructure) | (1 << c_unitFilterWorker), (1 << 0), (1 << 1)), 0);
+        UnitFilter(0, (1 << c_targetFilterStructure) | (1 << c_targetFilterWorker), (1 << 0), (1 << 1)), 0);
     int lv_armyCount = UnitGroupCount(lv_army, c_unitCountAll);
 
     string lv_result = "Commander status: " + IntToString(lv_totalUnits) + " total units, " +
@@ -153,18 +147,21 @@ string libNeuroBridge7vs1_gf_GetCommanderStatus() {
 string libNeuroBridge7vs1_gf_GetProductionQueue() {
     int lv_player = 1;
     unitgroup lv_structures = UnitGroup(null, lv_player, RegionEntireMap(),
-        UnitFilter((1 << c_unitFilterStructure), 0, (1 << 0), (1 << 1)), 0);
+        UnitFilter((1 << c_targetFilterStructure), 0, (1 << 0), (1 << 1)), 0);
     string lv_result = "Production queue: ";
     int lv_count = 0;
+    unit lv_u = null;
+    int lv_queueCount = 0;
+    string lv_queueItem = "";
 
     UnitGroupLoopBegin(lv_structures);
     while (!UnitGroupLoopDone() && lv_count < 10) {
-        unit lv_u = UnitGroupLoopCurrent();
-        int lv_queueCount = UnitQueueItemCount(lv_u, 0);
+        lv_u = UnitGroupLoopCurrent();
+        lv_queueCount = UnitQueueItemCount(lv_u, 0);
         if (lv_queueCount > 0) {
-            string lv_queueItem = UnitQueueItemGet(lv_u, 0, 0);
+            lv_queueItem = UnitQueueItemGet(lv_u, 0, 0);
             if (lv_queueItem != "" && lv_queueItem != null) {
-                lv_result = lv_result + UnitGetName(lv_u) + " -> " + lv_queueItem + "; ";
+                lv_result = lv_result + TextToString(UnitGetName(lv_u)) + " -> " + lv_queueItem + "; ";
                 lv_count = lv_count + 1;
             }
         }
@@ -187,12 +184,14 @@ string libNeuroBridge7vs1_gf_GetActiveMutators() {
     string lv_result = "Active mutators with semantic descriptions: ";
     int lv_count = 0;
     int lv_i = 1;
+    string lv_id = "";
+    string lv_desc = "";
 
     while (lv_i <= 69) {
-        string lv_id = libE0EAE146_gf_MutatorIdByIndex(lv_i);
+        lv_id = libE0EAE146_gf_MutatorIdByIndex(lv_i);
         if (lv_id != "" && lv_id != "Random") {
             if (libA070801C_gf_MutatorIsEnabled(lv_id)) {
-                string lv_desc = libNeuroBridge7vs1_gf_GetMutatorSemanticDescription(lv_id);
+                lv_desc = libNeuroBridge7vs1_gf_GetMutatorSemanticDescription(lv_id);
                 if (lv_count > 0) {
                     lv_result = lv_result + " | ";
                 }
@@ -220,51 +219,48 @@ string libNeuroBridge7vs1_gf_GetActiveMutators() {
 //--------------------------------------------------------------------------------------------------
 string libNeuroBridge7vs1_gf_TrainUnit(string unitType) {
     int lv_player = 1;
+    unitgroup lv_structures;
+    unit lv_building = null;
+    int lv_queueCount = 0;
+    string lv_abilCmd = "";
+    order lv_order = null;
+    string lv_buildAbil = "";
+    order lv_order2 = null;
 
-    // 校验单位类型是否有效
     if (!CatalogEntryIsValid(c_gameCatalogUnit, unitType)) {
         return "ERROR: Invalid unit type '" + unitType + "'.";
     }
 
-    // 查找所有生产建筑（有队列的建筑）
-    unitgroup lv_structures = UnitGroup(null, lv_player, RegionEntireMap(),
-        UnitFilter((1 << c_unitFilterStructure), 0, (1 << 0), (1 << 1)), 0);
+    lv_structures = UnitGroup(null, lv_player, RegionEntireMap(),
+        UnitFilter((1 << c_targetFilterStructure), 0, (1 << 0), (1 << 1)), 0);
 
     if (UnitGroupCount(lv_structures, c_unitCountAll) == 0) {
         return "ERROR: No production structures available.";
     }
 
-    // 遍历建筑，找到第一个能生产该单位且队列未满的
     UnitGroupLoopBegin(lv_structures);
     while (!UnitGroupLoopDone()) {
-        unit lv_building = UnitGroupLoopCurrent();
-        int lv_queueCount = UnitQueueItemCount(lv_building, 0);
+        lv_building = UnitGroupLoopCurrent();
+        lv_queueCount = UnitQueueItemCount(lv_building, 0);
 
-        // 队列未满（最多 5 个）
         if (lv_queueCount < 5) {
-            // 尝试下订单：用 TrainUnit 通用命令
-            // 注意：galaxy 的 Order 需要 abilcmd，这里用字符串形式
-            string lv_abilCmd = "Train" + unitType;
+            lv_abilCmd = "Train" + unitType;
             if (CatalogEntryIsValid(c_gameCatalogAbil, lv_abilCmd)) {
-                order lv_order = Order(AbilityCommand(lv_abilCmd, 0));
-                if (UnitOrderIsValid(lv_player, lv_building, lv_order)) {
+                lv_order = Order(AbilityCommand(lv_abilCmd, 0));
+                if (UnitOrderIsValid(lv_building, lv_order)) {
                     UnitIssueOrder(lv_building, lv_order, c_orderQueueReplace);
                     UnitGroupLoopEnd();
-                    return "OK: Ordered " + unitType + " from " + UnitGetName(lv_building) + ".";
+                    return "OK: Ordered " + unitType + " from " + TextToString(UnitGetName(lv_building)) + ".";
                 }
             }
 
-            // 回退：尝试 <BuildingPrefix>Train 命令（如 BarracksTrain）
-            // 通过 catalog 查询单位的生产建筑和技能
-            string lv_buildAbil = CatalogReferenceGet("Units," + unitType + ",BuiltFrom", lv_player);
+            lv_buildAbil = CatalogReferenceGet("Units," + unitType + ",BuiltFrom", lv_player);
             if (lv_buildAbil != "" && lv_buildAbil != null) {
-                // lv_buildAbil 格式可能是 "Barracks" 或 "Barracks,Factory"
-                // 简化处理：直接尝试用单位 ID 作为命令名
-                order lv_order2 = Order(AbilityCommand(unitType + "Train", 0));
-                if (UnitOrderIsValid(lv_player, lv_building, lv_order2)) {
+                lv_order2 = Order(AbilityCommand(unitType + "Train", 0));
+                if (UnitOrderIsValid(lv_building, lv_order2)) {
                     UnitIssueOrder(lv_building, lv_order2, c_orderQueueReplace);
                     UnitGroupLoopEnd();
-                    return "OK: Ordered " + unitType + " from " + UnitGetName(lv_building) + ".";
+                    return "OK: Ordered " + unitType + " from " + TextToString(UnitGetName(lv_building)) + ".";
                 }
             }
         }
@@ -283,6 +279,13 @@ string libNeuroBridge7vs1_gf_TrainUnit(string unitType) {
 //--------------------------------------------------------------------------------------------------
 string libNeuroBridge7vs1_gf_UseAbility(string abilityId, string targetUnitType) {
     int lv_player = 1;
+    unitgroup lv_allUnits;
+    unit lv_caster = null;
+    bool lv_enabled = false;
+    fixed lv_cooldown = 0.0;
+    order lv_order = null;
+    unitgroup lv_enemies;
+    unit lv_target = null;
 
     // 校验技能是否有效
     if (!CatalogEntryIsValid(c_gameCatalogAbil, abilityId)) {
@@ -290,7 +293,7 @@ string libNeuroBridge7vs1_gf_UseAbility(string abilityId, string targetUnitType)
     }
 
     // 查找玩家所有有该技能的单位
-    unitgroup lv_allUnits = UnitGroup(null, lv_player, RegionEntireMap(),
+    lv_allUnits = UnitGroup(null, lv_player, RegionEntireMap(),
         UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
 
     if (UnitGroupCount(lv_allUnits, c_unitCountAll) == 0) {
@@ -300,37 +303,34 @@ string libNeuroBridge7vs1_gf_UseAbility(string abilityId, string targetUnitType)
     // 遍历单位，找到第一个有该技能且能使用的
     UnitGroupLoopBegin(lv_allUnits);
     while (!UnitGroupLoopDone()) {
-        unit lv_caster = UnitGroupLoopCurrent();
+        lv_caster = UnitGroupLoopCurrent();
 
         // 检查单位是否有该技能
         if (UnitAbilityExists(lv_caster, abilityId)) {
             // 检查技能是否就绪：未被禁用 + 冷却完毕
-            bool lv_enabled = UnitAbilityCheck(lv_caster, abilityId, false);
-            fixed lv_cooldown = UnitAbilityGetCooldown(lv_caster, abilityId, "");
+            lv_enabled = UnitAbilityCheck(lv_caster, abilityId, false);
+            lv_cooldown = UnitAbilityGetCooldown(lv_caster, abilityId, "");
             if (lv_enabled && lv_cooldown <= 0.0) {
-                order lv_order = Order(AbilityCommand(abilityId, 0));
+                lv_order = Order(AbilityCommand(abilityId, 0));
 
                 // 如果有目标单位类型，找到最近的敌方单位
                 if (targetUnitType != "" && targetUnitType != null) {
-                    unitgroup lv_enemies = UnitGroup(targetUnitType, c_playerAny, RegionEntireMap(),
-                        UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
-                    // 过滤出敌方单位
-                    lv_enemies = UnitGroupFilter(lv_enemies, lv_player, RegionEntireMap(),
+                    lv_enemies = UnitGroup(targetUnitType, c_playerAny, RegionEntireMap(),
                         UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
 
                     if (UnitGroupCount(lv_enemies, c_unitCountAll) > 0) {
-                        unit lv_target = UnitGroupClosestToPoint(lv_enemies, UnitGetPosition(lv_caster));
+                        lv_target = UnitGroupClosestToPoint(lv_enemies, UnitGetPosition(lv_caster));
                         if (lv_target != null) {
                             lv_order = OrderTargetingUnit(AbilityCommand(abilityId, 0), lv_target);
                         }
                     }
                 }
 
-                // 尝试下订单
-                if (UnitOrderIsValid(lv_player, lv_caster, lv_order)) {
+                // 尝试下订单（UnitOrderIsValid 签名为 (unit, order)）
+                if (UnitOrderIsValid(lv_caster, lv_order)) {
                     UnitIssueOrder(lv_caster, lv_order, c_orderQueueReplace);
                     UnitGroupLoopEnd();
-                    return "OK: " + UnitGetName(lv_caster) + " is using " + abilityId + ".";
+                    return "OK: " + TextToString(UnitGetName(lv_caster)) + " is using " + abilityId + ".";
                 }
             }
         }
@@ -348,6 +348,13 @@ string libNeuroBridge7vs1_gf_UseAbility(string abilityId, string targetUnitType)
 //--------------------------------------------------------------------------------------------------
 string libNeuroBridge7vs1_gf_ResearchUpgrade(string upgradeId) {
     int lv_player = 1;
+    unitgroup lv_structures;
+    unit lv_building = null;
+    int lv_queueCount = 0;
+    string lv_abilCmd1 = "";
+    string lv_abilCmd2 = "";
+    order lv_order1 = null;
+    order lv_order2 = null;
 
     // 校验升级是否有效
     if (!CatalogEntryIsValid(c_gameCatalogUpgrade, upgradeId)) {
@@ -360,8 +367,8 @@ string libNeuroBridge7vs1_gf_ResearchUpgrade(string upgradeId) {
     }
 
     // 查找所有建筑
-    unitgroup lv_structures = UnitGroup(null, lv_player, RegionEntireMap(),
-        UnitFilter((1 << c_unitFilterStructure), 0, (1 << 0), (1 << 1)), 0);
+    lv_structures = UnitGroup(null, lv_player, RegionEntireMap(),
+        UnitFilter((1 << c_targetFilterStructure), 0, (1 << 0), (1 << 1)), 0);
 
     if (UnitGroupCount(lv_structures, c_unitCountAll) == 0) {
         return "ERROR: No structures available for research.";
@@ -370,26 +377,26 @@ string libNeuroBridge7vs1_gf_ResearchUpgrade(string upgradeId) {
     // 遍历建筑，找到第一个能研究该升级的
     UnitGroupLoopBegin(lv_structures);
     while (!UnitGroupLoopDone()) {
-        unit lv_building = UnitGroupLoopCurrent();
-        int lv_queueCount = UnitQueueItemCount(lv_building, 0);
+        lv_building = UnitGroupLoopCurrent();
+        lv_queueCount = UnitQueueItemCount(lv_building, 0);
 
         if (lv_queueCount < 5) {
             // 尝试用 <UpgradeId>Research 或 Research<UpgradeId> 命令
-            string lv_abilCmd1 = "Research_" + upgradeId;
-            string lv_abilCmd2 = upgradeId;
+            lv_abilCmd1 = "Research_" + upgradeId;
+            lv_abilCmd2 = upgradeId;
 
-            order lv_order1 = Order(AbilityCommand(lv_abilCmd1, 0));
-            if (UnitOrderIsValid(lv_player, lv_building, lv_order1)) {
+            lv_order1 = Order(AbilityCommand(lv_abilCmd1, 0));
+            if (UnitOrderIsValid(lv_building, lv_order1)) {
                 UnitIssueOrder(lv_building, lv_order1, c_orderQueueReplace);
                 UnitGroupLoopEnd();
-                return "OK: Researching " + upgradeId + " at " + UnitGetName(lv_building) + ".";
+                return "OK: Researching " + upgradeId + " at " + TextToString(UnitGetName(lv_building)) + ".";
             }
 
-            order lv_order2 = Order(AbilityCommand(lv_abilCmd2, 0));
-            if (UnitOrderIsValid(lv_player, lv_building, lv_order2)) {
+            lv_order2 = Order(AbilityCommand(lv_abilCmd2, 0));
+            if (UnitOrderIsValid(lv_building, lv_order2)) {
                 UnitIssueOrder(lv_building, lv_order2, c_orderQueueReplace);
                 UnitGroupLoopEnd();
-                return "OK: Researching " + upgradeId + " at " + UnitGetName(lv_building) + ".";
+                return "OK: Researching " + upgradeId + " at " + TextToString(UnitGetName(lv_building)) + ".";
             }
         }
         UnitGroupLoopStep();
@@ -404,16 +411,18 @@ string libNeuroBridge7vs1_gf_ResearchUpgrade(string upgradeId) {
 // 在地图初始化后调用，让 Neuro 理解当前游戏的突变机制
 //--------------------------------------------------------------------------------------------------
 void libNeuroBridge7vs1_gf_PushMutatorContext() {
+    string lv_context = "";
+
     if (libNeuroBridge7vs1_mutatorContextPushed) {
         return;
     }
 
-    // 检查突变因子系统是否已启动
-    if (!libE0EAE146_gv_mutatorRuntimeStarted) {
+    // 检查突变因子系统是否已启动（用已启用数量 > 0 替代全局变量检查）
+    if (libA070801C_gf_CT_MutatorEnabledCount() <= 0) {
         return;
     }
 
-    string lv_context = libNeuroBridge7vs1_gf_GetActiveMutators();
+    lv_context = libNeuroBridge7vs1_gf_GetActiveMutators();
     libEFA54406_gf_create_context("mutator_semantic_info", lv_context, false);
 
     libNeuroBridge7vs1_mutatorContextPushed = true;
@@ -488,55 +497,72 @@ string libNeuroBridge7vs1_gf_GetMutatorSemanticDescription(string mutatorId) {
 // 这是 NeuroIntegration Bank IPC 协议的地图侧实现
 //--------------------------------------------------------------------------------------------------
 bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runActions) {
+    string lv_result = "";
+    string lv_unitType = "";
+    string lv_abilId = "";
+    string lv_target = "";
+    string lv_upgradeId = "";
+
     if (testConds) {
         return true;
     }
     if (runActions) {
+        // === 0. 首次调用：注册 action + 推送突变因子 context ===
+        if (!libNeuroBridge7vs1_actionsRegistered) {
+            // 检查 NeuroIntegration bank 是否已创建
+            if (libEFA54406_gv_neuroIntegration != null) {
+                libNeuroBridge7vs1_gf_RegisterActions();
+                libNeuroBridge7vs1_actionsRegistered = true;
+                // 推送突变因子语义上下文
+                libNeuroBridge7vs1_gf_PushMutatorContext();
+            }
+        }
+
         // === 1. 处理只读查询型 action ===
         if (libNeuroBridge7vs1_gf_ReadActionFlag("get_mutators")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("get_mutators");
-            string lv_result = libNeuroBridge7vs1_gf_GetMutators();
+            lv_result = libNeuroBridge7vs1_gf_GetMutators();
             libEFA54406_gf_create_context("mutators_info", lv_result, true);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("get_commander_status")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("get_commander_status");
-            string lv_result = libNeuroBridge7vs1_gf_GetCommanderStatus();
+            lv_result = libNeuroBridge7vs1_gf_GetCommanderStatus();
             libEFA54406_gf_create_context("commander_status", lv_result, true);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("get_production_queue")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("get_production_queue");
-            string lv_result = libNeuroBridge7vs1_gf_GetProductionQueue();
+            lv_result = libNeuroBridge7vs1_gf_GetProductionQueue();
             libEFA54406_gf_create_context("production_queue", lv_result, true);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("get_active_mutators")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("get_active_mutators");
-            string lv_result = libNeuroBridge7vs1_gf_GetActiveMutators();
+            lv_result = libNeuroBridge7vs1_gf_GetActiveMutators();
             libEFA54406_gf_create_context("active_mutators", lv_result, true);
         }
 
         // === 2. 处理写入型 action ===
         if (libNeuroBridge7vs1_gf_ReadActionFlag("train_unit")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("train_unit");
-            string lv_unitType = libNeuroBridge7vs1_gf_ReadActionStringArg("train_unit", "train_unit_arg_1");
-            string lv_result = libNeuroBridge7vs1_gf_TrainUnit(lv_unitType);
+            lv_unitType = libNeuroBridge7vs1_gf_ReadActionStringArg("train_unit", "train_unit_arg_1");
+            lv_result = libNeuroBridge7vs1_gf_TrainUnit(lv_unitType);
             libEFA54406_gf_create_context("train_unit_result", lv_result, false);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("use_ability")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("use_ability");
-            string lv_abilId = libNeuroBridge7vs1_gf_ReadActionStringArg("use_ability", "use_ability_arg_1");
-            string lv_target = libNeuroBridge7vs1_gf_ReadActionStringArg("use_ability", "use_ability_arg_2");
-            string lv_result = libNeuroBridge7vs1_gf_UseAbility(lv_abilId, lv_target);
+            lv_abilId = libNeuroBridge7vs1_gf_ReadActionStringArg("use_ability", "use_ability_arg_1");
+            lv_target = libNeuroBridge7vs1_gf_ReadActionStringArg("use_ability", "use_ability_arg_2");
+            lv_result = libNeuroBridge7vs1_gf_UseAbility(lv_abilId, lv_target);
             libEFA54406_gf_create_context("use_ability_result", lv_result, false);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("research_upgrade")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("research_upgrade");
-            string lv_upgradeId = libNeuroBridge7vs1_gf_ReadActionStringArg("research_upgrade", "research_upgrade_arg_1");
-            string lv_result = libNeuroBridge7vs1_gf_ResearchUpgrade(lv_upgradeId);
+            lv_upgradeId = libNeuroBridge7vs1_gf_ReadActionStringArg("research_upgrade", "research_upgrade_arg_1");
+            lv_result = libNeuroBridge7vs1_gf_ResearchUpgrade(lv_upgradeId);
             libEFA54406_gf_create_context("research_upgrade_result", lv_result, false);
         }
 

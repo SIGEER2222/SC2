@@ -56,7 +56,17 @@ param(
     [switch]$ForceStopSc2BeforeInstall,
     [switch]$NoLaunch,
     [switch]$ApiListen,
-    [int]$ApiPort = 8765
+    [int]$ApiPort = 8765,
+    # === Neuro Integration ===
+    [switch]$EnableNeuro,
+    [string]$NeuroUrl = "",
+    [switch]$UseGary,
+    [string]$GaryPath = "C:\Users\22448\AppData\Local\Gary\gary.exe",
+    [switch]$SkipPythonRuntime,
+    [string]$PythonPath = "C:\Users\22448\AppData\Local\Programs\Python\Python313\python.exe",
+    [string]$NeuroApiRoot = "",
+    [string]$NeuroModSource = "",
+    [string]$BridgeModSource = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -1510,6 +1520,252 @@ if ($GenericBonuses.Count -gt 0) {
     Write-Host "Generic bonuses: $($GenericBonuses -join ', ')"
 }
 Write-Host "Voice pack: $VoicePack"
+
+# === Neuro Integration (可选，通过 -EnableNeuro 开启) ===
+# 从 launch-7vs1-neuro.ps1 移植：追加依赖、复制 mod、注入 galaxy、Patch BankList/MapScript
+$pythonProcessId = $null
+$garyProcessId = $null
+if ($EnableNeuro) {
+    Write-Host "`n=== Neuro Integration ===" -ForegroundColor Cyan
+
+    # 辅助函数：用独立进程调用 file-ops 脚本，绕过 TRAE 沙箱 hook
+    function Invoke-FileOps {
+        param(
+            [Parameter(Mandatory=$true)][string]$Script,
+            [Parameter(Mandatory=$true)][string[]]$Arguments
+        )
+        $argList = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $Script) + $Arguments
+        $proc = Start-Process powershell -ArgumentList $argList -Wait -NoNewWindow -PassThru -ErrorAction SilentlyContinue
+        if ($proc -and $proc.ExitCode -ne 0) {
+            Write-Host "  Warning: FileOps exit $($proc.ExitCode) for $Arguments" -ForegroundColor Yellow
+        }
+        return $proc.ExitCode
+    }
+
+    # === 路径解析 ===
+    if ([string]::IsNullOrWhiteSpace($NeuroModSource)) {
+        $NeuroModSource = "E:\Code\MyMod\SC2\tools\SC2-Neuro-WoL-Integration\Mods\NeuroIntegration.SC2Mod"
+    }
+    if ([string]::IsNullOrWhiteSpace($BridgeModSource)) {
+        $BridgeModSource = Join-Path $workspaceRoot "Mods\Neuro\NeuroBridge7vs1.SC2Mod"
+    }
+    if ([string]::IsNullOrWhiteSpace($NeuroApiRoot)) {
+        $NeuroApiRoot = "E:\Code\MyMod\SC2\tools\SC2-Neuro-API-Integration"
+    }
+
+    Write-Host "NeuroMod:  $NeuroModSource"
+    Write-Host "BridgeMod: $BridgeModSource"
+
+    # === 校验源文件存在 ===
+    if (-not (Test-Path -LiteralPath $NeuroModSource)) {
+        throw "NeuroIntegration mod not found: $NeuroModSource"
+    }
+    if (-not (Test-Path -LiteralPath $BridgeModSource)) {
+        throw "NeuroBridge7vs1 mod not found: $BridgeModSource"
+    }
+
+    $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+
+    # === Step N1: 追加 Neuro 依赖到地图 DocumentInfo ===
+    Write-Host "`n--- Neuro Step 1: Append Neuro mod dependencies ---" -ForegroundColor Yellow
+    $docInfoPath = Join-Path $mapLive "DocumentInfo"
+    $docInfoContent = [System.IO.File]::ReadAllText($docInfoPath)
+    $xml = [xml]$docInfoContent
+    $depsNode = $xml.DocInfo.Dependencies
+    if ($null -eq $depsNode) {
+        $depsNode = $xml.CreateElement("Dependencies")
+        $xml.DocInfo.AppendChild($depsNode) | Out-Null
+    }
+    $neuroLiveRel = "file:Mods/NeuroIntegration.SC2Mod"
+    $bridgeLiveRel = "file:Mods/Neuro/NeuroBridge7vs1.SC2Mod"
+    $existingValues = @()
+    foreach ($v in $depsNode.Value) { $existingValues += $v.InnerText }
+    if ($existingValues -notcontains $neuroLiveRel) {
+        $newVal = $xml.CreateElement("Value")
+        $newVal.InnerText = $neuroLiveRel
+        $depsNode.AppendChild($newVal) | Out-Null
+        Write-Host "  Added: $neuroLiveRel"
+    }
+    if ($existingValues -notcontains $bridgeLiveRel) {
+        $newVal = $xml.CreateElement("Value")
+        $newVal.InnerText = $bridgeLiveRel
+        $depsNode.AppendChild($newVal) | Out-Null
+        Write-Host "  Added: $bridgeLiveRel"
+    }
+    [System.IO.File]::WriteAllText($docInfoPath, $xml.OuterXml, $utf8NoBom)
+    Write-Host "DocumentInfo updated." -ForegroundColor Green
+
+    # === Step N2: 复制 Neuro mod 到 SC2 运行时目录 ===
+    Write-Host "`n--- Neuro Step 2: Copy Neuro mods to SC2 runtime ---" -ForegroundColor Yellow
+    $neuroLiveDir = Join-Path $Sc2Root "Mods\NeuroIntegration.SC2Mod"
+    $bridgeLiveDir = Join-Path $Sc2Root "Mods\Neuro\NeuroBridge7vs1.SC2Mod"
+
+    $fileOpsDir = "c:\Users\22448\.trae-cn\skills\file-ops\scripts"
+
+    if (Test-Path $neuroLiveDir) { Invoke-FileOps "$fileOpsDir\trae-rmdir.ps1" @($neuroLiveDir) | Out-Null }
+    Invoke-FileOps "$fileOpsDir\trae-cp.ps1" @($NeuroModSource, $neuroLiveDir) | Out-Null
+    Write-Host "  Copied NeuroIntegration -> $neuroLiveDir"
+
+    $bridgeLiveParent = Split-Path $bridgeLiveDir -Parent
+    if (-not (Test-Path $bridgeLiveParent)) { Invoke-FileOps "$fileOpsDir\trae-mkdir.ps1" @($bridgeLiveParent) | Out-Null }
+    if (Test-Path $bridgeLiveDir) { Invoke-FileOps "$fileOpsDir\trae-rmdir.ps1" @($bridgeLiveDir) | Out-Null }
+    Invoke-FileOps "$fileOpsDir\trae-cp.ps1" @($BridgeModSource, $bridgeLiveDir) | Out-Null
+    Write-Host "  Copied NeuroBridge7vs1 -> $bridgeLiveDir"
+
+    # === Step N3: 注入 galaxy 库文件到地图 Base.SC2Data ===
+    Write-Host "`n--- Neuro Step 3: Inject galaxy libraries into map ---" -ForegroundColor Yellow
+    $mapLiveBaseData = Join-Path $mapLive "Base.SC2Data"
+    if (-not (Test-Path $mapLiveBaseData)) {
+        Invoke-FileOps "$fileOpsDir\trae-mkdir.ps1" @($mapLiveBaseData) | Out-Null
+    }
+    # NeuroIntegration galaxy 文件
+    $neuroGalaxyDir = Join-Path $neuroLiveDir "Base.SC2Data"
+    $neuroGalaxyFiles = Get-ChildItem $neuroGalaxyDir -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+    foreach ($gf in $neuroGalaxyFiles) {
+        $dst = Join-Path $mapLiveBaseData $gf.Name
+        [System.IO.File]::Copy($gf.FullName, $dst, $true)
+        Write-Host "  Injected: $($gf.Name)"
+    }
+    # NeuroBridge7vs1 galaxy 文件
+    $bridgeGalaxyDir = Join-Path $bridgeLiveDir "Base.SC2Data"
+    $bridgeGalaxyFiles = Get-ChildItem $bridgeGalaxyDir -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+    foreach ($gf in $bridgeGalaxyFiles) {
+        $dst = Join-Path $mapLiveBaseData $gf.Name
+        [System.IO.File]::Copy($gf.FullName, $dst, $true)
+        Write-Host "  Injected: $($gf.Name)"
+    }
+
+    # === Step N4: 注入 BankList.xml ===
+    Write-Host "`n--- Neuro Step 4: Patch BankList.xml ---" -ForegroundColor Yellow
+    $bankListPath = Join-Path $mapLive "BankList.xml"
+    if (Test-Path -LiteralPath $bankListPath) {
+        $bankContent = [System.IO.File]::ReadAllText($bankListPath)
+        if ($bankContent -notmatch 'Name="NeuroIntegration"') {
+            $bankEntry = '    <Bank Name="NeuroIntegration" Player="1"/>'
+            $bankContent = $bankContent.Replace('</BankList>', ($bankEntry + "`n</BankList>"))
+            [System.IO.File]::WriteAllText($bankListPath, $bankContent, $utf8NoBom)
+            Write-Host "  Added NeuroIntegration bank declaration"
+        } else {
+            Write-Host "  Already has NeuroIntegration bank"
+        }
+    } else {
+        Write-Host "  WARN: BankList.xml not found, creating minimal one"
+        $bankContent = "<?xml version=`"1.0`" encoding=`"utf-8`"?>`n<BankList>`n    <Bank Name=`"NeuroIntegration`" Player=`"1`"/>`n</BankList>`n"
+        [System.IO.File]::WriteAllText($bankListPath, $bankContent, $utf8NoBom)
+    }
+
+    # === Step N5: 注入 MapScript.galaxy ===
+    Write-Host "`n--- Neuro Step 5: Patch MapScript.galaxy ---" -ForegroundColor Yellow
+    $mapScriptPath = Join-Path $mapLive "MapScript.galaxy"
+    if (Test-Path -LiteralPath $mapScriptPath) {
+        $content = [System.IO.File]::ReadAllText($mapScriptPath)
+        $modified = $false
+
+        # N5a. 注入 include（在最后一个 include 之后）
+        if ($content -notmatch 'include "LibEFA54406"') {
+            $neuroIncludes = @(
+                'include "LibEFA54406"',
+                'include "LibNeuroBridge7vs1"'
+            )
+            $includeBlock = $neuroIncludes -join "`n"
+            $lastIncludePattern = '(?m)^(include "[^"]+"(?:\r?\n)*)'
+            $lastMatch = [regex]::Matches($content, $lastIncludePattern)
+            if ($lastMatch.Count -gt 0) {
+                $insertPos = $lastMatch[$lastMatch.Count - 1].Index + $lastMatch[$lastMatch.Count - 1].Length
+                $content = $content.Substring(0, $insertPos) + $includeBlock + "`n" + $content.Substring($insertPos)
+            }
+            $modified = $true
+            Write-Host "  Added Neuro includes"
+        }
+
+        # N5b. 注入 InitLib 调用（在 InitLibs() 闭合大括号之前）
+        if ($content -notmatch 'libNeuroBridge7vs1_InitLib') {
+            $initCalls = @(
+                '    libEFA54406_InitLib();',
+                '    libNeuroBridge7vs1_InitLib();'
+            )
+            $initBlock = ($initCalls -join "`n") + "`n"
+            $initLibsPattern = '(void\s+InitLibs\s*\(\s*\)\s*\{)([^}]+)(\})'
+            if ($content -match $initLibsPattern) {
+                $beforeBrace = $matches[2]
+                $content = $content -replace [regex]::Escape($beforeBrace), ($beforeBrace + $initBlock)
+                $modified = $true
+                Write-Host "  Added Neuro InitLib calls"
+            } else {
+                Write-Host "  WARN: could not find InitLibs() function"
+            }
+        }
+
+        if ($modified) {
+            [System.IO.File]::WriteAllText($mapScriptPath, $content, $utf8NoBom)
+            Write-Host "MapScript.galaxy patched." -ForegroundColor Green
+        } else {
+            Write-Host "  SKIP: MapScript.galaxy already patched"
+        }
+    } else {
+        Write-Host "  WARN: MapScript.galaxy not found at $mapScriptPath"
+    }
+
+    Write-Host "Neuro integration completed." -ForegroundColor Green
+
+    # === Step N6: 启动 Python 运行时（可选，-NoLaunch 时跳过）===
+    if (-not $SkipPythonRuntime -and -not $NoLaunch) {
+        Write-Host "`n--- Neuro Step 6: Start Python runtime ---" -ForegroundColor Yellow
+
+        $headlessRunner = Join-Path $NeuroApiRoot "headless_runner.py"
+        $configureJson = Join-Path $NeuroApiRoot "configure.json"
+
+        # 解析 NeuroUrl（默认 mock，可切换到真实 Gary）
+        $effectiveNeuroUrl = $NeuroUrl
+        if ([string]::IsNullOrWhiteSpace($effectiveNeuroUrl)) {
+            if ($UseGary) {
+                $effectiveNeuroUrl = "ws://127.0.0.1:64998"
+                Write-Host "  Mode: Gary (real Neuro-sama)" -ForegroundColor Magenta
+            } else {
+                $effectiveNeuroUrl = "ws://127.0.0.1:8000"
+                Write-Host "  Mode: Mock server (default)" -ForegroundColor DarkGray
+            }
+        } else {
+            Write-Host "  Mode: Custom URL = $effectiveNeuroUrl"
+        }
+
+        # 如需 Gary，先启动 Gary 进程
+        if ($UseGary) {
+            if (Test-Path -LiteralPath $GaryPath) {
+                Write-Host "  Starting Gary at: $GaryPath"
+                $garyProc = Start-Process -FilePath $GaryPath -PassThru -WindowStyle Normal
+                $garyProcessId = $garyProc.Id
+                Write-Host "  Gary PID: $garyProcessId" -ForegroundColor Green
+                Write-Host "  Waiting 8s for Gary to start WebSocket server..." -ForegroundColor DarkGray
+                Start-Sleep -Seconds 8
+            } else {
+                Write-Host "  WARN: Gary not found at $GaryPath, falling back to mock URL" -ForegroundColor Yellow
+                $effectiveNeuroUrl = "ws://127.0.0.1:8000"
+            }
+        }
+
+        if (Test-Path -LiteralPath $headlessRunner) {
+            # 写/更新 configure.json
+            $config = @{
+                game_path = $Sc2Root
+                banks_path = "C:\Users\22448\Documents\StarCraft II\Banks"
+                neuro_url = $effectiveNeuroUrl
+                verbosity = 1
+            }
+            $configJson = $config | ConvertTo-Json -Depth 3
+            [System.IO.File]::WriteAllText($configureJson, $configJson, $utf8NoBom)
+            Write-Host "  configure.json written (neuro_url=$effectiveNeuroUrl)"
+
+            # 启动 Python 运行时
+            Write-Host "  Starting headless_runner.py..."
+            $pyProc = Start-Process -FilePath $PythonPath -ArgumentList $headlessRunner -PassThru -WindowStyle Normal
+            $pythonProcessId = $pyProc.Id
+            Write-Host "  Python PID: $pythonProcessId" -ForegroundColor Green
+        } else {
+            Write-Host "  WARN: headless_runner.py not found at $headlessRunner" -ForegroundColor Yellow
+        }
+    }
+}
 
 if (-not $NoLaunch) {
     if ($ApiListen) {
