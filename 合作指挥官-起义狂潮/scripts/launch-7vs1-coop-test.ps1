@@ -1712,7 +1712,7 @@ if ($EnableNeuro) {
     if (-not $SkipPythonRuntime -and -not $NoLaunch) {
         Write-Host "`n--- Neuro Step 6: Start Python runtime ---" -ForegroundColor Yellow
 
-        $headlessRunner = Join-Path $NeuroApiRoot "headless_runner.py"
+        $runScript = Join-Path $NeuroApiRoot "run.py"
         $configureJson = Join-Path $NeuroApiRoot "configure.json"
 
         # 解析 NeuroUrl（默认 mock，可切换到真实 Gary）
@@ -1744,7 +1744,7 @@ if ($EnableNeuro) {
             }
         }
 
-        if (Test-Path -LiteralPath $headlessRunner) {
+        if (Test-Path -LiteralPath $runScript) {
             # 写/更新 configure.json
             $config = @{
                 game_path = $Sc2Root
@@ -1756,13 +1756,14 @@ if ($EnableNeuro) {
             [System.IO.File]::WriteAllText($configureJson, $configJson, $utf8NoBom)
             Write-Host "  configure.json written (neuro_url=$effectiveNeuroUrl)"
 
-            # 启动 Python 运行时
-            Write-Host "  Starting headless_runner.py..."
-            $pyProc = Start-Process -FilePath $PythonPath -ArgumentList $headlessRunner -PassThru -WindowStyle Normal
+            # 启动 Python 运行时（带 webui）
+            Write-Host "  Starting run.py (WebUI at http://127.0.0.1:8080)..."
+            $pyProc = Start-Process -FilePath $PythonPath -ArgumentList $runScript -PassThru -WindowStyle Normal
             $pythonProcessId = $pyProc.Id
             Write-Host "  Python PID: $pythonProcessId" -ForegroundColor Green
+            Write-Host "  WebUI: http://127.0.0.1:8080" -ForegroundColor Cyan
         } else {
-            Write-Host "  WARN: headless_runner.py not found at $headlessRunner" -ForegroundColor Yellow
+            Write-Host "  WARN: run.py not found at $runScript" -ForegroundColor Yellow
         }
     }
 }
