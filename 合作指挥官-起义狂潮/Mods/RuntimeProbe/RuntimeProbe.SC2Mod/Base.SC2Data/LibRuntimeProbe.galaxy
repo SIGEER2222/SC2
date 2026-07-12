@@ -544,7 +544,8 @@ void libRuntimeProbe_gf_ScanTechAvailability() {
 
 //--------------------------------------------------------------------------------------------------
 // ScanUI: 采集 GlobalCastingPanel 顶部技能面板的 UI 控件状态
-// 通过 DialogControlHookupStandard 获取 frame 引用，不改变游戏状态
+// 注意: 只能使用 DialogControlHookupStandard（标准路径，只读），不能用 DialogControlHookup
+//       DialogControlHookup 会修改控件关联状态，导致 "已经被关联...无法再次被关联" 错误
 // 写入 probe_ui section:
 //   gp_holder_id, gp_holder_exists (GlobalCastingPanel holder)
 //   army_btn_id, army_btn_exists (ArmySelectButton, gf_ShowChooseButton 中 hookup)

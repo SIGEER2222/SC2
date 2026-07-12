@@ -171,10 +171,13 @@ function Acquire-TestLock {
     $tmpFile = [System.IO.Path]::GetTempFileName()
     try {
         [System.IO.File]::WriteAllText($tmpFile, $lockJson, [System.Text.UTF8Encoding]::new($false))
-        # MoveTo 会原子性替换
+        # File.Move 不支持覆盖已有文件，先删除旧锁再 Move
+        if (Test-Path $script:TestLockFile) {
+            [System.IO.File]::Delete($script:TestLockFile)
+        }
         [System.IO.File]::Move($tmpFile, $script:TestLockFile)
     } catch {
-        if (Test-Path $tmpFile) { Remove-Item $tmpFile -Force -ErrorAction SilentlyContinue }
+        if (Test-Path $tmpFile) { [System.IO.File]::Delete($tmpFile) }
         throw "写入测试锁失败: $_"
     }
 
@@ -234,11 +237,14 @@ function Renew-TestLock {
     $tmpFile = [System.IO.Path]::GetTempFileName()
     try {
         [System.IO.File]::WriteAllText($tmpFile, $lockJson, [System.Text.UTF8Encoding]::new($false))
+        if (Test-Path $script:TestLockFile) {
+            [System.IO.File]::Delete($script:TestLockFile)
+        }
         [System.IO.File]::Move($tmpFile, $script:TestLockFile)
         Write-Host "[TestLock] 锁已续期至 $($newExpires.ToString('o'))" -ForegroundColor DarkGray
         return $true
     } catch {
-        if (Test-Path $tmpFile) { Remove-Item $tmpFile -Force -ErrorAction SilentlyContinue }
+        if (Test-Path $tmpFile) { [System.IO.File]::Delete($tmpFile) }
         return $false
     }
 }
