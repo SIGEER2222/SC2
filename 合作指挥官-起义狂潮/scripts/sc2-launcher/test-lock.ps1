@@ -90,7 +90,7 @@ function Get-TestLockStatus {
         return @{ acquired = $false; reason = "no_lock_file" }
     }
     $expired = Test-LockExpired -Lock $lock
-    $pidAlive = Test-PidAlive -Pid $lock.holder_pid
+    $pidAlive = Test-PidAlive -ProcessId $lock.holder_pid
     return @{
         acquired = $true
         expired = $expired
@@ -132,7 +132,7 @@ function Acquire-TestLock {
     $existing = Read-TestLock
     if ($null -ne $existing) {
         $expired = Test-LockExpired -Lock $existing
-        $pidAlive = Test-PidAlive -Pid $existing.holder_pid
+        $pidAlive = Test-PidAlive -ProcessId $existing.holder_pid
 
         if (-not $expired -and $pidAlive) {
             # 锁仍然有效，拒绝
