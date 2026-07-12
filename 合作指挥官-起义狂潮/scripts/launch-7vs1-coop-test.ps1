@@ -1318,11 +1318,14 @@ if ($LiveMapName -ne "emptytest.SC2Map") {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency "file:Mods/7vs1/CoreRuntime.SC2Mod"
 }
 # 按需加载：只添加选中指挥官对应的 Alenger mod（读取 alenger-mods.json 配置）
+# Alenger mod 的 galaxy 库不在地图 MapScript.galaxy 的 include 列表中，可安全按需加载
 foreach ($alengerDep in (Get-AlengerModsForCommanders -Commanders $effectiveCommanders)) {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency $alengerDep
 }
-# 按需加载：只添加选中指挥官对应的 CommanderUnits mod
-foreach ($catalogDep in (Get-SplitCatalogModDependencies -Commanders $effectiveCommanders)) {
+# 全量加载所有 CommanderUnits mod：7vs1 地图 MapScript.galaxy 固定 include 了
+# Mengsk(LibC0F50AA6)/Dehaka(LibDF8E6945)/Nova(Lib0940FFB7)/Stetmann(Lib975E2FE9) 等库，
+# 按需加载会导致地图编译时找不到 Include 文件，必须全量加载
+foreach ($catalogDep in (Get-SplitCatalogModDependencies)) {
     $mapDependencies = Add-DependencyUnique -Dependencies $mapDependencies -Dependency $catalogDep
 }
 # Remove the legacy CommanderCatalog.SC2Mod dependency now that it is split into the six mods above.
@@ -1399,6 +1402,10 @@ if (Test-Path -LiteralPath $workspaceCommanderUnitsRoot) {
         }
 }
 
+# 收集 RuntimeProbe mod 的 Base.SC2Data 目录用于 galaxy 注入。
+# MapScript.galaxy include 了 LibRuntimeProbe_h，需要把这些文件注入到地图 Base.SC2Data 目录。
+$runtimeProbeBaseData = Join-Path $workspaceRoot "Mods\RuntimeProbe\RuntimeProbe.SC2Mod\Base.SC2Data"
+
 if ($LiveMapName -ne "emptytest.SC2Map") {
     Sync-LiveMapRuntimeLibraries `
         -MapLive $mapLive `
@@ -1408,6 +1415,7 @@ if ($LiveMapName -ne "emptytest.SC2Map") {
             $commanderUnitsBaseDataRoots
             $adapterBaseDataRoots
             $kitMutationsLiveBaseData
+            $runtimeProbeBaseData
         )
 }
 $effectiveRuntimeBaseData = Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryPath -MapLive $mapLive -ExtensionLive $extensionLive -LibraryName "LibKPVP.galaxy")
