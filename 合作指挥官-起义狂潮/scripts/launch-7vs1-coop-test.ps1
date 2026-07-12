@@ -173,11 +173,11 @@ function Get-SplitCatalogModDependencies {
     )
 
     # 基础共享 mod（无论选哪些指挥官都必须加载）
+    # BaseCatalogPatch + SharedUnits + ExternalRefs 已合并到 CoreRuntime；
+    # kit_mutations 已合并到 CommanderBridge。
     $base = @(
-        "file:Mods/7vs1/BaseCatalogPatch.SC2Mod",
-        "file:Mods/7vs1/CommanderBridge.SC2Mod",
-        "file:Mods/7vs1/SharedUnits.SC2Mod",
-        "file:Mods/7vs1/ExternalRefs.SC2Mod"
+        "file:Mods/7vs1/CoreRuntime.SC2Mod",
+        "file:Mods/7vs1/CommanderBridge.SC2Mod"
     )
 
     # 未指定指挥官时返回全量依赖（向后兼容）
@@ -1306,6 +1306,14 @@ $mapDependencies = @($mapDependencies | Where-Object { $_ -ne 'file:Mods/7vs1/Co
 $mapDependencies = @($mapDependencies | Where-Object { $_ -ne 'file:Mods/7vs1/CommanderUnits.SC2Mod' })
 # Remove the legacy CoopZeroPop.SC2Mod dependency now that it is split into CoreRuntime + CommanderBridge.
 $mapDependencies = @($mapDependencies | Where-Object { $_ -ne 'file:Mods/7vs1/CoopZeroPop.SC2Mod' })
+# Remove merged mod dependencies: BaseCatalogPatch/SharedUnits/ExternalRefs merged into CoreRuntime,
+# kit_mutations merged into CommanderBridge.
+$mapDependencies = @($mapDependencies | Where-Object {
+    $_ -ne 'file:Mods/7vs1/BaseCatalogPatch.SC2Mod' -and
+    $_ -ne 'file:Mods/7vs1/SharedUnits.SC2Mod' -and
+    $_ -ne 'file:Mods/7vs1/ExternalRefs.SC2Mod' -and
+    $_ -ne 'file:Mods/kit_mutations.SC2Mod'
+})
 
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $extensionDependencies -DependencyOwner "extension dependencies"
 Assert-NoUnsupportedWorkspaceDependency -Dependencies $mapDependencies -DependencyOwner "map dependencies"
