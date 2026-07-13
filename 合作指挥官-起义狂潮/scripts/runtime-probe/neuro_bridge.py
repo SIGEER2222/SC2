@@ -503,6 +503,16 @@ class NeuroBridge:
                 return
             print(f"[NeuroBridge] Neuro requests action: {action_name} (id={action_id}) args={action_args}")
 
+            force_override = self._force_action_command_override(action_name)
+            if force_override is not None:
+                override_action_name, override_args = force_override
+                print(
+                    f"[NeuroBridge] Overrode force action selection: "
+                    f"{action_name}({action_args}) -> {override_action_name}({override_args})"
+                )
+                action_name = override_action_name
+                action_args = override_args
+
             forced_args = self._force_action_argument_fallback(action_name)
             if forced_args is not None and action_args != forced_args:
                 print(f"[NeuroBridge] Overrode Neuro args for force action {action_name}: {action_args} -> {forced_args}")
@@ -585,6 +595,65 @@ class NeuroBridge:
                 print(f"[NeuroBridge] Force fallback args invalid for {action_name}: {validation_error}")
                 return None
             return args
+
+        return None
+
+    def _force_action_command_override(self, selected_action_name: str) -> tuple[str, dict[str, Any]] | None:
+        if not self.neuro_bank_path.exists():
+            return None
+
+        try:
+            bank_data = parse_bank_file(self.neuro_bank_path)
+        except Exception as exc:
+            print(f"[NeuroBridge] Could not read force_action override from bank: {exc}")
+            return None
+
+        force_action = bank_data.get("force_action", {})
+        if not isinstance(force_action, dict):
+            return None
+
+        for key, query_value in force_action.items():
+            if not isinstance(key, str) or not key.endswith("_query"):
+                continue
+            group_key = key[:-6]
+            action_names_raw = str(force_action.get(f"{group_key}_actions") or "")
+            action_names = {name.strip() for name in action_names_raw.split(",") if name.strip()}
+            if selected_action_name not in action_names:
+                continue
+
+            force_text = f"{query_value or ''}\n{force_action.get(f'{group_key}_state') or ''}"
+            for override_action_name in (
+                "train_unit",
+                "move_to_unit",
+                "move_selected_to_unit",
+                "set_rally",
+                "attack_unit",
+                "focus_fire",
+                "research_upgrade",
+                "use_ability",
+            ):
+                if override_action_name not in action_names:
+                    continue
+                schema = _schema_for_action(override_action_name)
+                required = schema.get("required", [])
+                if not isinstance(required, list):
+                    continue
+
+                override_args: dict[str, Any] = {}
+                for arg_name in required:
+                    value = _extract_force_argument(force_text, override_action_name, arg_name)
+                    if value is None:
+                        override_args = {}
+                        break
+                    override_args[arg_name] = value
+                if not override_args:
+                    continue
+
+                validation_error = _validate_action_args(override_args, schema)
+                if validation_error is not None:
+                    print(f"[NeuroBridge] Force action override args invalid for {override_action_name}: {validation_error}")
+                    continue
+                return override_action_name, override_args
 
         return None
 

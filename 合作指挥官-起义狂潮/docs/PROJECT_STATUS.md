@@ -21,7 +21,7 @@
 | --- | --- | --- | --- |
 | `reborn.zexpedition03 × TerranRaynor` | `scripts/reborn/launch-reborn-commander.ps1` | smoke 通过 | 35 galaxy 注入、9 依赖、无致命 ScriptError、exit code 0；RebornBridge 空骨架验证通过（Phase 3） |
 | `reborn.zexpedition03 × TerranAlenger3` | `scripts/reborn/launch-reborn-commander.ps1` | smoke 通过 | 24 Alenger mod 全依赖、无 ScriptError |
-| 7vs1 系列地图（traynor01 等） | `scripts/launch-7vs1-coop-test.ps1` | Gary 真实 Neuro E2E 通过 | `-EnableNeuro -UseGary -Commanders TerranRaynor` 连接 `gary.exe` / `ws://127.0.0.1:8000`；RuntimeProbe 上下文、actions/register、actions/force、`train_unit(Marine)` 游戏执行通过 |
+| 7vs1 系列地图（traynor01 等） | `scripts/launch-7vs1-coop-test.ps1` | Gary 真实 Neuro E2E 通过 | `-EnableNeuro -UseGary -Commanders TerranRaynor` 连接 `gary.exe` / `ws://127.0.0.1:8000`；RuntimeProbe 上下文、actions/register、玩家指令 force、action 选择纠偏、`move_to_unit(SCVRaynor, CommandCenterRaynor)` 游戏执行通过 |
 | 光晕测试地图 | 已移除（工作区已删除） | n/a | 实验：残影效果数据空间集成 |
 
 > 说明：smoke 通过 = SC2 启动、无 ScriptError、进程正常。不等于单位诊断/运行时 probe 通过。
@@ -31,7 +31,7 @@
 | 组合 | 验证内容 | 证据 |
 | --- | --- | --- |
 | `reborn.zexpedition03 × TerranRaynor` | galaxy 编译、依赖闭包、DocumentHeader/Info roundtrip | commit 2739165、69dcdb6（fix_003） |
-| `7vs1 × TerranRaynor × Gary Neuro` | 真实 Gary WebSocket、玩家指令 force、游戏侧生产动作 | 2026-07-13：Gary PID 38776 监听 8000，两个 Python 客户端真实连接；`force_action` 组 `codex_train_marine_51cdbc5b` 最终执行 `OK: Ordered MarineRaynor via CommandCenterTrainRaynor[0] on 指挥中心.`；60 秒无新 ScriptError |
+| `7vs1 × TerranRaynor × Gary Neuro` | 真实 Gary WebSocket、玩家指令 force、游戏侧单位操作 | 2026-07-13：Gary PID 38776 监听 8000，两个 Python 客户端真实连接；force 指令会在 Gary 选错 action 时按玩家明确命令纠偏；最终 `codex_move_final` 执行 `move_to_unit(SCVRaynor, CommandCenterRaynor)`，游戏侧返回 `OK: Ordered 12 SCVRaynor to move near CommandCenterRaynor.`；动作后 20 秒无新 ScriptError |
 
 > 暂无组合完成完整 `unitDiagnostics + runtimeProbe` 的端到端验证报告，是当前最大债务之一。
 
@@ -56,7 +56,7 @@
 3. **`launch-7vs1-coop-test.ps1` 全量 fallback** —— 未指定 commander 时返回全量依赖；必须改为显式 `-LegacyAllCommanders`。
 4. **Web launcher 独立事实** —— Web 自维护依赖计算逻辑，容易与 CLI/PowerShell 漂移。
 5. **验证结果分散** —— ~~logs / console / docs / 低成本产物格式不统一；需要 VerificationReport schema（Task 5）。~~ **已落地**：`VerificationReport.schema.json` + `verificationReport.mjs` + `cli.mjs verify` 子命令；`zexpedition03 × TerranRaynor` 首份报告已生成。
-6. **端到端行为验证覆盖仍需扩展** —— 7vs1 Raynor + Gary Neuro 已完成真实上下文、force 指令和生产动作闭环；后续仍需扩展到更多动作、更多 commander 与 Bank 隔离矩阵。
+6. **端到端行为验证覆盖仍需扩展** —— 7vs1 Raynor + Gary Neuro 已完成真实上下文、force 指令、玩家命令 action 纠偏和单位移动动作闭环；后续仍需扩展到攻击、集火、集结点、技能、科技研究、更多 commander 与 Bank 隔离矩阵。
 7. **`Shared/Launcher` 与 `Shared/Commanders` 重复映射** —— 同一 commander 在两处定义，无冲突硬失败检查。
 
 ## 6. 下一步任务（按优先级）
@@ -73,7 +73,7 @@
 ## 7. 最近一次验证报告路径
 
 - **Phase 3 RebornBridge 骨架验证**：`docs/reborn-port/phase-3-report.md`（2026-07-12，空骨架 smoke 通过）
-- **7vs1 Gary Neuro 真实端到端验证**：`docs/经验总结/Neuro接入与运行时验证-2026-07-13.md`（2026-07-13，真实 Gary 8000、context、force、train_unit 通过）
+- **7vs1 Gary Neuro 真实端到端验证**：`docs/经验总结/Neuro接入与运行时验证-2026-07-13.md`（2026-07-13，真实 Gary 8000、context、force、玩家命令纠偏、move_to_unit 通过）
 - smoke 报告：`docs/经验总结/2026-07-11_Reborn地图ScriptError修复.md`
 - 工程化总结：`docs/经验总结/reborn启动器工程化总结-2026-07-11.md`
 - 数据空间迁移：fix_003 分支 commit `69dcdb6`（55 mods 通过 lint）
