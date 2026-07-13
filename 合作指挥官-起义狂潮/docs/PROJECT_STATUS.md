@@ -21,7 +21,7 @@
 | --- | --- | --- | --- |
 | `reborn.zexpedition03 × TerranRaynor` | `scripts/reborn/launch-reborn-commander.ps1` | smoke 通过 | 35 galaxy 注入、9 依赖、无致命 ScriptError、exit code 0；RebornBridge 空骨架验证通过（Phase 3） |
 | `reborn.zexpedition03 × TerranAlenger3` | `scripts/reborn/launch-reborn-commander.ps1` | smoke 通过 | 24 Alenger mod 全依赖、无 ScriptError |
-| 7vs1 系列地图（traynor01 等） | `scripts/launch-7vs1-coop-test.ps1` | Gary 真实 Neuro E2E 通过 | `-EnableNeuro -UseGary -Commanders TerranRaynor` 连接 `gary.exe` / `ws://127.0.0.1:8000`；RuntimeProbe 上下文、actions/register、玩家指令 force、action 选择纠偏、`move_to_unit(SCVRaynor, CommandCenterRaynor)` 游戏执行通过 |
+| 7vs1 系列地图（traynor01 等） | `scripts/launch-7vs1-coop-test.ps1` | Gary 真实 Neuro E2E 通过 | `-EnableNeuro -UseGary -Commanders TerranRaynor` 通过共享 Neuro runtime service 复用单个 `gary.exe` / `ws://127.0.0.1:8000`；RuntimeProbe 上下文、actions/register、玩家指令 force、action 选择纠偏、`move_to_unit(SCVRaynor, CommandCenterRaynor)` 游戏执行通过 |
 | 光晕测试地图 | 已移除（工作区已删除） | n/a | 实验：残影效果数据空间集成 |
 
 > 说明：smoke 通过 = SC2 启动、无 ScriptError、进程正常。不等于单位诊断/运行时 probe 通过。
@@ -55,7 +55,7 @@
 2. **CoreRuntime 全指挥官硬编码 include** —— `LibE0EAE146.galaxy` 硬编码 include 所有指挥官 Runtime，导致 unselected commander 的 galaxy 也必须注入；需要在 generated bootstrap 中裁剪。
 3. **`launch-7vs1-coop-test.ps1` 全量 fallback** —— 未指定 commander 时返回全量依赖；必须改为显式 `-LegacyAllCommanders`。
 4. **Web launcher 独立事实** —— Web 自维护依赖计算逻辑，容易与 CLI/PowerShell 漂移。
-5. **验证结果分散** —— ~~logs / console / docs / 低成本产物格式不统一；需要 VerificationReport schema（Task 5）。~~ **已落地**：`VerificationReport.schema.json` + `verificationReport.mjs` + `cli.mjs verify` 子命令；`zexpedition03 × TerranRaynor` 首份报告已生成。
+5. **验证结果分散** —— ~~logs / console / docs / 低成本产物格式不统一；需要 VerificationReport schema（Task 5）。~~ **已落地并继续收敛**：`VerificationReport.schema.json` + `verificationReport.mjs` + `cli.mjs verify` 子命令；`RuntimeProbe web_server.py` 现在提供 `/api/verdict`、`/api/events`、`/api/status`，`wait-for-game-ready.ps1` 优先消费共享服务的新鲜 verdict，GameLogs/Alerts 只作为兜底。
 6. **端到端行为验证覆盖仍需扩展** —— 7vs1 Raynor + Gary Neuro 已完成真实上下文、force 指令、玩家命令 action 纠偏和单位移动动作闭环；后续仍需扩展到攻击、集火、集结点、技能、科技研究、更多 commander 与 Bank 隔离矩阵。
 7. **`Shared/Launcher` 与 `Shared/Commanders` 重复映射** —— 同一 commander 在两处定义，无冲突硬失败检查。
 
@@ -74,6 +74,7 @@
 
 - **Phase 3 RebornBridge 骨架验证**：`docs/reborn-port/phase-3-report.md`（2026-07-12，空骨架 smoke 通过）
 - **7vs1 Gary Neuro 真实端到端验证**：`docs/经验总结/Neuro接入与运行时验证-2026-07-13.md`（2026-07-13，真实 Gary 8000、context、force、玩家命令纠偏、move_to_unit 通过）
+- **Neuro runtime service 接管判定入口**：`scripts/runtime-probe/start-neuro-runtime-service.ps1` 常驻复用 Gary/run.py/web_server/neuro_bridge；`query-neuro-runtime.ps1` 查询 `http://127.0.0.1:18080/api/verdict` / `/api/events`，替代新脚本直接读 Bank/GameLogs。
 - smoke 报告：`docs/经验总结/2026-07-11_Reborn地图ScriptError修复.md`
 - 工程化总结：`docs/经验总结/reborn启动器工程化总结-2026-07-11.md`
 - 数据空间迁移：fix_003 分支 commit `69dcdb6`（55 mods 通过 lint）
@@ -90,7 +91,7 @@ scripts/sc2-composer plan  →  CompositionPlan.json
                               ↓
 scripts/sc2-launcher / web-launcher / launch-7vs1  (执行 plan)
                               ↓
-scripts/sc2-editor-toolkit + galaxy-checker + runtime probes  (验证)
+scripts/sc2-editor-toolkit + galaxy-checker + Neuro runtime service / runtime probes  (验证)
                               ↓
 docs/经验总结 + out/verification/ + fixtures  (沉淀)
 ```

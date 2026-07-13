@@ -43,7 +43,7 @@ from message_builder import NeuroAPIMessageBuilder
 from bank_file_io import parse_bank_file, write_bank_values
 
 DEFAULT_BANKS_PATH = r"C:\Users\22448\Documents\StarCraft II\Banks"
-DEFAULT_NEURO_URL = "ws://127.0.0.1:41840"
+DEFAULT_NEURO_URL = "ws://127.0.0.1:8000"
 PROBE_BANK_NAME = "RuntimeProbe.SC2Bank"
 NEURO_BANK_NAME = "NeuroIntegration.SC2Bank"
 

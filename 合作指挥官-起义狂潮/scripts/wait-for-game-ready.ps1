@@ -8,6 +8,8 @@ param(
     [int]$MaxWaitSeconds = 180,
     [int]$GracePeriodSeconds = 20,
     [int]$PollIntervalMs = 1000,
+    [string]$NeuroRuntimeBaseUrl = "http://127.0.0.1:18080",
+    [switch]$DisableNeuroRuntimeService,
     [string[]]$ErrorKeywords = @(
         "Script compile error",
         "was not found",
@@ -95,6 +97,26 @@ function Test-Sc2ProcessRunning {
     return ($null -ne $sc2)
 }
 
+function Get-NeuroRuntimeVerdict {
+    if ($DisableNeuroRuntimeService) { return $null }
+    try {
+        return Invoke-RestMethod -Uri ($NeuroRuntimeBaseUrl.TrimEnd("/") + "/api/verdict") -TimeoutSec 2
+    } catch {
+        return $null
+    }
+}
+
+function Test-NeuroVerdictIsFresh {
+    param($Verdict, [datetime]$Since)
+    if (-not $Verdict -or -not $Verdict.last_update) { return $false }
+    try {
+        $lastUpdate = [datetime]::Parse([string]$Verdict.last_update)
+        return ($lastUpdate -ge $Since)
+    } catch {
+        return $false
+    }
+}
+
 function Write-ScriptErrorReport {
     $errorLog = Get-ScriptErrorLogPath
     if (-not $errorLog) { Write-Host "No ScriptError file"; return }
@@ -116,6 +138,7 @@ $scriptErrorBaselineContent = $null
 
 Write-Host "=== Smart Wait for Game ==="
 Write-Host "GameLogs: $GameLogsPath"
+Write-Host "NeuroRuntime: $NeuroRuntimeBaseUrl"
 Write-Host "MaxWait: $MaxWaitSeconds s"
 Write-Host "GracePeriod: $GracePeriodSeconds s"
 Write-Host ""
@@ -140,6 +163,25 @@ while ($true) {
         Write-Error "Game process exited (crash)"
         Write-ScriptErrorReport
         exit 1
+    }
+
+    $runtimeVerdict = Get-NeuroRuntimeVerdict
+    if (Test-NeuroVerdictIsFresh -Verdict $runtimeVerdict -Since $startTime) {
+        if ($runtimeVerdict.verdict -eq "pass") {
+            Write-Host ""
+            Write-Host "=== Game Loading Complete ==="
+            Write-Host "Runtime service verdict: pass"
+            Write-Host "Runtime service last update: $($runtimeVerdict.last_update)"
+            Write-Host "Total time: $([math]::Round($elapsed.TotalSeconds, 1)) s"
+            Write-Host "Game process: Running"
+            exit 0
+        }
+        if ($runtimeVerdict.verdict -eq "fail") {
+            Write-Host ""
+            Write-Error "Runtime service verdict: fail ($($runtimeVerdict.failed_checks -join ', '))"
+            Write-ScriptErrorReport
+            exit 1
+        }
     }
 
     $currentScriptError = Get-ScriptErrorLogPath

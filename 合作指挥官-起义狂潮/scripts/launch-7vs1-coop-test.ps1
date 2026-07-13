@@ -1971,134 +1971,49 @@ if ($EnableNeuro) {
 
     Write-Host "Neuro integration completed." -ForegroundColor Green
 
-    # === Step N6: 启动 Python 运行时（可选，-NoLaunch 时跳过）===
-    $mockProcessId = $null
+    # === Step N6: 启动/复用共享 Neuro 运行时服务（可选，-NoLaunch 时跳过）===
     if (-not $SkipPythonRuntime -and -not $NoLaunch) {
-        Write-Host "`n--- Neuro Step 6: Start Python runtime ---" -ForegroundColor Yellow
+        Write-Host "`n--- Neuro Step 6: Ensure shared Neuro runtime service ---" -ForegroundColor Yellow
 
-        $runScript = Join-Path $NeuroApiRoot "run.py"
-        $configureJson = Join-Path $NeuroApiRoot "configure.json"
-        $mockServerScript = Join-Path $NeuroApiRoot "mock_neuro_server.py"
-        if ($neuroDeps -and $neuroDeps.pythonRuntime -and $neuroDeps.pythonRuntime.mockServer) {
-            $mockServerScript = Join-Path $NeuroApiRoot $neuroDeps.pythonRuntime.mockServer
-        }
-
-        # 解析 NeuroUrl（默认 mock，可切换到真实 Gary）
-        $defaultMockUrl = "ws://127.0.0.1:8000"
-        $defaultGaryUrl = "ws://127.0.0.1:8000"
-        if ($neuroDeps -and $neuroDeps.pythonRuntime) {
-            if ($neuroDeps.pythonRuntime.defaultUrl) { $defaultMockUrl = [string]$neuroDeps.pythonRuntime.defaultUrl }
-            if ($neuroDeps.pythonRuntime.garyUrl) { $defaultGaryUrl = [string]$neuroDeps.pythonRuntime.garyUrl }
-        }
-
-        $effectiveNeuroUrl = $NeuroUrl
-        if ([string]::IsNullOrWhiteSpace($effectiveNeuroUrl)) {
+        $serviceScript = Join-Path $workspaceRoot "scripts\runtime-probe\start-neuro-runtime-service.ps1"
+        if (Test-Path -LiteralPath $serviceScript) {
+            $serviceArgs = @(
+                "-PythonPath", $PythonPath,
+                "-NeuroApiRoot", $NeuroApiRoot,
+                "-Sc2Root", $Sc2Root,
+                "-GaryPath", $GaryPath
+            )
+            if (-not [string]::IsNullOrWhiteSpace($NeuroUrl)) {
+                $serviceArgs += @("-NeuroUrl", $NeuroUrl)
+            }
             if ($UseGary) {
-                $effectiveNeuroUrl = $defaultGaryUrl
-                Write-Host "  Mode: Gary (real Neuro-sama)" -ForegroundColor Magenta
+                $serviceArgs += "-UseGary"
+                Write-Host "  Mode: Gary (real Neuro service, single active instance)" -ForegroundColor Magenta
             } else {
-                $effectiveNeuroUrl = $defaultMockUrl
-                Write-Host "  Mode: Mock server (default)" -ForegroundColor DarkGray
+                Write-Host "  Mode: Mock/default Neuro endpoint via shared service" -ForegroundColor DarkGray
             }
-        } else {
-            Write-Host "  Mode: Custom URL = $effectiveNeuroUrl"
-        }
-
-        # 如需 Gary，先启动 Gary 进程
-        if ($UseGary) {
-            if (Test-Path -LiteralPath $GaryPath) {
-                Write-Host "  Starting Gary at: $GaryPath"
-                $garyProc = Start-Process -FilePath $GaryPath -PassThru -WindowStyle Normal
-                $garyProcessId = $garyProc.Id
-                Write-Host "  Gary PID: $garyProcessId" -ForegroundColor Green
-                Write-Host "  Waiting 8s for Gary to start WebSocket server..." -ForegroundColor DarkGray
-                Start-Sleep -Seconds 8
-            } else {
-                Write-Host "  WARN: Gary not found at $GaryPath, falling back to mock URL" -ForegroundColor Yellow
-                $effectiveNeuroUrl = $defaultMockUrl
-            }
-        }
-
-        # Mock 模式：若目标为默认 mock URL，自动拉起 mock_neuro_server.py（若端口未占用）
-        $usingDefaultMock = ($effectiveNeuroUrl -eq $defaultMockUrl) -and (-not $UseGary -or $effectiveNeuroUrl -eq $defaultMockUrl)
-        if ($usingDefaultMock -and (Test-Path -LiteralPath $mockServerScript)) {
-            $mockPortBusy = $false
-            try {
-                $tcp = New-Object System.Net.Sockets.TcpClient
-                $iar = $tcp.BeginConnect("127.0.0.1", 8000, $null, $null)
-                $waited = $iar.AsyncWaitHandle.WaitOne(200)
-                if ($waited -and $tcp.Connected) { $mockPortBusy = $true }
-                $tcp.Close()
-            } catch {
-                $mockPortBusy = $false
-            }
-            if ($mockPortBusy) {
-                Write-Host "  Mock server already listening on :8000" -ForegroundColor DarkGray
-            } else {
-                Write-Host "  Starting mock_neuro_server.py on :8000..."
-                $mockLog = Join-Path $workspaceRoot "logs\neuro-mock-server.log"
-                $mockErrLog = Join-Path $workspaceRoot "logs\neuro-mock-server.err.log"
-                $mockDir = Split-Path $mockLog -Parent
-                if (-not (Test-Path -LiteralPath $mockDir)) { New-DirSafe $mockDir }
-                $mockProc = Start-Process -FilePath $PythonPath `
-                    -ArgumentList @($mockServerScript) `
-                    -WorkingDirectory $NeuroApiRoot `
-                    -RedirectStandardOutput $mockLog `
-                    -RedirectStandardError $mockErrLog `
-                    -PassThru -WindowStyle Hidden
-                $mockProcessId = $mockProc.Id
-                Write-Host "  Mock server PID: $mockProcessId" -ForegroundColor Green
-                Start-Sleep -Seconds 2
-            }
-        } elseif ($usingDefaultMock) {
-            Write-Host "  WARN: mock server script not found at $mockServerScript" -ForegroundColor Yellow
-        }
-
-        if (Test-Path -LiteralPath $runScript) {
-            # 写/更新 configure.json
-            $banksPath = "C:\Users\22448\Documents\StarCraft II\Banks"
-            if ($neuroDeps -and $neuroDeps.pythonRuntime -and $neuroDeps.pythonRuntime.banksPath) {
-                $banksPath = [string]$neuroDeps.pythonRuntime.banksPath
-            }
-            $config = @{
-                game_path = $Sc2Root
-                banks_path = $banksPath
-                neuro_url = $effectiveNeuroUrl
-                verbosity = 1
-            }
-            $configJson = $config | ConvertTo-Json -Depth 3
-            [System.IO.File]::WriteAllText($configureJson, $configJson, $utf8NoBom)
-            Write-Host "  configure.json written (neuro_url=$effectiveNeuroUrl)"
-
-            # 启动 Python 运行时（带 webui）
-            Write-Host "  Starting run.py (WebUI at http://127.0.0.1:8080)..."
-            $pyProc = Start-Process -FilePath $PythonPath -ArgumentList $runScript -WorkingDirectory $NeuroApiRoot -PassThru -WindowStyle Normal
-            $pythonProcessId = $pyProc.Id
-            Write-Host "  Python PID: $pythonProcessId" -ForegroundColor Green
-            Write-Host "  WebUI: http://127.0.0.1:8080" -ForegroundColor Cyan
-            if ($mockProcessId) {
-                Write-Host "  Mock PID: $mockProcessId" -ForegroundColor Cyan
-            }
-        } else {
-            Write-Host "  WARN: run.py not found at $runScript" -ForegroundColor Yellow
-        }
-
-        # === Step N6b: 启动 NeuroBridge 副官桥接器（监听 RuntimeProbe.Bank，把数据作为 context 推给 Neuro）===
-        if ([string]::IsNullOrWhiteSpace($NeuroBridgeScript)) {
-            $NeuroBridgeScript = Join-Path $workspaceRoot "scripts\runtime-probe\neuro_bridge.py"
-        }
-        if (Test-Path -LiteralPath $NeuroBridgeScript) {
-            Write-Host "  Starting neuro_bridge.py (副官桥接器)..."
-            $bridgeArgs = @($NeuroBridgeScript, "--neuro-url", $effectiveNeuroUrl)
             if ($EnableChatParser) {
-                $bridgeArgs += @("--enable-chat-parser")
-                Write-Host "  Chat parser enabled (stdin 输入指令解析)" -ForegroundColor Magenta
+                $serviceArgs += "-EnableChatParser"
+                Write-Host "  Chat parser enabled" -ForegroundColor Magenta
             }
-            $bridgeProc = Start-Process -FilePath $PythonPath -ArgumentList $bridgeArgs -PassThru -WindowStyle Normal
-            $neuroBridgeProcessId = $bridgeProc.Id
-            Write-Host "  NeuroBridge PID: $neuroBridgeProcessId" -ForegroundColor Green
+            if (-not [string]::IsNullOrWhiteSpace($NeuroBridgeScript)) {
+                Write-Host "  WARN: -NeuroBridgeScript is ignored by shared service; use scripts/runtime-probe/neuro_bridge.py" -ForegroundColor Yellow
+            }
+
+            $serviceJsonText = & pwsh -NoProfile -ExecutionPolicy Bypass -File $serviceScript @serviceArgs
+            Write-Host $serviceJsonText
+            try {
+                $serviceState = $serviceJsonText | ConvertFrom-Json
+                if ($serviceState.processes.neuroApi.pid) { $pythonProcessId = [int]$serviceState.processes.neuroApi.pid }
+                if ($serviceState.processes.gary.pid) { $garyProcessId = [int]$serviceState.processes.gary.pid }
+                if ($serviceState.processes.bridge.pid) { $neuroBridgeProcessId = [int]$serviceState.processes.bridge.pid }
+                Write-Host "  Runtime API: $($serviceState.webUrl)" -ForegroundColor Cyan
+                Write-Host "  Verdict API: $($serviceState.webUrl)/api/verdict" -ForegroundColor Cyan
+            } catch {
+                Write-Host "  WARN: could not parse service status JSON: $_" -ForegroundColor Yellow
+            }
         } else {
-            Write-Host "  WARN: neuro_bridge.py not found at $NeuroBridgeScript" -ForegroundColor Yellow
+            Write-Host "  WARN: shared Neuro runtime service script not found at $serviceScript" -ForegroundColor Yellow
         }
     }
 }
