@@ -1457,6 +1457,94 @@ if ($LiveMapName -ne "emptytest.SC2Map") {
             $runtimeProbeBaseData
         )
 }
+
+# === Patch BankList.xml: add RuntimeProbe bank declaration ===
+# RuntimeProbe galaxy code requires BankLoad("RuntimeProbe", 1) to succeed,
+# which needs the bank declared in the map's BankList.xml.
+$bankListPath = Join-Path $mapLive "BankList.xml"
+if (Test-Path -LiteralPath $bankListPath) {
+    $bankContent = [System.IO.File]::ReadAllText($bankListPath)
+    if ($bankContent -notmatch 'Name="RuntimeProbe"') {
+        $bankEntry = '    <Bank Name="RuntimeProbe" Player="1"/>'
+        $bankContent = $bankContent.Replace('</BankList>', ($bankEntry + "`n</BankList>"))
+        [System.IO.File]::WriteAllText($bankListPath, $bankContent, (New-Object System.Text.UTF8Encoding $false))
+        Write-Host "  Added RuntimeProbe bank declaration to BankList.xml"
+    }
+}
+
+# === Patch MapScript.galaxy: inject RuntimeProbe includes, InitLib, and StartProbe ===
+# RuntimeProbe galaxy files are copied to map Base.SC2Data by Sync-LiveMapRuntimeLibraries,
+# but MapScript.galaxy still needs to include them and call InitLib/StartProbe.
+# This block runs independently of -EnableNeuro so RuntimeProbe works in all launches.
+$rpMapScriptPath = Join-Path $mapLive "MapScript.galaxy"
+if (Test-Path -LiteralPath $rpMapScriptPath) {
+    $rpContent = [System.IO.File]::ReadAllText($rpMapScriptPath)
+    $rpModified = $false
+    $utf8NoBomRP = New-Object System.Text.UTF8Encoding $false
+
+    # RP-1. 注入 RuntimeProbe include（在最后一个 include 之后）
+    # 注意：LibRuntimeProbe.galaxy 内部第2行已 include "LibRuntimeProbe_h"，
+    # 所以 MapScript.galaxy 只需要 include "LibRuntimeProbe" 即可。
+    # 不要单独添加 include "LibRuntimeProbe_h"，否则会导致重复声明编译错误。
+    if ($rpContent -notmatch 'include "LibRuntimeProbe"') {
+        $rpIncludeBlock = 'include "LibRuntimeProbe"'
+        $lastIncludePattern = '(?m)^(include "[^"]+"(?:\r?\n)*)'
+        $lastMatch = [regex]::Matches($rpContent, $lastIncludePattern)
+        if ($lastMatch.Count -gt 0) {
+            $insertPos = $lastMatch[$lastMatch.Count - 1].Index + $lastMatch[$lastMatch.Count - 1].Length
+            $rpContent = $rpContent.Substring(0, $insertPos) + $rpIncludeBlock + "`n" + $rpContent.Substring($insertPos)
+        }
+        $rpModified = $true
+        Write-Host "  Added RuntimeProbe include to MapScript.galaxy"
+    }
+
+    # RP-2. 注入 RuntimeProbe InitLib 调用（在 InitLibs() 闭合大括号之前）
+    if ($rpContent -notmatch 'libRuntimeProbe_InitLib') {
+        $rpInitCall = "    libRuntimeProbe_InitLib();`n"
+        $initLibsPattern = '(void\s+InitLibs\s*\(\s*\)\s*\{)([^}]+)(\})'
+        if ($rpContent -match $initLibsPattern) {
+            $beforeBrace = $matches[2]
+            $rpContent = $rpContent -replace [regex]::Escape($beforeBrace), ($beforeBrace + $rpInitCall)
+            $rpModified = $true
+            Write-Host "  Added RuntimeProbe InitLib call to MapScript.galaxy"
+        }
+    }
+
+    # RP-3. 注入 RuntimeProbe StartProbe 调用（在 InitializeConfiguredMapScenario 之后）
+    if ($rpContent -notmatch 'libRuntimeProbe_gf_StartProbe') {
+        $probeCall = "    // RuntimeProbe: start periodic probe`r`n    libRuntimeProbe_gf_StartProbe();`r`n"
+        $anchored = $false
+        $initScenarioPattern = '(libE0EAE146_gf_InitializeConfiguredMapScenario\([^;]+;\s*\r?\n)'
+        if ($rpContent -match $initScenarioPattern) {
+            $insertAfter = $matches[1]
+            $rpContent = $rpContent -replace [regex]::Escape($insertAfter), ($insertAfter + $probeCall)
+            $rpModified = $true
+            $anchored = $true
+            Write-Host "  Added RuntimeProbe StartProbe call after InitializeConfiguredMapScenario"
+        }
+        if (-not $anchored) {
+            $airoPattern = '(libAIROAdapter_gf_InitUnitReplacement\([^;]*;\s*\r?\n)'
+            if ($rpContent -match $airoPattern) {
+                $insertAfter = $matches[1]
+                $rpContent = $rpContent -replace [regex]::Escape($insertAfter), ($insertAfter + $probeCall)
+                $rpModified = $true
+                $anchored = $true
+                Write-Host "  Added RuntimeProbe StartProbe call after InitUnitReplacement"
+            }
+        }
+        if (-not $anchored) {
+            Write-Host "  WARN: could not find anchor for StartProbe in MapScript.galaxy" -ForegroundColor Yellow
+        }
+    }
+
+    if ($rpModified) {
+        [System.IO.File]::WriteAllText($rpMapScriptPath, $rpContent, $utf8NoBomRP)
+        Write-Host "  MapScript.galaxy patched for RuntimeProbe." -ForegroundColor Green
+    }
+} else {
+    Write-Host "  WARN: MapScript.galaxy not found at $rpMapScriptPath for RuntimeProbe injection" -ForegroundColor Yellow
+}
+
 $effectiveRuntimeBaseData = Split-Path -Parent (Get-EffectiveLiveRuntimeLibraryPath -MapLive $mapLive -ExtensionLive $extensionLive -LibraryName "LibKPVP.galaxy")
 
 $liveGameData = Join-Path $extensionLive "Base.SC2Data\GameData"
@@ -1784,6 +1872,21 @@ if ($EnableNeuro) {
             Write-Host "  Added Neuro includes"
         }
 
+        # N5a-RP. 注入 RuntimeProbe include
+        # 注意：LibRuntimeProbe.galaxy 内部已 include "LibRuntimeProbe_h"，
+        # 只需 include "LibRuntimeProbe" 即可，不要单独添加 _h。
+        if ($content -notmatch 'include "LibRuntimeProbe"') {
+            $rpIncludeBlock = 'include "LibRuntimeProbe"'
+            $lastIncludePattern = '(?m)^(include "[^"]+"(?:\r?\n)*)'
+            $lastMatch = [regex]::Matches($content, $lastIncludePattern)
+            if ($lastMatch.Count -gt 0) {
+                $insertPos = $lastMatch[$lastMatch.Count - 1].Index + $lastMatch[$lastMatch.Count - 1].Length
+                $content = $content.Substring(0, $insertPos) + $rpIncludeBlock + "`n" + $content.Substring($insertPos)
+            }
+            $modified = $true
+            Write-Host "  Added RuntimeProbe include"
+        }
+
         # N5b. 注入 InitLib 调用（在 InitLibs() 闭合大括号之前）
         if ($content -notmatch 'libNeuroBridge7vs1_InitLib') {
             $initCalls = @(
@@ -1802,6 +1905,18 @@ if ($EnableNeuro) {
             }
         }
 
+        # N5b-RP. 注入 RuntimeProbe InitLib 调用
+        if ($content -notmatch 'libRuntimeProbe_InitLib') {
+            $rpInitCall = "    libRuntimeProbe_InitLib();`n"
+            $initLibsPattern = '(void\s+InitLibs\s*\(\s*\)\s*\{)([^}]+)(\})'
+            if ($content -match $initLibsPattern) {
+                $beforeBrace = $matches[2]
+                $content = $content -replace [regex]::Escape($beforeBrace), ($beforeBrace + $rpInitCall)
+                $modified = $true
+                Write-Host "  Added RuntimeProbe InitLib call"
+            }
+        }
+
         # N5c. Phase D 任务结束钩子已迁移到 LibNeuroBridge7vs1.galaxy 的 InitLib 中
         # （Galaxy 不允许文件作用域调用 TriggerCreate/TriggerAddEventPlayerLeft）
         # 清理历史遗留的文件作用域注入
@@ -1812,6 +1927,35 @@ if ($EnableNeuro) {
                 $content = $newContent
                 $modified = $true
                 Write-Host "  Cleaned up legacy Phase D file-scope injection"
+            }
+        }
+
+        # N5d. 注入 RuntimeProbe StartProbe 调用（在 InitializeConfiguredMapScenario 之后）
+        if ($content -notmatch 'libRuntimeProbe_gf_StartProbe') {
+            $probeCall = "    // RuntimeProbe: start periodic probe`r`n    libRuntimeProbe_gf_StartProbe();`r`n"
+            $anchored = $false
+            # 锚点1: InitializeConfiguredMapScenario 调用
+            $initScenarioPattern = '(libE0EAE146_gf_InitializeConfiguredMapScenario\([^;]+;\s*\r?\n)'
+            if ($content -match $initScenarioPattern) {
+                $insertAfter = $matches[1]
+                $content = $content -replace [regex]::Escape($insertAfter), ($insertAfter + $probeCall)
+                $modified = $true
+                $anchored = $true
+                Write-Host "  Added RuntimeProbe StartProbe call after InitializeConfiguredMapScenario"
+            }
+            # 锚点2: InitUnitReplacement 调用
+            if (-not $anchored) {
+                $airoPattern = '(libAIROAdapter_gf_InitUnitReplacement\([^;]*;\s*\r?\n)'
+                if ($content -match $airoPattern) {
+                    $insertAfter = $matches[1]
+                    $content = $content -replace [regex]::Escape($insertAfter), ($insertAfter + $probeCall)
+                    $modified = $true
+                    $anchored = $true
+                    Write-Host "  Added RuntimeProbe StartProbe call after InitUnitReplacement"
+                }
+            }
+            if (-not $anchored) {
+                Write-Host "  WARN: could not find anchor for StartProbe injection" -ForegroundColor Yellow
             }
         }
 
@@ -1893,13 +2037,14 @@ if ($EnableNeuro) {
             } else {
                 Write-Host "  Starting mock_neuro_server.py on :8000..."
                 $mockLog = Join-Path $workspaceRoot "logs\neuro-mock-server.log"
+                $mockErrLog = Join-Path $workspaceRoot "logs\neuro-mock-server.err.log"
                 $mockDir = Split-Path $mockLog -Parent
                 if (-not (Test-Path -LiteralPath $mockDir)) { New-DirSafe $mockDir }
                 $mockProc = Start-Process -FilePath $PythonPath `
                     -ArgumentList @($mockServerScript) `
                     -WorkingDirectory $NeuroApiRoot `
                     -RedirectStandardOutput $mockLog `
-                    -RedirectStandardError $mockLog `
+                    -RedirectStandardError $mockErrLog `
                     -PassThru -WindowStyle Hidden
                 $mockProcessId = $mockProc.Id
                 Write-Host "  Mock server PID: $mockProcessId" -ForegroundColor Green

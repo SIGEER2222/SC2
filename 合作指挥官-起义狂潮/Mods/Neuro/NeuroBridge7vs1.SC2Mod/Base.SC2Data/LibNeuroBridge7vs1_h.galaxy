@@ -32,11 +32,14 @@ bool   libNeuroBridge7vs1_activityTrackingInitialized;
 trigger libNeuroBridge7vs1_gt_PlayerChatMessage;
 trigger libNeuroBridge7vs1_gt_DebugGlobalEvent;  // 调试：监听 execute_actions_global 事件
 trigger libNeuroBridge7vs1_gt_UnitAbility;
+trigger libNeuroBridge7vs1_gt_UnitOrder;
 trigger libNeuroBridge7vs1_gt_UnitDies;
 string libNeuroBridge7vs1_pendingChatContext;
 string libNeuroBridge7vs1_pendingCommandContext;
+string libNeuroBridge7vs1_pendingDirectiveContext;
 string libNeuroBridge7vs1_lastSelectionContext;
 int    libNeuroBridge7vs1_selectionCooldownTicks;
+int    libNeuroBridge7vs1_directiveCounter;
 int    libNeuroBridge7vs1_economyTickCounter;
 int    libNeuroBridge7vs1_combatTickCounter;
 bool   libNeuroBridge7vs1_economySnapshotInitialized;
@@ -59,12 +62,15 @@ bool   libNeuroBridge7vs1_gt_MissionDefeat_Func(bool testConds, bool runActions)
 void   libNeuroBridge7vs1_gf_InitActivityTracking();
 bool   libNeuroBridge7vs1_gt_PlayerChatMessage_Func(bool testConds, bool runActions);
 bool   libNeuroBridge7vs1_gt_UnitAbility_Func(bool testConds, bool runActions);
+bool   libNeuroBridge7vs1_gt_UnitOrder_Func(bool testConds, bool runActions);
 bool   libNeuroBridge7vs1_gt_UnitDies_Func(bool testConds, bool runActions);
 void   libNeuroBridge7vs1_gf_FlushPendingContexts();
 void   libNeuroBridge7vs1_gf_UpdateSelectionContext();
 void   libNeuroBridge7vs1_gf_UpdateEconomyContext();
 void   libNeuroBridge7vs1_gf_UpdateCombatContext();
 string libNeuroBridge7vs1_gf_BuildSelectedUnitsContext();
+string libNeuroBridge7vs1_gf_BuildPlayerOperationContext(string eventKind);
+void   libNeuroBridge7vs1_gf_AppendPlayerOperationContext(string context);
 
 // Bank flag ����
 bool   libNeuroBridge7vs1_gf_ReadActionFlag(string actionName);
@@ -87,6 +93,7 @@ string libNeuroBridge7vs1_gf_AttackUnit(string targetUnitType);
 string libNeuroBridge7vs1_gf_FocusFire(string targetUnitType);
 string libNeuroBridge7vs1_gf_SetRally(string buildingType, string targetUnitType);
 string libNeuroBridge7vs1_gf_MoveToUnit(string sourceUnitType, string targetUnitType);
+string libNeuroBridge7vs1_gf_MoveSelectedToUnit(string targetUnitType);
 
 // ͻ�������������
 void   libNeuroBridge7vs1_gf_PushMutatorContext();

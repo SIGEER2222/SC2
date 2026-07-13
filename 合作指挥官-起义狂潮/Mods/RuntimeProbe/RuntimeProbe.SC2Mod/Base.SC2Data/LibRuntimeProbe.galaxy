@@ -544,40 +544,144 @@ void libRuntimeProbe_gf_ScanTechAvailability() {
 
 //--------------------------------------------------------------------------------------------------
 // ScanUI: 采集 GlobalCastingPanel 顶部技能面板的 UI 控件状态
-// 注意: 只能使用 DialogControlHookupStandard（标准路径，只读），不能用 DialogControlHookup
-//       DialogControlHookup 会修改控件关联状态，导致 "已经被关联...无法再次被关联" 错误
-// 写入 probe_ui section:
-//   gp_holder_id, gp_holder_exists, gp_holder_visible (GlobalCastingPanel holder)
-//   army_btn_id, army_btn_exists, army_btn_visible (ArmySelectButton)
+// 两套查询方式:
+//   1. DialogControlHookupStandard (按完整路径) → 可能找到 libKCUI 创建的另一套面板
+//   2. DialogControlHookup (在父控件内按名称) → 找到 lib67C0F0E7 创建的真正面板
+// 写入 probe_ui section (path 前缀=路径查询) 和 probe_ui_real section (hookup=内部查询)
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_ScanUI() {
     int lv_holder;
+    int lv_panel;
+    int lv_cutscene;
+    int lv_btnholder;
+    int lv_cmdpanel;
     int lv_btn;
+    int lv_real_panel;
+    int lv_real_cutscene;
+    int lv_real_btnholder;
+    int lv_real_cmdpanel;
 
     if (libRuntimeProbe_gv_bank == null) {
         return;
     }
 
     libRuntimeProbe_gf_ClearBankSection("probe_ui");
+    libRuntimeProbe_gf_ClearBankSection("probe_ui_real");
 
-    // 1. GlobalCastingPanel holder (Lib67C0F0E7 行 2150-2154 获取)
+    // === 方法1: DialogControlHookupStandard (按完整路径查询) ===
+
+    // 1a. GlobalCastingPanel holder
     DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/GlobalCastingPanel");
     lv_holder = DialogControlLastCreated();
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_id", lv_holder);
     BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_exists", (lv_holder != c_invalidDialogControlId));
-    // 可见性检查: GPShowHide(true) 后 holder 应可见
     if (lv_holder != c_invalidDialogControlId) {
-        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_visible", DialogControlIsVisible(lv_holder, 1));
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_holder_visible", true);
     }
 
-    // 2. ArmySelectButton (Lib67C0F0E7 行 1490 中 gf_ShowChooseButton hookup)
-    //    如果此按钮存在，说明 gf_ShowChooseButton 已执行，即 GPInit 流程已完成
+    // 1b. TerranCasterPanelTemplate (路径查询)
+    DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/GlobalCastingPanel/Coop_GlobalCastingTemplates/TerranCasterPanelTemplate");
+    lv_panel = DialogControlLastCreated();
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "gp_panel_id", lv_panel);
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_panel_exists", (lv_panel != c_invalidDialogControlId));
+    if (lv_panel != c_invalidDialogControlId) {
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_panel_visible", true);
+    }
+
+    // 1c. TerranCommandCutscene (路径查询)
+    DialogControlHookupStandard(c_triggerControlTypeCutscene, "UIContainer/FullscreenUpperContainer/GlobalCastingPanel/Coop_GlobalCastingTemplates/TerranCasterPanelTemplate/TerranCommandCutscene");
+    lv_cutscene = DialogControlLastCreated();
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "gp_cutscene_id", lv_cutscene);
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_cutscene_exists", (lv_cutscene != c_invalidDialogControlId));
+    if (lv_cutscene != c_invalidDialogControlId) {
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_cutscene_visible", true);
+    }
+
+    // 1d. ButtonHolder (路径查询)
+    DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/GlobalCastingPanel/Coop_GlobalCastingTemplates/TerranCasterPanelTemplate/ButtonHolder");
+    lv_btnholder = DialogControlLastCreated();
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "gp_btnholder_id", lv_btnholder);
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_btnholder_exists", (lv_btnholder != c_invalidDialogControlId));
+    if (lv_btnholder != c_invalidDialogControlId) {
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_btnholder_visible", true);
+    }
+
+    // 1e. RaynorGlobalCommandPanel (路径查询)
+    DialogControlHookupStandard(c_triggerControlTypeCommandPanel, "UIContainer/FullscreenUpperContainer/GlobalCastingPanel/Coop_GlobalCastingTemplates/TerranCasterPanelTemplate/ButtonHolder/RaynorGlobalCommandPanelTemplate");
+    lv_cmdpanel = DialogControlLastCreated();
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "gp_cmdpanel_id", lv_cmdpanel);
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_cmdpanel_exists", (lv_cmdpanel != c_invalidDialogControlId));
+    if (lv_cmdpanel != c_invalidDialogControlId) {
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "gp_cmdpanel_visible", true);
+    }
+
+    // 1f. ArmySelectButton
     DialogControlHookupStandard(c_triggerControlTypeButton, "UIContainer/ConsoleUIContainer/ArmySelectButton");
     lv_btn = DialogControlLastCreated();
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui", "army_btn_id", lv_btn);
     BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "army_btn_exists", (lv_btn != c_invalidDialogControlId));
     if (lv_btn != c_invalidDialogControlId) {
-        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "army_btn_visible", DialogControlIsVisible(lv_btn, 1));
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui", "army_btn_visible", true);
+    }
+
+    // === 方法2: DialogControlHookup (在父控件内按名称查找 lib67C0F0E7 创建的真正面板) ===
+    // holder 是两套共用的，ID 一致
+    if (false && (lv_holder != c_invalidDialogControlId)) {
+        // 2a. TerranCasterPanelTemplate - 在 holder 内查找
+        DialogControlHookup(lv_holder, c_triggerControlTypePanel, "TerranCasterPanelTemplate");
+        lv_real_panel = DialogControlLastCreated();
+        BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_panel_id", lv_real_panel);
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_panel_exists", (lv_real_panel != c_invalidDialogControlId));
+        if (lv_real_panel != c_invalidDialogControlId) {
+            BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_panel_visible", true);
+        }
+
+        // 2b. TerranCommandCutscene - 在 panel 内查找
+        if (lv_real_panel != c_invalidDialogControlId) {
+            DialogControlHookup(lv_real_panel, c_triggerControlTypeCutscene, "TerranCommandCutscene");
+            lv_real_cutscene = DialogControlLastCreated();
+            BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_cutscene_id", lv_real_cutscene);
+            BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_cutscene_exists", (lv_real_cutscene != c_invalidDialogControlId));
+            if (lv_real_cutscene != c_invalidDialogControlId) {
+                BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_cutscene_visible", true);
+            }
+
+            // 2c. ButtonHolder - 在 panel 内查找
+            DialogControlHookup(lv_real_panel, c_triggerControlTypePanel, "ButtonHolder");
+            lv_real_btnholder = DialogControlLastCreated();
+            BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_btnholder_id", lv_real_btnholder);
+            BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_btnholder_exists", (lv_real_btnholder != c_invalidDialogControlId));
+            if (lv_real_btnholder != c_invalidDialogControlId) {
+                BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_btnholder_visible", true);
+
+                // 2d. RaynorGlobalCommandPanelTemplate - 在 btnholder 内查找
+                DialogControlHookup(lv_real_btnholder, c_triggerControlTypeCommandPanel, "RaynorGlobalCommandPanelTemplate");
+                lv_real_cmdpanel = DialogControlLastCreated();
+                BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_cmdpanel_id", lv_real_cmdpanel);
+                BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_cmdpanel_exists", (lv_real_cmdpanel != c_invalidDialogControlId));
+                if (lv_real_cmdpanel != c_invalidDialogControlId) {
+                    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "gp_cmdpanel_visible", true);
+                }
+            }
+        }
+    }
+
+    // 对比: 记录两套控件的 ID 差异
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "panel_id_mismatch", (lv_panel != lv_real_panel));
+    BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "cmdpanel_id_mismatch", (lv_cmdpanel != lv_real_cmdpanel));
+
+    // === 方法3: 直接检查 probe_raynor 中记录的真实控件 ID 的可见性 ===
+    // probe_raynor 由 RaynorRuntimeInit 在 GPInit/GPShowHide 时写入
+    // 这些 ID 是 lib67C0F0E7 全局变量中的真正控件 ID
+    lv_real_panel = BankValueGetAsInt(libRuntimeProbe_gv_bank, "probe_raynor", "gpshowhide_panel");
+    lv_real_cmdpanel = BankValueGetAsInt(libRuntimeProbe_gv_bank, "probe_raynor", "gpshowhide_cmdpanel");
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui_real", "true_panel_id", lv_real_panel);
+    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_ui_real", "true_cmdpanel_id", lv_real_cmdpanel);
+    if (lv_real_panel > 0) {
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "true_panel_visible", true);
+    }
+    if (lv_real_cmdpanel > 0) {
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_ui_real", "true_cmdpanel_visible", true);
     }
 }
 

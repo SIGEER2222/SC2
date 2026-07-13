@@ -47,7 +47,7 @@ DEFAULT_NEURO_URL = "ws://127.0.0.1:41840"
 PROBE_BANK_NAME = "RuntimeProbe.SC2Bank"
 NEURO_BANK_NAME = "NeuroIntegration.SC2Bank"
 
-# 与 Galaxy 侧 LibNeuroBridge7vs1.galaxy RegisterActions 完全一致的 11 个 action
+# 与 Galaxy 侧 LibNeuroBridge7vs1.galaxy RegisterActions 完全一致的 12 个 action
 # Neuro 通过 WebSocket 调用时，Python 转发到 NeuroIntegration Bank 的 do_action section
 # Galaxy 在 ExecuteActionsMap tick 读取 flag + arg，执行后通过 libEFA54406_gf_create_context 推回结果
 #
@@ -104,6 +104,10 @@ ADVISOR_ACTIONS = [
     {
         "name": "move_to_unit",
         "description": "Order all player units of type arg_1 to move to the nearest unit of type arg_2 (any owner). Pass args.data.arg_1 = source unit type (e.g. 'Marine'), args.data.arg_2 = target unit type (e.g. 'SCV').",
+    },
+    {
+        "name": "move_selected_to_unit",
+        "description": "Order the currently selected player units to move to the nearest unit of type arg_1. Pass args.data.arg_1 = target unit type (e.g. 'CommandCenter', 'SCV', 'Marine').",
     },
 ]
 
@@ -228,6 +232,8 @@ class ChatCommandParser:
                     # 命中关键词，尝试提取参数
                     if arg_count == 0:
                         return (action_name, {})
+                    if action_name == "move_to_unit" and arg_count == 2 and len(unit_tokens) == 1:
+                        return ("move_selected_to_unit", {"arg_1": unit_tokens[0]})
                     if len(unit_tokens) < arg_count:
                         # 单位 token 不够，跳过这个匹配尝试下一个
                         continue
@@ -484,6 +490,7 @@ class NeuroBridge:
         print("  - 使用 Stimpack")
         print("  - rally Barracks CommandCenter")
         print("  - move Marine SCV")
+        print("  - move SCV")
         print("  - 查状态")
 
         while self._running:
