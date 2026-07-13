@@ -47,6 +47,56 @@ DEFAULT_NEURO_URL = "ws://127.0.0.1:41840"
 PROBE_BANK_NAME = "RuntimeProbe.SC2Bank"
 NEURO_BANK_NAME = "NeuroIntegration.SC2Bank"
 
+ONE_STRING_ARG_SCHEMA = {
+    "type": "object",
+    "properties": {"arg_1": {"type": "string"}},
+    "required": ["arg_1"],
+    "additionalProperties": False,
+}
+
+TRAIN_UNIT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "arg_1": {
+            "type": "string",
+            "enum": [
+                "Marine",
+                "Marauder",
+                "Firebat",
+                "Medic",
+                "SiegeTank",
+                "Medivac",
+                "Viking",
+                "Banshee",
+                "Battlecruiser",
+                "SCV",
+            ],
+        }
+    },
+    "required": ["arg_1"],
+    "additionalProperties": False,
+}
+
+TWO_STRING_ARG_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "arg_1": {"type": "string"},
+        "arg_2": {"type": "string"},
+    },
+    "required": ["arg_1", "arg_2"],
+    "additionalProperties": False,
+}
+
+USE_ABILITY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "arg_1": {"type": "string"},
+        "arg_2": {"type": "string"},
+    },
+    "required": ["arg_1"],
+    "additionalProperties": False,
+}
+
 # 与 Galaxy 侧 LibNeuroBridge7vs1.galaxy RegisterActions 完全一致的 12 个 action
 # Neuro 通过 WebSocket 调用时，Python 转发到 NeuroIntegration Bank 的 do_action section
 # Galaxy 在 ExecuteActionsMap tick 读取 flag + arg，执行后通过 libEFA54406_gf_create_context 推回结果
@@ -57,6 +107,7 @@ ADVISOR_ACTIONS = [
     {
         "name": "chat_message",
         "description": "Post a message into the game chat. Pass args.data.arg_1 = message text.",
+        "schema": ONE_STRING_ARG_SCHEMA,
     },
     # === 只读查询型 ===
     {
@@ -79,35 +130,43 @@ ADVISOR_ACTIONS = [
     {
         "name": "train_unit",
         "description": "Order production of a unit. Pass args.data.arg_1 = unit type id, e.g. 'Marine', 'Marauder', 'SiegeTank', 'Medivac', 'Viking'.",
+        "schema": TRAIN_UNIT_SCHEMA,
     },
     {
         "name": "use_ability",
         "description": "Order a unit to use an ability. Pass args.data.arg_1 = ability id (e.g. 'Stimpack', 'YamatoCannon', 'SiegeMode'), args.data.arg_2 = target unit type (optional).",
+        "schema": USE_ABILITY_SCHEMA,
     },
     {
         "name": "research_upgrade",
         "description": "Order research of an upgrade. Pass args.data.arg_1 = upgrade id, e.g. 'TerranInfantryWeaponsLevel1'.",
+        "schema": ONE_STRING_ARG_SCHEMA,
     },
     # === 写入型：精确单位控制（基于目标单位类型定位）===
     {
         "name": "attack_unit",
         "description": "Order currently selected player units to attack the nearest enemy unit of the given type. Pass args.data.arg_1 = target unit type id, e.g. 'Marine', 'Zergling', 'Hydralisk'.",
+        "schema": ONE_STRING_ARG_SCHEMA,
     },
     {
         "name": "focus_fire",
         "description": "Order ALL player army units to attack the nearest enemy unit of the given type. Pass args.data.arg_1 = target unit type id, e.g. 'Baneling', 'Ultralisk'.",
+        "schema": ONE_STRING_ARG_SCHEMA,
     },
     {
         "name": "set_rally",
         "description": "Set rally point of all buildings matching arg_1 to the nearest unit of type arg_2 (any owner). Pass args.data.arg_1 = building type (e.g. 'Barracks'), args.data.arg_2 = target unit type (e.g. 'CommandCenter').",
+        "schema": TWO_STRING_ARG_SCHEMA,
     },
     {
         "name": "move_to_unit",
         "description": "Order all player units of type arg_1 to move to the nearest unit of type arg_2 (any owner). Pass args.data.arg_1 = source unit type (e.g. 'Marine'), args.data.arg_2 = target unit type (e.g. 'SCV').",
+        "schema": TWO_STRING_ARG_SCHEMA,
     },
     {
         "name": "move_selected_to_unit",
         "description": "Order the currently selected player units to move to the nearest unit of type arg_1. Pass args.data.arg_1 = target unit type (e.g. 'CommandCenter', 'SCV', 'Marine').",
+        "schema": ONE_STRING_ARG_SCHEMA,
     },
 ]
 
@@ -173,6 +232,86 @@ def _build_context_message(bank_data: dict[str, dict[str, Any]]) -> str:
         + "\n".join(producer_lines[:10])
     )
     return msg
+
+
+def _parse_action_args(raw_args: Any) -> dict[str, Any]:
+    if raw_args is None:
+        return {}
+    if isinstance(raw_args, dict):
+        return raw_args
+    if isinstance(raw_args, str):
+        stripped = raw_args.strip()
+        if stripped == "" or stripped.lower() == "null":
+            return {}
+        decoded = json.loads(stripped)
+        if not isinstance(decoded, dict):
+            raise ValueError("action arguments must decode to a JSON object")
+        return decoded
+    raise ValueError("action arguments must be a JSON object or JSON object text")
+
+
+def _schema_for_action(action_name: str) -> dict[str, Any]:
+    for action in ADVISOR_ACTIONS:
+        if action.get("name") == action_name:
+            schema = action.get("schema")
+            return schema if isinstance(schema, dict) else {}
+    return {}
+
+
+def _validate_action_args(args: dict[str, Any], schema: dict[str, Any]) -> ValueError | None:
+    if not schema:
+        return None
+    required = schema.get("required", [])
+    properties = schema.get("properties", {})
+    if not isinstance(required, list) or not isinstance(properties, dict):
+        return ValueError("invalid action schema")
+    for arg_name in required:
+        if arg_name not in args:
+            return ValueError(f"missing required argument '{arg_name}'")
+    if schema.get("additionalProperties") is False:
+        unexpected = sorted(set(args) - set(properties))
+        if unexpected:
+            return ValueError(f"unexpected argument(s): {', '.join(unexpected)}")
+    for arg_name, arg_schema in properties.items():
+        if arg_name not in args or not isinstance(arg_schema, dict):
+            continue
+        value = args[arg_name]
+        if arg_schema.get("type") == "string" and not isinstance(value, str):
+            return ValueError(f"argument '{arg_name}' must be a string")
+        enum_values = arg_schema.get("enum")
+        if enum_values is not None and value not in enum_values:
+            return ValueError(f"argument '{arg_name}' must be one of: {', '.join(enum_values)}")
+    return None
+
+
+def _extract_force_argument(text: str, action_name: str, argument_name: str) -> str | None:
+    escaped_argument = re.escape(argument_name)
+    explicit_patterns = [
+        rf'"{escaped_argument}"\s*:\s*"([^"]+)"',
+        rf"'{escaped_argument}'\s*:\s*'([^']+)'",
+        rf"\b{escaped_argument}\b\s*(?:=|:|set to|设为|设置为)\s*['\"]?([A-Z][A-Za-z0-9_]*)",
+    ]
+    for pattern in explicit_patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match is not None:
+            return match.group(1)
+
+    if argument_name != "arg_1":
+        return None
+
+    action_patterns = {
+        "train_unit": r"(?:\btrain\b|\bbuild\b|\bproduce\b|训练|生产|造)\s+([A-Z][A-Za-z0-9_]*)",
+        "attack_unit": r"(?:\battack\b|攻击|打)\s+([A-Z][A-Za-z0-9_]*)",
+        "focus_fire": r"(?:\bfocus(?:_fire)?\b|集火)\s+([A-Z][A-Za-z0-9_]*)",
+        "move_selected_to_unit": r"(?:\bmove\b|移动|去)\s+([A-Z][A-Za-z0-9_]*)",
+        "research_upgrade": r"(?:\bresearch\b|研究)\s+([A-Z][A-Za-z0-9_]*)",
+        "use_ability": r"(?:\buse\b|使用|施放)\s+([A-Z][A-Za-z0-9_]*)",
+    }
+    pattern = action_patterns.get(action_name)
+    if pattern is None:
+        return None
+    match = re.search(pattern, text, re.IGNORECASE)
+    return match.group(1) if match is not None else None
 
 
 import re
@@ -350,8 +489,36 @@ class NeuroBridge:
             # Neuro 请求执行一个 action，转发到 NeuroIntegration Bank 让 Galaxy 在下一 tick 执行
             action_id = data.get("id", "")
             action_name = data.get("name", "")
-            action_args = data.get("data", {}) or {}
+            try:
+                action_args = _parse_action_args(data.get("data"))
+            except (json.JSONDecodeError, ValueError) as exc:
+                print(f"[NeuroBridge] Invalid action args for {action_name}: {exc}")
+                result_msg = self.builder.action_result(
+                    action_id=action_id,
+                    success=False,
+                    message=f"Invalid action arguments: {exc}",
+                )
+                if self.ws and not self.ws.closed:
+                    await self.ws.send_json(result_msg)
+                return
             print(f"[NeuroBridge] Neuro requests action: {action_name} (id={action_id}) args={action_args}")
+
+            forced_args = self._force_action_argument_fallback(action_name)
+            if forced_args is not None and action_args != forced_args:
+                print(f"[NeuroBridge] Overrode Neuro args for force action {action_name}: {action_args} -> {forced_args}")
+                action_args = forced_args
+
+            validation_error = _validate_action_args(action_args, _schema_for_action(action_name))
+            if validation_error is not None:
+                print(f"[NeuroBridge] Invalid action args for {action_name}: {validation_error}")
+                result_msg = self.builder.action_result(
+                    action_id=action_id,
+                    success=False,
+                    message=f"Invalid action arguments: {validation_error}",
+                )
+                if self.ws and not self.ws.closed:
+                    await self.ws.send_json(result_msg)
+                return
 
             ok = await self._forward_action_to_bank(action_name, action_args)
             # 立即回复 action/result（Galaxy 执行结果会通过 context 推回）
@@ -375,6 +542,51 @@ class NeuroBridge:
                 await self._write_chat_to_neuro_bank(text)
         else:
             print(f"[NeuroBridge] Neuro message: {command}")
+
+    def _force_action_argument_fallback(self, action_name: str) -> dict[str, Any] | None:
+        if not self.neuro_bank_path.exists():
+            return None
+        schema = _schema_for_action(action_name)
+        if not schema:
+            return None
+
+        try:
+            bank_data = parse_bank_file(self.neuro_bank_path)
+        except Exception as exc:
+            print(f"[NeuroBridge] Could not read force_action fallback from bank: {exc}")
+            return None
+
+        force_action = bank_data.get("force_action", {})
+        if not isinstance(force_action, dict):
+            return None
+
+        for key, query_value in force_action.items():
+            if not isinstance(key, str) or not key.endswith("_query"):
+                continue
+            group_key = key[:-6]
+            action_names_raw = str(force_action.get(f"{group_key}_actions") or "")
+            action_names = {name.strip() for name in action_names_raw.split(",") if name.strip()}
+            if action_name not in action_names:
+                continue
+
+            force_text = f"{query_value or ''}\n{force_action.get(f'{group_key}_state') or ''}"
+            required = schema.get("required", [])
+            if not isinstance(required, list):
+                return None
+            args: dict[str, Any] = {}
+            for arg_name in required:
+                value = _extract_force_argument(force_text, action_name, arg_name)
+                if value is None:
+                    return None
+                args[arg_name] = value
+
+            validation_error = _validate_action_args(args, schema)
+            if validation_error is not None:
+                print(f"[NeuroBridge] Force fallback args invalid for {action_name}: {validation_error}")
+                return None
+            return args
+
+        return None
 
     async def _forward_action_to_bank(self, action_name: str, args: dict[str, Any]) -> bool:
         """把 Neuro 的 action 请求转发到 NeuroIntegration Bank 的 do_action section。

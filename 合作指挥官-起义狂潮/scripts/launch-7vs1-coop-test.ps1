@@ -1985,7 +1985,7 @@ if ($EnableNeuro) {
 
         # 解析 NeuroUrl（默认 mock，可切换到真实 Gary）
         $defaultMockUrl = "ws://127.0.0.1:8000"
-        $defaultGaryUrl = "ws://127.0.0.1:64998"
+        $defaultGaryUrl = "ws://127.0.0.1:8000"
         if ($neuroDeps -and $neuroDeps.pythonRuntime) {
             if ($neuroDeps.pythonRuntime.defaultUrl) { $defaultMockUrl = [string]$neuroDeps.pythonRuntime.defaultUrl }
             if ($neuroDeps.pythonRuntime.garyUrl) { $defaultGaryUrl = [string]$neuroDeps.pythonRuntime.garyUrl }

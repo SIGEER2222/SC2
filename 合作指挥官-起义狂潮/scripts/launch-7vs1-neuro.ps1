@@ -10,7 +10,7 @@
 
 Neuro 连接模式：
 - Mock 模式（默认）：ws://127.0.0.1:8000，launch 会在需要时自动拉起 mock_neuro_server.py
-- Gary 真实模式（-UseGary）：自动启动 gary.exe，连接 ws://127.0.0.1:64998
+- Gary 真实模式（-UseGary）：自动启动 gary.exe，连接 ws://127.0.0.1:8000
 - 自定义 URL（-NeuroUrl "ws://host:port"）
 
 .EXAMPLE
