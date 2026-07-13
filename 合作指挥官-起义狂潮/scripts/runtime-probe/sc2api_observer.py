@@ -236,7 +236,6 @@ class SC2ApiObserver:
         probe_state = {
             "run_id": "sc2api",
             "phase": "in_mission",
-            "heartbeat": 1,
             "game_time": int(game_time),
             "game_loop": game_loop,
             "is_in_mission": True,
@@ -287,7 +286,7 @@ class SC2ApiObserver:
 
         ts = datetime.now().strftime("%H:%M:%S")
         print(
-            f"[{ts}] HB={state.get('heartbeat', 0)} "
+            f"[{ts}] "
             f"Phase={state.get('phase', '?')} "
             f"Units={len(units)} Upgrades={len(upgrades)} "
             f"Min={state.get('minerals', 0)} Gas={state.get('gas', 0)} "

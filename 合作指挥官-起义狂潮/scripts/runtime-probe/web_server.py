@@ -131,7 +131,6 @@ def _build_events(
     status = report.get("status", {})
 
     events.append(_bool_event("map_loaded", bool(status.get("map_loaded")), {
-        "heartbeat": state.get("heartbeat", 0),
         "phase": state.get("phase", "unknown"),
         "game_time": state.get("game_time", 0),
     }))

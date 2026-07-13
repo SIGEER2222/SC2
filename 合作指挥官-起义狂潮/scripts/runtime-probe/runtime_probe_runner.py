@@ -39,7 +39,6 @@ class RuntimeProbeRunner:
         self.run_id = run_id or f"run-{datetime.now().strftime('%Y%m%d')}-{datetime.now().strftime('%H%M%S')}"
         self.poll_interval = poll_interval
 
-        self.last_heartbeat: int = 0
         self.last_mtime: float = 0.0
         self.last_report: dict[str, Any] | None = None
 
@@ -62,8 +61,6 @@ class RuntimeProbeRunner:
             print("[WARN] Bank file has no probe_state section")
             return None
 
-        heartbeat = bank_data["probe_state"].get("heartbeat", 0)
-        self.last_heartbeat = heartbeat
         report = build_verification_report(
             bank_data,
             composition_id=self.composition_id,
@@ -129,7 +126,6 @@ class RuntimeProbeRunner:
 
         print(
             f"[{datetime.now().strftime('%H:%M:%S')}] "
-            f"HB={state.get('heartbeat', 0)} "
             f"Phase={state.get('phase', '?')} "
             f"Units={len(units)} "
             f"Upgrades={len(upgrades)} "

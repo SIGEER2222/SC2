@@ -21,7 +21,7 @@ def normalize_probe_state(state: dict[str, Any]) -> dict[str, Any]:
         "game_time": state.get("game_time", 0),
         "game_loop": state.get("game_loop", 0),
         "phase": state.get("phase", "unknown"),
-        "heartbeat": state.get("heartbeat", 0),
+        "replacement_complete": state.get("replacement_complete", False),
         "is_paused": state.get("is_paused", False),
         "is_in_mission": state.get("is_in_mission", False),
         "script_error_count": state.get("script_error_count", 0),
@@ -219,13 +219,12 @@ def build_verification_report(
     if composition_id != "unknown":
         state["composition_id"] = composition_id
 
-    heartbeat = state.get("heartbeat", 0)
     is_in_mission = state.get("is_in_mission", False)
     script_errors = state.get("script_error_count", 0)
 
     status = {
         "launch_pass": True,
-        "map_loaded": heartbeat > 0,
+        "map_loaded": is_in_mission,
         "probe_complete": is_in_mission and len(units) > 0,
         "static_match": True,
         "runtime_assertions_pass": True,
@@ -275,7 +274,7 @@ def report_to_markdown(report: dict[str, Any]) -> str:
     state = report["probe_state"]
     lines.append("## Probe State")
     lines.append("")
-    lines.append(f"- Heartbeat: `{state.get('heartbeat', 0)}`")
+    lines.append(f"- Replacement Complete: `{state.get('replacement_complete', False)}`")
     lines.append(f"- Phase: `{state.get('phase', 'unknown')}`")
     lines.append(f"- In Mission: `{state.get('is_in_mission', False)}`")
     lines.append(f"- Game Loop: `{state.get('game_loop', 0)}`")

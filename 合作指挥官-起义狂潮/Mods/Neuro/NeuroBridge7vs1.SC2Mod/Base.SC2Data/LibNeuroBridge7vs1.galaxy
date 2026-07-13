@@ -355,6 +355,8 @@ string libNeuroBridge7vs1_gf_BuildSelectedUnitsContext() {
     int lv_owner = 1;
     int lv_hp = 0;
     int lv_hpMax = 0;
+    fixed lv_resources = 0.0;
+    string lv_type = "";
     string lv_name = "";
     string lv_context = "";
 
@@ -367,8 +369,9 @@ string libNeuroBridge7vs1_gf_BuildSelectedUnitsContext() {
         lv_unit = UnitGroupUnitFromEnd(lv_selectedUnits, lv_loopIndex);
         if (lv_unit == null) { break; }
         lv_name = TextToString(UnitGetName(lv_unit));
+        lv_type = UnitGetType(lv_unit);
         if (lv_name == "") {
-            continue;
+            lv_name = lv_type;
         }
         if (lv_shown > 0) {
             lv_context = lv_context + "; ";
@@ -388,6 +391,10 @@ string libNeuroBridge7vs1_gf_BuildSelectedUnitsContext() {
         lv_hp = UnitGetPropertyInt(lv_unit, c_unitPropLife, c_unitPropCurrent);
         lv_hpMax = UnitGetPropertyInt(lv_unit, c_unitPropLifeMax, c_unitPropCurrent);
         lv_context = lv_context + lv_name + " HP " + IntToString(lv_hp) + "/" + IntToString(lv_hpMax);
+        lv_resources = UnitGetPropertyFixed(lv_unit, c_unitPropResources, c_unitPropCurrent);
+        if (lv_resources > 0.0) {
+            lv_context = lv_context + " type=" + lv_type + " resources_remaining=" + IntToString(FixedToInt(lv_resources));
+        }
         lv_shown = lv_shown + 1;
         if (lv_shown >= 6) {
             break;
@@ -412,6 +419,7 @@ string libNeuroBridge7vs1_gf_BuildPlayerOperationContext(string eventKind) {
     string lv_unitType = "";
     string lv_targetType = "";
     int lv_targetOwner = 0;
+    fixed lv_targetResources = 0.0;
 
     if (lv_unit == null) {
         return "";
@@ -441,6 +449,10 @@ string libNeuroBridge7vs1_gf_BuildPlayerOperationContext(string eventKind) {
             lv_context = lv_context + " relation=neutral";
         } else {
             lv_context = lv_context + " relation=ally";
+        }
+        lv_targetResources = UnitGetPropertyFixed(lv_targetUnit, c_unitPropResources, c_unitPropCurrent);
+        if (lv_targetResources > 0.0) {
+            lv_context = lv_context + " target_resources_remaining=" + IntToString(FixedToInt(lv_targetResources));
         }
     } else if (lv_targetPoint != null) {
         lv_context = lv_context + " target_point=(" +

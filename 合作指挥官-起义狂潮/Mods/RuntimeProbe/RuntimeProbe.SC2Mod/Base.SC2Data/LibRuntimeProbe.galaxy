@@ -27,29 +27,25 @@ bool libRuntimeProbe_gf_TryLoadBank() {
     if (libRuntimeProbe_gv_bank == null) {
         return false;
     }
+    // Drop the prior state schema so removed diagnostic keys (including heartbeat) cannot
+    // survive across launches in the persistent SC2 Bank file.
+    libRuntimeProbe_gf_ClearBankSection("probe_state");
     // Initial state markers
     BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "run_id", "pending");
     BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "loading");
     BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_state", "is_in_mission", false);
-    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "heartbeat", 1);
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "unit_scan_id", 0);
     BankSave(libRuntimeProbe_gv_bank);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-// Write probe_state: heartbeat, game time, resources, supply
+// Write probe_state: game time, resources, supply
 // 不再单独 BankSave，由调用方批量保存
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_WriteState() {
     int lv_player = 1;
 
-    libRuntimeProbe_gv_heartbeat = libRuntimeProbe_gv_heartbeat + 1;
-    if (libRuntimeProbe_gv_heartbeat > 999999) {
-        libRuntimeProbe_gv_heartbeat = 1;
-    }
-
-    BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "heartbeat", libRuntimeProbe_gv_heartbeat);
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "game_time", FixedToInt(GameGetMissionTime()));
     BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "game_loop", FixedToInt(GameGetMissionTime() * 16.0));
     BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "in_mission");
@@ -748,7 +744,7 @@ void libRuntimeProbe_gf_StartProbe() {
     // Immediate state write so the Bank has fresh data right away.
     if (libRuntimeProbe_gf_TryLoadBank()) {
         BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "run_id", "startprobe");
-        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "probe_started");
+        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "replacement_complete");
         libRuntimeProbe_gf_WriteState();
         libRuntimeProbe_gf_ScanUnits();
         libRuntimeProbe_gf_ScanUpgrades();
@@ -756,6 +752,7 @@ void libRuntimeProbe_gf_StartProbe() {
         libRuntimeProbe_gf_ScanReplacement();
         libRuntimeProbe_gf_ScanTechAvailability();
         libRuntimeProbe_gf_ScanUI();
+        BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_state", "replacement_complete", true);
         BankSave(libRuntimeProbe_gv_bank);
     }
 
@@ -779,10 +776,9 @@ void libRuntimeProbe_InitLib() {
     // Direct BankLoad attempt during InitLib — verifies the Bank system is operational.
     libRuntimeProbe_gv_bank = BankLoad("RuntimeProbe", 1);
     if (libRuntimeProbe_gv_bank != null) {
-        libRuntimeProbe_gv_heartbeat = 1;
+        libRuntimeProbe_gf_ClearBankSection("probe_state");
         BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "run_id", "initlib");
         BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_state", "phase", "initlib_ok");
-        BankValueSetFromInt(libRuntimeProbe_gv_bank, "probe_state", "heartbeat", libRuntimeProbe_gv_heartbeat);
         BankSave(libRuntimeProbe_gv_bank);
     }
 

@@ -178,7 +178,6 @@ def _build_context_message(bank_data: dict[str, dict[str, Any]]) -> str:
     upgrades = bank_data.get("probe_upgrades", {})
     producers = bank_data.get("probe_producers", {})
 
-    hb = state.get("heartbeat", 0)
     minerals = state.get("minerals", 0)
     gas = state.get("gas", 0)
     supply_used = state.get("supply_used", 0)
@@ -219,7 +218,7 @@ def _build_context_message(bank_data: dict[str, dict[str, Any]]) -> str:
 
     msg = (
         f"[副官状态报告]\n"
-        f"时间: {game_time}s | 心跳: {hb}\n"
+        f"时间: {game_time}s\n"
         f"资源: 矿物 {minerals} / 高产瓦斯 {gas}\n"
         f"供应: {supply_used}/{supply_cap}\n"
         f"\n[单位列表] ({len(unit_lines)} 种)\n"
@@ -753,7 +752,7 @@ class NeuroBridge:
         context_str = _build_context_message(bank_data)
         msg = self.builder.context(context_str, silent=True)
         await self.ws.send_json(msg)
-        print(f"[NeuroBridge] Context sent (HB={bank_data['probe_state'].get('heartbeat', 0)})")
+        print("[NeuroBridge] Context sent")
 
     async def _chat_parser_loop(self) -> None:
         """从 stdin 读取自然语言指令，解析为 action 并转发到 NeuroIntegration Bank。
