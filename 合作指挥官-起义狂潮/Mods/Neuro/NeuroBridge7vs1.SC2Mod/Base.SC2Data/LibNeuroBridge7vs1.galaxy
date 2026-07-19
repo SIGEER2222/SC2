@@ -1008,9 +1008,9 @@ string libNeuroBridge7vs1_gf_AttackUnit(string targetUnitType) {
         return "ERROR: Invalid target unit type '" + targetUnitType + "'.";
     }
 
-    // 查找全图所有该类型单位（任意归属），在循环里筛选敌方
+    // 查找全图所有该类型单位（任意归属），在循环里筛选敌方（排除死亡和隐藏单位）
     lv_targets = UnitGroup(targetUnitType, c_playerAny, RegionEntireMap(),
-        UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+        UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
 
     // 取玩家选中的单位
     lv_selected = UnitGroupSelected(lv_player);
@@ -1092,13 +1092,13 @@ string libNeuroBridge7vs1_gf_FocusFire(string targetUnitType) {
         return "ERROR: Invalid target unit type '" + targetUnitType + "'.";
     }
 
-    // 查找全图所有该类型单位，循环里筛选敌方
+    // 查找全图所有该类型单位，循环里筛选敌方（排除死亡和隐藏单位）
     lv_targets = UnitGroup(targetUnitType, c_playerAny, RegionEntireMap(),
-        UnitFilter(0, 0, (1 << 0), (1 << 1)), 0);
+        UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
 
-    // 获取玩家所有战斗单位（排除建筑和工人）
-    lv_army = UnitGroup(null, lv_player, RegionEntireMap(),
-        UnitFilter(0, (1 << c_targetFilterStructure) | (1 << c_targetFilterWorker), (1 << 0), (1 << 1)), 0);
+    // 获取玩家所有战斗单位（参考 your_units army filter 写法，已知能找到英雄雷诺）
+    lv_army = UnitGroup(null, lv_player, RegionPlayableMap(),
+        UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterWorker) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
 
     if (UnitGroupCount(lv_army, c_unitCountAll) == 0) {
         return "INFO: No army units available.";
