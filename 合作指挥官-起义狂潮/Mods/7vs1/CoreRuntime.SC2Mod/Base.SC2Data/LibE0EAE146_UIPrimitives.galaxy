@@ -62,20 +62,30 @@ bool libE0EAE146_gf_i2b (int lp_value) {
 
 // 数值钳制
 int libE0EAE146_gf_iClamp (int lp_value, int lp_min, int lp_max) {
-    if (lp_value < lp_min) { return lp_min; }
-    if (lp_value > lp_max) { return lp_max; }
+    if (lp_value < lp_min) {
+        return lp_min;
+    }
+    if (lp_value > lp_max) {
+        return lp_max;
+    }
     return lp_value;
 }
 
 fixed libE0EAE146_gf_fClamp (fixed lp_value, fixed lp_min, fixed lp_max) {
-    if (lp_value < lp_min) { return lp_min; }
-    if (lp_value > lp_max) { return lp_max; }
+    if (lp_value < lp_min) {
+        return lp_min;
+    }
+    if (lp_value > lp_max) {
+        return lp_max;
+    }
     return lp_value;
 }
 
 // 点序列化（galaxy 无原生 point->string；提供用于调试日志）
 string libE0EAE146_gf_PointToString (point lp_loc) {
-    if (lp_loc == null) { return "(null)"; }
+    if (lp_loc == null) {
+        return "(null)";
+    }
     return ("(" + FixedToString(PointGetX(lp_loc), 2) + "," + FixedToString(PointGetY(lp_loc), 2) + ")");
 }
 
@@ -103,15 +113,33 @@ const string libE0EAE146_gc_UIType_Editbox    = "e";
 
 // 字符串类型 -> c_triggerControlType 常量映射
 int libE0EAE146_gf_UITypeToControlType (string lp_type) {
-    if (lp_type == libE0EAE146_gc_UIType_Label)        { return c_triggerControlTypeLabel; }
-    if (lp_type == libE0EAE146_gc_UIType_Image)        { return c_triggerControlTypeImage; }
-    if (lp_type == libE0EAE146_gc_UIType_Button)       { return c_triggerControlTypeButton; }
-    if (lp_type == libE0EAE146_gc_UIType_Checkbox)     { return c_triggerControlTypeCheckbox; }
-    if (lp_type == libE0EAE146_gc_UIType_Listbox)      { return c_triggerControlTypeListBox; }
-    if (lp_type == libE0EAE146_gc_UIType_Pulldown)     { return c_triggerControlTypePulldown; }
-    if (lp_type == libE0EAE146_gc_UIType_ProgressBar)  { return c_triggerControlTypeProgressBar; }
-    if (lp_type == libE0EAE146_gc_UIType_Slider)       { return c_triggerControlTypeSlider; }
-    if (lp_type == libE0EAE146_gc_UIType_Editbox)      { return c_triggerControlTypeEditBox; }
+    if (lp_type == libE0EAE146_gc_UIType_Label) {
+        return c_triggerControlTypeLabel;
+    }
+    if (lp_type == libE0EAE146_gc_UIType_Image) {
+        return c_triggerControlTypeImage;
+    }
+    if (lp_type == libE0EAE146_gc_UIType_Button) {
+        return c_triggerControlTypeButton;
+    }
+    if (lp_type == libE0EAE146_gc_UIType_Checkbox) {
+        return c_triggerControlTypeCheckBox;
+    }
+    if (lp_type == libE0EAE146_gc_UIType_Listbox) {
+        return c_triggerControlTypeListBox;
+    }
+    if (lp_type == libE0EAE146_gc_UIType_Pulldown) {
+        return c_triggerControlTypePulldown;
+    }
+    if (lp_type == libE0EAE146_gc_UIType_ProgressBar) {
+        return c_triggerControlTypeProgressBar;
+    }
+    if (lp_type == libE0EAE146_gc_UIType_Slider) {
+        return c_triggerControlTypeSlider;
+    }
+    if (lp_type == libE0EAE146_gc_UIType_Editbox) {
+        return c_triggerControlTypeEditBox;
+    }
     return c_triggerControlTypeLabel;
 }
 
