@@ -85,47 +85,93 @@ bool libNeuroBridge7vs1_gt_MissionDefeat_Func(bool testConds, bool runActions) {
 }
 
 //--------------------------------------------------------------------------------------------------
-// ע�� 7vs1 ר�� action����Ҫ�� NeuroIntegration bank ��������ã�
-// ֻ����ѯ�� + д���� action ȫ��ע��� Neuro
+// 注册 7vs1 专属 action（需要与 NeuroIntegration bank 交互；只读查询型 + 写入型 action 全部注册给 Neuro）
+//
+// 注意：libEFA54406_gf_create_action_*_arg 使用全局变量 + TriggerExecute 异步模式，
+// 同一 trigger 在队列里时后续 TriggerExecute 是 no-op，导致连续 13 次调用只有第 1 次
+// 能真正写入 bank。这里改为直接同步写 bank，一次性写入所有 action，绕过该限制。
 //--------------------------------------------------------------------------------------------------
 void libNeuroBridge7vs1_gf_RegisterActions() {
-    // === ֻ����ѯ�� action ===
-    libEFA54406_gf_create_action_0_arg("get_mutators", true,
-        "Get the currently active mutators, resources and supply in this 7vs1 mission", -1);
-    libEFA54406_gf_create_action_0_arg("get_commander_status", true,
-        "Get the current commander status including unit count and army composition", -1);
-    libEFA54406_gf_create_action_0_arg("get_production_queue", true,
-        "Get the current production queue of all buildings", -1);
-    libEFA54406_gf_create_action_0_arg("get_active_mutators", true,
-        "Get the list of active mutators with semantic descriptions explaining their gameplay impact", -1);
+    bank lv_bank = libEFA54406_gv_neuroIntegration;
+    if (lv_bank == null) {
+        return;
+    }
 
-    // === д���� action��Neuro ������ָ����Ϸ��Ϊ��===
-    libEFA54406_gf_create_action_1_arg("train_unit", true,
-        "Order production of a unit. arg_1 is the unit type id, e.g. Marine, Marauder, SiegeTank, Medivac, Viking",
-        "string", -1);
-    libEFA54406_gf_create_action_2_arg("use_ability", true,
-        "Order a unit to use an ability. arg_1 is the ability id, arg_2 is the target unit type (optional, e.g. Marine for enemy marines)",
-        "string", "string", -1);
-    libEFA54406_gf_create_action_1_arg("research_upgrade", true,
-        "Order research of an upgrade. arg_1 is the upgrade id, e.g. TerranInfantryWeaponsLevel1",
-        "string", -1);
+    // 等待 bankwriteallowed（BootstrapLoop 已设为 true，此处防御性等待）
+    while ((libEFA54406_gv_bankwriteallowed == false)) {
+        Wait(0.01, c_timeGame);
+    }
+    libEFA54406_gv_bankwriteallowed = false;
 
-    // === 写入型 action：精确单位控制（基于目标单位类型定位）===
-    libEFA54406_gf_create_action_1_arg("attack_unit", true,
-        "Order currently selected player units to attack the nearest enemy unit of the given type. arg_1 is the target unit type id, e.g. Marine, Zergling, Hydralisk",
-        "string", -1);
-    libEFA54406_gf_create_action_1_arg("focus_fire", true,
-        "Order ALL player army units to attack the nearest enemy unit of the given type. arg_1 is the target unit type id, e.g. Baneling, Ultralisk",
-        "string", -1);
-    libEFA54406_gf_create_action_2_arg("set_rally", true,
-        "Set rally point of all buildings matching arg_1 to the nearest unit of type arg_2 (any owner). arg_1 = building type, e.g. Barracks; arg_2 = target unit type, e.g. CommandCenter",
-        "string", "string", -1);
-    libEFA54406_gf_create_action_2_arg("move_to_unit", true,
-        "Order all player units of type arg_1 to move to the nearest unit of type arg_2 (any owner). arg_1 = source unit type, e.g. Marine; arg_2 = target unit type, e.g. SCV",
-        "string", "string", -1);
-    libEFA54406_gf_create_action_1_arg("move_selected_to_unit", true,
-        "Order the currently selected player units to move to the nearest unit of the given type. arg_1 = target unit type, e.g. CommandCenter, SCV, Marine",
-        "string", -1);
+    // === 只读查询型 action（0 arg）===
+    BankValueSetFromFlag(lv_bank, "possible_actions", "get_mutators_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "get_mutators_description", "Get the currently active mutators, resources and supply in this 7vs1 mission");
+    BankValueSetFromInt(lv_bank, "possible_actions", "get_mutators_uses", -1);
+
+    BankValueSetFromFlag(lv_bank, "possible_actions", "get_commander_status_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "get_commander_status_description", "Get the current commander status including unit count and army composition");
+    BankValueSetFromInt(lv_bank, "possible_actions", "get_commander_status_uses", -1);
+
+    BankValueSetFromFlag(lv_bank, "possible_actions", "get_production_queue_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "get_production_queue_description", "Get the current production queue of all buildings");
+    BankValueSetFromInt(lv_bank, "possible_actions", "get_production_queue_uses", -1);
+
+    BankValueSetFromFlag(lv_bank, "possible_actions", "get_active_mutators_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "get_active_mutators_description", "Get the list of active mutators with semantic descriptions explaining their gameplay impact");
+    BankValueSetFromInt(lv_bank, "possible_actions", "get_active_mutators_uses", -1);
+
+    // === 写入型 action（1 arg）===
+    BankValueSetFromFlag(lv_bank, "possible_actions", "train_unit_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "train_unit_description", "Order production of a unit. arg_1 is the unit type id, e.g. Marine, Marauder, SiegeTank, Medivac, Viking");
+    BankValueSetFromString(lv_bank, "possible_actions", "train_unit_arg_1", "string");
+    BankValueSetFromInt(lv_bank, "possible_actions", "train_unit_uses", -1);
+
+    BankValueSetFromFlag(lv_bank, "possible_actions", "research_upgrade_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "research_upgrade_description", "Order research of an upgrade. arg_1 is the upgrade id, e.g. TerranInfantryWeaponsLevel1");
+    BankValueSetFromString(lv_bank, "possible_actions", "research_upgrade_arg_1", "string");
+    BankValueSetFromInt(lv_bank, "possible_actions", "research_upgrade_uses", -1);
+
+    BankValueSetFromFlag(lv_bank, "possible_actions", "attack_unit_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "attack_unit_description", "Order currently selected player units to attack the nearest enemy unit of the given type. arg_1 is the target unit type id, e.g. Marine, Zergling, Hydralisk");
+    BankValueSetFromString(lv_bank, "possible_actions", "attack_unit_arg_1", "string");
+    BankValueSetFromInt(lv_bank, "possible_actions", "attack_unit_uses", -1);
+
+    BankValueSetFromFlag(lv_bank, "possible_actions", "focus_fire_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "focus_fire_description", "Order ALL player army units to attack the nearest enemy unit of the given type. arg_1 is the target unit type id, e.g. Baneling, Ultralisk");
+    BankValueSetFromString(lv_bank, "possible_actions", "focus_fire_arg_1", "string");
+    BankValueSetFromInt(lv_bank, "possible_actions", "focus_fire_uses", -1);
+
+    BankValueSetFromFlag(lv_bank, "possible_actions", "move_selected_to_unit_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "move_selected_to_unit_description", "Order the currently selected player units to move to the nearest unit of the given type. arg_1 = target unit type, e.g. CommandCenter, SCV, Marine");
+    BankValueSetFromString(lv_bank, "possible_actions", "move_selected_to_unit_arg_1", "string");
+    BankValueSetFromInt(lv_bank, "possible_actions", "move_selected_to_unit_uses", -1);
+
+    BankValueSetFromFlag(lv_bank, "possible_actions", "build_building_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "build_building_description", "Order an SCV to build a building. arg_1 = building type, e.g. SupplyDepot, Barracks, Factory, Starport, Bunker, EngineeringBay, MissileTurret, Refinery, CommandCenter");
+    BankValueSetFromString(lv_bank, "possible_actions", "build_building_arg_1", "string");
+    BankValueSetFromInt(lv_bank, "possible_actions", "build_building_uses", -1);
+
+    // === 写入型 action（2 arg）===
+    BankValueSetFromFlag(lv_bank, "possible_actions", "use_ability_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "use_ability_description", "Order a unit to use an ability. arg_1 is the ability id, arg_2 is the target unit type (optional, e.g. Marine for enemy marines)");
+    BankValueSetFromString(lv_bank, "possible_actions", "use_ability_arg_1", "string");
+    BankValueSetFromString(lv_bank, "possible_actions", "use_ability_arg_2", "string");
+    BankValueSetFromInt(lv_bank, "possible_actions", "use_ability_uses", -1);
+
+    BankValueSetFromFlag(lv_bank, "possible_actions", "set_rally_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "set_rally_description", "Set rally point of all buildings matching arg_1 to the nearest unit of type arg_2 (any owner). arg_1 = building type, e.g. Barracks; arg_2 = target unit type, e.g. CommandCenter");
+    BankValueSetFromString(lv_bank, "possible_actions", "set_rally_arg_1", "string");
+    BankValueSetFromString(lv_bank, "possible_actions", "set_rally_arg_2", "string");
+    BankValueSetFromInt(lv_bank, "possible_actions", "set_rally_uses", -1);
+
+    BankValueSetFromFlag(lv_bank, "possible_actions", "move_to_unit_active", true);
+    BankValueSetFromString(lv_bank, "possible_actions", "move_to_unit_description", "Order all player units of type arg_1 to move to the nearest unit of type arg_2 (any owner). arg_1 = source unit type, e.g. Marine; arg_2 = target unit type, e.g. SCV");
+    BankValueSetFromString(lv_bank, "possible_actions", "move_to_unit_arg_1", "string");
+    BankValueSetFromString(lv_bank, "possible_actions", "move_to_unit_arg_2", "string");
+    BankValueSetFromInt(lv_bank, "possible_actions", "move_to_unit_uses", -1);
+
+    BankSave(lv_bank);
+    libEFA54406_gv_bankwriteallowed = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -596,7 +642,7 @@ void libNeuroBridge7vs1_gf_FlushPendingContexts() {
             lv_state = lv_state + "\n";
         }
         lv_state = lv_state + libNeuroBridge7vs1_gf_GetCommanderStatus();
-        lv_actions = "chat_message,get_commander_status,get_production_queue,get_active_mutators,train_unit,use_ability,research_upgrade,attack_unit,focus_fire,set_rally,move_to_unit,move_selected_to_unit";
+        lv_actions = "chat_message,get_mutators,get_commander_status,get_production_queue,get_active_mutators,train_unit,use_ability,research_upgrade,attack_unit,focus_fire,set_rally,move_to_unit,move_selected_to_unit,build_building";
         libNeuroBridge7vs1_directiveCounter = libNeuroBridge7vs1_directiveCounter + 1;
         libEFA54406_gf_create_context("player_directive", "Player directive: " + libNeuroBridge7vs1_pendingDirectiveContext, false);
         libEFA54406_gf_create_force_action(
@@ -1152,6 +1198,108 @@ string libNeuroBridge7vs1_gf_FocusFire(string targetUnitType) {
 }
 
 //--------------------------------------------------------------------------------------------------
+// 写入型 action：build_building
+// 让第一个空闲 SCV 在自己当前位置附近建造指定建筑
+// arg_1: 建筑类型，如 "SupplyDepot", "Barracks", "Factory", "Starport", "Bunker",
+//       "EngineeringBay", "MissileTurret", "Refinery", "CommandCenter"
+// 实现：找空闲 SCV -> 用 TerranBuildRaynor/TerranBuild ability，扫描 InfoArray
+//       匹配建筑 Unit 字段 -> 在 SCV 当前位置下建造命令
+//--------------------------------------------------------------------------------------------------
+string libNeuroBridge7vs1_gf_BuildBuilding(string buildingType) {
+    int lv_player = 1;
+    unitgroup lv_workers;
+    unit lv_scv = null;
+    point lv_buildPoint = null;
+    order lv_order = null;
+    string lv_abilName = "";
+    int lv_cmdIndex = 0;
+    string lv_infoUnit = "";
+    string lv_fieldPath = "";
+    int lv_matchedCmd = -1;
+    string lv_matchedUnit = "";
+    int lv_dx = 0;
+    int lv_dy = 0;
+    point lv_tryPoint = null;
+    bool lv_built = false;
+    unitgroup lv_dbgSCV;
+    unitgroup lv_dbgSCVRaynor;
+
+    if (buildingType == "" || buildingType == null) {
+        return "ERROR: building_type is empty.";
+    }
+
+    // 找玩家 worker（与 player_units 的 worker 扫描逻辑一致，使用 c_targetFilterWorker
+    // 避免硬编码 "SCV"/"SCVRaynor" 单位类型）
+    lv_workers = UnitGroup(null, lv_player, RegionPlayableMap(),
+        UnitFilter((1 << c_targetFilterWorker), 0, (1 << c_targetFilterMissile),
+            (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    if (UnitGroupCount(lv_workers, c_unitCountAll) == 0) {
+        // 调试：尝试硬编码 "SCV" 和 "SCVRaynor"
+        lv_dbgSCV = UnitGroup("SCV", lv_player, RegionPlayableMap(),
+            UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_dbgSCVRaynor = UnitGroup("SCVRaynor", lv_player, RegionPlayableMap(),
+            UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        return "INFO: No SCV via filter. [DEBUG player=" + IntToString(lv_player) + " workerFilterCount=" + IntToString(UnitGroupCount(lv_workers, c_unitCountAll)) + " SCVhardCount=" + IntToString(UnitGroupCount(lv_dbgSCV, c_unitCountAll)) + " SCVRaynorCount=" + IntToString(UnitGroupCount(lv_dbgSCVRaynor, c_unitCountAll)) + "]";
+    }
+
+    // 取第一个 SCV
+    lv_scv = UnitGroupUnit(lv_workers, 1);
+    if (lv_scv == null) {
+        return "ERROR: Could not resolve SCV instance.";
+    }
+    lv_buildPoint = UnitGetPosition(lv_scv);
+
+    // 选择 ability：优先 TerranBuildRaynor（7vs1 Raynor SCVRaynor 专用），
+    // 不存在则回退到原版 TerranBuild
+    lv_abilName = "TerranBuildRaynor";
+    if (!CatalogEntryIsValid(c_gameCatalogAbil, lv_abilName)) {
+        lv_abilName = "TerranBuild";
+        if (!CatalogEntryIsValid(c_gameCatalogAbil, lv_abilName)) {
+            return "ERROR: Neither TerranBuildRaynor nor TerranBuild exists in catalog.";
+        }
+    }
+
+    // 扫描 InfoArray[0..18]，找 Unit 字段匹配 buildingType（或 buildingType + "Raynor"）的 cmd
+    // 匹配到 cmd 后，在 SCV 周围多组偏移点尝试 UnitOrderIsValid，找第一个能建造的位置
+    lv_cmdIndex = 0;
+    while (lv_cmdIndex <= 18) {
+        lv_fieldPath = "InfoArray[" + IntToString(lv_cmdIndex) + "].Unit";
+        lv_infoUnit = CatalogFieldValueGet(c_gameCatalogAbil, lv_abilName, lv_fieldPath, lv_player);
+        if (lv_infoUnit == buildingType || lv_infoUnit == (buildingType + "Raynor")) {
+            lv_matchedCmd = lv_cmdIndex;
+            lv_matchedUnit = lv_infoUnit;
+            break;
+        }
+        lv_cmdIndex = lv_cmdIndex + 1;
+    }
+
+    if (lv_matchedCmd < 0) {
+        return "INFO: No build command for " + buildingType + " found in " + lv_abilName + " InfoArray.";
+    }
+
+    // 在 SCV 当前位置 + 周围 8 个方向偏移 3 格尝试；找不到再扩展到偏移 5 格
+    lv_dx = -1;
+    while (lv_dx <= 1 && !lv_built) {
+        lv_dy = -1;
+        while (lv_dy <= 1 && !lv_built) {
+            lv_tryPoint = PointWithOffset(lv_buildPoint, IntToFixed(lv_dx * 3), IntToFixed(lv_dy * 3));
+            lv_order = OrderTargetingPoint(AbilityCommand(lv_abilName, lv_matchedCmd), lv_tryPoint);
+            if (UnitOrderIsValid(lv_scv, lv_order)) {
+                UnitIssueOrder(lv_scv, lv_order, c_orderQueueReplace);
+                lv_built = true;
+            }
+            lv_dy = lv_dy + 1;
+        }
+        lv_dx = lv_dx + 1;
+    }
+
+    if (lv_built) {
+        return "OK: Ordered SCV to build " + buildingType + " via " + lv_abilName + "[" + IntToString(lv_matchedCmd) + "] (unit=" + lv_matchedUnit + ") near SCV.";
+    }
+    return "INFO: SCV cannot build " + buildingType + " right now (matched cmd " + IntToString(lv_matchedCmd) + " but no valid placement near SCV; check tech tree, resources, or move SCV to open area).";
+}
+
+//--------------------------------------------------------------------------------------------------
 // 写入型 action：set_rally
 // 把指定类型建筑的集结点设到最近的 target_unit_type 单位附近
 // arg_1: 建筑类型，如 "Barracks", "Gateway"
@@ -1567,6 +1715,13 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
             lv_targetUnitType = libNeuroBridge7vs1_gf_ReadActionStringArg("move_selected_to_unit", "move_selected_to_unit_arg_1");
             lv_result = libNeuroBridge7vs1_gf_MoveSelectedToUnit(lv_targetUnitType);
             libEFA54406_gf_create_context("move_selected_to_unit_result", lv_result, false);
+        }
+
+        if (libNeuroBridge7vs1_gf_ReadActionFlag("build_building")) {
+            libNeuroBridge7vs1_gf_ClearActionFlag("build_building");
+            lv_buildingType = libNeuroBridge7vs1_gf_ReadActionStringArg("build_building", "build_building_arg_1");
+            lv_result = libNeuroBridge7vs1_gf_BuildBuilding(lv_buildingType);
+            libEFA54406_gf_create_context("build_building_result", lv_result, false);
         }
 
         // === 3. �����źŵ�����Python ����ʱ�ݴ˼����Ϸ�Ƿ��Ծ��===

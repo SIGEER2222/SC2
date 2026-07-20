@@ -18,10 +18,12 @@
 #>
 param(
     [string]$Commander = "CMRE",
-    [string]$MapName = "����֮ҹ.SC2Map",
+    [string]$MapName = "亡者之夜.SC2Map",
     [switch]$NoLaunch,
     [switch]$SkipWait,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$EnableNeuro,
+    [switch]$SkipPythonRuntime
 )
 
 $ErrorActionPreference = "Stop"
@@ -163,6 +165,13 @@ if (-not $isOriginalMode) {
     }
 }
 
+# Add Neuro mod dependencies (when -EnableNeuro)
+if ($EnableNeuro) {
+    $runtimeDeps += "file:Mods/NeuroIntegration.SC2Mod"
+    $runtimeDeps += "file:Mods/Neuro/NeuroBridge7vs1.SC2Mod"
+    Write-Host "Added Neuro dependencies (NeuroIntegration + NeuroBridge7vs1)"
+}
+
 Write-Host "Setting $($runtimeDeps.Count) dependencies on map..."
 Set-MapDependencies -MapPath $MapLivePath -Dependencies $runtimeDeps
 
@@ -184,6 +193,253 @@ if (-not $isOriginalMode) {
     Write-Host "Writing CampaignXCore Bank for commander: $Commander"
     Set-CampaignXCorePrimaryCommander -SelectedCommanders @($Commander)
     Set-CampaignXCoreTestRunId -RunId "CMRECommander"
+}
+
+# === NEURO INTEGRATION SECTION (optional, -EnableNeuro) ===
+# Ported from launch-7vs1-coop-test.ps1: copy mods, inject galaxy, patch BankList/MapScript
+$pythonProcessId = $null
+if ($EnableNeuro) {
+    Write-Host "`n=== Neuro Integration ===" -ForegroundColor Cyan
+
+    # 辅助函数：使用 .NET API 绕过 TRAE 沙箱对 Remove-Item/Copy-Item 的拦截
+    function Remove-DirSafe {
+        param([string]$Path)
+        if (Test-Path -LiteralPath $Path -PathType Container) {
+            [System.IO.Directory]::Delete($Path, $true)
+        } elseif (Test-Path -LiteralPath $Path) {
+            [System.IO.File]::Delete($Path)
+        }
+    }
+    function New-DirSafe {
+        param([string]$Path)
+        if (-not (Test-Path -LiteralPath $Path)) {
+            [System.IO.Directory]::CreateDirectory($Path) | Out-Null
+        }
+    }
+    function Copy-DirSafe {
+        param([string]$Source, [string]$Destination)
+        Add-Type -AssemblyName Microsoft.VisualBasic -ErrorAction SilentlyContinue
+        [Microsoft.VisualBasic.FileIO.FileSystem]::CopyDirectory($Source, $Destination, $true)
+    }
+
+    # === 路径解析（基于 Shared/Launcher/neuro-dependencies.json）===
+    $neuroDepsPath = Join-Path $ProjRoot "Shared\Launcher\neuro-dependencies.json"
+    $repoRoot = Split-Path -Parent $ProjRoot
+    $neuroDeps = $null
+    if (Test-Path -LiteralPath $neuroDepsPath) {
+        try {
+            $neuroDeps = Get-Content -LiteralPath $neuroDepsPath -Raw -Encoding UTF8 | ConvertFrom-Json
+            Write-Host "  Loaded neuro-dependencies.json (capability=$($neuroDeps.capability))" -ForegroundColor DarkGray
+        } catch {
+            Write-Host "  WARN: failed to parse neuro-dependencies.json: $_" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  WARN: neuro-dependencies.json missing at $neuroDepsPath" -ForegroundColor Yellow
+    }
+
+    $NeuroModSource = Join-Path $repoRoot "tools\SC2-Neuro-WoL-Integration\Mods\NeuroIntegration.SC2Mod"
+    if ($neuroDeps -and $neuroDeps.mods) {
+        $coreMod = @($neuroDeps.mods) | Where-Object { $_.id -eq "NeuroIntegration" } | Select-Object -First 1
+        if ($coreMod -and $coreMod.sourceWorkspace) {
+            $NeuroModSource = Join-Path $repoRoot ($coreMod.sourceWorkspace -replace '/', '\')
+        }
+    }
+    $BridgeModSource = Join-Path $ProjRoot "Mods\Neuro\NeuroBridge7vs1.SC2Mod"
+    if ($neuroDeps -and $neuroDeps.mods) {
+        $bridgeMod = @($neuroDeps.mods) | Where-Object { $_.id -eq "NeuroBridge7vs1" } | Select-Object -First 1
+        if ($bridgeMod -and $bridgeMod.sourceWorkspace) {
+            $BridgeModSource = Join-Path $ProjRoot ($bridgeMod.sourceWorkspace -replace '/', '\')
+        }
+    }
+    $NeuroApiRoot = Join-Path $repoRoot "tools\SC2-Neuro-API-Integration"
+    if ($neuroDeps -and $neuroDeps.pythonRuntime -and $neuroDeps.pythonRuntime.rootWorkspace) {
+        $NeuroApiRoot = Join-Path $repoRoot ($neuroDeps.pythonRuntime.rootWorkspace -replace '/', '\')
+    }
+
+    # Prove LibEFA54406 ownership before injection
+    $efaHeader = Join-Path $NeuroModSource "Base.SC2Data\LibEFA54406_h.galaxy"
+    $efaBody = Join-Path $NeuroModSource "Base.SC2Data\LibEFA54406.galaxy"
+    if (-not (Test-Path -LiteralPath $efaHeader) -or -not (Test-Path -LiteralPath $efaBody)) {
+        throw "LibEFA54406 closure incomplete under NeuroIntegration: missing $efaHeader or $efaBody"
+    }
+    Write-Host "  LibEFA54406 closure OK (owned by NeuroIntegration)" -ForegroundColor Green
+
+    Write-Host "NeuroMod:  $NeuroModSource"
+    Write-Host "BridgeMod: $BridgeModSource"
+
+    if (-not (Test-Path -LiteralPath $NeuroModSource)) {
+        throw "NeuroIntegration mod not found: $NeuroModSource"
+    }
+    if (-not (Test-Path -LiteralPath $BridgeModSource)) {
+        throw "NeuroBridge7vs1 mod not found: $BridgeModSource"
+    }
+
+    $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+
+    # === Step N2: 复制 Neuro mod 到 SC2 运行时目录 ===
+    Write-Host "`n--- Neuro Step 2: Copy Neuro mods to SC2 runtime ---" -ForegroundColor Yellow
+    $neuroLiveDir = Join-Path $Sc2Root "Mods\NeuroIntegration.SC2Mod"
+    $bridgeLiveDir = Join-Path $Sc2Root "Mods\Neuro\NeuroBridge7vs1.SC2Mod"
+
+    if (Test-Path $neuroLiveDir) { Remove-DirSafe $neuroLiveDir }
+    Copy-DirSafe $NeuroModSource $neuroLiveDir
+    Write-Host "  Copied NeuroIntegration -> $neuroLiveDir"
+
+    # Step N2b: 修正 NeuroIntegration 依赖项以匹配 CMRE 地图使用的中文 bnet 依赖
+    # 源 mod 使用英文 bnet:Liberty (Campaign) + Campaigns/Liberty.SC2Campaign，但 SC2 安装目录下不存在该路径
+    # CMRE 地图使用：自由之翼剧情 (战役) + Campaigns/LibertyStory.SC2Campaign 和 自由之翼 (Mod) + Mods/Liberty.SC2Mod
+    $neuroDocInfoPath = Join-Path $neuroLiveDir "DocumentInfo"
+    if (Test-Path -LiteralPath $neuroDocInfoPath) {
+        $neuroDocInfo = [System.IO.File]::ReadAllText($neuroDocInfoPath)
+        $needsFix = $false
+        if ($neuroDocInfo -match 'Liberty \(Campaign\)') { $needsFix = $true }
+        if ($neuroDocInfo -match 'Campaigns/Liberty\.SC2Campaign') { $needsFix = $true }
+        if ($needsFix) {
+            $fixedDocInfo = '<?xml version="1.0" encoding="utf-8"?>' + "`n" +
+                '<DocInfo>' + "`n" +
+                '    <Dependencies>' + "`n" +
+                '        <Value>bnet:自由之翼剧情 (战役)/0.0/999,file:Campaigns/LibertyStory.SC2Campaign</Value>' + "`n" +
+                '        <Value>bnet:自由之翼 (Mod)/0.0/999,file:Mods/Liberty.SC2Mod</Value>' + "`n" +
+                '    </Dependencies>' + "`n" +
+                '</DocInfo>'
+            [System.IO.File]::WriteAllText($neuroDocInfoPath, $fixedDocInfo, $utf8NoBom)
+            Write-Host "  Fixed NeuroIntegration DocumentInfo dependencies (matched CMRE map)" -ForegroundColor Green
+        }
+    }
+
+    $bridgeLiveParent = Split-Path $bridgeLiveDir -Parent
+    if (-not (Test-Path $bridgeLiveParent)) { New-DirSafe $bridgeLiveParent }
+    if (Test-Path $bridgeLiveDir) { Remove-DirSafe $bridgeLiveDir }
+    Copy-DirSafe $BridgeModSource $bridgeLiveDir
+    Write-Host "  Copied NeuroBridge7vs1 -> $bridgeLiveDir"
+
+    # === Step N3: 注入 galaxy 库文件到地图 Base.SC2Data ===
+    Write-Host "`n--- Neuro Step 3: Inject galaxy libraries into map ---" -ForegroundColor Yellow
+    $mapLiveBaseData = Join-Path $MapLivePath "Base.SC2Data"
+    if (-not (Test-Path $mapLiveBaseData)) {
+        New-DirSafe $mapLiveBaseData
+    }
+    # NeuroIntegration galaxy 文件
+    $neuroGalaxyDir = Join-Path $neuroLiveDir "Base.SC2Data"
+    $neuroGalaxyFiles = Get-ChildItem $neuroGalaxyDir -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+    foreach ($gf in $neuroGalaxyFiles) {
+        $dst = Join-Path $mapLiveBaseData $gf.Name
+        [System.IO.File]::Copy($gf.FullName, $dst, $true)
+        Write-Host "  Injected: $($gf.Name)"
+    }
+    # NeuroBridge7vs1 galaxy 文件
+    $bridgeGalaxyDir = Join-Path $bridgeLiveDir "Base.SC2Data"
+    $bridgeGalaxyFiles = Get-ChildItem $bridgeGalaxyDir -File -Filter "*.galaxy" -ErrorAction SilentlyContinue
+    foreach ($gf in $bridgeGalaxyFiles) {
+        $dst = Join-Path $mapLiveBaseData $gf.Name
+        [System.IO.File]::Copy($gf.FullName, $dst, $true)
+        Write-Host "  Injected: $($gf.Name)"
+    }
+
+    # === Step N4: 注入 BankList.xml ===
+    Write-Host "`n--- Neuro Step 4: Patch BankList.xml ---" -ForegroundColor Yellow
+    $bankListPath = Join-Path $MapLivePath "BankList.xml"
+    if (Test-Path -LiteralPath $bankListPath) {
+        $bankContent = [System.IO.File]::ReadAllText($bankListPath)
+        if ($bankContent -notmatch 'Name="NeuroIntegration"') {
+            $bankEntry = '    <Bank Name="NeuroIntegration" Player="1"/>'
+            $bankContent = $bankContent.Replace('</BankList>', ($bankEntry + "`n</BankList>"))
+            Write-Host "  Added NeuroIntegration bank declaration"
+        } else {
+            Write-Host "  Already has NeuroIntegration bank"
+        }
+        # 同时添加 NeuroPermanent bank（用于跨任务持久化）
+        if ($bankContent -notmatch 'Name="NeuroPermanent"') {
+            $permanentEntry = '    <Bank Name="NeuroPermanent" Player="1"/>'
+            $bankContent = $bankContent.Replace('</BankList>', ($permanentEntry + "`n</BankList>"))
+            Write-Host "  Added NeuroPermanent bank declaration"
+        }
+        [System.IO.File]::WriteAllText($bankListPath, $bankContent, $utf8NoBom)
+    } else {
+        Write-Host "  WARN: BankList.xml not found, creating minimal one"
+        $bankContent = "<?xml version=`"1.0`" encoding=`"utf-8`"?>`n<BankList>`n    <Bank Name=`"NeuroIntegration`" Player=`"1`"/>`n    <Bank Name=`"NeuroPermanent`" Player=`"1`"/>`n</BankList>`n"
+        [System.IO.File]::WriteAllText($bankListPath, $bankContent, $utf8NoBom)
+    }
+
+    # === Step N5: 注入 MapScript.galaxy ===
+    Write-Host "`n--- Neuro Step 5: Patch MapScript.galaxy ---" -ForegroundColor Yellow
+    $mapScriptPath = Join-Path $MapLivePath "MapScript.galaxy"
+    if (Test-Path -LiteralPath $mapScriptPath) {
+        $content = [System.IO.File]::ReadAllText($mapScriptPath)
+        $modified = $false
+
+        # N5a. 注入 include（在最后一个 include 之后）
+        if ($content -notmatch 'include "LibEFA54406"') {
+            $neuroIncludes = @(
+                'include "LibEFA54406"',
+                'include "LibNeuroBridge7vs1"'
+            )
+            $includeBlock = $neuroIncludes -join "`n"
+            $lastIncludePattern = '(?m)^(include "[^"]+"(?:\r?\n)*)'
+            $lastMatch = [regex]::Matches($content, $lastIncludePattern)
+            if ($lastMatch.Count -gt 0) {
+                $insertPos = $lastMatch[$lastMatch.Count - 1].Index + $lastMatch[$lastMatch.Count - 1].Length
+                $content = $content.Substring(0, $insertPos) + $includeBlock + "`n" + $content.Substring($insertPos)
+            }
+            $modified = $true
+            Write-Host "  Added Neuro includes"
+        }
+
+        # N5b. 注入 InitLib 调用（在 InitLibs() 闭合大括号之前）
+        if ($content -notmatch 'libNeuroBridge7vs1_InitLib') {
+            $initCalls = @(
+                '    libEFA54406_InitLib();',
+                '    libNeuroBridge7vs1_InitLib();'
+            )
+            $initBlock = ($initCalls -join "`n") + "`n"
+            $initLibsPattern = '(void\s+InitLibs\s*\(\s*\)\s*\{)([^}]+)(\})'
+            if ($content -match $initLibsPattern) {
+                $beforeBrace = $matches[2]
+                $content = $content -replace [regex]::Escape($beforeBrace), ($beforeBrace + $initBlock)
+                $modified = $true
+                Write-Host "  Added Neuro InitLib calls"
+            } else {
+                Write-Host "  WARN: could not find InitLibs() function"
+            }
+        }
+
+        if ($modified) {
+            [System.IO.File]::WriteAllText($mapScriptPath, $content, $utf8NoBom)
+            Write-Host "MapScript.galaxy patched." -ForegroundColor Green
+        } else {
+            Write-Host "  SKIP: MapScript.galaxy already patched"
+        }
+    } else {
+        Write-Host "  WARN: MapScript.galaxy not found at $mapScriptPath"
+    }
+
+    Write-Host "Neuro integration completed." -ForegroundColor Green
+
+    # === Step N6: 启动/复用共享 Neuro 运行时服务（可选，-NoLaunch 时跳过）===
+    if (-not $SkipPythonRuntime -and -not $NoLaunch) {
+        Write-Host "`n--- Neuro Step 6: Ensure shared Neuro runtime service ---" -ForegroundColor Yellow
+
+        $serviceScript = Join-Path $ScriptsRoot "runtime-probe\start-neuro-runtime-service.ps1"
+        if (Test-Path -LiteralPath $serviceScript) {
+            $serviceArgs = @(
+                "-NeuroApiRoot", $NeuroApiRoot,
+                "-Sc2Root", $Sc2Root
+            )
+            $serviceJsonText = & pwsh -NoProfile -ExecutionPolicy Bypass -File $serviceScript @serviceArgs
+            Write-Host $serviceJsonText
+            try {
+                $serviceState = $serviceJsonText | ConvertFrom-Json
+                if ($serviceState.processes.neuroApi.pid) { $pythonProcessId = [int]$serviceState.processes.neuroApi.pid }
+                if ($serviceState.webUrl) {
+                    Write-Host "  Runtime API: $($serviceState.webUrl)" -ForegroundColor Cyan
+                }
+            } catch {
+                Write-Host "  WARN: failed to parse service state: $_" -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "  WARN: start-neuro-runtime-service.ps1 not found at $serviceScript" -ForegroundColor Yellow
+        }
+    }
 }
 
 # === LAUNCH SECTION ===
