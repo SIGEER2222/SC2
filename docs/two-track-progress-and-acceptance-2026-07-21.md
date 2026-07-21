@@ -60,7 +60,7 @@
 
 - Raynor action matrix ~~已有一份 bank round-trip 报告，但还缺统一 VerificationReport 中的 ScriptError 结论、SC2 进程状态和原始日志索引~~。**已升级为 VerificationReport/v1**：`out/verification/7vs1-TerranRaynor/20260721T110509-9c405a.verification.json` 现包含 `process_status`、`scripterror_conclusion`、`log_index`、`repro_command`、`composition_details` 字段，以及每个 action 的 `semantic_classification`（8 game_behavior_success / 6 deterministic_error / 14 link_ok_total）。
 - ~~Galaxy、Python bridge、Neuro API runtime 仍分散维护 action 名称和参数事实，容易再次出现"实现了但工具列表缺失"的问题~~（**已解决**）：`合作指挥官-起义狂潮/Shared/Neuro/actions.json` 作为单一事实源定义全部 14 个 action 的 schema 和各源标记，`tools/SC2-Neuro-API-Integration/tests/test_action_matrix_consistency.py`（11 个测试）对照 manifest 校验 Galaxy RegisterActions / Galaxy force list / Python ADVISOR_ACTIONS / Neuro API runtime 四处源，任何漂移立即失败。2026-07-21 验证 28/28 测试通过。
-- 非 Raynor commander、非 7vs1 地图、CMRE 地图上的 Neuro 行为还没有完整报告。
+- 非 Raynor commander、非 7vs1 地图、CMRE 地图上的 Neuro 行为还没有完整报告。**已知障碍**（2026-07-21 发现）：`LibNeuroBridge7vs1.galaxy:846` 的 `libNeuroBridge7vs1_gf_TrainUnit` 硬编码了 commander 映射（`Marine -> MarineRaynor`、`SCV -> SCVRaynor`、`Marauder -> MarauderRaynor`），非 Raynor commander 调用 `train_unit Marine` 会尝试创建 `MarineRaynor` 而非 `MengskMarine`。`move_to_unit` 的参数也使用 Raynor 专属 ID（`SCVRaynor`/`CommandCenterRaynor`）。扩展到 Mengsk/Nova 前需先修复 Galaxy 端的 commander 兼容性，使其根据 `libCOOC_gf_ActiveCommanderForPlayer(1)` 动态映射单位 ID。
 - CMRE runtime 中发现 Bank 外部写入缓存问题：Gary/Python 外部写入 `NeuroIntegration.SC2Bank` 不会被运行中的 SC2 自动观察到，不能直接推断 CMRE 可用。
 
 ### 发展计划
@@ -74,15 +74,16 @@
 
 ### Neuro 验收门禁
 
-必须同时满足：
+必须同时满足（**2026-07-21 状态**）：
 
-- Galaxy checker 对 `NeuroBridge7vs1.SC2Mod/Base.SC2Data` 为 0 errors；已知 include warning 必须在报告中点名。
-- `python -m py_compile 合作指挥官-起义狂潮/scripts/runtime-probe/neuro_bridge.py` 通过。
-- `python -m pytest tests/test_force_action_arguments.py` 通过。
-- Raynor action matrix 每个 action 都有一条 runtime 证据，写入 `out/verification/<compositionId>/<runId>.verification.json`；成功动作和确定性失败动作必须分开统计。
-- 启动到 action 执行后的观察窗口无新增致命 `ScriptError.txt`，SC2 进程保持存活。
-- 至少一个非 Raynor commander 有 runtime verification report。
-- 新增 action 不能只改一个文件；必须通过 action matrix 静态一致性测试。
+- ✅ Galaxy checker 对 `NeuroBridge7vs1.SC2Mod/Base.SC2Data` 为 0 errors；已知 include warning 必须在报告中点名。（1 warning: `LibNeuroBridge7vs1_h.galaxy:2 XLIB_MISSING_INCLUDE LibEFA54406_h`，已知上游模式，runtime 不受影响）
+- ✅ `python -m py_compile 合作指挥官-起义狂潮/scripts/runtime-probe/neuro_bridge.py` 通过。（exit 0）
+- ✅ `python -m pytest tests/test_force_action_arguments.py` 通过。（17/17 passed）
+- ✅ `python -m pytest tests/test_action_matrix_consistency.py` 通过。（11/11 passed，对照 `Shared/Neuro/actions.json` 校验四处事实源）
+- ✅ Raynor action matrix 每个 action 都有一条 runtime 证据，写入 `out/verification/<compositionId>/<runId>.verification.json`；成功动作和确定性失败动作必须分开统计。（14/14 passed: 8 game_behavior_success + 6 deterministic_error）
+- ✅ 启动到 action 执行后的观察窗口无新增致命 `ScriptError.txt`，SC2 进程保持存活。（VerificationReport/v1 process_status 确认）
+- ❌ 至少一个非 Raynor commander 有 runtime verification report。（**未完成**：扩展到 Mengsk/Nova 需要 runtime 测试。已知障碍：`libNeuroBridge7vs1_gf_TrainUnit` 有硬编码的 commander 映射 `Marine -> MarineRaynor`，非 Raynor commander 会失败。`move_to_unit` 的参数也使用 Raynor 专属 ID `SCVRaynor`/`CommandCenterRaynor`。扩展前需先修复 Galaxy 端的 commander 兼容性）
+- ✅ 新增 action 不能只改一个文件；必须通过 action matrix 静态一致性测试。（`test_action_matrix_consistency.py` 已覆盖）
 
 建议命令：
 
@@ -301,7 +302,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 
 ## 推荐执行顺序
 
-1. 先完成 Neuro action matrix 静态一致性测试。这是低风险、高收益，能防止同类工具缺失问题再次出现。
+1. ~~先完成 Neuro action matrix 静态一致性测试~~（**已完成**）：`Shared/Neuro/actions.json` 作为单一事实源定义 14 个 action 的 schema 和各源标记，`test_action_matrix_consistency.py`（11 个测试）对照 manifest 校验 Galaxy RegisterActions / Galaxy force list / Python ADVISOR_ACTIONS / Neuro API runtime 四处源，2026-07-21 验证 28/28 通过（11 consistency + 17 force_action）。
 2. ~~再补 Raynor action matrix runtime report。已有 E2E 基础，最容易形成可复用验收模板~~。**已完成**：`20260721T110509-9c405a.verification.json` 升级为 VerificationReport/v1，含 process_status / scripterror_conclusion / log_index / repro_command / semantic_classification。
 3. 对疯批帝国线，单位/建筑/命令卡/训练完成最小门禁**已通过**（2026-07-21 15:35-15:38 Bank 证据）；`CMRE-ALENGER3-RUNTIME-002` 已于 2026-07-21 16:24 修复（10 处 patch，SC2 exit code 0、无 ScriptError），2026-07-21 16:43 清理重复函数后再次验证（ScriptError.txt 0 字节、所有 probe 数据完整）。
 4. ~~修 `CMRE-ALENGER3-RUNTIME-002`（LibCOTF/LibCOMI runtime 错误）~~（**已完成，2026-07-21 16:24**：`Patch-CmreCoreRuntimeErrors` 函数应用 10 处防御性 guard/fallback patch，SC2 首次以 exit code 0 干净启动、无 ScriptError.txt）。
