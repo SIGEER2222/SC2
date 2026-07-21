@@ -303,7 +303,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 
 1. 先完成 Neuro action matrix 静态一致性测试。这是低风险、高收益，能防止同类工具缺失问题再次出现。
 2. ~~再补 Raynor action matrix runtime report。已有 E2E 基础，最容易形成可复用验收模板~~。**已完成**：`20260721T110509-9c405a.verification.json` 升级为 VerificationReport/v1，含 process_status / scripterror_conclusion / log_index / repro_command / semantic_classification。
-3. 对疯批帝国线，单位/建筑/命令卡/训练完成最小门禁**已通过**（2026-07-21 15:35-15:38 Bank 证据）；`CMRE-ALENGER3-RUNTIME-002` 已于 2026-07-21 16:24 修复（10 处 patch，SC2 exit code 0、无 ScriptError）；下一步形成正式 runtime verification report。
+3. 对疯批帝国线，单位/建筑/命令卡/训练完成最小门禁**已通过**（2026-07-21 15:35-15:38 Bank 证据）；`CMRE-ALENGER3-RUNTIME-002` 已于 2026-07-21 16:24 修复（10 处 patch，SC2 exit code 0、无 ScriptError），2026-07-21 16:43 清理重复函数后再次验证（ScriptError.txt 0 字节、所有 probe 数据完整）；下一步形成正式 runtime verification report。
 4. ~~修 `CMRE-ALENGER3-RUNTIME-002`（LibCOTF/LibCOMI runtime 错误）~~（**已完成，2026-07-21 16:24**：`Patch-CmreCoreRuntimeErrors` 函数应用 10 处防御性 guard/fallback patch，SC2 首次以 exit code 0 干净启动、无 ScriptError.txt）。
 5. 暂缓把 CMRE + Neuro 作为最终验收目标，先让 `亡者之夜 x TerranAlenger3` 非 Neuro 模式产出正式 verification report。
 6. 最后把专项 launcher 逻辑并入主 CompositionPlan/launcher，并补 web launcher 预览和启动路径。
