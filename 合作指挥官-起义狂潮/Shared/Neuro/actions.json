@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "id": "neuro.7vs1.actions",
+  "description": "Single source of truth for the 7vs1 Neuro action matrix. Used by the static consistency test to keep Galaxy RegisterActions, Python bridge ADVISOR_ACTIONS, and Neuro API runtime (SC2_ACTION_ARGUMENT_ENUMS / SC2_ACTION_ARGUMENT_PATTERNS / candidate_actions / action_patterns) in sync. Any new action or argument change must be reflected here first, then mirrored into all three sources.",
+  "scope": {
+    "mapFamily": "7vs1",
+    "coveredCompositions": [
+      "7vs1.neuro.TerranRaynor"
+    ]
+  },
+  "sources": {
+    "galaxyRegister": {
+      "file": "Mods/Neuro/NeuroBridge7vs1.SC2Mod/Base.SC2Data/LibNeuroBridge7vs1.galaxy",
+      "function": "libNeuroBridge7vs1_gf_RegisterActions"
+    },
+    "galaxyForceList": {
+      "file": "Mods/Neuro/NeuroBridge7vs1.SC2Mod/Base.SC2Data/LibNeuroBridge7vs1.galaxy",
+      "note": "Comma-separated string passed to libEFA54406_gf_create_force_action; includes chat_message even though chat_message is not registered by RegisterActions (it is a LibEFA54406 default)."
+    },
+    "pythonBridge": {
+      "file": "scripts/runtime-probe/neuro_bridge.py",
+      "constant": "ADVISOR_ACTIONS"
+    },
+    "neuroApiRuntime": {
+      "file": "tools/SC2-Neuro-API-Integration/neuro_integration_runtime.py",
+      "constants": [
+        "SC2_ACTION_ARGUMENT_ENUMS",
+        "SC2_ACTION_ARGUMENT_PATTERNS",
+        "_force_action_command_override.candidate_actions",
+        "_extract_force_argument.action_patterns"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "name": "chat_message",
+      "args": [{"name": "arg_1", "type": "string", "required": true}],
+      "registeredBy": "LibEFA54406",
+      "galaxyRegister": false,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": false,
+      "forceCandidate": false,
+      "forcePatterns": false,
+      "schemaOverride": false,
+      "description": "Post a message into the game chat. arg_1 is the message text."
+    },
+    {
+      "name": "get_mutators",
+      "args": [],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": false,
+      "forceCandidate": false,
+      "forcePatterns": false,
+      "schemaOverride": false,
+      "description": "Query current resources, supply and active mutators in this 7vs1 mission."
+    },
+    {
+      "name": "get_commander_status",
+      "args": [],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": false,
+      "forceCandidate": false,
+      "forcePatterns": false,
+      "schemaOverride": false,
+      "description": "Query commander status: total units, structures and army count."
+    },
+    {
+      "name": "get_production_queue",
+      "args": [],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": false,
+      "forceCandidate": false,
+      "forcePatterns": false,
+      "schemaOverride": false,
+      "description": "Query current production queue of all buildings."
+    },
+    {
+      "name": "get_active_mutators",
+      "args": [],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": false,
+      "forceCandidate": false,
+      "forcePatterns": false,
+      "schemaOverride": false,
+      "description": "Query active mutators with semantic descriptions explaining their gameplay impact."
+    },
+    {
+      "name": "train_unit",
+      "args": [{"name": "arg_1", "type": "string", "required": true, "enum": ["Marine", "Marauder", "Firebat", "Medic", "SiegeTank", "Medivac", "Viking", "Banshee", "Battlecruiser", "SCV"]}],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": true,
+      "forceCandidate": true,
+      "forcePatterns": true,
+      "schemaOverride": "enum",
+      "description": "Order production of a unit. arg_1 is the unit type id."
+    },
+    {
+      "name": "use_ability",
+      "args": [
+        {"name": "arg_1", "type": "string", "required": true},
+        {"name": "arg_2", "type": "string", "required": false}
+      ],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": true,
+      "forceCandidate": true,
+      "forcePatterns": true,
+      "schemaOverride": "pattern",
+      "description": "Order a unit to use an ability. arg_1 is the ability id, arg_2 is the target unit type (optional)."
+    },
+    {
+      "name": "research_upgrade",
+      "args": [{"name": "arg_1", "type": "string", "required": true}],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": true,
+      "forceCandidate": true,
+      "forcePatterns": true,
+      "schemaOverride": "pattern",
+      "description": "Order research of an upgrade. arg_1 is the upgrade id."
+    },
+    {
+      "name": "attack_unit",
+      "args": [{"name": "arg_1", "type": "string", "required": true}],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": true,
+      "forceCandidate": true,
+      "forcePatterns": true,
+      "schemaOverride": "pattern",
+      "description": "Order currently selected player units to attack the nearest enemy unit of the given type."
+    },
+    {
+      "name": "focus_fire",
+      "args": [{"name": "arg_1", "type": "string", "required": true}],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": true,
+      "forceCandidate": true,
+      "forcePatterns": true,
+      "schemaOverride": "pattern",
+      "description": "Order ALL player army units to attack the nearest enemy unit of the given type."
+    },
+    {
+      "name": "set_rally",
+      "args": [
+        {"name": "arg_1", "type": "string", "required": true},
+        {"name": "arg_2", "type": "string", "required": true}
+      ],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": true,
+      "forceCandidate": true,
+      "forcePatterns": false,
+      "schemaOverride": "pattern",
+      "description": "Set rally point of all buildings matching arg_1 to the nearest unit of type arg_2. arg_1=building, arg_2=target unit."
+    },
+    {
+      "name": "move_to_unit",
+      "args": [
+        {"name": "arg_1", "type": "string", "required": true},
+        {"name": "arg_2", "type": "string", "required": true}
+      ],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": true,
+      "forceCandidate": true,
+      "forcePatterns": false,
+      "schemaOverride": "pattern",
+      "description": "Order all player units of type arg_1 to move to the nearest unit of type arg_2. arg_1=source, arg_2=target."
+    },
+    {
+      "name": "move_selected_to_unit",
+      "args": [{"name": "arg_1", "type": "string", "required": true}],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": true,
+      "forceCandidate": true,
+      "forcePatterns": true,
+      "schemaOverride": "pattern",
+      "description": "Order the currently selected player units to move to the nearest unit of type arg_1."
+    },
+    {
+      "name": "build_building",
+      "args": [{"name": "arg_1", "type": "string", "required": true}],
+      "registeredBy": "NeuroBridge7vs1",
+      "galaxyRegister": true,
+      "galaxyForceList": true,
+      "pythonBridge": true,
+      "neuroApiRuntime": true,
+      "forceCandidate": true,
+      "forcePatterns": true,
+      "schemaOverride": "pattern",
+      "description": "Order an SCV to build a building. arg_1 is the building type."
+    }
+  ]
+}

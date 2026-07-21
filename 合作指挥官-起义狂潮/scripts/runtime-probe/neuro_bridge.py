@@ -97,7 +97,7 @@ USE_ABILITY_SCHEMA = {
     "additionalProperties": False,
 }
 
-# 与 Galaxy 侧 LibNeuroBridge7vs1.galaxy RegisterActions 完全一致的 12 个 action
+# 与 Galaxy 侧 LibNeuroBridge7vs1.galaxy RegisterActions 保持一致的 action
 # Neuro 通过 WebSocket 调用时，Python 转发到 NeuroIntegration Bank 的 do_action section
 # Galaxy 在 ExecuteActionsMap tick 读取 flag + arg，执行后通过 libEFA54406_gf_create_context 推回结果
 #
@@ -166,6 +166,11 @@ ADVISOR_ACTIONS = [
     {
         "name": "move_selected_to_unit",
         "description": "Order the currently selected player units to move to the nearest unit of type arg_1. Pass args.data.arg_1 = target unit type (e.g. 'CommandCenter', 'SCV', 'Marine').",
+        "schema": ONE_STRING_ARG_SCHEMA,
+    },
+    {
+        "name": "build_building",
+        "description": "Order an SCV to build a building. Pass args.data.arg_1 = building type, e.g. 'SupplyDepot', 'Barracks', 'Factory', 'Starport', 'Bunker', 'EngineeringBay', 'MissileTurret', 'Refinery', 'CommandCenter'.",
         "schema": ONE_STRING_ARG_SCHEMA,
     },
 ]
@@ -300,6 +305,7 @@ def _extract_force_argument(text: str, action_name: str, argument_name: str) -> 
 
     action_patterns = {
         "train_unit": r"(?:\btrain\b|\bbuild\b|\bproduce\b|训练|生产|造)\s+([A-Z][A-Za-z0-9_]*)",
+        "build_building": r"(?:\bbuild\b|\bconstruct\b|建造|建筑|造)\s+([A-Z][A-Za-z0-9_]*)",
         "attack_unit": r"(?:\battack\b|攻击|打)\s+([A-Z][A-Za-z0-9_]*)",
         "focus_fire": r"(?:\bfocus(?:_fire)?\b|集火)\s+([A-Z][A-Za-z0-9_]*)",
         "move_selected_to_unit": r"(?:\bmove\b|移动|去)\s+([A-Z][A-Za-z0-9_]*)",
