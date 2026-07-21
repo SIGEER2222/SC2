@@ -72,10 +72,13 @@ string libNeuroBridge7vs1_gf_BuildSelectedUnitsContext();
 string libNeuroBridge7vs1_gf_BuildPlayerOperationContext(string eventKind);
 void   libNeuroBridge7vs1_gf_AppendPlayerOperationContext(string context);
 
-// Bank flag ����
+// Bank flag 函数
 bool   libNeuroBridge7vs1_gf_ReadActionFlag(string actionName);
 void   libNeuroBridge7vs1_gf_ClearActionFlag(string actionName);
 string libNeuroBridge7vs1_gf_ReadActionStringArg(string actionName, string argName);
+
+// 同步写入 context（绕过 EFA create_context 的异步 TriggerExecute 限制）
+void   libNeuroBridge7vs1_gf_WriteContextSync(string lp_context_name, string lp_context, bool lp_silent);
 
 // ֻ����ѯ�� action ʵ��
 string libNeuroBridge7vs1_gf_GetMutators();
@@ -95,6 +98,13 @@ string libNeuroBridge7vs1_gf_SetRally(string buildingType, string targetUnitType
 string libNeuroBridge7vs1_gf_MoveToUnit(string sourceUnitType, string targetUnitType);
 string libNeuroBridge7vs1_gf_MoveSelectedToUnit(string targetUnitType);
 string libNeuroBridge7vs1_gf_BuildBuilding(string buildingType);
+
+// === Extern declarations: provided by CoreRuntime.SC2Mod (LibE0EAE146_CoreInfra.galaxy / LibE0EAE146_MutatorCatalog.galaxy) ===
+// 7vs1 项目通过 libE0EAE146_gv_cCX_PlayerCommander 跟踪玩家选择的 commander。
+// NeuroBridge7vs1 不直接依赖 CoreRuntime，但运行时通过地图 MapScript.galaxy 链接，
+// 静态分析时通过此 extern 声明让 galaxy-checker 识别符号。
+string libE0EAE146_gf_ActiveCommanderForPlayer(int lp_player);
+string libE0EAE146_gf_MutatorIdByIndex(int lp_index);
 
 // ͻ�������������
 void   libNeuroBridge7vs1_gf_PushMutatorContext();

@@ -60,7 +60,7 @@
 
 - Raynor action matrix ~~已有一份 bank round-trip 报告，但还缺统一 VerificationReport 中的 ScriptError 结论、SC2 进程状态和原始日志索引~~。**已升级为 VerificationReport/v1**：`out/verification/7vs1-TerranRaynor/20260721T110509-9c405a.verification.json` 现包含 `process_status`、`scripterror_conclusion`、`log_index`、`repro_command`、`composition_details` 字段，以及每个 action 的 `semantic_classification`（8 game_behavior_success / 6 deterministic_error / 14 link_ok_total）。
 - ~~Galaxy、Python bridge、Neuro API runtime 仍分散维护 action 名称和参数事实，容易再次出现"实现了但工具列表缺失"的问题~~（**已解决**）：`合作指挥官-起义狂潮/Shared/Neuro/actions.json` 作为单一事实源定义全部 14 个 action 的 schema 和各源标记，`tools/SC2-Neuro-API-Integration/tests/test_action_matrix_consistency.py`（11 个测试）对照 manifest 校验 Galaxy RegisterActions / Galaxy force list / Python ADVISOR_ACTIONS / Neuro API runtime 四处源，任何漂移立即失败。2026-07-21 验证 28/28 测试通过。
-- 非 Raynor commander、非 7vs1 地图、CMRE 地图上的 Neuro 行为还没有完整报告。**已知障碍**（2026-07-21 发现）：`LibNeuroBridge7vs1.galaxy:846` 的 `libNeuroBridge7vs1_gf_TrainUnit` 硬编码了 commander 映射（`Marine -> MarineRaynor`、`SCV -> SCVRaynor`、`Marauder -> MarauderRaynor`），非 Raynor commander 调用 `train_unit Marine` 会尝试创建 `MarineRaynor` 而非 `MengskMarine`。`move_to_unit` 的参数也使用 Raynor 专属 ID（`SCVRaynor`/`CommandCenterRaynor`）。扩展到 Mengsk/Nova 前需先修复 Galaxy 端的 commander 兼容性，使其根据 `libCOOC_gf_ActiveCommanderForPlayer(1)` 动态映射单位 ID。
+- 非 Raynor commander、非 7vs1 地图、CMRE 地图上的 Neuro 行为还没有完整报告。**TrainUnit 硬编码 commander 映射障碍已修复**（2026-07-21）：`LibNeuroBridge7vs1.galaxy:846` 的 `libNeuroBridge7vs1_gf_TrainUnit` 现根据 `libE0EAE146_gf_ActiveCommanderForPlayer(1)` 返回的 commander instance 名动态映射简写到完整 unit ID — Raynor/RaynorX 系列映射为 `MarineRaynor`/`SCVRaynor`/`MarauderRaynor`；Mengsk 映射为 `MengskMarine`/`MengskMarauder`/`MengskFirebat`/`MengskMedic`/`MengskReaper`；其他 commander（Nova/Swann/Horner/Tychus/Zerg/Protoss）暂不做简写映射，调用方需传完整 catalog unit entry ID。`LibNeuroBridge7vs1_h.galaxy` 补充 `libE0EAE146_gf_ActiveCommanderForPlayer` 和 `libE0EAE146_gf_MutatorIdByIndex` 两个 extern 声明，让 galaxy-checker 识别跨库引用。galaxy-checker 0 errors / 1 已知 warning，pytest 28/28 通过。`move_to_unit` 参数仍使用完整 ID（如 `SCVRaynor`/`CommandCenterRaynor`），非 Raynor commander 需传入对应 commander 的完整单位 ID。
 - CMRE runtime 中发现 Bank 外部写入缓存问题：Gary/Python 外部写入 `NeuroIntegration.SC2Bank` 不会被运行中的 SC2 自动观察到，不能直接推断 CMRE 可用。
 
 ### 发展计划
@@ -82,7 +82,7 @@
 - ✅ `python -m pytest tests/test_action_matrix_consistency.py` 通过。（11/11 passed，对照 `Shared/Neuro/actions.json` 校验四处事实源）
 - ✅ Raynor action matrix 每个 action 都有一条 runtime 证据，写入 `out/verification/<compositionId>/<runId>.verification.json`；成功动作和确定性失败动作必须分开统计。（14/14 passed: 8 game_behavior_success + 6 deterministic_error）
 - ✅ 启动到 action 执行后的观察窗口无新增致命 `ScriptError.txt`，SC2 进程保持存活。（VerificationReport/v1 process_status 确认）
-- ❌ 至少一个非 Raynor commander 有 runtime verification report。（**未完成**：扩展到 Mengsk/Nova 需要 runtime 测试。已知障碍：`libNeuroBridge7vs1_gf_TrainUnit` 有硬编码的 commander 映射 `Marine -> MarineRaynor`，非 Raynor commander 会失败。`move_to_unit` 的参数也使用 Raynor 专属 ID `SCVRaynor`/`CommandCenterRaynor`。扩展前需先修复 Galaxy 端的 commander 兼容性）
+- ❌ 至少一个非 Raynor commander 有 runtime verification report。（**未完成**：扩展到 Mengsk/Nova 需要 runtime 测试。**TrainUnit 硬编码障碍已修复**（2026-07-21）：`libNeuroBridge7vs1_gf_TrainUnit` 现根据 `libE0EAE146_gf_ActiveCommanderForPlayer(1)` 动态映射简写到完整 unit ID，Raynor/RaynorX/Mengsk 已覆盖。`move_to_unit` 参数仍使用完整 ID，非 Raynor commander 需传入对应 commander 的完整单位 ID。剩余工作：参数化 `run-raynor-actions.py` 为 `run-commander-actions.py`，实际进图验证 Mengsk runtime）
 - ✅ 新增 action 不能只改一个文件；必须通过 action matrix 静态一致性测试。（`test_action_matrix_consistency.py` 已覆盖）
 
 建议命令：

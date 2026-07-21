@@ -98,8 +98,9 @@ void libNeuroBridge7vs1_gf_RegisterActions() {
     }
 
     // 等待 bankwriteallowed（BootstrapLoop 已设为 true，此处防御性等待）
+    // 7vs1 战役图 c_timeGame 可能不流动，使用 c_timeReal 确保 Wait 能返回
     while ((libEFA54406_gv_bankwriteallowed == false)) {
-        Wait(0.01, c_timeGame);
+        Wait(0.01, c_timeReal);
     }
     libEFA54406_gv_bankwriteallowed = false;
 
@@ -533,7 +534,7 @@ void libNeuroBridge7vs1_gf_UpdateSelectionContext() {
     lv_currentContext = libNeuroBridge7vs1_gf_BuildSelectedUnitsContext();
     if (lv_currentContext == "") {
         if ((libNeuroBridge7vs1_lastSelectionContext != "") && (libNeuroBridge7vs1_selectionCooldownTicks <= 0)) {
-            libEFA54406_gf_create_context("player_selected_units", "Player has no unit(s) selected.", true);
+            libNeuroBridge7vs1_gf_WriteContextSync("player_selected_units", "Player has no unit(s) selected.", true);
             libNeuroBridge7vs1_lastSelectionContext = "";
             libNeuroBridge7vs1_selectionCooldownTicks = 5;
         }
@@ -541,7 +542,7 @@ void libNeuroBridge7vs1_gf_UpdateSelectionContext() {
     }
 
     if ((lv_currentContext != libNeuroBridge7vs1_lastSelectionContext) && (libNeuroBridge7vs1_selectionCooldownTicks <= 0)) {
-        libEFA54406_gf_create_context("player_selected_units", lv_currentContext, true);
+        libNeuroBridge7vs1_gf_WriteContextSync("player_selected_units", lv_currentContext, true);
         libNeuroBridge7vs1_lastSelectionContext = lv_currentContext;
         libNeuroBridge7vs1_selectionCooldownTicks = 5;
     }
@@ -576,7 +577,7 @@ void libNeuroBridge7vs1_gf_UpdateEconomyContext() {
         IntToString(lv_currentMinerals - libNeuroBridge7vs1_lastMinerals) +
         ", gas " + IntToString(lv_currentGas - libNeuroBridge7vs1_lastGas) +
         ", used supply " + IntToString(lv_currentSupply - libNeuroBridge7vs1_lastSupplyUsed) + ".";
-    libEFA54406_gf_create_context("economy", lv_context, true);
+    libNeuroBridge7vs1_gf_WriteContextSync("economy", lv_context, true);
 
     libNeuroBridge7vs1_lastMinerals = lv_currentMinerals;
     libNeuroBridge7vs1_lastGas = lv_currentGas;
@@ -612,7 +613,7 @@ void libNeuroBridge7vs1_gf_UpdateCombatContext() {
     if (libNeuroBridge7vs1_neutralUnitsKilled > 0) {
         lv_context = lv_context + "killed " + IntToString(libNeuroBridge7vs1_neutralUnitsKilled) + " neutral unit(s); ";
     }
-    libEFA54406_gf_create_context("unit_dies", lv_context, true);
+    libNeuroBridge7vs1_gf_WriteContextSync("unit_dies", lv_context, true);
 
     libNeuroBridge7vs1_ownUnitsLostToEnemy = 0;
     libNeuroBridge7vs1_ownUnitsLostToSelf = 0;
@@ -629,11 +630,11 @@ void libNeuroBridge7vs1_gf_FlushPendingContexts() {
     }
 
     if (libNeuroBridge7vs1_pendingChatContext != "") {
-        libEFA54406_gf_create_context("player_chat_message", libNeuroBridge7vs1_pendingChatContext, false);
+        libNeuroBridge7vs1_gf_WriteContextSync("player_chat_message", libNeuroBridge7vs1_pendingChatContext, false);
         libNeuroBridge7vs1_pendingChatContext = "";
     }
     if (libNeuroBridge7vs1_pendingCommandContext != "") {
-        libEFA54406_gf_create_context("player_action", libNeuroBridge7vs1_pendingCommandContext, true);
+        libNeuroBridge7vs1_gf_WriteContextSync("player_action", libNeuroBridge7vs1_pendingCommandContext, true);
         libNeuroBridge7vs1_pendingCommandContext = "";
     }
     if (libNeuroBridge7vs1_pendingDirectiveContext != "") {
@@ -644,7 +645,7 @@ void libNeuroBridge7vs1_gf_FlushPendingContexts() {
         lv_state = lv_state + libNeuroBridge7vs1_gf_GetCommanderStatus();
         lv_actions = "chat_message,get_mutators,get_commander_status,get_production_queue,get_active_mutators,train_unit,use_ability,research_upgrade,attack_unit,focus_fire,set_rally,move_to_unit,move_selected_to_unit,build_building";
         libNeuroBridge7vs1_directiveCounter = libNeuroBridge7vs1_directiveCounter + 1;
-        libEFA54406_gf_create_context("player_directive", "Player directive: " + libNeuroBridge7vs1_pendingDirectiveContext, false);
+        libNeuroBridge7vs1_gf_WriteContextSync("player_directive", "Player directive: " + libNeuroBridge7vs1_pendingDirectiveContext, false);
         libEFA54406_gf_create_force_action(
             "player_directive_" + IntToString(libNeuroBridge7vs1_directiveCounter),
             lv_actions,
@@ -679,6 +680,31 @@ string libNeuroBridge7vs1_gf_ReadActionStringArg(string actionName, string argNa
         return "";
     }
     return BankValueGetAsString(libEFA54406_gv_neuroIntegration, "do_action", argName);
+}
+
+//--------------------------------------------------------------------------------------------------
+// 同步写入 context（绕过 EFA create_context 的异步 TriggerExecute 限制）
+//
+// 背景：libEFA54406_gf_create_context 使用全局变量 + TriggerExecute 异步模式，
+// 同一 trigger 在队列里时后续 TriggerExecute 是 no-op，且 globals 会被覆盖。
+// 在 ExecuteActionsMap_Func 中，FlushPendingContexts（economy/combat/selection）
+// 与 action handler 共用同一个 create_context trigger，导致 action 结果被丢弃。
+// 本函数直接同步写 bank，确保每次调用都能成功写入。
+//--------------------------------------------------------------------------------------------------
+void libNeuroBridge7vs1_gf_WriteContextSync(string lp_context_name, string lp_context, bool lp_silent) {
+    bank lv_bank = libEFA54406_gv_neuroIntegration;
+    if (lv_bank == null) {
+        return;
+    }
+    while ((libEFA54406_gv_bankwriteallowed == false)) {
+        Wait(0.01, c_timeReal);
+    }
+    libEFA54406_gv_bankwriteallowed = false;
+    BankValueSetFromFlag(lv_bank, "game_context", (lp_context_name + "_new"), true);
+    BankValueSetFromString(lv_bank, "game_context", lp_context_name, lp_context);
+    BankValueSetFromFlag(lv_bank, "game_context", (lp_context_name + "_silent"), lp_silent);
+    BankSave(lv_bank);
+    libEFA54406_gv_bankwriteallowed = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -819,6 +845,7 @@ string libNeuroBridge7vs1_gf_GetActiveMutators() {
 //--------------------------------------------------------------------------------------------------
 string libNeuroBridge7vs1_gf_TrainUnit(string unitType) {
     int lv_player = 1;
+    string lv_commander = "";
     unitgroup lv_structures;
     unit lv_building = null;
     int lv_queueCount = 0;
@@ -826,17 +853,41 @@ string libNeuroBridge7vs1_gf_TrainUnit(string unitType) {
     order lv_order = null;
     int lv_cmdIndex = 0;
 
-    // 兼容简写：Marine -> MarineRaynor（7vs1 雷神单位 ID）
-    if (unitType == "Marine") {
-        unitType = "MarineRaynor";
-    } else if (unitType == "SCV") {
-        unitType = "SCVRaynor";
-    } else if (unitType == "Marauder") {
-        unitType = "MarauderRaynor";
+    // 根据 active commander 动态映射简写到完整 unit ID。
+    // libE0EAE146_gf_ActiveCommanderForPlayer 返回 PlayerCommander catalog 的 instance 名
+    // （如 "Raynor", "RaynorX", "Mengsk", "Nova"），由 CoreRuntime.SC2Mod 在运行时维护。
+    // NeuroBridge7vs1 不直接依赖 CoreRuntime，但地图 MapScript.galaxy 会同时 include 两者，
+    // 因此运行时调用是安全的；galaxy-checker 通过 _h.galaxy 中的 extern 声明识别符号。
+    lv_commander = libE0EAE146_gf_ActiveCommanderForPlayer(lv_player);
+    if (lv_commander == "Raynor" || lv_commander == "RaynorX") {
+        // 7vs1 Raynor 系列：Marine -> MarineRaynor（合作生产 ability InfoArray 单位 ID）
+        if (unitType == "Marine") {
+            unitType = "MarineRaynor";
+        } else if (unitType == "SCV") {
+            unitType = "SCVRaynor";
+        } else if (unitType == "Marauder") {
+            unitType = "MarauderRaynor";
+        }
+    } else if (lv_commander == "Mengsk") {
+        // Mengsk 拥有独立的步兵单位 ID，但复用 BarracksTrainRaynor ability
+        // （合作 Mengsk 标准做法：ability 不变，InfoArray 单位被 mod override 为 Mengsk 系列）
+        if (unitType == "Marine") {
+            unitType = "MengskMarine";
+        } else if (unitType == "Marauder") {
+            unitType = "MengskMarauder";
+        } else if (unitType == "Firebat") {
+            unitType = "MengskFirebat";
+        } else if (unitType == "Medic") {
+            unitType = "MengskMedic";
+        } else if (unitType == "Reaper") {
+            unitType = "MengskReaper";
+        }
     }
+    // 其他 commander（Nova/Swann/Horner/Tychus/Zerg/Protoss）暂不做简写映射，
+    // 调用方需传入完整 catalog unit entry ID（如 "NovaMarine" 等）。
 
     if (!CatalogEntryIsValid(c_gameCatalogUnit, unitType)) {
-        return "ERROR: Invalid unit type '" + unitType + "'.";
+        return "ERROR: Invalid unit type '" + unitType + "' for commander '" + lv_commander + "'.";
     }
 
     lv_structures = UnitGroup(null, lv_player, RegionEntireMap(),
@@ -1520,7 +1571,7 @@ void libNeuroBridge7vs1_gf_PushMutatorContext() {
     }
 
     lv_context = libNeuroBridge7vs1_gf_GetActiveMutators();
-    libEFA54406_gf_create_context("mutator_semantic_info", lv_context, false);
+    libNeuroBridge7vs1_gf_WriteContextSync("mutator_semantic_info", lv_context, false);
 
     libNeuroBridge7vs1_mutatorContextPushed = true;
 }
@@ -1635,25 +1686,25 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
         if (libNeuroBridge7vs1_gf_ReadActionFlag("get_mutators")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("get_mutators");
             lv_result = libNeuroBridge7vs1_gf_GetMutators();
-            libEFA54406_gf_create_context("mutators_info", lv_result, true);
+            libNeuroBridge7vs1_gf_WriteContextSync("mutators_info", lv_result, true);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("get_commander_status")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("get_commander_status");
             lv_result = libNeuroBridge7vs1_gf_GetCommanderStatus();
-            libEFA54406_gf_create_context("commander_status", lv_result, true);
+            libNeuroBridge7vs1_gf_WriteContextSync("commander_status", lv_result, true);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("get_production_queue")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("get_production_queue");
             lv_result = libNeuroBridge7vs1_gf_GetProductionQueue();
-            libEFA54406_gf_create_context("production_queue", lv_result, true);
+            libNeuroBridge7vs1_gf_WriteContextSync("production_queue", lv_result, true);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("get_active_mutators")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("get_active_mutators");
             lv_result = libNeuroBridge7vs1_gf_GetActiveMutators();
-            libEFA54406_gf_create_context("active_mutators", lv_result, true);
+            libNeuroBridge7vs1_gf_WriteContextSync("active_mutators", lv_result, true);
         }
 
         // === 2. ����д���� action ===
@@ -1661,7 +1712,7 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
             libNeuroBridge7vs1_gf_ClearActionFlag("train_unit");
             lv_unitType = libNeuroBridge7vs1_gf_ReadActionStringArg("train_unit", "train_unit_arg_1");
             lv_result = libNeuroBridge7vs1_gf_TrainUnit(lv_unitType);
-            libEFA54406_gf_create_context("train_unit_result", lv_result, false);
+            libNeuroBridge7vs1_gf_WriteContextSync("train_unit_result", lv_result, false);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("use_ability")) {
@@ -1669,14 +1720,14 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
             lv_abilId = libNeuroBridge7vs1_gf_ReadActionStringArg("use_ability", "use_ability_arg_1");
             lv_target = libNeuroBridge7vs1_gf_ReadActionStringArg("use_ability", "use_ability_arg_2");
             lv_result = libNeuroBridge7vs1_gf_UseAbility(lv_abilId, lv_target);
-            libEFA54406_gf_create_context("use_ability_result", lv_result, false);
+            libNeuroBridge7vs1_gf_WriteContextSync("use_ability_result", lv_result, false);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("research_upgrade")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("research_upgrade");
             lv_upgradeId = libNeuroBridge7vs1_gf_ReadActionStringArg("research_upgrade", "research_upgrade_arg_1");
             lv_result = libNeuroBridge7vs1_gf_ResearchUpgrade(lv_upgradeId);
-            libEFA54406_gf_create_context("research_upgrade_result", lv_result, false);
+            libNeuroBridge7vs1_gf_WriteContextSync("research_upgrade_result", lv_result, false);
         }
 
         // === 2b. 精确单位控制 action ===
@@ -1684,14 +1735,14 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
             libNeuroBridge7vs1_gf_ClearActionFlag("attack_unit");
             lv_targetUnitType = libNeuroBridge7vs1_gf_ReadActionStringArg("attack_unit", "attack_unit_arg_1");
             lv_result = libNeuroBridge7vs1_gf_AttackUnit(lv_targetUnitType);
-            libEFA54406_gf_create_context("attack_unit_result", lv_result, false);
+            libNeuroBridge7vs1_gf_WriteContextSync("attack_unit_result", lv_result, false);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("focus_fire")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("focus_fire");
             lv_targetUnitType = libNeuroBridge7vs1_gf_ReadActionStringArg("focus_fire", "focus_fire_arg_1");
             lv_result = libNeuroBridge7vs1_gf_FocusFire(lv_targetUnitType);
-            libEFA54406_gf_create_context("focus_fire_result", lv_result, false);
+            libNeuroBridge7vs1_gf_WriteContextSync("focus_fire_result", lv_result, false);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("set_rally")) {
@@ -1699,7 +1750,7 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
             lv_buildingType = libNeuroBridge7vs1_gf_ReadActionStringArg("set_rally", "set_rally_arg_1");
             lv_targetUnitType = libNeuroBridge7vs1_gf_ReadActionStringArg("set_rally", "set_rally_arg_2");
             lv_result = libNeuroBridge7vs1_gf_SetRally(lv_buildingType, lv_targetUnitType);
-            libEFA54406_gf_create_context("set_rally_result", lv_result, false);
+            libNeuroBridge7vs1_gf_WriteContextSync("set_rally_result", lv_result, false);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("move_to_unit")) {
@@ -1707,21 +1758,21 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
             lv_sourceUnitType = libNeuroBridge7vs1_gf_ReadActionStringArg("move_to_unit", "move_to_unit_arg_1");
             lv_targetUnitType = libNeuroBridge7vs1_gf_ReadActionStringArg("move_to_unit", "move_to_unit_arg_2");
             lv_result = libNeuroBridge7vs1_gf_MoveToUnit(lv_sourceUnitType, lv_targetUnitType);
-            libEFA54406_gf_create_context("move_to_unit_result", lv_result, false);
+            libNeuroBridge7vs1_gf_WriteContextSync("move_to_unit_result", lv_result, false);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("move_selected_to_unit")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("move_selected_to_unit");
             lv_targetUnitType = libNeuroBridge7vs1_gf_ReadActionStringArg("move_selected_to_unit", "move_selected_to_unit_arg_1");
             lv_result = libNeuroBridge7vs1_gf_MoveSelectedToUnit(lv_targetUnitType);
-            libEFA54406_gf_create_context("move_selected_to_unit_result", lv_result, false);
+            libNeuroBridge7vs1_gf_WriteContextSync("move_selected_to_unit_result", lv_result, false);
         }
 
         if (libNeuroBridge7vs1_gf_ReadActionFlag("build_building")) {
             libNeuroBridge7vs1_gf_ClearActionFlag("build_building");
             lv_buildingType = libNeuroBridge7vs1_gf_ReadActionStringArg("build_building", "build_building_arg_1");
             lv_result = libNeuroBridge7vs1_gf_BuildBuilding(lv_buildingType);
-            libEFA54406_gf_create_context("build_building_result", lv_result, false);
+            libNeuroBridge7vs1_gf_WriteContextSync("build_building_result", lv_result, false);
         }
 
         // === 3. �����źŵ�����Python ����ʱ�ݴ˼����Ϸ�Ƿ��Ծ��===
@@ -1732,7 +1783,7 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
         }
 
         // === 4. �ȴ� Python ����ʱ���� bank ===
-        Wait(0.4, c_timeGame);
+        Wait(0.4, c_timeReal);
 
         // === 5. ���¼��� bank + ���� ===
         if (libEFA54406_gv_neuroIntegration != null) {
@@ -1743,7 +1794,7 @@ bool libNeuroBridge7vs1_gt_ExecuteActionsMap_Func(bool testConds, bool runAction
 
         // === 6. ���ݽ��� bankwriteallowed �� Python д�� ===
         libEFA54406_gv_bankwriteallowed = true;
-        Wait(0.2, c_timeGame);
+        Wait(0.2, c_timeReal);
         libEFA54406_gv_bankwriteallowed = false;
 
         // === 7. 回抛 global 循环：直接 TriggerExecute，避免 7vs1 下 TriggerSendEvent 丢事件 ===
@@ -1773,7 +1824,7 @@ void libNeuroBridge7vs1_gf_PushTransmissionContext(string soundLink, string spea
         lv_context = speakerName + " is speaking.";
     }
 
-    libEFA54406_gf_create_context("transmission", lv_context, silent);
+    libNeuroBridge7vs1_gf_WriteContextSync("transmission", lv_context, silent);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1843,7 +1894,7 @@ void libNeuroBridge7vs1_gf_OnMissionVictory(string mapId, int bonusObjectives) {
         BankSave(libNeuroBridge7vs1_gv_permanentBank);
     }
 
-    libEFA54406_gf_create_context("mission_victory", lv_summary, false);
+    libNeuroBridge7vs1_gf_WriteContextSync("mission_victory", lv_summary, false);
 }
 
 void libNeuroBridge7vs1_gf_OnMissionDefeat(string mapId) {
@@ -1857,7 +1908,7 @@ void libNeuroBridge7vs1_gf_OnMissionDefeat(string mapId) {
         BankSave(libNeuroBridge7vs1_gv_permanentBank);
     }
 
-    libEFA54406_gf_create_context("mission_defeat", lv_summary, false);
+    libNeuroBridge7vs1_gf_WriteContextSync("mission_defeat", lv_summary, false);
 }
 
 void libNeuroBridge7vs1_gf_PushLastMissionSummary() {
@@ -1865,6 +1916,6 @@ void libNeuroBridge7vs1_gf_PushLastMissionSummary() {
 
     lv_summary = libNeuroBridge7vs1_gf_GetLastMissionSummary();
     if (lv_summary != "") {
-        libEFA54406_gf_create_context("last_mission_summary", lv_summary, true);
+        libNeuroBridge7vs1_gf_WriteContextSync("last_mission_summary", lv_summary, true);
     }
 }
