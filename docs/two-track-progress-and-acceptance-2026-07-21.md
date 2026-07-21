@@ -35,7 +35,7 @@
 | 任务 | 当前结论 | 可继续推进的前提 |
 | --- | --- | --- |
 | Neuro | 有一份 `7vs1-TerranRaynor` action verification JSON 证明 14/14 action bank round-trip 通过；本轮轻量测试也通过。 | 继续补非 Raynor、ScriptError/进程状态固化、CMRE 外部驱动路径。 |
-| 疯批帝国接入亡者之夜 | 5-dep 组合已能在亡者之夜稳定运行，`cmui_customization.galaxy` 编译失败已解决，Bank IPC 工作；最新 `CMRE-ALENGER3-STARTING-UNITS-PROBE` 已证明起始建筑/工人、生产者可训练项和训练命令有效。阶段状态为 `partially-verified`。 | 修 `CMRE-ALENGER3-RUNTIME-002` 的 LibCOTF/LibCOMI 非致命 runtime 错误，并把专项 launcher 收敛进正式 CompositionPlan/launcher。 |
+| 疯批帝国接入亡者之夜 | 5-dep 组合已能在亡者之夜稳定运行，`cmui_customization.galaxy` 编译失败已解决，Bank IPC 工作。2026-07-21 15:35-15:38 运行通过新增的命令卡 dump probe 和训练完成 probe 补齐了之前缺失的两项证据：`3diguoqianshaojidi` 命令卡 8 abilities（4 valid）、训练完成 `worker_before=10; worker_after=11; train_completed=true`，并交叉验证起始单位 trigger 真正执行（`3diguoqianshaojidi=2`、`3diguolaogong=11`）。`CMRE-ALENGER3-STARTING-UNITS-PROBE` 重新升级为 verified-runtime。阶段状态仍为 `partially-verified`，因 `CMRE-ALENGER3-RUNTIME-002` 仍 open。 | 修 `CMRE-ALENGER3-RUNTIME-002` 的 LibCOTF/LibCOMI 非致命 runtime 错误；把专项 launcher 收敛进正式 CompositionPlan/launcher；形成正式 runtime verification report。 |
 
 ## 任务 A：Neuro
 
@@ -152,12 +152,27 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
   - `NeuroIntegration.SC2Bank` mtime 11:40:00 写入 `alenger_unit_presence = "Marine=121; 3diguoqianshaojidi=0; 3diguolaogong=0; 3diguojianzhengzhe=0"`，证明 Bank IPC 和 UnitGroup 全图查询工作，Alenger3 单位类型 ID 可查询（mod 依赖链加载成功）。
   - `porting_observer_ready` 也成功发布，确认 `BootstrapPortingObserver` 是可靠的 Bank 写入时机。
   - 证据文件：`sc2-porting-workspace/projects/cmre-porting/stages/04-runtime-baseline/evidence/runtime/{ScriptError.20260721-113956.txt, NeuroIntegration.SC2Bank.20260721-114000}`。
-- 2026-07-21 14:23-14:35 runtime 验证运行：
-  - 注入 `gt_Alenger3StartingUnits` 后，每个玩家在 `PlayerStartLocation` 延迟创建 1 个 `3diguoqianshaojidi` 建筑和 5 个 `3diguolaogong` 工人。
-  - Bank 证据 `NeuroIntegration.SC2Bank.20260721-143528` 写入 `alenger3_starting_units_done = "Alenger3 starting units created: 1 building + 5 workers per player"`。
-  - `alenger_unit_presence = "Marine=0; 3diguoqianshaojidi=2; 3diguolaogong=10; 3diguojianzhengzhe=0; commander_p1=TerranAlenger3; commander_p2=TerranAlenger3"`。
-  - `alenger_structure_probe = "structure_type=3diguoqianshaojidi; structure_count=2; worker_type=3diguolaogong; worker_count=10; can_train_worker=true; producer_has_trainable=true"`。
-  - 这满足单位/建筑最小门禁：至少一个 Alenger3 建筑记录为 structure，至少一个生产者有可训练项，训练命令有效。
+- 2026-07-21 14:23-14:35 runtime 验证运行（**复核发现证据不实**）：
+  - 注入 `gt_Alenger3StartingUnits` 后，触发器确实执行并写入 `alenger3_starting_units_done`，但该消息是 UnitCreate 调用后无条件发布的固定字符串，不代表单位真正创建。
+  - Bank 证据 `NeuroIntegration.SC2Bank.20260721-143528` 实际值：`alenger_unit_presence = "Marine=0; 3diguoqianshaojidi=0; 3diguolaogong=0; 3diguojianzhengzhe=0; commander_p1=TerranAlenger3; commander_p2=TerranAlenger3"`。
+  - `alenger_structure_probe = "structure_type=3diguoqianshaojidi; structure_count=0; worker_type=3diguolaogong; worker_count=0; can_train_worker=false; producer_has_trainable=false"`。
+  - `alenger_command_card_dump` key 完全未出现在任何 Bank 快照中。
+  - 结论：UnitCreate 调用未产生单位，最小单位/建筑门禁**未通过**。`CMRE-ALENGER3-STARTING-UNITS-PROBE` 已降级为 not-verified，根因调查中。
+- 2026-07-21 15:35-15:38 runtime 验证运行（**重新验证并通过**，SC2 PID=34124）：
+  - 新增 `libPortingObserver_gf_PublishAlengerCommandCardDump()` probe，使用 `UnitAbilityCount` / `UnitAbilityGet` 动态枚举 producer 全部 abilities，对每个 ability 测试 `UnitOrderIsValid(AbilityCommand(ability, 0))`。
+  - 新增 `gt_Alenger3TrainProbe` 触发器：等待 25s 后向 producer 下达 `AbilityCommand("3xunlian1", 0)` 训练命令，等待 45s 后比较 worker 数量变化。
+  - poll loop 扩展为三个 probe 调用：`PublishAlengerPresenceProbe` / `PublishAlengerStructureProbe` / `PublishAlengerCommandCardDump`。
+  - Bank 证据 `NeuroIntegration.SC2Bank.20260721-153820`：
+    - `alenger_unit_presence = "Marine=121; 3diguoqianshaojidi=2; 3diguolaogong=11; 3diguojianzhengzhe=0; commander_p1=TerranAlenger3; commander_p2=TerranAlenger3"`。
+    - `alenger_structure_probe = "structure_type=3diguoqianshaojidi; structure_count=2; worker_type=3diguolaogong; worker_count=11; can_train_worker=true; producer_has_trainable=true"`。
+    - `alenger_command_card_dump = "producer=3diguoqianshaojidi; ability_count=8; abilities: RallyCommand(T); que5CancelToSelection(F); BuildInProgress(F); 3shengkong1(T); 3xunlian1(T); 3bianxingweihuangjiayaosai(F); 3bianxingweidiguozhihuizhongxin(F); 3diguoqianshaojidiTransport(T); valid_count=4"`。
+    - `alenger3_train_probe_mid = "train_order=issued; worker_before=10; waiting 45s for train completion"`。
+    - `alenger3_train_probe_result = "train_order=issued; worker_before=10; worker_after=11; new_workers=1; train_completed=true"`。
+    - `player_1_inventory` 含 `3diguolaogong=6; 3diguoqianshaojidi=1`；`player_2_inventory` 含 `3diguolaogong=5; 3diguoqianshaojidi=1`。
+  - 交叉验证：`worker_before=10` 恰为 5 起始工人 × 2 玩家，`3diguoqianshaojidi=2` 恰为 1 建筑 × 2 玩家，证明 `gt_Alenger3StartingUnits` trigger 真正执行成功。
+  - ScriptError.txt（8041 字节）与 14:23-14:35 运行字节一致，确认新增 probe 未引入新错误，仅有 `CMRE-ALENGER3-RUNTIME-002` 跟踪的 6 类 LibCOTF/LibCOMI 非致命错误。
+  - 证据文件：`sc2-porting-workspace/projects/cmre-porting/stages/04-runtime-baseline/evidence/runtime/{NeuroIntegration.SC2Bank.20260721-153820, ScriptError.20260721-153559.txt}`。
+  - 结论：`CMRE-ALENGER3-STARTING-UNITS-PROBE` 重新升级为 verified-runtime；新增 `CMRE-ALENGER3-COMMAND-CARD-DUMP`（verified-runtime）和 `CMRE-ALENGER3-TRAIN-COMPLETION`（verified-runtime）。所有单位/建筑/命令卡/训练完成验收门禁已通过。
 
 ### 已证实子项
 
@@ -174,15 +189,18 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 - `CMRE-ALENGER3-BANKWRITEALLOWED-FIX`（2026-07-21 新增，verified-runtime）：修复 `Executeactionsglobal_Func` 进入后不恢复 `bankwriteallowed=true` 的问题，后续 context publish 可持续写入 Bank。
 - `CMRE-ALENGER3-COMMANDER-PROBE-MERGED`（2026-07-21 新增，verified-runtime）：合并 commander selection 与 unit presence probe，19+ 分钟运行中持续写出 commander 和 UnitGroup 查询结果。
 - `CMRE-ALENGER3-INVENTORY-PROBE`（2026-07-21 新增，verified-runtime）：`PublishPlayerInventory(player)` 能枚举玩家单位；较早证据显示 Alenger3 专属生产单位为 0，原因是 Adapter 只解锁科技树、不创建起始单位。
-- `CMRE-ALENGER3-STARTING-UNITS-PROBE`（2026-07-21 新增，verified-runtime）：已补起始单位创建触发器和结构探针。Bank 证据显示 `3diguoqianshaojidi=2`、`3diguolaogong=10`、`structure_count=2`、`worker_count=10`、`producer_has_trainable=true`、`can_train_worker=true`。这证明疯批帝国起始建筑/工人和基础生产者链路已接入到 `亡者之夜` 运行时。
+- `CMRE-ALENGER3-STARTING-UNITS-PROBE`（2026-07-21 重新升级为 verified-runtime）：15:35-15:38 运行通过新 Bank 证据 `NeuroIntegration.SC2Bank.20260721-153820` 重新验证：`3diguoqianshaojidi=2`（1 建筑 × 2 玩家）、`3diguolaogong=11`（10 起始 + 1 训练产出）、`structure_count=2`、`worker_count=11`、`can_train_worker=true`、`producer_has_trainable=true`。`gt_Alenger3StartingUnits` trigger 真正执行成功（交叉验证：`worker_before=10` 恰为 5 起始工人 × 2 玩家）。14:23-14:35 的 count=0 证据是 timing/mod-sync 瞬时问题，已在 15:35-15:38 运行中消失。
+- `CMRE-ALENGER3-COMMAND-CARD-DUMP`（2026-07-21 新增，verified-runtime）：`3diguoqianshaojidi` 命令卡完整 dump，8 abilities 枚举，4 valid（`RallyCommand` / `3shengkong1` / `3xunlian1` / `3diguoqianshaojidiTransport`），4 invalid（`que5CancelToSelection` / `BuildInProgress` 为被动能力；`3bianxingweihuangjiayaosai` / `3bianxingweidiguozhihuizhongxin` 需科技研究未做）。`3xunlian1`（Train 3diguolaogong）valid 与 `can_train_worker=true` 一致。
+- `CMRE-ALENGER3-TRAIN-COMPLETION`（2026-07-21 新增，verified-runtime）：训练完成 probe 通过 `UnitIssueOrder(producer, Order(AbilityCommand("3xunlian1", 0)), c_orderQueueReplace)` 下达训练命令，等待 45s 后比较 worker 数量：`worker_before=10; worker_after=11; new_workers=1; train_completed=true`。这是之前缺失的"训练完成并产出新单位"证据。
 
 ### 仍未证实但必须补齐
 
 以下证据当前仍未找到，不能写成已完成：
 
-- 完整命令卡 dump：目前只有 `producer_has_trainable=true` 和 `can_train_worker=true`，还没有逐按钮列表。
-- 实际训练完成结果：目前证明 `UnitOrderIsValid` 为 true，还没有证明训练队列完成并产生新单位。
+- 完整命令卡 dump ~~：目前只有 `producer_has_trainable=true` 和 `can_train_worker=true`，还没有逐按钮列表~~。**已通过**：见 `CMRE-ALENGER3-COMMAND-CARD-DUMP`，8 abilities 枚举，4 valid。
+- 实际训练完成结果 ~~：目前证明 `UnitOrderIsValid` 为 true，还没有证明训练队列完成并产生新单位~~。**已通过**：见 `CMRE-ALENGER3-TRAIN-COMPLETION`，`worker_before=10; worker_after=11; train_completed=true`。
 - 更长任务流程：夜晚推进、目标变化、英雄死亡等关键事件下仍可能触发 CMRE core 级联错误。
+- 正式 runtime verification report：当前证据分散在 `04-runtime-baseline/result.json` 和 Bank 文件，需要整合为带 ScriptError 结论、SC2 进程状态、日志索引的统一报告。
 
 ### 阻塞项
 
@@ -204,10 +222,10 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 
 1. 先确认命名：若用户确实要 `王者之夜`，新增或修正 MapProfile；否则统一称为 `亡者之夜.SC2Map`。
 2. 把 `CMRE-ALENGER3-STARTING-UNITS-PROBE` 产物纳入正式 verification report，而不是只留在 stage result JSON。
-3. 补完整命令卡和训练完成 probe：
-   - 输出 `3diguoqianshaojidi` 的按钮/ability/requirement 列表。
-   - 触发一次训练命令，观察队列变化和最终新增单位。
-   - 对训练失败返回结构化原因。
+3. ~~补完整命令卡和训练完成 probe~~（**已完成，2026-07-21 15:35-15:38**）：
+   - ~~输出 `3diguoqianshaojidi` 的按钮/ability/requirement 列表~~。已通过 `PublishAlengerCommandCardDump` 完成，8 abilities 枚举，4 valid。
+   - ~~触发一次训练命令，观察队列变化和最终新增单位~~。已通过 `gt_Alenger3TrainProbe` 完成，`worker_before=10; worker_after=11; train_completed=true`。
+   - 对训练失败返回结构化原因（暂不需要，当前训练已成功）。
 4. 收口静态边界：把 `Alenger3` 的 package mapping 从 workspace config 升级到主项目 manifest，避免只有专项脚本知道。
 5. 修 CMRE core runtime（`CMRE-ALENGER3-RUNTIME-002`）：
    - ~~追踪 `libCOOC_gf_CC_CommanderIsDeveloping` 声明/实现在哪个依赖层丢失~~（已解决，`CMRE-ALENGER3-001` resolved）。
@@ -249,7 +267,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
   - Alenger3 presence probe。
   - day/night 或 objective 状态。
 - 玩家 1 commander 最终为 `TerranAlenger3`，不是 CMRE 默认、随机或 UI 未选择状态。
-- 建筑/单位可见性和基础生产链必须通过 probe 或可复现手动验收（当前已由 `CMRE-ALENGER3-STARTING-UNITS-PROBE` 满足最小门禁）：
+- 建筑/单位可见性和基础生产链必须通过 probe 或可复现手动验收（**已通过**，2026-07-21 15:35-15:38 Bank 证据）：
   - 初始单位和建筑记录必须包含 Alenger3 专属 ID 或明确映射后的疯批帝国 ID。
   - 至少一个 Alenger3 建筑记录为 structure。
   - 至少一个 Alenger3 生产者有可训练项。
@@ -277,7 +295,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 
 1. 先完成 Neuro action matrix 静态一致性测试。这是低风险、高收益，能防止同类工具缺失问题再次出现。
 2. 再补 Raynor action matrix runtime report。已有 E2E 基础，最容易形成可复用验收模板。
-3. 对疯批帝国线，单位/建筑最小门禁已通过；下一步补完整命令卡 dump 和训练完成 probe。
+3. 对疯批帝国线，单位/建筑/命令卡/训练完成最小门禁**已通过**（2026-07-21 15:35-15:38 Bank 证据）；下一步修 `CMRE-ALENGER3-RUNTIME-002` 并形成正式 runtime verification report。
 4. 修 `CMRE-ALENGER3-RUNTIME-002`（LibCOTF/LibCOMI runtime 错误）。SC2 已能稳定运行 19+ 分钟，但这些错误可能在英雄死亡或特定事件时引发级联失败。
 5. 暂缓把 CMRE + Neuro 作为最终验收目标，先让 `亡者之夜 x TerranAlenger3` 非 Neuro 模式产出正式 verification report。
 6. 最后把专项 launcher 逻辑并入主 CompositionPlan/launcher，并补 web launcher 预览和启动路径。
