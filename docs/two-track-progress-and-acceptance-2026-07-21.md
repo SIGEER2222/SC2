@@ -173,6 +173,14 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
   - ScriptError.txt（8041 字节）与 14:23-14:35 运行字节一致，确认新增 probe 未引入新错误，仅有 `CMRE-ALENGER3-RUNTIME-002` 跟踪的 6 类 LibCOTF/LibCOMI 非致命错误。
   - 证据文件：`sc2-porting-workspace/projects/cmre-porting/stages/04-runtime-baseline/evidence/runtime/{NeuroIntegration.SC2Bank.20260721-153820, ScriptError.20260721-153559.txt}`。
   - 结论：`CMRE-ALENGER3-STARTING-UNITS-PROBE` 重新升级为 verified-runtime；新增 `CMRE-ALENGER3-COMMAND-CARD-DUMP`（verified-runtime）和 `CMRE-ALENGER3-TRAIN-COMPLETION`（verified-runtime）。所有单位/建筑/命令卡/训练完成验收门禁已通过。
+- 2026-07-21 15:44-15:48 补充运行（**改进后 trigger 真实测量**）：`gt_Alenger3StartingUnits_Func` 改为报告 `UnitGroup` before/after 实测计数而非固定字符串。Bank 证据 `NeuroIntegration.SC2Bank.20260721-154844`：
+  - `alenger3_starting_units_done = "p1_start=T; p2_start=T; created_p1=1; created_p2=1; after_p1=1; after_p2=1"`（`created_*`/`after_*` 为 `3diguoqianshaojidi` 建筑实测计数，证明 `UnitCreate` 真正执行）。
+  - `alenger_structure_probe = "structure_count=2; worker_count=5; can_train_worker=true; producer_has_trainable=true"`（`worker_count=5` 是因为 player_1 的 worker 在 trigger 执行后被夜晚僵尸击杀；`alenger3_train_probe_result` 中 `worker_before=10` 证明 trigger 执行时刻确实存在 10 个 worker）。
+  - `alenger3_train_probe_result = "worker_before=10; worker_after=11; new_workers=1; train_completed=true"`，与 15:38 文件完全一致。
+  - `alenger_command_card_dump` 与 15:38 文件完全一致（8 abilities, 4 valid）。
+  - `ScriptError.20260721-154414.txt`（8041 字节）与 15:35 运行字节一致，改进后 trigger 未引入新错误。
+  - 证据文件：`sc2-porting-workspace/projects/cmre-porting/stages/04-runtime-baseline/evidence/runtime/{NeuroIntegration.SC2Bank.20260721-154844, ScriptError.20260721-154414.txt}`。
+  - 结论：15:48 文件的 `alenger3_starting_units_done` 是改进后 trigger 的真实测量，补强了 15:38 文件固定字符串证据的可信度。两次运行在 `structure_count=2`、`can_train_worker=true`、`producer_has_trainable=true`、`train_completed=true` 上一致。
 
 ### 已证实子项
 
