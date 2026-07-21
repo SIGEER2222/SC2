@@ -59,18 +59,18 @@
 ### 仍未完成
 
 - Raynor action matrix ~~已有一份 bank round-trip 报告，但还缺统一 VerificationReport 中的 ScriptError 结论、SC2 进程状态和原始日志索引~~。**已升级为 VerificationReport/v1**：`out/verification/7vs1-TerranRaynor/20260721T110509-9c405a.verification.json` 现包含 `process_status`、`scripterror_conclusion`、`log_index`、`repro_command`、`composition_details` 字段，以及每个 action 的 `semantic_classification`（8 game_behavior_success / 6 deterministic_error / 14 link_ok_total）。
-- Galaxy、Python bridge、Neuro API runtime 仍分散维护 action 名称和参数事实，容易再次出现“实现了但工具列表缺失”的问题。
+- ~~Galaxy、Python bridge、Neuro API runtime 仍分散维护 action 名称和参数事实，容易再次出现"实现了但工具列表缺失"的问题~~（**已解决**）：`合作指挥官-起义狂潮/Shared/Neuro/actions.json` 作为单一事实源定义全部 14 个 action 的 schema 和各源标记，`tools/SC2-Neuro-API-Integration/tests/test_action_matrix_consistency.py`（11 个测试）对照 manifest 校验 Galaxy RegisterActions / Galaxy force list / Python ADVISOR_ACTIONS / Neuro API runtime 四处源，任何漂移立即失败。2026-07-21 验证 28/28 测试通过。
 - 非 Raynor commander、非 7vs1 地图、CMRE 地图上的 Neuro 行为还没有完整报告。
 - CMRE runtime 中发现 Bank 外部写入缓存问题：Gary/Python 外部写入 `NeuroIntegration.SC2Bank` 不会被运行中的 SC2 自动观察到，不能直接推断 CMRE 可用。
 
 ### 发展计划
 
-1. 冻结 action matrix：从 Galaxy registration、Galaxy force-action、Python bridge、Neuro API runtime 生成一张对照表，名称不一致即失败。
-2. 固化静态验证：Galaxy checker、Python compile、force-action pytest 作为 Neuro 每次变更的最小门禁。
-3. 把 Raynor action matrix 从临时 JSON 升级为统一 VerificationReport：补 ScriptError、进程状态、日志路径和命令行。
-4. 强化 force-action：覆盖中英文玩家指令、一参/二参动作、无效参数解释、普通聊天 fallback。
+1. ~~冻结 action matrix：从 Galaxy registration、Galaxy force-action、Python bridge、Neuro API runtime 生成一张对照表，名称不一致即失败~~（**已完成**）：`Shared/Neuro/actions.json` 定义 14 个 action 的完整 schema，`test_action_matrix_consistency.py` 对照 manifest 校验四处源。
+2. ~~固化静态验证：Galaxy checker、Python compile、force-action pytest 作为 Neuro 每次变更的最小门禁~~（**已完成**，2026-07-21 验证全部通过）：galaxy-checker 0 errors / 1 已知 warning、py_compile exit 0、pytest 28/28 通过（11 consistency + 17 force_action）。
+3. ~~把 Raynor action matrix 从临时 JSON 升级为统一 VerificationReport：补 ScriptError、进程状态、日志路径和命令行~~（**已完成**）：VerificationReport/v1 含 process_status / scripterror_conclusion / log_index / repro_command / composition_details / semantic_classification。
+4. ~~强化 force-action：覆盖中英文玩家指令、一参/二参动作、无效参数解释、普通聊天 fallback~~（**已完成**）：17 个测试覆盖中文训练/建造指令、英文 JSON 参数、二参动作（move_to_unit）、无效参数 schema 描述、普通聊天 fallback。
 5. 扩展组合：先 `7vs1 x TerranMengsk`，再 `7vs1 x TerranNova`，之后进入 Reborn/CMRE。
-6. 去重 action 事实源：新增共享 manifest，例如 `合作指挥官-起义狂潮/Shared/Neuro/actions.json`，由它生成或校验 Galaxy/Python 两端。
+6. ~~去重 action 事实源：新增共享 manifest，例如 `合作指挥官-起义狂潮/Shared/Neuro/actions.json`，由它生成或校验 Galaxy/Python 两端~~（**已完成**）。
 
 ### Neuro 验收门禁
 
@@ -303,9 +303,9 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 
 1. 先完成 Neuro action matrix 静态一致性测试。这是低风险、高收益，能防止同类工具缺失问题再次出现。
 2. ~~再补 Raynor action matrix runtime report。已有 E2E 基础，最容易形成可复用验收模板~~。**已完成**：`20260721T110509-9c405a.verification.json` 升级为 VerificationReport/v1，含 process_status / scripterror_conclusion / log_index / repro_command / semantic_classification。
-3. 对疯批帝国线，单位/建筑/命令卡/训练完成最小门禁**已通过**（2026-07-21 15:35-15:38 Bank 证据）；`CMRE-ALENGER3-RUNTIME-002` 已于 2026-07-21 16:24 修复（10 处 patch，SC2 exit code 0、无 ScriptError），2026-07-21 16:43 清理重复函数后再次验证（ScriptError.txt 0 字节、所有 probe 数据完整）；下一步形成正式 runtime verification report。
+3. 对疯批帝国线，单位/建筑/命令卡/训练完成最小门禁**已通过**（2026-07-21 15:35-15:38 Bank 证据）；`CMRE-ALENGER3-RUNTIME-002` 已于 2026-07-21 16:24 修复（10 处 patch，SC2 exit code 0、无 ScriptError），2026-07-21 16:43 清理重复函数后再次验证（ScriptError.txt 0 字节、所有 probe 数据完整）。
 4. ~~修 `CMRE-ALENGER3-RUNTIME-002`（LibCOTF/LibCOMI runtime 错误）~~（**已完成，2026-07-21 16:24**：`Patch-CmreCoreRuntimeErrors` 函数应用 10 处防御性 guard/fallback patch，SC2 首次以 exit code 0 干净启动、无 ScriptError.txt）。
-5. 暂缓把 CMRE + Neuro 作为最终验收目标，先让 `亡者之夜 x TerranAlenger3` 非 Neuro 模式产出正式 verification report。
+5. ~~暂缓把 CMRE + Neuro 作为最终验收目标，先让 `亡者之夜 x TerranAlenger3` 非 Neuro 模式产出正式 verification report~~。**已完成**：`out/verification/cmre-alenger3-dead-of-night/20260721T164349-cmre-alenger3.verification.json` 通过 `VerificationReport.schema.json` 校验（schemaVersion=1，7 个检查点 6 pass + 1 skipped，12 个 acceptance gates 全绿，0 failures）。
 6. 最后把专项 launcher 逻辑并入主 CompositionPlan/launcher，并补 web launcher 预览和启动路径。
 
 ## 完成定义

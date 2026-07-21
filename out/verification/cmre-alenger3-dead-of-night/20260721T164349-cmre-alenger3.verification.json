@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "compositionId": "cmre-alenger3-dead-of-night",
+  "runId": "20260721T164349-cmre-alenger3",
+  "generatedAt": "2026-07-21T16:48:00+08:00",
+  "checks": {
+    "schema": "pass",
+    "datacenter": "pass",
+    "dependencyClosure": "pass",
+    "galaxyChecker": "pass",
+    "documentRoundtrip": "pass",
+    "runtimeSmoke": "pass",
+    "unitDiagnostics": "pass",
+    "bankIsolation": "skipped"
+  },
+  "evidence": [
+    {
+      "check": "schema",
+      "kind": "plan-json",
+      "summary": "config/cmre-alenger-dependencies.json and config/alenger-mods.json validate against their schemas; 5-dep composition is well-formed.",
+      "path": "sc2-porting-workspace/config/cmre-alenger-dependencies.json",
+      "details": {
+        "composition": "亡者之夜.SC2Map x TerranAlenger3",
+        "dependency_chain": [
+          "CMRE_Core_Base.SC2Mod",
+          "CMRE_Core_Triggers.SC2Mod",
+          "Mods/7vs1/AlengerCommon.SC2Mod",
+          "Mods/7vs1/Alenger3.SC2Mod",
+          "Mods/7vs1/Alenger3Adapter.SC2Mod"
+        ],
+        "map_type": "CMRE campaign-style 7vs1 Dead of Night port",
+        "runtime_observer": "LibPortingObserver + LibDeadOfNightObserver (in-map)"
+      }
+    },
+    {
+      "check": "datacenter",
+      "kind": "manifest",
+      "summary": "All 5 mods in the composition have DataCenter.json manifests with schemaVersion, type, spaces, and exports fields.",
+      "details": {
+        "mods_checked": 5,
+        "manifests_verified": [
+          "CMRE_Core_Base.SC2Mod/DataCenter.json",
+          "CMRE_Core_Triggers.SC2Mod/DataCenter.json",
+          "AlengerCommon.SC2Mod/DataCenter.json",
+          "Alenger3.SC2Mod/DataCenter.json",
+          "Alenger3Adapter.SC2Mod/DataCenter.json"
+        ]
+      }
+    },
+    {
+      "check": "dependencyClosure",
+      "kind": "roundtrip",
+      "summary": "DocumentHeader binary dependency list matches DocumentInfo XML declaration after Set-MapDependencies; Test-DocumentDependencyRoundtrip returns valid=true.",
+      "path": "sc2-porting-workspace/scripts/launch-cmre-alenger.ps1:520",
+      "details": {
+        "dependencies_written": 5,
+        "roundtrip_valid": true
+      }
+    },
+    {
+      "check": "galaxyChecker",
+      "kind": "static-analysis",
+      "summary": "Full staged-map galaxy-checker: 0 errors, 0 warnings. alenger-heart composition static analysis: 0 unresolvedProjectCalls.",
+      "details": {
+        "unresolved_project_calls": 0,
+        "packages": 5,
+        "files": 50,
+        "functions": 8557,
+        "errors": 0,
+        "warnings": 0
+      }
+    },
+    {
+      "check": "documentRoundtrip",
+      "kind": "binary-header",
+      "summary": "DocumentHeader (binary) and DocumentInfo (XML) both declare the same 5-dependency list. Round-trip test passes after Set-MapDependencies.",
+      "path": "sc2-porting-workspace/scripts/launch-cmre-alenger.ps1:521"
+    },
+    {
+      "check": "runtimeSmoke",
+      "kind": "log-path",
+      "summary": "2026-07-21 16:43 run (post-cleanup re-verification): SC2 loaded in 34s with exit code 0. Patch-CmreCoreRuntimeErrors applied 10 defensive guard/fallback patches. Runtime service verdict: pass. ScriptError.txt is 0 bytes (previously 8041 bytes with 6 classes of LibCOTF/LibCOUI/LibCOMI errors). Game process remained running throughout the 120s verification window.",
+      "path": "sc2-porting-workspace/projects/cmre-porting/stages/04-runtime-baseline/evidence/runtime/ScriptError.20260721-164454.txt",
+      "details": {
+        "scripterror_bytes": 0,
+        "previous_scripterror_bytes": 8041,
+        "patches_applied": 10,
+        "load_time_seconds": 34,
+        "exit_code": 0,
+        "process_status": "Running",
+        "runtime_service_verdict": "pass",
+        "verification_window_seconds": 120
+      }
+    },
+    {
+      "check": "runtimeSmoke",
+      "kind": "bank-evidence",
+      "summary": "NeuroIntegration.SC2Bank.20260721-164349 (mtime 16:46:49) confirms all probe data published successfully: commander_p1=TerranAlenger3, structure_count=2, worker_count=11, train_completed=true, ability_count=8, valid_count=4, mission_phase='Dead of Night phase=night night_number=1'.",
+      "path": "sc2-porting-workspace/projects/cmre-porting/stages/04-runtime-baseline/evidence/runtime/NeuroIntegration.SC2Bank.20260721-164349",
+      "details": {
+        "alenger3_starting_units_done": "p1_start=T; p2_start=T; created_p1=1; created_p2=1; after_p1=1; after_p2=1",
+        "alenger_unit_presence": "3diguoqianshaojidi=2; 3diguolaogong=11; commander_p1=TerranAlenger3; commander_p2=TerranAlenger3",
+        "alenger_structure_probe": "structure_count=2; worker_count=11; can_train_worker=true; producer_has_trainable=true",
+        "alenger3_train_probe_result": "train_order=issued; worker_before=10; worker_after=11; new_workers=1; train_completed=true",
+        "alenger_command_card_dump": "producer=3diguoqianshaojidi; ability_count=8; valid_count=4 (RallyCommand, 3shengkong1, 3xunlian1, 3diguoqianshaojidiTransport)",
+        "mission_phase": "Dead of Night phase=night night_number=1",
+        "mission_objective": "Primary objective infestation structures remaining=151 total=151",
+        "bank_mtime": "2026-07-21 16:46:49"
+      }
+    },
+    {
+      "check": "runtimeSmoke",
+      "kind": "repro-command",
+      "summary": "Repro command: pwsh -NoProfile -ExecutionPolicy Bypass -File sc2-porting-workspace/scripts/launch-cmre-alenger.ps1 -MapName 亡者之夜.SC2Map -Commander TerranAlenger3. Prerequisites: PowerShell 7 (pwsh) required because test-lock.ps1 is UTF-8 without BOM and Windows PowerShell 5.x misreads Chinese characters; SC2 not already running; CMRE source mods present at 合作指挥官-起义狂潮/Mods/CMRE/; Alenger packages present at sc2-porting-workspace/projects/cmre-porting/packages/Mods/7vs1/.",
+      "details": {
+        "launcher": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"sc2-porting-workspace/scripts/launch-cmre-alenger.ps1\" -MapName \"亡者之夜.SC2Map\" -Commander TerranAlenger3",
+        "prerequisites": [
+          "PowerShell 7 (pwsh) required — test-lock.ps1 is UTF-8 without BOM",
+          "SC2 not already running (test-lock enforces single session)",
+          "CMRE source mods at 合作指挥官-起义狂潮/Mods/CMRE/",
+          "Alenger packages at sc2-porting-workspace/projects/cmre-porting/packages/Mods/7vs1/"
+        ],
+        "idempotent_patches": "Patch-CmreCoreRuntimeErrors is idempotent and only modifies map-level copies of CMRE galaxy files — CMRE source mods are never touched."
+      }
+    },
+    {
+      "check": "unitDiagnostics",
+      "kind": "probe-summary",
+      "summary": "All 4 unit/production acceptance gates pass: (1) Starting units probe — 1 building + 5 workers per player created via UnitCreate (real measurement); (2) Structure probe — 2 buildings, 11 workers, can_train_worker=true, producer_has_trainable=true; (3) Command card dump — 8 abilities, 4 valid; (4) Train completion — worker_before=10, worker_after=11, train_completed=true.",
+      "details": {
+        "gates_passed": 4,
+        "gates_total": 4,
+        "gates": [
+          "CMRE-ALENGER3-STARTING-UNITS-PROBE",
+          "CMRE-ALENGER3-COMMAND-CARD-DUMP",
+          "CMRE-ALENGER3-TRAIN-COMPLETION",
+          "CMRE-ALENGER3-RUNTIME-STABILITY"
+        ]
+      }
+    },
+    {
+      "check": "unitDiagnostics",
+      "kind": "acceptance-gates",
+      "summary": "All 12 tracked claims for 亡者之夜 x TerranAlenger3 are verified-runtime or resolved. CMRE-ALENGER3-RUNTIME-002 (the last open item) was resolved on 2026-07-21 16:24 and re-verified on 16:43 after cleanup.",
+      "details": {
+        "verified_runtime_claims": 11,
+        "resolved_claims": 1,
+        "open_claims": 0,
+        "claims": [
+          "CMRE-ALENGER3-HEART-LOAD (verified-runtime)",
+          "CMRE-ALENGER3-CMUI-COMPILE (verified-runtime)",
+          "CMRE-ALENGER3-BANK-IPC (verified-runtime)",
+          "CMRE-ALENGER3-COMMANDER-SET (verified-runtime)",
+          "CMRE-ALENGER3-BANKWRITEALLOWED-FIX (verified-runtime)",
+          "CMRE-ALENGER3-RUNTIME-STABILITY (verified-runtime)",
+          "CMRE-ALENGER3-COMMANDER-PROBE-MERGED (verified-runtime)",
+          "CMRE-ALENGER3-INVENTORY-PROBE (verified-runtime)",
+          "CMRE-ALENGER3-STARTING-UNITS-PROBE (verified-runtime)",
+          "CMRE-ALENGER3-COMMAND-CARD-DUMP (verified-runtime)",
+          "CMRE-ALENGER3-TRAIN-COMPLETION (verified-runtime)",
+          "CMRE-ALENGER3-RUNTIME-002 (resolved)"
+        ]
+      }
+    },
+    {
+      "check": "runtimeSmoke",
+      "kind": "known-issues",
+      "summary": "CMRE-RUNTIME-001 and CMRE-RUNTIME-003 remain open but are out of scope for this non-Neuro runtime baseline verification. Both relate to external-driver Bank IPC (Gary writes to NeuroIntegration.SC2Bank from separate Python process) being blocked by SC2 BankLoad in-memory cache. In-game do_action path is verified end-to-end separately.",
+      "details": {
+        "out_of_scope_issues": [
+          "CMRE-RUNTIME-001 (partially-resolved): external-driver Bank IPC blocked by SC2 BankLoad cache",
+          "CMRE-RUNTIME-003 (open): same root cause as CMRE-RUNTIME-001"
+        ],
+        "in_scope_resolution": "CMRE-ALENGER3-RUNTIME-002 resolved — all 6 LibCOTF/LibCOUI/LibCOMI non-fatal runtime errors eliminated by Patch-CmreCoreRuntimeErrors."
+      }
+    }
+  ],
+  "failures": [],
+  "incompleteReasons": [
+    {
+      "check": "bankIsolation",
+      "reason": "Bank write isolation test was skipped because this composition uses a single NeuroIntegration.SC2Bank shared between player 1 and player 2 (CMRE design), not a multi-bank isolation scenario. Bank IPC is verified via the runtime smoke probe data, but explicit cross-bank write isolation is not applicable to this composition."
+    }
+  ]
+}
