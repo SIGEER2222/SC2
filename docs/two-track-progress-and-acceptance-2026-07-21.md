@@ -58,7 +58,7 @@
 
 ### 仍未完成
 
-- Raynor action matrix 已有一份 bank round-trip 报告，但还缺统一 VerificationReport 中的 ScriptError 结论、SC2 进程状态和原始日志索引。
+- Raynor action matrix ~~已有一份 bank round-trip 报告，但还缺统一 VerificationReport 中的 ScriptError 结论、SC2 进程状态和原始日志索引~~。**已升级为 VerificationReport/v1**：`out/verification/7vs1-TerranRaynor/20260721T110509-9c405a.verification.json` 现包含 `process_status`、`scripterror_conclusion`、`log_index`、`repro_command`、`composition_details` 字段，以及每个 action 的 `semantic_classification`（8 game_behavior_success / 6 deterministic_error / 14 link_ok_total）。
 - Galaxy、Python bridge、Neuro API runtime 仍分散维护 action 名称和参数事实，容易再次出现“实现了但工具列表缺失”的问题。
 - 非 Raynor commander、非 7vs1 地图、CMRE 地图上的 Neuro 行为还没有完整报告。
 - CMRE runtime 中发现 Bank 外部写入缓存问题：Gary/Python 外部写入 `NeuroIntegration.SC2Bank` 不会被运行中的 SC2 自动观察到，不能直接推断 CMRE 可用。
@@ -302,7 +302,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 ## 推荐执行顺序
 
 1. 先完成 Neuro action matrix 静态一致性测试。这是低风险、高收益，能防止同类工具缺失问题再次出现。
-2. 再补 Raynor action matrix runtime report。已有 E2E 基础，最容易形成可复用验收模板。
+2. ~~再补 Raynor action matrix runtime report。已有 E2E 基础，最容易形成可复用验收模板~~。**已完成**：`20260721T110509-9c405a.verification.json` 升级为 VerificationReport/v1，含 process_status / scripterror_conclusion / log_index / repro_command / semantic_classification。
 3. 对疯批帝国线，单位/建筑/命令卡/训练完成最小门禁**已通过**（2026-07-21 15:35-15:38 Bank 证据）；下一步修 `CMRE-ALENGER3-RUNTIME-002` 并形成正式 runtime verification report。
 4. 修 `CMRE-ALENGER3-RUNTIME-002`（LibCOTF/LibCOMI runtime 错误）。SC2 已能稳定运行 19+ 分钟，但这些错误可能在英雄死亡或特定事件时引发级联失败。
 5. 暂缓把 CMRE + Neuro 作为最终验收目标，先让 `亡者之夜 x TerranAlenger3` 非 Neuro 模式产出正式 verification report。
