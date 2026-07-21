@@ -35,7 +35,7 @@
 | 任务 | 当前结论 | 可继续推进的前提 |
 | --- | --- | --- |
 | Neuro | 有一份 `7vs1-TerranRaynor` action verification JSON 证明 14/14 action bank round-trip 通过；本轮轻量测试也通过。 | 继续补非 Raynor、ScriptError/进程状态固化、CMRE 外部驱动路径。 |
-| 疯批帝国接入亡者之夜 | 5-dep 组合（CMRE_Core_Base + CMRE_Core_Triggers + AlengerCommon + Alenger3 + Alenger3Adapter）已能在亡者之夜稳定运行 140+ 秒无崩溃，`cmui_customization.galaxy` 编译失败已解决，Bank IPC 工作（`alenger_unit_presence` 写入成功，`Marine=121` 证明 UnitGroup 查询工作）。但单位/建筑/生产链运行时证据仍缺失，CMRE core（LibCOTF/LibCOMI）有 6 类非致命 runtime 错误待修。阶段仍是 blocked。 | 先补单位/建筑/生产链运行时证据（玩家 1 commander、起始单位、生产者命令卡），再修 `LibCOTF`/`LibCOMI` runtime 错误。 |
+| 疯批帝国接入亡者之夜 | 5-dep 组合已能在亡者之夜稳定运行，`cmui_customization.galaxy` 编译失败已解决，Bank IPC 工作；最新 `CMRE-ALENGER3-STARTING-UNITS-PROBE` 已证明起始建筑/工人、生产者可训练项和训练命令有效。阶段状态为 `partially-verified`。 | 修 `CMRE-ALENGER3-RUNTIME-002` 的 LibCOTF/LibCOMI 非致命 runtime 错误，并把专项 launcher 收敛进正式 CompositionPlan/launcher。 |
 
 ## 任务 A：Neuro
 
@@ -136,7 +136,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
   - `01-discovery` passed：确认 CMRE 源结构、依赖图、source/composition/runtime scenario manifest。
   - `02-static-boundaries` passed：CMRE trigger mod 和 Dead of Night Galaxy 解析无 AST syntax errors；识别 Mengsk/Catalog 边界。
   - `03-mengsk-extraction-recipe` blocked：已生成 Mengsk extraction tree，差异主要是计划内 field move，但阶段未完全验收。
-  - `04-runtime-baseline` blocked：不是全线失败，已有多个 runtime 子项通过，但仍有阻塞 issue。
+  - `04-runtime-baseline` partially-verified：单位/建筑 probe 已通过，但仍有 CMRE core 非致命 runtime 错误。
 - `sc2-porting-workspace/scripts/launch-cmre-alenger.ps1` 已作为专项入口：
   - 限定 `MapName = 亡者之夜.SC2Map`。
   - 限定 commander 格式 `TerranAlenger3`。
@@ -152,6 +152,12 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
   - `NeuroIntegration.SC2Bank` mtime 11:40:00 写入 `alenger_unit_presence = "Marine=121; 3diguoqianshaojidi=0; 3diguolaogong=0; 3diguojianzhengzhe=0"`，证明 Bank IPC 和 UnitGroup 全图查询工作，Alenger3 单位类型 ID 可查询（mod 依赖链加载成功）。
   - `porting_observer_ready` 也成功发布，确认 `BootstrapPortingObserver` 是可靠的 Bank 写入时机。
   - 证据文件：`sc2-porting-workspace/projects/cmre-porting/stages/04-runtime-baseline/evidence/runtime/{ScriptError.20260721-113956.txt, NeuroIntegration.SC2Bank.20260721-114000}`。
+- 2026-07-21 14:23-14:35 runtime 验证运行：
+  - 注入 `gt_Alenger3StartingUnits` 后，每个玩家在 `PlayerStartLocation` 延迟创建 1 个 `3diguoqianshaojidi` 建筑和 5 个 `3diguolaogong` 工人。
+  - Bank 证据 `NeuroIntegration.SC2Bank.20260721-143528` 写入 `alenger3_starting_units_done = "Alenger3 starting units created: 1 building + 5 workers per player"`。
+  - `alenger_unit_presence = "Marine=0; 3diguoqianshaojidi=2; 3diguolaogong=10; 3diguojianzhengzhe=0; commander_p1=TerranAlenger3; commander_p2=TerranAlenger3"`。
+  - `alenger_structure_probe = "structure_type=3diguoqianshaojidi; structure_count=2; worker_type=3diguolaogong; worker_count=10; can_train_worker=true; producer_has_trainable=true"`。
+  - 这满足单位/建筑最小门禁：至少一个 Alenger3 建筑记录为 structure，至少一个生产者有可训练项，训练命令有效。
 
 ### 已证实子项
 
@@ -164,26 +170,19 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 - `CMRE-ALENGER3-CMUI-COMPILE`（2026-07-21 新增，verified-runtime）：5-dep 组合下 `cmui_customization.galaxy` 编译通过，2026-07-21 11:39:56 ScriptError.txt 中无任何 `cmui_customization.galaxy` 错误。`libCOOC_gf_CC_CommanderIsDeveloping` 在 `LibCOOC_h.galaxy:349` 声明、`LibCOOC.galaxy:1826` 定义，签名 `bool(string)` 匹配，`cmui_customization.galaxy:1889` 调用 `if (libCOOC_gf_CC_CommanderIsDeveloping(lp_commander) == true)` 是合法布尔表达式。`CMRE-ALENGER3-001` 解决。
 - `CMRE-ALENGER3-BANK-IPC`（2026-07-21 新增，verified-runtime）：`NeuroIntegration.SC2Bank` 成功写入 `alenger_unit_presence = "Marine=121; 3diguoqianshaojidi=0; 3diguolaogong=0; 3diguojianzhengzhe=0"`。`Marine=121` 证明 UnitGroup 全图查询工作；3 个 Alenger3 单位类型 ID（`3diguoqianshaojidi`/`3diguolaogong`/`3diguojianzhengzhe`）可查询证明 mod 依赖链加载成功，count=0 是因为本次干净运行未执行 UnitCreate（2026-07-20 的临时 UnitCreate 验证已证明 `3diguoqianshaojidi=1` 可达）。`porting_observer_ready` 也成功发布。
 - `CMRE-ALENGER3-RUNTIME-STABILITY`（2026-07-21 新增，partially-verified）：SC2 PID=19192 运行 140+ 秒（222 秒手动确认）无崩溃，gameplay world 可达。但剩余 6 类 CMRE core（LibCOTF/LibCOMI）非致命 runtime 错误，跟踪为 `CMRE-ALENGER3-RUNTIME-002`。
+- `CMRE-ALENGER3-COMMANDER-SET`（2026-07-21 新增，verified-runtime）：Bank 证据显示 `commander_p1=TerranAlenger3`、`commander_p2=TerranAlenger3`，确认 DevStartupBegin patch 和 commander finalize 生效。
+- `CMRE-ALENGER3-BANKWRITEALLOWED-FIX`（2026-07-21 新增，verified-runtime）：修复 `Executeactionsglobal_Func` 进入后不恢复 `bankwriteallowed=true` 的问题，后续 context publish 可持续写入 Bank。
+- `CMRE-ALENGER3-COMMANDER-PROBE-MERGED`（2026-07-21 新增，verified-runtime）：合并 commander selection 与 unit presence probe，19+ 分钟运行中持续写出 commander 和 UnitGroup 查询结果。
+- `CMRE-ALENGER3-INVENTORY-PROBE`（2026-07-21 新增，verified-runtime）：`PublishPlayerInventory(player)` 能枚举玩家单位；较早证据显示 Alenger3 专属生产单位为 0，原因是 Adapter 只解锁科技树、不创建起始单位。
+- `CMRE-ALENGER3-STARTING-UNITS-PROBE`（2026-07-21 新增，verified-runtime）：已补起始单位创建触发器和结构探针。Bank 证据显示 `3diguoqianshaojidi=2`、`3diguolaogong=10`、`structure_count=2`、`worker_count=10`、`producer_has_trainable=true`、`can_train_worker=true`。这证明疯批帝国起始建筑/工人和基础生产者链路已接入到 `亡者之夜` 运行时。
 
-这些子项不能推出"疯批帝国单位/建筑已接入成功"。它们只证明：
+### 仍未证实但必须补齐
 
-- 组合能走到某些运行时阶段。
-- `3疯批帝国.SC2Mod` 没有触发指定的缺 include/缺符号错误。
-- `cmui_customization.galaxy` 在当前 5-dep 组合下编译通过。
-- Bank IPC 和 UnitGroup 全图查询工作，Alenger3 单位类型 ID 可查询。
-- SC2 进程在 LibCOTF/LibCOMI runtime 错误下不崩溃，gameplay world 可达。
-- **仍然没有证据显示 `Alenger3` 的起始单位、建筑、生产链、命令卡或科技树在 `亡者之夜` 中可用**。`3diguoqianshaojidi=0` 只证明该单位类型 ID 可被 UnitGroup 查询，不证明玩家 1 实际拥有该单位。
+以下证据当前仍未找到，不能写成已完成：
 
-### 未证实但必须补齐
-
-以下证据当前未找到，不能写成已完成：
-
-- 玩家 1 实际 commander 最终为 `TerranAlenger3` 的 Bank/probe 记录。
-- `Alenger3` 起始建筑或核心单位的运行时数量，例如 `probe_units` 或 observer 输出。
-- 至少一个 `Alenger3` 建筑存在且 `is_structure=1`。
-- 至少一个 `Alenger3` 生产者的可训练项列表。
-- 至少一次 `Alenger3` 单位训练或建筑建造的 OK 结果。
-- `Alenger3` 命令卡关键按钮存在且 requirement 未锁死。
+- 完整命令卡 dump：目前只有 `producer_has_trainable=true` 和 `can_train_worker=true`，还没有逐按钮列表。
+- 实际训练完成结果：目前证明 `UnitOrderIsValid` 为 true，还没有证明训练队列完成并产生新单位。
+- 更长任务流程：夜晚推进、目标变化、英雄死亡等关键事件下仍可能触发 CMRE core 级联错误。
 
 ### 阻塞项
 
@@ -204,25 +203,26 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 ### 发展计划
 
 1. 先确认命名：若用户确实要 `王者之夜`，新增或修正 MapProfile；否则统一称为 `亡者之夜.SC2Map`。
-2. **优先补 runtime unit/building probe**（当前最大缺口）：用 RuntimeProbe 或 Dead of Night observer 输出玩家 1 的单位、建筑、生产者、命令卡，证明疯批帝国内容真正进入游戏态。当前 `alenger_unit_presence` 只查 4 个写死的单位类型 ID，且 count=0，不能证明玩家 1 实际拥有 Alenger3 单位。需要：
-   - 扩展探针查询玩家 1 的所有单位（按 owner 过滤，而不是按 unit type ID）。
-   - 输出玩家 1 的建筑列表和生产者命令卡。
-   - 验证玩家 1 commander 最终为 `TerranAlenger3`（从 Bank 或 UserData 读取）。
-3. 收口静态边界：把 `Alenger3` 的 package mapping 从 workspace config 升级到主项目 manifest，避免只有专项脚本知道。
-4. 修 CMRE core runtime（`CMRE-ALENGER3-RUNTIME-002`）：
+2. 把 `CMRE-ALENGER3-STARTING-UNITS-PROBE` 产物纳入正式 verification report，而不是只留在 stage result JSON。
+3. 补完整命令卡和训练完成 probe：
+   - 输出 `3diguoqianshaojidi` 的按钮/ability/requirement 列表。
+   - 触发一次训练命令，观察队列变化和最终新增单位。
+   - 对训练失败返回结构化原因。
+4. 收口静态边界：把 `Alenger3` 的 package mapping 从 workspace config 升级到主项目 manifest，避免只有专项脚本知道。
+5. 修 CMRE core runtime（`CMRE-ALENGER3-RUNTIME-002`）：
    - ~~追踪 `libCOOC_gf_CC_CommanderIsDeveloping` 声明/实现在哪个依赖层丢失~~（已解决，`CMRE-ALENGER3-001` resolved）。
    - 修 `LibCOTF` 对 player/event 的假设，使 2 玩家或自动 profile 场景稳定（`EventPlayerEffectUsedUnitOwner` 无匹配 event、`PlayerHandle=2` 无法取得 `gameUser`）。
    - 修 `LibCOTF_gt_UT_AfterStart_Func` 和 `libCOMI_gt_CM_GlobalCasterInit_Func` 的无效 dialog/control 句柄（`triggerDialog=0`、`triggerControl=0`）。
    - 修 `ArtReloadUnitCreate_Func` / `ArtReloadUnitMorph_Func` / `auto_libCOMI_gf_CM_HeroHandleDeath_TriggerFunc` 中的空目录条目问题，可能是 commander tech states 未完全初始化导致 `CatalogFieldValueGet` 返回空字符串。
    - 修 `HeroHandleDeath` 中的除零（`StringToFixed` str=0 后做除法）。
-5. 修外部驱动 IPC：
+6. 修外部驱动 IPC：
    - 不再把外部写 bank 当成实时动作通道，除非证明 SC2 端可刷新 BankLoad。
    - 优先评估 SC2 端刷新 hook、预启动写入 + 运行时回传、或替代 IPC。
-6. 把专项 launcher 行为产品化：
+7. 把专项 launcher 行为产品化：
    - 将 `launch-cmre-alenger.ps1` 的 overlay/profile/observer 逻辑拆进主 launcher 或 sc2-composer plan runner。
    - `cmre-dependencies.json` 或新 CompositionPlan 正式声明 `TerranAlenger3`。
    - web launcher 只消费 plan，不再另算依赖。
-7. 形成 runtime verification report：
+8. 形成 runtime verification report：
    - source CMRE 原版。
    - `亡者之夜 x TerranAlenger3`。
    - `亡者之夜 x TerranAlenger3 x Neuro observer`。
@@ -249,7 +249,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
   - Alenger3 presence probe。
   - day/night 或 objective 状态。
 - 玩家 1 commander 最终为 `TerranAlenger3`，不是 CMRE 默认、随机或 UI 未选择状态。
-- 建筑/单位可见性和基础生产链必须通过 probe 或可复现手动验收：
+- 建筑/单位可见性和基础生产链必须通过 probe 或可复现手动验收（当前已由 `CMRE-ALENGER3-STARTING-UNITS-PROBE` 满足最小门禁）：
   - 初始单位和建筑记录必须包含 Alenger3 专属 ID 或明确映射后的疯批帝国 ID。
   - 至少一个 Alenger3 建筑记录为 structure。
   - 至少一个 Alenger3 生产者有可训练项。
@@ -277,9 +277,9 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 
 1. 先完成 Neuro action matrix 静态一致性测试。这是低风险、高收益，能防止同类工具缺失问题再次出现。
 2. 再补 Raynor action matrix runtime report。已有 E2E 基础，最容易形成可复用验收模板。
-3. 对疯批帝国线，**优先补单位/建筑 probe**（当前最大缺口）。`cmui_customization.galaxy` 编译失败已解决（`CMRE-ALENGER3-001` resolved），Bank IPC 已工作（`alenger_unit_presence` 写入成功），但 `3diguoqianshaojidi=0` 只证明单位类型 ID 可查询，不证明玩家 1 实际拥有该单位。需要扩展探针按 owner 查询玩家 1 的所有单位，输出建筑列表和生产者命令卡。没有单位/建筑证据前，不再写"已接入成功"。
-4. 修 `CMRE-ALENGER3-RUNTIME-002`（LibCOTF/LibCOMI runtime 错误）。SC2 已能稳定运行 140+ 秒，但这些错误可能在英雄死亡或特定事件时引发级联失败。
-5. 暂缓把 CMRE + Neuro 作为最终验收目标，先让 `亡者之夜 x TerranAlenger3` 非 Neuro 模式产出单位/建筑报告。
+3. 对疯批帝国线，单位/建筑最小门禁已通过；下一步补完整命令卡 dump 和训练完成 probe。
+4. 修 `CMRE-ALENGER3-RUNTIME-002`（LibCOTF/LibCOMI runtime 错误）。SC2 已能稳定运行 19+ 分钟，但这些错误可能在英雄死亡或特定事件时引发级联失败。
+5. 暂缓把 CMRE + Neuro 作为最终验收目标，先让 `亡者之夜 x TerranAlenger3` 非 Neuro 模式产出正式 verification report。
 6. 最后把专项 launcher 逻辑并入主 CompositionPlan/launcher，并补 web launcher 预览和启动路径。
 
 ## 完成定义
