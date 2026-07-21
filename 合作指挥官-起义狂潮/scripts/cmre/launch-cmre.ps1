@@ -54,11 +54,18 @@ function Convert-TestCommanderToCommanderPowerKey {
 $cmreConfig = Import-LauncherConfig -Name "cmre-dependencies"
 
 $isOriginalMode = ($Commander -eq "CMRE")
+$isAlengerMode = $false
+$alengerMods = @()
+if ($cmreConfig.alengerCommanders -and $cmreConfig.alengerCommanders.$Commander) {
+    $isAlengerMode = $true
+    $alengerMods = $cmreConfig.alengerCommanders.$Commander
+}
 
 Write-Host "=== CMRE Campaign Launcher ==="
 Write-Host "Commander: $Commander"
 Write-Host "Map: $MapName"
-Write-Host "Mode: $(if ($isOriginalMode) { 'Original (CMRE only)' } else { '7vs1 Commander overlay' })"
+$modeStr = if ($isOriginalMode) { 'Original (CMRE only)' } elseif ($isAlengerMode) { 'Alenger Commander overlay' } else { '7vs1 Commander overlay' }
+Write-Host "Mode: $modeStr"
 if ($DryRun)   { Write-Host "DryRun: true (no writes, no launch)" }
 if ($NoLaunch) { Write-Host "NoLaunch: true (sync + Bank, no game launch)" }
 
@@ -81,15 +88,20 @@ if ($DryRun) {
     Write-Host "Commander: $Commander"
     Write-Host "Map: $MapName"
     Write-Host "MapLivePath: $MapLivePath"
-    Write-Host "Mode: $(if ($isOriginalMode) { 'Original' } else { '7vs1 Commander' })"
+    Write-Host "Mode: $modeStr"
     Write-Host "Base mods:"
     foreach ($m in $cmreConfig.baseMods) { Write-Host "  - $m" }
     if (-not $isOriginalMode) {
         Write-Host "Commander base mods:"
         foreach ($m in $cmreConfig.commanderBaseMods) { Write-Host "  - $m" }
-        $commanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
-        if ($commanderUnitsMod) {
-            Write-Host "Commander units mod: 7vs1\$commanderUnitsMod.SC2Mod"
+        if ($isAlengerMode) {
+            Write-Host "Alenger mods:"
+            foreach ($m in $alengerMods) { Write-Host "  - 7vs1\$m.SC2Mod" }
+        } else {
+            $commanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
+            if ($commanderUnitsMod) {
+                Write-Host "Commander units mod: 7vs1\$commanderUnitsMod.SC2Mod"
+            }
         }
     }
     Write-Host "DryRun complete - no writes to live SC2, no game launch"
@@ -116,18 +128,27 @@ if (-not $isOriginalMode) {
         Sync-ModToLive -ModRelPath $modRelPath -ProjRoot $ProjRoot -Sc2Root $Sc2Root
     }
 
-    $commanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
-    if ($commanderUnitsMod) {
-        Write-Host "Syncing commander units mod: 7vs1\$commanderUnitsMod.SC2Mod"
-        Sync-ModToLive -ModRelPath "7vs1\$commanderUnitsMod.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
-    }
+    if ($isAlengerMode) {
+        Write-Host "Syncing Alenger mods:"
+        foreach ($m in $alengerMods) {
+            $modRelPath = "7vs1\$m.SC2Mod"
+            Write-Host "  - $modRelPath"
+            Sync-ModToLive -ModRelPath $modRelPath -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+        }
+        Remove-StaleCommanderUnitsMods -Sc2Root $Sc2Root -AllowedModNames @()
+    } else {
+        $commanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
+        if ($commanderUnitsMod) {
+            Write-Host "Syncing commander units mod: 7vs1\$commanderUnitsMod.SC2Mod"
+            Sync-ModToLive -ModRelPath "7vs1\$commanderUnitsMod.SC2Mod" -ProjRoot $ProjRoot -Sc2Root $Sc2Root
+        }
 
-    # Remove unselected CommanderUnits mods from live directory
-    $allowedCommanderUnits = @()
-    if ($commanderUnitsMod) {
-        $allowedCommanderUnits += "$commanderUnitsMod.SC2Mod"
+        $allowedCommanderUnits = @()
+        if ($commanderUnitsMod) {
+            $allowedCommanderUnits += "$commanderUnitsMod.SC2Mod"
+        }
+        Remove-StaleCommanderUnitsMods -Sc2Root $Sc2Root -AllowedModNames $allowedCommanderUnits
     }
-    Remove-StaleCommanderUnitsMods -Sc2Root $Sc2Root -AllowedModNames $allowedCommanderUnits
 }
 
 # === MAP SYNC SECTION ===
@@ -158,10 +179,15 @@ if (-not $isOriginalMode) {
         $runtimeDeps += $depPath
     }
 
-    # Add commander units mod dependency
-    $commanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
-    if ($commanderUnitsMod) {
-        $runtimeDeps += "file:Mods/7vs1/$commanderUnitsMod.SC2Mod"
+    if ($isAlengerMode) {
+        foreach ($m in $alengerMods) {
+            $runtimeDeps += "file:Mods/7vs1/$m.SC2Mod"
+        }
+    } else {
+        $commanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
+        if ($commanderUnitsMod) {
+            $runtimeDeps += "file:Mods/7vs1/$commanderUnitsMod.SC2Mod"
+        }
     }
 }
 
@@ -187,12 +213,308 @@ if (-not $rtResult.Valid) {
 }
 Write-Host "DOCUMENT ROUNDTRIP VALID (header deps: $($rtResult.OriginalDeps.Count), info deps: $($rtResult.InfoDeps.Count))"
 
+# === ALENGER3 INTEGRATION SECTION (when $isAlengerMode) ===
+if ($isAlengerMode) {
+    Write-Host "`n=== Alenger3 Integration ===" -ForegroundColor Cyan
+
+    function Install-CmreGalaxyHostOverlay {
+        param(
+            [Parameter(Mandatory = $true)][string]$ModsRoot,
+            [Parameter(Mandatory = $true)][string]$MapPath
+        )
+        $sourceRoot = Join-Path $ModsRoot "CMRE\CMRE_Core_Triggers.SC2Mod\Base.SC2Data"
+        $destinationRoot = Join-Path $MapPath "Base.SC2Data"
+        $libraries = Get-ChildItem -LiteralPath $sourceRoot -File -Filter "Lib*.galaxy" | Sort-Object Name
+        if ($libraries.Count -eq 0) { throw "CMRE Galaxy host libraries not found: $sourceRoot" }
+        [System.IO.Directory]::CreateDirectory($destinationRoot) | Out-Null
+        foreach ($library in $libraries) {
+            [System.IO.File]::Copy($library.FullName, (Join-Path $destinationRoot $library.Name), $true)
+        }
+
+        $adapterRoot = Join-Path $ModsRoot "7vs1\Alenger3Adapter.SC2Mod\Base.SC2Data"
+        $adapterFiles = @("LibA3ADAPTER_h.galaxy", "LibA3ADAPTER.galaxy", "LibA3ADAPTER_Catalog.galaxy")
+        foreach ($name in $adapterFiles) {
+            $src = Join-Path $adapterRoot $name
+            if (-not (Test-Path -LiteralPath $src)) { throw "Alenger3Adapter galaxy file not found: $src" }
+            [System.IO.File]::Copy($src, (Join-Path $destinationRoot $name), $true)
+        }
+
+        $probeRoot = Join-Path $ModsRoot "RuntimeProbe\RuntimeProbe.SC2Mod\Base.SC2Data"
+        $probeFiles = @("LibRuntimeProbe_h.galaxy", "LibRuntimeProbe.galaxy")
+        foreach ($name in $probeFiles) {
+            $src = Join-Path $probeRoot $name
+            if (-not (Test-Path -LiteralPath $src)) { throw "RuntimeProbe galaxy file not found: $src" }
+            [System.IO.File]::Copy($src, (Join-Path $destinationRoot $name), $true)
+        }
+
+        $required = @("LibCOOC_h.galaxy", "LibCOOC.galaxy", "LibCOMI_h.galaxy", "LibCOMI.galaxy", "LibA3ADAPTER.galaxy", "LibA3ADAPTER_h.galaxy", "LibA3ADAPTER_Catalog.galaxy", "LibRuntimeProbe_h.galaxy", "LibRuntimeProbe.galaxy")
+        foreach ($name in $required) {
+            if (-not (Test-Path -LiteralPath (Join-Path $destinationRoot $name))) {
+                throw "CMRE Galaxy host overlay is incomplete: $name"
+            }
+        }
+        Write-Host "CMRE Galaxy host overlay: $($libraries.Count) CMRE + $($adapterFiles.Count) Alenger3Adapter + $($probeFiles.Count) RuntimeProbe files"
+    }
+
+    function Enable-CmreSavedProfileStartup {
+        param(
+            [Parameter(Mandatory = $true)][string]$MapPath,
+            [Parameter(Mandatory = $true)][string]$Commander
+        )
+        $path = Join-Path $MapPath "Base.SC2Data\LibCOOC.galaxy"
+        if (-not (Test-Path -LiteralPath $path)) { throw "Map-level LibCOOC.galaxy not found: $path" }
+        $content = [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
+        $originalPattern = '(?m)^    if \(\(libCMFE_gf_CMUIX_StartupApplySavedConfiguration\(\) == true\)\) \{\r?\n        Wait\(1\.0, c_timeReal\);\r?\n        CMUIX_ReadyBeginCountdown\(\);\r?\n        return ;\r?\n    \}'
+        $fallbackPattern = '(?m)^    if \(\(libCMFE_gf_CMUIX_StartupApplySavedConfiguration\(\) == true\)\) \{\r?\n        TriggerSendEvent\("CU_CommChoiceEventClosed"\);\r?\n        return ;\r?\n    \}'
+        $legacyPatchPattern = '(?m)^    libCMFE_gf_CMUIX_StartupApplySavedConfiguration\(\);\r?\n    Wait\(1\.0, c_timeReal\);\r?\n    CMUIX_ReadyBeginCountdown\(\);\r?\n    return ;$'
+        $replacementBody = @"
+    if ((CMUIX_CoreReady == false)) { CMUIX_CoreInit(); }
+    CMUIX_StartupLoadPersistentProfiles();
+    CMUIX_HistoryPrunePendingRecordsAll();
+    libCOTF_gv_sELECTED_Commander[1] = "$Commander";
+    libCOTF_gv_sELECTED_Commander_Random[1] = false;
+    libCOOC_gf_CC_PlayerCommanderSet(1, "$Commander");
+    libCOUI_gv_cU_CommanderSelection[1] = "$Commander";
+    libCOUI_gv_cU_CommanderSelect_PlayerReady[1] = true;
+    libCOUI_gf_CU_CommanderFinalizeStates(1);
+    libCOTF_gv_sELECTED_Commander[2] = "$Commander";
+    libCOTF_gv_sELECTED_Commander_Random[2] = false;
+    libCOOC_gf_CC_PlayerCommanderSet(2, "$Commander");
+    libCOUI_gv_cU_CommanderSelection[2] = "$Commander";
+    libCOUI_gv_cU_CommanderSelect_PlayerReady[2] = true;
+    libCOUI_gf_CU_CommanderFinalizeStates(2);
+    Wait(1.0, c_timeReal);
+    CMUIX_ReadyBeginCountdown();
+    return ;
+"@
+        $replacement = $replacementBody.Replace("`r`n", "`n").Replace("`n", "`r`n").TrimEnd("`r", "`n")
+        if ([regex]::IsMatch($content, [regex]::Escape($replacement))) {
+            Write-Host "  SKIP: saved-profile startup patch already applied"
+            return
+        }
+        if ([regex]::IsMatch($content, $legacyPatchPattern)) {
+            $content = [regex]::Replace($content, $legacyPatchPattern, $replacement, 1)
+        } elseif ([regex]::IsMatch($content, $originalPattern)) {
+            $content = [regex]::Replace($content, $originalPattern, $replacement, 1)
+        } elseif ([regex]::IsMatch($content, $fallbackPattern)) {
+            $content = [regex]::Replace($content, $fallbackPattern, $replacement, 1)
+        } else {
+            throw "CMRE saved-profile startup anchor not found"
+        }
+        [System.IO.File]::WriteAllText($path, $content, [System.Text.UTF8Encoding]::new($false))
+        Write-Host "  Applied CMRE saved-profile startup patch"
+    }
+
+    function Patch-CmreCoreRuntimeErrors {
+        param([Parameter(Mandatory = $true)][string]$MapPath)
+        $baseData = Join-Path $MapPath "Base.SC2Data"
+        $patchCount = 0
+
+        $cotfPath = Join-Path $baseData "LibCOTF.galaxy"
+        if (-not (Test-Path -LiteralPath $cotfPath)) { throw "LibCOTF.galaxy not found: $cotfPath" }
+        $cotf = [System.IO.File]::ReadAllText($cotfPath, [System.Text.Encoding]::UTF8)
+
+        $cotfAnchor1 = '    libCOTF_gv_player = EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster);'
+        $cotfPatch1 = '    libCOTF_gv_player = 1; // CMRE patch: InitGlobals has no effect event context'
+        if (-not $cotf.Contains($cotfPatch1)) {
+            if (-not $cotf.Contains($cotfAnchor1)) { throw "LibCOTF patch 1 anchor not found" }
+            $cotf = $cotf.Replace($cotfAnchor1, $cotfPatch1); $patchCount++
+        }
+
+        $cotfAnchor2 = '    GameSetSeed(StringToInt((PlayerHandle(1) + PlayerHandle(2))));'
+        $cotfPatch2 = '    // CMRE patch: skip PlayerHandle-based seed (StringToInt cannot parse handle string)'
+        if (-not $cotf.Contains($cotfPatch2)) {
+            if (-not $cotf.Contains($cotfAnchor2)) { throw "LibCOTF patch 2 anchor not found" }
+            $cotf = $cotf.Replace($cotfAnchor2, $cotfPatch2); $patchCount++
+        }
+
+        $cotfAnchor2b = '    GameSetSeed(StringToInt(DateTimeToString(CurrentDateTimeGet())));'
+        $cotfPatch2b = '    // CMRE patch: skip DateTime-based seed (StringToInt cannot parse datetime string; while loop below provides continuous random seed)'
+        if (-not $cotf.Contains($cotfPatch2b)) {
+            if (-not $cotf.Contains($cotfAnchor2b)) { throw "LibCOTF patch 2b anchor not found" }
+            $cotf = $cotf.Replace($cotfAnchor2b, $cotfPatch2b); $patchCount++
+        }
+
+        $cotfAnchor3 = '    DialogSetVisible(libCOTF_gv_uT_AIVisionDialog, PlayerGroupAll(), false);'
+        $cotfPatch3 = '    if (libCOTF_gv_uT_AIVisionDialog != c_invalidDialogId) { DialogSetVisible(libCOTF_gv_uT_AIVisionDialog, PlayerGroupAll(), false); } // CMRE patch: guard invalid dialog handle'
+        if (-not $cotf.Contains($cotfPatch3)) {
+            if (-not $cotf.Contains($cotfAnchor3)) { throw "LibCOTF patch 3 anchor not found" }
+            $cotf = $cotf.Replace($cotfAnchor3, $cotfPatch3); $patchCount++
+        }
+
+        [System.IO.File]::WriteAllText($cotfPath, $cotf, [System.Text.UTF8Encoding]::new($false))
+
+        $couiPath = Join-Path $baseData "LibCOUI.galaxy"
+        if (-not (Test-Path -LiteralPath $couiPath)) { throw "LibCOUI.galaxy not found: $couiPath" }
+        $coui = [System.IO.File]::ReadAllText($couiPath, [System.Text.Encoding]::UTF8)
+
+        $couiAnchor4 = '    libNtve_gf_SetDialogItemUnitGroup(libCOUI_gv_cU_GPCmdPanel[lp_player], libCOUI_gv_cU_GPCasterGroup[lp_player], PlayerGroupSingle(lp_player));'
+        $couiPatch4 = '    if (libCOUI_gv_cU_GPCmdPanel[lp_player] != c_invalidDialogControlId) { libNtve_gf_SetDialogItemUnitGroup(libCOUI_gv_cU_GPCmdPanel[lp_player], libCOUI_gv_cU_GPCasterGroup[lp_player], PlayerGroupSingle(lp_player)); } // CMRE patch: guard invalid control handle'
+        if (-not $coui.Contains($couiPatch4)) {
+            if (-not $coui.Contains($couiAnchor4)) { throw "LibCOUI patch 4 anchor not found" }
+            $coui = $coui.Replace($couiAnchor4, $couiPatch4); $patchCount++
+        }
+
+        [System.IO.File]::WriteAllText($couiPath, $coui, [System.Text.UTF8Encoding]::new($false))
+
+        $comiPath = Join-Path $baseData "LibCOMI.galaxy"
+        if (-not (Test-Path -LiteralPath $comiPath)) { throw "LibCOMI.galaxy not found: $comiPath" }
+        $comi = [System.IO.File]::ReadAllText($comiPath, [System.Text.Encoding]::UTF8)
+
+        $comiAnchor5 = '    lv_commanderDefaultDecalString = CatalogFieldValueGet(c_gameCatalogTexture, lv_commanderDefaultDecal, "File", c_playerAny);'
+        $comiPatch5 = '    if (lv_commanderDefaultDecal != "") { lv_commanderDefaultDecalString = CatalogFieldValueGet(c_gameCatalogTexture, lv_commanderDefaultDecal, "File", c_playerAny); } // CMRE patch: guard empty decal entry'
+        if (-not $comi.Contains($comiPatch5)) {
+            if (-not $comi.Contains($comiAnchor5)) { throw "LibCOMI patch 5 anchor not found" }
+            $comi = $comi.Replace($comiAnchor5, $comiPatch5); $patchCount += 2
+        }
+
+        $comiAnchor7 = '    lv_reviveDuration = StringToFixed(CatalogFieldValueGet(c_gameCatalogBehavior, libCOOC_gf_CC_PlayerHeroNormalReviveBehavior(lp_player), "Duration", lp_player));'
+        $comiPatch7 = '    if (libCOOC_gf_CC_PlayerHeroNormalReviveBehavior(lp_player) != "") { lv_reviveDuration = StringToFixed(CatalogFieldValueGet(c_gameCatalogBehavior, libCOOC_gf_CC_PlayerHeroNormalReviveBehavior(lp_player), "Duration", lp_player)); } if (lv_reviveDuration <= 0.0) { lv_reviveDuration = 60.0; } // CMRE patch: guard empty normal revive behavior entry'
+        if (-not $comi.Contains($comiPatch7)) {
+            if (-not $comi.Contains($comiAnchor7)) { throw "LibCOMI patch 7 anchor not found" }
+            $comi = $comi.Replace($comiAnchor7, $comiPatch7); $patchCount++
+        }
+
+        $comiAnchor8 = '    lv_reviveDuration = StringToFixed(CatalogFieldValueGet(c_gameCatalogBehavior, libCOOC_gf_CC_PlayerHeroFirstReviveBehavior(lp_player), "Duration", lp_player));'
+        $comiPatch8 = '    if (libCOOC_gf_CC_PlayerHeroFirstReviveBehavior(lp_player) != "") { lv_reviveDuration = StringToFixed(CatalogFieldValueGet(c_gameCatalogBehavior, libCOOC_gf_CC_PlayerHeroFirstReviveBehavior(lp_player), "Duration", lp_player)); } if (lv_reviveDuration <= 0.0) { lv_reviveDuration = 60.0; } // CMRE patch: guard empty first revive behavior entry'
+        if (-not $comi.Contains($comiPatch8)) {
+            if (-not $comi.Contains($comiAnchor8)) { throw "LibCOMI patch 8 anchor not found" }
+            $comi = $comi.Replace($comiAnchor8, $comiPatch8); $patchCount++
+        }
+
+        $comiAnchor9 = '    UnitSetPropertyFixed(libCOMI_gv_cM_HeroReviver[lp_player], c_unitPropLifeRegen, (UnitGetPropertyFixed(libCOMI_gv_cM_HeroReviver[lp_player], c_unitPropLifeMax, c_unitPropCurrent)/lv_reviveDuration));'
+        $comiPatch9 = '    if (lv_reviveDuration > 0.0) { UnitSetPropertyFixed(libCOMI_gv_cM_HeroReviver[lp_player], c_unitPropLifeRegen, (UnitGetPropertyFixed(libCOMI_gv_cM_HeroReviver[lp_player], c_unitPropLifeMax, c_unitPropCurrent)/lv_reviveDuration)); } // CMRE patch: guard divide-by-zero'
+        if (-not $comi.Contains($comiPatch9)) {
+            if (-not $comi.Contains($comiAnchor9)) { throw "LibCOMI patch 9 anchor not found" }
+            $comi = $comi.Replace($comiAnchor9, $comiPatch9); $patchCount++
+        }
+
+        [System.IO.File]::WriteAllText($comiPath, $comi, [System.Text.UTF8Encoding]::new($false))
+        Write-Host "  Applied $patchCount CMRE core runtime error patches"
+    }
+
+    function Write-CmreLaunchProfile {
+        $banksRoot = "C:\Users\22448\Documents\StarCraft II\Banks"
+        [System.IO.Directory]::CreateDirectory($banksRoot) | Out-Null
+        $doc = [xml]'<Bank version="1"><Section name="CMUI|LaunchProfile" /></Bank>'
+        $values = [ordered]@{ Valid = @("int", "1"); Version = @("int", "1"); CreatedAt = @("int", [string][int][DateTimeOffset]::UtcNow.ToUnixTimeSeconds()); TimeoutSeconds = @("int", "600"); Mode = @("int", "1"); ModeInstance = @("string", "Standard"); DifficultyBase = @("int", "0"); DifficultyPlus = @("int", "0"); TargetMission = @("string", "AC_MeinhoffDayNight"); TargetMap = @("string", "AC_MeinhoffDayNight"); 'Player|1|Commander' = @("string", $Commander); 'Player|2|Commander' = @("string", $Commander) }
+        foreach ($entry in $values.GetEnumerator()) { $key = $doc.CreateElement("Key"); $key.SetAttribute("name", $entry.Key); $value = $doc.CreateElement("Value"); $value.SetAttribute($entry.Value[0], $entry.Value[1]); $key.AppendChild($value) | Out-Null; $doc.Bank.Section.AppendChild($key) | Out-Null }
+        $settings = [System.Xml.XmlWriterSettings]::new(); $settings.Indent = $true; $settings.Encoding = [System.Text.UTF8Encoding]::new($false)
+        $writer = [System.Xml.XmlWriter]::Create((Join-Path $banksRoot "CMCoopLaunchProfile.SC2Bank"), $settings)
+        try { $doc.Save($writer) } finally { $writer.Dispose() }
+        Write-Host "  Wrote CMRE launch profile"
+    }
+
+    function Install-CmreAlengerObserver {
+        param([Parameter(Mandatory = $true)][string]$MapPath)
+        $neuroRoot = Join-Path (Split-Path -Parent $ProjRoot) "tools\SC2-Neuro-API-Integration"
+        $baseData = Join-Path $MapPath "Base.SC2Data"
+        $files = @(
+            @{ Source = Join-Path $neuroRoot "Mod\NeuroIntegration.SC2Mod\Base.SC2Data\LibEFA54406_h.galaxy"; Name = "LibEFA54406_h.galaxy" },
+            @{ Source = Join-Path $neuroRoot "Mod\NeuroIntegration.SC2Mod\Base.SC2Data\LibEFA54406.galaxy"; Name = "LibEFA54406.galaxy" }
+        )
+        foreach ($file in $files) {
+            if (-not (Test-Path -LiteralPath $file.Source)) { throw "Observer input not found: $($file.Source)" }
+            [System.IO.File]::Copy($file.Source, (Join-Path $baseData $file.Name), $true)
+        }
+
+        $efaPath = Join-Path $baseData "LibEFA54406.galaxy"
+        $efa = [System.IO.File]::ReadAllText($efaPath, [System.Text.Encoding]::UTF8)
+        if ($efa -notmatch '(?m)^include "LibPortingObserver_h"$') {
+            $efa = $efa.Replace('include "LibEFA54406_h"', "include `"LibEFA54406_h`"`r`ninclude `"LibPortingObserver_h`"")
+        }
+        $actionAnchor = '    libEFA54406_gf_create_action_1_arg("chat_message", true, "Post a message into the game chat", "string", -1);' + "`r`n    return true;"
+        $actionPatch = '    libEFA54406_gf_create_action_1_arg("chat_message", true, "Post a message into the game chat", "string", -1);' + "`r`n    libEFA54406_gf_BootstrapPortingObserver();`r`n    return true;"
+        if ($efa.Contains($actionAnchor)) { $efa = $efa.Replace($actionAnchor, $actionPatch) }
+        $legacyColorCall = '            libEFA54406_gv_displayNameText = TextWithColor(libEFA54406_gv_displayNameText, Color(100.00, 50.20, 75.29));'
+        if ($efa.Contains($legacyColorCall)) {
+            $efa = $efa.Replace($legacyColorCall, '            // CMRE adapter: display text retained without incompatible color conversion.')
+        }
+        $execMapAnchor = '    BankSave(BankLastCreated());' + "`r`n" +
+                         '    Wait(0.1, c_timeReal);' + "`r`n" +
+                         '    TriggerSendEvent("execute_actions_map");' + "`r`n" +
+                         '    return true;'
+        $execMapPatch = '    BankSave(BankLastCreated());' + "`r`n" +
+                        '    Wait(0.1, c_timeReal);' + "`r`n" +
+                        '    TriggerSendEvent("execute_actions_map");' + "`r`n" +
+                        '    libEFA54406_gv_bankwriteallowed = true;' + "`r`n" +
+                        '    return true;'
+        if ($efa.Contains($execMapAnchor)) {
+            $efa = $efa.Replace($execMapAnchor, $execMapPatch)
+        }
+        [System.IO.File]::WriteAllText($efaPath, $efa, [System.Text.UTF8Encoding]::new($false))
+
+        $mapScriptPath = Join-Path $MapPath "MapScript.galaxy"
+        $mapScript = [System.IO.File]::ReadAllText($mapScriptPath, [System.Text.Encoding]::UTF8)
+        if ($mapScript -notmatch '(?m)^include "LibEFA54406"$') {
+            $mapScript = $mapScript.Replace('include "LibCOUI"', "include `"LibCOUI`"`r`ninclude `"LibEFA54406`"`r`ninclude `"LibA3ADAPTER`"`r`ninclude `"LibRuntimeProbe`"")
+        }
+        if ($mapScript -notmatch 'libEFA54406_InitLib\s*\(\s*\)') {
+            $mapScript = $mapScript.Replace('    libCOUI_InitLib();', "    libCOUI_InitLib();`r`n    libEFA54406_InitLib();`r`n    libA3ADAPTER_InitLib();`r`n    libRuntimeProbe_InitLib();")
+        }
+        [System.IO.File]::WriteAllText($mapScriptPath, $mapScript, [System.Text.UTF8Encoding]::new($false))
+
+        $bankListPath = Join-Path $MapPath "BankList.xml"
+        [xml]$bankList = [System.IO.File]::ReadAllText($bankListPath, [System.Text.Encoding]::UTF8)
+        $bankChanged = $false
+        if (@($bankList.BankList.Bank | Where-Object { $_.Name -eq "NeuroIntegration" -and $_.Player -eq "1" }).Count -eq 0) {
+            $bank = $bankList.CreateElement("Bank")
+            $bank.SetAttribute("Name", "NeuroIntegration")
+            $bank.SetAttribute("Player", "1")
+            $bankList.BankList.AppendChild($bank) | Out-Null
+            $bankChanged = $true
+        }
+        if (@($bankList.BankList.Bank | Where-Object { $_.Name -eq "RuntimeProbe" -and $_.Player -eq "1" }).Count -eq 0) {
+            $bank = $bankList.CreateElement("Bank")
+            $bank.SetAttribute("Name", "RuntimeProbe")
+            $bank.SetAttribute("Player", "1")
+            $bankList.BankList.AppendChild($bank) | Out-Null
+            $bankChanged = $true
+        }
+        if ($bankChanged) {
+            $settings = [System.Xml.XmlWriterSettings]::new(); $settings.Indent = $true; $settings.Encoding = [System.Text.UTF8Encoding]::new($false)
+            $writer = [System.Xml.XmlWriter]::Create($bankListPath, $settings)
+            try { $bankList.Save($writer) } finally { $writer.Dispose() }
+        }
+        Write-Host "  Installed Alenger observer and patched MapScript"
+    }
+
+    Write-Host "--- Alenger3 Step 1: Install CMRE Galaxy Host Overlay ---"
+    Install-CmreGalaxyHostOverlay -ModsRoot (Join-Path $Sc2Root "Mods") -MapPath $MapLivePath
+
+    Write-Host "--- Alenger3 Step 2: Enable CMRE Saved Profile Startup ---"
+    Enable-CmreSavedProfileStartup -MapPath $MapLivePath -Commander $Commander
+
+    Write-Host "--- Alenger3 Step 3: Apply CMRE Core Runtime Error Patches ---"
+    Patch-CmreCoreRuntimeErrors -MapPath $MapLivePath
+
+    Write-Host "--- Alenger3 Step 4: Install Alenger Observer ---"
+    Install-CmreAlengerObserver -MapPath $MapLivePath
+
+    Write-Host "--- Alenger3 Step 5: Write CMRE Launch Profile ---"
+    Write-CmreLaunchProfile
+
+    Write-Host "Alenger3 integration completed." -ForegroundColor Green
+}
+
 # === BANK SECTION ===
 if (-not $isOriginalMode) {
     Write-Host "--- Bank Write ---"
     Write-Host "Writing CampaignXCore Bank for commander: $Commander"
-    Set-CampaignXCorePrimaryCommander -SelectedCommanders @($Commander)
-    Set-CampaignXCoreTestRunId -RunId "CMRECommander"
+    if ($isAlengerMode) {
+        foreach ($bankPath in @(Get-CampaignXCoreBankPaths)) {
+            [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
+            Set-BankStringKeyValue -Xml $xml -SectionName "Ach" -KeyName "Commander" -Value $Commander
+            Set-BankStringKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "PrimaryCommander" -Value $Commander
+            Set-BankIntKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "CommanderCount" -Value 1
+            Set-BankStringKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "CommanderP1" -Value $Commander
+            Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
+        }
+        Set-CampaignXCoreTestRunId -RunId "CMREAlenger"
+    } else {
+        Set-CampaignXCorePrimaryCommander -SelectedCommanders @($Commander)
+        Set-CampaignXCoreTestRunId -RunId "CMRECommander"
+    }
 }
 
 # === NEURO INTEGRATION SECTION (optional, -EnableNeuro) ===
