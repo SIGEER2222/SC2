@@ -35,7 +35,7 @@
 | 任务 | 当前结论 | 可继续推进的前提 |
 | --- | --- | --- |
 | Neuro | 有一份 `7vs1-TerranRaynor` action verification JSON 证明 14/14 action bank round-trip 通过；本轮轻量测试也通过。 | 继续补非 Raynor、ScriptError/进程状态固化、CMRE 外部驱动路径。 |
-| 疯批帝国接入亡者之夜 | 5-dep 组合已能在亡者之夜稳定运行，`cmui_customization.galaxy` 编译失败已解决，Bank IPC 工作。2026-07-21 15:35-15:38 运行通过新增的命令卡 dump probe 和训练完成 probe 补齐了之前缺失的两项证据：`3diguoqianshaojidi` 命令卡 8 abilities（4 valid）、训练完成 `worker_before=10; worker_after=11; train_completed=true`，并交叉验证起始单位 trigger 真正执行（`3diguoqianshaojidi=2`、`3diguolaogong=11`）。`CMRE-ALENGER3-STARTING-UNITS-PROBE` 重新升级为 verified-runtime。阶段状态仍为 `partially-verified`，因 `CMRE-ALENGER3-RUNTIME-002` 仍 open。 | 修 `CMRE-ALENGER3-RUNTIME-002` 的 LibCOTF/LibCOMI 非致命 runtime 错误；把专项 launcher 收敛进正式 CompositionPlan/launcher；形成正式 runtime verification report。 |
+| 疯批帝国接入亡者之夜 | 5-dep 组合已能在亡者之夜稳定运行，`cmui_customization.galaxy` 编译失败已解决，Bank IPC 工作。2026-07-21 15:35-15:38 运行通过新增的命令卡 dump probe 和训练完成 probe 补齐了之前缺失的两项证据：`3diguoqianshaojidi` 命令卡 8 abilities（4 valid）、训练完成 `worker_before=10; worker_after=11; train_completed=true`，并交叉验证起始单位 trigger 真正执行（`3diguoqianshaojidi=2`、`3diguolaogong=11`）。`CMRE-ALENGER3-STARTING-UNITS-PROBE` 重新升级为 verified-runtime。2026-07-21 16:24 修复 `CMRE-ALENGER3-RUNTIME-002`（10 处防御性 guard/fallback patch），SC2 首次以 exit code 0 干净启动、无 ScriptError.txt。阶段状态仍为 `partially-verified`，剩余阻塞项为专项 launcher 未并入正式 CompositionPlan。 | 把专项 launcher 收敛进正式 CompositionPlan/launcher；形成正式 runtime verification report。 |
 
 ## 任务 A：Neuro
 
@@ -170,7 +170,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
     - `alenger3_train_probe_result = "train_order=issued; worker_before=10; worker_after=11; new_workers=1; train_completed=true"`。
     - `player_1_inventory` 含 `3diguolaogong=6; 3diguoqianshaojidi=1`；`player_2_inventory` 含 `3diguolaogong=5; 3diguoqianshaojidi=1`。
   - 交叉验证：`worker_before=10` 恰为 5 起始工人 × 2 玩家，`3diguoqianshaojidi=2` 恰为 1 建筑 × 2 玩家，证明 `gt_Alenger3StartingUnits` trigger 真正执行成功。
-  - ScriptError.txt（8041 字节）与 14:23-14:35 运行字节一致，确认新增 probe 未引入新错误，仅有 `CMRE-ALENGER3-RUNTIME-002` 跟踪的 6 类 LibCOTF/LibCOMI 非致命错误。
+  - ScriptError.txt（8041 字节）与 14:23-14:35 运行字节一致，确认新增 probe 未引入新错误，仅有 `CMRE-ALENGER3-RUNTIME-002` 跟踪的 6 类 LibCOTF/LibCOMI 非致命错误（已于 2026-07-21 16:24 修复，详见下文阻塞项章节）。
   - 证据文件：`sc2-porting-workspace/projects/cmre-porting/stages/04-runtime-baseline/evidence/runtime/{NeuroIntegration.SC2Bank.20260721-153820, ScriptError.20260721-153559.txt}`。
   - 结论：`CMRE-ALENGER3-STARTING-UNITS-PROBE` 重新升级为 verified-runtime；新增 `CMRE-ALENGER3-COMMAND-CARD-DUMP`（verified-runtime）和 `CMRE-ALENGER3-TRAIN-COMPLETION`（verified-runtime）。所有单位/建筑/命令卡/训练完成验收门禁已通过。
 - 2026-07-21 15:44-15:48 补充运行（**改进后 trigger 真实测量**）：`gt_Alenger3StartingUnits_Func` 改为报告 `UnitGroup` before/after 实测计数而非固定字符串。Bank 证据 `NeuroIntegration.SC2Bank.20260721-154844`：
@@ -192,7 +192,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 - `CMRE-ALENGER3-HEART-LOAD`：alenger-heart `3疯批帝国.SC2Mod` 加入 Dead of Night 后，无 `LibDF8E6945_h` 缺 include 和 `libDF8E6945_*` unresolved symbol。
 - `CMRE-ALENGER3-CMUI-COMPILE`（2026-07-21 新增，verified-runtime）：5-dep 组合下 `cmui_customization.galaxy` 编译通过，2026-07-21 11:39:56 ScriptError.txt 中无任何 `cmui_customization.galaxy` 错误。`libCOOC_gf_CC_CommanderIsDeveloping` 在 `LibCOOC_h.galaxy:349` 声明、`LibCOOC.galaxy:1826` 定义，签名 `bool(string)` 匹配，`cmui_customization.galaxy:1889` 调用 `if (libCOOC_gf_CC_CommanderIsDeveloping(lp_commander) == true)` 是合法布尔表达式。`CMRE-ALENGER3-001` 解决。
 - `CMRE-ALENGER3-BANK-IPC`（2026-07-21 新增，verified-runtime）：`NeuroIntegration.SC2Bank` 成功写入 `alenger_unit_presence = "Marine=121; 3diguoqianshaojidi=0; 3diguolaogong=0; 3diguojianzhengzhe=0"`。`Marine=121` 证明 UnitGroup 全图查询工作；3 个 Alenger3 单位类型 ID（`3diguoqianshaojidi`/`3diguolaogong`/`3diguojianzhengzhe`）可查询证明 mod 依赖链加载成功，count=0 是因为本次干净运行未执行 UnitCreate（2026-07-20 的临时 UnitCreate 验证已证明 `3diguoqianshaojidi=1` 可达）。`porting_observer_ready` 也成功发布。
-- `CMRE-ALENGER3-RUNTIME-STABILITY`（2026-07-21 新增，partially-verified）：SC2 PID=19192 运行 140+ 秒（222 秒手动确认）无崩溃，gameplay world 可达。但剩余 6 类 CMRE core（LibCOTF/LibCOMI）非致命 runtime 错误，跟踪为 `CMRE-ALENGER3-RUNTIME-002`。
+- `CMRE-ALENGER3-RUNTIME-STABILITY`（2026-07-21 新增，2026-07-21 16:24 升级为 verified-runtime）：SC2 PID=19192 运行 140+ 秒（222 秒手动确认）无崩溃，gameplay world 可达。原 6 类 CMRE core（LibCOTF/LibCOMI）非致命 runtime 错误已通过 `Patch-CmreCoreRuntimeErrors` 修复（`CMRE-ALENGER3-RUNTIME-002` resolved），2026-07-21 16:24 运行以 exit code 0 干净启动、无 ScriptError.txt。
 - `CMRE-ALENGER3-COMMANDER-SET`（2026-07-21 新增，verified-runtime）：Bank 证据显示 `commander_p1=TerranAlenger3`、`commander_p2=TerranAlenger3`，确认 DevStartupBegin patch 和 commander finalize 生效。
 - `CMRE-ALENGER3-BANKWRITEALLOWED-FIX`（2026-07-21 新增，verified-runtime）：修复 `Executeactionsglobal_Func` 进入后不恢复 `bankwriteallowed=true` 的问题，后续 context publish 可持续写入 Bank。
 - `CMRE-ALENGER3-COMMANDER-PROBE-MERGED`（2026-07-21 新增，verified-runtime）：合并 commander selection 与 unit presence probe，19+ 分钟运行中持续写出 commander 和 UnitGroup 查询结果。
@@ -215,15 +215,15 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 - `CMRE-RUNTIME-001` / `CMRE-RUNTIME-003`：SC2 BankLoad 缓存导致外部 Python/Gary 写入 `NeuroIntegration.SC2Bank` 后，运行中的 SC2 不会自动看见新 flag。SC2 内部 do_action 链路是通的，但真实外部驱动路径还不能验收。
 - `CMRE-ALENGER3-001`（**已解决，2026-07-21**）：`Dead of Night x TerranAlenger3` 5-dep 组合下 `cmui_customization.galaxy` 编译通过。`libCOOC_gf_CC_CommanderIsDeveloping` 声明/定义/调用签名匹配，2026-07-19 的旧错误是 staged map 旧版本的瞬时状态。详见 `04-runtime-baseline/issues.json` 和 `CMRE-ALENGER3-CMUI-COMPILE` claim。
 - `CMRE-ALENGER3-HEART-COTF-RUNTIME`：2-dep 组合触发 `LibCOTF.galaxy` runtime errors，包括 `EventPlayerEffectUsedUnitOwner` 无匹配 event、`libCOTF_gt_UT_RandomSeedRefresh_Func` 无法从 `PlayerHandle` 值 2 取得 `gameUser`。证据表明这是 CMRE core 集成问题，不是 alenger-heart 包本身缺 Dehaka 类依赖。
-- `CMRE-ALENGER3-RUNTIME-002`（**新增，2026-07-21，open**）：5-dep 组合下 SC2 运行 140+ 秒无崩溃，但 ScriptError 记录 6 类 CMRE core（LibCOTF/LibCOMI）非致命 runtime 错误：
-  - `LibCOTF.galaxy:176` — `EventPlayerEffectUsedUnitOwner` no matching event
-  - `LibCOTF.galaxy:7828/7829` — `libCOTF_gt_UT_RandomSeedRefresh_Func` 无法从 `PlayerHandle` 值 2 取得 `gameUser`
-  - `LibCOTF.galaxy:7959` — `libCOTF_gt_UT_AfterStart_Func` `DialogSetVisible` `triggerDialog=0`
-  - `LibCOUI.galaxy:3306` — `libCOMI_gt_CM_GlobalCasterInit_Func` `DialogControlSetPropertyAsUnitGroup` `triggerControl=0`
-  - `LibCOMI.galaxy:23813/23851` — `ArtReloadUnitCreate_Func` / `ArtReloadUnitMorph_Func` 无法找到目录条目 `''`（空字符串）
-  - `LibCOMI.galaxy:18204/18244/18259` — `auto_libCOMI_gf_CM_HeroHandleDeath_TriggerFunc` 目录条目 `''` + `StringToFixed` str=0 + 除零
+- `CMRE-ALENGER3-RUNTIME-002`（**已解决，2026-07-21 16:24**）：5-dep 组合下 SC2 曾在运行中由 ScriptError 记录 6 类 CMRE core（LibCOTF/LibCOMI）非致命 runtime 错误。已通过在 `sc2-porting-workspace/scripts/launch-cmre-alenger.ps1` 中新增 `Patch-CmreCoreRuntimeErrors` 函数，对 `Install-CmreGalaxyHostOverlay` 复制到 map `Base.SC2Data` 的 3 个 CMRE core galaxy 文件（`LibCOTF.galaxy` / `LibCOUI.galaxy` / `LibCOMI.galaxy`）应用 10 处防御性 guard/fallback patch 修复。2026-07-21 16:24 运行以 exit code 0 干净启动，`C:\Users\22448\Documents\StarCraft II\GameLogs\2026-07-21 16.24.*` 目录无 `ScriptError.txt`，Bank 证据 `NeuroIntegration.SC2Bank.20260721-1624` 完整写出所有 probe 结果。原 6 类错误如下（历史记录）：
+  - `LibCOTF.galaxy:176` — `EventPlayerEffectUsedUnitOwner` no matching event → patch 1：替换为 `libCOTF_gv_player = 1;`（InitGlobals 无 effect event 上下文）
+  - `LibCOTF.galaxy:7828/7829` — `libCOTF_gt_UT_RandomSeedRefresh_Func` 无法从 `PlayerHandle` 值取得 `gameUser` → patch 2/2b：注释掉两行 `GameSetSeed(StringToInt(...))`（while loop at 7830 已提供持续随机种子）
+  - `LibCOTF.galaxy:7959` — `libCOTF_gt_UT_AfterStart_Func` `DialogSetVisible` `triggerDialog=0` → patch 3：guard `if (libCOTF_gv_uT_AIVisionDialog != c_invalidDialogId)`
+  - `LibCOUI.galaxy:3306` — `libCOMI_gt_CM_GlobalCasterInit_Func` `DialogControlSetPropertyAsUnitGroup` `triggerControl=0` → patch 4：guard `if (libCOUI_gv_cU_GPCmdPanel[lp_player] != c_invalidDialogControlId)`
+  - `LibCOMI.galaxy:23813/23851` — `ArtReloadUnitCreate_Func` / `ArtReloadUnitMorph_Func` 无法找到目录条目 `''`（空字符串）→ patch 5/6：guard `if (lv_commanderDefaultDecal != "")` 在 `CatalogFieldValueGet` 调用之前（关键洞察：fallback-after 无法抑制 ScriptError，必须 guard-before）
+  - `LibCOMI.galaxy:18204/18244/18259` — `auto_libCOMI_gf_CM_HeroHandleDeath_TriggerFunc` 目录条目 `''` + `StringToFixed` str=0 + 除零 → patch 7/8：guard `if (behavior != "")` 在 `CatalogFieldValueGet` 调用之前 + fallback `if (lv_reviveDuration <= 0.0) { lv_reviveDuration = 60.0; }`；patch 9：guard `if (lv_reviveDuration > 0.0)` 防除零
 
-  这些错误表明 CMRE core 期望已配置的 commander slot 上下文，5-dep 组合的 saved-profile startup patch 可能未完全初始化该上下文。`HeroHandleDeath` 中的除零可能在英雄死亡时引发级联状态损坏。
+  根因：CMRE core 期望已配置的 commander slot 上下文（decal、revive behavior、shield color、AI vision dialog、player 2 gameUser），5-dep Alenger3 组合未完全填充这些字段。Patch 函数幂等（检查 patch marker 是否已存在），只在 map 副本上修改，不动 CMRE 源 mod 文件。详见 `sc2-porting-workspace/projects/cmre-porting/stages/04-runtime-baseline/{result.json, log.md}` 和 `evidence/runtime/{NeuroIntegration.SC2Bank.20260721-1624, ScriptError.20260721-1624.NONE.txt}`。
 - 专项入口还未并入正式 `launch-cmre.ps1` / `CompositionPlan` / web launcher，仍是 porting workspace 内的实验路径。
 
 ### 发展计划
@@ -235,12 +235,12 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
    - ~~触发一次训练命令，观察队列变化和最终新增单位~~。已通过 `gt_Alenger3TrainProbe` 完成，`worker_before=10; worker_after=11; train_completed=true`。
    - 对训练失败返回结构化原因（暂不需要，当前训练已成功）。
 4. 收口静态边界：把 `Alenger3` 的 package mapping 从 workspace config 升级到主项目 manifest，避免只有专项脚本知道。
-5. 修 CMRE core runtime（`CMRE-ALENGER3-RUNTIME-002`）：
+5. ~~修 CMRE core runtime（`CMRE-ALENGER3-RUNTIME-002`）~~（**已完成，2026-07-21 16:24**）：通过 `Patch-CmreCoreRuntimeErrors` 函数应用 10 处防御性 guard/fallback patch 修复全部 6 类错误，SC2 首次以 exit code 0 干净启动、无 ScriptError.txt。详见阻塞项章节。
    - ~~追踪 `libCOOC_gf_CC_CommanderIsDeveloping` 声明/实现在哪个依赖层丢失~~（已解决，`CMRE-ALENGER3-001` resolved）。
-   - 修 `LibCOTF` 对 player/event 的假设，使 2 玩家或自动 profile 场景稳定（`EventPlayerEffectUsedUnitOwner` 无匹配 event、`PlayerHandle=2` 无法取得 `gameUser`）。
-   - 修 `LibCOTF_gt_UT_AfterStart_Func` 和 `libCOMI_gt_CM_GlobalCasterInit_Func` 的无效 dialog/control 句柄（`triggerDialog=0`、`triggerControl=0`）。
-   - 修 `ArtReloadUnitCreate_Func` / `ArtReloadUnitMorph_Func` / `auto_libCOMI_gf_CM_HeroHandleDeath_TriggerFunc` 中的空目录条目问题，可能是 commander tech states 未完全初始化导致 `CatalogFieldValueGet` 返回空字符串。
-   - 修 `HeroHandleDeath` 中的除零（`StringToFixed` str=0 后做除法）。
+   - ~~修 `LibCOTF` 对 player/event 的假设~~（patch 1/2/2b：替换 `EventPlayerEffectUsedUnitOwner`、注释 `PlayerHandle`/`DateTime` seed）。
+   - ~~修 `LibCOTF_gt_UT_AfterStart_Func` 和 `libCOMI_gt_CM_GlobalCasterInit_Func` 的无效 dialog/control 句柄~~（patch 3/4：guard `c_invalidDialogId` / `c_invalidDialogControlId`）。
+   - ~~修 `ArtReloadUnitCreate_Func` / `ArtReloadUnitMorph_Func` / `auto_libCOMI_gf_CM_HeroHandleDeath_TriggerFunc` 中的空目录条目问题~~（patch 5/6/7/8：guard-before `CatalogFieldValueGet` 调用）。
+   - ~~修 `HeroHandleDeath` 中的除零~~（patch 9：guard `lv_reviveDuration > 0.0`）。
 6. 修外部驱动 IPC：
    - 不再把外部写 bank 当成实时动作通道，除非证明 SC2 端可刷新 BankLoad。
    - 优先评估 SC2 端刷新 hook、预启动写入 + 运行时回传、或替代 IPC。
@@ -303,8 +303,8 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File `
 
 1. 先完成 Neuro action matrix 静态一致性测试。这是低风险、高收益，能防止同类工具缺失问题再次出现。
 2. ~~再补 Raynor action matrix runtime report。已有 E2E 基础，最容易形成可复用验收模板~~。**已完成**：`20260721T110509-9c405a.verification.json` 升级为 VerificationReport/v1，含 process_status / scripterror_conclusion / log_index / repro_command / semantic_classification。
-3. 对疯批帝国线，单位/建筑/命令卡/训练完成最小门禁**已通过**（2026-07-21 15:35-15:38 Bank 证据）；下一步修 `CMRE-ALENGER3-RUNTIME-002` 并形成正式 runtime verification report。
-4. 修 `CMRE-ALENGER3-RUNTIME-002`（LibCOTF/LibCOMI runtime 错误）。SC2 已能稳定运行 19+ 分钟，但这些错误可能在英雄死亡或特定事件时引发级联失败。
+3. 对疯批帝国线，单位/建筑/命令卡/训练完成最小门禁**已通过**（2026-07-21 15:35-15:38 Bank 证据）；`CMRE-ALENGER3-RUNTIME-002` 已于 2026-07-21 16:24 修复（10 处 patch，SC2 exit code 0、无 ScriptError）；下一步形成正式 runtime verification report。
+4. ~~修 `CMRE-ALENGER3-RUNTIME-002`（LibCOTF/LibCOMI runtime 错误）~~（**已完成，2026-07-21 16:24**：`Patch-CmreCoreRuntimeErrors` 函数应用 10 处防御性 guard/fallback patch，SC2 首次以 exit code 0 干净启动、无 ScriptError.txt）。
 5. 暂缓把 CMRE + Neuro 作为最终验收目标，先让 `亡者之夜 x TerranAlenger3` 非 Neuro 模式产出正式 verification report。
 6. 最后把专项 launcher 逻辑并入主 CompositionPlan/launcher，并补 web launcher 预览和启动路径。
 
