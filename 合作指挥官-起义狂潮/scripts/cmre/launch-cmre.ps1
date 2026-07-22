@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   CMRE (Co-op Mission Rewrite Enhanced) Campaign Launcher
   Launch CMRE co-op maps with CMRE mod, optionally overlaying 7vs1 commanders.
@@ -135,7 +135,10 @@ if (-not $isOriginalMode) {
             Write-Host "  - $modRelPath"
             Sync-ModToLive -ModRelPath $modRelPath -ProjRoot $ProjRoot -Sc2Root $Sc2Root
         }
-        Remove-StaleCommanderUnitsMods -Sc2Root $Sc2Root -AllowedModNames @()
+        # 保留 alengerMods 中引入的 CommanderUnits_* mod：CoreRuntime 的 LibKMIS.galaxy / LibKPVP_Commander.galaxy
+        # 硬编码 include LibDF8E6945_h (Dehaka) 与 LibKPVP_Swann (Swann)，必须随 Alenger3 一起 sync。
+        $alengerAllowedCommanderUnits = $alengerMods | Where-Object { $_ -like 'CommanderUnits_*' } | ForEach-Object { "$_.SC2Mod" }
+        Remove-StaleCommanderUnitsMods -Sc2Root $Sc2Root -AllowedModNames $alengerAllowedCommanderUnits
     } else {
         $commanderUnitsMod = Get-CommanderUnitsModName -Commander $Commander
         if ($commanderUnitsMod) {
@@ -222,14 +225,13 @@ if ($isAlengerMode) {
             [Parameter(Mandatory = $true)][string]$ModsRoot,
             [Parameter(Mandatory = $true)][string]$MapPath
         )
-        $sourceRoot = Join-Path $ModsRoot "CMRE\CMRE_Core_Triggers.SC2Mod\Base.SC2Data"
+        # 注意：不复制 CMRE 的 Lib*.galaxy、scripts/、TriggerLibs/ 到 map。
+        # CMRE mod 已通过 DocumentHeader 依赖声明，SC2 编译器会从 mod 中加载这些文件。
+        # map 中的 galaxy 文件编译时无法访问 CASC 数据库中的 SC2 自带 TriggerLibs
+        # (NativeLib/LibertyLib/SwarmLib)，复制 CMRE Lib*.galaxy 到 map 会导致
+        # "函数已声明但尚未定义" 错误。Patch 直接作用于 live CMRE mod 中的文件。
         $destinationRoot = Join-Path $MapPath "Base.SC2Data"
-        $libraries = Get-ChildItem -LiteralPath $sourceRoot -File -Filter "Lib*.galaxy" | Sort-Object Name
-        if ($libraries.Count -eq 0) { throw "CMRE Galaxy host libraries not found: $sourceRoot" }
         [System.IO.Directory]::CreateDirectory($destinationRoot) | Out-Null
-        foreach ($library in $libraries) {
-            [System.IO.File]::Copy($library.FullName, (Join-Path $destinationRoot $library.Name), $true)
-        }
 
         $adapterRoot = Join-Path $ModsRoot "7vs1\Alenger3Adapter.SC2Mod\Base.SC2Data"
         $adapterFiles = @("LibA3ADAPTER_h.galaxy", "LibA3ADAPTER.galaxy", "LibA3ADAPTER_Catalog.galaxy")
@@ -247,22 +249,22 @@ if ($isAlengerMode) {
             [System.IO.File]::Copy($src, (Join-Path $destinationRoot $name), $true)
         }
 
-        $required = @("LibCOOC_h.galaxy", "LibCOOC.galaxy", "LibCOMI_h.galaxy", "LibCOMI.galaxy", "LibA3ADAPTER.galaxy", "LibA3ADAPTER_h.galaxy", "LibA3ADAPTER_Catalog.galaxy", "LibRuntimeProbe_h.galaxy", "LibRuntimeProbe.galaxy")
+        $required = @("LibA3ADAPTER.galaxy", "LibA3ADAPTER_h.galaxy", "LibA3ADAPTER_Catalog.galaxy", "LibRuntimeProbe_h.galaxy", "LibRuntimeProbe.galaxy")
         foreach ($name in $required) {
             if (-not (Test-Path -LiteralPath (Join-Path $destinationRoot $name))) {
                 throw "CMRE Galaxy host overlay is incomplete: $name"
             }
         }
-        Write-Host "CMRE Galaxy host overlay: $($libraries.Count) CMRE + $($adapterFiles.Count) Alenger3Adapter + $($probeFiles.Count) RuntimeProbe files"
+        Write-Host "CMRE Galaxy host overlay: $($adapterFiles.Count) Alenger3Adapter + $($probeFiles.Count) RuntimeProbe files (CMRE Lib*.galaxy stay in mod)"
     }
 
     function Enable-CmreSavedProfileStartup {
         param(
-            [Parameter(Mandatory = $true)][string]$MapPath,
+            [Parameter(Mandatory = $true)][string]$ModsRoot,
             [Parameter(Mandatory = $true)][string]$Commander
         )
-        $path = Join-Path $MapPath "Base.SC2Data\LibCOOC.galaxy"
-        if (-not (Test-Path -LiteralPath $path)) { throw "Map-level LibCOOC.galaxy not found: $path" }
+        $path = Join-Path $ModsRoot "CMRE\CMRE_Core_Triggers.SC2Mod\Base.SC2Data\LibCOOC.galaxy"
+        if (-not (Test-Path -LiteralPath $path)) { throw "CMRE mod LibCOOC.galaxy not found: $path" }
         $content = [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
         $originalPattern = '(?m)^    if \(\(libCMFE_gf_CMUIX_StartupApplySavedConfiguration\(\) == true\)\) \{\r?\n        Wait\(1\.0, c_timeReal\);\r?\n        CMUIX_ReadyBeginCountdown\(\);\r?\n        return ;\r?\n    \}'
         $fallbackPattern = '(?m)^    if \(\(libCMFE_gf_CMUIX_StartupApplySavedConfiguration\(\) == true\)\) \{\r?\n        TriggerSendEvent\("CU_CommChoiceEventClosed"\);\r?\n        return ;\r?\n    \}'
@@ -306,8 +308,8 @@ if ($isAlengerMode) {
     }
 
     function Patch-CmreCoreRuntimeErrors {
-        param([Parameter(Mandatory = $true)][string]$MapPath)
-        $baseData = Join-Path $MapPath "Base.SC2Data"
+        param([Parameter(Mandatory = $true)][string]$ModsRoot)
+        $baseData = Join-Path $ModsRoot "CMRE\CMRE_Core_Triggers.SC2Mod\Base.SC2Data"
         $patchCount = 0
 
         $cotfPath = Join-Path $baseData "LibCOTF.galaxy"
@@ -390,7 +392,121 @@ if ($isAlengerMode) {
         }
 
         [System.IO.File]::WriteAllText($comiPath, $comi, [System.Text.UTF8Encoding]::new($false))
+
+        # Patch 10: cmui_customization.galaxy - fix "boolean expression required" compile error.
+        # Under multi-mod dependency stack (CMRE + 7vs1 overlay), the SC2 compiler mishandles
+        # forward declarations for libCOOC_gf_CC_CommanderIsDeveloping / PrestigeIsDeveloping,
+        # causing "bool == true" to error. Also explicitly include LibCOOC_h and replace
+        # "== true" with direct bool test (equivalent in Galaxy).
+        $cmuiPath = Join-Path $baseData "scripts\cmui_customization.galaxy"
+        if (-not (Test-Path -LiteralPath $cmuiPath)) { throw "cmui_customization.galaxy not found: $cmuiPath" }
+        $cmui = [System.IO.File]::ReadAllText($cmuiPath, [System.Text.Encoding]::UTF8)
+
+        # 10a: Explicitly include LibCOOC_h (SC2 include dedupes, safe to repeat)
+        $cmuiIncludePatch = 'include "LibCOOC_h"'
+        $cmuiIncludeAnchor = 'include "LibCOTF_h"'
+        if (-not $cmui.Contains($cmuiIncludePatch)) {
+            if (-not $cmui.Contains($cmuiIncludeAnchor)) { throw "cmui_customization include anchor not found" }
+            $cmui = $cmui.Replace($cmuiIncludeAnchor, "$cmuiIncludePatch`r`n$cmuiIncludeAnchor", 1)
+            $patchCount++
+        }
+
+        # 10b: Remove "== true" from libCOOC_gf_CC_CommanderIsDeveloping / PrestigeIsDeveloping
+        $cmuiBoolAnchor1 = 'if (libCOOC_gf_CC_CommanderIsDeveloping(lp_commander) == true) {'
+        $cmuiBoolPatch1  = 'if (libCOOC_gf_CC_CommanderIsDeveloping(lp_commander)) {'
+        if ($cmui.Contains($cmuiBoolAnchor1)) {
+            $cmui = $cmui.Replace($cmuiBoolAnchor1, $cmuiBoolPatch1)
+            $patchCount++
+        }
+        $cmuiBoolAnchor2 = 'if (libCOOC_gf_CC_PrestigeIsDeveloping(lp_prestige) == true) {'
+        $cmuiBoolPatch2  = 'if (libCOOC_gf_CC_PrestigeIsDeveloping(lp_prestige)) {'
+        if ($cmui.Contains($cmuiBoolAnchor2)) {
+            $cmui = $cmui.Replace($cmuiBoolAnchor2, $cmuiBoolPatch2)
+            $patchCount++
+        }
+
+        # 10c: Local forward declarations. Under multi-mod, LibCOOC_h declarations may be
+        # invisible to scripts/ subdir files. Declaring prototypes directly in
+        # cmui_customization.galaxy ensures the compiler knows return types.
+        # If this causes "already declared" errors, the header was actually visible.
+        $cmuiFwdDeclPatch = @"
+// CMRE patch: local forward declarations for multi-mod visibility
+bool libCOOC_gf_CC_CommanderIsDeveloping (string lp_commander);
+bool libCOOC_gf_CC_PrestigeIsDeveloping (string lp_prestige);
+"@
+        $cmuiFwdDeclAnchor = "// -----------------------------------------------------------------------------`r`n// Constants, Global State, And Forward Declarations"
+        if (-not $cmui.Contains($cmuiFwdDeclPatch)) {
+            if (-not $cmui.Contains($cmuiFwdDeclAnchor)) { throw "cmui_customization forward declaration anchor not found" }
+            $cmui = $cmui.Replace($cmuiFwdDeclAnchor, "$cmuiFwdDeclPatch`r`n$cmuiFwdDeclAnchor", 1)
+            $patchCount++
+        }
+
+        [System.IO.File]::WriteAllText($cmuiPath, $cmui, [System.Text.UTF8Encoding]::new($false))
         Write-Host "  Applied $patchCount CMRE core runtime error patches"
+    }
+
+    function Invoke-GalaxyChecker {
+        <#
+          .SYNOPSIS
+            Pre-launch galaxy-checker gate. Mandatory per AGENTS.md "Galaxy static validation gate".
+          .DESCRIPTION
+            Validates patched live mod Base.SC2Data. Multi-mod scenarios must pass every dependency
+            mod via --symbol-root, or cross-lib symbols will false-positive. Exit 0 passes; exit 1
+            means error-level issues and aborts launch; exit 2 means tool exception and aborts.
+            Never launch SC2 with known static errors.
+        #>
+        param(
+            [Parameter(Mandatory = $true)][string]$TargetBaseData,
+            [Parameter(Mandatory = $true)][string[]]$SymbolRoots,
+            [Parameter(Mandatory = $true)][string]$ProjRootForChecker
+        )
+        $checkerCli = Join-Path $ProjRootForChecker "scripts\galaxy-checker\dist\cli.mjs"
+        if (-not (Test-Path -LiteralPath $checkerCli)) {
+            Write-Host "  galaxy-checker dist not found, building..." -ForegroundColor Yellow
+            $checkerDir = Join-Path $ProjRootForChecker "scripts\galaxy-checker"
+            & npm --prefix "$checkerDir" install --no-audit --no-fund 2>&1 | Out-Host
+            $buildLast = $LASTEXITCODE
+            if ($buildLast -ne 0) { throw "galaxy-checker npm install failed (exit $buildLast)" }
+            & npm --prefix "$checkerDir" run build 2>&1 | Out-Host
+            $buildLast = $LASTEXITCODE
+            if ($buildLast -ne 0) { throw "galaxy-checker npm run build failed (exit $buildLast)" }
+            if (-not (Test-Path -LiteralPath $checkerCli)) { throw "galaxy-checker dist/cli.mjs still missing after build" }
+        }
+
+        # 过滤不存在的 symbol-root，避免 galaxy-checker 误报
+        $validRoots = @()
+        foreach ($root in $SymbolRoots) {
+            if (Test-Path -LiteralPath $root) {
+                $validRoots += $root
+            } else {
+                Write-Host "  WARN: symbol-root skipped (not found): $root" -ForegroundColor Yellow
+            }
+        }
+
+        $cliArgs = @($checkerCli, $TargetBaseData)
+        foreach ($root in $validRoots) { $cliArgs += @("--symbol-root", $root) }
+        $cliArgs += @("--format", "text")
+
+        Write-Host "  Running galaxy-checker on: $TargetBaseData" -ForegroundColor Cyan
+        Write-Host "  Symbol roots: $($validRoots.Count)" -ForegroundColor Cyan
+
+        $output = & node @cliArgs 2>&1
+        $checkerExit = $LASTEXITCODE
+
+        if ($checkerExit -eq 0) {
+            Write-Host "  GALAXY-CHECKER PASSED (exit 0)" -ForegroundColor Green
+            return
+        }
+
+        Write-Host "  GALAXY-CHECKER FAILED (exit $checkerExit)" -ForegroundColor Red
+        $output | Out-Host
+        if ($checkerExit -eq 1) {
+            throw "galaxy-checker reported error-level issues. Fix static errors before launching SC2. Target: $TargetBaseData"
+        } elseif ($checkerExit -eq 2) {
+            throw "galaxy-checker tool exception (exit 2). Investigate checker installation/invocation. Target: $TargetBaseData"
+        } else {
+            throw "galaxy-checker unexpected exit code $checkerExit. Target: $TargetBaseData"
+        }
     }
 
     function Write-CmreLaunchProfile {
@@ -408,13 +524,29 @@ if ($isAlengerMode) {
     function Install-CmreAlengerObserver {
         param([Parameter(Mandatory = $true)][string]$MapPath)
         $neuroRoot = Join-Path (Split-Path -Parent $ProjRoot) "tools\SC2-Neuro-API-Integration"
+        # LibPortingObserver 由 sc2-porting-workspace 提供，与 LibEFA54406 协同工作：
+        # LibEFA54406 patch 后 include "LibPortingObserver_h" 并调用 BootstrapPortingObserver，
+        # 缺少该文件会导致 ScriptError（参考 run-cmre-runtime-baseline.ps1 的完整闭包）。
+        $observerRoot = Join-Path (Split-Path -Parent $ProjRoot) "sc2-porting-workspace\projects\cmre-porting\runtime"
         $baseData = Join-Path $MapPath "Base.SC2Data"
         $files = @(
             @{ Source = Join-Path $neuroRoot "Mod\NeuroIntegration.SC2Mod\Base.SC2Data\LibEFA54406_h.galaxy"; Name = "LibEFA54406_h.galaxy" },
-            @{ Source = Join-Path $neuroRoot "Mod\NeuroIntegration.SC2Mod\Base.SC2Data\LibEFA54406.galaxy"; Name = "LibEFA54406.galaxy" }
+            @{ Source = Join-Path $neuroRoot "Mod\NeuroIntegration.SC2Mod\Base.SC2Data\LibEFA54406.galaxy"; Name = "LibEFA54406.galaxy" },
+            @{ Source = Join-Path $observerRoot "LibPortingObserver_h.galaxy"; Name = "LibPortingObserver_h.galaxy" },
+            @{ Source = Join-Path $observerRoot "LibPortingObserver.galaxy"; Name = "LibPortingObserver.galaxy" }
         )
+        $allFound = $true
         foreach ($file in $files) {
-            if (-not (Test-Path -LiteralPath $file.Source)) { throw "Observer input not found: $($file.Source)" }
+            if (-not (Test-Path -LiteralPath $file.Source)) {
+                $allFound = $false
+                break
+            }
+        }
+        if (-not $allFound) {
+            Write-Host "  SKIP: NeuroIntegration not found, RuntimeProbe will provide evidence"
+            return
+        }
+        foreach ($file in $files) {
             [System.IO.File]::Copy($file.Source, (Join-Path $baseData $file.Name), $true)
         }
 
@@ -447,10 +579,10 @@ if ($isAlengerMode) {
         $mapScriptPath = Join-Path $MapPath "MapScript.galaxy"
         $mapScript = [System.IO.File]::ReadAllText($mapScriptPath, [System.Text.Encoding]::UTF8)
         if ($mapScript -notmatch '(?m)^include "LibEFA54406"$') {
-            $mapScript = $mapScript.Replace('include "LibCOUI"', "include `"LibCOUI`"`r`ninclude `"LibEFA54406`"`r`ninclude `"LibA3ADAPTER`"`r`ninclude `"LibRuntimeProbe`"")
+            $mapScript = $mapScript.Replace('include "LibCOUI"', "include `"LibCOUI`"`r`ninclude `"LibEFA54406`"`r`ninclude `"LibPortingObserver`"`r`ninclude `"LibA3ADAPTER`"`r`ninclude `"LibRuntimeProbe`"")
         }
         if ($mapScript -notmatch 'libEFA54406_InitLib\s*\(\s*\)') {
-            $mapScript = $mapScript.Replace('    libCOUI_InitLib();', "    libCOUI_InitLib();`r`n    libEFA54406_InitLib();`r`n    libA3ADAPTER_InitLib();`r`n    libRuntimeProbe_InitLib();")
+            $mapScript = $mapScript.Replace('    libCOUI_InitLib();', "    libCOUI_InitLib();`r`n    libEFA54406_InitLib();`r`n    libPortingObserver_InitLib();`r`n    libA3ADAPTER_InitLib();`r`n    libRuntimeProbe_InitLib();")
         }
         [System.IO.File]::WriteAllText($mapScriptPath, $mapScript, [System.Text.UTF8Encoding]::new($false))
 
@@ -480,13 +612,34 @@ if ($isAlengerMode) {
     }
 
     Write-Host "--- Alenger3 Step 1: Install CMRE Galaxy Host Overlay ---"
-    Install-CmreGalaxyHostOverlay -ModsRoot (Join-Path $Sc2Root "Mods") -MapPath $MapLivePath
+    $liveModsRoot = Join-Path $Sc2Root "Mods"
+    Install-CmreGalaxyHostOverlay -ModsRoot $liveModsRoot -MapPath $MapLivePath
 
     Write-Host "--- Alenger3 Step 2: Enable CMRE Saved Profile Startup ---"
-    Enable-CmreSavedProfileStartup -MapPath $MapLivePath -Commander $Commander
+    Enable-CmreSavedProfileStartup -ModsRoot $liveModsRoot -Commander "Alenger3"
 
     Write-Host "--- Alenger3 Step 3: Apply CMRE Core Runtime Error Patches ---"
-    Patch-CmreCoreRuntimeErrors -MapPath $MapLivePath
+    Patch-CmreCoreRuntimeErrors -ModsRoot $liveModsRoot
+
+    Write-Host "--- Alenger3 Step 3.5: Galaxy-checker pre-launch gate (mandatory) ---"
+    # 强制门禁：patch 后、SC2 启动前必须验证 patched CMRE mod 的 Base.SC2Data。
+    # 多 mod 场景必须传所有依赖 mod 的 --symbol-root，否则跨库符号误报。
+    $checkerTarget = Join-Path $liveModsRoot "CMRE\CMRE_Core_Triggers.SC2Mod\Base.SC2Data"
+    $checkerSymbolRoots = @(
+        (Join-Path $liveModsRoot "CMRE\CMRE_Core_Base.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "7vs1\CoreRuntime.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "7vs1\CommanderBridge.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "7vs1\BaseCatalogPatch.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "7vs1\SharedUnits.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "7vs1\ExternalRefs.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "kit_mutations.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "7vs1\AlengerCommon.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "7vs1\Alenger3.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "7vs1\Alenger3Adapter.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "7vs1\CommanderUnits_Swann.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "7vs1\CommanderUnits_Dehaka.SC2Mod\Base.SC2Data")
+    )
+    Invoke-GalaxyChecker -TargetBaseData $checkerTarget -SymbolRoots $checkerSymbolRoots -ProjRootForChecker $ProjRoot
 
     Write-Host "--- Alenger3 Step 4: Install Alenger Observer ---"
     Install-CmreAlengerObserver -MapPath $MapLivePath
@@ -502,12 +655,13 @@ if (-not $isOriginalMode) {
     Write-Host "--- Bank Write ---"
     Write-Host "Writing CampaignXCore Bank for commander: $Commander"
     if ($isAlengerMode) {
+        $bankCommander = "Alenger3"
         foreach ($bankPath in @(Get-CampaignXCoreBankPaths)) {
             [xml]$xml = Get-Content -LiteralPath $bankPath -Raw
-            Set-BankStringKeyValue -Xml $xml -SectionName "Ach" -KeyName "Commander" -Value $Commander
-            Set-BankStringKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "PrimaryCommander" -Value $Commander
+            Set-BankStringKeyValue -Xml $xml -SectionName "Ach" -KeyName "Commander" -Value $bankCommander
+            Set-BankStringKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "PrimaryCommander" -Value $bankCommander
             Set-BankIntKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "CommanderCount" -Value 1
-            Set-BankStringKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "CommanderP1" -Value $Commander
+            Set-BankStringKeyValue -Xml $xml -SectionName "XMRuntimeControl" -KeyName "CommanderP1" -Value $bankCommander
             Save-XmlDocumentWithRetry -Xml $xml -Path $bankPath
         }
         Set-CampaignXCoreTestRunId -RunId "CMREAlenger"
