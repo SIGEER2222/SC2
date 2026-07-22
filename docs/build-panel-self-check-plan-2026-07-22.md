@@ -584,10 +584,168 @@ fi
 - 建造建筑 → 训练单位 → 单位出现在地图上
 - 研究升级 → 升级生效
 
-## 12. 待确认事项
+## 12. 7v1 参考基准测试
+
+### 12.1 背景
+
+隔壁"评估疯批帝国进度"会话用 7v1 地图成功加载了疯批帝国。经调查：
+
+- **7v1 地图"成功"指单位生成成功**：61 个 ID 以 3 开头的单位（含建筑）正常生成，无 ScriptError
+- **建造面板问题在 7v1 和亡者之夜上都存在**：因为 CardLayouts 是 Alenger3.SC2Mod 自身配置问题，与地图无关
+- **两个地图加载相同的 Alenger3.SC2Mod**：CardLayouts 配置相同
+
+### 12.2 7v1 与 CMRE 的关键差异
+
+| 维度 | 7v1 测试地图 | 亡者之夜（CMRE） |
+|------|------------|----------------|
+| 框架 mod | `CoreRuntime.SC2Mod` | `CMRE_Core_Base` + `CMRE_Core_Triggers` |
+| 指挥官识别 | `libE0EAE146_gf_CommanderAchUnit` 包装函数硬编码绕过目录检查 | 直接查询 CommanderAch 目录，不认识 TerranAlenger3 |
+| 初始单位创建 | 7v1 框架自动创建 Alenger3 专属单位 | 需额外触发 `gt_Alenger3StartingUnits` 触发器 |
+| 原版单位处理 | 7v1 框架正常替换 | 需 `DeferredCleanup` 触发器清理原版 CommandCenter/SCV |
+| Alenger3 mod | **相同**（AlengerCommon + Alenger3 + Alenger3Adapter） | **相同** |
+| CardLayouts 配置 | **相同**（来自 Alenger3.SC2Mod） | **相同** |
+
+### 12.3 7v1 作为参考基准的价值
+
+1. **单位生成验证基准**：7v1 上 61 个单位生成成功，可作为"单位加载是否正常"的基准
+2. **框架差异隔离**：7v1 用 CoreRuntime，CMRE 用 CMRE_Core，对比可隔离框架问题
+3. **建造面板对比**：在 7v1 和 CMRE 上分别验证建造面板，确认问题是否为 mod 自身问题
+
+### 12.4 新增 Layer 2.5: 7v1 对比验证
+
+在 Layer 2（运行时验证）之后，新增 Layer 2.5：
+
+**目标**：在 7v1 测试地图上运行相同的运行时验证，对比 CMRE 结果
+
+**流程**：
+```python
+1. 在 7v1 地图上启动游戏（launch-7vs1-coop-test.ps1 -Commanders @("TerranAlenger3")）
+2. 等待游戏加载完成
+3. 运行 Layer 2 运行时验证器（相同参数）
+4. 对比 7v1 和 CMRE 的验证结果:
+   a. 单位生成数对比（7v1 应为 61 个，CMRE 可能不同）
+   b. 建造面板按钮对比（两边应该相同，因为 mod 相同）
+   c. 训练面板按钮对比（两边应该相同）
+   d. ability 列表对比（两边应该相同）
+5. 输出对比报告
+```
+
+**输出格式**：
+```json
+{
+  "comparison": {
+    "map_7v1": {
+      "units_generated": 61,
+      "buildings_with_build_panel": 8,
+      "build_buttons_verified": 45,
+      "train_buttons_verified": 23
+    },
+    "map_cmre": {
+      "units_generated": 12,
+      "buildings_with_build_panel": 8,
+      "build_buttons_verified": 45,
+      "train_buttons_verified": 23
+    },
+    "verdict": "match| mismatch"
+  }
+}
+```
+
+### 12.5 7v1 回归测试集成
+
+在启动器中添加 7v1 回归测试选项：
+
+```powershell
+# launch-7vs1-coop-test.ps1 新增参数
+-VerifyBuildPanel     # 启动后自动运行建造面板验证
+-CompareWithCmre      # 与 CMRE 结果对比（需先运行 CMRE 验证）
+```
+
+**预期结果**：
+- 7v1 和 CMRE 的建造面板按钮状态应该**完全一致**（因为 mod 相同）
+- 如果不一致，说明问题在框架层（CoreRuntime vs CMRE_Core），而非 mod 层
+- 如果一致且都有问题，说明问题在 Alenger3.SC2Mod 自身（CardLayouts 配置）
+
+## 13. 更新后的实施步骤
+
+### Phase 1: 静态分析器（不依赖游戏）
+
+**目标**：实现 Layer 1，快速发现 CardLayouts 配置问题
+
+**任务**：
+1. 创建 `scripts/diagnostics/static_panel_analyzer.py`
+2. 实现 XML 解析和对比逻辑
+3. 对当前 Alenger3 运行，验证输出（应输出 0 个缺失，因已修复）
+4. 人为删除一个 LayoutButtons，验证能检测到
+
+**验收标准**：
+- 能正确解析 UnitData.xml 和 AbilData.xml
+- 能检测到缺失的 Train/Build 按钮挂载
+- 输出格式符合 JSON schema
+
+### Phase 2: 运行时验证器（依赖 NeuroIntegration）
+
+**目标**：实现 Layer 2，通过 Bank IPC 实际验证按钮可点击性
+
+**任务**：
+1. 修改 `LibPortingObserver.galaxy`：
+   - 添加 `libPortingObserver_gf_DumpCommandCard(lp_unitType)` 函数
+   - 添加 `verify_build_panel` action 注册和处理
+2. 创建 `scripts/diagnostics/runtime_verifier.py`：
+   - 复用 `bank_file_io.py` 的 Bank IPC 客户端
+   - 实现 select_unit_type + verify_build_panel 调用流程
+3. 进图测试，验证 Bank IPC 通信正常
+
+**验收标准**：
+- 能通过 Bank IPC 选中指定单位
+- 能获取单位命令卡片 ability 列表
+- 能尝试下发建造/训练命令并获取结果
+
+### Phase 2.5: 7v1 对比验证（新增）
+
+**目标**：在 7v1 地图上运行验证器，与 CMRE 结果对比
+
+**任务**：
+1. 在 7v1 地图上启动游戏：`launch-7vs1-coop-test.ps1 -Commanders @("TerranAlenger3") -EnableNeuro`
+2. 运行 Layer 2 运行时验证器
+3. 对比 7v1 和 CMRE 的验证结果
+4. 输出对比报告
+
+**验收标准**：
+- 7v1 上单位生成数符合预期（约 61 个）
+- 7v1 和 CMRE 的建造面板按钮状态一致
+- 如果不一致，能定位差异来源（框架层 vs mod 层）
+
+### Phase 3: 综合报告与集成
+
+**目标**：实现 Layer 3，集成到启动器
+
+**任务**：
+1. 创建 `scripts/diagnostics/generate_report.py`
+2. 创建 `scripts/diagnostics/verify_panel.py`（主入口）
+3. 修改 `launch-cmre-alenger.ps1` 和 `launch-7vs1-coop-test.ps1`，集成验证步骤
+4. 添加验证门禁逻辑
+
+**验收标准**：
+- 两个启动器都能自动运行验证
+- 门禁逻辑正确（fail 时阻止 commit）
+- 报告格式清晰易读
+
+### Phase 4: 回归测试
+
+**目标**：对其他指挥官运行验证器，确保不误报
+
+**任务**：
+1. 对 Raynor 指挥官运行静态分析器
+2. 对 Swann 指挥官运行静态分析器
+3. 确认已修复的 Swann 不报缺失
+4. 确认配置完整的指挥官不误报
+
+## 14. 待确认事项
 
 1. **文档位置**：当前放在 `docs/build-panel-self-check-plan-2026-07-22.md`，是否合适？
 2. **脚本位置**：`scripts/diagnostics/` 目录是否合适？还是放在 `sc2-porting-workspace/scripts/diagnostics/`？
 3. **实施优先级**：是否先实现 Layer 1（静态分析器），再实现 Layer 2（运行时验证器）？
-4. **Neuro 依赖**：Layer 2 依赖 NeuroIntegration mod 是否已加载。是否所有测试地图都加载了这个 mod？
+4. **Neuro 依赖**：Layer 2 依赖 NeuroIntegration mod 是否已加载。7v1 地图需要 `-EnableNeuro` 参数，CMRE 地图是否已默认加载？
 5. **Galaxy 函数位置**：新增的 `DumpCommandCard` 和 `VerifyBuildButton` 放在 LibPortingObserver.galaxy 还是 LibRuntimeProbe.galaxy？
+6. **7v1 对比验证**：是否需要在每次修改 Alenger3 mod 后都运行 7v1 对比验证？还是只在首次修复时运行？
