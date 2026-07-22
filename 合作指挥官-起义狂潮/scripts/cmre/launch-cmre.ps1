@@ -323,18 +323,31 @@ if ($isAlengerMode) {
             $cotf = $cotf.Replace($cotfAnchor1, $cotfPatch1); $patchCount++
         }
 
-        $cotfAnchor2 = '    GameSetSeed(StringToInt((PlayerHandle(1) + PlayerHandle(2))));'
-        $cotfPatch2 = '    // CMRE patch: skip PlayerHandle-based seed (StringToInt cannot parse handle string)'
+        $cotfAnchor2 = '    GameSetSeed(StringToInt((PlayerHandle(1) + PlayerHandle(2))));' + "`r`n" +
+                       '    GameSetSeed(StringToInt(DateTimeToString(CurrentDateTimeGet())));' + "`r`n" +
+                       '    while (true) {' + "`r`n" +
+                       '        GameSetSeed(RandomInt(0, 65535));' + "`r`n" +
+                       '        Wait(RandomFixed(0.25, 1.0), c_timeGame);' + "`r`n" +
+                       '    }' + "`r`n" +
+                       '    return true;'
+        $cotfPatch2 = '    // CMRE patch: removed PlayerHandle seed (invalid in InitGlobals context)' + "`r`n" +
+                       '    GameSetSeed(StringToInt(DateTimeToString(CurrentDateTimeGet())));' + "`r`n" +
+                       '    // CMRE patch: removed while(true) — MapInit trigger, blocks loading' + "`r`n" +
+                       '    return true;'
         if (-not $cotf.Contains($cotfPatch2)) {
             if (-not $cotf.Contains($cotfAnchor2)) { throw "LibCOTF patch 2 anchor not found" }
             $cotf = $cotf.Replace($cotfAnchor2, $cotfPatch2); $patchCount++
         }
 
-        $cotfAnchor2b = '    GameSetSeed(StringToInt(DateTimeToString(CurrentDateTimeGet())));'
-        $cotfPatch2b = '    // CMRE patch: skip DateTime-based seed (StringToInt cannot parse datetime string; while loop below provides continuous random seed)'
-        if (-not $cotf.Contains($cotfPatch2b)) {
-            if (-not $cotf.Contains($cotfAnchor2b)) { throw "LibCOTF patch 2b anchor not found" }
-            $cotf = $cotf.Replace($cotfAnchor2b, $cotfPatch2b); $patchCount++
+        $cotfAnchor2c = '    }' + "`r`n" +
+                        '    Wait(0.0, c_timeGame);' + "`r`n" +
+                        '    PlayerGroupAdd(libCOTF_gv_uT_DL_LoggingPlayers, 1);'
+        $cotfPatch2c = '    }' + "`r`n" +
+                       '    Wait(0.0, c_timeReal); // CMRE patch: MapInit game time does not flow' + "`r`n" +
+                       '    PlayerGroupAdd(libCOTF_gv_uT_DL_LoggingPlayers, 1);'
+        if (-not $cotf.Contains($cotfPatch2c)) {
+            if (-not $cotf.Contains($cotfAnchor2c)) { throw "LibCOTF patch 2c anchor not found" }
+            $cotf = $cotf.Replace($cotfAnchor2c, $cotfPatch2c); $patchCount++
         }
 
         $cotfAnchor3 = '    DialogSetVisible(libCOTF_gv_uT_AIVisionDialog, PlayerGroupAll(), false);'
@@ -429,13 +442,22 @@ if ($isAlengerMode) {
         # 10c: Batch local forward declarations. Under multi-mod, _h.galaxy declarations may be
         # invisible to scripts/ subdir files. Scan cmui_customization.galaxy for all cross-lib
         # function calls, extract their declarations from _h.galaxy files, and inject as local
-        # forward declarations. If this causes "already declared" errors, the header was visible.
+        # forward declarations.
+        # IMPORTANT: SC2 multi-mod compiler has a partial-visibility defect: some _h.galaxy
+        # declarations are visible to scripts/ files (even though include'd), others are not.
+        # Through empirical testing:
+        # - Functions returning 'text' ARE visible via _h.galaxy include. Injecting them again
+        #   causes "function definition mismatch" compile errors. So we SKIP text-return functions.
+        # - Functions returning 'bool'/'void'/'string'/'int' etc. are often NOT visible. Injecting
+        #   local forward declarations for them resolves "boolean expression required" errors.
+        # Strategy: inject forward declarations for all cross-lib calls EXCEPT text-return functions.
         $crossLibCallPattern = 'lib[A-Z][A-Za-z0-9]*_[A-Za-z0-9_]+\s*\('
         $crossLibCalls = [regex]::Matches($cmui, $crossLibCallPattern) |
             ForEach-Object { ($_.Value -replace '\s*\($', '') } |
             Sort-Object -Unique
         $headerFiles = @(Get-ChildItem -Path $baseData -Filter "*_h.galaxy" -Recurse -File)
         $declMap = [ordered]@{}
+        $skippedTextCount = 0
         foreach ($hFile in $headerFiles) {
             $hContent = [System.IO.File]::ReadAllText($hFile.FullName, [System.Text.Encoding]::UTF8)
             foreach ($funcName in $crossLibCalls) {
@@ -444,28 +466,68 @@ if ($isAlengerMode) {
                 $m = [regex]::Match($hContent, $declPattern)
                 if ($m.Success) {
                     $declLine = $m.Value.Trim() -replace '\s+', ' '
-                    # Keep original return type (including 'text') to match the actual .galaxy definition.
-                    # Previously we replaced 'text' -> 'string' assuming headers declared text while
-                    # definitions used string, but investigation showed BOTH use 'text'. The replacement
-                    # caused "function definition mismatch" errors. Do NOT alter the return type.
+                    # Skip 'text' return type — these are visible via _h.galaxy include and
+                    # injecting them causes "function definition mismatch" errors.
+                    if ($declLine -match '^text\s') {
+                        $skippedTextCount++
+                        continue
+                    }
                     $declMap[$funcName] = $declLine
                 }
             }
         }
         if ($declMap.Count -gt 0) {
-            $declLines = @("// CMRE patch: batch local forward declarations for multi-mod visibility ($($declMap.Count) functions)")
+            $declLines = @("// CMRE patch: batch local forward declarations for multi-mod visibility ($($declMap.Count) functions, skipped $skippedTextCount text-return)")
             foreach ($funcName in $declMap.Keys) { $declLines += $declMap[$funcName] }
             $cmuiFwdDeclPatch = $declLines -join "`r`n"
             $cmuiFwdDeclAnchor = "// -----------------------------------------------------------------------------`r`n// Constants, Global State, And Forward Declarations"
             if (-not $cmui.Contains($cmuiFwdDeclPatch)) {
                 if (-not $cmui.Contains($cmuiFwdDeclAnchor)) { throw "cmui_customization forward declaration anchor not found" }
-                # PowerShell string.Replace has no 3-arg overload (old, new, count). Use IndexOf+
-                # Substring to insert the patch before the first occurrence of the anchor only.
                 $anchorIdx = $cmui.IndexOf($cmuiFwdDeclAnchor)
                 $cmui = $cmui.Substring(0, $anchorIdx) + $cmuiFwdDeclPatch + "`r`n" + $cmui.Substring($anchorIdx)
                 $patchCount++
-                Write-Host "  Patch 10c: injected $($declMap.Count) batch forward declarations"
+                Write-Host "  Patch 10c: injected $($declMap.Count) batch forward declarations (skipped $skippedTextCount text-return)"
             }
+        } else {
+            Write-Host "  Patch 10c: no new forward declarations needed (skipped $skippedTextCount text-return)"
+        }
+
+        # 10d: Batch local variable declarations. Same multi-mod visibility defect as 10c
+        # affects global variables declared in _h.galaxy files. Scan cmui_customization.galaxy
+        # for all lib*_gv_* variable references (excluding libCMUI_* which are local), extract
+        # their declarations from _h.galaxy files, and inject as local declarations.
+        # Galaxy allows redeclaring globals included via _h.galaxy; the compiler merges them.
+        $crossLibVarPattern = 'lib(?!CMUI)[A-Z][A-Za-z0-9]*_gv_[A-Za-z0-9_]+'
+        $crossLibVars = [regex]::Matches($cmui, $crossLibVarPattern) |
+            ForEach-Object { $_.Value } |
+            Sort-Object -Unique
+        $varDeclMap = [ordered]@{}
+        foreach ($hFile in $headerFiles) {
+            $hContent = [System.IO.File]::ReadAllText($hFile.FullName, [System.Text.Encoding]::UTF8)
+            foreach ($varName in $crossLibVars) {
+                if ($varDeclMap.Contains($varName)) { continue }
+                $varDeclPattern = "(?m)^\s*((?:void|bool|int|real|fixed|string|text|unit|point|order|timer|trigger|bank|group|region|location|wave|marker|unitfilter|unitgroup|playergroup|actor|sound|effect|behavior|abilcmd|camera|quest|dialog|image|movie|model|footprint|object|transmissionsource|transmission|planet|conversation|accomplishment|score|airgroup|groundgroup|anygroup))(?:\[[^\]]*\])?\s+$([regex]::Escape($varName))\s*;"
+                $m = [regex]::Match($hContent, $varDeclPattern)
+                if ($m.Success) {
+                    $declLine = $m.Value.Trim() -replace '\s+', ' '
+                    $varDeclMap[$varName] = $declLine
+                }
+            }
+        }
+        if ($varDeclMap.Count -gt 0) {
+            $varDeclLines = @("// CMRE patch: batch local variable declarations for multi-mod visibility ($($varDeclMap.Count) variables)")
+            foreach ($varName in $varDeclMap.Keys) { $varDeclLines += $varDeclMap[$varName] }
+            $cmuiVarDeclPatch = $varDeclLines -join "`r`n"
+            $cmuiVarDeclAnchor = "// -----------------------------------------------------------------------------`r`n// Constants, Global State, And Forward Declarations"
+            if (-not $cmui.Contains($cmuiVarDeclPatch)) {
+                if (-not $cmui.Contains($cmuiVarDeclAnchor)) { throw "cmui_customization variable declaration anchor not found" }
+                $varAnchorIdx = $cmui.IndexOf($cmuiVarDeclAnchor)
+                $cmui = $cmui.Substring(0, $varAnchorIdx) + $cmuiVarDeclPatch + "`r`n" + $cmui.Substring($varAnchorIdx)
+                $patchCount++
+                Write-Host "  Patch 10d: injected $($varDeclMap.Count) batch variable declarations"
+            }
+        } else {
+            Write-Host "  Patch 10d: no variable declarations needed"
         }
 
         [System.IO.File]::WriteAllText($cmuiPath, $cmui, [System.Text.UTF8Encoding]::new($false))
@@ -738,6 +800,34 @@ if ($isAlengerMode) {
 }
 
 # === BANK SECTION ===
+# ALL modes MUST write CMCoopLaunchProfile.SC2Bank. Without this, the CMUI
+# commander-selection UI is shown and the game waits indefinitely for human
+# input — which never comes in an automated test launch. By writing a Valid=1
+# profile, the game skips the UI and enters the map directly.
+# The CMRE commander name differs from the 7vs1 commander name:
+#   - CMRE Original: "TerranRaynor" (always available in CMRE core data)
+#   - Alenger3 mode: "TerranAlenger3" (registered in cmre-dependencies.json)
+#   - Other 7vs1:    use $Commander directly
+{
+    Write-Host "--- Bank Write (CMCoopLaunchProfile) ---"
+    $banksRoot = "C:\Users\22448\Documents\StarCraft II\Banks"
+    [System.IO.Directory]::CreateDirectory($banksRoot) | Out-Null
+    $doc = [xml]'<Bank version="1"><Section name="CMUI|LaunchProfile" /></Bank>'
+    if ($isOriginalMode) {
+        $cmuiCommander = "TerranRaynor"
+    } elseif ($isAlengerMode) {
+        $cmuiCommander = "TerranAlenger3"
+    } else {
+        $cmuiCommander = $Commander
+    }
+    $values = [ordered]@{ Valid = @("int", "1"); Version = @("int", "1"); CreatedAt = @("int", [string][int][DateTimeOffset]::UtcNow.ToUnixTimeSeconds()); TimeoutSeconds = @("int", "600"); Mode = @("int", "1"); ModeInstance = @("string", "Standard"); DifficultyBase = @("int", "0"); DifficultyPlus = @("int", "0"); TargetMission = @("string", "AC_MeinhoffDayNight"); TargetMap = @("string", "AC_MeinhoffDayNight"); 'Player|1|Commander' = @("string", $cmuiCommander); 'Player|2|Commander' = @("string", $cmuiCommander) }
+    foreach ($entry in $values.GetEnumerator()) { $key = $doc.CreateElement("Key"); $key.SetAttribute("name", $entry.Key); $value = $doc.CreateElement("Value"); $value.SetAttribute($entry.Value[0], $entry.Value[1]); $key.AppendChild($value) | Out-Null; $doc.Bank.Section.AppendChild($key) | Out-Null }
+    $settings = [System.Xml.XmlWriterSettings]::new(); $settings.Indent = $true; $settings.Encoding = [System.Text.UTF8Encoding]::new($false)
+    $writer = [System.Xml.XmlWriter]::Create((Join-Path $banksRoot "CMCoopLaunchProfile.SC2Bank"), $settings)
+    try { $doc.Save($writer) } finally { $writer.Dispose() }
+    Write-Host "  Wrote CMRE launch profile (commander=$cmuiCommander)"
+}
+
 if (-not $isOriginalMode) {
     Write-Host "--- Bank Write ---"
     Write-Host "Writing CampaignXCore Bank for commander: $Commander"
@@ -932,11 +1022,14 @@ if ($EnableNeuro) {
         $modified = $false
 
         # N5a. 注入 include（在最后一个 include 之后）
-        if ($content -notmatch 'include "LibEFA54406"') {
-            $neuroIncludes = @(
-                'include "LibEFA54406"',
-                'include "LibNeuroBridge7vs1"'
-            )
+        # 注意：必须单独检查 LibNeuroBridge7vs1，因为 Alenger3 集成可能已经注入了
+        # LibEFA54406 include。如果以 LibEFA54406 为判断条件，会跳过 LibNeuroBridge7vs1。
+        if ($content -notmatch 'include "LibNeuroBridge7vs1"') {
+            $neuroIncludes = @('include "LibNeuroBridge7vs1"')
+            # 纯 Neuro 模式（无 Alenger3）需要同时注入 LibEFA54406
+            if ($content -notmatch 'include "LibEFA54406"') {
+                $neuroIncludes = @('include "LibEFA54406"', 'include "LibNeuroBridge7vs1"')
+            }
             $includeBlock = $neuroIncludes -join "`n"
             $lastIncludePattern = '(?m)^(include "[^"]+"(?:\r?\n)*)'
             $lastMatch = [regex]::Matches($content, $lastIncludePattern)
@@ -945,22 +1038,25 @@ if ($EnableNeuro) {
                 $content = $content.Substring(0, $insertPos) + $includeBlock + "`n" + $content.Substring($insertPos)
             }
             $modified = $true
-            Write-Host "  Added Neuro includes"
+            Write-Host "  Added Neuro includes ($($neuroIncludes -join ', '))"
         }
 
         # N5b. 注入 InitLib 调用（在 InitLibs() 闭合大括号之前）
+        # 注意：只注入 libNeuroBridge7vs1_InitLib()。libEFA54406_InitLib() 由 Alenger3
+        # 集成或上面的 include 逻辑负责，这里不重复注入（避免双重调用）。
         if ($content -notmatch 'libNeuroBridge7vs1_InitLib') {
-            $initCalls = @(
-                '    libEFA54406_InitLib();',
-                '    libNeuroBridge7vs1_InitLib();'
-            )
+            $initCalls = @('    libNeuroBridge7vs1_InitLib();')
+            # 纯 Neuro 模式（无 Alenger3）需要同时注入 libEFA54406_InitLib()
+            if ($content -notmatch 'libEFA54406_InitLib\s*\(\s*\)') {
+                $initCalls = @('    libEFA54406_InitLib();', '    libNeuroBridge7vs1_InitLib();')
+            }
             $initBlock = ($initCalls -join "`n") + "`n"
             $initLibsPattern = '(void\s+InitLibs\s*\(\s*\)\s*\{)([^}]+)(\})'
             if ($content -match $initLibsPattern) {
                 $beforeBrace = $matches[2]
                 $content = $content -replace [regex]::Escape($beforeBrace), ($beforeBrace + $initBlock)
                 $modified = $true
-                Write-Host "  Added Neuro InitLib calls"
+                Write-Host "  Added Neuro InitLib calls ($($initCalls.Count) calls)"
             } else {
                 Write-Host "  WARN: could not find InitLibs() function"
             }
