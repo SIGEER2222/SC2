@@ -1,4 +1,5 @@
 // src/analyzer/SemanticAnalyzer.ts
+import { basename } from 'node:path';
 import { parse } from '../parser/index.js';
 import { SymbolTable, Scope } from './SymbolTable.js';
 import { RuleEngine } from './RuleEngine.js';
@@ -35,7 +36,8 @@ export function analyze(
   nativeTable?: NativeFunctionTable,
   engine?: RuleEngine,
   parsed?: { ast: ast.Program; errors: Issue[] },
-  catalogDb?: CatalogDb
+  catalogDb?: CatalogDb,
+  currentFilePath?: string
 ): Issue[] {
   const { ast: program, errors } = parsed ?? parse(source, filename);
   const issues: Issue[] = [...errors];
@@ -44,11 +46,14 @@ export function analyze(
   const table = globalTable ?? new SymbolTable();
 
   // 第一遍：收集顶层声明。
-  // 若使用外部全局符号表（目录扫描），本文件的顶层符号已被 ProjectLoader 收集过，
-  // 再次声明必然"重复"，此时静默跳过而非误报 SEM_DUPLICATE_DECLARATION。
-  const reportTopLevelDuplicates = globalTable === undefined;
+  // 目录模式（globalTable 存在）下，本文件的顶层符号可能已被 ProjectLoader 收集过，
+  // 此时"重复"是正常的（同文件二次扫描）。但若本地声明与 symbol-root 中**其他文件**
+  // 的声明冲突（如 Patch 10d 注入的变量与 _h.galaxy 中的声明重复），SC2 编译器会报错，
+  // checker 也应报 SEM_DUPLICATE_DECLARATION。
+  // 区分依据：globalTable 中已有符号的 sourceFile 是否等于当前文件路径。
+  const currentPath = currentFilePath ?? filename;
   for (const decl of program.body) {
-    collectTopLevel(decl, table, eng, filename, issues, reportTopLevelDuplicates);
+    collectTopLevel(decl, table, eng, filename, issues, globalTable, currentPath);
   }
 
   // 已知本地库前缀（libXXX_）：用于区分本地跨库引用与外部库（游戏/其他 Mod）
@@ -59,6 +64,9 @@ export function analyze(
     if (m) libPrefixes.add(m[1]);
   }
   const ctx: AnalyzeContext = { hasGlobalTable: globalTable !== undefined, libPrefixes, catalogDb };
+
+  checkMapInitEventContext(source, filename, eng, issues);
+  checkMapScriptLibraryInit(program, source, filename, eng, issues);
 
   // 顶层声明表达式也需要语义检查。旧实现只分析函数体，导致全局数组维度和
   // 全局初始化中的未声明符号漏报，例如 `int[MISSING + 1] gv_values;`。
@@ -84,6 +92,95 @@ export function analyze(
   return issues;
 }
 
+function lineAndColumnAt(source: string, offset: number): { line: number; column: number } {
+  const prefix = source.slice(0, offset);
+  const lines = prefix.split(/\r?\n/);
+  return { line: lines.length, column: (lines.at(-1)?.length ?? 0) + 1 };
+}
+
+function checkMapInitEventContext(
+  source: string,
+  filename: string,
+  engine: RuleEngine,
+  issues: Issue[]
+): void {
+  if (!engine.isRuleEnabled('SEM_EVENT_CONTEXT_INVALID')) return;
+
+  const triggerCallbacks = new Map<string, string>();
+  for (const match of source.matchAll(/\b([A-Za-z_]\w*)\s*=\s*TriggerCreate\s*\(\s*"([A-Za-z_]\w*)"\s*\)/g)) {
+    triggerCallbacks.set(match[1], match[2]);
+  }
+
+  const invalidEventCallbacks = new Map<string, string>();
+  for (const match of source.matchAll(/\bTriggerAddEventMapInit\s*\(\s*([A-Za-z_]\w*)\s*\)/g)) {
+    const callback = triggerCallbacks.get(match[1]);
+    if (callback) invalidEventCallbacks.set(callback, '地图初始化');
+  }
+  for (const match of source.matchAll(/\bTriggerAddEventUnitConstructProgress\s*\(\s*([A-Za-z_]\w*)\s*,\s*null\s*,/g)) {
+    const callback = triggerCallbacks.get(match[1]);
+    if (callback) invalidEventCallbacks.set(callback, '全局单位建造');
+  }
+
+  for (const [callback, eventContext] of invalidEventCallbacks) {
+    const functionPattern = new RegExp(`\\b(?:bool|void)\\s+${callback}\\s*\\([^)]*\\)\\s*\\{`, 'g');
+    const functionMatch = functionPattern.exec(source);
+    if (!functionMatch) continue;
+    const nextFunction = source.indexOf('\n}', functionMatch.index);
+    const functionEnd = nextFunction >= 0 ? nextFunction + 2 : source.length;
+    const functionSource = source.slice(functionMatch.index, functionEnd);
+    const eventPlayerMatch = /\bEventPlayer\s*\(/.exec(functionSource);
+    if (!eventPlayerMatch) continue;
+    const offset = functionMatch.index + eventPlayerMatch.index;
+    const position = lineAndColumnAt(source, offset);
+    issues.push(engine.makeIssue(
+      'SEM_EVENT_CONTEXT_INVALID',
+      filename,
+      position.line,
+      position.column,
+      `${eventContext}回调 '${callback}()' 中调用 EventPlayer()，该上下文可能返回无效玩家索引`
+    )!);
+  }
+}
+
+function checkMapScriptLibraryInit(
+  program: ast.Program,
+  source: string,
+  filename: string,
+  engine: RuleEngine,
+  issues: Issue[]
+): void {
+  if (!engine.isRuleEnabled('XLIB_MISSING_INIT')) return;
+  if (!/[\\/]MapScript\.galaxy$/i.test(filename) && !/^MapScript\.galaxy$/i.test(filename)) return;
+  const requiredRuntimeLibraries = new Set([
+    'LibA070801C',
+    'Lib67C0F0E7',
+    'LibC0F50AA6',
+    'Lib81FF3B49',
+    'LibDF8E6945',
+    'Lib0940FFB7',
+    'Lib975E2FE9',
+    'LibE0EAE146',
+  ]);
+  const initLibsMatch = /\bvoid\s+InitLibs\s*\([^)]*\)\s*\{(?<body>[^}]*)\}/s.exec(source);
+  const initLibsBody = initLibsMatch?.groups?.body || '';
+
+  for (const declaration of program.body) {
+    if (declaration.type !== 'Include') continue;
+    const libraryName = declaration.path.split(/[\\/]/).at(-1) || '';
+    if (!requiredRuntimeLibraries.has(libraryName)) continue;
+    const initFunction = `${libraryName[0].toLowerCase()}${libraryName.slice(1)}_InitLib`;
+    const callPattern = new RegExp(`\\b${initFunction}\\s*\\(`);
+    if (callPattern.test(initLibsBody)) continue;
+    issues.push(engine.makeIssue(
+      'XLIB_MISSING_INIT',
+      filename,
+      declaration.start?.line ?? 0,
+      declaration.start?.column ?? 0,
+      `include "${declaration.path}" 但 InitLibs() 未调用 ${initFunction}()`
+    )!);
+  }
+}
+
 // 外部库引用（前缀完全不在本地符号表中）在目录模式下跳过检查
 function isExternalLibRef(name: string, ctx: AnalyzeContext): boolean {
   if (!ctx.hasGlobalTable) return false;
@@ -97,7 +194,8 @@ function collectTopLevel(
   engine: RuleEngine,
   filename: string,
   issues: Issue[],
-  reportDuplicates = true
+  globalTable?: SymbolTable,
+  currentFilePath?: string
 ): void {
   switch (decl.type) {
     case 'FunctionDeclaration':
@@ -109,33 +207,63 @@ function collectTopLevel(
           isNative: decl.isNative,
         },
         () => {
-          if (reportDuplicates && engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
+          if (!engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) return;
+          // 目录模式：检查是否跨文件冲突
+          if (globalTable) {
+            const existingSource = globalTable.getFunctionSourceFile(decl.name);
+            // 同文件二次扫描（sourceFile 相同）或旧式 API（无 sourceFile）：跳过
+            if (!existingSource || existingSource === currentFilePath) return;
+            // 跨文件冲突：本地声明与 symbol-root 中其他文件的声明重复
             issues.push(
               engine.makeIssue(
                 'SEM_DUPLICATE_DECLARATION',
                 filename,
                 (decl as any).start?.line ?? 0,
                 (decl as any).start?.column ?? 0,
-                `函数 '${decl.name}' 重复定义`
+                `函数 '${decl.name}' 与 ${basename(existingSource)} 中的声明冲突（跨文件重复声明）`
               )!
             );
+            return;
           }
-        }
-      );
-      break;
-    case 'VariableDeclaration':
-      table.declareGlobalVariable(decl.varType, decl.name, decl.isArray, () => {
-        if (reportDuplicates && engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) {
+          // 单文件模式：本文件内重复
           issues.push(
             engine.makeIssue(
               'SEM_DUPLICATE_DECLARATION',
               filename,
               (decl as any).start?.line ?? 0,
               (decl as any).start?.column ?? 0,
-              `变量 '${decl.name}' 重复定义`
+              `函数 '${decl.name}' 重复定义`
             )!
           );
         }
+      );
+      break;
+    case 'VariableDeclaration':
+      table.declareGlobalVariable(decl.varType, decl.name, decl.isArray, () => {
+        if (!engine.isRuleEnabled('SEM_DUPLICATE_DECLARATION')) return;
+        if (globalTable) {
+          const existingSource = globalTable.getVariableSourceFile(decl.name);
+          if (!existingSource || existingSource === currentFilePath) return;
+          issues.push(
+            engine.makeIssue(
+              'SEM_DUPLICATE_DECLARATION',
+              filename,
+              (decl as any).start?.line ?? 0,
+              (decl as any).start?.column ?? 0,
+              `变量 '${decl.name}' 与 ${basename(existingSource)} 中的声明冲突（跨文件重复声明）`
+            )!
+          );
+          return;
+        }
+        issues.push(
+          engine.makeIssue(
+            'SEM_DUPLICATE_DECLARATION',
+            filename,
+            (decl as any).start?.line ?? 0,
+            (decl as any).start?.column ?? 0,
+            `变量 '${decl.name}' 重复定义`
+          )!
+        );
       });
       break;
   }
@@ -168,6 +296,26 @@ function analyzeFunction(
   }
 
   if (fn.body) {
+    let executableStatementSeen = false;
+    for (const statement of fn.body.body) {
+      // 恢复解析可能在函数体保留空槽；既有遍历会忽略它们，顺序规则也应如此。
+      if (!statement) continue;
+      if (statement.type === 'VariableDeclaration') {
+        if (executableStatementSeen && engine.isRuleEnabled('SEM_LOCAL_DECLARATION_AFTER_STATEMENT')) {
+          issues.push(
+            engine.makeIssue(
+              'SEM_LOCAL_DECLARATION_AFTER_STATEMENT',
+              filename,
+              statement.start?.line ?? 0,
+              statement.start?.column ?? 0,
+              `局部变量 '${statement.name}' 必须在函数首条可执行语句之前声明`
+            )!
+          );
+        }
+      } else {
+        executableStatementSeen = true;
+      }
+    }
     walkStatements(fn.body, fn, scope, table, nativeTable, engine, filename, issues, ctx);
   }
 }

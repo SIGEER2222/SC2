@@ -492,11 +492,13 @@ if ($isAlengerMode) {
             Write-Host "  Patch 10c: no new forward declarations needed (skipped $skippedTextCount text-return)"
         }
 
-        # 10d: Batch local variable declarations. Same multi-mod visibility defect as 10c
-        # affects global variables declared in _h.galaxy files. Scan cmui_customization.galaxy
-        # for all lib*_gv_* variable references (excluding libCMUI_* which are local), extract
-        # their declarations from _h.galaxy files, and inject as local declarations.
-        # Galaxy allows redeclaring globals included via _h.galaxy; the compiler merges them.
+        # 10d: Batch local ARRAY variable declarations. Same multi-mod visibility defect as 10c
+        # affects global variables declared in _h.galaxy files, but ONLY for array types.
+        # Empirical findings:
+        # - Simple type variables (string, int, bool, etc. WITHOUT []) ARE visible via _h.galaxy
+        #   include. Injecting them causes "e_expectedUnusedGlobalName" (duplicate declaration).
+        # - Array type variables (bool[11], string[4], etc. WITH []) are NOT visible via include
+        #   under multi-mod. They must be injected locally or "解析函数行出错" errors occur.
         $crossLibVarPattern = 'lib(?!CMUI)[A-Z][A-Za-z0-9]*_gv_[A-Za-z0-9_]+'
         $crossLibVars = [regex]::Matches($cmui, $crossLibVarPattern) |
             ForEach-Object { $_.Value } |
@@ -510,7 +512,13 @@ if ($isAlengerMode) {
                 $m = [regex]::Match($hContent, $varDeclPattern)
                 if ($m.Success) {
                     $declLine = $m.Value.Trim() -replace '\s+', ' '
-                    $varDeclMap[$varName] = $declLine
+                    # Only inject ARRAY type variables from LibCOMU. Empirical findings:
+                    # - LibCOMI variables (simple AND array) ARE visible via include → injecting causes e_expectedUnusedGlobalName
+                    # - LibCOMU array variables are NOT visible via include → must inject
+                    # - Other libs (LibCOOC/LibCOTF/LibCOUI) unknown; excluded to be safe
+                    if ($declLine -match '\[' -and $varName -like 'libCOMU_*') {
+                        $varDeclMap[$varName] = $declLine
+                    }
                 }
             }
         }
@@ -614,6 +622,21 @@ if ($isAlengerMode) {
             $fileErrors = 0
             $fileWarnings = 0
             $fileBlocking = 0
+            # 检测 Patch 10c/10d 注入标记：当文件中存在批量前向声明/变量声明注入时，
+            # lib*_g[vte]_* 的 SEM_UNDECLARED_VARIABLE 不再降级为 warning（因为注入
+            # 本身可能引入与 _h.galaxy 的跨文件冲突，checker 现在能检测到）。
+            $patchMarker10c = "CMRE patch: batch local forward declarations"
+            $patchMarker10d = "CMRE patch: batch local variable declarations"
+            $suppressUndeclaredLibVars = $true
+            try {
+                $targetContent = [System.IO.File]::ReadAllText($targetFile, [System.Text.Encoding]::UTF8)
+                if ($targetContent.Contains($patchMarker10c) -or $targetContent.Contains($patchMarker10d)) {
+                    $suppressUndeclaredLibVars = $false
+                    Write-Host "    NOTE: Patch 10c/10d injection detected — lib*_g[vte]_* undeclared-var filter DISABLED" -ForegroundColor DarkYellow
+                }
+            } catch {
+                # 读取失败时保持旧行为（降级为 warning），避免门禁因 IO 错误误杀
+            }
             if ($result.issues) {
                 foreach ($issue in $result.issues) {
                     if ($issue.severity -eq "error") {
@@ -621,7 +644,12 @@ if ($isAlengerMode) {
                         # SEM_UNDECLARED_VARIABLE for lib*_gv_* / lib*_gt_* / lib*_ge_* are cross-lib
                         # global vars / triggers / enums declared in _h.galaxy. Single-file mode
                         # cannot resolve these, but SC2 compiler sees them via include chain.
-                        if ($issue.ruleCode -eq "SEM_UNDECLARED_VARIABLE" -and
+                        # 但当 Patch 10c/10d 注入存在时，此白名单被禁用——因为注入的本地
+                        # 声明可能与 _h.galaxy 产生跨文件冲突（SEM_DUPLICATE_DECLARATION），
+                        # 此时 undeclared-var 也可能是真实的注入遗漏（如 _gt_*/_ge_* 未被
+                        # Patch 10d 覆盖），应作为 blocking error 上报。
+                        if ($suppressUndeclaredLibVars -and
+                            $issue.ruleCode -eq "SEM_UNDECLARED_VARIABLE" -and
                             $issue.message -match "lib[A-Z][A-Za-z0-9]*_g[vte]_") {
                             $fileWarnings++
                             continue

@@ -68,6 +68,9 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
   let contextLoaded = false;
   let resolvedCatalogDbPath = options.catalogDbPath;
   let extraSymbolRoots = options.symbolRoots ?? [];
+  const effectiveRoots = (options.effectiveRoots ?? []).filter(root =>
+    existsSync(root) && statSync(root).isDirectory()
+  );
 
   if (options.compositionPlanPath) {
     // projRoot = workspace root（target 的上溯）
@@ -93,9 +96,11 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
   ].filter((root, index, roots) =>
     roots.indexOf(root) === index && existsSync(root) && statSync(root).isDirectory()
   );
-  if (!options.noGlobalSymbols && symbolRoots.length > 0) {
+  if (!options.noGlobalSymbols && (symbolRoots.length > 0 || effectiveRoots.length > 0)) {
     const loader = new ProjectLoader(symbolRoots);
-    globalTable = loader.buildGlobalSymbolTable();
+    globalTable = effectiveRoots.length > 0
+      ? new ProjectLoader(effectiveRoots).buildEffectiveGlobalSymbolTable()
+      : loader.buildGlobalSymbolTable();
   }
 
   // native 表：黑名单默认加载 data/native-blacklist.json；
@@ -106,7 +111,10 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
   // 优先用 options.catalogDbPath（或 CompositionPlan 解析的），否则回退到附带的 data/catalog-ids.json
   const catalogDb = loadCatalogDb(resolvedCatalogDbPath);
 
-  const files = collectFiles(target);
+  const files = effectiveRoots.length > 0 && statSync(target).isDirectory()
+    ? new ProjectLoader(effectiveRoots).collectEffectiveGalaxyFiles()
+    : collectFiles(target);
+  const includeRoots = effectiveRoots.length > 0 ? effectiveRoots : symbolRoots;
   const allIssues: Issue[] = [];
 
   for (const file of files) {
@@ -127,9 +135,11 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
     allIssues.push(...syntaxIssues);
 
     // 语义层 + 跨库/native 检查 + catalog 引用校验
+    // 传入完整文件路径作为 currentFilePath，供 SemanticAnalyzer 区分
+    // "同文件二次扫描"（ProjectLoader 已扫过本文件）与"跨文件声明冲突"
     const semanticIssues = analyze(
       content, basename(file), globalTable, nativeTable, engine,
-      { ast: parsed.ast, errors: [] }, catalogDb
+      { ast: parsed.ast, errors: [] }, catalogDb, file
     );
     allIssues.push(...semanticIssues);
 
@@ -138,7 +148,7 @@ export function check(target: string, options: CheckOptions = {}): CheckResult {
     for (const inc of includes) {
       if (inc.startsWith('TriggerLibs/') || inc.startsWith('triggerlibs/')) continue;
       const includeFound = findIncludeFile(fileDir, inc)
-        || symbolRoots.some(root => findIncludeFile(root, inc));
+        || includeRoots.some(root => findIncludeFile(root, inc));
       if (!includeFound && engine.isRuleEnabled('XLIB_MISSING_INCLUDE')) {
         const lines = content.split('\n');
         let line = 1;
