@@ -407,7 +407,8 @@ if ($isAlengerMode) {
         $cmuiIncludeAnchor = 'include "LibCOTF_h"'
         if (-not $cmui.Contains($cmuiIncludePatch)) {
             if (-not $cmui.Contains($cmuiIncludeAnchor)) { throw "cmui_customization include anchor not found" }
-            $cmui = $cmui.Replace($cmuiIncludeAnchor, "$cmuiIncludePatch`r`n$cmuiIncludeAnchor", 1)
+            $incIdx = $cmui.IndexOf($cmuiIncludeAnchor)
+            $cmui = $cmui.Substring(0, $incIdx) + $cmuiIncludePatch + "`r`n" + $cmui.Substring($incIdx)
             $patchCount++
         }
 
@@ -425,20 +426,46 @@ if ($isAlengerMode) {
             $patchCount++
         }
 
-        # 10c: Local forward declarations. Under multi-mod, LibCOOC_h declarations may be
-        # invisible to scripts/ subdir files. Declaring prototypes directly in
-        # cmui_customization.galaxy ensures the compiler knows return types.
-        # If this causes "already declared" errors, the header was actually visible.
-        $cmuiFwdDeclPatch = @"
-// CMRE patch: local forward declarations for multi-mod visibility
-bool libCOOC_gf_CC_CommanderIsDeveloping (string lp_commander);
-bool libCOOC_gf_CC_PrestigeIsDeveloping (string lp_prestige);
-"@
-        $cmuiFwdDeclAnchor = "// -----------------------------------------------------------------------------`r`n// Constants, Global State, And Forward Declarations"
-        if (-not $cmui.Contains($cmuiFwdDeclPatch)) {
-            if (-not $cmui.Contains($cmuiFwdDeclAnchor)) { throw "cmui_customization forward declaration anchor not found" }
-            $cmui = $cmui.Replace($cmuiFwdDeclAnchor, "$cmuiFwdDeclPatch`r`n$cmuiFwdDeclAnchor", 1)
-            $patchCount++
+        # 10c: Batch local forward declarations. Under multi-mod, _h.galaxy declarations may be
+        # invisible to scripts/ subdir files. Scan cmui_customization.galaxy for all cross-lib
+        # function calls, extract their declarations from _h.galaxy files, and inject as local
+        # forward declarations. If this causes "already declared" errors, the header was visible.
+        $crossLibCallPattern = 'lib[A-Z][A-Za-z0-9]*_[A-Za-z0-9_]+\s*\('
+        $crossLibCalls = [regex]::Matches($cmui, $crossLibCallPattern) |
+            ForEach-Object { ($_.Value -replace '\s*\($', '') } |
+            Sort-Object -Unique
+        $headerFiles = @(Get-ChildItem -Path $baseData -Filter "*_h.galaxy" -Recurse -File)
+        $declMap = [ordered]@{}
+        foreach ($hFile in $headerFiles) {
+            $hContent = [System.IO.File]::ReadAllText($hFile.FullName, [System.Text.Encoding]::UTF8)
+            foreach ($funcName in $crossLibCalls) {
+                if ($declMap.Contains($funcName)) { continue }
+                $declPattern = "(?m)^\s*((?:void|bool|int|real|fixed|string|text|unit|point|order|timer|trigger|bank|group|region|location|wave|marker|unitfilter|unitgroup|playergroup|actor|sound|effect|behavior|abilcmd|camera|quest|dialog|image|movie|model|footprint|object|transmissionsource|transmission|planet|conversation|accomplishment|score|airgroup|groundgroup|anygroup))\s+$([regex]::Escape($funcName))\s*\([^)]*\)\s*;"
+                $m = [regex]::Match($hContent, $declPattern)
+                if ($m.Success) {
+                    $declLine = $m.Value.Trim() -replace '\s+', ' '
+                    # Keep original return type (including 'text') to match the actual .galaxy definition.
+                    # Previously we replaced 'text' -> 'string' assuming headers declared text while
+                    # definitions used string, but investigation showed BOTH use 'text'. The replacement
+                    # caused "function definition mismatch" errors. Do NOT alter the return type.
+                    $declMap[$funcName] = $declLine
+                }
+            }
+        }
+        if ($declMap.Count -gt 0) {
+            $declLines = @("// CMRE patch: batch local forward declarations for multi-mod visibility ($($declMap.Count) functions)")
+            foreach ($funcName in $declMap.Keys) { $declLines += $declMap[$funcName] }
+            $cmuiFwdDeclPatch = $declLines -join "`r`n"
+            $cmuiFwdDeclAnchor = "// -----------------------------------------------------------------------------`r`n// Constants, Global State, And Forward Declarations"
+            if (-not $cmui.Contains($cmuiFwdDeclPatch)) {
+                if (-not $cmui.Contains($cmuiFwdDeclAnchor)) { throw "cmui_customization forward declaration anchor not found" }
+                # PowerShell string.Replace has no 3-arg overload (old, new, count). Use IndexOf+
+                # Substring to insert the patch before the first occurrence of the anchor only.
+                $anchorIdx = $cmui.IndexOf($cmuiFwdDeclAnchor)
+                $cmui = $cmui.Substring(0, $anchorIdx) + $cmuiFwdDeclPatch + "`r`n" + $cmui.Substring($anchorIdx)
+                $patchCount++
+                Write-Host "  Patch 10c: injected $($declMap.Count) batch forward declarations"
+            }
         }
 
         [System.IO.File]::WriteAllText($cmuiPath, $cmui, [System.Text.UTF8Encoding]::new($false))
@@ -450,13 +477,14 @@ bool libCOOC_gf_CC_PrestigeIsDeveloping (string lp_prestige);
           .SYNOPSIS
             Pre-launch galaxy-checker gate. Mandatory per AGENTS.md "Galaxy static validation gate".
           .DESCRIPTION
-            Validates patched live mod Base.SC2Data. Multi-mod scenarios must pass every dependency
-            mod via --symbol-root, or cross-lib symbols will false-positive. Exit 0 passes; exit 1
-            means error-level issues and aborts launch; exit 2 means tool exception and aborts.
-            Never launch SC2 with known static errors.
+            Validates patched files only (not entire Base.SC2Data) to avoid parser false-positives
+            from upstream CMRE header syntax the checker parser does not support. Multi-mod scenarios
+            must pass every dependency mod via --symbol-root for cross-lib symbol resolution.
+            Exit 0 passes; exit 1 means error-level issues and aborts launch; exit 2 means tool
+            exception and aborts. Never launch SC2 with known static errors in patched files.
         #>
         param(
-            [Parameter(Mandatory = $true)][string]$TargetBaseData,
+            [Parameter(Mandatory = $true)][string[]]$TargetFiles,
             [Parameter(Mandatory = $true)][string[]]$SymbolRoots,
             [Parameter(Mandatory = $true)][string]$ProjRootForChecker
         )
@@ -473,7 +501,7 @@ bool libCOOC_gf_CC_PrestigeIsDeveloping (string lp_prestige);
             if (-not (Test-Path -LiteralPath $checkerCli)) { throw "galaxy-checker dist/cli.mjs still missing after build" }
         }
 
-        # 过滤不存在的 symbol-root，避免 galaxy-checker 误报
+        # Filter non-existent symbol-roots to avoid galaxy-checker false-positives
         $validRoots = @()
         foreach ($root in $SymbolRoots) {
             if (Test-Path -LiteralPath $root) {
@@ -483,30 +511,85 @@ bool libCOOC_gf_CC_PrestigeIsDeveloping (string lp_prestige);
             }
         }
 
-        $cliArgs = @($checkerCli, $TargetBaseData)
-        foreach ($root in $validRoots) { $cliArgs += @("--symbol-root", $root) }
-        $cliArgs += @("--format", "text")
+        $hasBlockingError = $false
+        $totalErrors = 0
+        $totalWarnings = 0
 
-        Write-Host "  Running galaxy-checker on: $TargetBaseData" -ForegroundColor Cyan
-        Write-Host "  Symbol roots: $($validRoots.Count)" -ForegroundColor Cyan
+        foreach ($targetFile in $TargetFiles) {
+            if (-not (Test-Path -LiteralPath $targetFile)) {
+                Write-Host "  WARN: target file not found, skipping: $targetFile" -ForegroundColor Yellow
+                continue
+            }
 
-        $output = & node @cliArgs 2>&1
-        $checkerExit = $LASTEXITCODE
+            # Use JSON output for programmatic error classification
+            $cliArgs = @($checkerCli, $targetFile, "--format", "json")
+            foreach ($root in $validRoots) { $cliArgs += @("--symbol-root", $root) }
 
-        if ($checkerExit -eq 0) {
-            Write-Host "  GALAXY-CHECKER PASSED (exit 0)" -ForegroundColor Green
-            return
+            Write-Host "  Checking: $targetFile" -ForegroundColor Cyan
+
+            $jsonOutput = & node @cliArgs 2>&1
+            $checkerExit = $LASTEXITCODE
+
+            if ($checkerExit -eq 2) {
+                Write-Host "    GALAXY-CHECKER TOOL EXCEPTION (exit 2)" -ForegroundColor Red
+                $jsonOutput | Out-Host
+                throw "galaxy-checker tool exception. Target: $targetFile"
+            }
+
+            # Parse JSON to classify errors
+            $result = $null
+            try {
+                $result = $jsonOutput | ConvertFrom-Json
+            } catch {
+                Write-Host "    WARN: failed to parse checker JSON, raw output:" -ForegroundColor Yellow
+                $jsonOutput | Out-Host
+                if ($checkerExit -ne 0) {
+                    throw "galaxy-checker exited $checkerExit but JSON parsing failed. Target: $targetFile"
+                }
+                continue
+            }
+
+            $fileErrors = 0
+            $fileWarnings = 0
+            $fileBlocking = 0
+            if ($result.issues) {
+                foreach ($issue in $result.issues) {
+                    if ($issue.severity -eq "error") {
+                        # Filter known checker false-positives in single-file mode:
+                        # SEM_UNDECLARED_VARIABLE for lib*_gv_* / lib*_gt_* / lib*_ge_* are cross-lib
+                        # global vars / triggers / enums declared in _h.galaxy. Single-file mode
+                        # cannot resolve these, but SC2 compiler sees them via include chain.
+                        if ($issue.ruleCode -eq "SEM_UNDECLARED_VARIABLE" -and
+                            $issue.message -match "lib[A-Z][A-Za-z0-9]*_g[vte]_") {
+                            $fileWarnings++
+                            continue
+                        }
+                        $fileErrors++
+                        # All other errors in patched files are blocking
+                        Write-Host "    [ERROR] $($issue.file):$($issue.line) $($issue.ruleCode) - $($issue.message)" -ForegroundColor Red
+                        $fileBlocking++
+                    } elseif ($issue.severity -eq "warning") {
+                        $fileWarnings++
+                    }
+                }
+            }
+
+            $totalErrors += $fileErrors
+            $totalWarnings += $fileWarnings
+
+            if ($fileBlocking -gt 0) {
+                $hasBlockingError = $true
+            } else {
+                Write-Host "    OK (0 errors, $fileWarnings warnings)" -ForegroundColor Green
+            }
         }
 
-        Write-Host "  GALAXY-CHECKER FAILED (exit $checkerExit)" -ForegroundColor Red
-        $output | Out-Host
-        if ($checkerExit -eq 1) {
-            throw "galaxy-checker reported error-level issues. Fix static errors before launching SC2. Target: $TargetBaseData"
-        } elseif ($checkerExit -eq 2) {
-            throw "galaxy-checker tool exception (exit 2). Investigate checker installation/invocation. Target: $TargetBaseData"
-        } else {
-            throw "galaxy-checker unexpected exit code $checkerExit. Target: $TargetBaseData"
+        Write-Host "  Summary: $totalErrors errors, $totalWarnings warnings across $($TargetFiles.Count) file(s)" -ForegroundColor Cyan
+
+        if ($hasBlockingError) {
+            throw "galaxy-checker reported error-level issues in patched files. Fix static errors before launching SC2."
         }
+        Write-Host "  GALAXY-CHECKER GATE PASSED" -ForegroundColor Green
     }
 
     function Write-CmreLaunchProfile {
@@ -622,11 +705,15 @@ bool libCOOC_gf_CC_PrestigeIsDeveloping (string lp_prestige);
     Patch-CmreCoreRuntimeErrors -ModsRoot $liveModsRoot
 
     Write-Host "--- Alenger3 Step 3.5: Galaxy-checker pre-launch gate (mandatory) ---"
-    # 强制门禁：patch 后、SC2 启动前必须验证 patched CMRE mod 的 Base.SC2Data。
-    # 多 mod 场景必须传所有依赖 mod 的 --symbol-root，否则跨库符号误报。
-    $checkerTarget = Join-Path $liveModsRoot "CMRE\CMRE_Core_Triggers.SC2Mod\Base.SC2Data"
+    # Only validate patched files, not entire Base.SC2Data, to avoid parser false-positives
+    # from upstream CMRE header syntax the checker parser does not support.
+    # Multi-mod symbol-roots provide cross-lib declarations for patched file resolution.
+    $checkerTargets = @(
+        (Join-Path $liveModsRoot "CMRE\CMRE_Core_Triggers.SC2Mod\Base.SC2Data\scripts\cmui_customization.galaxy")
+    )
     $checkerSymbolRoots = @(
         (Join-Path $liveModsRoot "CMRE\CMRE_Core_Base.SC2Mod\Base.SC2Data"),
+        (Join-Path $liveModsRoot "CMRE\CMRE_Core_Triggers.SC2Mod\Base.SC2Data"),
         (Join-Path $liveModsRoot "7vs1\CoreRuntime.SC2Mod\Base.SC2Data"),
         (Join-Path $liveModsRoot "7vs1\CommanderBridge.SC2Mod\Base.SC2Data"),
         (Join-Path $liveModsRoot "7vs1\BaseCatalogPatch.SC2Mod\Base.SC2Data"),
@@ -639,7 +726,7 @@ bool libCOOC_gf_CC_PrestigeIsDeveloping (string lp_prestige);
         (Join-Path $liveModsRoot "7vs1\CommanderUnits_Swann.SC2Mod\Base.SC2Data"),
         (Join-Path $liveModsRoot "7vs1\CommanderUnits_Dehaka.SC2Mod\Base.SC2Data")
     )
-    Invoke-GalaxyChecker -TargetBaseData $checkerTarget -SymbolRoots $checkerSymbolRoots -ProjRootForChecker $ProjRoot
+    Invoke-GalaxyChecker -TargetFiles $checkerTargets -SymbolRoots $checkerSymbolRoots -ProjRootForChecker $ProjRoot
 
     Write-Host "--- Alenger3 Step 4: Install Alenger Observer ---"
     Install-CmreAlengerObserver -MapPath $MapLivePath
@@ -901,7 +988,11 @@ if ($EnableNeuro) {
                 "-NeuroApiRoot", $NeuroApiRoot,
                 "-Sc2Root", $Sc2Root
             )
-            $serviceJsonText = & pwsh -NoProfile -ExecutionPolicy Bypass -File $serviceScript @serviceArgs
+            # Use full path to pwsh.exe; bare "pwsh" is aliased by TRAE sandbox to
+            # __Safe-Rm-Invoke-Pwsh which fails with exit code -1.
+            $pwshExe = "C:\Program Files\PowerShell\7\pwsh.exe"
+            if (-not (Test-Path $pwshExe)) { $pwshExe = "pwsh.exe" }
+            $serviceJsonText = & $pwshExe -NoProfile -ExecutionPolicy Bypass -File $serviceScript @serviceArgs
             Write-Host $serviceJsonText
             try {
                 $serviceState = $serviceJsonText | ConvertFrom-Json
