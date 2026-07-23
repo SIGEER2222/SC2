@@ -169,30 +169,10 @@ void libRuntimeProbe_gf_ScanUnits() {
 // Includes: 3diguoqianshaojidi, 3diguolaogong, 3diguojianzhengzhe, Marine, CommandCenter, SCV
 //--------------------------------------------------------------------------------------------------
 void libRuntimeProbe_gf_ScanAlengerPresence() {
-    string[15] lv_ids;
-    int lv_index;
     int lv_count;
     string lv_context;
     unitgroup lv_units;
     int lv_player;
-    string lv_cmd1;
-    string lv_cmd2;
-
-    lv_ids[0] = "Marine";
-    lv_ids[1] = "3diguoqianshaojidi";
-    lv_ids[2] = "3diguolaogong";
-    lv_ids[3] = "3diguojianzhengzhe";
-    lv_ids[4] = "CommandCenter";
-    lv_ids[5] = "SCV";
-    lv_ids[6] = "3diguobingying";
-    lv_ids[7] = "3diguogongchang";
-    lv_ids[8] = "3diguoxinggang";
-    lv_ids[9] = "3diguogongchengzhan";
-    lv_ids[10] = "3huangjiayaosai";
-    lv_ids[11] = "3diguozhihuizhongxin";
-    lv_ids[12] = "3diguochongfengdui";
-    lv_ids[13] = "3huoyanchongfengdui";
-    lv_ids[14] = "3fengbaochongfengdui";
 
     lv_context = "";
     for (lv_player = 1; lv_player <= 2; lv_player += 1) {
@@ -201,20 +181,83 @@ void libRuntimeProbe_gf_ScanAlengerPresence() {
         } else {
             lv_context = lv_context + "; p2:";
         }
-        for (lv_index = 0; lv_index < 15; lv_index += 1) {
-            lv_units = UnitGroup(lv_ids[lv_index], lv_player, RegionEntireMap(),
-                UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-            lv_count = UnitGroupCount(lv_units, c_unitCountAll);
-            if (lv_index > 0) {
-                lv_context = lv_context + ",";
-            }
-            lv_context = lv_context + lv_ids[lv_index] + "=" + IntToString(lv_count);
-        }
+        lv_units = UnitGroup("Marine", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + "Marine=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3diguoqianshaojidi", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3diguoqianshaojidi=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3diguolaogong", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3diguolaogong=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3diguojianzhengzhe", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3diguojianzhengzhe=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("CommandCenter", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",CommandCenter=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("SCV", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",SCV=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3diguobingying", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3diguobingying=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3diguogongchang", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3diguogongchang=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3diguoxinggang", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3diguoxinggang=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3diguogongchengzhan", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3diguogongchengzhan=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3huangjiayaosai", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3huangjiayaosai=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3diguozhihuizhongxin", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3diguozhihuizhongxin=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3diguochongfengdui", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3diguochongfengdui=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3huoyanchongfengdui", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3huoyanchongfengdui=" + IntToString(lv_count);
+
+        lv_units = UnitGroup("3fengbaochongfengdui", lv_player, RegionEntireMap(),
+            UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        lv_count = UnitGroupCount(lv_units, c_unitCountAll);
+        lv_context = lv_context + ",3fengbaochongfengdui=" + IntToString(lv_count);
     }
 
-    lv_cmd1 = libCOOC_gf_ActiveCommanderForPlayer(1);
-    lv_cmd2 = libCOOC_gf_ActiveCommanderForPlayer(2);
-    lv_context = lv_context + "; commander_p1=" + lv_cmd1 + "; commander_p2=" + lv_cmd2;
+    lv_context = lv_context + "; commander_p1=unknown; commander_p2=unknown";
 
     BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_alenger", "unit_presence", lv_context);
 }
@@ -469,79 +512,52 @@ void libRuntimeProbe_gf_ScanAlengerWorkerBuild() {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Alenger3 Morph & Advanced Probe: verify morph abilities and elite unit training
+// Catalog-based build slot scan: read CAbilBuild InfoArray Unit field for
+// each BuildN slot directly from catalog data. This bypasses UnitOrderIsValid
+// (which requires a valid placement point) and confirms whether each slot
+// is wired to a real unit entry.
 //--------------------------------------------------------------------------------------------------
-void libRuntimeProbe_gf_ScanAlengerMorph() {
-    string lv_structureType = "3diguoqianshaojidi";
-    unitgroup lv_structs;
-    unit lv_producer;
-    int lv_player;
-    bool lv_morphYaoSai;
-    bool lv_morphZhihuizhongxin;
-    bool lv_trainRAAP;
-    bool lv_trainXiang;
-    bool lv_trainTianKong;
-    bool lv_trainHuangJia;
+void libRuntimeProbe_gf_ScanAlengerWorkerBuildCatalog () {
+    string lv_abilId;
+    int lv_i;
+    int lv_count;
+    string lv_unitField;
     string lv_context;
-    string lv_morphYaoSaiStr = "F";
-    string lv_morphZhihuizhongxinStr = "F";
-    string lv_trainRAAPStr = "F";
-    string lv_trainXiangStr = "F";
-    string lv_trainTianKongStr = "F";
-    string lv_trainHuangJiaStr = "F";
-    string lv_techMorphYaoSaiStr = "F";
-    string lv_techMorphZhihuizhongxinStr = "F";
-    string lv_techTrainRAAPStr = "F";
-    string lv_techTrainXiangStr = "F";
-    string lv_techTrainTianKongStr = "F";
-    string lv_techTrainHuangJiaStr = "F";
+    int lv_filled;
 
-    lv_structs = UnitGroup(lv_structureType, c_playerAny, RegionEntireMap(),
-        UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-
-    if (UnitGroupCount(lv_structs, c_unitCountAll) == 0) {
-        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_alenger", "morph_probe", "structure_count=0");
-        return;
+    // 3jianzao1: scan Build1..Build16 (cmd index 0..15)
+    lv_abilId = "3jianzao1";
+    lv_context = "jianzao1:";
+    lv_filled = 0;
+    for (lv_i = 0; lv_i <= 15; lv_i += 1) {
+        lv_unitField = CatalogFieldValueGet(c_gameCatalogAbil, lv_abilId,
+            "InfoArray[Build" + IntToString(lv_i + 1) + "].Unit", 1);
+        if (lv_unitField == "") {
+            lv_context = lv_context + " B" + IntToString(lv_i + 1) + "=EMPTY;";
+        } else {
+            lv_context = lv_context + " B" + IntToString(lv_i + 1) + "=" + lv_unitField + ";";
+            lv_filled = lv_filled + 1;
+        }
     }
+    lv_context = lv_context + " filled=" + IntToString(lv_filled);
+    BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_alenger", "worker_build_catalog_j1", lv_context);
 
-    lv_producer = UnitGroupUnit(lv_structs, 1);
-    if (lv_producer == null) {
-        BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_alenger", "morph_probe", "producer=null");
-        return;
+    // 3jianzao2: scan Build1..Build20 (cmd index 0..19)
+    lv_abilId = "3jianzao2";
+    lv_context = "jianzao2:";
+    lv_filled = 0;
+    for (lv_i = 0; lv_i <= 19; lv_i += 1) {
+        lv_unitField = CatalogFieldValueGet(c_gameCatalogAbil, lv_abilId,
+            "InfoArray[Build" + IntToString(lv_i + 1) + "].Unit", 1);
+        if (lv_unitField == "") {
+            lv_context = lv_context + " B" + IntToString(lv_i + 1) + "=EMPTY;";
+        } else {
+            lv_context = lv_context + " B" + IntToString(lv_i + 1) + "=" + lv_unitField + ";";
+            lv_filled = lv_filled + 1;
+        }
     }
-
-    lv_player = UnitGetOwner(lv_producer);
-
-    lv_morphYaoSai = UnitOrderIsValid(lv_producer, Order(AbilityCommand("3bianxingweihuangjiayaosai", 0)));
-    lv_morphZhihuizhongxin = UnitOrderIsValid(lv_producer, Order(AbilityCommand("3bianxingweidiguozhihuizhongxin", 0)));
-    lv_trainRAAP = UnitOrderIsValid(lv_producer, Order(AbilityCommand("3xunlian1", 10)));
-    lv_trainXiang = UnitOrderIsValid(lv_producer, Order(AbilityCommand("3xunlian1", 11)));
-    lv_trainTianKong = UnitOrderIsValid(lv_producer, Order(AbilityCommand("3xunlian1", 12)));
-    lv_trainHuangJia = UnitOrderIsValid(lv_producer, Order(AbilityCommand("3xunlian1", 13)));
-
-    if (lv_morphYaoSai) { lv_morphYaoSaiStr = "T"; }
-    if (lv_morphZhihuizhongxin) { lv_morphZhihuizhongxinStr = "T"; }
-    if (lv_trainRAAP) { lv_trainRAAPStr = "T"; }
-    if (lv_trainXiang) { lv_trainXiangStr = "T"; }
-    if (lv_trainTianKong) { lv_trainTianKongStr = "T"; }
-    if (lv_trainHuangJia) { lv_trainHuangJiaStr = "T"; }
-
-    if (TechTreeAbilityIsAllowed(lv_player, AbilityCommand("3bianxingweihuangjiayaosai", 0))) { lv_techMorphYaoSaiStr = "T"; }
-    if (TechTreeAbilityIsAllowed(lv_player, AbilityCommand("3bianxingweidiguozhihuizhongxin", 0))) { lv_techMorphZhihuizhongxinStr = "T"; }
-    if (TechTreeAbilityIsAllowed(lv_player, AbilityCommand("3xunlian1", 10))) { lv_techTrainRAAPStr = "T"; }
-    if (TechTreeAbilityIsAllowed(lv_player, AbilityCommand("3xunlian1", 11))) { lv_techTrainXiangStr = "T"; }
-    if (TechTreeAbilityIsAllowed(lv_player, AbilityCommand("3xunlian1", 12))) { lv_techTrainTianKongStr = "T"; }
-    if (TechTreeAbilityIsAllowed(lv_player, AbilityCommand("3xunlian1", 13))) { lv_techTrainHuangJiaStr = "T"; }
-
-    lv_context = "player=" + IntToString(lv_player) +
-        "; morph_yaosai=" + lv_morphYaoSaiStr + "/" + lv_techMorphYaoSaiStr +
-        "; morph_zhihuizhongxin=" + lv_morphZhihuizhongxinStr + "/" + lv_techMorphZhihuizhongxinStr +
-        "; train_raap=" + lv_trainRAAPStr + "/" + lv_techTrainRAAPStr +
-        "; train_xiang=" + lv_trainXiangStr + "/" + lv_techTrainXiangStr +
-        "; train_tiankong=" + lv_trainTianKongStr + "/" + lv_techTrainTianKongStr +
-        "; train_huangjia=" + lv_trainHuangJiaStr + "/" + lv_techTrainHuangJiaStr;
-
-    BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_alenger", "morph_probe", lv_context);
+    lv_context = lv_context + " filled=" + IntToString(lv_filled);
+    BankValueSetFromString(libRuntimeProbe_gv_bank, "probe_alenger", "worker_build_catalog_j2", lv_context);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1204,7 +1220,7 @@ bool libRuntimeProbe_gt_Loop_Func(bool testConds, bool runActions) {
         libRuntimeProbe_gf_ScanAlengerStructures();
         libRuntimeProbe_gf_ScanAlengerCommandCard();
         libRuntimeProbe_gf_ScanAlengerWorkerBuild();
-        libRuntimeProbe_gf_ScanAlengerMorph();
+        libRuntimeProbe_gf_ScanAlengerWorkerBuildCatalog();
         BankSave(libRuntimeProbe_gv_bank);
     }
     return true;
@@ -1251,6 +1267,7 @@ void libRuntimeProbe_gf_StartProbe() {
         libRuntimeProbe_gf_ScanAlengerStructures();
         libRuntimeProbe_gf_ScanAlengerCommandCard();
         libRuntimeProbe_gf_ScanAlengerWorkerBuild();
+        libRuntimeProbe_gf_ScanAlengerWorkerBuildCatalog();
         BankValueSetFromFlag(libRuntimeProbe_gv_bank, "probe_state", "replacement_complete", true);
         BankSave(libRuntimeProbe_gv_bank);
     }
